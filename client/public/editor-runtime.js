@@ -121,6 +121,7 @@
   var ICON_IMAGE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>';
   var ICON_PIN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>';
   var ICON_PALETTE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>';
+  var ICON_RESIZE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" x2="14" y1="3" y2="10"/><line x1="3" x2="10" y1="21" y2="14"/></svg>';
 
   var badge = document.createElement('div');
   badge.className = 'wda-badge';
@@ -657,6 +658,7 @@
     else if (act === 'image') send('pick-image', { id: elemId(state.selected) });
     else if (act === 'map') send('pick-map', { id: elemId(state.selected) });
     else if (act === 'color') openColorPicker(state.selected);
+    else if (act === 'resize') send('pick-scale', { id: elemId(state.selected) });
   });
 
   // ===== منتقي لون الخط (من زرار اللون على الشريط العائم) =====
@@ -733,7 +735,13 @@
       ? '<button type="button" data-act="color" title="غيّر لون الخط">' + ICON_PALETTE + '</button>'
       : '';
 
-    tools.innerHTML = first + colorBtn
+    // زرار تغيير حجم الصورة — بيبان على الصور والفيديو، متاح في أي باقة.
+    // بيفتح تحكّم الحجم في الشريط الجانبي (وعلى الصورة نفسها مقابض الأركان).
+    var resizeBtn = (kind === 'image' || kind === 'video')
+      ? '<button type="button" data-act="resize" title="غيّر حجم الصورة">' + ICON_RESIZE + '</button>'
+      : '';
+
+    tools.innerHTML = first + resizeBtn + colorBtn
       + '<button type="button" data-act="delete" class="danger" title="احذف">' + ICON_TRASH + '</button>';
 
     var r = el.getBoundingClientRect();
@@ -1307,6 +1315,20 @@
     if (msg.type === 'set-text' && p.id) {
       var host = document.querySelector('[data-elem-id="' + p.id + '"]');
       if (host) setTextOn(host, p.text);
+    }
+
+    // حقل أساسي اتعدّل (اسم عروسة، قاعة...) وظاهر في أكتر من مكان —
+    // بنحدّث باقي الأماكن اللي فيها نفس النص القديم **في مكانها** بدل
+    // إعادة تحميل الصفحة كلها (العميل مكانش عايز ريلو مع كل تعديل).
+    if (msg.type === 'propagate-text' && p.oldText) {
+      var oldT = String(p.oldText).trim();
+      var newT = String(p.newText == null ? '' : p.newText);
+      if (oldT && oldT !== newT) {
+        movableElements().forEach(function (el) {
+          if (elementKind(el) !== 'text') return;
+          if ((textTarget(el).innerText || '').trim() === oldT) setTextOn(el, newT);
+        });
+      }
     }
 
     if (msg.type === 'init') {

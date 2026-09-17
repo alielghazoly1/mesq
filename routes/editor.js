@@ -490,10 +490,14 @@ router.patch('/api/editor/:shortId', requireAuth, async (req, res) => {
     // دمجنا كان "رجّع كل الأماكن زي الأصل" هيبان إنه اشتغل على الشاشة
     // والإزاحات القديمة تفضل في الداتابيز وترجع مع أول إعادة تحميل.
     if (body.offsets !== undefined) {
-      if (!allowed.includes('drag')) return res.status(403).json({ error: 'باقتك مافيهاش تحريك النصوص.' });
+      // النص اللي العميل ضافه بنفسه بيتحرّك في **أي** باقة (هو مش جزء من
+      // التصميم عشان نقول مكانه مظبوط) — تحريك عناصر التصميم هو اللي ميزة
+      // باقة. فبنقبل إزاحات النص المضاف دايمًا، وإزاحات التصميم بالباقة بس.
+      const canDrag = allowed.includes('drag');
       next.offsets = {};
       Object.keys(body.offsets || {}).forEach((id) => {
         if (!isSafeElemId(id)) return;
+        if (!canDrag && id.indexOf('add_') !== 0) return;   // تصميم من غير سحب = يتتجاهل
         const o = body.offsets[id] || {};
         next.offsets[id] = { dx: Number(o.dx) || 0, dy: Number(o.dy) || 0 };
       });

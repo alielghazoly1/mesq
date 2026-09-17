@@ -401,10 +401,32 @@ export default function EditorPage() {
         setError('');
       }
 
+      // ضغط على أيقونة تغيير الحجم على الصورة — نفتح تحكّم الحجم في الشريط
+      if (msg.type === 'pick-scale') {
+        setTab('inline');
+        if (compact) setSheetOpen(true);
+        setError('');
+      }
+
       // العميل عدّل نص بالضغط عليه جوه الدعوة
       if (msg.type === 'text-change') {
         rememberRef.current();
-        saveTextRef.current(p);
+        // النص اللي العميل ضافه بنفسه: نعدّله جوه draft.added والحفظ
+        // التلقائي بيحفظه — مسار واحد. قبل كده كان بيعدي على /text
+        // ويحصل تسابق مع الحفظ التلقائي فيرجع للنص القديم بعد النشر
+        // ("غيّرت الكلام وكأني ماغيرتش").
+        if (p.id && p.id.indexOf('add_') === 0) {
+          setDraft((d) => {
+            if (!d) return d;
+            const list = (d.added || []).map((it) => (
+              `add_${it.id}` === p.id ? { ...it, text: p.newText } : it
+            ));
+            return { ...d, added: list };
+          });
+          setDirty(true);
+        } else {
+          saveTextRef.current(p);
+        }
       }
 
       // العميل غيّر لون خط من زرار اللون على الشريط العائم جوه الدعوة.
@@ -447,6 +469,7 @@ export default function EditorPage() {
   const sizeAnchorRef = useRef(null);
   const colorAnchorRef = useRef(null);
   const rotateAnchorRef = useRef(null);
+  const scaleAnchorRef = useRef(null);
   const trimAnchorRef = useRef(null);
   const undoRef = useRef(() => {});
   const redoRef = useRef(() => {});
@@ -470,8 +493,12 @@ export default function EditorPage() {
       setJustSaved(true);
       setTimeout(() => setJustSaved(false), 2200);
       // لو اللي اتعدّل حقل أساسي (اسم عروسة، قاعة...) فهو ظاهر في أكتر
-      // من مكان في الدعوة — لازم نعيد التحميل عشان كله يتحدّث مع بعض.
-      if (res.propagatedField) reloadFrame();
+      // من مكان في الدعوة. قبل كده كنا بنعيد تحميل الصفحة كلها عشان
+      // تتحدّث — والعميل اشتكى إن الصفحة بتعمل ريلو مع كل تعديل. دلوقتي
+      // بنحدّث باقي الأماكن **في مكانها** من غير أي إعادة تحميل.
+      if (res.propagatedField) {
+        post('propagate-text', { oldText, newText });
+      }
     } catch (err) {
       setError(err?.data?.error || t('editor.errorSave'));
       // رجّع النص الأصلي في الدعوة عشان مايفضلش شايف تعديل ماتحفظش
@@ -530,7 +557,9 @@ export default function EditorPage() {
           body.audioStart = draft.audioStart || 0;
           body.audioEnd = draft.audioEnd || 0;
         }
-        if (has('drag')) body.offsets = draft.offsets;
+        // بنبعت الإزاحات دايمًا: السيرفر بيقبل إزاحة النص المضاف في أي
+        // باقة، وإزاحة التصميم بالباقة بس — فمفيش داعي نحجبها من هنا
+        body.offsets = draft.offsets;
         if (has('images')) body.images = draft.images;
         if (has('colors')) body.colors = draft.colors;
         // الإخفاء والمقاس والميل مش مميزات باقة — دول تنسيق العميل في
@@ -674,7 +703,7 @@ export default function EditorPage() {
         body.audioStart = snap.customizations.audioStart || 0;
         body.audioEnd = snap.customizations.audioEnd || 0;
       }
-      if (has('drag')) body.offsets = snap.customizations.offsets;
+      body.offsets = snap.customizations.offsets;
       if (has('images')) body.images = snap.customizations.images;
       await saveCustomizations(body).unwrap();
 
@@ -803,6 +832,26 @@ export default function EditorPage() {
       return { ...d, rotations };
     });
     setSelected((s) => (s ? { ...s, rotation: deg === null ? 0 : deg } : s));
+    setDirty(true);
+  }
+
+  /** تكبير/تصغير الصورة من السلايدر (متاح في أي باقة) */
+  function setScale(factor) {
+    if (!selected) return;
+    const f = Math.max(0.2, Math.min(3, Number(factor) || 1));
+    if (scaleAnchorRef.current !== selected.id) {
+      scaleAnchorRef.current = selected.id;
+      remember();
+    }
+    post('set-scale', { id: selected.id, scale: f });
+    setDraft((d) => {
+      if (!d) return d;
+      const scales = { ...(d.scales || {}) };
+      if (f === 1) delete scales[selected.id];
+      else scales[selected.id] = f;
+      return { ...d, scales };
+    });
+    setSelected((s) => (s ? { ...s, scale: f } : s));
     setDirty(true);
   }
 
@@ -1641,26 +1690,49 @@ export default function EditorPage() {
                               </p>
                             )}
 
-                            {/* تكبير/تصغير الصورة — بالسحب من الأركان،
+                            {/* تكبير/تصغير الصورة — سلايدر + سحب الأركان،
                                 متاح في أي باقة */}
                             {(selected.kind === 'image' || selected.kind === 'video') && (
                               <div className="mb-4 rounded-xl border border-line bg-card p-3">
-                                <div className="mb-1.5 flex items-center justify-between">
+                                <div className="mb-2 flex items-center justify-between">
                                   <span className="inline-flex items-center gap-1.5 text-[12px] font-bold text-ink">
                                     <Maximize2 size={13} /> {t('editor.resizeTitle')}
                                   </span>
-                                  {selected.scale && selected.scale !== 1 && (
-                                    <span className="font-mono text-[12px] text-ink-dim">
-                                      {Math.round(selected.scale * 100)}%
-                                    </span>
-                                  )}
+                                  <span className="font-mono text-[12px] text-ink-dim">
+                                    {Math.round((selected.scale || 1) * 100)}%
+                                  </span>
                                 </div>
-                                <p className="text-[11.5px] text-ink-dim">{t('editor.resizeHint')}</p>
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => setScale(Math.max(0.2, Math.round(((selected.scale || 1) - 0.1) * 100) / 100))}
+                                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-line text-ink hover:border-rose hover:text-rose"
+                                  >
+                                    <Minus size={13} />
+                                  </button>
+                                  <input
+                                    type="range"
+                                    min="20"
+                                    max="300"
+                                    step="5"
+                                    value={Math.round((selected.scale || 1) * 100)}
+                                    onChange={(e) => setScale(Number(e.target.value) / 100)}
+                                    className="h-1.5 flex-1 cursor-pointer appearance-none rounded-full bg-line accent-rose"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => setScale(Math.min(3, Math.round(((selected.scale || 1) + 0.1) * 100) / 100))}
+                                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-line text-ink hover:border-rose hover:text-rose"
+                                  >
+                                    <Plus size={13} />
+                                  </button>
+                                </div>
+                                <p className="mt-2 text-[11px] text-ink-dim">{t('editor.resizeHint')}</p>
                                 {draft.scales?.[selected.id] && draft.scales[selected.id] !== 1 && (
                                   <button
                                     type="button"
                                     onClick={resetScale}
-                                    className="mt-2.5 inline-flex items-center gap-1.5 text-[11.5px] font-bold text-ink-dim hover:text-rose"
+                                    className="mt-2 inline-flex items-center gap-1.5 text-[11.5px] font-bold text-ink-dim hover:text-rose"
                                   >
                                     <RotateCcw size={11} /> {t('editor.resizeReset')}
                                   </button>
