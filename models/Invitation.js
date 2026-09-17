@@ -122,7 +122,14 @@ const invitationSchema = new mongoose.Schema({
 
   viewCount: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
+  // updatedAt بيتحدّث تلقائيًا مع كل حفظ (timestamps تحت) — بنستخدمه في
+  // لوحة التحكم عشان نعرف آخر مرة العميل عدّل دعوته كانت إمتى.
+}, {
+  // بنسيب createdAt اليدوي زي ما هو، ونخلي Mongoose يدير updatedAt بس
+  timestamps: { createdAt: false, updatedAt: true },
 });
+
+invitationSchema.index({ updatedAt: -1 });
 
 // فهارس عادية على الحقول اللي البحث في لوحة التحكم بيعتمد عليها، عشان
 // الاستعلام يفضل سريع حتى مع آلاف الدعوات. البحث نفسه بيتم بـ regex جزئي

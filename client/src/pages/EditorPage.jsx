@@ -25,6 +25,7 @@ import {
   useSaveTextMutation,
   useSaveDetailsMutation,
   usePublishInvitationMutation,
+  useResetInvitationMutation,
   useDeleteDraftMutation,
   useUploadImageMutation,
   useUploadAudioMutation,
@@ -130,6 +131,7 @@ export default function EditorPage() {
   const [saveText] = useSaveTextMutation();
   const [saveDetails] = useSaveDetailsMutation();
   const [publishInvitation, { isLoading: publishing }] = usePublishInvitationMutation();
+  const [resetInvitation, { isLoading: resetting }] = useResetInvitationMutation();
   const [deleteDraft, { isLoading: deleting }] = useDeleteDraftMutation();
   const [uploadImage, { isLoading: uploadingImage }] = useUploadImageMutation();
   const [uploadAudio, { isLoading: uploadingAudio }] = useUploadAudioMutation();
@@ -1038,6 +1040,25 @@ export default function EditorPage() {
     }
   }
 
+  // رجّع الدعوة لأصلها — يمسح كل التخصيصات ويبدأ من جديد
+  async function resetAll() {
+    if (!window.confirm(t('editor.resetConfirm'))) return;
+    setError('');
+    try {
+      await resetInvitation(shortId).unwrap();
+      // بننضّف النسخة المحلية والتاريخ ونعيد تحميل الدعوة نضيفة
+      pastRef.current = [];
+      futureRef.current = [];
+      setHistTick((n) => n + 1);
+      await refetch();
+      reloadFrame();
+      setJustSaved(true);
+      setTimeout(() => setJustSaved(false), 2000);
+    } catch (err) {
+      setError(err?.data?.error || t('editor.errorSave'));
+    }
+  }
+
   async function discardDraft() {
     if (!window.confirm(t('editor.discardConfirm'))) return;
     try {
@@ -1820,6 +1841,18 @@ export default function EditorPage() {
                             ))}
                           </div>
                         )}
+                      </div>
+
+                      {/* رجّع الدعوة لأصلها — يمسح كل التخصيصات ويبدأ من جديد */}
+                      <div className="mt-6 border-t border-line pt-4">
+                        <button
+                          type="button"
+                          onClick={resetAll}
+                          disabled={resetting}
+                          className="inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-error/40 py-2.5 text-[12.5px] font-bold text-error transition hover:bg-error/[0.06] disabled:opacity-50"
+                        >
+                          <RotateCcw size={13} /> {t('editor.resetAll')}
+                        </button>
                       </div>
                     </div>
                   )}

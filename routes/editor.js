@@ -351,6 +351,23 @@ router.patch('/api/editor/:shortId/text', requireAuth, async (req, res) => {
 });
 
 // POST /api/editor/:shortId/publish — دلوقتي بس بيتخصم رصيد واحد
+// POST /api/editor/:shortId/reset — رجّع الدعوة لأصلها (امسح كل التخصيصات).
+// العميل بيقدر يبدأ التعديل من جديد من غير ما يفضل يلغي حاجة حاجة.
+router.post('/api/editor/:shortId/reset', requireAuth, async (req, res) => {
+  try {
+    const invitation = await loadOwnedInvitation(req, res);
+    if (!invitation) return undefined;
+    // {} = كل الحقول ترجع لقيمها الافتراضية في الـ schema
+    invitation.customizations = {};
+    invitation.markModified('customizations');
+    await invitation.save();
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error('Error resetting invitation:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
 router.post('/api/editor/:shortId/publish', requireAuth, async (req, res) => {
   try {
     const invitation = await loadOwnedInvitation(req, res);

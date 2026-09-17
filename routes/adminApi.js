@@ -320,8 +320,8 @@ router.get('/admin/api/users/:id', requireAdminSession, async (req, res) => {
 
     const [invitations, orders, supportCount, sessions] = await Promise.all([
       Invitation.find({ ownerId: user._id })
-        .sort({ createdAt: -1 }).limit(50)
-        .select('shortId templateId brideNameAr groomNameAr weddingDateTime viewCount isPremium status createdAt')
+        .sort({ updatedAt: -1, createdAt: -1 }).limit(50)
+        .select('shortId templateId brideNameAr groomNameAr weddingDateTime viewCount isPremium status createdAt updatedAt')
         .lean(),
       Order.find({ userId: user._id }).sort({ createdAt: -1 }).limit(50).lean(),
       SupportMessage.countDocuments({ userId: user._id }),
@@ -385,6 +385,8 @@ router.get('/admin/api/users/:id', requireAdminSession, async (req, res) => {
         isPremium: !!i.isPremium,
         isDraft: i.status === 'draft',
         createdAt: i.createdAt,
+        // آخر مرة العميل عدّل فيها الدعوة (للوحة التحكم)
+        updatedAt: i.updatedAt || i.createdAt,
       })),
       orders: orders.map((o) => {
         const p = getPackage(o.packageId);

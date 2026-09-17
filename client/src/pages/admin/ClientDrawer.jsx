@@ -239,7 +239,7 @@ export default function ClientDrawer({ userId, onClose }) {
             {/* دعواته */}
             <Panel title={`دعواته (${data.invitations.length})`}>
               {data.invitations.length === 0 ? <Empty>مفيش دعوات.</Empty> : (
-                <Table head={['الدعوة', 'الحالة', 'مشاهدات', 'اتعملت']}>
+                <Table head={['الدعوة', 'الحالة', 'مشاهدات', 'اتعملت', 'آخر تعديل']}>
                   {data.invitations.map((inv) => (
                     <Row key={inv.shortId}>
                       <Cell>
@@ -262,6 +262,7 @@ export default function ClientDrawer({ userId, onClose }) {
                       </Cell>
                       <Cell>{fmtNum(inv.views)}</Cell>
                       <Cell className="whitespace-nowrap text-ivory/50">{fmtDate(inv.createdAt)}</Cell>
+                      <Cell className="whitespace-nowrap text-ivory/50">{fmtDate(inv.updatedAt)}</Cell>
                     </Row>
                   ))}
                 </Table>

@@ -127,6 +127,10 @@ export const api = createApi({
       query: (shortId) => ({ url: `/editor/${shortId}/publish`, method: 'POST' }),
       invalidatesTags: ['Dashboard', 'Me', 'Packages', 'Editor'],
     }),
+    resetInvitation: builder.mutation({
+      query: (shortId) => ({ url: `/editor/${shortId}/reset`, method: 'POST' }),
+      invalidatesTags: ['Dashboard'],
+    }),
     deleteDraft: builder.mutation({
       query: (shortId) => ({ url: `/editor/${shortId}`, method: 'DELETE' }),
       invalidatesTags: ['Dashboard'],
@@ -168,6 +172,7 @@ export const {
   useSaveDetailsMutation,
   useSaveTextMutation,
   usePublishInvitationMutation,
+  useResetInvitationMutation,
   useDeleteDraftMutation,
   useGetLibraryTracksQuery,
   useUploadImageMutation,
