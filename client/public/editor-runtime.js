@@ -369,13 +369,15 @@
   function applyOffset(el, dx, dy) {
     var s = shared();
     if (s) { s.setOffset(el, dx, dy); return; }
-    el.style.transform = 'translate(' + dx + 'px, ' + dy + 'px)';
+    // خاصية translate المستقلة مش transform — عشان متتخانقش مع حركة
+    // ظهور Tilda (اللي بتستخدم transform) فالمكان يثبت بعد المعاينة
+    el.style.translate = dx + 'px ' + dy + 'px';
   }
 
   function clearOffset(el) {
     var s = shared();
     if (s) { s.clearOffset(el); return; }
-    el.style.transform = '';
+    el.style.removeProperty('translate');
   }
 
   /** زاوية الميل الحالية بالدرجات — من التخصيص أو من التصميم نفسه */
@@ -1488,31 +1490,45 @@
       // المكان بالمليمتر. فالعميل يضيف كلمة، يضيف التانية، يلاقيهم
       // مركبين فوق بعض وقارياهم مع بعض كأنهم كلمة واحدة متلخبطة. ومن
       // غير ميزة السحب مكانش قادر يفصلهم أصلاً.
-      var baseY = Math.round(window.scrollY + window.innerHeight / 2);
-      var taken = document.querySelectorAll('[data-wda-added]');
-      var y = baseY;
-      var guard = 0;
-      // بندوّر على أول مكان فاضي تحت — 34 بكسل بين كل واحد والتاني،
-      // مسافة كفاية إن كل نص يبان لوحده ويتمسك لوحده
-      while (guard++ < 40) {
-        var clash = false;
-        for (var ti = 0; ti < taken.length; ti++) {
-          var ty = parseInt(taken[ti].style.top, 10);
-          if (!isNaN(ty) && Math.abs(ty - y) < 30) { clash = true; break; }
-        }
-        if (!clash) break;
-        y += 34;
+      // ===== بنربط النص الجديد بالقسم اللي قدام العميل =====
+      // النص المضاف كان بيتعلّق على بكسل مطلق في الصفحة، فأول ما تختلف
+      // الأقسام بين المحرر والمعاينة (الغلاف، الحركات، الصور الكسولة)
+      // كان بيطير لمكان تاني. دلوقتي بنلاقي القسم (.t-rec) اللي في نص
+      // الشاشة ونربط النص بيه بإزاحة **جواه** — فيفضل مكانه بالظبط في
+      // التعديل والمعاينة والنشر.
+      var cx = window.innerWidth / 2;
+      var cy = window.innerHeight / 2;
+      var stack = document.elementsFromPoint(cx, cy) || [];
+      var rec = null;
+      for (var si = 0; si < stack.length; si++) {
+        var cand = stack[si].closest ? stack[si].closest('.t-rec, [data-record-type]') : null;
+        // نتجنب سجل الغلاف — النص لازم يروح لجسم الدعوة مش الغلاف
+        if (cand && cand.id && !cand.querySelector('.popup-enter')) { rec = cand; break; }
       }
+
+      // مسافة بسيطة بين كل نص جديد والتاني عشان مايركبوش فوق بعض
+      var taken = document.querySelectorAll('[data-wda-added]');
+      var stagger = Math.min(taken.length, 8) * 34;
 
       var item = {
         id: 'n' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
         text: p.text || 'اكتب هنا',
         xPct: 50,
-        y: y,
         size: 22,
         color: '#333333',
         align: 'center',
       };
+
+      if (rec) {
+        var rr = rec.getBoundingClientRect();
+        item.anchor = rec.id;
+        // الإزاحة الرأسية جوه القسم = مكان نص الشاشة بالنسبة لأول القسم
+        item.ay = Math.round((cy - rr.top) + stagger);
+      } else {
+        // مفيش قسم (نادر) — نرجع للبكسل المطلق زي الأول
+        item.y = Math.round(window.scrollY + cy + stagger);
+      }
+
       send('added-new', { item: item, docWidth: docW });
     }
 
