@@ -85,7 +85,9 @@ function renderNewPathHtml(data, options) {
 
   const timelineStages = (data.timeline || []).map((stage) => ({
     label: strings.timelineStages[stage.key] || stage.key,
-    time: formatHour(stage.hour, data.language),
+    // صيغة مختصرة: خانة الوقت في الجدول عرضها ثابت صغير، والوقت العربي
+    // الطويل ("مساءً") كان بيطفح على خط الجدول والنقط
+    time: formatHour(stage.hour, data.language, true),
   }));
 
   const config = {

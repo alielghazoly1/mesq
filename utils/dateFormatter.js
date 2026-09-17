@@ -39,12 +39,21 @@ const ENGLISH_DAYS = [
  * @param {'ar'|'en'|'fr'} language
  * @returns {string}
  */
-function formatHour(hour24, language) {
+/**
+ * @param {number} hour24
+ * @param {string} language
+ * @param {boolean} [short] صيغة مختصرة للأماكن الضيقة (خانة الوقت في
+ *   الجدول الزمني عرضها ثابت صغير) — بالعربي "م/ص" بدل "مساءً/صباحًا"
+ *   عشان الوقت ما يطفحش على خط الجدول والنقط.
+ */
+function formatHour(hour24, language, short) {
   const period12 = hour24 < 12 ? 'AM' : 'PM';
   const hour12 = hour24 % 12 === 0 ? 12 : hour24 % 12;
 
   if (language === 'ar') {
-    const period = hour24 < 12 ? 'صباحًا' : 'مساءً';
+    const period = short
+      ? (hour24 < 12 ? 'ص' : 'م')
+      : (hour24 < 12 ? 'صباحًا' : 'مساءً');
     return `${hour12}:00 ${period}`;
   }
   // en / fr: نفس الصيغة الرقمية الشائعة
