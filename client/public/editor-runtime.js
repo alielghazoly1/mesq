@@ -1501,10 +1501,18 @@
       var stack = document.elementsFromPoint(cx, cy) || [];
       var rec = null;
       for (var si = 0; si < stack.length; si++) {
-        var cand = stack[si].closest ? stack[si].closest('.t-rec, [data-record-type]') : null;
+        // .t-rec لقوالب Tilda، <section> للقوالب المكتوبة بإيدينا
+        var cand = stack[si].closest
+          ? stack[si].closest('.t-rec, [data-record-type], section')
+          : null;
         // نتجنب سجل الغلاف — النص لازم يروح لجسم الدعوة مش الغلاف
-        if (cand && cand.id && !cand.querySelector('.popup-enter')) { rec = cand; break; }
+        if (cand && !cand.querySelector('.popup-enter')
+          && cand.id !== 'coverScreen') { rec = cand; break; }
       }
+
+      // مفتاح ثابت للقسم (من طبقة التخصيص) — بيشتغل حتى لو القسم مالوش id
+      var anchorKey = (rec && typeof window.__wdaAnchorKey === 'function')
+        ? window.__wdaAnchorKey(rec) : '';
 
       // مسافة بسيطة بين كل نص جديد والتاني عشان مايركبوش فوق بعض
       var taken = document.querySelectorAll('[data-wda-added]');
@@ -1519,9 +1527,9 @@
         align: 'center',
       };
 
-      if (rec) {
+      if (rec && anchorKey) {
         var rr = rec.getBoundingClientRect();
-        item.anchor = rec.id;
+        item.anchor = anchorKey;
         // الإزاحة الرأسية جوه القسم = مكان نص الشاشة بالنسبة لأول القسم
         item.ay = Math.round((cy - rr.top) + stagger);
       } else {
