@@ -163,11 +163,30 @@
    * ألوان فرحه.
    */
   function isColorSwatch(el) {
-    if (el.children.length) return false;
+    // فيه كلام؟ يبقى نص مش مربع لون
     if ((el.textContent || '').trim()) return false;
-    if (el.offsetWidth < 8 || el.offsetHeight < 8) return false;
-    if (el.offsetWidth > 260 || el.offsetHeight > 260) return false;
-    var bg = getComputedStyle(el).backgroundColor;
+    // فيه صورة أو رسمة أو فيديو أو خريطة؟ مش مربع لون
+    if (el.querySelector('img, svg, video, iframe')) return false;
+    if (el.querySelector('[data-elem-id]')) return false;
+
+    var w = el.offsetWidth;
+    var h = el.offsetHeight;
+    if (w < 8 || h < 8) return false;
+    // الحد الأعلى بيمنع إن الخلفيات الكبيرة والأغطية الملوّنة تتحسب
+    // مربعات ألوان
+    if (w > 260 || h > 260) return false;
+
+    // ===== اللون على العنصر الجوّاني مش على الأب =====
+    // ده كان بيخلي مربعات "Color palette" في تصاميم Tilda مش قابلة
+    // للضغط خالص: المربع عندهم عنصر أب جوّاه .tn-atom، واللون متحط
+    // على الجوّاني. الدالة دي كانت بتشوف الأب بس — ولقت خلفيته شفافة
+    // فقالت "مش مربع لون"، وكمان كانت بترفض أي عنصر ليه ابن أصلاً.
+    // فالعميل يضغط على اللون ومفيش أي رد فعل.
+    var atom = el.querySelector('.tn-atom') || el;
+    var cs = getComputedStyle(atom);
+    // خلفية صورة = صورة تتبدّل، مش لون يتغيّر
+    if (cs.backgroundImage && cs.backgroundImage !== 'none') return false;
+    var bg = cs.backgroundColor;
     // خلفية شفافة = مش مربع لون
     return !!bg && bg !== 'transparent' && !/rgba\(0,\s*0,\s*0,\s*0\)/.test(bg);
   }
@@ -215,7 +234,15 @@
   /** رابط الصورة — من وسم <img> أو من خلفية CSS */
   function imageSrcOf(node) {
     if (!node) return '';
-    if (node.tagName === 'IMG') return node.currentSrc || node.src || '';
+    if (node.tagName === 'IMG') {
+      // data-original الأول: Tilda بتحمّل صورها كسول، فبتحط في src
+      // صورة **فاضية** فعلاً (رابط فيه /-/empty/) لحد ما الصورة الحقيقية
+      // تيجي، وبتسيب الرابط الحقيقي في data-original. لو قرينا src
+      // هنطلع للعميل مصغّرات بيضا فاضية في شبكة الصور — وده اللي كان
+      // بيحصل. وبعد ما العميل يغيّر صورة، بنكتب الاتنين بنفس الرابط،
+      // فالترتيب ده بيفضل صح.
+      return node.getAttribute('data-original') || node.currentSrc || node.src || '';
+    }
     var bg = '';
     try { bg = getComputedStyle(node).backgroundImage || ''; } catch (e) { return ''; }
     var m = bg.match(/url\(["']?(.*?)["']?\)/);
