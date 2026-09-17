@@ -324,6 +324,7 @@ router.patch('/api/editor/:shortId/text', requireAuth, async (req, res) => {
         sizes: { ...(c.sizes || {}) },
         colors: { ...(c.colors || {}) },
         rotations: { ...(c.rotations || {}) },
+        scales: { ...(c.scales || {}) },
         calDay: c.calDay || 0,
         added: [...(c.added || [])],
         texts: { ...(c.texts || {}), [id]: newText },
@@ -436,6 +437,7 @@ router.patch('/api/editor/:shortId', requireAuth, async (req, res) => {
       sizes: { ...(current.sizes || {}) },
       colors: { ...(current.colors || {}) },
       rotations: { ...(current.rotations || {}) },
+      scales: { ...(current.scales || {}) },
       calDay: current.calDay || 0,
       added: [...(current.added || [])],
       hidden: [...(current.hidden || [])],
@@ -542,6 +544,21 @@ router.patch('/api/editor/:shortId', requireAuth, async (req, res) => {
         const deg = Number(body.rotations[id]);
         if (!Number.isFinite(deg)) return;
         next.rotations[id] = Math.max(-180, Math.min(180, Math.round(deg * 10) / 10));
+      });
+    }
+
+    // معامل التكبير/التصغير — زي الميل: تنسيق العميل في دعوته، مش ميزة
+    // باقة، ومتاح في أي باقة. استبدال كامل عشان "رجّع للأصل" يشتغل صح.
+    if (body.scales !== undefined) {
+      next.scales = {};
+      Object.keys(body.scales || {}).forEach((id) => {
+        if (!isSafeElemId(id)) return;
+        const f = Number(body.scales[id]);
+        if (!Number.isFinite(f)) return;
+        // نسيب 1 بره (المقاس الأصلي = مفيش تخصيص) عشان الخريطة ماتكبرش
+        // من غير داعي
+        const clamped = Math.max(0.2, Math.min(5, Math.round(f * 1000) / 1000));
+        if (clamped !== 1) next.scales[id] = clamped;
       });
     }
 

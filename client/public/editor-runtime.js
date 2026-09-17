@@ -21,6 +21,9 @@
     // { elemId: degrees } — زاوية ميل كل عنصر. في خاصية rotate
     // المستقلة مش جوه transform، عشان الميل والسحب يعيشوا مع بعض.
     rotations: {},
+    // { elemId: factor } — معامل تكبير/تصغير كل عنصر (الصور بالذات).
+    // في خاصية scale المستقلة، عشان تتعايش مع السحب والميل.
+    scales: {},
     // التحرير (اختيار وكتابة) منفصل عن السحب: الباقة الأساسية عندها
     // التحرير من غير السحب
     editingOn: false, dragEnabled: false, imagesEnabled: false, colorsEnabled: false,
@@ -91,6 +94,21 @@
     // توصل للمحرر، فكان مستحيل تختارها. في وضع التحرير بنقفل التفاعل
     // معاها (مش محتاجه وإنت بتعدّل أصلاً) فالضغطة توصل لنا.
     '.wda-editable iframe, .wda-editable video{ pointer-events:none !important; }',
+    // ===== مقابض تكبير/تصغير الصورة =====
+    // أربع مربّعات في أركان الصورة المختارة. العميل بيسحب أي ركن
+    // عشان يكبّر أو يصغّر الصورة براحته.
+    '.wda-handle{',
+    '  position:absolute; z-index:2147483646; width:18px; height:18px;',
+    '  margin:-9px 0 0 -9px; border-radius:50%;',
+    '  background:#08130f; border:2px solid #e6c684;',
+    '  box-shadow:0 2px 8px -1px rgba(0,0,0,.5); opacity:0; pointer-events:none;',
+    '  transition:opacity .12s ease; touch-action:none;',
+    '}',
+    '.wda-handle.on{ opacity:1; pointer-events:auto; }',
+    '.wda-handle.nw{ cursor:nwse-resize; }',
+    '.wda-handle.ne{ cursor:nesw-resize; }',
+    '.wda-handle.sw{ cursor:nesw-resize; }',
+    '.wda-handle.se{ cursor:nwse-resize; }',
   ].join('\n');
   document.head.appendChild(style);
 
@@ -381,6 +399,27 @@
     el.style.removeProperty('rotate');
   }
 
+  /** معامل التكبير الحالي — من التخصيص أو من التصميم نفسه (الافتراضي 1) */
+  function currentScale(el) {
+    var id = elemId(el);
+    if (id && typeof state.scales[id] === 'number') return state.scales[id];
+    var css = getComputedStyle(el).scale;   // "none" أو "1.4" أو "1.4 1.4"
+    var m = String(css || '').match(/-?[\d.]+/);
+    return m ? Math.round(parseFloat(m[0]) * 1000) / 1000 : 1;
+  }
+
+  function applyScale(el, factor) {
+    var s = shared();
+    if (s && s.setScale) { s.setScale(el, factor); return; }
+    el.style.setProperty('scale', String(factor), 'important');
+  }
+
+  function clearScale(el) {
+    var s = shared();
+    if (s && s.clearScale) { s.clearScale(el); return; }
+    el.style.removeProperty('scale');
+  }
+
   // ===== السحب =====
   /**
    * بيعلّم النصوص الظاهرة دلوقتي. بينادى أكتر من مرة عن قصد: الدعوة بتفتح
@@ -651,6 +690,11 @@
     if (!el) return;
     var color = colorInput.value;
     setColorOn(el, color);               // معاينة لحظية بنفس دالة النشر
+    // النص المضاف: نزامن لونه جوّه الـ item فورًا عشان إعادة البناء
+    // ماترجّعوش للون القديم
+    if (el.getAttribute('data-wda-added') && window.__wdaSetAdded) {
+      window.__wdaSetAdded(elemId(el), { color: color });
+    }
     send('color-change', {
       id: elemId(el), color: color, added: !!el.getAttribute('data-wda-added'),
     });
@@ -698,14 +742,112 @@
 
   function hideTools() { tools.classList.remove('on'); }
 
-  // الشريط بيفضل ملزوق بالعنصر مع أي تمرير أو تغيير حجم
+  // ===== مقابض تكبير/تصغير الصورة =====
+  // أربع مقابض في أركان الصورة المختارة. العميل بيسحب أي ركن فالصورة
+  // بتكبر أو تصغر من مركزها (خاصية scale المستقلة). متاحة في أي باقة.
+  var HANDLE_CORNERS = ['nw', 'ne', 'sw', 'se'];
+  var handles = HANDLE_CORNERS.map(function (corner) {
+    var h = document.createElement('div');
+    h.className = 'wda-handle ' + corner;
+    h.setAttribute('data-corner', corner);
+    document.body.appendChild(h);
+    return h;
+  });
+  // الحالة وقت السحب: العنصر، المسافة من مركزه لنقطة الإمساك، والمعامل
+  // اللي كان عليه قبل ما نبدأ
+  var resizing = null;
+
+  /** بيبان المقابض على الصورة المختارة ويركنها في أركانها */
+  function showHandles(el) {
+    if (!el) { hideHandles(); return; }
+    var r = el.getBoundingClientRect();
+    var x = r.left + window.scrollX;
+    var y = r.top + window.scrollY;
+    var pos = {
+      nw: [x, y], ne: [x + r.width, y],
+      sw: [x, y + r.height], se: [x + r.width, y + r.height],
+    };
+    handles.forEach(function (h) {
+      var p = pos[h.getAttribute('data-corner')];
+      h.style.left = p[0] + 'px';
+      h.style.top = p[1] + 'px';
+      h.classList.add('on');
+    });
+  }
+
+  function hideHandles() {
+    handles.forEach(function (h) { h.classList.remove('on'); });
+  }
+
+  /** العنصر ده مقاسه قابل للتكبير؟ (الصور والفيديو) */
+  function isResizable(el) {
+    if (!el) return false;
+    var kind = el.getAttribute('data-wda-kind');
+    return kind === 'image' || kind === 'video';
+  }
+
+  handles.forEach(function (h) {
+    h.addEventListener('pointerdown', function (e) {
+      var el = state.selected;
+      if (!el) return;
+      e.preventDefault();
+      e.stopPropagation();
+      if (state.writing) stopWriting(true);
+      var r = el.getBoundingClientRect();
+      var cx = r.left + r.width / 2;
+      var cy = r.top + r.height / 2;
+      var startDist = Math.hypot(e.clientX - cx, e.clientY - cy) || 1;
+      resizing = {
+        el: el,
+        startDist: startDist,
+        startScale: currentScale(el),
+        scaleBefore: JSON.parse(JSON.stringify(state.scales)),
+      };
+      try { h.setPointerCapture(e.pointerId); } catch (err) { /* */ }
+      setBadge('تكبير/تصغير الصورة');
+    });
+
+    h.addEventListener('pointermove', function (e) {
+      if (!resizing) return;
+      e.preventDefault();
+      var r = resizing.el.getBoundingClientRect();
+      // المركز بيتحرك مع scale، فبنحسبه من المكان الحالي — بس المسافة
+      // النسبية هي اللي بتحدد المعامل الجديد نسبةً لبداية السحبة
+      var cx = r.left + r.width / 2;
+      var cy = r.top + r.height / 2;
+      var dist = Math.hypot(e.clientX - cx, e.clientY - cy) || 1;
+      var factor = resizing.startScale * (dist / resizing.startDist);
+      factor = Math.max(0.2, Math.min(5, Math.round(factor * 100) / 100));
+      state.scales[elemId(resizing.el)] = factor;
+      applyScale(resizing.el, factor);
+      showHandles(resizing.el);
+      if (tools.classList.contains('on')) showTools(resizing.el, 'idle');
+      setBadge('تكبير: ' + Math.round(factor * 100) + '%');
+    });
+
+    function endResize(e) {
+      if (!resizing) return;
+      try { h.releasePointerCapture(e.pointerId); } catch (err) { /* */ }
+      var el = resizing.el;
+      var before = resizing.scaleBefore;
+      resizing = null;
+      setBadge('وضع التحرير');
+      send('scale', { scales: state.scales, before: before });
+    }
+    h.addEventListener('pointerup', endResize);
+    h.addEventListener('pointercancel', endResize);
+  });
+
+  // الشريط والمقابض بيفضلوا ملزوقين بالعنصر مع أي تمرير أو تغيير حجم
   window.addEventListener('scroll', function () {
     if (state.selected && tools.classList.contains('on')) {
       showTools(state.selected, state.writing ? 'writing' : 'idle');
     }
+    if (state.selected && isResizable(state.selected)) showHandles(state.selected);
   }, { passive: true });
   window.addEventListener('resize', function () {
     if (state.selected) showTools(state.selected, state.writing ? 'writing' : 'idle');
+    if (state.selected && isResizable(state.selected)) showHandles(state.selected);
   });
 
   // ===== الكتابة جوه العنصر نفسه =====
@@ -885,6 +1027,14 @@
       send('text-change', { id: elemId(w.host), oldText: w.before, newText: after });
     }
 
+    // النص اللي العميل ضافه بنفسه: نزامن نصه جوّه طبقة التخصيص فورًا.
+    // من غير ده، أول إعادة تطبيق بعد ما يخلّص (والمراقب بيتنده مع أي
+    // تغيير في الصفحة) كانت بتدهس كلامه وترجّع النص القديم — وده اللي
+    // كان مخلّي الكتابة في النص المضاف "مش بتحصل".
+    if (w.host.getAttribute('data-wda-added') && window.__wdaSetAdded) {
+      window.__wdaSetAdded(elemId(w.host), { text: (!save || !after) ? w.before : after });
+    }
+
     if (state.editingOn) w.host.classList.add('wda-editable');
     setBadge('وضع التحرير');
     showTools(w.host, 'idle');
@@ -910,6 +1060,8 @@
     if (el) {
       el.classList.add('wda-selected');
       showTools(el, 'idle');
+      // مقابض التكبير بتبان على الصور والفيديو بس
+      if (isResizable(el)) showHandles(el); else hideHandles();
       var target = textTarget(el);
       send('selected', {
         id: elemId(el),
@@ -924,11 +1076,14 @@
         bgColor: currentColorOf(el),
         // زاوية الميل الحالية — عشان السلايدر يبدأ من مكانه الصح
         rotation: currentRotation(el),
+        // معامل التكبير الحالي — عشان زرار "رجّع المقاس" يعرف إذا اتغيّر
+        scale: currentScale(el),
         // يوم في نتيجة الشهر؟ الشريط بيقول لصاحب الدعوة إنه اتعلّم
         calDay: Number(el.getAttribute('data-cal-day')) || 0,
       });
     } else {
       hideTools();
+      hideHandles();
       send('selected', { id: null });
     }
   }
@@ -1183,6 +1338,13 @@
         var el = document.querySelector('[data-elem-id="' + rid + '"]');
         if (el) applyRotation(el, state.rotations[rid]);
       });
+      // ومعاملات التكبير (زي الميل: inline عشان السحب يقدر يغيّرها
+      // لحظيًا من غير ما تغلبه قاعدة !important المحقونة)
+      state.scales = p.scales || {};
+      Object.keys(state.scales).forEach(function (sid) {
+        var el = document.querySelector('[data-elem-id="' + sid + '"]');
+        if (el) applyScale(el, state.scales[sid]);
+      });
       // النصوص المضافة بتتبني من سكريبت التخصيصات وقت التحميل —
       // هنا بنفتح التفاعل معاها عشان تتمسك وتتعدّل
       document.querySelectorAll('[data-wda-added]').forEach(function (el) {
@@ -1229,12 +1391,17 @@
       if (host) applyImageTo(host, p.url);
     }
 
-    // معاينة لحظية للون (مربعات الزي المقترح)
+    // معاينة لحظية للون (مربعات الزي المقترح، أو لون خط من الشريط الجانبي)
     if (msg.type === 'set-color' && p.id) {
       var cHost = document.querySelector('[data-elem-id="' + p.id + '"]');
       if (cHost) {
         if (p.color) setColorOn(cHost, p.color);
         else clearColorOn(cHost);
+        // النص المضاف: نزامن لونه جوّه الـ item عشان إعادة البناء
+        // ماترجّعوش (اللون لو من الشريط الجانبي بيعدي من هنا)
+        if (p.color && cHost.getAttribute('data-wda-added') && window.__wdaSetAdded) {
+          window.__wdaSetAdded(p.id, { color: p.color });
+        }
       }
     }
 
@@ -1429,6 +1596,19 @@
         if (el) applyRotation(el, state.rotations[rid]);
       });
 
+      // 7b) معاملات التكبير
+      Object.keys(state.scales).forEach(function (sid) {
+        if ((c.scales || {})[sid] === undefined) {
+          var stale = document.querySelector('[data-elem-id="' + sid + '"]');
+          if (stale) clearScale(stale);
+        }
+      });
+      state.scales = c.scales || {};
+      Object.keys(state.scales).forEach(function (sid) {
+        var el = document.querySelector('[data-elem-id="' + sid + '"]');
+        if (el) applyScale(el, state.scales[sid]);
+      });
+
       // 8) اليوم المعلّم في نتيجة الشهر
       if (c.calDay) {
         var wanted = document.querySelector('.cal-day[data-cal-day="' + c.calDay + '"]');
@@ -1459,6 +1639,11 @@
         if (p.size) setSizeOn(sHost, p.size);
         // فاضي = رجّعه لمقاس التصميم الأصلي
         else clearSizeOn(sHost);
+        // النص المضاف: نزامن مقاسه جوّه الـ item فورًا عشان إعادة البناء
+        // ماترجّعوش لمقاسه القديم
+        if (p.size && sHost.getAttribute('data-wda-added') && window.__wdaSetAdded) {
+          window.__wdaSetAdded(p.id, { size: p.size });
+        }
         if (state.selected === sHost) showTools(sHost, state.writing ? 'writing' : 'idle');
       }
     }
@@ -1475,6 +1660,24 @@
           applyRotation(rHost, Number(p.deg));
         }
         if (state.selected === rHost) showTools(rHost, state.writing ? 'writing' : 'idle');
+      }
+    }
+
+    // معامل التكبير (بيتبعت من زرار "رجّع المقاس" في الشريط الجانبي)
+    if (msg.type === 'set-scale' && p.id) {
+      var scHost = document.querySelector('[data-elem-id="' + p.id + '"]');
+      if (scHost) {
+        if (p.scale === null || p.scale === undefined || p.scale === '' || Number(p.scale) === 1) {
+          delete state.scales[p.id];
+          clearScale(scHost);   // رجّعه لمقاس الصورة الأصلي
+        } else {
+          state.scales[p.id] = Number(p.scale);
+          applyScale(scHost, Number(p.scale));
+        }
+        if (state.selected === scHost) {
+          showTools(scHost, state.writing ? 'writing' : 'idle');
+          if (isResizable(scHost)) showHandles(scHost);
+        }
       }
     }
 

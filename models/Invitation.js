@@ -70,6 +70,10 @@ const invitationSchema = new mongoose.Schema({
     // البولارويد في Royal Maroon مثلاً). بتتطبّق بخاصية rotate
     // المستقلة عشان متتخانقش مع إزاحة السحب (transform).
     rotations: { type: mongoose.Schema.Types.Mixed, default: {} },
+    // { "data-elem-id": 1.4 } — معامل تكبير/تصغير العنصر (الصور بالذات).
+    // بيتطبّق بخاصية scale المستقلة عشان يتعايش مع الإزاحة (transform)
+    // والميل (rotate) من غير ما يمسح أي واحد فيهم. 1 = المقاس الأصلي.
+    scales: { type: mongoose.Schema.Types.Mixed, default: {} },
     // اليوم المعلّم في نتيجة الشهر. 0 = يوم الفرح زي ما هو.
     calDay: { type: Number, default: 0 },
     // نصوص العميل ضافها بنفسه فوق التصميم.

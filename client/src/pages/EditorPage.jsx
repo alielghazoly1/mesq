@@ -17,7 +17,7 @@ import {
   ChevronLeft, ChevronRight, Upload, AlertCircle, Crown, FileText,
   Rocket, Trash2, ExternalLink, Copy, MousePointerClick, Undo2,
   PlayCircle, RotateCw, Layers, ALargeSmall, Minus, Plus, CalendarDays, Sparkles,
-  MapPin, Redo2, Palette, Stamp, TypeOutline, Share2, Eye, EyeOff,
+  MapPin, Redo2, Palette, Stamp, TypeOutline, Share2, Eye, EyeOff, Maximize2,
 } from 'lucide-react';
 import {
   useGetEditorQuery,
@@ -234,6 +234,7 @@ export default function EditorPage() {
         sizes: c.sizes || {},
         colors: c.colors || {},
         rotations: c.rotations || {},
+        scales: c.scales || {},
         calDay: c.calDay || 0,
         added: c.added || [],
         hidden: c.hidden || [],
@@ -324,7 +325,7 @@ export default function EditorPage() {
         setSelected(p.id
           ? {
             id: p.id, kind: p.kind || 'text', text: p.text,
-            fontSize: p.fontSize, bgColor: p.bgColor,
+            fontSize: p.fontSize, bgColor: p.bgColor, scale: p.scale || 1,
           }
           : null);
       }
@@ -370,6 +371,28 @@ export default function EditorPage() {
           setHistTick((n) => n + 1);
         }
         setDraft((d) => (d ? { ...d, offsets: p.offsets || {} } : d));
+        setDirty(true);
+      }
+
+      // العميل كبّر/صغّر صورة بسحب أحد الأركان جوه الدعوة
+      if (msg.type === 'scale') {
+        if (p.before) {
+          const b = p.before;
+          setDraft((d) => {
+            if (d) {
+              pastRef.current.push({
+                customizations: { ...JSON.parse(JSON.stringify(d)), scales: b },
+                details: detailsRef.current ? { ...detailsRef.current } : null,
+              });
+              futureRef.current = [];
+              if (pastRef.current.length > 60) pastRef.current.shift();
+            }
+            return d;
+          });
+          setHistTick((n) => n + 1);
+        }
+        setDraft((d) => (d ? { ...d, scales: p.scales || {} } : d));
+        setSelected((s) => (s ? { ...s, scale: (p.scales || {})[s.id] || 1 } : s));
         setDirty(true);
       }
       if (msg.type === 'pick-image') {
@@ -487,7 +510,7 @@ export default function EditorPage() {
     if (!runtimeReady || !draft) return;
     post('init', {
       offsets: draft.offsets, hidden: draft.hidden, sizes: draft.sizes,
-      colors: draft.colors, rotations: draft.rotations, features,
+      colors: draft.colors, rotations: draft.rotations, scales: draft.scales, features,
     });
     if (draft.fontFamily) post('set-font', { font: draft.fontFamily });
     // مرة واحدة بس عند الجاهزية — بعد كده كل تغيير بيتبعت لحظيًا لوحده
@@ -515,6 +538,7 @@ export default function EditorPage() {
         body.hidden = draft.hidden;
         body.sizes = draft.sizes;
         body.rotations = draft.rotations;
+        body.scales = draft.scales;
         body.calDay = draft.calDay || 0;
         body.added = draft.added;
         body.share = draft.share;
@@ -640,6 +664,7 @@ export default function EditorPage() {
         hidden: snap.customizations.hidden,
         sizes: snap.customizations.sizes,
         rotations: snap.customizations.rotations || {},
+        scales: snap.customizations.scales || {},
         calDay: snap.customizations.calDay || 0,
         added: snap.customizations.added,
       };
@@ -718,7 +743,17 @@ export default function EditorPage() {
       remember();
     }
     post('set-size', { id: selected.id, size: px });
+    const isAdded = selected.id.indexOf('add_') === 0;
     setDraft((d) => {
+      if (!d) return d;
+      // النص اللي العميل ضافه: مقاسه جزء من العنصر نفسه (مصدر واحد)،
+      // مش في خريطة مقاسات التصميم — عشان إعادة البناء متدهسوش وييتحفظ
+      // في أي باقة (زي اللون).
+      if (isAdded) {
+        const size = px || 22;
+        const list = (d.added || []).map((it) => (`add_${it.id}` === selected.id ? { ...it, size } : it));
+        return { ...d, added: list };
+      }
       const sizes = { ...d.sizes };
       if (px) sizes[selected.id] = px;
       else delete sizes[selected.id];
@@ -771,6 +806,20 @@ export default function EditorPage() {
     setDirty(true);
   }
 
+  /** رجّع الصورة لمقاسها الأصلي (بعد ما العميل كبّرها/صغّرها بالأركان) */
+  function resetScale() {
+    if (!selected) return;
+    remember();
+    post('set-scale', { id: selected.id, scale: null });
+    setDraft((d) => {
+      const scales = { ...(d.scales || {}) };
+      delete scales[selected.id];
+      return { ...d, scales };
+    });
+    setSelected((s) => (s ? { ...s, scale: 1 } : s));
+    setDirty(true);
+  }
+
   /** لون خلفية العنصر المختار (مربعات الزي المقترح مثلاً) */
   function setColor(hex) {
     if (!selected) return;
@@ -779,7 +828,15 @@ export default function EditorPage() {
       remember();
     }
     post('set-color', { id: selected.id, color: hex });
+    const isAdded = selected.id.indexOf('add_') === 0;
     setDraft((d) => {
+      if (!d) return d;
+      // النص المضاف: لونه جزء من العنصر نفسه (مصدر واحد، بيتحفظ في أي
+      // باقة) — نفس منطق المقاس
+      if (isAdded && hex) {
+        const list = (d.added || []).map((it) => (`add_${it.id}` === selected.id ? { ...it, color: hex } : it));
+        return { ...d, added: list };
+      }
       const colors = { ...(d.colors || {}) };
       if (hex) colors[selected.id] = hex;
       else delete colors[selected.id];
@@ -1582,6 +1639,33 @@ export default function EditorPage() {
                               <p className="mb-4 rounded-xl bg-emerald/[0.08] px-3.5 py-2.5 text-[11.5px] text-emerald">
                                 {t('editor.calDayHint', { day: selected.calDay })}
                               </p>
+                            )}
+
+                            {/* تكبير/تصغير الصورة — بالسحب من الأركان،
+                                متاح في أي باقة */}
+                            {(selected.kind === 'image' || selected.kind === 'video') && (
+                              <div className="mb-4 rounded-xl border border-line bg-card p-3">
+                                <div className="mb-1.5 flex items-center justify-between">
+                                  <span className="inline-flex items-center gap-1.5 text-[12px] font-bold text-ink">
+                                    <Maximize2 size={13} /> {t('editor.resizeTitle')}
+                                  </span>
+                                  {selected.scale && selected.scale !== 1 && (
+                                    <span className="font-mono text-[12px] text-ink-dim">
+                                      {Math.round(selected.scale * 100)}%
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-[11.5px] text-ink-dim">{t('editor.resizeHint')}</p>
+                                {draft.scales?.[selected.id] && draft.scales[selected.id] !== 1 && (
+                                  <button
+                                    type="button"
+                                    onClick={resetScale}
+                                    className="mt-2.5 inline-flex items-center gap-1.5 text-[11.5px] font-bold text-ink-dim hover:text-rose"
+                                  >
+                                    <RotateCcw size={11} /> {t('editor.resizeReset')}
+                                  </button>
+                                )}
+                              </div>
                             )}
 
                             {/* مقاس الخط */}
