@@ -507,6 +507,12 @@
     if (e.target.closest && e.target.closest('.wda-tools')) return;
     if (Date.now() - state.lastDragEnd < 250) return;
 
+    // في وضع التحرير: أي رابط بيفتح نموذج/بوب-أب (زرار RSVP مثلاً هو
+    // <a href="#popup:...">) متمنعش الضغطة إنها تفتح النموذج — عشان
+    // العميل يقدر يختار الزرار ويعدّل كلامه بدل ما النموذج يفتح فوقه.
+    var popupLink = e.target.closest && e.target.closest('a[href^="#popup"], a[href^="#form"]');
+    if (popupLink) { e.preventDefault(); }
+
     var best = editableAtPoint(e.clientX, e.clientY);
     if (!best) { if (!state.writing) select(null); return; }
 
