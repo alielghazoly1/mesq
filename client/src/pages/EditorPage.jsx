@@ -1476,7 +1476,8 @@ export default function EditorPage() {
                               </div>
                             )}
 
-                            {/* اللون — لمربعات الزي المقترح وأي خلفية ملوّنة */}
+                            {/* اللون — لون الخط للكلام، ولون الخلفية
+                                للمربعات الفاضية (زي مربعات الزي المقترح) */}
                             {selected.bgColor && (
                               <div className="mb-4 rounded-xl border border-line bg-card p-3">
                                 <div className="mb-2.5 flex items-center justify-between">

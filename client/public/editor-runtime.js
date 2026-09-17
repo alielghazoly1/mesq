@@ -24,6 +24,8 @@
     // التحرير (اختيار وكتابة) منفصل عن السحب: الباقة الأساسية عندها
     // التحرير من غير السحب
     editingOn: false, dragEnabled: false, imagesEnabled: false,
+    // السحب اتسجّل في interact ولا لسه (مرة واحدة بس طول الجلسة)
+    dragSetup: false,
     // { host, target, before } وقت ما العميل بيكتب جوه عنصر
     writing: null,
     // وقت آخر سحبة — عشان الضغطة اللي بعدها ماتفتحش الكتابة
@@ -183,15 +185,54 @@
     return r.height > 12 && r.width > 12;
   }
 
+  /**
+   * الصورة اللي جوه العنصر — سواء كانت وسم <img> أو خلفية CSS.
+   *
+   * ليه الجزء التاني ده مهم: نص صور بعض التصاميم مش وسوم <img> أصلاً،
+   * دي خلفيات CSS (background-image). في قالب Dolce Vita لوحده فيه ٦
+   * صور كده — منهم صورة كبيرة بارتفاع ٥١٧ بكسل وصور "قواعد اللباس".
+   * المحرر كان بيدوّر على <img> وبس، فالصور دي مكانش ينفع تتغيّر
+   * خالص والعميل بيضغط عليها ومفيش أي رد فعل.
+   *
+   * طبقة التطبيق (utils/customizations.js) كانت أصلاً بتعرف تحط صورة
+   * في خلفية CSS — الناقص كان إن المحرر ياخد باله إنها موجودة.
+   *
+   * @returns {{el: Element, height: number}|null}
+   */
+  function imageInside(el) {
+    var img = el.tagName === 'IMG' ? el : el.querySelector('img');
+    if (img) return { el: img, height: img.offsetHeight };
+
+    // خلفية CSS: بنقيس العنصر نفسه لأن الخلفية مالهاش مقاس خاص بيها
+    var host = el.querySelector('.tn-atom') || el;
+    var bg = '';
+    try { bg = getComputedStyle(host).backgroundImage || ''; } catch (e) { return null; }
+    // بنقبل الصور بس — التدرّجات اللونية (gradient) مش صور تتبدّل
+    if (bg.indexOf('url(') !== 0) return null;
+    return { el: host, height: host.offsetHeight };
+  }
+
+  /** رابط الصورة — من وسم <img> أو من خلفية CSS */
+  function imageSrcOf(node) {
+    if (!node) return '';
+    if (node.tagName === 'IMG') return node.currentSrc || node.src || '';
+    var bg = '';
+    try { bg = getComputedStyle(node).backgroundImage || ''; } catch (e) { return ''; }
+    var m = bg.match(/url\(["']?(.*?)["']?\)/);
+    return m ? m[1] : '';
+  }
+
   function elementKind(el) {
     if (isMapElement(el)) return 'map';
     if (isLiveElement(el)) return 'live';
     // الفيديو (خلفية أول سيكشن) — ينفع يتبدّل بصورة
     if (el.querySelector('video')) return 'video';
-    var img = el.tagName === 'IMG' ? el : el.querySelector('img');
-    // الحد 12 مش 40: الزخارف الصغيرة (16px) كانت مستبعدة خالص
-    if (img && img.offsetHeight > 12) return 'image';
+    // مربع اللون الأول: عنصر ملوّن من غير صورة ولا نص (مربعات الزي
+    // المقترح). لازم يتفحص قبل الصورة عشان مايتلغبطش مع خلفية CSS.
     if (isColorSwatch(el)) return 'color';
+    var pic = imageInside(el);
+    // الحد 12 مش 40: الزخارف الصغيرة (16px) كانت مستبعدة خالص
+    if (pic && pic.height > 12) return 'image';
     if (isRichElement(el)) return 'rich';
     return 'text';
   }
@@ -227,7 +268,7 @@
       // بناخد أصغر عنصر عشان مانسحبش أقسام كاملة بالغلط
       if (el.querySelector('[data-elem-id]')) continue;
       var text = (el.innerText || '').trim();
-      var img = el.tagName === 'IMG' ? el : el.querySelector('img');
+      var pic = imageInside(el);
       var video = el.querySelector('video');
       // لازم يكون فيه نص أو صورة أو فيديو أو رسمة — العناصر الفاضية
       // مالهاش لازمة. الفيديو كان مستبعد خالص قبل كده (مالوش نص ولا
@@ -236,7 +277,7 @@
       // الهدية مكانش بيتحدد بالمرة، هو رسمة جوه زرار من غير ولا كلمة.
       // الخريطة كمان: جواها iframe بس — مفيش نص ولا صورة ولا رسمة،
       // فكانت بتتستبعد والعميل مش قادر يضغط عليها يغيّر المكان
-      if (!text && !video && !(img && img.offsetHeight > 12)
+      if (!text && !video && !(pic && pic.height > 12)
         && !isColorSwatch(el) && !hasIcon(el) && !isMapElement(el)) continue;
       if (text.length > 600) continue;
       out.push(el);
@@ -256,8 +297,11 @@
     var nodes = document.querySelectorAll('[data-elem-id]');
     for (var i = 0; i < nodes.length; i++) {
       var el = nodes[i];
-      var img = el.tagName === 'IMG' ? el : el.querySelector('img');
-      if (img && img.offsetHeight > 40) out.push(el);
+      if (isColorSwatch(el)) continue;   // مربع لون مش صورة
+      var pic = imageInside(el);
+      // الحد نزل من 40 لـ 24: صور زي شعار "Group_23" (90×32) كانت
+      // بتتستبعد بسبب الرقم ده وبس، والعميل مش قادر يغيّرها
+      if (pic && pic.height > 24) out.push(el);
     }
     return out;
   }
@@ -411,13 +455,32 @@
     if (state.editingOn) return;
     state.editingOn = true;
     markText();
+    // النصوص اللي العميل ضافها بنفسه بتتحرّك في **أي** باقة — حتى
+    // اللي مفيهاش ميزة السحب. السبب إن دول مش جزء من التصميم أصلاً
+    // عشان نقول إن مكانهم "مظبوط"؛ العميل هو اللي عملهم، ومن غير ما
+    // يقدر يحطهم في المكان اللي عايزه مالهمش أي لازمة — بيفضلوا
+    // مكوّمين في نص الشاشة فوق بعض. السحب لعناصر التصميم نفسها هو
+    // اللي فاضل ميزة باقة.
+    setupDragging();
   }
 
-  /** السحب ميزة باقة لوحدها — بتتفتح فوق التحرير */
+  /** السحب لعناصر التصميم — ميزة باقة لوحدها، بتتفتح فوق التحرير */
   function enableDragging() {
-    if (state.dragEnabled || typeof window.interact !== 'function') return;
+    if (state.dragEnabled) return;
     enableEditing();
     state.dragEnabled = true;
+    setupDragging();
+  }
+
+  /**
+   * بيسجّل السحب مرة واحدة بس. الصلاحية بتتفحص وقت بداية كل سحبة
+   * (جوه start) مش وقت التسجيل — عشان النص المضاف يتحرك دايمًا
+   * وعناصر التصميم تتحرك حسب الباقة، من غير ما نسجّل مرتين على نفس
+   * العنصر (وده كان هيخلي العنصر يتحرك ضعف المسافة).
+   */
+  function setupDragging() {
+    if (state.dragSetup || typeof window.interact !== 'function') return;
+    state.dragSetup = true;
 
     // interact بيشتغل بمُحدِّد CSS، فأي عنصر ياخد الكلاس بعدين بيبقى
     // قابل للسحب تلقائيًا من غير تسجيل جديد.
@@ -448,7 +511,15 @@
             y = p ? p.client.y : event.clientY;
           }
           var intended = (isFinite(x) && isFinite(y)) ? editableAtPoint(x, y) : null;
-          state.dragEl = intended || event.target;
+          var el = intended || event.target;
+
+          // الصلاحية بتتفحص هنا: النص اللي العميل ضافه بنفسه بيتحرك
+          // في أي باقة، وعناصر التصميم لازم يكون عنده ميزة السحب.
+          if (!state.dragEnabled && !el.getAttribute('data-wda-added')) {
+            if (event.interaction && event.interaction.stop) event.interaction.stop();
+            return;
+          }
+          state.dragEl = el;
 
           state.dragEl.classList.add('wda-dragging');
           // قفل الحركة وقت السحب بس — عشان العنصر يمشي مع الإيد بالظبط
@@ -459,7 +530,9 @@
           select(state.dragEl);
         },
         move: function (event) {
-          var el = state.dragEl || event.target;
+          // السحبة اتلغت في start (مفيش صلاحية) — مفيش حاجة تتحرك
+          if (!state.dragEl) return;
+          var el = state.dragEl;
           var o = currentOffset(el);
           var dx = o.dx + event.dx;
           var dy = o.dy + event.dy;
@@ -468,7 +541,8 @@
           setBadge('تحريك: ' + Math.round(dx) + ' × ' + Math.round(dy));
         },
         end: function (event) {
-          var el = state.dragEl || event.target;
+          if (!state.dragEl) return;
+          var el = state.dragEl;
           el.classList.remove('wda-dragging');
           // بنرجّع حركة التصميم زي ما هي — عشان العنصر في المحرر يفضل
           // مطابق لشكله في الدعوة المنشورة بعد ما السحبة تخلص
@@ -487,11 +561,9 @@
 
   function disableDragging() {
     if (!state.dragEnabled) return;
+    // بنقفل صلاحية سحب عناصر التصميم بس — التسجيل نفسه بيفضل شغّال
+    // عشان النص اللي العميل ضافه يفضل يتحرك في أي باقة
     state.dragEnabled = false;
-    if (typeof window.interact === 'function') window.interact('.wda-editable').unset();
-    document.querySelectorAll('.wda-editable').forEach(function (el) {
-      el.classList.remove('wda-editable');
-    });
   }
 
   // ===== شريط الأيقونات =====
@@ -626,18 +698,35 @@
     host.style.removeProperty('font-size');
   }
 
+  // العنصر اللي فيه كلام بياخد لون خط؛ المربع الفاضي بياخد لون خلفية.
+  // نفس قرار الدعوة المنشورة بالظبط (utils/customizations.js).
+  function isSwatchEl(host) {
+    return !(host.textContent || '').trim();
+  }
+
   function setColorOn(host, color) {
     var s = shared();
     if (s) { s.setColor(host, color); return; }
-    (host.querySelector('.tn-atom') || host).style.setProperty('background-color', color, 'important');
-    host.style.setProperty('background-color', color, 'important');
+    var target = isSwatchEl(host) ? (host.querySelector('.tn-atom') || host) : textTarget(host);
+    var prop = isSwatchEl(host) ? 'background-color' : 'color';
+    target.style.setProperty(prop, color, 'important');
+    host.style.setProperty(prop, color, 'important');
   }
 
   function clearColorOn(host) {
     var s = shared();
     if (s) { s.clearColor(host); return; }
-    (host.querySelector('.tn-atom') || host).style.removeProperty('background-color');
-    host.style.removeProperty('background-color');
+    [host.querySelector('.tn-atom') || host, textTarget(host), host].forEach(function (n) {
+      if (!n) return;
+      n.style.removeProperty('background-color');
+      n.style.removeProperty('color');
+    });
+  }
+
+  /** اللون الحالي للعنصر — لون الخط للكلام، ولون الخلفية للمربع */
+  function currentColorOf(el) {
+    var cs = getComputedStyle(isSwatchEl(el) ? (el.querySelector('.tn-atom') || el) : textTarget(el));
+    return rgbToHex(isSwatchEl(el) ? cs.backgroundColor : cs.color);
   }
 
   function startWriting(el) {
@@ -753,8 +842,9 @@
         // يبدأ من مكان صح مش من رقم مفترض
         fontSize: Math.round(parseFloat(getComputedStyle(target).fontSize) || 0),
         isImage: !!el.getAttribute('data-wda-img'),
-        // لون الخلفية الحالي بصيغة hex — عشان منتقي اللون يبدأ صح
-        bgColor: rgbToHex(getComputedStyle(el.querySelector('.tn-atom') || el).backgroundColor),
+        // اللون الحالي بصيغة hex — عشان منتقي اللون يبدأ من اللون
+        // اللي قدام العميل فعلاً (لون الخط للكلام، الخلفية للمربع)
+        bgColor: currentColorOf(el),
         // زاوية الميل الحالية — عشان السلايدر يبدأ من مكانه الصح
         rotation: currentRotation(el),
         // يوم في نتيجة الشهر؟ الشريط بيقول لصاحب الدعوة إنه اتعلّم
@@ -903,16 +993,17 @@
       var el = nodes[i];
       var id = elemId(el);
       if (!id || el.closest('.wda-tools')) continue;
-      var img = el.tagName === 'IMG' ? el : el.querySelector('img');
-      if (!img) continue;
+      if (isColorSwatch(el)) continue;
+      var pic = imageInside(el);
+      if (!pic) continue;
       var isHidden = el.classList.contains('wda-hidden-el');
       // الصورة المشيلة ارتفاعها صفر، فبنعفيها من شرط المقاس — لازم
       // تفضل في الشبكة عشان العميل يقدر يرجّعها
-      if (!isHidden && img.offsetHeight <= 40) continue;
+      if (!isHidden && pic.height <= 24) continue;
       var r = el.getBoundingClientRect();
       out.push({
         id: id,
-        src: img.currentSrc || img.src || '',
+        src: imageSrcOf(pic.el),
         hidden: isHidden,
         // مكان الصورة في الصفحة — الترتيب بيمشي مع عين العميل
         top: Math.round(r.top + window.scrollY),
@@ -1140,11 +1231,34 @@
     // على طول من غير ما يدوّر عليه
     if (msg.type === 'add-text') {
       var docW = document.documentElement.scrollWidth || window.innerWidth;
+
+      // كل نص جديد بينزل تحت اللي قبله بشوية.
+      //
+      // ليه: قبل كده كل نص مضاف كان بينزل في نص الشاشة بالظبط — نفس
+      // المكان بالمليمتر. فالعميل يضيف كلمة، يضيف التانية، يلاقيهم
+      // مركبين فوق بعض وقارياهم مع بعض كأنهم كلمة واحدة متلخبطة. ومن
+      // غير ميزة السحب مكانش قادر يفصلهم أصلاً.
+      var baseY = Math.round(window.scrollY + window.innerHeight / 2);
+      var taken = document.querySelectorAll('[data-wda-added]');
+      var y = baseY;
+      var guard = 0;
+      // بندوّر على أول مكان فاضي تحت — 34 بكسل بين كل واحد والتاني،
+      // مسافة كفاية إن كل نص يبان لوحده ويتمسك لوحده
+      while (guard++ < 40) {
+        var clash = false;
+        for (var ti = 0; ti < taken.length; ti++) {
+          var ty = parseInt(taken[ti].style.top, 10);
+          if (!isNaN(ty) && Math.abs(ty - y) < 30) { clash = true; break; }
+        }
+        if (!clash) break;
+        y += 34;
+      }
+
       var item = {
         id: 'n' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
         text: p.text || 'اكتب هنا',
         xPct: 50,
-        y: Math.round(window.scrollY + window.innerHeight / 2),
+        y: y,
         size: 22,
         color: '#333333',
         align: 'center',
