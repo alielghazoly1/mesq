@@ -384,6 +384,14 @@ export default function EditorPage() {
         saveTextRef.current(p);
       }
 
+      // العميل غيّر لون خط من زرار اللون على الشريط العائم جوه الدعوة.
+      // النص اللي ضافه بنفسه: اللون بيتخزّن في العنصر نفسه (بيتحفظ دايمًا).
+      // نص التصميم: بيتخزّن في colors (ميزة باقة). اللون اتطبّق لحظيًا
+      // جوه الدعوة خلاص، فإحنا هنا بنحفظ بس.
+      if (msg.type === 'color-change' && p.id) {
+        persistColorRef.current(p);
+      }
+
       // ضغط على رقم في نتيجة الشهر — العلامة اتنقلت عليه جوه الدعوة
       // وإحنا بنحفظ اليوم ده
       if (msg.type === 'cal-day' && p.day) {
@@ -448,6 +456,30 @@ export default function EditorPage() {
     } finally {
       setTextSaving(false);
     }
+  };
+
+  // حفظ لون الخط اللي اتغيّر من الشريط العائم جوه الدعوة. في ref عشان
+  // مستمع الرسايل يفضل مستقر ويشوف أحدث نسخة من الدوال.
+  const persistColorRef = useRef(() => {});
+  persistColorRef.current = ({ id, color, added }) => {
+    // بداية سحبة لون جديدة على عنصر جديد = خطوة رجوع واحدة (زي السلايدر)
+    if (colorAnchorRef.current !== id) {
+      colorAnchorRef.current = id;
+      remember();
+    }
+    setDraft((d) => {
+      if (!d) return d;
+      if (added) {
+        // النص المضاف: اللون جزء من العنصر نفسه — بيتحفظ في أي باقة
+        const list = (d.added || []).map((it) => (`add_${it.id}` === id ? { ...it, color } : it));
+        return { ...d, added: list };
+      }
+      const colors = { ...(d.colors || {}) };
+      if (color) colors[id] = color; else delete colors[id];
+      return { ...d, colors };
+    });
+    setSelected((s) => (s && s.id === id ? { ...s, bgColor: color || s.bgColor } : s));
+    setDirty(true);
   };
 
   // التجهيز بيحصل لما الطرفين يبقوا جاهزين — أيًا كان مين وصل الأول

@@ -40,6 +40,9 @@ const TEMPLATE_FIX_SCRIPT = `
     for (var i = 0; i < maps.length; i++) {
       var host = maps[i].closest('[data-elem-id]');
       if (!host || host.getAttribute('data-wda-map-fixed')) continue;
+      // الخريطة اللي اتنقلت تحت الصورة خلاص (Viktor & Paula) مبقاش لها
+      // دعوة برفع الـ z-index — هي في مسارها الطبيعي مش فوق حاجة
+      if (host.getAttribute('data-wda-map-relocated')) continue;
       var rec = host.closest('.t-rec');
       if (!rec) continue;
 
@@ -57,6 +60,63 @@ const TEMPLATE_FIX_SCRIPT = `
         host.style.setProperty('position', 'relative', 'important');
       }
     }
+  }
+
+  // ===== خريطة Viktor & Paula كانت طايحة فوق صورة اللوكشن =====
+  // في قسم "Location" التصميم حاطط الخريطة (iframe) والصورة فوق بعض في
+  // نفس المكان بالظبط داخل لوحة Tilda المطلقة (t396)، فالخريطة كانت
+  // مدفونة تحت الصورة ومش باينة. رفع الـ z-index بيخليها فوق الصورة —
+  // بس ساعتها بتغطّيها. اللي العميل عايزه: الخريطة **تحت** الصورة في
+  // مساحة مرتّبة لوحدها.
+  //
+  // الحل: بنطلّع عنصر الخريطة برّه اللوحة المطلقة ونحطه في شريط عادي
+  // (flow) وسط الصفحة تحت اللوحة مباشرة، ونكبّر الـ iframe شوية. كده
+  // الصورة بتبان كاملة والخريطة تحتها منسّقة. بيتنادى في المحرر والدعوة
+  // المنشورة الاتنين، فالشكل واحد.
+  function fixViktorMap() {
+    var host = document.querySelector('[data-elem-id="1772899000001"]');
+    if (!host || host.getAttribute('data-wda-map-relocated')) return;
+    var t396 = host.closest('.t396');
+    if (!t396 || !t396.parentNode) return;
+
+    host.setAttribute('data-wda-map-relocated', '1');
+
+    // بنشيل التموضع المطلق بتاع Tilda عن عنصر الخريطة عشان يمشي عادي
+    host.style.setProperty('position', 'static', 'important');
+    host.style.setProperty('top', 'auto', 'important');
+    host.style.setProperty('left', 'auto', 'important');
+    host.style.setProperty('right', 'auto', 'important');
+    host.style.setProperty('bottom', 'auto', 'important');
+    host.style.setProperty('width', '100%', 'important');
+    host.style.setProperty('max-width', '480px', 'important');
+    host.style.setProperty('height', 'auto', 'important');
+    host.style.setProperty('margin', '0', 'important');
+    host.style.setProperty('transform', 'none', 'important');
+
+    // شريط عادي وسط الصفحة تحت لوحة القسم مباشرة
+    var strip = document.createElement('div');
+    strip.className = 'wda-map-strip';
+    strip.style.cssText = 'width:100%; box-sizing:border-box; display:flex;'
+      + ' justify-content:center; padding:10px 16px 40px;';
+    strip.appendChild(host);
+    t396.parentNode.insertBefore(strip, t396.nextSibling);
+
+    // نكبّر الـ iframe شوية ونظبّط شكله
+    var frame = host.querySelector('iframe');
+    if (frame) {
+      frame.setAttribute('width', '100%');
+      frame.setAttribute('height', '320');
+      frame.style.width = '100%';
+      frame.style.maxWidth = '480px';
+      frame.style.height = '320px';
+      frame.style.border = '0';
+      frame.style.borderRadius = '14px';
+      frame.style.boxShadow = '0 10px 30px -12px rgba(0,0,0,.35)';
+    }
+    // العمود اللي جوّه (الخريطة + رابط "Open in Google Maps") يتمدد
+    // على عرض الشريط عشان يفضل متوسّط
+    var col = host.querySelector('.tn-atom__html > div, .tn-atom > div');
+    if (col) { col.style.width = '100%'; col.style.maxWidth = '480px'; }
   }
 
   // ===== حركة الظهور اللي كانت واقفة في نصها =====
@@ -142,15 +202,17 @@ const TEMPLATE_FIX_SCRIPT = `
   }, true);
 
   fixTimes();
+  fixViktorMap();
   fixMapLayer();
-  document.addEventListener('DOMContentLoaded', function () { fixTimes(); fixMapLayer(); nudgeSoon(); });
-  window.addEventListener('load', function () { fixTimes(); fixMapLayer(); nudgeSoon(); });
+  document.addEventListener('DOMContentLoaded', function () { fixTimes(); fixViktorMap(); fixMapLayer(); nudgeSoon(); });
+  window.addEventListener('load', function () { fixTimes(); fixViktorMap(); fixMapLayer(); nudgeSoon(); });
 
   // الأوقات بتتحقن من سكريبت التصميم نفسه بعد التحميل، فبنعيد المحاولة
   // شوية ثواني بدل ما نفترض إنها موجودة من أول لحظة.
   var tries = 0;
   var timer = setInterval(function () {
     fixTimes();
+    fixViktorMap();
     fixMapLayer();
     if (++tries > 20) clearInterval(timer);
   }, 250);

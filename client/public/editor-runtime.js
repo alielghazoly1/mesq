@@ -23,7 +23,7 @@
     rotations: {},
     // التحرير (اختيار وكتابة) منفصل عن السحب: الباقة الأساسية عندها
     // التحرير من غير السحب
-    editingOn: false, dragEnabled: false, imagesEnabled: false,
+    editingOn: false, dragEnabled: false, imagesEnabled: false, colorsEnabled: false,
     // السحب اتسجّل في interact ولا لسه (مرة واحدة بس طول الجلسة)
     dragSetup: false,
     // { host, target, before } وقت ما العميل بيكتب جوه عنصر
@@ -102,6 +102,7 @@
   var ICON_CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
   var ICON_IMAGE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>';
   var ICON_PIN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>';
+  var ICON_PALETTE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>';
 
   var badge = document.createElement('div');
   badge.className = 'wda-badge';
@@ -614,6 +615,45 @@
     else if (act === 'delete') removeElement(state.selected);
     else if (act === 'image') send('pick-image', { id: elemId(state.selected) });
     else if (act === 'map') send('pick-map', { id: elemId(state.selected) });
+    else if (act === 'color') openColorPicker(state.selected);
+  });
+
+  // ===== منتقي لون الخط (من زرار اللون على الشريط العائم) =====
+  // منتقي المتصفح لازم يكون عنصر <input type="color"> حقيقي عشان يفتح
+  // بضغطة المستخدم. بنخبّيه ونفتحه برمجيًا من زرار الشريط. اللون بيتطبّق
+  // لحظيًا جوه الدعوة (نفس دالة الدعوة المنشورة) وبيتبعت للأم عشان يتحفظ.
+  var colorInput = document.createElement('input');
+  colorInput.type = 'color';
+  colorInput.setAttribute('aria-hidden', 'true');
+  colorInput.style.cssText = 'position:absolute; z-index:2147483646; width:1px; height:1px; '
+    + 'opacity:0; border:0; padding:0; margin:0; pointer-events:none;';
+  document.body.appendChild(colorInput);
+
+  function openColorPicker(el) {
+    if (!el) return;
+    // بنركن المنتقي عند العنصر عشان نافذة المتصفح تفتح جنبه
+    var r = el.getBoundingClientRect();
+    colorInput.style.left = (r.left + window.scrollX + r.width / 2) + 'px';
+    colorInput.style.top = (r.top + window.scrollY + r.height) + 'px';
+    colorInput.value = currentColorOf(el) || '#333333';
+    // showPicker أنضف (بيفتح النافذة جنب الحقل)، وبنرجع لـ click لو
+    // المتصفح مش داعمه أو رفض الاستدعاء
+    try {
+      if (colorInput.showPicker) colorInput.showPicker();
+      else colorInput.click();
+    } catch (err) {
+      colorInput.click();
+    }
+  }
+
+  colorInput.addEventListener('input', function () {
+    var el = state.selected;
+    if (!el) return;
+    var color = colorInput.value;
+    setColorOn(el, color);               // معاينة لحظية بنفس دالة النشر
+    send('color-change', {
+      id: elemId(el), color: color, added: !!el.getAttribute('data-wda-added'),
+    });
   });
 
   /** بيحط الشريط فوق العنصر ويبدّل أيقوناته حسب نوعه */
@@ -637,7 +677,17 @@
       first = '<button type="button" data-act="edit" title="عدّل النص">' + ICON_PENCIL + '</button>';
     }
 
-    tools.innerHTML = first
+    // زرار لون الخط: بيبان على النصوص (بما فيها النص اللي العميل ضافه).
+    // النص المضاف بتاع العميل بيقدر يلوّنه دايمًا — هو كتبه بنفسه؛
+    // ونصوص التصميم بتتلوّن لو باقته فيها ميزة الألوان. مش بيبان وإنت
+    // بتكتب (mode=writing) ولا على الصور/الخرايط/العدادات.
+    var isAdded = !!el.getAttribute('data-wda-added');
+    var canColor = kind === 'text' && mode !== 'writing' && (isAdded || state.colorsEnabled);
+    var colorBtn = canColor
+      ? '<button type="button" data-act="color" title="غيّر لون الخط">' + ICON_PALETTE + '</button>'
+      : '';
+
+    tools.innerHTML = first + colorBtn
       + '<button type="button" data-act="delete" class="danger" title="احذف">' + ICON_TRASH + '</button>';
 
     var r = el.getBoundingClientRect();
@@ -1147,6 +1197,7 @@
       // التحرير مفتوح لأي صاحب دعوة مميزة — حتى الباقة الأساسية.
       // السحب هو اللي ميزة باقة لوحدها.
       enableEditing();
+      state.colorsEnabled = !!(p.features && p.features.indexOf('colors') !== -1);
       if (p.features && p.features.indexOf('drag') !== -1) enableDragging();
       if (p.features && p.features.indexOf('images') !== -1) enableImageEditing();
       send('caps', { canDrag: state.dragEnabled, canImages: state.imagesEnabled });
@@ -1167,7 +1218,7 @@
         // السطر الأول لقوالب Tilda (كلاساتها)، والتاني للقوالب
         // المكتوبة بإيدينا اللي بتقرا خطوطها من متغيّرات CSS —
         // من غيره تغيير الخط مكانش بيعمل أي حاجة فيها
-        st.textContent = ".t-text,.t-title,.t-descr,.t-name,.tn-atom{font-family:'" + p.font + "',sans-serif !important;}"
+        st.textContent = ".t-text,.t-title,.t-descr,.t-name,.tn-atom,[data-wda-added],[data-wda-added] *{font-family:'" + p.font + "',sans-serif !important;}"
           + ":root{--serif-ar:'" + p.font + "',serif !important;--sans-ar:'" + p.font + "',sans-serif !important;}";
         document.head.appendChild(st);
       }
