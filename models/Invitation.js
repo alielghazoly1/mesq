@@ -85,6 +85,11 @@ const invitationSchema = new mongoose.Schema({
     // عناصر العميل اختار يخفيها
     hidden: { type: [String], default: [] },
 
+    // تعديلات نصوص فورم تأكيد الحضور (عنوان/مقدمة/عناوين الحقول/نعم/لا).
+    // { intro, button, deadline, nameLabel, comeLabel, yesLabel, noLabel,
+    //   foodLabel } — المدخلات نفسها بتفضل موصّلة بالباك زي ما هي.
+    rsvp: { type: mongoose.Schema.Types.Mixed, default: {} },
+
     // كارت المشاركة — اللي بيظهر لما اللينك يتبعت على واتساب أو فيسبوك.
     // لو فاضي، بيتبني تلقائيًا من أسماء العروسين والتاريخ والمكان
     // (utils/shareTags.js). الصورة لازم تعدي نفس فحص الروابط المسموحة.

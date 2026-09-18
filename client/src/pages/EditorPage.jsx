@@ -156,6 +156,7 @@ export default function EditorPage() {
   // الدرج بيفتح مقفول: أول حاجة العميل يشوفها هي دعوته كاملة، مش لوحة
   // أدوات نصها مقصوص. المقبض قدامه وواضح إنه بيتسحب.
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [rsvpOpen, setRsvpOpen] = useState(false);
   const [showBigScreenHint, setShowBigScreenHint] = useState(false);
   // ارتفاع الجزء الظاهر من الدرج — بيتقاس فعليًا مش بالتخمين، لأنه
   // بيفرق حسب اللغة وحسب وجود زرار الغلاف من عدمه
@@ -237,6 +238,7 @@ export default function EditorPage() {
         colors: c.colors || {},
         rotations: c.rotations || {},
         scales: c.scales || {},
+        rsvp: c.rsvp || {},
         calDay: c.calDay || 0,
         added: c.added || [],
         hidden: c.hidden || [],
@@ -410,6 +412,14 @@ export default function EditorPage() {
         setError('');
       }
 
+      // ضغط على أيقونة تعديل فورم تأكيد الحضور
+      if (msg.type === 'pick-rsvp') {
+        setTab('inline');
+        setRsvpOpen(true);
+        if (compact) setSheetOpen(true);
+        setError('');
+      }
+
       // العميل عدّل نص بالضغط عليه جوه الدعوة
       if (msg.type === 'text-change') {
         rememberRef.current();
@@ -570,6 +580,7 @@ export default function EditorPage() {
         body.sizes = draft.sizes;
         body.rotations = draft.rotations;
         body.scales = draft.scales;
+        body.rsvp = draft.rsvp || {};
         body.calDay = draft.calDay || 0;
         body.added = draft.added;
         body.share = draft.share;
@@ -1035,6 +1046,38 @@ export default function EditorPage() {
     try {
       await publishInvitation(shortId).unwrap();
       await refetch();
+    } catch (err) {
+      setError(err?.data?.error || t('editor.errorSave'));
+    }
+  }
+
+  // تعديل نص من نصوص فورم تأكيد الحضور
+  function setRsvpField(key, value) {
+    setDraft((d) => (d ? { ...d, rsvp: { ...(d.rsvp || {}), [key]: value } } : d));
+    setDirty(true);
+  }
+
+  // يحفظ تعديلات الفورم ويعيد تحميل الدعوة عشان تظهر (النصوص بتتحقن من
+  // السيرفر وقت العرض)
+  async function applyRsvp() {
+    setError('');
+    try {
+      const body = { shortId, rsvp: draft.rsvp || {} };
+      body.hidden = draft.hidden;
+      body.sizes = draft.sizes;
+      body.rotations = draft.rotations;
+      body.scales = draft.scales;
+      body.offsets = draft.offsets;
+      body.added = draft.added;
+      body.calDay = draft.calDay || 0;
+      if (has('fonts')) body.fontFamily = draft.fontFamily;
+      if (has('colors')) body.colors = draft.colors;
+      if (has('images')) body.images = draft.images;
+      await saveCustomizations(body).unwrap();
+      setDirty(false);
+      reloadFrame();
+      setJustSaved(true);
+      setTimeout(() => setJustSaved(false), 2000);
     } catch (err) {
       setError(err?.data?.error || t('editor.errorSave'));
     }
@@ -1517,6 +1560,51 @@ export default function EditorPage() {
                       في وضع الموبايل (order) من غير ما نكرر الكود */}
                   {tab === 'inline' && (
                     <div className="flex flex-col">
+                      {/* ===== لوحة تعديل فورم تأكيد الحضور ===== */}
+                      {rsvpOpen && (
+                        <div className="mb-5 rounded-2xl border border-emerald/40 bg-emerald/[0.05] p-4">
+                          <div className="mb-1 flex items-center justify-between">
+                            <span className="inline-flex items-center gap-1.5 text-[13px] font-bold text-ink">
+                              <Check size={14} className="text-emerald" /> تعديل فورم تأكيد الحضور
+                            </span>
+                            <button type="button" onClick={() => setRsvpOpen(false)} className="text-[12px] font-bold text-ink-dim hover:text-ink">✕</button>
+                          </div>
+                          <p className="mb-3 text-[11.5px] text-ink-dim">
+                            غيّر أي كلام في الفورم زي ما تحب — المدخلات نفسها بتفضل شغّالة وموصّلة بلوحتك، والردود بتوصلك عادي.
+                          </p>
+                          <div className="space-y-2.5">
+                            {[
+                              ['button', 'كلمة زرار التأكيد'],
+                              ['intro', 'الكلام التمهيدي'],
+                              ['deadline', 'ملاحظة آخر ميعاد'],
+                              ['nameLabel', 'عنوان خانة الاسم'],
+                              ['comeLabel', 'سؤال "هتحضر؟"'],
+                              ['yesLabel', 'كلمة "نعم"'],
+                              ['noLabel', 'كلمة "لا"'],
+                              ['foodLabel', 'عنوان خانة ملاحظات الأكل'],
+                            ].map(([key, label]) => (
+                              <label key={key} className="block">
+                                <span className="mb-1 block text-[11.5px] font-bold text-ink-dim">{label}</span>
+                                <input
+                                  type="text"
+                                  value={draft.rsvp?.[key] || ''}
+                                  onChange={(e) => setRsvpField(key, e.target.value)}
+                                  placeholder="النص الافتراضي"
+                                  className="w-full rounded-lg border border-line bg-card px-3 py-2 text-[13px] text-ink focus:border-emerald focus:outline-none"
+                                />
+                              </label>
+                            ))}
+                          </div>
+                          <button
+                            type="button"
+                            onClick={applyRsvp}
+                            className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-emerald px-4 py-2.5 text-[12.5px] font-bold text-ivory hover:brightness-110"
+                          >
+                            <Check size={13} /> طبّق وشوف
+                          </button>
+                        </div>
+                      )}
+
                       <h2 className="mb-1.5 font-serif text-[16px] font-bold text-ink">{t('editor.inlineTitle')}</h2>
                       <p className="mb-4 text-[12.5px] text-ink-dim">{t('editor.inlineHint')}</p>
 

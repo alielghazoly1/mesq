@@ -90,6 +90,9 @@ function renderNewPathHtml(data, options) {
     time: formatHour(stage.hour, data.language, true),
   }));
 
+  // تجاوزات نصوص فورم تأكيد الحضور (العميل عدّلها من المحرر)
+  const rsvpOv = (data.customizations && data.customizations.rsvp) || {};
+
   const config = {
     brideName: heroBrideName,
     groomName: heroGroomName,
@@ -129,15 +132,19 @@ function renderNewPathHtml(data, options) {
     giftNote: strings.giftNote,
     contactName: data.contactName || '',
     contactPhone: data.contactPhone || '',
-    rsvpTitle: strings.rsvpTitle,
-    rsvpIntro: strings.rsvpIntro,
-    rsvpButtonText: strings.rsvpButtonText,
-    rsvpDeadlineNote: strings.rsvpDeadlineNote,
-    yourNameLabel: strings.yourNameLabel,
-    willYouComeLabel: strings.willYouComeLabel,
-    yesOption: strings.yesOption,
-    noOption: strings.noOption,
-    foodIntoleranceLabel: strings.foodIntoleranceLabel,
+    // العميل يقدر يعدّل نصوص فورم تأكيد الحضور من المحرر (متخزّنة في
+    // customizations.rsvp). لو عدّل حاجة بنستخدمها، وإلا النص الافتراضي.
+    // كده الفورم يفضل موصّل بالباك (المدخلات زي ما هي) والعميل بس بيغيّر
+    // الكلام اللي فوقها — على كل القوالب من غير استهداف DOM.
+    rsvpTitle: rsvpOv.title || strings.rsvpTitle,
+    rsvpIntro: rsvpOv.intro || strings.rsvpIntro,
+    rsvpButtonText: rsvpOv.button || strings.rsvpButtonText,
+    rsvpDeadlineNote: rsvpOv.deadline || strings.rsvpDeadlineNote,
+    yourNameLabel: rsvpOv.nameLabel || strings.yourNameLabel,
+    willYouComeLabel: rsvpOv.comeLabel || strings.willYouComeLabel,
+    yesOption: rsvpOv.yesLabel || strings.yesOption,
+    noOption: rsvpOv.noLabel || strings.noOption,
+    foodIntoleranceLabel: rsvpOv.foodLabel || strings.foodIntoleranceLabel,
     submitButtonText: strings.submitButtonText,
     rsvpSubmittingText: strings.rsvpSubmittingText,
     rsvpSuccessText: strings.rsvpSuccessText,

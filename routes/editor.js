@@ -325,6 +325,7 @@ router.patch('/api/editor/:shortId/text', requireAuth, async (req, res) => {
         colors: { ...(c.colors || {}) },
         rotations: { ...(c.rotations || {}) },
         scales: { ...(c.scales || {}) },
+        rsvp: { ...(c.rsvp || {}) },
         calDay: c.calDay || 0,
         added: [...(c.added || [])],
         texts: { ...(c.texts || {}), [id]: newText },
@@ -455,6 +456,7 @@ router.patch('/api/editor/:shortId', requireAuth, async (req, res) => {
       colors: { ...(current.colors || {}) },
       rotations: { ...(current.rotations || {}) },
       scales: { ...(current.scales || {}) },
+      rsvp: { ...(current.rsvp || {}) },
       calDay: current.calDay || 0,
       added: [...(current.added || [])],
       hidden: [...(current.hidden || [])],
@@ -580,6 +582,20 @@ router.patch('/api/editor/:shortId', requireAuth, async (req, res) => {
         // من غير داعي
         const clamped = Math.max(0.2, Math.min(5, Math.round(f * 1000) / 1000));
         if (clamped !== 1) next.scales[id] = clamped;
+      });
+    }
+
+    // نصوص فورم تأكيد الحضور — مش ميزة باقة، متاح للكل. كل قيمة نص
+    // منظّف قصير، والمفاتيح المسموح بيها بس.
+    if (body.rsvp !== undefined) {
+      const allowedKeys = ['title', 'intro', 'button', 'deadline',
+        'nameLabel', 'comeLabel', 'yesLabel', 'noLabel', 'foodLabel'];
+      next.rsvp = {};
+      const src = body.rsvp || {};
+      allowedKeys.forEach((k) => {
+        if (src[k] === undefined || src[k] === null) return;
+        const v = sanitizeText(String(src[k]), 200);
+        if (v) next.rsvp[k] = v;
       });
     }
 
