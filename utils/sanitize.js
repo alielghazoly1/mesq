@@ -13,7 +13,12 @@ function sanitizeText(input, maxLen = 80) {
   if (typeof input !== 'string') return '';
   let cleaned = input
     .replace(/<[^>]*>/g, '')       // شيل أي حاجة شكلها تاج HTML
-    .replace(/[<>&"'`]/g, '')      // شيل الحروف اللي ممكن تكسر سياق الـ HTML/JS
+    // بنشيل الحروف اللي ممكن تكسر سياق الـ HTML/JS — بس **مش** الـ "&".
+    // الـ "&" حرف عادي في الكلام (العلامة بين اسمي العروسين "Groom & Bride")،
+    // والنص بيتعرض دايمًا بـ textContent (مش innerHTML) فمفيش خطر منه،
+    // وكارت المشاركة بيهرّبه لـ &amp; في الـ attributes. قبل كده كان
+    // بيتشال فالعلامة بين الأسماء كانت بتتمسح أول ما العميل يعدّل.
+    .replace(/[<>"'`]/g, '')
     .replace(/[\u0000-\u001F\u007F]/g, '') // شيل control characters
     .trim();
   return cleaned.slice(0, maxLen);
