@@ -159,7 +159,13 @@
   /** عنصر الخريطة — ليه تحكّم خاص (لينك مكان) مش كتابة */
   function isMapElement(el) {
     if (el.querySelector('iframe[src*="google.com/maps"], iframe[src*="maps.google"]')) return true;
-    return !!el.querySelector('a[href*="google.com/maps"], a[href*="maps.app.goo.gl"]');
+    if (el.querySelector('a[href*="google.com/maps"], a[href*="maps.app.goo.gl"]')) return true;
+    // العنصر نفسه رابط خرائط (زي "افتح في خرائط جوجل" في dolce-vita)
+    if (el.tagName === 'A') {
+      var h = el.getAttribute('href') || '';
+      return /google\.com\/maps|maps\.google|maps\.app\.goo\.gl/.test(h);
+    }
+    return false;
   }
 
   /** زرار تأكيد الحضور — بيفتح نموذج (بوب-أب). ليه أيقونة تعديل الفورم */
