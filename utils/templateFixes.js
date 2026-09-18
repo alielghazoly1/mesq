@@ -139,25 +139,50 @@ const TEMPLATE_FIX_SCRIPT = `
     audio.appendChild(document.createElement('source'));
     document.body.appendChild(audio);
 
+    function hasSrc() {
+      return audio.currentSrc || audio.src
+        || (audio.querySelector('source') && audio.querySelector('source').src);
+    }
+    function markBtn(on) {
+      btn.classList.toggle('playing', on);
+      btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
+    function startMusic() {
+      if (!hasSrc() || !audio.paused) return;
+      var p = audio.play();
+      if (p && p.catch) p.catch(function () { /* المتصفح رفض التشغيل */ });
+      markBtn(true);
+    }
+
     // بنمسك ضغطة الزرار في مرحلة الالتقاط ونوقف انتشارها عشان زرار
     // التصميم الشكلي (اللي بيقلب كلاس بس) ما يتعارضش مع التشغيل الفعلي.
     btn.addEventListener('click', function (e) {
       e.preventDefault();
       e.stopPropagation();
-      var src = audio.currentSrc || audio.src
-        || (audio.querySelector('source') && audio.querySelector('source').src);
-      if (!src) return;   // العميل لسه ماختارش أغنية
+      if (!hasSrc()) return;   // العميل لسه ماختارش أغنية
       if (audio.paused) {
-        var p = audio.play();
-        if (p && p.catch) p.catch(function () { /* المتصفح رفض التشغيل التلقائي */ });
-        btn.classList.add('playing');
-        btn.setAttribute('aria-pressed', 'true');
+        startMusic();
       } else {
         audio.pause();
-        btn.classList.remove('playing');
-        btn.setAttribute('aria-pressed', 'false');
+        markBtn(false);
       }
     }, true);
+
+    // ===== الموسيقى تشتغل أول ما الضيف يفتح الدعوة =====
+    // قوالب Tilda بتربط الأغنية بزرار الفتح (.popup-enter) فبتشتغل مع
+    // الفتح على طول. Royal Maroon زرار فتحه منفصل (#openBtn) وكان مربوط
+    // بزرار الموسيقى لوحده بس — فالضيف كان لازم يدوس زرار تاني عشان
+    // يسمع، والعميل عايزها تشتغل أول ما يفتح زي باقي القوالب. ضغطة الفتح
+    // نفسها تفاعُل مستخدم، فالمتصفح بيسمح بالتشغيل جواها. لو الضيف قفل
+    // الموسيقى بعد كده بزرار الموسيقى، اختياره بيفضل (مش بنعيد تشغيلها).
+    var openBtn = document.getElementById('openBtn');
+    if (openBtn && !openBtn.getAttribute('data-wda-audio-open')) {
+      openBtn.setAttribute('data-wda-audio-open', '1');
+      openBtn.addEventListener('click', function () {
+        // شوية تأخير عشان نضمن إن طبقة التخصيص خلّصت تحطّ رابط الأغنية
+        setTimeout(startMusic, 0);
+      });
+    }
   }
 
   // ===== حركة الظهور اللي كانت واقفة في نصها =====
