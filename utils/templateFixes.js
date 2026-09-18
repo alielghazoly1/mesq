@@ -119,6 +119,47 @@ const TEMPLATE_FIX_SCRIPT = `
     if (col) { col.style.width = '100%'; col.style.maxWidth = '480px'; }
   }
 
+  // ===== قالب فيه زرار موسيقى شكلي من غير صوت =====
+  // Royal Maroon اتعمل بزرار موسيقى "ديكوري" — مفيش عنصر <audio> ولا
+  // تشغيل فعلي، فالأغنية اللي العميل بيختارها عمرها ما بتشتغل. بنحقن
+  // عنصر صوت بمعرّف invitation-audio (اللي طبقة التخصيص بتحط فيه رابط
+  // الأغنية) ونوصّل الزرار بيه — من غير ما نلمس ملف التصميم.
+  function fixMissingAudio() {
+    var btn = document.getElementById('musicBtn');
+    if (!btn || btn.getAttribute('data-wda-audio-wired')) return;
+    if (document.getElementById('invitation-audio')) return;   // فيه صوت خلاص
+    btn.setAttribute('data-wda-audio-wired', '1');
+
+    var audio = document.createElement('audio');
+    audio.id = 'invitation-audio';
+    audio.loop = true;
+    audio.preload = 'auto';
+    audio.setAttribute('playsinline', '');
+    audio.style.display = 'none';
+    audio.appendChild(document.createElement('source'));
+    document.body.appendChild(audio);
+
+    // بنمسك ضغطة الزرار في مرحلة الالتقاط ونوقف انتشارها عشان زرار
+    // التصميم الشكلي (اللي بيقلب كلاس بس) ما يتعارضش مع التشغيل الفعلي.
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      var src = audio.currentSrc || audio.src
+        || (audio.querySelector('source') && audio.querySelector('source').src);
+      if (!src) return;   // العميل لسه ماختارش أغنية
+      if (audio.paused) {
+        var p = audio.play();
+        if (p && p.catch) p.catch(function () { /* المتصفح رفض التشغيل التلقائي */ });
+        btn.classList.add('playing');
+        btn.setAttribute('aria-pressed', 'true');
+      } else {
+        audio.pause();
+        btn.classList.remove('playing');
+        btn.setAttribute('aria-pressed', 'false');
+      }
+    }, true);
+  }
+
   // ===== حركة الظهور اللي كانت واقفة في نصها =====
   // محرك الحركة بتاع Tilda بيشتغل على خطوتين: أول ما الصفحة تحمّل بيحط
   // كل عنصر في "حالة البداية" (النص نازل 30 بكسل تحت مكانه، والزخارف
@@ -202,17 +243,17 @@ const TEMPLATE_FIX_SCRIPT = `
   }, true);
 
   fixTimes();
-  fixViktorMap();
+  fixViktorMap(); fixMissingAudio();
   fixMapLayer();
-  document.addEventListener('DOMContentLoaded', function () { fixTimes(); fixViktorMap(); fixMapLayer(); nudgeSoon(); });
-  window.addEventListener('load', function () { fixTimes(); fixViktorMap(); fixMapLayer(); nudgeSoon(); });
+  document.addEventListener('DOMContentLoaded', function () { fixTimes(); fixViktorMap(); fixMissingAudio(); fixMapLayer(); nudgeSoon(); });
+  window.addEventListener('load', function () { fixTimes(); fixViktorMap(); fixMissingAudio(); fixMapLayer(); nudgeSoon(); });
 
   // الأوقات بتتحقن من سكريبت التصميم نفسه بعد التحميل، فبنعيد المحاولة
   // شوية ثواني بدل ما نفترض إنها موجودة من أول لحظة.
   var tries = 0;
   var timer = setInterval(function () {
     fixTimes();
-    fixViktorMap();
+    fixViktorMap(); fixMissingAudio();
     fixMapLayer();
     if (++tries > 20) clearInterval(timer);
   }, 250);
