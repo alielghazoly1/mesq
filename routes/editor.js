@@ -609,6 +609,9 @@ router.patch('/api/editor/:shortId', requireAuth, async (req, res) => {
         const v = sanitizeText(String(src[k]), 200);
         if (v) next.rsvp[k] = v;
       });
+      // إخفاء/تغيير صورة النموذج
+      if (src.hideImage) next.rsvp.hideImage = true;
+      if (src.image && isAllowedMediaUrl(src.image)) next.rsvp.image = String(src.image);
     }
 
     // اليوم المعلّم في نتيجة الشهر (1–31، و0 معناها يوم الفرح زي ما هو)

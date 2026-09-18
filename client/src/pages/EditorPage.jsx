@@ -1611,6 +1611,18 @@ export default function EditorPage() {
                               </label>
                             ))}
                           </div>
+
+                          {/* صورة النموذج — إخفاء (لو موجودة في القالب) */}
+                          <label className="mt-3 flex items-center gap-2 rounded-lg border border-line bg-card px-3 py-2">
+                            <input
+                              type="checkbox"
+                              checked={!!draft.rsvp?.hideImage}
+                              onChange={(e) => setRsvpField('hideImage', e.target.checked)}
+                              className="h-4 w-4 accent-emerald"
+                            />
+                            <span className="text-[12.5px] font-bold text-ink">اخفِ الصورة اللي فوق النموذج</span>
+                          </label>
+
                           <button
                             type="button"
                             onClick={applyRsvp}
