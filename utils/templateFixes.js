@@ -267,11 +267,26 @@ const TEMPLATE_FIX_SCRIPT = `
     if (t.closest('.popup-enter, #openBtn, #coverScreen, #coverCard')) nudgeSoon();
   }, true);
 
+  // ===== Royal Maroon: مسافة بين الكروت الماروني المتلاصقة =====
+  // كروت Royal (.dark-card) بتركب فوق بعض من غير فاصل رأسي؛ ولما العميل
+  // يخفي قسم الألبوم اللي بين كارت الأسماء/التاريخ (#weddingInfoCard)
+  // وكارت العدّ التنازلي (#receptionCard) الكارتين بيلزقوا في بعض. بنحط
+  // مسافة فوق كارت الاستقبال. #receptionCard موجود في Royal Maroon بس،
+  // فالقاعدة آمنة ومخصوصة له من غير ما نلمس ملف التصميم.
+  function fixRoyalCardGap() {
+    if (document.getElementById('wda-royal-gap')) return;
+    if (!document.getElementById('receptionCard')) return;
+    var st = document.createElement('style');
+    st.id = 'wda-royal-gap';
+    st.textContent = '#receptionCard{margin-top:28px;}';
+    (document.head || document.documentElement).appendChild(st);
+  }
+
   fixTimes();
   fixViktorMap(); fixMissingAudio();
-  fixMapLayer();
-  document.addEventListener('DOMContentLoaded', function () { fixTimes(); fixViktorMap(); fixMissingAudio(); fixMapLayer(); nudgeSoon(); });
-  window.addEventListener('load', function () { fixTimes(); fixViktorMap(); fixMissingAudio(); fixMapLayer(); nudgeSoon(); });
+  fixMapLayer(); fixRoyalCardGap();
+  document.addEventListener('DOMContentLoaded', function () { fixTimes(); fixViktorMap(); fixMissingAudio(); fixMapLayer(); fixRoyalCardGap(); nudgeSoon(); });
+  window.addEventListener('load', function () { fixTimes(); fixViktorMap(); fixMissingAudio(); fixMapLayer(); fixRoyalCardGap(); nudgeSoon(); });
 
   // الأوقات بتتحقن من سكريبت التصميم نفسه بعد التحميل، فبنعيد المحاولة
   // شوية ثواني بدل ما نفترض إنها موجودة من أول لحظة.
