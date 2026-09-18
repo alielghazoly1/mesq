@@ -353,8 +353,21 @@
     return out;
   }
 
+  // هوية العنصر للتخصيص: data-wda-uid لو موجود (للعناصر اللي معرّفها
+  // كان متكرر واتميّز)، وإلا data-elem-id. **مهم**: مبنعيدش تسمية
+  // data-elem-id نفسه أبدًا، لأن Tilda بتحدّد مكان العناصر بـ CSS
+  // (‎[data-elem-id="X"]) — تغييره كان بيخلي العنصر يفقد مكانه ويروح
+  // على الشمال.
   function elemId(el) {
-    return el.getAttribute('data-elem-id');
+    return el.getAttribute('data-wda-uid') || el.getAttribute('data-elem-id');
+  }
+
+  // بندوّر بالهوية دي: الأول بـ data-wda-uid، وإلا data-elem-id بشرط
+  // إنه **مش** متميّز (عشان المعرّف المتكرر ما يرجعش يطابق أول نسخة).
+  function byUid(id) {
+    if (id == null || id === '') return null;
+    return document.querySelector('[data-wda-uid="' + id + '"]')
+      || document.querySelector('[data-elem-id="' + id + '"]:not([data-wda-uid])');
   }
 
   function currentOffset(el) {
@@ -1311,7 +1324,7 @@
         }
       });
       hidden.forEach(function (hid) {
-        var el = document.querySelector('[data-elem-id="' + hid + '"]');
+        var el = byUid(hid);
         if (el) el.classList.add('wda-hidden-el');
       });
       rescan();
@@ -1319,7 +1332,7 @@
 
     // نص اتعدّل من بره (أو اترجّع) — بنطبّقه على العنصر
     if (msg.type === 'set-text' && p.id) {
-      var host = document.querySelector('[data-elem-id="' + p.id + '"]');
+      var host = byUid(p.id);
       if (host) setTextOn(host, p.text);
     }
 
@@ -1343,36 +1356,36 @@
       // لأن قاعدة الـ CSS المحقونة بـ !important هتغلب على المعاينة
       // اللحظية وإنت بتحرّك السلايدر
       Object.keys(p.sizes || {}).forEach(function (sid) {
-        var host = document.querySelector('[data-elem-id="' + sid + '"]');
+        var host = byUid(sid);
         if (!host) return;
         setSizeOn(host, p.sizes[sid]);
       });
       Object.keys(p.colors || {}).forEach(function (cid) {
-        var host = document.querySelector('[data-elem-id="' + cid + '"]');
+        var host = byUid(cid);
         if (!host) return;
         setColorOn(host, p.colors[cid]);
       });
       (p.hidden || []).forEach(function (hid) {
-        var el = document.querySelector('[data-elem-id="' + hid + '"]');
+        var el = byUid(hid);
         if (el) el.classList.add('wda-hidden-el');
       });
       // نطبّق الإزاحات المحفوظة على طول
       Object.keys(state.offsets).forEach(function (id) {
-        var el = document.querySelector('[data-elem-id="' + id + '"]');
+        var el = byUid(id);
         if (el) applyOffset(el, state.offsets[id].dx, state.offsets[id].dy);
       });
       // وزوايا الميل كمان (زي المقاسات: inline عشان السلايدر يقدر
       // يغيّرها لحظيًا من غير ما تغلبه قاعدة !important المحقونة)
       state.rotations = p.rotations || {};
       Object.keys(state.rotations).forEach(function (rid) {
-        var el = document.querySelector('[data-elem-id="' + rid + '"]');
+        var el = byUid(rid);
         if (el) applyRotation(el, state.rotations[rid]);
       });
       // ومعاملات التكبير (زي الميل: inline عشان السحب يقدر يغيّرها
       // لحظيًا من غير ما تغلبه قاعدة !important المحقونة)
       state.scales = p.scales || {};
       Object.keys(state.scales).forEach(function (sid) {
-        var el = document.querySelector('[data-elem-id="' + sid + '"]');
+        var el = byUid(sid);
         if (el) applyScale(el, state.scales[sid]);
       });
       // النصوص المضافة بتتبني من سكريبت التخصيصات وقت التحميل —
@@ -1417,13 +1430,13 @@
     }
 
     if (msg.type === 'set-image' && p.id && p.url) {
-      var host = document.querySelector('[data-elem-id="' + p.id + '"]');
+      var host = byUid(p.id);
       if (host) applyImageTo(host, p.url);
     }
 
     // معاينة لحظية للون (مربعات الزي المقترح، أو لون خط من الشريط الجانبي)
     if (msg.type === 'set-color' && p.id) {
-      var cHost = document.querySelector('[data-elem-id="' + p.id + '"]');
+      var cHost = byUid(p.id);
       if (cHost) {
         if (p.color) setColorOn(cHost, p.color);
         else clearColorOn(cHost);
@@ -1479,13 +1492,13 @@
       var incoming = p.offsets || {};
       Object.keys(state.offsets).forEach(function (oldId) {
         if (!incoming[oldId]) {
-          var stale = document.querySelector('[data-elem-id="' + oldId + '"]');
+          var stale = byUid(oldId);
           if (stale) clearOffset(stale);
         }
       });
       state.offsets = incoming;
       Object.keys(incoming).forEach(function (oid) {
-        var el = document.querySelector('[data-elem-id="' + oid + '"]');
+        var el = byUid(oid);
         if (el) applyOffset(el, incoming[oid].dx, incoming[oid].dy);
       });
     }
@@ -1580,7 +1593,7 @@
       // 1) النصوص
       var texts = c.texts || {};
       Object.keys(state.originals).forEach(function (oid) {
-        var host = document.querySelector('[data-elem-id="' + oid + '"]');
+        var host = byUid(oid);
         if (!host) return;
         var want = (oid in texts) ? texts[oid] : state.originals[oid].text;
         if ((textTarget(host).innerText || '').trim() !== want) setTextOn(host, want);
@@ -1589,7 +1602,7 @@
       // 2) المقاسات
       var sizes = c.sizes || {};
       Object.keys(state.originals).forEach(function (oid) {
-        var host = document.querySelector('[data-elem-id="' + oid + '"]');
+        var host = byUid(oid);
         if (!host) return;
         if (oid in sizes) setSizeOn(host, sizes[oid]);
         else clearSizeOn(host);
@@ -1598,13 +1611,13 @@
       // 3) الإزاحات
       Object.keys(state.offsets).forEach(function (oid) {
         if (!(c.offsets || {})[oid]) {
-          var stale = document.querySelector('[data-elem-id="' + oid + '"]');
+          var stale = byUid(oid);
           if (stale) clearOffset(stale);
         }
       });
       state.offsets = c.offsets || {};
       Object.keys(state.offsets).forEach(function (oid) {
-        var el = document.querySelector('[data-elem-id="' + oid + '"]');
+        var el = byUid(oid);
         if (el) applyOffset(el, state.offsets[oid].dx, state.offsets[oid].dy);
       });
 
@@ -1616,19 +1629,19 @@
         }
       });
       hidden.forEach(function (hid) {
-        var el = document.querySelector('[data-elem-id="' + hid + '"]');
+        var el = byUid(hid);
         if (el) el.classList.add('wda-hidden-el');
       });
 
       // 5) الصور
       Object.keys(c.images || {}).forEach(function (iid) {
-        var host = document.querySelector('[data-elem-id="' + iid + '"]');
+        var host = byUid(iid);
         if (host) applyImageTo(host, c.images[iid]);
       });
 
       // 6) الألوان
       Object.keys(state.originals).forEach(function (oid) {
-        var h = document.querySelector('[data-elem-id="' + oid + '"]');
+        var h = byUid(oid);
         if (!h) return;
         var wantColor = (c.colors || {})[oid];
         if (wantColor) setColorOn(h, wantColor);
@@ -1638,26 +1651,26 @@
       // 7) زوايا الميل
       Object.keys(state.rotations).forEach(function (rid) {
         if (!((c.rotations || {})[rid] !== undefined)) {
-          var stale = document.querySelector('[data-elem-id="' + rid + '"]');
+          var stale = byUid(rid);
           if (stale) clearRotation(stale);
         }
       });
       state.rotations = c.rotations || {};
       Object.keys(state.rotations).forEach(function (rid) {
-        var el = document.querySelector('[data-elem-id="' + rid + '"]');
+        var el = byUid(rid);
         if (el) applyRotation(el, state.rotations[rid]);
       });
 
       // 7b) معاملات التكبير
       Object.keys(state.scales).forEach(function (sid) {
         if ((c.scales || {})[sid] === undefined) {
-          var stale = document.querySelector('[data-elem-id="' + sid + '"]');
+          var stale = byUid(sid);
           if (stale) clearScale(stale);
         }
       });
       state.scales = c.scales || {};
       Object.keys(state.scales).forEach(function (sid) {
-        var el = document.querySelector('[data-elem-id="' + sid + '"]');
+        var el = byUid(sid);
         if (el) applyScale(el, state.scales[sid]);
       });
 
@@ -1686,7 +1699,7 @@
 
     // معاينة لحظية لمقاس الخط وإنت بتحرّك السلايدر
     if (msg.type === 'set-size' && p.id) {
-      var sHost = document.querySelector('[data-elem-id="' + p.id + '"]');
+      var sHost = byUid(p.id);
       if (sHost) {
         if (p.size) setSizeOn(sHost, p.size);
         // فاضي = رجّعه لمقاس التصميم الأصلي
@@ -1702,7 +1715,7 @@
 
     // معاينة لحظية لزاوية الميل وإنت بتحرّك السلايدر
     if (msg.type === 'set-rotation' && p.id) {
-      var rHost = document.querySelector('[data-elem-id="' + p.id + '"]');
+      var rHost = byUid(p.id);
       if (rHost) {
         if (p.deg === null || p.deg === undefined || p.deg === '') {
           delete state.rotations[p.id];
@@ -1717,7 +1730,7 @@
 
     // معامل التكبير (بيتبعت من زرار "رجّع المقاس" في الشريط الجانبي)
     if (msg.type === 'set-scale' && p.id) {
-      var scHost = document.querySelector('[data-elem-id="' + p.id + '"]');
+      var scHost = byUid(p.id);
       if (scHost) {
         if (p.scale === null || p.scale === undefined || p.scale === '' || Number(p.scale) === 1) {
           delete state.scales[p.id];
@@ -1735,7 +1748,7 @@
 
     if (msg.type === 'reset-offsets') {
       Object.keys(state.offsets).forEach(function (oid) {
-        var el = document.querySelector('[data-elem-id="' + oid + '"]');
+        var el = byUid(oid);
         if (el) clearOffset(el);
       });
       state.offsets = {};
