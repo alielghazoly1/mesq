@@ -74,6 +74,9 @@ const invitationSchema = new mongoose.Schema({
     // بيتطبّق بخاصية scale المستقلة عشان يتعايش مع الإزاحة (transform)
     // والميل (rotate) من غير ما يمسح أي واحد فيهم. 1 = المقاس الأصلي.
     scales: { type: mongoose.Schema.Types.Mixed, default: {} },
+    // { "data-elem-id": "center" } — محاذاة النص (شمال/توسيط/يمين) جوه
+    // مساحة العنصر. تنسيق العميل، مش ميزة باقة.
+    aligns: { type: mongoose.Schema.Types.Mixed, default: {} },
     // اليوم المعلّم في نتيجة الشهر. 0 = يوم الفرح زي ما هو.
     calDay: { type: Number, default: 0 },
     // نصوص العميل ضافها بنفسه فوق التصميم.

@@ -238,6 +238,7 @@ export default function EditorPage() {
         colors: c.colors || {},
         rotations: c.rotations || {},
         scales: c.scales || {},
+        aligns: c.aligns || {},
         rsvp: c.rsvp || {},
         calDay: c.calDay || 0,
         added: c.added || [],
@@ -449,6 +450,18 @@ export default function EditorPage() {
         persistColorRef.current(p);
       }
 
+      // محاذاة النص اتغيّرت من زرار المحاذاة على الشريط العائم
+      if (msg.type === 'align-change' && p.id) {
+        rememberRef.current();
+        setDraft((d) => {
+          if (!d) return d;
+          const aligns = { ...(d.aligns || {}) };
+          if (p.align) aligns[p.id] = p.align; else delete aligns[p.id];
+          return { ...d, aligns };
+        });
+        setDirty(true);
+      }
+
       // ضغط على رقم في نتيجة الشهر — العلامة اتنقلت عليه جوه الدعوة
       // وإحنا بنحفظ اليوم ده
       if (msg.type === 'cal-day' && p.day) {
@@ -549,7 +562,7 @@ export default function EditorPage() {
     if (!runtimeReady || !draft) return;
     post('init', {
       offsets: draft.offsets, hidden: draft.hidden, sizes: draft.sizes,
-      colors: draft.colors, rotations: draft.rotations, scales: draft.scales, features,
+      colors: draft.colors, rotations: draft.rotations, scales: draft.scales, aligns: draft.aligns, features,
     });
     if (draft.fontFamily) post('set-font', { font: draft.fontFamily });
     // مرة واحدة بس عند الجاهزية — بعد كده كل تغيير بيتبعت لحظيًا لوحده
@@ -580,6 +593,7 @@ export default function EditorPage() {
         body.sizes = draft.sizes;
         body.rotations = draft.rotations;
         body.scales = draft.scales;
+        body.aligns = draft.aligns || {};
         body.rsvp = draft.rsvp || {};
         body.calDay = draft.calDay || 0;
         body.added = draft.added;
@@ -707,6 +721,7 @@ export default function EditorPage() {
         sizes: snap.customizations.sizes,
         rotations: snap.customizations.rotations || {},
         scales: snap.customizations.scales || {},
+        aligns: snap.customizations.aligns || {},
         calDay: snap.customizations.calDay || 0,
         added: snap.customizations.added,
       };
@@ -1067,6 +1082,7 @@ export default function EditorPage() {
       body.sizes = draft.sizes;
       body.rotations = draft.rotations;
       body.scales = draft.scales;
+        body.aligns = draft.aligns || {};
       body.offsets = draft.offsets;
       body.added = draft.added;
       body.calDay = draft.calDay || 0;

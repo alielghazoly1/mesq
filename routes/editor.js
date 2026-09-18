@@ -325,6 +325,7 @@ router.patch('/api/editor/:shortId/text', requireAuth, async (req, res) => {
         colors: { ...(c.colors || {}) },
         rotations: { ...(c.rotations || {}) },
         scales: { ...(c.scales || {}) },
+        aligns: { ...(c.aligns || {}) },
         rsvp: { ...(c.rsvp || {}) },
         calDay: c.calDay || 0,
         added: [...(c.added || [])],
@@ -456,6 +457,7 @@ router.patch('/api/editor/:shortId', requireAuth, async (req, res) => {
       colors: { ...(current.colors || {}) },
       rotations: { ...(current.rotations || {}) },
       scales: { ...(current.scales || {}) },
+      aligns: { ...(current.aligns || {}) },
       rsvp: { ...(current.rsvp || {}) },
       calDay: current.calDay || 0,
       added: [...(current.added || [])],
@@ -582,6 +584,16 @@ router.patch('/api/editor/:shortId', requireAuth, async (req, res) => {
         // من غير داعي
         const clamped = Math.max(0.2, Math.min(5, Math.round(f * 1000) / 1000));
         if (clamped !== 1) next.scales[id] = clamped;
+      });
+    }
+
+    // محاذاة النص — مش ميزة باقة. استبدال كامل عشان "رجّع للأصل" يشتغل.
+    if (body.aligns !== undefined) {
+      next.aligns = {};
+      Object.keys(body.aligns || {}).forEach((id) => {
+        if (isSafeElemId(id) && ['right', 'center', 'left'].includes(body.aligns[id])) {
+          next.aligns[id] = body.aligns[id];
+        }
       });
     }
 

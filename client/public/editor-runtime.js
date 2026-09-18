@@ -24,6 +24,8 @@
     // { elemId: factor } — معامل تكبير/تصغير كل عنصر (الصور بالذات).
     // في خاصية scale المستقلة، عشان تتعايش مع السحب والميل.
     scales: {},
+    // { elemId: 'left'|'center'|'right' } — محاذاة النص جوه العنصر
+    aligns: {},
     // التحرير (اختيار وكتابة) منفصل عن السحب: الباقة الأساسية عندها
     // التحرير من غير السحب
     editingOn: false, dragEnabled: false, imagesEnabled: false, colorsEnabled: false,
@@ -123,6 +125,12 @@
   var ICON_PALETTE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>';
   var ICON_RESIZE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" x2="14" y1="3" y2="10"/><line x1="3" x2="10" y1="21" y2="14"/></svg>';
   var ICON_FORM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 8h10M7 12h10M7 16h6"/></svg>';
+  // أيقونات المحاذاة — بتتغيّر حسب المحاذاة الحالية
+  var ICON_ALIGN = {
+    left: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="15" x2="3" y1="6" y2="6"/><line x1="17" x2="3" y1="12" y2="12"/><line x1="13" x2="3" y1="18" y2="18"/></svg>',
+    center: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" x2="6" y1="6" y2="6"/><line x1="21" x2="3" y1="12" y2="12"/><line x1="17" x2="7" y1="18" y2="18"/></svg>',
+    right: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" x2="9" y1="6" y2="6"/><line x1="21" x2="7" y1="12" y2="12"/><line x1="21" x2="11" y1="18" y2="18"/></svg>',
+  };
 
   var badge = document.createElement('div');
   badge.className = 'wda-badge';
@@ -445,6 +453,24 @@
     el.style.removeProperty('scale');
   }
 
+  /** المحاذاة الحالية للنص — من التخصيص أو من التصميم */
+  function currentAlign(el) {
+    var id = elemId(el);
+    if (id && state.aligns[id]) return state.aligns[id];
+    var ta = '';
+    try { ta = getComputedStyle(textTarget(el)).textAlign || ''; } catch (e) { ta = ''; }
+    if (ta === 'start') return 'right';   // RTL الافتراضي
+    if (ta === 'end') return 'left';
+    return (ta === 'left' || ta === 'right' || ta === 'center') ? ta : 'center';
+  }
+
+  function applyAlign(el, align) {
+    var s = shared();
+    if (s && s.setAlign) { s.setAlign(el, align); return; }
+    textTarget(el).style.setProperty('text-align', align, 'important');
+    el.style.setProperty('text-align', align, 'important');
+  }
+
   // ===== السحب =====
   /**
    * بيعلّم النصوص الظاهرة دلوقتي. بينادى أكتر من مرة عن قصد: الدعوة بتفتح
@@ -545,7 +571,9 @@
     // الكتابة للنصوص العادية بس. العداد التصميم بيعيد كتابته كل ثانية،
     // والعناصر المركّبة (الخدش/RSVP/الخريطة) الكتابة بتدهس تركيبها،
     // والصور مالهاش نص — دول بيتحركوا ويتكبّروا من الشريط الجانبي.
-    if (elementKind(best) === 'text') startWriting(best);
+    // زرار RSVP كمان: مبنفتحش كتابة عليه على طول عشان أيقونة تعديل
+    // الفورم تبان في الشريط العائم بدل ما ندخل كتابة لحظيًا ونخبّيها.
+    if (elementKind(best) === 'text' && !isRsvpEl(best)) startWriting(best);
   }, true);
 
   /** بيفتح التحرير (تعليم العناصر + الضغط عليها) — من غير سحب */
@@ -688,7 +716,20 @@
     else if (act === 'color') openColorPicker(state.selected);
     else if (act === 'resize') send('pick-scale', { id: elemId(state.selected) });
     else if (act === 'rsvp') send('pick-rsvp', {});
+    else if (act === 'align') cycleAlign(state.selected);
   });
+
+  // بيدوّر محاذاة النص: يمين ← توسيط ← شمال ← يمين ...
+  function cycleAlign(el) {
+    if (!el) return;
+    var order = ['right', 'center', 'left'];
+    var cur = currentAlign(el);
+    var next = order[(order.indexOf(cur) + 1) % order.length];
+    state.aligns[elemId(el)] = next;
+    applyAlign(el, next);
+    showTools(el, state.writing ? 'writing' : 'idle');   // الأيقونة تتحدّث
+    send('align-change', { id: elemId(el), align: next });
+  }
 
   // ===== منتقي لون الخط (من زرار اللون على الشريط العائم) =====
   // منتقي المتصفح لازم يكون عنصر <input type="color"> حقيقي عشان يفتح
@@ -764,6 +805,13 @@
       ? '<button type="button" data-act="color" title="غيّر لون الخط">' + ICON_PALETTE + '</button>'
       : '';
 
+    // زرار محاذاة النص (شمال/توسيط/يمين) — بيبان على أي نص، متاح لكل
+    // الباقات. بيدوّر بين التلات محاذاة، والأيقونة بتوري المحاذاة الحالية.
+    var alignBtn = (kind === 'text' && mode !== 'writing')
+      ? '<button type="button" data-act="align" title="محاذاة النص">'
+        + (ICON_ALIGN[currentAlign(el)] || ICON_ALIGN.center) + '</button>'
+      : '';
+
     // زرار تغيير حجم الصورة — بيبان على الصور والفيديو، متاح في أي باقة.
     // بيفتح تحكّم الحجم في الشريط الجانبي (وعلى الصورة نفسها مقابض الأركان).
     var resizeBtn = (kind === 'image' || kind === 'video')
@@ -775,7 +823,7 @@
       ? '<button type="button" data-act="rsvp" title="عدّل فورم تأكيد الحضور">' + ICON_FORM + '</button>'
       : '';
 
-    tools.innerHTML = first + resizeBtn + rsvpBtn + colorBtn
+    tools.innerHTML = first + resizeBtn + rsvpBtn + alignBtn + colorBtn
       + '<button type="button" data-act="delete" class="danger" title="احذف">' + ICON_TRASH + '</button>';
 
     var r = el.getBoundingClientRect();
@@ -1403,6 +1451,11 @@
         var el = byUid(sid);
         if (el) applyScale(el, state.scales[sid]);
       });
+      state.aligns = p.aligns || {};
+      Object.keys(state.aligns).forEach(function (aid) {
+        var el = byUid(aid);
+        if (el) applyAlign(el, state.aligns[aid]);
+      });
       // النصوص المضافة بتتبني من سكريبت التخصيصات وقت التحميل —
       // هنا بنفتح التفاعل معاها عشان تتمسك وتتعدّل
       document.querySelectorAll('[data-wda-added]').forEach(function (el) {
@@ -1687,6 +1740,18 @@
       Object.keys(state.scales).forEach(function (sid) {
         var el = byUid(sid);
         if (el) applyScale(el, state.scales[sid]);
+      });
+      // المحاذاة (رجوع للخلف)
+      Object.keys(state.aligns).forEach(function (aid) {
+        if (!((c.aligns || {})[aid])) {
+          var stale = byUid(aid);
+          if (stale) { var sh = shared(); if (sh && sh.clearAlign) sh.clearAlign(stale); }
+        }
+      });
+      state.aligns = c.aligns || {};
+      Object.keys(state.aligns).forEach(function (aid) {
+        var el = byUid(aid);
+        if (el) applyAlign(el, state.aligns[aid]);
       });
 
       // 8) اليوم المعلّم في نتيجة الشهر
