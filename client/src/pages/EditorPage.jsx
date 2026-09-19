@@ -1134,6 +1134,43 @@ export default function EditorPage() {
     }
   }
 
+  // زرار "نشر التعديلات" للدعوة المنشورة: بيحفظ كل التعديلات ويحدّث
+  // المعاينة فورًا. التعديلات أصلًا بتتحفظ لحظيًا وبتظهر للضيوف على طول،
+  // بس الزرار ده بيدّي العميل تأكيد واضح ويحدّث الشكل قدامه (خصوصًا
+  // حاجات زي الأغنية اللي المعاينة مبتحدّثهاش إلا مع إعادة التحميل).
+  // بينشر بس مش بيخصم رصيد — الدعوة منشورة خلاص.
+  async function updatePublished() {
+    setError('');
+    try {
+      const body = {};
+      if (has('fonts')) body.fontFamily = draft.fontFamily;
+      if (has('music')) {
+        body.audioUrl = draft.audioUrl;
+        body.audioStart = draft.audioStart || 0;
+        body.audioEnd = draft.audioEnd || 0;
+      }
+      body.offsets = draft.offsets;
+      if (has('images')) body.images = draft.images;
+      if (has('colors')) body.colors = draft.colors;
+      body.hidden = draft.hidden;
+      body.sizes = draft.sizes;
+      body.rotations = draft.rotations;
+      body.scales = draft.scales;
+      body.aligns = draft.aligns || {};
+      body.rsvp = draft.rsvp || {};
+      body.calDay = draft.calDay || 0;
+      body.added = draft.added;
+      body.share = draft.share;
+      await saveCustomizations({ shortId, ...body }).unwrap();
+      setDirty(false);
+      reloadFrame();
+      setJustSaved(true);
+      setTimeout(() => setJustSaved(false), 2000);
+    } catch (err) {
+      setError(err?.data?.error || t('editor.errorSave'));
+    }
+  }
+
   // تعديل نص من نصوص فورم تأكيد الحضور
   function setRsvpField(key, value) {
     setDraft((d) => (d ? { ...d, rsvp: { ...(d.rsvp || {}), [key]: value } } : d));
@@ -1440,15 +1477,23 @@ export default function EditorPage() {
           </div>
         ) : (
           <div className="flex shrink-0 items-center gap-2 border-b border-line bg-ok/[0.07] px-3 py-1.5">
-            <Check size={13} className="shrink-0 text-ok" />
-            <span className="min-w-0 flex-1 truncate text-[12px] font-bold text-ok">
+            <button
+              type="button"
+              onClick={updatePublished}
+              disabled={isSaving}
+              className="inline-flex shrink-0 items-center gap-1 rounded-full bg-gradient-to-l from-brass to-brass-soft px-3 py-1.5 text-[12px] font-extrabold text-[#241608] disabled:opacity-60"
+            >
+              {isSaving ? <Loader2 size={12} className="animate-spin" /> : <Rocket size={12} />}
+              {t('editor.republish')}
+            </button>
+            <span className="min-w-0 flex-1 truncate text-[11px] font-bold text-ok">
               {t('editor.publishedShort')}
             </span>
             <button
               type="button"
               onClick={copyLink}
               aria-label={t('result.copy')}
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-line text-ink active:bg-ink/5"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-line text-ink active:bg-ink/5"
             >
               {copied ? <Check size={13} className="text-ok" /> : <Copy size={13} />}
             </button>
@@ -1496,9 +1541,22 @@ export default function EditorPage() {
         </div>
       ) : (
         <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-line bg-ok/[0.07] px-5 py-2.5">
-          <span className="inline-flex items-center gap-1.5 text-[12.5px] font-bold text-ok">
-            <Check size={13} /> {t('editor.publishedTitle')}
-          </span>
+          <div className="flex items-center gap-2.5">
+            {/* زرار "نشر التعديلات" — العميل بيدوس عليه بعد ما يعدّل عشان
+                يتأكد إن تعديلاته اتطبّقت واتحدّثت المعاينة قدامه */}
+            <button
+              type="button"
+              onClick={updatePublished}
+              disabled={isSaving}
+              className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-l from-brass to-brass-soft px-5 py-2 text-[12.5px] font-extrabold text-[#241608] hover:brightness-105 disabled:opacity-60"
+            >
+              {isSaving ? <Loader2 size={13} className="animate-spin" /> : <Rocket size={13} />}
+              {t('editor.republish')}
+            </button>
+            <span className="inline-flex items-center gap-1.5 text-[12px] font-bold text-ok">
+              <Check size={13} /> {t('editor.publishedTitle')}
+            </span>
+          </div>
           <div className="flex items-center gap-2">
             <button
               type="button"
