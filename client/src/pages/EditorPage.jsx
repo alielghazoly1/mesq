@@ -17,7 +17,7 @@ import {
   ChevronLeft, ChevronRight, Upload, AlertCircle, Crown, FileText,
   Rocket, Trash2, ExternalLink, Copy, MousePointerClick, Undo2,
   PlayCircle, RotateCw, Layers, ALargeSmall, Minus, Plus, CalendarDays, Sparkles,
-  MapPin, Redo2, Palette, Stamp, TypeOutline, Share2, Eye, EyeOff, Maximize2,
+  MapPin, Redo2, Palette, Stamp, TypeOutline, Share2, Eye, EyeOff, Maximize2, Clock,
 } from 'lucide-react';
 import {
   useGetEditorQuery,
@@ -70,6 +70,60 @@ const TABS = [
 
 /** الكلام ده تاريخ؟ (فيه سنة زي 2027) — ساعتها بنفتحله نتيجة بدل كتابة */
 const looksLikeDate = (text) => /\b20\d{2}\b/.test(String(text || ''));
+
+// ===== كشف/تعديل الوقت جوه أي نص =====
+// أي عنصر فيه ساعة (زي "Starting at 6:00 PM" أو "19:30" أو "٨:٠٠ مساءً")
+// بيتفتحله منتقي وقت في الشريط الجانبي في كل الباقات. بنعدّل نص العنصر
+// نفسه (متاح في كل الباقات) — بنسيب الكلام اللي حوالين الساعة زي ما هو
+// ونغيّر رقم الساعة بس، بنفس صيغة الأصل (نظام ١٢/٢٤ ساعة، أرقام
+// عربي/إنجليزي، وكلمة الفترة زي ما هي).
+const AR_DIGITS = '٠١٢٣٤٥٦٧٨٩';
+const toWestern = (s) => String(s).replace(/[٠-٩]/g, (d) => String(AR_DIGITS.indexOf(d)));
+const toArabicDigits = (s) => String(s).replace(/[0-9]/g, (d) => AR_DIGITS[+d]);
+
+/** بيلاقي أول وقت في النص ويرجّع تفاصيله، أو null */
+function parseTime(text) {
+  const str = String(text || '');
+  const re = /([0-9٠-٩]{1,2})\s*:\s*([0-9٠-٩]{2})\s*(AM|PM|am|pm|صباحًا|صباحاً|صباحا|مساءً|مساءً|مساءا|مساء|ص|م)?/;
+  const m = re.exec(str);
+  if (!m) return null;
+  const hour = parseInt(toWestern(m[1]), 10);
+  const minute = parseInt(toWestern(m[2]), 10);
+  if (!Number.isFinite(hour) || !Number.isFinite(minute) || hour > 23 || minute > 59) return null;
+  const praw = m[3] || '';
+  const pl = praw.toLowerCase();
+  let period = null; // 'am' | 'pm' | null(24h)
+  if (pl === 'am' || pl === 'ص' || pl.indexOf('صباح') === 0) period = 'am';
+  else if (pl === 'pm' || pl === 'م' || pl.indexOf('مساء') === 0) period = 'pm';
+  // لو مفيش كلمة فترة بس الساعة أكبر من 12 يبقى نظام 24 ساعة
+  const is24h = !period;
+  return {
+    index: m.index, length: m[0].length,
+    hour, minute, period, is24h,
+    periodRaw: praw,
+    arabicDigits: /[٠-٩]/.test(m[1] + m[2]),
+    arabicPeriodWord: /صباح|مساء/.test(praw),
+  };
+}
+
+/** بيبني نص وقت جديد بنفس صيغة الأصل، ويحطه مكان الوقت القديم في النص */
+function applyTimeToText(originalText, parsed, hour24, minute) {
+  let token;
+  const mm = String(minute).padStart(2, '0');
+  if (parsed.is24h) {
+    token = String(hour24).padStart(2, '0') + ':' + mm;
+  } else {
+    let h12 = hour24 % 12; if (h12 === 0) h12 = 12;
+    const pm = hour24 >= 12;
+    let periodWord;
+    if (parsed.arabicPeriodWord) periodWord = pm ? 'مساءً' : 'صباحًا';
+    else if (parsed.periodRaw === 'ص' || parsed.periodRaw === 'م') periodWord = pm ? 'م' : 'ص';
+    else periodWord = pm ? 'PM' : 'AM';
+    token = h12 + ':' + mm + ' ' + periodWord;
+  }
+  if (parsed.arabicDigits) token = toArabicDigits(token);
+  return originalText.slice(0, parsed.index) + token + originalText.slice(parsed.index + parsed.length);
+}
 
 /**
  * خانة المكان: بتقبل لينك خرائط جوجل كامل، أو لينك مصغّر، أو مجرد
@@ -790,6 +844,20 @@ export default function EditorPage() {
   }, [undo, redo]);
 
   /** مقاس الخط للعنصر المختار — null يعني رجّعه لمقاس التصميم */
+  // تغيير الوقت في العنصر المختار (من منتقي الوقت في الشريط الجانبي).
+  // بنغيّر نص العنصر نفسه — متاح في كل الباقات زي أي تعديل نص.
+  function applyTime(hour24, minute) {
+    if (!selected) return;
+    const parsed = parseTime(selected.text);
+    if (!parsed) return;
+    const newText = applyTimeToText(selected.text, parsed, hour24, minute);
+    if (newText === selected.text) return;
+    remember();
+    post('set-text', { id: selected.id, text: newText });   // تحديث لحظي في الدعوة
+    saveTextRef.current({ id: selected.id, oldText: selected.text, newText });
+    setSelected((s) => (s ? { ...s, text: newText } : s));
+  }
+
   function setSize(px) {
     if (!selected) return;
     // السلايدر بيبعت عشرات القيم وهو بيتحرك — لو سجّلنا كل واحدة،
@@ -1750,6 +1818,65 @@ export default function EditorPage() {
                                 </p>
                               </div>
                             )}
+
+                            {/* الوقت — أي عنصر فيه ساعة (زي "بدء الحفل 8:00 PM")
+                                بيتفتحله منتقي وقت هنا في كل الباقات. بيعدّل نص
+                                العنصر نفسه (تعديل نص عادي، مش ميزة باقة). */}
+                            {(() => {
+                              const tp = parseTime(selected.text);
+                              if (!tp) return null;
+                              const h12 = tp.hour % 12 || 12;
+                              const pm = tp.period === 'pm';
+                              const isAr = tp.arabicPeriodWord || tp.periodRaw === 'ص' || tp.periodRaw === 'م';
+                              const hours = tp.is24h
+                                ? Array.from({ length: 24 }, (_, i) => i)
+                                : Array.from({ length: 12 }, (_, i) => i + 1);
+                              const mins = Array.from({ length: 60 }, (_, i) => i);
+                              const h24from = (hv) => (tp.is24h ? hv : ((hv % 12) + (pm ? 12 : 0)));
+                              return (
+                                <div className="mb-4 rounded-xl border border-brass/40 bg-brass/[0.07] p-3">
+                                  <div className="mb-2.5 flex items-center gap-1.5 text-[12px] font-bold text-[#7a5a1a]">
+                                    <Clock size={12} /> {t('editor.timeTitle')}
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <select
+                                      value={tp.is24h ? tp.hour : h12}
+                                      onChange={(e) => applyTime(h24from(Number(e.target.value)), tp.minute)}
+                                      className="rounded-lg border border-line bg-card px-2.5 py-2 text-[14px] font-bold text-ink focus:border-brass focus:outline-none"
+                                    >
+                                      {hours.map((h) => <option key={h} value={h}>{h}</option>)}
+                                    </select>
+                                    <span className="text-[15px] font-bold text-ink-dim">:</span>
+                                    <select
+                                      value={tp.minute}
+                                      onChange={(e) => applyTime(tp.is24h ? tp.hour : ((h12 % 12) + (pm ? 12 : 0)), Number(e.target.value))}
+                                      className="rounded-lg border border-line bg-card px-2.5 py-2 text-[14px] font-bold text-ink focus:border-brass focus:outline-none"
+                                    >
+                                      {mins.map((m) => <option key={m} value={m}>{String(m).padStart(2, '0')}</option>)}
+                                    </select>
+                                    {!tp.is24h && (
+                                      <div className="flex overflow-hidden rounded-lg border border-line">
+                                        <button
+                                          type="button"
+                                          onClick={() => applyTime(h12 % 12, tp.minute)}
+                                          className={`px-2.5 py-2 text-[12.5px] font-bold ${!pm ? 'bg-brass text-[#241608]' : 'bg-card text-ink-dim'}`}
+                                        >
+                                          {isAr ? 'ص' : 'AM'}
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => applyTime((h12 % 12) + 12, tp.minute)}
+                                          className={`px-2.5 py-2 text-[12.5px] font-bold ${pm ? 'bg-brass text-[#241608]' : 'bg-card text-ink-dim'}`}
+                                        >
+                                          {isAr ? 'م' : 'PM'}
+                                        </button>
+                                      </div>
+                                    )}
+                                  </div>
+                                  <p className="mt-2 text-[11px] text-ink-dim">{t('editor.timeHint')}</p>
+                                </div>
+                              );
+                            })()}
 
                             {/* اللون — لون الخط للكلام، ولون الخلفية
                                 للمربعات الفاضية (زي مربعات الزي المقترح) */}
