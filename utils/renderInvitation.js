@@ -204,7 +204,10 @@ function renderNewPathHtml(data, options) {
   if (config.coverStyle === 'envelope' && !config.autoOpen) {
     const bootCss = '<style id="wda-env-boot">'
       + '#coverScreen{display:none!important;}'
-      + 'html,body{background-color:#3a0011!important;}'
+      // خلفية ماروني **قبل الفتح بس** (منع ومضة بيضا لحد ما المظروف يبان).
+      // بعد الفتح (body.wda-env-open) بنسيب القالب يرجع للون خلفيته الطبيعي
+      // (الكريمي) — من غير كده كان اللون الأبيض بيختفي بعد التشغيل.
+      + 'body:not(.wda-env-open){background-color:#3a0011!important;}'
       + "body::before{content:'';position:fixed;inset:0;z-index:1500;"
       + "background:#3a0011 url('/royal/envelope-cover.jpg') center center/cover no-repeat;"
       + 'pointer-events:none;}'
