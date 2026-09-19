@@ -603,7 +603,7 @@ router.patch('/api/editor/:shortId', requireAuth, async (req, res) => {
     // نصوص فورم تأكيد الحضور — مش ميزة باقة، متاح للكل. كل قيمة نص
     // منظّف قصير، والمفاتيح المسموح بيها بس.
     if (body.rsvp !== undefined) {
-      const allowedKeys = ['title', 'intro', 'button', 'deadline',
+      const allowedKeys = ['title', 'intro', 'button', 'submit', 'deadline',
         'nameLabel', 'comeLabel', 'yesLabel', 'noLabel', 'foodLabel'];
       next.rsvp = {};
       const src = body.rsvp || {};

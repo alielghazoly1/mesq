@@ -145,7 +145,9 @@ function renderNewPathHtml(data, options) {
     yesOption: rsvpOv.yesLabel || strings.yesOption,
     noOption: rsvpOv.noLabel || strings.noOption,
     foodIntoleranceLabel: rsvpOv.foodLabel || strings.foodIntoleranceLabel,
-    submitButtonText: strings.submitButtonText,
+    // زرار الإرسال جوه الفورم (Submit) — العميل يقدر يغيّر كلامه من البانل.
+    // قبل كده كان ثابت من ملف اللغة فمكانش بيتغير أبدًا (شكوى العميل).
+    submitButtonText: rsvpOv.submit || strings.submitButtonText,
     rsvpSubmittingText: strings.rsvpSubmittingText,
     rsvpSuccessText: strings.rsvpSuccessText,
     rsvpErrorText: strings.rsvpErrorText,

@@ -1658,14 +1658,16 @@ export default function EditorPage() {
                           </p>
                           <div className="space-y-2.5">
                             {[
-                              ['button', 'كلمة زرار التأكيد'],
-                              ['intro', 'الكلام التمهيدي'],
-                              ['deadline', 'ملاحظة آخر ميعاد'],
+                              ['title', 'عنوان الفورم'],
                               ['nameLabel', 'عنوان خانة الاسم'],
                               ['comeLabel', 'سؤال "هتحضر؟"'],
                               ['yesLabel', 'كلمة "نعم"'],
                               ['noLabel', 'كلمة "لا"'],
                               ['foodLabel', 'عنوان خانة ملاحظات الأكل'],
+                              ['submit', 'كلمة زرار الإرسال'],
+                              ['intro', 'الكلام التمهيدي (بعض القوالب)'],
+                              ['deadline', 'ملاحظة آخر ميعاد (بعض القوالب)'],
+                              ['button', 'كلمة زرار فتح الفورم (بعض القوالب)'],
                             ].map(([key, label]) => (
                               <label key={key} className="block">
                                 <span className="mb-1 block text-[11.5px] font-bold text-ink-dim">{label}</span>
