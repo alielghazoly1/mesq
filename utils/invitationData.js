@@ -81,7 +81,15 @@ async function buildInvitationDataFromRequest(body, { skipMapNetwork, user, owns
   const language = template.languages.includes(body.language) ? body.language : template.languages[0];
   const occasionType = template.occasionTypes.includes(body.occasionType) ? body.occasionType : 'wedding';
 
-  const weddingDateOnly = new Date(body.weddingDate);
+  // مهم: بنفسّر "YYYY-MM-DD" **محليًا** (مش UTC). لو استخدمنا
+  // new Date("2026-10-09") المتصفح/Node بيعتبرها منتصف ليل UTC، وبعدين
+  // getFullYear/Month/Date المحلية بتزحلقها يوم كامل على أي سيرفر ورا UTC
+  // — فكان يوم الأسبوع والتاريخ يطلعوا غلط (٩ أكتوبر يبان يوم تاني).
+  // بنفكّها لأجزاء ونبنيها كتاريخ محلي عشان تفضل مظبوطة على أي سيرفر.
+  const dateParts = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(body.weddingDate || ''));
+  const weddingDateOnly = dateParts
+    ? new Date(Number(dateParts[1]), Number(dateParts[2]) - 1, Number(dateParts[3]))
+    : new Date(body.weddingDate);
   if (Number.isNaN(weddingDateOnly.getTime())) {
     throw Object.assign(new Error('تاريخ الحفلة غير صحيح.'), { status: 400 });
   }
