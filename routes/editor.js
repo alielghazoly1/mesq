@@ -615,6 +615,8 @@ router.patch('/api/editor/:shortId', requireAuth, async (req, res) => {
       // إخفاء/تغيير صورة النموذج
       if (src.hideImage) next.rsvp.hideImage = true;
       if (src.image && isAllowedMediaUrl(src.image)) next.rsvp.image = String(src.image);
+      // إخفاء خانة ملاحظات الأكل (مدخل اختياري يقدر العميل يشيله)
+      if (src.hideFood) next.rsvp.hideFood = true;
     }
 
     // اليوم المعلّم في نتيجة الشهر (1–31، و0 معناها يوم الفرح زي ما هو)

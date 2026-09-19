@@ -561,6 +561,17 @@
     if (e.target.closest && e.target.closest('.wda-tools')) return;
     if (Date.now() - state.lastDragEnd < 250) return;
 
+    // الضغط على أي جزء من فورم تأكيد الحضور (أو زرار RSVP في Royal) بيفتح
+    // بانل تعديل الفورم على اليمين على طول — العميل عايز يعدّل كلام كل مدخل
+    // ويشيل مدخلات من هناك، مش يكتب جوه الفورم مباشرة (ده بيكسر تركيبه).
+    var rsvpHost = e.target.closest && e.target.closest('#wdaRsvpForm, #rsvpBtn');
+    if (rsvpHost) {
+      e.preventDefault();
+      e.stopPropagation();
+      send('pick-rsvp', {});
+      return;
+    }
+
     // في وضع التحرير: أي رابط بيفتح نموذج/بوب-أب (زرار RSVP مثلاً هو
     // <a href="#popup:...">) متمنعش الضغطة إنها تفتح النموذج — عشان
     // العميل يقدر يختار الزرار ويعدّل كلامه بدل ما النموذج يفتح فوقه.

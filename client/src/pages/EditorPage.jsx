@@ -1680,8 +1680,21 @@ export default function EditorPage() {
                             ))}
                           </div>
 
-                          {/* صورة النموذج — إخفاء (لو موجودة في القالب) */}
+                          {/* شيل مدخلات — خانة ملاحظات الأكل اختيارية، ينفع تتشال
+                              من غير ما تكسر الفورم. خانة الاسم و"هتحضر؟" أساسيتين
+                              للرد فبيفضلوا. */}
                           <label className="mt-3 flex items-center gap-2 rounded-lg border border-line bg-card px-3 py-2">
+                            <input
+                              type="checkbox"
+                              checked={!!draft.rsvp?.hideFood}
+                              onChange={(e) => setRsvpField('hideFood', e.target.checked)}
+                              className="h-4 w-4 accent-emerald"
+                            />
+                            <span className="text-[12.5px] font-bold text-ink">شيل خانة ملاحظات الأكل</span>
+                          </label>
+
+                          {/* صورة النموذج — إخفاء (لو موجودة في القالب) */}
+                          <label className="mt-2 flex items-center gap-2 rounded-lg border border-line bg-card px-3 py-2">
                             <input
                               type="checkbox"
                               checked={!!draft.rsvp?.hideImage}
