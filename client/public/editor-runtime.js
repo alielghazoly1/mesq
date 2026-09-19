@@ -1156,6 +1156,11 @@
     // كان مخلّي الكتابة في النص المضاف "مش بتحصل".
     if (w.host.getAttribute('data-wda-added') && window.__wdaSetAdded) {
       window.__wdaSetAdded(elemId(w.host), { text: (!save || !after) ? w.before : after });
+    } else if (window.__wdaSetText) {
+      // نفس المشكلة بالظبط لنصوص التصميم: من غير مزامنة، المراقب بيرجّع
+      // النص المحفوظ القديم بعد ما العميل يخلّص الكتابة — فتعديله يبان
+      // وكأنه ماتمّش خالص (شكوى "بعمل صح ولا كأني عملت تعديل" بعد النشر).
+      window.__wdaSetText(elemId(w.host), (!save || !after) ? w.before : after);
     }
 
     if (state.editingOn) w.host.classList.add('wda-editable');
