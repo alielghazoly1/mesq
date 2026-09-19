@@ -370,11 +370,24 @@ const TEMPLATE_FIX_SCRIPT = `
     video.addEventListener('click', function (e) { e.stopPropagation(); if (started) finish(); });
   }
 
+  // ===== قفل التعديل النصي على عناصر ديكورية في Royal Maroon =====
+  // نقاط ألوان "قواعد اللباس" وزرار صندوق الهدية مالهمش نص يتكتب. بنعلّم
+  // عليهم بـ data-wda-no-text، وسكريبت المحرر بيمنع فتح الكتابة على أي
+  // عنصر عليه العلامة دي (في startWriting وفي شريط الأدوات). العلامة
+  // بتتحط على العناصر دي بس، فمفيش أي تأثير على باقي القوالب أو العناصر.
+  function lockDecorText() {
+    var sel = '.dress-dot, .gift-box-btn';
+    var nodes = document.querySelectorAll(sel);
+    for (var i = 0; i < nodes.length; i++) {
+      nodes[i].setAttribute('data-wda-no-text', '1');
+    }
+  }
+
   fixTimes();
   fixViktorMap(); fixMissingAudio();
-  fixMapLayer(); fixRoyalCardGap(); initEnvelopeCover();
-  document.addEventListener('DOMContentLoaded', function () { fixTimes(); fixViktorMap(); fixMissingAudio(); fixMapLayer(); fixRoyalCardGap(); initEnvelopeCover(); nudgeSoon(); });
-  window.addEventListener('load', function () { fixTimes(); fixViktorMap(); fixMissingAudio(); fixMapLayer(); fixRoyalCardGap(); initEnvelopeCover(); nudgeSoon(); });
+  fixMapLayer(); fixRoyalCardGap(); initEnvelopeCover(); lockDecorText();
+  document.addEventListener('DOMContentLoaded', function () { fixTimes(); fixViktorMap(); fixMissingAudio(); fixMapLayer(); fixRoyalCardGap(); initEnvelopeCover(); lockDecorText(); nudgeSoon(); });
+  window.addEventListener('load', function () { fixTimes(); fixViktorMap(); fixMissingAudio(); fixMapLayer(); fixRoyalCardGap(); initEnvelopeCover(); lockDecorText(); nudgeSoon(); });
 
   // الأوقات بتتحقن من سكريبت التصميم نفسه بعد التحميل، فبنعيد المحاولة
   // شوية ثواني بدل ما نفترض إنها موجودة من أول لحظة.

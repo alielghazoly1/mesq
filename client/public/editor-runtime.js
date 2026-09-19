@@ -801,6 +801,15 @@
       first = '<button type="button" data-act="edit" title="عدّل النص">' + ICON_PENCIL + '</button>';
     }
 
+    // عنصر ديكوري متعلّم عليه بقفل نصي (data-wda-no-text) — نشيل زرار
+    // "عدّل النص" عشان محدش يقدر يكتب فيه بالغلط. محكوم بالسمة اللي
+    // بتتحط على عناصر معيّنة بس (نقاط ألوان الزي، صندوق الهدية في Royal)،
+    // فصفر تأثير على باقي القوالب.
+    if (first.indexOf('data-act="edit"') !== -1
+      && el.closest && el.closest('[data-wda-no-text]')) {
+      first = '';
+    }
+
     // زرار لون الخط: بيبان على النصوص (بما فيها النص اللي العميل ضافه).
     // النص المضاف بتاع العميل بيقدر يلوّنه دايمًا — هو كتبه بنفسه؛
     // ونصوص التصميم بتتلوّن لو باقته فيها ميزة الألوان. مش بيبان وإنت
@@ -1048,6 +1057,11 @@
 
   function startWriting(el) {
     if (!el || state.writing) return;
+    // عناصر متعلّم عليها إنها ديكورية (نقاط ألوان الزي، صندوق الهدية في
+    // Royal Maroon) — التعديل النصي مقفول عليها. القفل محكوم بالسمة
+    // data-wda-no-text اللي طبقة الإصلاحات بتحطها على عناصر معيّنة بس،
+    // فمفيش أي تأثير على باقي القوالب أو باقي العناصر.
+    if (el.closest && el.closest('[data-wda-no-text]')) return;
     var target = textTarget(el);
     state.writing = { host: el, target: target, before: (target.innerText || '').trim() };
 
