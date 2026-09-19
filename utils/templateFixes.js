@@ -320,7 +320,7 @@ const TEMPLATE_FIX_SCRIPT = `
     var img = document.createElement('img');
     img.className = 'wda-env-media wda-env-img';
     img.alt = '';
-    img.src = '/royal/envelope-cover.png';
+    img.src = '/royal/envelope-cover.jpg';
 
     var video = document.createElement('video');
     video.className = 'wda-env-media wda-env-video';
@@ -357,6 +357,9 @@ const TEMPLATE_FIX_SCRIPT = `
     function finish() {
       if (finished) return;
       finished = true;
+      // نشيل خلفية المظروف اللي في الـ <head> (body::before) عشان محتوى
+      // الدعوة يبان بعد الفتح
+      document.body.classList.add('wda-env-open');
       ov.classList.add('wda-env-fade');
       setTimeout(function () {
         try { video.pause(); } catch (e) { /* لا شيء */ }

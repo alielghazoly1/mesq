@@ -194,6 +194,27 @@ function renderNewPathHtml(data, options) {
     '__INVITATION_CONFIG_JSON__',
     safeJsonForScript(config)
   );
+
+  // غلاف المظروف: بنخفي غلاف التصميم الأبيض **من أول لحظة** عبر CSS في
+  // الـ <head> — من غير كده كان بيظهر جزء من الثانية قبل ما سكريبت
+  // الغلاف الجديد يركب فوقه (ومضة المربع الأبيض اللي شكا منها العميل).
+  // وبنظهر صورة المظروف فورًا كخلفية (body::before) عشان مفيش أي فراغ
+  // لحد ما الطبقة التفاعلية (الفيديو/الضغط) تجهز. مش بيتحقن في وضع
+  // التحرير (autoOpen) عشان العميل يقدر يعدّل المحتوى عادي.
+  if (config.coverStyle === 'envelope' && !config.autoOpen) {
+    const bootCss = '<style id="wda-env-boot">'
+      + '#coverScreen{display:none!important;}'
+      + 'html,body{background-color:#3a0011!important;}'
+      + "body::before{content:'';position:fixed;inset:0;z-index:1500;"
+      + "background:#3a0011 url('/royal/envelope-cover.jpg') center center/cover no-repeat;"
+      + 'pointer-events:none;}'
+      + 'body.wda-env-open::before{display:none!important;}'
+      + '</style>';
+    html = html.indexOf('</head>') !== -1
+      ? html.replace('</head>', bootCss + '</head>')
+      : bootCss + html;
+  }
+
   html = injectTemplateFixes(html);
 
   // كارت المشاركة (واتساب/فيسبوك). لازم يتحقن حتى لو العميل مغيّرش
