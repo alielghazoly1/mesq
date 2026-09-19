@@ -282,11 +282,99 @@ const TEMPLATE_FIX_SCRIPT = `
     (document.head || document.documentElement).appendChild(st);
   }
 
+  // ===== غلاف المظروف بالفيديو (Royal Maroon — الدعوات الجديدة بس) =====
+  // الضيف بيشوف صورة مظروف مقفول، يدوس عليها فالفيديو يفتح المظروف،
+  // وأول ما يخلص الدعوة تفتح عادي. كله بالحقن من غير لمس ملف التصميم.
+  //
+  // متحكم فيه بعلمين عشان **ما نعككش** الدعوات القديمة:
+  //   (١) coverStyle === 'envelope' — بيتحط للدعوات الجديدة من Royal بس؛
+  //       الدعوات القديمة المشاركة مالهاش القيمة دي فبتفضل بغلافها الأصلي.
+  //   (٢) مش autoOpen — يعني بنتخطاه في المحرر (صاحب الدعوة بيعدّل المحتوى)؛
+  //       بيبان في المعاينة/عند الضيف بس.
+  function initEnvelopeCover() {
+    var cfg = window.__INVITATION_CONFIG__ || {};
+    if (cfg.coverStyle !== 'envelope') return;
+    if (cfg.autoOpen) return;
+    if (document.getElementById('wda-envelope')) return;
+    var coverScreen = document.getElementById('coverScreen');
+    var openBtn = document.getElementById('openBtn');
+    if (!coverScreen || !openBtn) return;   // Royal Maroon بس
+
+    var st = document.createElement('style');
+    st.textContent =
+      '#wda-envelope{position:fixed;inset:0;z-index:2000000;background:#3a0011;overflow:hidden;cursor:pointer;}'
+      + '#wda-envelope .wda-env-media{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;}'
+      + '#wda-envelope .wda-env-video{display:none;background:#3a0011;}'
+      + '#wda-envelope .wda-env-hint{position:absolute;left:0;right:0;bottom:40px;text-align:center;'
+      + 'color:rgba(255,238,222,.92);font-size:14px;letter-spacing:.5px;z-index:2;pointer-events:none;'
+      + 'text-shadow:0 1px 8px rgba(0,0,0,.5);animation:wda-env-pulse 1.9s ease-in-out infinite;}'
+      + '@keyframes wda-env-pulse{0%,100%{opacity:.5;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}'
+      + '#wda-envelope.wda-env-fade{opacity:0;transition:opacity .6s ease;}';
+    (document.head || document.documentElement).appendChild(st);
+
+    var ov = document.createElement('div');
+    ov.id = 'wda-envelope';
+
+    var img = document.createElement('img');
+    img.className = 'wda-env-media wda-env-img';
+    img.alt = '';
+    img.src = '/royal/envelope-cover.png';
+
+    var video = document.createElement('video');
+    video.className = 'wda-env-media wda-env-video';
+    video.src = '/royal/envelope-open.mp4';
+    video.preload = 'auto';
+    video.setAttribute('playsinline', '');
+    video.setAttribute('webkit-playsinline', '');
+
+    var hint = document.createElement('div');
+    hint.className = 'wda-env-hint';
+    hint.textContent = (cfg.language === 'en') ? 'Tap to open the invitation' : 'اضغط لفتح الدعوة';
+
+    ov.appendChild(img);
+    ov.appendChild(video);
+    ov.appendChild(hint);
+    document.body.appendChild(ov);
+    document.body.style.overflow = 'hidden';
+
+    var started = false, finished = false;
+
+    function finish() {
+      if (finished) return;
+      finished = true;
+      ov.classList.add('wda-env-fade');
+      setTimeout(function () {
+        try { video.pause(); } catch (e) { /* لا شيء */ }
+        if (ov.parentNode) ov.parentNode.removeChild(ov);
+        // بنشغّل الفتح الأصلي (بيكشف محتوى الدعوة + بيشغّل الموسيقى عبر
+        // ربط زرار الفتح في fixMissingAudio)
+        openBtn.click();
+      }, 600);
+    }
+
+    function start() {
+      if (started) return;
+      started = true;
+      hint.style.display = 'none';
+      video.style.display = 'block';
+      // أمان: لو الفيديو ما رضيش يشتغل أو مفيش مدة، نفتح الدعوة على طول
+      var fb = setTimeout(function () { if (!finished && video.paused) finish(); }, 1400);
+      video.addEventListener('playing', function () { clearTimeout(fb); }, { once: true });
+      var p = video.play();
+      if (p && p.catch) p.catch(function () { clearTimeout(fb); finish(); });
+    }
+
+    ov.addEventListener('click', function () { if (!started) start(); });
+    video.addEventListener('ended', finish);
+    // دوسة على الفيديو وهو شغال = تخطي للدعوة على طول
+    video.addEventListener('click', function (e) { e.stopPropagation(); if (started) finish(); });
+  }
+
   fixTimes();
   fixViktorMap(); fixMissingAudio();
-  fixMapLayer(); fixRoyalCardGap();
-  document.addEventListener('DOMContentLoaded', function () { fixTimes(); fixViktorMap(); fixMissingAudio(); fixMapLayer(); fixRoyalCardGap(); nudgeSoon(); });
-  window.addEventListener('load', function () { fixTimes(); fixViktorMap(); fixMissingAudio(); fixMapLayer(); fixRoyalCardGap(); nudgeSoon(); });
+  fixMapLayer(); fixRoyalCardGap(); initEnvelopeCover();
+  document.addEventListener('DOMContentLoaded', function () { fixTimes(); fixViktorMap(); fixMissingAudio(); fixMapLayer(); fixRoyalCardGap(); initEnvelopeCover(); nudgeSoon(); });
+  window.addEventListener('load', function () { fixTimes(); fixViktorMap(); fixMissingAudio(); fixMapLayer(); fixRoyalCardGap(); initEnvelopeCover(); nudgeSoon(); });
 
   // الأوقات بتتحقن من سكريبت التصميم نفسه بعد التحميل، فبنعيد المحاولة
   // شوية ثواني بدل ما نفترض إنها موجودة من أول لحظة.

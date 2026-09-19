@@ -148,6 +148,9 @@ router.post('/api/editor/draft', requireAuth, async (req, res) => {
           isPremium: true,
           status: 'draft',
           ...data,
+          // غلاف المظروف بالفيديو للدعوات الجديدة من Royal Maroon بس —
+          // الدعوات القديمة المشاركة مالهاش الحقل ده فبتفضل بغلافها الأصلي.
+          coverStyle: template.id === 'royal-maroon' ? 'envelope' : '',
         });
       } catch (err) {
         if (err.code === 11000) continue;

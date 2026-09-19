@@ -185,6 +185,9 @@ function renderNewPathHtml(data, options) {
     // لازم في أي دعوة متحفظة فعليًا عشان نعرف نربط ردود الحضور (RSVP)
     // بيها؛ بيفضل null في وضع المعاينة (مفيش دعوة محفوظة أصلاً نربط بيها)
     shortId: data.shortId || null,
+    // شكل الفتحة ('' = الأصلي، 'envelope' = غلاف المظروف بالفيديو). الدعوات
+    // القديمة مالهاش الحقل ده فبتفضل بالأصلي — طبقة الحقن بتشوف القيمة دي.
+    coverStyle: data.coverStyle || '',
   };
 
   let html = readTemplateFile(template.file).replace(

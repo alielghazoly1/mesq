@@ -42,6 +42,12 @@ const invitationSchema = new mongoose.Schema({
   status: { type: String, enum: ['draft', 'published'], default: 'published', index: true },
   publishedAt: { type: Date, default: null },
 
+  // شكل فتحة الدعوة. الافتراضي '' (فارغ) عن قصد: كل الدعوات القديمة (اللي
+  // مفيهاش الحقل ده أصلًا، والمشاركة فعلًا) لازم تفضل بغلافها الأصلي بالظبط
+  // من غير أي تغيير. 'envelope' = غلاف المظروف بالفيديو، بيتحط للدعوات
+  // الجديدة اللي بتتعمل من قالب Royal Maroon بعد إضافة الميزة دي بس.
+  coverStyle: { type: String, default: '' },
+
   // تخصيصات المحرر — بتتحقن وقت العرض كـ CSS/JS فوق التصميم
   // (utils/customizations.js). ملفات views/*.html مبتتغيّرش أبدًا.
   customizations: {
