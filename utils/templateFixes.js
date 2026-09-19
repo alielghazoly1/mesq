@@ -148,6 +148,8 @@ const TEMPLATE_FIX_SCRIPT = `
       btn.setAttribute('aria-pressed', on ? 'true' : 'false');
     }
     function startMusic() {
+      // غلاف المظروف بيشغّل موسيقاه الخاصة — ما نشغّلش موسيقى تانية فوقها.
+      if (window.__wdaEnvSoundActive) return;
       if (!hasSrc() || !audio.paused) return;
       var p = audio.play();
       if (p && p.catch) p.catch(function () { /* المتصفح رفض التشغيل */ });
@@ -326,6 +328,19 @@ const TEMPLATE_FIX_SCRIPT = `
     video.preload = 'auto';
     video.setAttribute('playsinline', '');
     video.setAttribute('webkit-playsinline', '');
+    // صوت الفيديو مكتوم — الصوت بييجي من ملف الموسيقى تحت بدله
+    video.muted = true;
+    video.setAttribute('muted', '');
+
+    // الصوت اللي بيشتغل مع فتح المظروف (بيفضل شغّال كخلفية موسيقية للدعوة).
+    // بيتحط على body مش جوه الغلاف عشان ما يتشالش مع الغلاف بعد الفتح.
+    var envSound = document.createElement('audio');
+    envSound.src = 'https://res.cloudinary.com/dxtkmyscw/video/upload/v1789700090/mithaq/library/music/asescpbq35fmshnm2exj.mp3';
+    envSound.loop = true;
+    envSound.preload = 'auto';
+    envSound.setAttribute('playsinline', '');
+    envSound.style.display = 'none';
+    document.body.appendChild(envSound);
 
     var hint = document.createElement('div');
     hint.className = 'wda-env-hint';
@@ -357,6 +372,14 @@ const TEMPLATE_FIX_SCRIPT = `
       started = true;
       hint.style.display = 'none';
       video.style.display = 'block';
+      // الصوت بيشتغل مع أول ضغطة (تفاعل مستخدم) فالمتصفح بيسمح بيه.
+      // العلامة دي بتمنع موسيقى الدعوة الداخلية إنها تشتغل فوق صوت الغلاف.
+      window.__wdaEnvSoundActive = true;
+      try {
+        envSound.currentTime = 0;
+        var ap = envSound.play();
+        if (ap && ap.catch) ap.catch(function () { /* المتصفح رفض التشغيل */ });
+      } catch (e) { /* لا شيء */ }
       // أمان: لو الفيديو ما رضيش يشتغل أو مفيش مدة، نفتح الدعوة على طول
       var fb = setTimeout(function () { if (!finished && video.paused) finish(); }, 1400);
       video.addEventListener('playing', function () { clearTimeout(fb); }, { once: true });
