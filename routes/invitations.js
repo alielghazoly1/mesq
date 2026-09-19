@@ -65,6 +65,9 @@ router.get('/api/public-stats', async (req, res) => {
 router.post('/api/preview', async (req, res) => {
   try {
     const data = await buildInvitationDataFromRequest(req.body || {}, { skipMapNetwork: true, user: req.user });
+    // المعاينة الحية توري نفس فتحة الدعوات الجديدة — Royal Maroon بغلاف
+    // المظروف بالفيديو (الدعوات القديمة المشاركة مالهاش الحقل ده فتفضل زيها).
+    if (data.templateId === 'royal-maroon') data.coverStyle = 'envelope';
     const html = renderNewPathHtml(data);
     res.set('Content-Type', 'text/html; charset=utf-8');
     return res.send(html);
@@ -411,6 +414,9 @@ router.get('/preview-sample/:templateId', (req, res) => {
     weddingDateTime: sampleDate,
     // اتقرر إن المعاينة تفضل بشاشة الغلاف الطبيعية من غير فتح تلقائي
     autoOpen: false,
+    // معاينة القالب لازم توري نفس فتحة الدعوات الجديدة — Royal Maroon
+    // بغلاف المظروف بالفيديو (الدعوات القديمة المشاركة مالهاش الحقل ده).
+    coverStyle: template.id === 'royal-maroon' ? 'envelope' : '',
   };
 
   const html = renderNewPathHtml(data);
