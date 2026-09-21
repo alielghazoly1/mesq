@@ -17,7 +17,9 @@ const Track = require('../models/Track');
 const SiteTotals = require('../models/SiteTotals');
 const { cleanupExpiredInvitations, DEFAULT_GRACE_DAYS } = require('../utils/cleanupExpired');
 const { TEMPLATES } = require('../templates/registry');
-const { getPackage, PACKAGES, packageAllowedInCountry } = require('../packages/registry');
+const {
+  getPackage, PACKAGES, packageAllowedInCountry, EDIT_WINDOW_DAYS,
+} = require('../packages/registry');
 const PricingSettings = require('../models/PricingSettings');
 const { getPaymentSettings, updatePaymentSettings } = require('../utils/paymentSettings');
 const {
@@ -25,6 +27,9 @@ const {
   invalidateCache: invalidatePricingCache,
 } = require('../utils/pricing');
 const { sanitizeText } = require('../utils/sanitize');
+const {
+  editUntilAfterActivation, extendEditUntil, editWindowInfo,
+} = require('../utils/editWindow');
 const { logAdminAction } = require('../utils/adminAudit');
 const { requireAdminSession } = require('../middleware/adminAuth');
 
@@ -60,6 +65,9 @@ function subscriptionOf(user) {
     status: sub.status || 'active',
     suspendedAt: sub.suspendedAt || null,
     adminNote: sub.adminNote || '',
+    // بيتكتب هنا لأن الكتابة بتستبدل الاشتراك كله — لو اتنسى هنا أي إجراء
+    // من اللوحة كان هيمسح تاريخ انتهاء التعديل من غير ما حد يلاحظ
+    editUntil: sub.editUntil || null,
   };
 }
 
@@ -299,6 +307,7 @@ router.get('/admin/api/users', requireAdminSession, async (req, res) => {
           packageName: pkg ? (pkg.name.ar || pkg.name.en) : null,
           invitationsLeft: sub.invitationsLeft || 0,
           activatedAt: sub.activatedAt || null,
+          ...(sub.packageId ? editWindowInfo(sub) : {}),
           invitations: counts.total,
           premiumInvitations: counts.premium,
           drafts: counts.drafts,
@@ -365,6 +374,7 @@ router.get('/admin/api/users/:id', requireAdminSession, async (req, res) => {
           status: sub.packageId ? (sub.status || 'active') : 'none',
           suspendedAt: sub.suspendedAt || null,
           adminNote: sub.adminNote || '',
+          ...editWindowInfo(sub),
         },
       },
       totals: {
@@ -421,6 +431,7 @@ router.patch('/admin/api/users/:id/subscription', requireAdminSession, async (re
       packageId: sub.packageId || null,
       invitationsLeft: sub.invitationsLeft || 0,
       status: sub.status || 'active',
+      editUntil: sub.editUntil || null,
     };
 
     if (action === 'suspend') {
@@ -435,15 +446,33 @@ router.patch('/admin/api/users/:id/subscription', requireAdminSession, async (re
       user.subscription = {
         packageId: null, invitationsLeft: 0, activatedAt: null,
         status: 'active', suspendedAt: null, adminNote: sub.adminNote || '',
+        editUntil: null,
       };
     } else if (action === 'grant') {
       const pkg = getPackage(String((req.body || {}).packageId || ''));
       if (!pkg) return res.status(400).json({ error: 'الباقة دي مش موجودة.' });
+      // مدة التعديل بتتحسب من حالة الاشتراك **قبل** المنح (before) مش بعدها
+      const editUntil = editUntilAfterActivation({
+        packageId: before.packageId, editUntil: before.editUntil,
+      });
       user.subscription.packageId = pkg.id;
       user.subscription.invitationsLeft = (sub.invitationsLeft || 0) + pkg.invitations;
       user.subscription.activatedAt = new Date();
       user.subscription.status = 'active';
       user.subscription.suspendedAt = null;
+      user.subscription.editUntil = editUntil;
+    } else if (action === 'extendEdit') {
+      // مدّ فترة التعديل (مثلًا لعميل محتاج تعديل بعد ما مدته خلصت)
+      if (!sub.packageId) return res.status(400).json({ error: 'العميل ده مش مشترك أصلًا.' });
+      const days = parseInt((req.body || {}).days, 10);
+      if (Number.isNaN(days) || days < 1 || days > 365) {
+        return res.status(400).json({ error: 'عدد الأيام لازم يكون بين 1 و 365.' });
+      }
+      user.subscription.editUntil = extendEditUntil({ editUntil: before.editUntil }, days);
+    } else if (action === 'unlimitedEdit') {
+      // تعديل مفتوح من غير حد (باقات البيزنس والقاعات مثلًا)
+      if (!sub.packageId) return res.status(400).json({ error: 'العميل ده مش مشترك أصلًا.' });
+      user.subscription.editUntil = null;
     } else if (action === 'setCredits') {
       const credits = parseInt((req.body || {}).invitationsLeft, 10);
       if (Number.isNaN(credits) || credits < 0 || credits > 10000) {
@@ -466,6 +495,7 @@ router.patch('/admin/api/users/:id/subscription', requireAdminSession, async (re
         packageId: user.subscription.packageId,
         invitationsLeft: user.subscription.invitationsLeft,
         status: user.subscription.status,
+        editUntil: user.subscription.editUntil || null,
       },
     });
 
@@ -567,6 +597,10 @@ router.post('/admin/api/orders/:id/activate', requireAdminSession, async (req, r
 
     // الرصيد بيتجمع مش بيتستبدل — لو اشترى باقة تانية، الدعوات بتتضاف
     const current = (user.subscription && user.subscription.invitationsLeft) || 0;
+    // مدة التعديل الجديدة — بتتحسب من الاشتراك **قبل** ما نستبدله (utils/editWindow.js):
+    // عميل جديد ← 30 يوم من دلوقتي، عميل جدّد ← بتتضاف فوق اللي فاضل،
+    // عميل قديم (تعديله مفتوح) ← بيفضل مفتوح.
+    const editUntil = editUntilAfterActivation(user.subscription);
     user.subscription = {
       packageId: pkg.id,
       invitationsLeft: current + pkg.invitations,
@@ -574,6 +608,7 @@ router.post('/admin/api/orders/:id/activate', requireAdminSession, async (req, r
       status: 'active',
       suspendedAt: null,
       adminNote: (user.subscription && user.subscription.adminNote) || '',
+      editUntil,
     };
     await saveUserFields(user, { subscription: subscriptionOf(user) });
 
@@ -585,7 +620,11 @@ router.post('/admin/api/orders/:id/activate', requireAdminSession, async (req, r
       type: 'order', id: order._id, label: user.email,
     }, { packageId: pkg.id, price: order.price, currency: order.currency, creditsAfter: user.subscription.invitationsLeft });
 
-    return res.json({ ok: true, invitationsLeft: user.subscription.invitationsLeft });
+    return res.json({
+      ok: true,
+      invitationsLeft: user.subscription.invitationsLeft,
+      editUntil: editUntil ? editUntil.toISOString() : null,
+    });
   } catch (err) {
     console.error('Error activating order:', err);
     return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
@@ -623,6 +662,7 @@ router.post('/admin/api/orders/:id/cancel', requireAdminSession, async (req, res
         if (otherActive === 0) {
           user.subscription.packageId = null;
           user.subscription.activatedAt = null;
+          user.subscription.editUntil = null;
         }
         await saveUserFields(user, { subscription: subscriptionOf(user) });
       }
@@ -825,6 +865,8 @@ router.get('/admin/api/packages', requireAdminSession, async (req, res) => {
   try {
     const settings = await getPricingSettingsCached();
     res.json({
+      // مدة التعديل بعد التفعيل (0 = القاعدة متقفلة) — اللوحة بتكتبها في شرح التفعيل
+      editWindowDays: EDIT_WINDOW_DAYS,
       packages: PACKAGES.map((p) => {
         const egp = priceFor(p, 'EGP', settings);
         const usd = priceFor(p, 'USD', settings);

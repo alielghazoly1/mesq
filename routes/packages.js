@@ -6,8 +6,9 @@ const express = require('express');
 
 const Order = require('../models/Order');
 const {
-  getPackage, currencyForCountry, packageAllowedInCountry,
+  getPackage, currencyForCountry, packageAllowedInCountry, EDIT_WINDOW_DAYS,
 } = require('../packages/registry');
+const { editWindowInfo } = require('../utils/editWindow');
 const { requireAuth } = require('../middleware/auth');
 const { getPaymentSettings, publicPaymentInfo } = require('../utils/paymentSettings');
 const { pricedPackagesFor, priceForOrder } = require('../utils/pricing');
@@ -22,7 +23,10 @@ const router = express.Router();
 // ممكن يتغيّر قدامه بعد التسجيل — وده أسوأ من إننا نستناه يسجّل.
 router.get('/api/packages', async (req, res) => {
   if (!req.user) {
-    return res.json({ requiresAuth: true, packages: [], currency: null, subscription: null });
+    return res.json({
+      requiresAuth: true, packages: [], currency: null, subscription: null,
+      editWindowDays: EDIT_WINDOW_DAYS,
+    });
   }
   try {
     const country = req.user.country;
@@ -31,6 +35,10 @@ router.get('/api/packages', async (req, res) => {
       packages: await pricedPackagesFor(country, req.query.lang),
       currency: currencyForCountry(country),
       subscription: req.user.subscription || null,
+      // مدة التعديل بعد التفعيل (بالأيام) — الواجهة بتكتبها للعميل من هنا،
+      // مش رقم متكتوب في الترجمة، عشان أي تغيير في الإعداد يبان لوحده
+      editWindowDays: EDIT_WINDOW_DAYS,
+      edit: editWindowInfo(req.user.subscription),
     });
   } catch (err) {
     console.error('Error loading packages:', err);

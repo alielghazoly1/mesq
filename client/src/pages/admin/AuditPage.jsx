@@ -19,6 +19,8 @@ const ACTIONS = {
   'subscription.grant': { label: 'منح باقة', tone: 'gold' },
   'subscription.setCredits': { label: 'تعديل رصيد', tone: 'warn' },
   'subscription.note': { label: 'ملاحظة إدارية', tone: 'muted' },
+  'subscription.extendEdit': { label: 'مدّ مدة التعديل', tone: 'warn' },
+  'subscription.unlimitedEdit': { label: 'تعديل بلا حدود', tone: 'gold' },
   'user.block': { label: 'حظر حساب', tone: 'danger' },
   'user.unblock': { label: 'رفع حظر', tone: 'ok' },
   'settings.payment': { label: 'تعديل بيانات الدفع', tone: 'muted' },
@@ -29,6 +31,10 @@ function summarize(entry) {
   const m = entry.meta || {};
   if (entry.action === 'subscription.setCredits' && m.before && m.after) {
     return `الرصيد: ${m.before.invitationsLeft} ← ${m.after.invitationsLeft}`;
+  }
+  if ((entry.action === 'subscription.extendEdit' || entry.action === 'subscription.unlimitedEdit') && m.after) {
+    const until = m.after.editUntil ? new Date(m.after.editUntil).toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric' }) : 'من غير حد';
+    return `التعديل لحد: ${until}`;
   }
   if (entry.action === 'subscription.grant' && m.after) {
     return `الباقة: ${m.after.packageId} · الرصيد بقى ${m.after.invitationsLeft}`;

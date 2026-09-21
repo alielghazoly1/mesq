@@ -14,6 +14,8 @@ import {
 } from '../store/api.js';
 import EditorDemo from '../components/EditorDemo.jsx';
 import Footer from '../components/Footer.jsx';
+import { whatsappLink } from '../lib/contact.js';
+import { formatDay } from '../lib/editWindow.js';
 
 function StatCard({ icon: Icon, value, label, gold }) {
   return (
@@ -134,6 +136,12 @@ export default function DashboardPage() {
   }
 
   const isPremium = !!data.subscription.packageId;
+  // مدة التعديل: null = من غير حد (كل اللي اشترى قبل القاعدة دي)
+  const editEnded = isPremium && data.subscription.editOpen === false;
+  const editRunning = isPremium && data.subscription.editOpen !== false
+    && !!data.subscription.editUntil && data.subscription.editWindowDays > 0;
+  // آخر 5 أيام بنلوّن التنبيه — عشان يلحق يخلّص تعديله
+  const editLastDays = editRunning && (data.subscription.editDaysLeft || 0) <= 5;
 
   return (
     <div className="min-h-screen bg-ivory">
@@ -163,7 +171,7 @@ export default function DashboardPage() {
             </div>
             <p className={`text-[13.5px] ${isPremium ? 'text-ivory/70' : 'text-ink-dim'}`}>
               {isPremium
-                ? t('dash.premiumSubtitle', { count: data.subscription.invitationsLeft })
+                ? t(editEnded ? 'dash.premiumSubtitleClosed' : 'dash.premiumSubtitle', { count: data.subscription.invitationsLeft })
                 : t('dash.freeSubtitle')}
             </p>
           </div>
@@ -176,6 +184,47 @@ export default function DashboardPage() {
             </Link>
           )}
         </motion.div>
+
+        {/* مدة التعديل: باقي كام يوم، أو خلصت وإيه الحل. الدعوات نفسها شغالة في
+            الحالتين — ده أهم كلام في الرسالة اللي تحت */}
+        {editRunning && (
+          <div className={`mb-8 flex items-start gap-2.5 rounded-2xl border px-5 py-3.5 text-[13.5px] ${
+            editLastDays ? 'border-brass/50 bg-brass/[0.09] text-ink' : 'border-emerald/30 bg-emerald/[0.06] text-emerald'
+          }`}
+          >
+            <Wand2 size={15} className="mt-0.5 shrink-0" />
+            <span>
+              {t('dash.editOpenUntil', {
+                date: formatDay(data.subscription.editUntil, lang),
+                days: data.subscription.editDaysLeft,
+              })}
+            </span>
+          </div>
+        )}
+        {editEnded && (
+          <div className="mb-8 rounded-[22px] border border-brass/50 bg-brass/[0.09] p-5">
+            <div className="mb-1.5 flex items-center gap-2 font-serif text-[16px] font-bold text-ink">
+              <Lock size={15} className="text-brass" /> {t('dash.editEndedTitle')}
+            </div>
+            <p className="mb-4 max-w-[70ch] text-[13.5px] leading-[1.9] text-ink-dim">{t('dash.editEndedBody')}</p>
+            <div className="flex flex-wrap gap-2.5">
+              <a
+                href={whatsappLink(t('dash.editWaMsg'))}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-l from-brass to-brass-soft px-5 py-2.5 text-[13px] font-extrabold text-[#241608] hover:brightness-105"
+              >
+                <MessageCircle size={15} /> {t('dash.editWa')}
+              </a>
+              <Link
+                to="/packages"
+                className="inline-flex items-center gap-2 rounded-full border border-ink px-5 py-2.5 text-[13px] font-bold text-ink hover:bg-ink/5"
+              >
+                <Crown size={14} /> {t('dash.editPackages')}
+              </Link>
+            </div>
+          </div>
+        )}
 
         {/* العميل المجاني بيدخل لوحته كل شوية يتابع دعوته — فده أكتر
             مكان بيشوفه. الفيديو هنا بيوريه اللي فايته من غير ما نقاطعه */}
@@ -247,14 +296,21 @@ export default function DashboardPage() {
                       <div className="flex gap-2">
                         {/* المحرر للدعوات المميزة بس — نفس الشرط المطبّق
                             على السيرفر في routes/editor.js */}
-                        {inv.isPremium && (
+                        {inv.isPremium && (editEnded ? (
+                          <span
+                            title={t('dash.editEndedTitle')}
+                            className="inline-flex items-center gap-1 rounded-full border border-line px-3.5 py-2 text-[12.5px] font-bold text-ink-dim"
+                          >
+                            <Lock size={12} /> {t('dash.editLocked')}
+                          </span>
+                        ) : (
                           <Link
                             to={`/editor/${inv.shortId}`}
                             className="inline-flex items-center gap-1 rounded-full bg-gradient-to-l from-brass to-brass-soft px-3.5 py-2 text-[12.5px] font-extrabold text-[#241608] hover:brightness-105"
                           >
                             <Wand2 size={12} /> {inv.isDraft ? t('dash.continueDraft') : t('dash.edit')}
                           </Link>
-                        )}
+                        ))}
                         {/* المسودة لسه مالهاش ضيوف ولا لينك يتشارك، فمفيش
                             لازمة لزراير الردود والفتح عليها */}
                         {!inv.isDraft && (

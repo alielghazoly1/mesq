@@ -19,6 +19,7 @@ const {
   sanitizeAddedItem, BUILT_IN_SEALS, SEAL_ELEM_ID,
 } = require('../utils/customizations');
 const { sanitizeShare, defaultShare } = require('../utils/shareTags');
+const { isEditWindowOpen, editWindowEndedBody } = require('../utils/editWindow');
 
 const router = express.Router();
 
@@ -26,8 +27,12 @@ const router = express.Router();
 // الرصيد، فمن غير الحد ده حد يقدر يعمل آلاف الدعوات من غير ما يدفع.
 const MAX_OPEN_DRAFTS = 5;
 
-/** بيجيب الدعوة ويتأكد إنها بتاعت اللي طالبها وإنها مميزة */
-async function loadOwnedInvitation(req, res) {
+/**
+ * بيجيب الدعوة ويتأكد إنها بتاعت اللي طالبها وإنها مميزة، وإن مدة التعديل
+ * لسه مفتوحة (اقرا utils/editWindow.js). المسح بس (allowExpired) مسموح بعد
+ * ما المدة تخلص — مسح مسودة مش تعديل.
+ */
+async function loadOwnedInvitation(req, res, { allowExpired = false } = {}) {
   const invitation = await Invitation.findOne({ shortId: req.params.shortId });
   if (!invitation) {
     res.status(404).json({ error: 'الدعوة دي مش موجودة.' });
@@ -40,6 +45,10 @@ async function loadOwnedInvitation(req, res) {
   }
   if (!invitation.isPremium) {
     res.status(403).json({ error: 'المحرر متاح للدعوات المميزة بس — اشترك في باقة.' });
+    return null;
+  }
+  if (!allowExpired && !isEditWindowOpen(req.user.subscription)) {
+    res.status(403).json(editWindowEndedBody(req.user.subscription));
     return null;
   }
   return invitation;
@@ -57,6 +66,8 @@ function featuresFor(user) {
   // الباقة الموقوفة = مفيش ولا ميزة. الرصيد بيفضل محفوظ زي ما هو لحد ما
   // اللوحة تشغّلها تاني.
   if (isSuspended(user)) return [];
+  // ومدة التعديل الخالصة زيها: مفيش ميزات لحد ما يجدّد
+  if (!isEditWindowOpen(user.subscription)) return [];
   return ['fonts', 'images', 'music', 'drag', 'videoToImage', 'sections', 'colors'].filter((f) =>
     packageHasFeature(packageId, f)
   );
@@ -104,6 +115,10 @@ router.post('/api/editor/draft', requireAuth, async (req, res) => {
 
     if (isSuspended(req.user)) {
       return res.status(403).json({ error: 'باقتك موقوفة مؤقتًا — كلّمنا من خانة الدعم.' });
+    }
+
+    if (!isEditWindowOpen(req.user.subscription)) {
+      return res.status(403).json(editWindowEndedBody(req.user.subscription));
     }
 
     const left = (req.user.subscription && req.user.subscription.invitationsLeft) || 0;
@@ -161,7 +176,7 @@ router.post('/api/editor/draft', requireAuth, async (req, res) => {
 
     return res.status(201).json({ shortId: invitation.shortId });
   } catch (err) {
-    if (err.status) return res.status(err.status).json({ error: err.message });
+    if (err.status) return res.status(err.status).json({ error: err.message, ...(err.code ? { code: err.code } : {}) });
     console.error('Error creating draft:', err);
     return res.status(500).json({ error: 'حصل خطأ في السيرفر.' });
   }
@@ -255,6 +270,37 @@ router.patch('/api/editor/:shortId/details', requireAuth, async (req, res) => {
   }
 });
 
+/**
+ * نسخة صريحة من تخصيصات الدعوة، كل حقل بالاسم.
+ *
+ * ليه مش `{ ...c }`: التخصيصات جاية من Mongoose، والحقول اللي فاضية
+ * (زي كارت المشاركة) بتيجي undefined لما بننسخ بالـ spread، وتعيين
+ * undefined لحقل متعرّف في السكيما بيوقع الحفظ كله بخطأ 500. كل حقل هنا
+ * ليه قيمة افتراضية سليمة. وأي حقل جديد يتضاف للسكيما لازم يتضاف هنا كمان
+ * — غير كده تخصيصه بيتمسح أول ما العميل يعدّل أي كلمة.
+ */
+function cloneCustomizations(c = {}) {
+  return {
+    fontFamily: c.fontFamily || '',
+    audioUrl: c.audioUrl || '',
+    audioStart: c.audioStart || 0,
+    audioEnd: c.audioEnd || 0,
+    offsets: { ...(c.offsets || {}) },
+    images: { ...(c.images || {}) },
+    sizes: { ...(c.sizes || {}) },
+    colors: { ...(c.colors || {}) },
+    rotations: { ...(c.rotations || {}) },
+    scales: { ...(c.scales || {}) },
+    aligns: { ...(c.aligns || {}) },
+    rsvp: { ...(c.rsvp || {}) },
+    calDay: c.calDay || 0,
+    added: [...(c.added || [])],
+    texts: { ...(c.texts || {}) },
+    hidden: [...(c.hidden || [])],
+    share: { ...(c.share || {}) },
+  };
+}
+
 // الحقول اللي لو العميل عدّل نص بيساويها، بنعدّل الحقل نفسه بدل ما
 // نخزّن تعديل على عنصر واحد. السبب: اسم العروسة بيظهر في الشاشة
 // الرئيسية وفي الفقرة وفي عنوان التاب — لو خزّناه كتعديل عنصر واحد بس،
@@ -288,7 +334,10 @@ router.patch('/api/editor/:shortId/text', requireAuth, async (req, res) => {
       const list = (c0.added || []).map((item) => (
         String(item.id) === addedId ? { ...item, text: newText } : item
       ));
-      invitation.customizations = { ...c0, added: list.map(sanitizeAddedItem).filter(Boolean) };
+      invitation.customizations = {
+        ...cloneCustomizations(c0),
+        added: list.map(sanitizeAddedItem).filter(Boolean),
+      };
       invitation.markModified('customizations');
       await invitation.save();
       return res.json({
@@ -422,7 +471,7 @@ router.post('/api/editor/:shortId/publish', requireAuth, async (req, res) => {
 // من هنا: ممكن تكون متبعوتة لضيوف فعلاً)
 router.delete('/api/editor/:shortId', requireAuth, async (req, res) => {
   try {
-    const invitation = await loadOwnedInvitation(req, res);
+    const invitation = await loadOwnedInvitation(req, res, { allowExpired: true });
     if (!invitation) return undefined;
 
     if (invitation.status !== 'draft') {

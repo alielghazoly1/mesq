@@ -8,6 +8,7 @@ const { sanitizeText, escapeHtml } = require('../utils/sanitize');
 const { generateShortId } = require('../utils/idGenerator');
 const { renderNewPathHtml, renderLegacyHtml } = require('../utils/renderInvitation');
 const { buildInvitationDataFromRequest, hasActivePackage } = require('../utils/invitationData');
+const { isEditWindowOpen, editWindowEndedBody } = require('../utils/editWindow');
 const { freeQuotaFor, hashIp } = require('../middleware/freeQuota');
 const SiteTotals = require('../models/SiteTotals');
 const { getTemplate, TEMPLATES } = require('../templates/registry');
@@ -121,6 +122,9 @@ function requireSubscriber(req, res, next) {
       error: 'إنشاء الدعوات بقى بباقة — اختار الباقة المناسبة وابدأ.',
     });
   }
+  if (!isEditWindowOpen(req.user.subscription)) {
+    return res.status(403).json(editWindowEndedBody(req.user.subscription));
+  }
   return next();
 }
 
@@ -191,7 +195,7 @@ router.post('/api/invitations', requireSubscriber, async (req, res) => {
   } catch (err) {
     // الرصيد اتخصم والدعوة ماتحفظتش؟ نرجّعه — العميل دفع فلوس، مايضيعش منه
     if (consumedCredit) await refundCredit(req.user.id);
-    if (err.status) return res.status(err.status).json({ error: err.message });
+    if (err.status) return res.status(err.status).json({ error: err.message, ...(err.code ? { code: err.code } : {}) });
     console.error('Error creating invitation:', err);
     return res.status(500).json({ error: 'حصل خطأ في السيرفر، حاول تاني بعد شوية.' });
   }
@@ -220,9 +224,11 @@ router.get('/i/:shortId', async (req, res) => {
         );
     }
 
-    // ?edit=1 بيشغّل المحرر — بس لصاحب الدعوة، ولو الدعوة مميزة.
-    // أي حد تاني بيشوف الدعوة عادي من غير أي أدوات تحرير.
-    const editMode = req.query.edit === '1' && isOwner && invitation.isPremium;
+    // ?edit=1 بيشغّل المحرر — بس لصاحب الدعوة، ولو الدعوة مميزة، ولو مدة
+    // التعديل لسه مفتوحة. أي حد تاني (أو صاحبها بعد المدة) بيشوف الدعوة
+    // عادي من غير أي أدوات تحرير — والدعوة نفسها بتفضل شغالة.
+    const editMode = req.query.edit === '1' && isOwner && invitation.isPremium
+      && isEditWindowOpen(req.user.subscription);
 
     // عدّاد المشاهدات للضيوف بس — صاحب الدعوة وهو بيعدّل مايزوّدش أرقامه
     // بنفسه (بيفتح ويقفل عشرات المرات وهو شغال).

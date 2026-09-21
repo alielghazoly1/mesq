@@ -190,6 +190,46 @@ export default function ClientDrawer({ userId, onClose }) {
                     </div>
                   </div>
 
+                  {/* مدة التعديل: العميل الجديد بياخد شهر من التفعيل، والقديم مفتوح.
+                      من هنا تمدّها لعميل محتاج تعديل، أو تفتحها من غير حد. */}
+                  {data.user.subscription.packageId && (
+                    <div className="rounded-xl border border-line-lite p-4">
+                      <p className="mb-1 text-[12px] text-ivory/55">مدة التعديل (المحرر)</p>
+                      <p className={`mb-2.5 text-[13px] font-bold ${
+                        data.user.subscription.editOpen ? 'text-ivory' : 'text-error'
+                      }`}
+                      >
+                        {!data.user.subscription.editUntil
+                          ? 'مفتوح من غير حد'
+                          : data.user.subscription.editOpen
+                            ? `مفتوح لحد ${fmtDate(data.user.subscription.editUntil)} (باقي ${data.user.subscription.editDaysLeft} يوم)`
+                            : `خلصت يوم ${fmtDate(data.user.subscription.editUntil)}`}
+                      </p>
+                      <p className="mb-2.5 text-[11.5px] leading-relaxed text-ivory/45">
+                        الدعوات نفسها بتفضل شغالة مدى الحياة — المدة دي بتحكم التعديل بس.
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        <Btn size="sm" icon={Plus} loading={saving} onClick={() => act({ action: 'extendEdit', days: 7 })}>
+                          7 أيام
+                        </Btn>
+                        <Btn size="sm" icon={Plus} loading={saving} onClick={() => act({ action: 'extendEdit', days: 30 })}>
+                          30 يوم
+                        </Btn>
+                        {data.user.subscription.editUntil && (
+                          <Btn
+                            size="sm" tone="gold" loading={saving}
+                            onClick={() => setConfirm({
+                              text: 'تعديل بلا حدود هيشيل تاريخ الانتهاء نهائيًا، والعميل هيقدر يعدّل في أي وقت.',
+                              run: () => act({ action: 'unlimitedEdit' }),
+                            })}
+                          >
+                            تعديل بلا حدود
+                          </Btn>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
                   {/* تعديل الرصيد */}
                   <div className="rounded-xl border border-line-lite p-4">
                     <p className="mb-2.5 text-[12px] text-ivory/55">

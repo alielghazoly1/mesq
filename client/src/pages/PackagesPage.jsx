@@ -15,9 +15,12 @@ import { motion } from 'motion/react';
 import {
   Check, ArrowRight, Sparkles, Lock, Crown, Plus, ShieldCheck,
   Clock, Infinity as InfinityIcon, ArrowLeft, BadgePercent,
+  Users, Pencil, CreditCard, MessageCircle, Briefcase, Building2, ChevronDown,
 } from 'lucide-react';
 import { useGetPackagesQuery, useGetMeQuery } from '../store/api.js';
 import { openAuthModal } from '../store/uiSlice.js';
+import { whatsappLink } from '../lib/contact.js';
+import { formatDay } from '../lib/editWindow.js';
 import EditorDemo from '../components/EditorDemo.jsx';
 import Footer from '../components/Footer.jsx';
 
@@ -28,7 +31,18 @@ function deltaFeatures(pkg, prev) {
   return pkg.features.filter((f) => !had.has(f.key));
 }
 
-function PackageCard({ pkg, prev, index, highlighted, onOrder, currentPackageId, cheapestPerUnit }) {
+/** اللي بيجي مع أي باقة — بيتعرض جوه كل كارت عشان كل باقة تشرح نفسها */
+function everyItems(days, t) {
+  const items = [
+    { icon: Users, text: t('packages.every1') },
+    { icon: InfinityIcon, text: t('packages.every2') },
+  ];
+  // القاعدة متقفلة (0 يوم) = مفيش مدة نكتبها للعميل
+  if (days > 0) items.push({ icon: Pencil, text: t('packages.every3', { days }) });
+  return items;
+}
+
+function PackageCard({ pkg, prev, index, highlighted, onOrder, currentPackageId, cheapestPerUnit, days }) {
   const { t } = useTranslation();
   const isSubscribed = currentPackageId === pkg.id;
   const hasAnySubscription = !!currentPackageId;
@@ -103,6 +117,12 @@ function PackageCard({ pkg, prev, index, highlighted, onOrder, currentPackageId,
         <h3 className={`font-serif text-[23px] font-bold ${dark ? 'text-ivory' : 'text-ink'}`}>
           {pkg.name}
         </h3>
+        {/* سطر واحد يقول الباقة دي لمين — قبل السعر والمميزات */}
+        {pkg.tagline && (
+          <p className={`mt-1.5 text-[13px] leading-[1.75] ${dark ? 'text-ivory/65' : 'text-ink-dim'}`}>
+            {pkg.tagline}
+          </p>
+        )}
 
         <div className="mt-3 flex flex-wrap items-baseline gap-x-2 gap-y-1">
           <span className={`font-serif text-[42px] font-bold leading-none ${dark ? 'text-brass-soft' : 'text-emerald'}`}>
@@ -173,6 +193,21 @@ function PackageCard({ pkg, prev, index, highlighted, onOrder, currentPackageId,
             ))}
           </ul>
         </div>
+
+        {/* ===== اللي في كل باقة: ضيوف بلا حد، مدى الحياة، مدة التعديل ===== */}
+        <div className={`mt-5 rounded-2xl px-4 py-3.5 ${dark ? 'bg-ivory/[0.06]' : 'bg-ivory/70'}`}>
+          <div className={`mb-2 text-[11px] font-bold uppercase tracking-[0.12em] ${dark ? 'text-brass-soft' : 'text-emerald'}`}>
+            {t('packages.everyTitle')}
+          </div>
+          <ul className="flex flex-col gap-2">
+            {everyItems(days, t).map(({ icon: Icon, text }) => (
+              <li key={text} className={`flex items-center gap-2.5 text-[12.5px] font-bold ${dark ? 'text-ivory/85' : 'text-ink'}`}>
+                <Icon size={14} className={`shrink-0 ${dark ? 'text-brass-soft' : 'text-emerald'}`} />
+                {text}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
 
       <div className="flex-1" />
@@ -213,6 +248,180 @@ function PackageCard({ pkg, prev, index, highlighted, onOrder, currentPackageId,
   );
 }
 
+/**
+ * "الباقات بتشتغل إزاي؟" — اللي العميل لازم يفهمه قبل ما يدفع:
+ * الضيوف مالهمش حد، والدعوة معاه مدى الحياة، والتعديل شهر من التفعيل،
+ * والدفع مرة واحدة. أربع بطاقات قصيرة بدل فقرة طويلة محدش هيقراها.
+ */
+function HowItWorks({ days }) {
+  const { t } = useTranslation();
+  const items = [
+    { icon: Users, title: t('packages.how1Title'), body: t('packages.how1Body') },
+    { icon: InfinityIcon, title: t('packages.how2Title'), body: t('packages.how2Body') },
+    ...(days > 0
+      ? [{ icon: Pencil, title: t('packages.how3Title', { days }), body: t('packages.how3Body', { days }) }]
+      : []),
+    { icon: CreditCard, title: t('packages.how4Title'), body: t('packages.how4Body') },
+  ];
+
+  return (
+    <section className="mx-auto mb-8 max-w-6xl sm:mb-11" aria-labelledby="packages-how-title">
+      <div className="mb-5 text-center sm:mb-6">
+        <div className="mb-1.5 text-[11.5px] font-extrabold uppercase tracking-[0.3em] text-emerald sm:text-[12.5px]">
+          {t('packages.howEyebrow')}
+        </div>
+        <h2 id="packages-how-title" className="font-serif text-[21px] font-bold text-ink sm:text-[26px]">
+          {t('packages.howTitle')}
+        </h2>
+      </div>
+
+      <div className={`grid gap-3 sm:grid-cols-2 sm:gap-4 ${items.length >= 4 ? 'lg:grid-cols-4' : 'lg:grid-cols-3'}`}>
+        {items.map(({ icon: Icon, title, body }) => (
+          <div key={title} className="rounded-[20px] border border-line bg-card p-5">
+            <span className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-emerald/10 text-emerald">
+              <Icon size={18} />
+            </span>
+            <h3 className="mb-1.5 font-serif text-[16.5px] font-bold text-ink">{title}</h3>
+            <p className="text-[13px] leading-[1.85] text-ink-dim">{body}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* بعد المدة: العميل لازم يعرف من دلوقتي إيه الحل، مش لما يتقفل عليه */}
+      {days > 0 && (
+        <div className="mt-4 flex flex-col items-center gap-3 rounded-[20px] border border-brass/35 bg-brass/[0.07] px-5 py-4 text-center sm:flex-row sm:justify-between sm:text-start">
+          <p className="text-[13px] leading-[1.85] text-ink sm:max-w-[68ch]">{t('packages.howAfter', { days })}</p>
+          <a
+            href={whatsappLink(t('packages.askMsg'))}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex shrink-0 items-center gap-2 rounded-full bg-night px-5 py-2.5 text-[13px] font-bold text-ivory transition hover:bg-emerald"
+          >
+            <MessageCircle size={15} /> {t('packages.howAfterCta')}
+          </a>
+        </div>
+      )}
+    </section>
+  );
+}
+
+/**
+ * باقة سعرها مش ثابت (أصحاب البيزنس، القاعات واللوكيشنات): مفيش رقم ولا زرار
+ * "اطلب" — السعر بيتحدد مع صاحب الموقع على واتساب. الطلب مش بيمر على
+ * السيرفر أصلًا (الباقتين مش في packages/registry.js)، فمفيش طريق يشتريها
+ * بالغلط من صفحة الدفع.
+ */
+function ContactPackageCard({ icon: Icon, name, forText, points, message, index }) {
+  const { t } = useTranslation();
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 22 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{ duration: 0.4, delay: index * 0.08 }}
+      className="flex flex-col rounded-[24px] border border-brass/40 bg-gradient-to-b from-brass/[0.09] to-transparent p-6 sm:p-7"
+    >
+      <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-brass/20 text-brass">
+        <Icon size={22} />
+      </span>
+      <h3 className="font-serif text-[22px] font-bold text-ink">{name}</h3>
+      <p className="mt-1.5 text-[13.5px] leading-[1.85] text-ink-dim">{forText}</p>
+
+      <div className="mt-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-night px-3.5 py-1.5 text-[12px] font-bold text-brass-soft">
+        <MessageCircle size={13} /> {t('packages.priceViaWa')}
+      </div>
+
+      <ul className="mt-5 flex flex-col gap-2.5 border-t border-line pt-5">
+        {points.map((p) => (
+          <li key={p} className="flex items-start gap-2.5 text-[13.5px] leading-snug text-ink">
+            <span className="mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-emerald/10 text-emerald">
+              <Check size={11} strokeWidth={3} />
+            </span>
+            {p}
+          </li>
+        ))}
+      </ul>
+
+      <div className="flex-1" />
+
+      <a
+        href={whatsappLink(message)}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-l from-brass to-brass-soft py-3.5 text-[14.5px] font-extrabold text-[#241608] transition hover:brightness-105"
+      >
+        <MessageCircle size={16} /> {t('packages.waCta')}
+      </a>
+      <p className="mt-2.5 text-center text-[11.5px] text-ink-dim">{t('packages.waNote')}</p>
+    </motion.div>
+  );
+}
+
+/** قسم باقات البيزنس والقاعات — بيبان لأي زائر (مش محتاج تسجيل: مفيش سعر بالعملة) */
+function BusinessSection() {
+  const { t } = useTranslation();
+  return (
+    <section className="mx-auto mt-12 max-w-4xl sm:mt-16" aria-labelledby="packages-biz-title">
+      <div className="mx-auto mb-6 max-w-[60ch] text-center sm:mb-8">
+        <div className="mb-1.5 text-[11.5px] font-extrabold uppercase tracking-[0.3em] text-emerald sm:text-[12.5px]">
+          {t('packages.bizEyebrow')}
+        </div>
+        <h2 id="packages-biz-title" className="mb-2 font-serif text-[22px] font-bold text-ink sm:text-[28px]">
+          {t('packages.bizTitle')}
+        </h2>
+        <p className="text-[14px] leading-[1.85] text-ink-dim sm:text-[15px]">{t('packages.bizSubtitle')}</p>
+      </div>
+
+      <div className="grid gap-5 md:grid-cols-2 lg:gap-6">
+        <ContactPackageCard
+          index={0}
+          icon={Briefcase}
+          name={t('packages.bizName')}
+          forText={t('packages.bizFor')}
+          points={[t('packages.bizP1'), t('packages.bizP2'), t('packages.bizP3')]}
+          message={t('packages.bizMsg')}
+        />
+        <ContactPackageCard
+          index={1}
+          icon={Building2}
+          name={t('packages.venueName')}
+          forText={t('packages.venueFor')}
+          points={[t('packages.venueP1'), t('packages.venueP2'), t('packages.venueP3')]}
+          message={t('packages.venueMsg')}
+        />
+      </div>
+    </section>
+  );
+}
+
+/**
+ * أسئلة العميل قبل ما يدفع. <details> مش JS: بتشتغل من غير سكريبت وبتتقرا
+ * بقارئ الشاشة، وكل الإجابات فى الـDOM فمحرّكات البحث بتشوفها.
+ */
+function Faq({ days }) {
+  const { t } = useTranslation();
+  // أسئلة مدة التعديل (3 و4) مالهاش معنى لو القاعدة متقفلة
+  const numbers = [1, 2, 3, 4, 5].filter((n) => days > 0 || (n !== 3 && n !== 4));
+  return (
+    <section className="mx-auto mt-12 max-w-3xl sm:mt-16" aria-labelledby="packages-faq-title">
+      <h2 id="packages-faq-title" className="mb-5 text-center font-serif text-[22px] font-bold text-ink sm:text-[28px]">
+        {t('packages.faqTitle')}
+      </h2>
+      <div className="flex flex-col gap-2.5">
+        {numbers.map((n) => (
+          <details key={n} className="group rounded-2xl border border-line bg-card px-5 py-4 open:border-emerald/40">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-[14.5px] font-bold leading-snug text-ink [&::-webkit-details-marker]:hidden">
+              {t(`packages.faq${n}Q`, { days })}
+              <ChevronDown size={16} className="shrink-0 text-ink-dim transition group-open:rotate-180" />
+            </summary>
+            <p className="mt-3 text-[13.5px] leading-[1.9] text-ink-dim">{t(`packages.faq${n}A`, { days })}</p>
+          </details>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default function PackagesPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -235,6 +444,15 @@ export default function PackagesPage() {
 
   const sub = data?.subscription;
   const packages = data?.packages || [];
+  // مدة التعديل (بالأيام) جاية من السيرفر — 30 افتراضيًا لحد ما الرد يوصل
+  // (نفس الرقم الافتراضي في packages/registry.js)، و0 = القاعدة متقفلة
+  const days = data?.editWindowDays ?? 30;
+  const lang = i18n.language === 'ar' ? 'ar' : 'en';
+  const edit = data?.edit;
+  // مشترك مدة تعديله خلصت — الباقة موجودة لكن المحرر مقفول
+  const editEnded = !!sub?.packageId && edit?.editOpen === false;
+  // مشترك جديد مدة تعديله شغالة — نوريله يفضل له كام
+  const editRunning = !!sub?.packageId && edit?.editOpen === true && !!edit?.editUntil;
   // أغلى سعر للدعوة الواحدة = الأساس اللي بنحسب عليه التوفير
   const cheapestPerUnit = packages.length
     ? Math.max(...packages.map((p) => p.price / Math.max(1, p.invitations)))
@@ -256,15 +474,36 @@ export default function PackagesPage() {
             {t('packages.title')}
           </h1>
           <p className="text-[14px] leading-[1.85] text-ink-dim sm:text-[15.5px]">
-            {t('packages.subtitle')}
+            {days > 0 ? t('packages.subtitle', { days }) : t('packages.subtitleNoLimit')}
           </p>
         </div>
 
         {sub?.packageId && sub.invitationsLeft > 0 && (
-          <div className="mx-auto mb-7 max-w-lg rounded-2xl border border-emerald/30 bg-emerald/[0.07] px-5 py-3.5 text-center text-[13.5px] text-emerald sm:mb-10 sm:px-6 sm:py-4 sm:text-[14.5px]">
+          <div className="mx-auto mb-4 max-w-lg rounded-2xl border border-emerald/30 bg-emerald/[0.07] px-5 py-3.5 text-center text-[13.5px] text-emerald sm:px-6 sm:py-4 sm:text-[14.5px]">
             <span dangerouslySetInnerHTML={{ __html: t('packages.activeNotice', { count: sub.invitationsLeft }) }} />
+            {editRunning && (
+              <div
+                className="mt-1.5 text-[12.5px] text-emerald/85"
+                dangerouslySetInnerHTML={{
+                  __html: t('packages.editOpenNotice', {
+                    date: formatDay(edit.editUntil, lang), days: edit.editDaysLeft,
+                  }),
+                }}
+              />
+            )}
           </div>
         )}
+
+        {/* مدة التعديل خلصت: الدعوات شغالة، والحل قدامه على طول */}
+        {editEnded && (
+          <div className="mx-auto mb-4 flex max-w-lg items-start gap-2.5 rounded-2xl border border-brass/45 bg-brass/[0.09] px-5 py-3.5 text-[13px] leading-[1.85] text-ink sm:px-6 sm:py-4">
+            <Lock size={15} className="mt-1 shrink-0 text-brass" />
+            <span>{t('packages.editEndedNotice', { days })}</span>
+          </div>
+        )}
+        <div className="mb-3 sm:mb-6" />
+
+        <HowItWorks days={days} />
 
         {/* الفيديو قبل الأسعار: العميل لازم يشوف اللي هيدفع عشانه قبل
             ما يشوف الرقم — مش بعده */}
@@ -325,6 +564,7 @@ export default function PackagesPage() {
                   onOrder={handleOrder}
                   currentPackageId={sub?.packageId || null}
                   cheapestPerUnit={cheapestPerUnit}
+                  days={days}
                 />
               ))}
             </div>
@@ -351,6 +591,11 @@ export default function PackagesPage() {
             </div>
           </>
         )}
+
+        {/* بيبان لأي زائر — مفيش سعر بالعملة هنا، فمش محتاج تسجيل */}
+        <BusinessSection />
+
+        <Faq days={days} />
 
         {!user && !isLoading && (
           <div className="mx-auto mt-9 max-w-2xl rounded-[22px] border border-line bg-card p-6 text-center sm:mt-12 sm:p-7">

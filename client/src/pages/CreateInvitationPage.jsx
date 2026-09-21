@@ -16,6 +16,7 @@ import SectionToggles from '../components/form/SectionToggles.jsx';
 import ExtraFields from '../components/form/ExtraFields.jsx';
 import LivePreviewPanel from '../components/form/LivePreviewPanel.jsx';
 import ResultCard from '../components/form/ResultCard.jsx';
+import { isEditOpen } from '../lib/editWindow.js';
 
 const STAGE_DEFAULT_HOURS = { reception: 16, ceremony: 17, cocktail: 18, dinner: 19, party: 20, farewell: 21 };
 const PLACEHOLDERS = {
@@ -142,7 +143,7 @@ export default function CreateInvitationPage() {
   // يملا فورم والسيرفر هيرفضه في الآخر.
   const sub = meData?.user?.subscription;
   const subscribed = !!sub && !!sub.packageId && sub.status !== 'suspended'
-    && (sub.invitationsLeft || 0) > 0;
+    && (sub.invitationsLeft || 0) > 0 && isEditOpen(meData?.user);
   const locked = !!template?.isPremium && !subscribed;
 
   // المشترك مالوش دعوة بالرصيد المجاني — دعواته من باقته
@@ -179,8 +180,9 @@ export default function CreateInvitationPage() {
       const data = await createInvitation(buildPayload(vals, template, { withPlaceholders: false })).unwrap();
       setResult(data);
     } catch (err) {
-      // الرصيد خلص أو الباقة اتوقفت وهو بيملا الفورم — نوديه للباقات
-      if (err?.data?.code === 'SUBSCRIPTION_REQUIRED') {
+      // الرصيد خلص، أو الباقة اتوقفت، أو مدة التعديل خلصت وهو بيملا الفورم
+      // — نوديه للباقات
+      if (err?.data?.code === 'SUBSCRIPTION_REQUIRED' || err?.data?.code === 'EDIT_WINDOW_ENDED') {
         navigate('/packages');
         return;
       }

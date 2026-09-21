@@ -15,7 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import {
   ArrowRight, Check, Copy, Upload, Loader2, ChevronDown, ChevronUp,
-  ShieldCheck, Clock, AlertCircle, Sparkles,
+  Clock, AlertCircle, Sparkles, MessageCircle, Infinity as InfinityIcon, Pencil,
 } from 'lucide-react';
 import { VodafoneCashLogo, BankMark } from '../components/PayBrand.jsx';
 import {
@@ -24,6 +24,7 @@ import {
 } from '../store/api.js';
 import { openAuthModal } from '../store/uiSlice.js';
 import { tooBig, sizeError, uploadError } from '../lib/uploadLimits.js';
+import { whatsappLink } from '../lib/contact.js';
 import Footer from '../components/Footer.jsx';
 
 /**
@@ -190,6 +191,14 @@ export default function CheckoutPage() {
   const v = payInfo?.vodafone || {};
   const b = payInfo?.bank || {};
   const hasPayData = isVodafone ? !!v.number : !!(b.accountNumber || b.iban);
+  // مدة التعديل بعد التفعيل — من السيرفر، و0 = القاعدة متقفلة
+  const days = pkgData?.editWindowDays ?? 30;
+
+  // طرق دفع تانية بالواتساب — للدفع بالدولار بس. المصري بيدفع فودافون
+  // كاش وده كفاية، فمفيش سبب نزحم صفحته. الفحص على عملة الباقة (USD) مش
+  // على وصول بيانات الدفع، عشان الزرار يبان حتى لو بيانات التحويل لسه
+  // ماتحملتش أو مش متظبطة.
+  const showOtherMethods = pkg.currency === 'USD';
 
   return (
     <div className="min-h-screen bg-ivory">
@@ -410,6 +419,24 @@ export default function CheckoutPage() {
                 )}
               </>
             )}
+
+            {/* ===== طرق دفع تانية (الدولار بس) ===== */}
+            {!payLoading && showOtherMethods && (
+              <div className="mt-4 rounded-2xl border border-brass/40 bg-brass/[0.07] p-4">
+                <div className="mb-1 flex items-center gap-2 font-serif text-[15px] font-bold text-ink">
+                  <MessageCircle size={16} className="text-brass" /> {t('checkout.otherTitle')}
+                </div>
+                <p className="mb-3 text-[12.5px] leading-relaxed text-ink-dim">{t('checkout.otherBody')}</p>
+                <a
+                  href={whatsappLink(t('checkout.otherMsg', { name: pkg.name, amount: '$' + pkg.price }))}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-night py-3 text-[13px] font-bold text-ivory transition hover:bg-emerald"
+                >
+                  <MessageCircle size={15} /> {t('checkout.otherCta')}
+                </a>
+              </div>
+            )}
           </Step>
 
           {/* ===== 2) الإيصال ===== */}
@@ -453,15 +480,22 @@ export default function CheckoutPage() {
           {/* ===== 3) التفعيل ===== */}
           <Step n="3" title={t('checkout.step3')}>
             <p className="text-[13px] leading-[1.9] text-ink-dim">{t('checkout.step3Hint')}</p>
-            <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
+            {/* اللي هيستلمه بعد التفعيل — بيتقري هنا آخر حاجة قبل ما يدفع */}
+            <div className="mt-4 grid gap-2.5">
               <div className="flex items-start gap-2.5 rounded-xl bg-ivory/70 px-3.5 py-3">
                 <Clock size={14} className="mt-0.5 shrink-0 text-emerald" />
                 <span className="text-[12.5px] text-ink-dim">{t('checkout.perk1')}</span>
               </div>
               <div className="flex items-start gap-2.5 rounded-xl bg-ivory/70 px-3.5 py-3">
-                <ShieldCheck size={14} className="mt-0.5 shrink-0 text-emerald" />
-                <span className="text-[12.5px] text-ink-dim">{t('checkout.perk2')}</span>
+                <InfinityIcon size={14} className="mt-0.5 shrink-0 text-emerald" />
+                <span className="text-[12.5px] text-ink-dim">{t('checkout.perkLife')}</span>
               </div>
+              {days > 0 && (
+                <div className="flex items-start gap-2.5 rounded-xl bg-ivory/70 px-3.5 py-3">
+                  <Pencil size={14} className="mt-0.5 shrink-0 text-emerald" />
+                  <span className="text-[12.5px] text-ink-dim">{t('checkout.perkEdit', { days })}</span>
+                </div>
+              )}
             </div>
             <button
               type="button"

@@ -72,6 +72,21 @@ function featureFor(key, lang) {
 // والعميل يقدر يقارن بينهم بعينه بسرعة
 const ALL_FEATURE_KEYS = ['fonts', 'images', 'music', 'drag', 'videoToImage', 'sections', 'colors'];
 
+/**
+ * مدة التعديل بعد تفعيل الباقة، بالأيام.
+ *
+ * الدعوة نفسها بتفضل شغالة مدى الحياة ومفيش حد لعدد الضيوف — اللي بيتقفل
+ * بعد المدة دي هو **التعديل** (المحرر) بس. المدة بتتحسب من يوم تفعيل
+ * الباقة، وكل باقة جديدة بتفتح مدة جديدة (utils/editWindow.js).
+ *
+ * اشتراكات العملاء اللي اتفعّلت قبل القاعدة دي (مفيهاش تاريخ انتهاء
+ * متخزّن) بتفضل بتعديل مفتوح زي ما اشتروها — القاعدة بتنطبق على اللي
+ * يشتري بعد كده بس.
+ *
+ * تحطها 0 لو عايز تشيل القاعدة خالص (التعديل يفضل مفتوح للكل).
+ */
+const EDIT_WINDOW_DAYS = 30;
+
 const PACKAGES = [
   {
     // باقة الدعوة الواحدة — للعملاء في مصر بس.
@@ -85,6 +100,10 @@ const PACKAGES = [
     // اللي عايز أكتر من دعوة، الباقة الأساسية بتفضل أوفر له في الدعوة
     // الواحدة (100 بدل 150)، فالسلّم فضل منطقي.
     id: 'solo',
+    tagline: {
+      ar: 'لمناسبة واحدة — دعوة واحدة بالمحرر الكامل، تفضل معاك مدى الحياة.',
+      en: 'For one occasion — a single invitation with the full editor, yours for life.',
+    },
     name: { ar: 'باقة الدعوة الواحدة', en: 'Single Invitation' },
     invitations: 1,
     price: { EGP: 150, USD: 0 },
@@ -97,6 +116,10 @@ const PACKAGES = [
   },
   {
     id: 'basic',
+    tagline: {
+      ar: 'لأكتر من دعوة — الفرح والخطوبة في باقة واحدة.',
+      en: 'For more than one invitation — wedding and engagement in a single package.',
+    },
     name: { ar: 'الباقة الأساسية', en: 'Essential' },
     invitations: 4,
     price: { EGP: 400, USD: 15 },
@@ -108,6 +131,10 @@ const PACKAGES = [
   },
   {
     id: 'plus',
+    tagline: {
+      ar: 'تحكم أكتر — اسحب أي عنصر لمكانه، وبدّل فيديوهات التصميم بصورك.',
+      en: 'More control — drag anything into place and swap the design’s videos for your own photos.',
+    },
     name: { ar: 'الباقة المتقدمة', en: 'Plus' },
     invitations: 9,
     price: { EGP: 600, USD: 30 },
@@ -115,6 +142,10 @@ const PACKAGES = [
   },
   {
     id: 'pro',
+    tagline: {
+      ar: 'لو بتجهّز دعوات لناس كتير — 50 دعوة وتحكم كامل في الألوان.',
+      en: 'For preparing invitations for many people — 50 invitations and full colour control.',
+    },
     name: { ar: 'الباقة الاحترافية', en: 'Professional' },
     invitations: 50,
     price: { EGP: 1500, USD: 70 },
@@ -166,6 +197,7 @@ function packagesForCountry(countryCode, lang) {
     id: p.id,
     name: p.name[l] || p.name.en,
     invitations: p.invitations,
+    tagline: p.tagline ? (p.tagline[l] || p.tagline.en) : '',
     price: p.price[currency],
     currency,
     currencyLabel: CURRENCY_LABELS[currency],
@@ -189,6 +221,7 @@ function packageHasFeature(packageId, featureKey) {
 
 module.exports = {
   PACKAGES,
+  EDIT_WINDOW_DAYS,
   FEATURES,
   CURRENCY_LABELS,
   getPackage,

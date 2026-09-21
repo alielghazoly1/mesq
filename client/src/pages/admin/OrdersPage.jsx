@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Check, X, Receipt, ExternalLink, Undo2, ShieldAlert } from 'lucide-react';
 import {
   useGetOrdersQuery, useActivateOrderMutation, useCancelOrderMutation,
+  useGetAdminPackagesQuery,
 } from '../../store/adminApi.js';
 import { setOrdersStatus, openUser } from '../../store/adminSlice.js';
 import {
@@ -21,6 +22,8 @@ export default function OrdersPage() {
   const { data, isLoading, isFetching } = useGetOrdersQuery(status);
   const [activate, { isLoading: activating }] = useActivateOrderMutation();
   const [cancel, { isLoading: cancelling }] = useCancelOrderMutation();
+  const { data: pkgData } = useGetAdminPackagesQuery();
+  const editDays = pkgData?.editWindowDays || 0;
   const [busyId, setBusyId] = useState(null);
   const [error, setError] = useState('');
   // إلغاء باقة مدفوعة بيسحب رصيد من عميل دافع — تأكيد صريح قبل التنفيذ
@@ -46,6 +49,12 @@ export default function OrdersPage() {
         <p className="mt-0.5 text-[12.5px] text-ivory/45">
           العميل بيدفع برّه الموقع ويرفع صورة التحويل — وإنت بتفعّل بعد ما تتأكد.
         </p>
+        {editDays > 0 && (
+          <p className="mt-1 text-[12px] leading-relaxed text-ivory/45">
+            التفعيل بيفتح للعميل الجديد {editDays} يوم تعديل من يوم التفعيل (والتجديد بيضيف {editDays} يوم فوق اللي فاضل).
+            العميل اللي اشترى قبل كده تعديله بيفضل مفتوح زي ما هو. تقدر تمدّ المدة من ملف العميل.
+          </p>
+        )}
       </div>
 
       {error && <div className="rounded-xl bg-error/15 px-4 py-3 text-[12.5px] text-error">{error}</div>}

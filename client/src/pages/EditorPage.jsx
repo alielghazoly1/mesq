@@ -33,6 +33,7 @@ import {
 import MusicPanel from '../components/editor/MusicPanel.jsx';
 import SharePanel from '../components/editor/SharePanel.jsx';
 import BigScreenNotice, { hintDismissed } from '../components/editor/BigScreenNotice.jsx';
+import EditWindowEnded from '../components/editor/EditWindowEnded.jsx';
 import useIsCompact from '../hooks/useIsCompact.js';
 import { tooBig, sizeError, uploadError } from '../lib/uploadLimits.js';
 import { installSoloAudio, setFramePauser } from '../lib/soloAudio.js';
@@ -180,7 +181,8 @@ export default function EditorPage() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
 
-  const { data, isLoading, isError, refetch } = useGetEditorQuery(shortId);
+  // loadError مش error: اسم error متاخد تحت لرسالة الحفظ
+  const { data, isLoading, isError, error: loadError, refetch } = useGetEditorQuery(shortId);
   const [saveCustomizations, { isLoading: isSaving }] = useSaveCustomizationsMutation();
   const [saveText] = useSaveTextMutation();
   const [saveDetails] = useSaveDetailsMutation();
@@ -1246,6 +1248,16 @@ export default function EditorPage() {
       <div className="flex min-h-screen items-center justify-center gap-2 text-ink-dim">
         <Loader2 size={17} className="animate-spin" /> {t('editor.loading')}
       </div>
+    );
+  }
+  // مدة التعديل خلصت: شاشة تشرح إن الدعوة لسه شغالة وإيه الحل، مش "مش متاحة"
+  if (isError && loadError?.data?.code === 'EDIT_WINDOW_ENDED') {
+    return (
+      <EditWindowEnded
+        shortId={shortId}
+        editUntil={loadError.data.editUntil}
+        days={loadError.data.editWindowDays}
+      />
     );
   }
   if (isError || !data || !draft) {

@@ -11,6 +11,7 @@
 const { sanitizeText } = require('./sanitize');
 const { resolveMapInput } = require('./mapsLink');
 const { getTemplate, getDefaultTemplate } = require('../templates/registry');
+const { isEditWindowOpen, editWindowEndedBody } = require('./editWindow');
 
 const REQUIRED_FIELDS = [
   'brideName', 'groomName', 'brideNameAr', 'groomNameAr',
@@ -45,8 +46,13 @@ function assertPremiumTemplateAccess(user) {
   if (!hasActivePackage(user)) {
     throw Object.assign(
       new Error('التصميم ده في الباقة المميزة — اشترك عشان تستخدمه.'),
-      { status: 403 }
+      { status: 403, code: 'SUBSCRIPTION_REQUIRED' }
     );
+  }
+  // مدة التعديل خلصت: مش هيقدر يعمل دعوة جديدة لحد ما يجدّد
+  if (!isEditWindowOpen(user.subscription)) {
+    const body = editWindowEndedBody(user.subscription);
+    throw Object.assign(new Error(body.error), { status: 403, code: body.code });
   }
 }
 

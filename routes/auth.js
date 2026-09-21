@@ -10,6 +10,7 @@ const { sanitizeText } = require('../utils/sanitize');
 const { isValidEmail, isValidPassword, isValidCountryCode } = require('../utils/validators');
 const { createSession, destroySession } = require('../middleware/auth');
 const { sendWelcomeMessage } = require('../utils/welcomeMessage');
+const { editWindowInfo } = require('../utils/editWindow');
 
 const router = express.Router();
 
@@ -121,7 +122,11 @@ router.post('/api/auth/logout', async (req, res) => {
 // عند كل تحميل صفحة من غير ما يحتاج يتعامل مع حالة خطأ للزائر المجهول
 // (اللي هو الغالبية العظمى من الزوار).
 router.get('/api/auth/me', (req, res) => {
-  return res.json({ user: req.user || null });
+  // حالة مدة التعديل بتتحسب هنا في السيرفر وتتبعت جاهزة — الواجهة مبتحسبهاش
+  // من ساعة جهاز العميل (ممكن تكون غلط)
+  return res.json({
+    user: req.user ? { ...req.user, edit: editWindowInfo(req.user.subscription) } : null,
+  });
 });
 
 module.exports = router;

@@ -8,7 +8,8 @@ const Rsvp = require('../models/Rsvp');
 const SupportMessage = require('../models/SupportMessage');
 const { requireAuth } = require('../middleware/auth');
 const { sanitizeText } = require('../utils/sanitize');
-const { getPackage } = require('../packages/registry');
+const { getPackage, EDIT_WINDOW_DAYS } = require('../packages/registry');
+const { editWindowInfo } = require('../utils/editWindow');
 
 const router = express.Router();
 
@@ -65,6 +66,9 @@ router.get('/api/dashboard', requireAuth, async (req, res) => {
         features: pkg ? pkg.features : [],
         invitationsLeft: sub.invitationsLeft || 0,
         activatedAt: sub.activatedAt || null,
+        // مدة التعديل: مفتوحة لحد إمتى، ولسه مفتوحة ولا خلصت
+        ...editWindowInfo(sub),
+        editWindowDays: EDIT_WINDOW_DAYS,
       },
       totals: { invitations: invitations.length, ...totals },
       unreadSupport,

@@ -66,7 +66,12 @@ export default function ClientsPage() {
                   </Cell>
                   <Cell>
                     {u.isPremium
-                      ? <Badge tone="gold" icon={Crown}>{u.packageName}</Badge>
+                      ? (
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <Badge tone="gold" icon={Crown}>{u.packageName}</Badge>
+                          {u.editOpen === false && <Badge tone="warn">التعديل خلص</Badge>}
+                        </div>
+                      )
                       : <span className="text-ivory/35">مجاني</span>}
                   </Cell>
                   <Cell className={u.invitationsLeft > 0 ? 'font-bold text-brass-soft' : 'text-ivory/35'}>

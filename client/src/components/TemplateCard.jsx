@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import { Lock, Sparkles, Wand2, Loader2 } from 'lucide-react';
 import { useGetMeQuery, useCreateDraftMutation } from '../store/api.js';
+import { isEditOpen } from '../lib/editWindow.js';
 
 export default function TemplateCard({ template, index }) {
   const navigate = useNavigate();
@@ -16,8 +17,10 @@ export default function TemplateCard({ template, index }) {
   // العميل المشترك عنده رصيد ← بيروح المحرر على طول، مش لفورم الإنشاء
   // المجاني. ده أوضح فرق بيحسه بعد ما يدفع.
   const sub = data?.user?.subscription;
+  // مدة التعديل الخالصة زي الرصيد الخالص: مفيش إنشاء لحد ما يجدّد
+  // (السيرفر هو اللي بيحكم، والواجهة بس بتوفّر عليه طريق مسدود)
   const subscribed = !!sub && !!sub.packageId && sub.status !== 'suspended'
-    && (sub.invitationsLeft || 0) > 0;
+    && (sub.invitationsLeft || 0) > 0 && isEditOpen(data?.user);
 
   // التصميم المدفوع مقفول على أي حد مش مشترك — مش على غير المسجّلين بس.
   // قبل كده أي حساب مجاني كان بياخده ببلاش. المعاينة بتفضل مفتوحة

@@ -28,6 +28,11 @@ const userSchema = new mongoose.Schema({
     suspendedAt: { type: Date, default: null },
     // سبب الإيقاف/ملاحظة إدارية — بتظهر للأدمن بس، مش للعميل
     adminNote: { type: String, default: '', maxlength: 500 },
+    // آخر يوم للتعديل (المحرر) بعد تفعيل الباقة — packages/registry.js:
+    // EDIT_WINDOW_DAYS. الدعوة نفسها بتفضل شغالة مدى الحياة، اللي بيتقفل
+    // هو التعديل بس. null = تعديل مفتوح من غير حد: ده وضع كل الاشتراكات
+    // اللي اتفعّلت قبل القاعدة دي، وأي حساب الأدمن فتحله التعديل بلا حدود.
+    editUntil: { type: Date, default: null },
   },
 
   // حظر الحساب كله: مش بس الباقة — الجلسات بتتلغي ومبيقدرش يدخل تاني
