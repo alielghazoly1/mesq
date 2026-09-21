@@ -286,21 +286,6 @@ function HowItWorks({ days }) {
           </div>
         ))}
       </div>
-
-      {/* بعد المدة: العميل لازم يعرف من دلوقتي إيه الحل، مش لما يتقفل عليه */}
-      {days > 0 && (
-        <div className="mt-4 flex flex-col items-center gap-3 rounded-[20px] border border-brass/35 bg-brass/[0.07] px-5 py-4 text-center sm:flex-row sm:justify-between sm:text-start">
-          <p className="text-[13px] leading-[1.85] text-ink sm:max-w-[68ch]">{t('packages.howAfter', { days })}</p>
-          <a
-            href={whatsappLink(t('packages.askMsg'))}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex shrink-0 items-center gap-2 rounded-full bg-night px-5 py-2.5 text-[13px] font-bold text-ivory transition hover:bg-emerald"
-          >
-            <MessageCircle size={15} /> {t('packages.howAfterCta')}
-          </a>
-        </div>
-      )}
     </section>
   );
 }
