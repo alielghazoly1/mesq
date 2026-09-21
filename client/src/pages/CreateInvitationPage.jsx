@@ -179,6 +179,11 @@ export default function CreateInvitationPage() {
       const data = await createInvitation(buildPayload(vals, template, { withPlaceholders: false })).unwrap();
       setResult(data);
     } catch (err) {
+      // الرصيد خلص أو الباقة اتوقفت وهو بيملا الفورم — نوديه للباقات
+      if (err?.data?.code === 'SUBSCRIPTION_REQUIRED') {
+        navigate('/packages');
+        return;
+      }
       // رصيده المجاني خلص؟ ده مش خطأ — ده عرض ترقية
       if (err?.data?.code === 'FREE_QUOTA') {
         setQuotaError(err.data);

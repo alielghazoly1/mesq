@@ -29,9 +29,9 @@ const TEMPLATES = [
     // بيانات إضافية اختيارية بيحتاجها القالب ده (تظهر في الفورم بس لو موجودة)
     extraFields: [],
     // لو true، القالب ده بيتطلب تسجيل دخول عشان أي حد يقدر يشوفه أو يستخدمه
-    // (middleware/auth.js + الفحص في routes/invitations.js). القوالب التلاتة
-    // الحالية كلها مجانية ومفتوحة للكل.
-    isPremium: false,
+    // (middleware/auth.js + الفحص في routes/invitations.js). كل القوالب
+    // دلوقتي بباقة — الإنشاء للمشتركين بس، والمعاينة مفتوحة للكل.
+    isPremium: true,
   },
   {
     id: 'viktor-paula',
@@ -54,7 +54,7 @@ const TEMPLATES = [
       { key: 'contactName', label: 'اسم الشخص المسؤول عن الاستفسارات (اختياري)', maxlength: 80 },
       { key: 'contactPhone', label: 'رقم تليفون التواصل (اختياري)', maxlength: 40 },
     ],
-    isPremium: false,
+    isPremium: true,
   },
   {
     id: 'dolce-vita',
@@ -72,7 +72,7 @@ const TEMPLATES = [
     // في جدول الحفلة على التصميم — مطابق لترتيبهم فعليًا على الشاشة)
     timelineStages: ['reception', 'ceremony', 'cocktail', 'dinner', 'party', 'farewell'],
     extraFields: [],
-    isPremium: false,
+    isPremium: true,
   },
   {
     id: 'royal-maroon',

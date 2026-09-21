@@ -8,7 +8,7 @@ const { sanitizeText, escapeHtml } = require('../utils/sanitize');
 const { generateShortId } = require('../utils/idGenerator');
 const { renderNewPathHtml, renderLegacyHtml } = require('../utils/renderInvitation');
 const { buildInvitationDataFromRequest, hasActivePackage } = require('../utils/invitationData');
-const { requireFreeQuota, freeQuotaFor } = require('../middleware/freeQuota');
+const { freeQuotaFor, hashIp } = require('../middleware/freeQuota');
 const SiteTotals = require('../models/SiteTotals');
 const { getTemplate, TEMPLATES } = require('../templates/registry');
 const { localizeTemplate } = require('../templates/i18n');
@@ -101,27 +101,60 @@ router.get('/api/free-quota', async (req, res) => {
 });
 
 // POST /api/invitations — إنشاء دعوة فعلية (بتتحفظ في قاعدة البيانات).
-// requireFreeQuota قبل أي شغل: لو رصيده المجاني خلص، مالوش لازمة
-// نستنى التحقق من الفورم ولا نجيب لينك الخريطة من جوجل.
-router.post('/api/invitations', requireFreeQuota(hasActivePackage), async (req, res) => {
+//
+// كل القوالب بباقة: مفيش إنشاء مجاني تاني. الفحص هنا قبل أي شغل تاني
+// (التحقق من الفورم ولا جلب لينك الخريطة)، وبرسالة وكود واضحين عشان
+// الواجهة توديه لصفحة الباقات. الدعوات القديمة المجانية مش متأثرة:
+// عرضها وتعديلها وتنضيفها مالهمش علاقة بالمسار ده.
+function requireSubscriber(req, res, next) {
+  // بصمة الشبكة بتتخزن على الدعوة للمتابعة بس (اقرا middleware/freeQuota.js)
+  req.ipHash = hashIp(req.ip);
+  if (!req.user) {
+    return res.status(401).json({
+      code: 'AUTH_REQUIRED',
+      error: 'سجّل دخول الأول عشان تعمل دعوة.',
+    });
+  }
+  if (!hasActivePackage(req.user)) {
+    return res.status(403).json({
+      code: 'SUBSCRIPTION_REQUIRED',
+      error: 'إنشاء الدعوات بقى بباقة — اختار الباقة المناسبة وابدأ.',
+    });
+  }
+  return next();
+}
+
+async function refundCredit(userId) {
+  try {
+    await User.updateOne({ _id: userId }, { $inc: { 'subscription.invitationsLeft': 1 } });
+  } catch (e) {
+    console.error('Credit refund failed for user', userId, e);
+  }
+}
+
+router.post('/api/invitations', requireSubscriber, async (req, res) => {
+  let consumedCredit = false;
   try {
     const data = await buildInvitationDataFromRequest(req.body || {}, { user: req.user });
 
-    // لو المستخدم مسجّل وعنده رصيد باقة، بنستهلك دعوة واحدة من رصيده
-    // والدعوة بتبقى "مميزة" (يقدر يفتح المحرر عليها بعدين).
-    // بنستخدم findOneAndUpdate بشرط الرصيد > 0 عشان لو بعت طلبين في نفس
-    // اللحظة مايستهلكش أكتر من رصيده.
-    let ownerId = null;
-    let isPremium = false;
-    if (req.user) {
-      ownerId = req.user.id;
-      const consumed = await User.findOneAndUpdate(
-        { _id: req.user.id, 'subscription.invitationsLeft': { $gt: 0 } },
-        { $inc: { 'subscription.invitationsLeft': -1 } },
-        { new: true }
-      );
-      isPremium = !!consumed;
+    // بنستهلك دعوة واحدة من رصيد الباقة، والدعوة بتبقى "مميزة" (يقدر يفتح
+    // المحرر عليها بعدين). الشرط (الرصيد > 0) جوه الاستعلام نفسه: لو بعت
+    // طلبين في نفس اللحظة مايستهلكش أكتر من رصيده. ولو الخصم فشل، بنرفض —
+    // مافيش دعوة بتتعمل من غير رصيد أبدًا (قبل كده كانت بتتعمل "مجانية").
+    const consumed = await User.findOneAndUpdate(
+      { _id: req.user.id, 'subscription.status': { $ne: 'suspended' }, 'subscription.invitationsLeft': { $gt: 0 } },
+      { $inc: { 'subscription.invitationsLeft': -1 } },
+      { new: true }
+    );
+    if (!consumed) {
+      return res.status(403).json({
+        code: 'SUBSCRIPTION_REQUIRED',
+        error: 'مافيش رصيد دعوات في باقتك — اختار باقة عشان تكمّل.',
+      });
     }
+    consumedCredit = true;
+    const ownerId = req.user.id;
+    const isPremium = true;
 
     let invitation = null;
     let attempts = 0;
@@ -146,6 +179,7 @@ router.post('/api/invitations', requireFreeQuota(hasActivePackage), async (req, 
     }
 
     if (!invitation) {
+      await refundCredit(req.user.id);
       return res.status(500).json({ error: 'حصل خطأ في توليد اللينك، حاول تاني.' });
     }
 
@@ -155,6 +189,8 @@ router.post('/api/invitations', requireFreeQuota(hasActivePackage), async (req, 
       isPremium: invitation.isPremium,
     });
   } catch (err) {
+    // الرصيد اتخصم والدعوة ماتحفظتش؟ نرجّعه — العميل دفع فلوس، مايضيعش منه
+    if (consumedCredit) await refundCredit(req.user.id);
     if (err.status) return res.status(err.status).json({ error: err.message });
     console.error('Error creating invitation:', err);
     return res.status(500).json({ error: 'حصل خطأ في السيرفر، حاول تاني بعد شوية.' });
