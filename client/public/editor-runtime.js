@@ -1535,23 +1535,38 @@
       var rec = coverRecord();
       if (rec) {
         if (STAGE_COVER) {
-          // الغلاف مقفول على "ظاهر". نلغي أي فتح تلقائي من التصميم نفسه
+          // الغلاف مقفول على "ظاهر" في التليفون الشمال. تلات دفاعات
+          // لأن القوالب المختلفة بتحاول تخفيه بطرق مختلفة:
+          //   1) `wda-cover-off` نشيلها (اللي بنحطها إحنا بنفسنا)
+          //   2) inline style="display:none" (بيحطه القالب في autoOpen)
+          //      → نشيله بـremoveProperty
+          //   3) class="closing" (royal-maroon بيضيفه لما يضغط زرار
+          //      الفتح) → CSS `!important` يمنع أثره
           rec.classList.remove('wda-cover-off');
+          rec.classList.remove('closing');
           rec.style.removeProperty('display');
           state.coverVisible = true;
-          // نمنع الضغط على زرار الدخول (بتاع "افتح الدعوة") من فتحها
-          // نمنع كل زر معروف لفتح الغلاف من أن يغلق الغلاف:
-          //   .popup-enter          — قوالب Tilda (blossom-oud, dolce-vita, viktor-paula)
-          //   #openBtn              — royal-maroon (المحدّد الفعلي في اسكريبت التصميم)
-          //   .cover-enter, [data-cover-enter] — أي قالب جديد بيتبع المعرّفين دول
-          document.querySelectorAll(
-            '.popup-enter, #openBtn, #coverScreen .cover-enter, #coverScreen [data-cover-enter]'
-          ).forEach(function (btn) {
-            btn.addEventListener('click', function (e) {
-              e.preventDefault(); e.stopPropagation();
-            }, true);
-            btn.style.cursor = 'default';
-          });
+
+          // CSS يمنع أي محاولة قالب لإخفاء الغلاف. `!important` بتغلب
+          // أي inline style أو class-based rule بيخفيه. مش بنشيله من
+          // DOM عشان العميل يعدّل عليه.
+          var lockStyle = document.getElementById('wda-stage-cover-lock');
+          if (!lockStyle) {
+            lockStyle = document.createElement('style');
+            lockStyle.id = 'wda-stage-cover-lock';
+            lockStyle.textContent =
+              '#coverScreen, .t-rec:has(.popup-enter){' +
+              'display:block !important; opacity:1 !important;' +
+              'visibility:visible !important; pointer-events:auto !important;' +
+              '}' +
+              // زرار "افتح الدعوة" — pointer-events:none بيمنع أي ضغطة،
+              // حتى لو القالب سجّل listener قبل الـruntime. cursor:not-allowed
+              // بيقول للعميل بصريًا "الزرار ده مش شغّال هنا".
+              '.popup-enter, #openBtn, .cover-open-btn, [data-cover-enter]{' +
+              'pointer-events:none !important; cursor:not-allowed !important;' +
+              '}';
+            document.head.appendChild(lockStyle);
+          }
         } else if (STAGE_INSIDE) {
           // مخفي دايمًا — العميل بيعدّل على "الدعوة من جوه"
           rec.classList.add('wda-cover-off');
