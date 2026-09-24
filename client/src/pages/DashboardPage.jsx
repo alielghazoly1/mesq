@@ -1,14 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import {
   ArrowRight, Eye, Users, Crown, Sparkles, MessageCircle,
   Send, ExternalLink, BarChart3, Check, X as XIcon, Lock, Wand2, FileText,
+  Share2, Copy, RefreshCw, Loader2,
 } from 'lucide-react';
 import {
   useGetDashboardQuery,
   useGetRsvpsQuery,
+  useCreateStatsLinkMutation,
   useGetSupportQuery,
   useSendSupportMessageMutation,
 } from '../store/api.js';
@@ -58,6 +60,115 @@ function RsvpList({ shortId, onClose }) {
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+function StatsShare({ shortId, statsPath, onClose }) {
+  const { t } = useTranslation();
+  const [createLink, { isLoading }] = useCreateStatsLinkMutation();
+  const [path, setPath] = useState(statsPath || null);
+  const [copied, setCopied] = useState(false);
+  const [err, setErr] = useState('');
+
+  // الدعوات القديمة ممكن ماكانش عندها لينك — بنولّده أول ما يفتح البانل
+  useEffect(() => {
+    if (path) return;
+    createLink({ shortId }).unwrap()
+      .then((r) => setPath(r.statsPath))
+      .catch((e) => setErr(e?.data?.error || t('editor.errorSave')));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const fullUrl = path ? `${window.location.origin}${path}` : '';
+
+  function copy() {
+    if (!fullUrl) return;
+    navigator.clipboard.writeText(fullUrl).then(
+      () => { setCopied(true); setTimeout(() => setCopied(false), 1800); },
+      () => setErr('—'),
+    );
+  }
+
+  async function reset() {
+    if (!window.confirm(t('dash.resetLinkConfirm'))) return;
+    setErr('');
+    try {
+      const r = await createLink({ shortId, reset: true }).unwrap();
+      setPath(r.statsPath);
+    } catch (e) {
+      setErr(e?.data?.error || t('editor.errorSave'));
+    }
+  }
+
+  const waUrl = `https://wa.me/?text=${encodeURIComponent(`${t('dash.statsShareMsg')} ${fullUrl}`)}`;
+
+  return (
+    <div className="mt-4 rounded-xl border border-line bg-ivory/60 p-4">
+      <div className="mb-2.5 flex items-center justify-between">
+        <span className="inline-flex items-center gap-1.5 text-[13px] font-bold text-ink">
+          <Share2 size={14} /> {t('dash.statsReportTitle')}
+        </span>
+        <button type="button" onClick={onClose} className="text-ink-dim hover:text-ink">
+          <XIcon size={15} />
+        </button>
+      </div>
+
+      {err && <p className="mb-2 text-[12.5px] text-error">{err}</p>}
+
+      {!path ? (
+        <p className="flex items-center gap-2 py-2 text-[13px] text-ink-dim">
+          <Loader2 size={14} className="animate-spin" /> {t('dash.statsLinkLoading')}
+        </p>
+      ) : (
+        <>
+          <div className="flex flex-wrap items-center gap-2">
+            <input
+              readOnly
+              value={fullUrl}
+              onFocus={(e) => e.target.select()}
+              className="min-w-0 flex-1 rounded-lg border border-line bg-card px-3 py-2 text-[12.5px] text-ink focus:border-rose focus:outline-none"
+            />
+            <button
+              type="button"
+              onClick={copy}
+              className="inline-flex items-center gap-1.5 rounded-full bg-night px-3.5 py-2 text-[12.5px] font-bold text-ivory hover:bg-emerald"
+            >
+              {copied ? <Check size={13} /> : <Copy size={13} />}
+              {copied ? t('result.copied') : t('result.copy')}
+            </button>
+          </div>
+
+          <div className="mt-2.5 flex flex-wrap gap-2">
+            <a
+              href={path}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-full border border-line px-3.5 py-2 text-[12px] font-bold text-ink hover:bg-ink/5"
+            >
+              <ExternalLink size={12} /> {t('dash.openReport')}
+            </a>
+            <a
+              href={waUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-full border border-emerald/40 px-3.5 py-2 text-[12px] font-bold text-emerald hover:bg-emerald/5"
+            >
+              <MessageCircle size={12} /> {t('dash.shareWhatsapp')}
+            </a>
+            <button
+              type="button"
+              onClick={reset}
+              disabled={isLoading}
+              className="inline-flex items-center gap-1.5 rounded-full border border-line px-3.5 py-2 text-[12px] font-bold text-ink-dim hover:text-ink disabled:opacity-50"
+            >
+              <RefreshCw size={12} /> {t('dash.resetLink')}
+            </button>
+          </div>
+
+          <p className="mt-2.5 text-[11.5px] leading-relaxed text-ink-dim">{t('dash.statsLinkHint')}</p>
+        </>
+      )}
     </div>
   );
 }
@@ -124,6 +235,7 @@ export default function DashboardPage() {
   const { t, i18n } = useTranslation();
   const { data, isLoading } = useGetDashboardQuery();
   const [openRsvp, setOpenRsvp] = useState(null);
+  const [openShare, setOpenShare] = useState(null);
   const lang = i18n.language === 'ar' ? 'ar' : 'en';
 
   if (isLoading) return <div className="p-16 text-center text-ink-dim">...</div>;
@@ -268,7 +380,7 @@ export default function DashboardPage() {
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-bold text-ink">{inv.names[lang] || inv.names.ar}</span>
+                          <span className="font-bold text-ink">{inv.title || inv.names[lang] || inv.names.ar}</span>
                           {inv.isDraft && (
                             <span className="inline-flex items-center gap-1 rounded-full bg-ink/10 px-2 py-0.5 text-[10.5px] font-bold text-ink-dim">
                               <FileText size={10} /> {t('dash.draftBadge')}
@@ -280,6 +392,11 @@ export default function DashboardPage() {
                             </span>
                           )}
                         </div>
+                        {/* أسماء العروسين كسطر ثانوي — لما العميل مسمّي
+                            الدعوة باسم مخصص، يفضل شايف الفرح ده بتاع مين */}
+                        {inv.title && (inv.names[lang] || inv.names.ar) && (
+                          <div className="mt-0.5 text-[12px] text-ink-dim">{inv.names[lang] || inv.names.ar}</div>
+                        )}
                         <div className="mt-1 flex flex-wrap gap-3 text-[12.5px] text-ink-dim">
                           <span className="inline-flex items-center gap-1">
                             <Eye size={12} /> {inv.views}
@@ -317,10 +434,23 @@ export default function DashboardPage() {
                           <>
                             <button
                               type="button"
-                              onClick={() => setOpenRsvp(openRsvp === inv.shortId ? null : inv.shortId)}
+                              onClick={() => {
+                                setOpenRsvp(openRsvp === inv.shortId ? null : inv.shortId);
+                                setOpenShare(null);
+                              }}
                               className="rounded-full border border-line px-3.5 py-2 text-[12.5px] font-bold text-ink hover:bg-ink/5"
                             >
                               {t('dash.viewRsvps')}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setOpenShare(openShare === inv.shortId ? null : inv.shortId);
+                                setOpenRsvp(null);
+                              }}
+                              className="inline-flex items-center gap-1 rounded-full border border-line px-3.5 py-2 text-[12.5px] font-bold text-ink hover:bg-ink/5"
+                            >
+                              <Share2 size={12} /> {t('dash.shareStats')}
                             </button>
                             <a
                               href={inv.url}
@@ -337,6 +467,13 @@ export default function DashboardPage() {
 
                     {openRsvp === inv.shortId && (
                       <RsvpList shortId={inv.shortId} onClose={() => setOpenRsvp(null)} />
+                    )}
+                    {openShare === inv.shortId && (
+                      <StatsShare
+                        shortId={inv.shortId}
+                        statsPath={inv.statsPath}
+                        onClose={() => setOpenShare(null)}
+                      />
                     )}
                   </div>
                 ))}

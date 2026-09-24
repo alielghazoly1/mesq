@@ -78,6 +78,15 @@ export const api = createApi({
     getRsvps: builder.query({
       query: (shortId) => `/dashboard/rsvps/${shortId}`,
     }),
+    // لينك تقرير الإحصائيات العام — بيولّده لو مش موجود، و{ reset:true }
+    // بيولّد واحد جديد ويبطّل القديم. بنحدّث Dashboard عشان اللينك الجديد
+    // يظهر في القائمة.
+    createStatsLink: builder.mutation({
+      query: ({ shortId, reset = false }) => ({
+        url: `/dashboard/stats-link/${shortId}`, method: 'POST', body: { reset },
+      }),
+      invalidatesTags: ['Dashboard'],
+    }),
     getSupport: builder.query({
       query: () => '/dashboard/support',
       providesTags: ['Support'],
@@ -116,11 +125,44 @@ export const api = createApi({
     saveText: builder.mutation({
       query: ({ shortId, ...body }) => ({ url: `/editor/${shortId}/text`, method: 'PATCH', body }),
       invalidatesTags: ['Dashboard'],
+      // بنزامن كاش المحرر مع الحقيقة اللي رجعت من السيرفر — من غير أي
+      // invalidate (عشان الـ iframe مايعملش reload).
+      //
+      // ده بيقفل بق خطير: تعديل اسم العروسة/العريس/القاعة بالضغط عليه
+      // بيتخزّن في الحقل الأساسي نفسه (مش في خريطة النصوص)، والسيرفر
+      // بيرجّع details المحدّثة. من غير التزامن ده، كاش details كان بيفضل
+      // قديم، وأول حفظ لبيانات الدعوة بعده (تاريخ، لينك، إخفاء قسم) كان
+      // بيبعت الاسم القديم كله ويدهس تعديلك — "غيّرت الاسم واتشال".
+      async onQueryStarted({ shortId }, { dispatch, queryFulfilled }) {
+        try {
+          const { data: res } = await queryFulfilled;
+          dispatch(api.util.updateQueryData('getEditor', shortId, (cache) => {
+            if (res.details) cache.details = res.details;
+            if (res.texts) {
+              cache.customizations = cache.customizations || {};
+              cache.customizations.texts = res.texts;
+            }
+            if (res.added !== undefined) {
+              cache.customizations = cache.customizations || {};
+              cache.customizations.added = res.added;
+            }
+          }));
+        } catch {
+          // الحفظ فشل — المكوّن بيعرض الخطأ ويرجّع النص القديم في الدعوة
+        }
+      },
     }),
     saveDetails: builder.mutation({
       query: ({ shortId, ...body }) => ({
         url: `/editor/${shortId}/details`, method: 'PATCH', body,
       }),
+      invalidatesTags: ['Dashboard'],
+    }),
+    // اسم الدعوة الداخلي (بيظهر في لوحة العميل عشان يفرّق بين دعواته).
+    // Dashboard بس عشان اللوحة تتحدّث — من غير invalidate للمحرر عشان
+    // الـ iframe مايعملش reload.
+    saveTitle: builder.mutation({
+      query: ({ shortId, title }) => ({ url: `/editor/${shortId}/title`, method: 'PATCH', body: { title } }),
       invalidatesTags: ['Dashboard'],
     }),
     publishInvitation: builder.mutation({
@@ -163,6 +205,7 @@ export const {
   useGetPaymentInfoQuery,
   useGetDashboardQuery,
   useGetRsvpsQuery,
+  useCreateStatsLinkMutation,
   useGetSupportQuery,
   useSendSupportMessageMutation,
   useUploadPaymentProofMutation,
@@ -170,6 +213,7 @@ export const {
   useSaveCustomizationsMutation,
   useCreateDraftMutation,
   useSaveDetailsMutation,
+  useSaveTitleMutation,
   useSaveTextMutation,
   usePublishInvitationMutation,
   useResetInvitationMutation,

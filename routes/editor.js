@@ -12,6 +12,7 @@ const { requireAuth } = require('../middleware/auth');
 const { packageHasFeature } = require('../packages/registry');
 const { getTemplate } = require('../templates/registry');
 const { generateShortId } = require('../utils/idGenerator');
+const { generateStatsToken } = require('../utils/statsToken');
 const { buildInvitationDataFromRequest } = require('../utils/invitationData');
 const { sanitizeText } = require('../utils/sanitize');
 const {
@@ -162,6 +163,10 @@ router.post('/api/editor/draft', requireAuth, async (req, res) => {
           ownerId: req.user.id,
           isPremium: true,
           status: 'draft',
+          // اسم مبدئي = اسم التصميم، عشان المسودة تبان في اللوحة من أول
+          // لحظة بدل ما تكون "العروسة & العريس" زي كل المسودات التانية —
+          // والعميل بيغيّره من المحرر لأي اسم يفرّقهم به
+          title: template.name,
           ...data,
           // غلاف المظروف بالفيديو للدعوات الجديدة من Royal Maroon بس —
           // الدعوات القديمة المشاركة مالهاش الحقل ده فبتفضل بغلافها الأصلي.
@@ -220,6 +225,8 @@ router.get('/api/editor/:shortId', requireAuth, async (req, res) => {
       shortId: invitation.shortId,
       templateId: invitation.templateId,
       status: invitation.status,
+      // اسم الدعوة الداخلي (بيظهر في لوحة العميل بس، مش للضيوف)
+      title: invitation.title || '',
       customizations: invitation.customizations || {},
       details: detailsOf(invitation),
       features: featuresFor(req.user),
@@ -266,6 +273,28 @@ router.patch('/api/editor/:shortId/details', requireAuth, async (req, res) => {
   } catch (err) {
     if (err.status) return res.status(err.status).json({ error: err.message });
     console.error('Error saving invitation details:', err);
+    return res.status(500).json({ error: 'حصل خطأ في الحفظ.' });
+  }
+});
+
+// PATCH /api/editor/:shortId/title — اسم الدعوة الداخلي (للوحة العميل بس).
+// منفصل عن /details عن قصد: ده حقل واحد بسيط، ومالوش أي علاقة بالتحقق
+// التقيل بتاع بيانات الدعوة (أسماء/تاريخ/قاعة)، وتغييره مايستدعيش إعادة
+// بناء التصميم.
+router.patch('/api/editor/:shortId/title', requireAuth, async (req, res) => {
+  try {
+    const invitation = await loadOwnedInvitation(req, res);
+    if (!invitation) return undefined;
+
+    // فاضي مسموح: العميل يقدر يشيل الاسم ويخلّيها ترجع لأسماء العروسين
+    // في اللوحة. sanitizeText بيشيل أي وسوم/حروف تحكم.
+    const title = sanitizeText((req.body || {}).title, 80);
+    invitation.title = title;
+    await invitation.save();
+
+    return res.json({ ok: true, title: invitation.title });
+  } catch (err) {
+    console.error('Error saving invitation title:', err);
     return res.status(500).json({ error: 'حصل خطأ في الحفظ.' });
   }
 });
@@ -448,6 +477,17 @@ router.post('/api/editor/:shortId/publish', requireAuth, async (req, res) => {
 
     invitation.status = 'published';
     invitation.publishedAt = new Date();
+    // لينك تقرير الإحصائيات جاهز من لحظة النشر — عشان العميل يلاقيه
+    // مستني في لوحته يشاركه من غير أي خطوة زيادة
+    if (!invitation.statsToken) {
+      try {
+        invitation.statsToken = await generateStatsToken(Invitation);
+      } catch (err) {
+        // فشل توليد التوكن مايصحّش يوقف النشر نفسه — بيتولّد بعدين عند
+        // أول طلب لينك مشاركة (routes/dashboard.js)
+        console.error('Stats token generation failed on publish:', err.message);
+      }
+    }
     try {
       await invitation.save();
     } catch (err) {

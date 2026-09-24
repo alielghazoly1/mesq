@@ -10,6 +10,12 @@ const invitationSchema = new mongoose.Schema({
   language: { type: String, enum: ['ar', 'en', 'fr'], default: null },
   occasionType: { type: String, enum: ['wedding', 'engagement'], default: null },
 
+  // اسم الدعوة اللي العميل بيسمّيها بيه — للتفرقة بين دعواته في لوحته
+  // لما يكون عنده كذا دعوة/مسودة. ده اسم داخلي ليه هو، مش بيظهر للضيوف
+  // أبدًا. فاضي = دعوة قديمة أو لسه ماتسمّتش، واللوحة بتعرضها باسمي
+  // العروسين بدل ما تسيبها من غير عنوان.
+  title: { type: String, default: '', maxlength: 80 },
+
   // أقسام اختارها صاحب الدعوة إنه يشيلها (زي: 'countdown', 'timeline', 'dressCode', 'rsvp', 'map')
   hiddenSections: { type: [String], default: [] },
 
@@ -133,6 +139,13 @@ const invitationSchema = new mongoose.Schema({
 
   // مصدر الحقيقة الوحيد للتاريخ — الأوقات التفصيلية بقت في timeline لأي دعوة جديدة
   weddingDateTime: { type: Date, required: true },
+
+  // توكن سري لصفحة الإحصائيات العامة (/s/:statsToken). منفصل تمامًا عن
+  // shortId عشان صاحب الدعوة يشارك التقرير مع عميله من غير ما يكشف
+  // إحصائياته لأي ضيف عنده لينك الدعوة. null = لسه ماتولّدش (بيتولّد أول
+  // ما العميل يطلب لينك المشاركة). sparse عشان القيم الـ null ما تتعاملش
+  // كمكررة تحت شرط unique.
+  statsToken: { type: String, default: null, index: true, unique: true, sparse: true },
 
   viewCount: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },

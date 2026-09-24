@@ -124,6 +124,9 @@ app.use('/api/free-quota', requireDB);
 app.use('/api/public-stats', requireDB);
 app.use('/i', requireDB);
 app.use('/i', attachUser);
+// صفحة تقرير الإحصائيات العامة (/s/:statsToken) — عامة بدون تسجيل دخول،
+// بس محتاجة اتصال بقاعدة البيانات
+app.use('/s', requireDB);
 app.use('/admin', requireDB);
 app.use('/api/auth', requireDB);
 app.use('/api/packages', requireDB);
@@ -288,7 +291,7 @@ app.use('/', editorRouter);
 // الـ API بتاعتها بس (/admin/api/…) وتسجيل الدخول والخروج.
 const CLIENT_ROUTE_EXCLUDED_PREFIXES = [
   '/api', '/admin/api', '/admin/login', '/admin/logout', '/admin/session',
-  '/i/', '/preview-sample',
+  '/i/', '/s/', '/preview-sample',
 ];
 // طلب ملف (فيه امتداد) مش موجود لازم يرجّع 404 — مش صفحة React.
 //

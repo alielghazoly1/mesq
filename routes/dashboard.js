@@ -10,6 +10,7 @@ const { requireAuth } = require('../middleware/auth');
 const { sanitizeText } = require('../utils/sanitize');
 const { getPackage, EDIT_WINDOW_DAYS } = require('../packages/registry');
 const { editWindowInfo } = require('../utils/editWindow');
+const { generateStatsToken } = require('../utils/statsToken');
 
 const router = express.Router();
 
@@ -19,7 +20,7 @@ router.get('/api/dashboard', requireAuth, async (req, res) => {
     const invitations = await Invitation.find({ ownerId: req.user.id })
       .sort({ createdAt: -1 })
       .limit(100)
-      .select('shortId templateId brideNameAr groomNameAr brideName groomName weddingDateTime viewCount isPremium status createdAt')
+      .select('shortId templateId title brideNameAr groomNameAr brideName groomName weddingDateTime viewCount isPremium status statsToken createdAt')
       .lean();
 
     const shortIds = invitations.map((i) => i.shortId);
@@ -75,6 +76,9 @@ router.get('/api/dashboard', requireAuth, async (req, res) => {
       invitations: invitations.map((inv) => ({
         shortId: inv.shortId,
         templateId: inv.templateId,
+        // اسم الدعوة الداخلي اللي العميل سمّاها بيه (فاضي = يتعرض بأسماء
+        // العروسين بدلًا منه)
+        title: inv.title || '',
         names: {
           ar: `${inv.brideNameAr || ''} & ${inv.groomNameAr || ''}`.trim(),
           en: `${inv.brideName || ''} & ${inv.groomName || ''}`.trim(),
@@ -88,6 +92,9 @@ router.get('/api/dashboard', requireAuth, async (req, res) => {
         isDraft: inv.status === 'draft',
         createdAt: inv.createdAt,
         url: `/i/${inv.shortId}`,
+        // لينك تقرير الإحصائيات العام (لو اتولّد) — العميل بيشاركه مع
+        // عميله. المسودة مالهاش لينك (لسه منشرتش)
+        statsPath: inv.statsToken ? `/s/${inv.statsToken}` : null,
       })),
     });
   } catch (err) {
@@ -112,6 +119,35 @@ router.get('/api/dashboard/rsvps/:shortId', requireAuth, async (req, res) => {
     return res.json({ rsvps });
   } catch (err) {
     console.error('Error loading rsvps:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر.' });
+  }
+});
+
+// POST /api/dashboard/stats-link/:shortId — بيرجّع لينك تقرير الإحصائيات
+// العام للدعوة، وبيولّده لو لسه ماتولّدش (للدعوات القديمة). مع { reset: true }
+// بيولّد توكن جديد ويبطّل القديم — عشان صاحب الدعوة يقدر يوقف مشاركة قديمة
+// (مثلاً تاجر شارك اللينك مع عميل وبقى عايز يقطع وصوله).
+router.post('/api/dashboard/stats-link/:shortId', requireAuth, async (req, res) => {
+  try {
+    const invitation = await Invitation.findOne({
+      shortId: req.params.shortId, ownerId: req.user.id,
+    });
+    if (!invitation) return res.status(404).json({ error: 'الدعوة دي مش موجودة.' });
+
+    // المسودة لسه مالهاش ضيوف ولا لينك يتشارك
+    if (invitation.status === 'draft') {
+      return res.status(400).json({ error: 'انشر الدعوة الأول عشان يبقى ليها تقرير يتشارك.' });
+    }
+
+    const reset = !!(req.body || {}).reset;
+    if (reset || !invitation.statsToken) {
+      invitation.statsToken = await generateStatsToken(Invitation);
+      await invitation.save();
+    }
+
+    return res.json({ ok: true, statsPath: `/s/${invitation.statsToken}`, reset });
+  } catch (err) {
+    console.error('Error creating stats link:', err);
     return res.status(500).json({ error: 'حصل خطأ في السيرفر.' });
   }
 });

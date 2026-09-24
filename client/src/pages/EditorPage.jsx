@@ -17,13 +17,14 @@ import {
   ChevronLeft, ChevronRight, Upload, AlertCircle, Crown, FileText,
   Rocket, Trash2, ExternalLink, Copy, MousePointerClick, Undo2,
   PlayCircle, RotateCw, Layers, ALargeSmall, Minus, Plus, CalendarDays, Sparkles,
-  MapPin, Redo2, Palette, Stamp, TypeOutline, Share2, Eye, EyeOff, Maximize2, Clock,
+  MapPin, Redo2, Palette, Stamp, TypeOutline, Share2, Eye, EyeOff, Maximize2, Clock, Tag,
 } from 'lucide-react';
 import {
   useGetEditorQuery,
   useSaveCustomizationsMutation,
   useSaveTextMutation,
   useSaveDetailsMutation,
+  useSaveTitleMutation,
   usePublishInvitationMutation,
   useResetInvitationMutation,
   useDeleteDraftMutation,
@@ -68,6 +69,41 @@ const TABS = [
   // شكل لينكه على واتساب — ده جزء من دعوته مش إضافة
   { id: 'share', icon: Share2, feature: null, label: 'editor.tabShare' },
 ];
+
+/**
+ * جسم حفظ التخصيصات من نسخة draft — مصدر واحد بيستخدمه الحفظ التلقائي،
+ * "نشر التعديلات"، حفظ فورم الحضور، والـ flush قبل إعادة تحميل الإطار.
+ *
+ * ليه مصدر واحد: السيرفر بيعمل **استبدال كامل** لكل خريطة (إزاحات،
+ * مقاسات، نصوص مضافة...). لو أي مسار حفظ نسي حقل، الحقل ده بيتمسح من
+ * الداتابيز. لما الجسم يتبني في مكان واحد، مستحيل مسار ينسى حاجة والتاني
+ * يفتكرها. `has` بيقرر مميزات الباقة زي ما السيرفر بيقرر بالظبط.
+ */
+function customizationBody(draft, has) {
+  const body = {};
+  if (has('fonts')) body.fontFamily = draft.fontFamily;
+  if (has('music')) {
+    body.audioUrl = draft.audioUrl;
+    body.audioStart = draft.audioStart || 0;
+    body.audioEnd = draft.audioEnd || 0;
+  }
+  // الإزاحات بتتبعت دايمًا: السيرفر بيقبل إزاحة النص المضاف في أي باقة،
+  // وإزاحة التصميم بالباقة بس
+  body.offsets = draft.offsets;
+  if (has('images')) body.images = draft.images;
+  if (has('colors')) body.colors = draft.colors;
+  // الإخفاء والمقاس والميل والمحاذاة مش مميزات باقة — تنسيق العميل في دعوته
+  body.hidden = draft.hidden;
+  body.sizes = draft.sizes;
+  body.rotations = draft.rotations;
+  body.scales = draft.scales;
+  body.aligns = draft.aligns || {};
+  body.rsvp = draft.rsvp || {};
+  body.calDay = draft.calDay || 0;
+  body.added = draft.added;
+  body.share = draft.share;
+  return body;
+}
 
 /** الكلام ده تاريخ؟ (فيه سنة زي 2027) — ساعتها بنفتحله نتيجة بدل كتابة */
 const looksLikeDate = (text) => /\b20\d{2}\b/.test(String(text || ''));
@@ -186,6 +222,7 @@ export default function EditorPage() {
   const [saveCustomizations, { isLoading: isSaving }] = useSaveCustomizationsMutation();
   const [saveText] = useSaveTextMutation();
   const [saveDetails] = useSaveDetailsMutation();
+  const [saveTitle] = useSaveTitleMutation();
   const [publishInvitation, { isLoading: publishing }] = usePublishInvitationMutation();
   const [resetInvitation, { isLoading: resetting }] = useResetInvitationMutation();
   const [deleteDraft, { isLoading: deleting }] = useDeleteDraftMutation();
@@ -233,6 +270,32 @@ export default function EditorPage() {
   // النسخة الشغالة من التخصيصات — بنعدّل عليها فورًا ونحفظ بعدين
   const [draft, setDraft] = useState(null);
 
+  // ===== اسم الدعوة (للعميل في لوحته بس) =====
+  // بيتحمّل مرة واحدة من السيرفر، وبيتحفظ لوحده بعد ما العميل يبطّل كتابة.
+  const [title, setTitle] = useState('');
+  const [titleLoaded, setTitleLoaded] = useState(false);
+  // آخر اسم اتحفظ فعلًا — عشان منحفظش من غير تغيير حقيقي
+  const savedTitleRef = useRef('');
+  useEffect(() => {
+    if (data && !titleLoaded) {
+      setTitle(data.title || '');
+      savedTitleRef.current = data.title || '';
+      setTitleLoaded(true);
+    }
+  }, [data, titleLoaded]);
+  useEffect(() => {
+    if (!titleLoaded) return undefined;
+    const trimmed = title.trim();
+    if (trimmed === savedTitleRef.current) return undefined;
+    const timer = setTimeout(async () => {
+      try {
+        await saveTitle({ shortId, title: trimmed }).unwrap();
+        savedTitleRef.current = trimmed;
+      } catch { /* هيتحفظ مع أول تعديل جديد */ }
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [title, titleLoaded, saveTitle, shortId]);
+
   // ===== الرجوع للخلف =====
   // المبدأ: قبل أي تعديل بنصوّر الحالة كاملة (لقطة)، والرجوع بيرجّع
   // اللقطة دي بالكامل. لقطات مش أوامر — لأن الأوامر لازم كل واحد منها
@@ -248,6 +311,11 @@ export default function EditorPage() {
 
   useEffect(() => { draftRef.current = draft; }, [draft]);
   useEffect(() => { detailsRef.current = data?.details || null; }, [data]);
+  // نسخة فورية من حالة "فيه تعديل لسه ماتحفظش" — عشان نقراها جوه دوال
+  // async من غير ما نستنى إعادة رسم (الحفظ التلقائي بـ debounce، فممكن
+  // يبقى فيه تعديل معلّق وقت ما نعمل إعادة تحميل للإطار)
+  const dirtyRef = useRef(false);
+  useEffect(() => { dirtyRef.current = dirty; }, [dirty]);
 
   const features = useMemo(() => data?.features || [], [data]);
   const has = useCallback((f) => features.includes(f), [features]);
@@ -631,30 +699,7 @@ export default function EditorPage() {
     const timer = setTimeout(async () => {
       try {
         // بنبعت اللي الباقة سامحة بيه بس — السيرفر بيرفض الباقي أصلاً
-        const body = {};
-        if (has('fonts')) body.fontFamily = draft.fontFamily;
-        if (has('music')) {
-          body.audioUrl = draft.audioUrl;
-          body.audioStart = draft.audioStart || 0;
-          body.audioEnd = draft.audioEnd || 0;
-        }
-        // بنبعت الإزاحات دايمًا: السيرفر بيقبل إزاحة النص المضاف في أي
-        // باقة، وإزاحة التصميم بالباقة بس — فمفيش داعي نحجبها من هنا
-        body.offsets = draft.offsets;
-        if (has('images')) body.images = draft.images;
-        if (has('colors')) body.colors = draft.colors;
-        // الإخفاء والمقاس والميل مش مميزات باقة — دول تنسيق العميل في
-        // دعوته هو
-        body.hidden = draft.hidden;
-        body.sizes = draft.sizes;
-        body.rotations = draft.rotations;
-        body.scales = draft.scales;
-        body.aligns = draft.aligns || {};
-        body.rsvp = draft.rsvp || {};
-        body.calDay = draft.calDay || 0;
-        body.added = draft.added;
-        body.share = draft.share;
-        await saveCustomizations({ shortId, ...body }).unwrap();
+        await saveCustomizations({ shortId, ...customizationBody(draft, has) }).unwrap();
         setDirty(false);
         setError('');
         setJustSaved(true);
@@ -896,12 +941,28 @@ export default function EditorPage() {
    * دي الحاجات اللي مش بتتكتب كنص عادي لأن ورا كل واحدة منطق:
    * التاريخ بيحرّك العداد التنازلي، واللينك بيبني الخريطة المدمجة.
    */
+  /**
+   * بيحفظ أي تعديلات تخصيص لسه معلّقة (الحفظ التلقائي بـ debounce ثانية)
+   * **قبل** أي إعادة تحميل للإطار. من غيره: تضيف كلام أو تكبّر صورة وبعدها
+   * على طول تخفي قسم — الإطار بيعمل reload على حالة السيرفر القديمة،
+   * فاللي لسه ماتحفظش بيتشال من قدامك لحد الحفظة الجاية. بنقرا من
+   * draftRef عشان ناخد أحدث نسخة جوه دالة async.
+   */
+  const flushCustomizations = useCallback(async () => {
+    if (!dirtyRef.current || !draftRef.current) return;
+    await saveCustomizations({ shortId, ...customizationBody(draftRef.current, has) }).unwrap();
+    setDirty(false);
+  }, [shortId, saveCustomizations, has]);
+
   async function changeDetail(patch) {
     if (!data?.details) return;
     remember();
     setError('');
     setTextSaving(true);
     try {
+      // نحفظ تخصيصات المحرر المعلّقة الأول عشان الـ reload اللي بعد حفظ
+      // البيانات مايضيّعش حاجة لسه بتتحفظ
+      await flushCustomizations();
       await saveDetails({ shortId, ...data.details, ...patch }).unwrap();
       await refetch();
       reloadFrame();
@@ -1041,6 +1102,8 @@ export default function EditorPage() {
     setError('');
     setSectionsBusy(true);
     try {
+      // نفس سبب changeDetail: احفظ التخصيصات المعلّقة قبل الـ reload
+      await flushCustomizations();
       await saveDetails({ shortId, ...data.details, hiddenSections: next }).unwrap();
       await refetch();
       reloadFrame();
@@ -1144,26 +1207,7 @@ export default function EditorPage() {
   async function updatePublished() {
     setError('');
     try {
-      const body = {};
-      if (has('fonts')) body.fontFamily = draft.fontFamily;
-      if (has('music')) {
-        body.audioUrl = draft.audioUrl;
-        body.audioStart = draft.audioStart || 0;
-        body.audioEnd = draft.audioEnd || 0;
-      }
-      body.offsets = draft.offsets;
-      if (has('images')) body.images = draft.images;
-      if (has('colors')) body.colors = draft.colors;
-      body.hidden = draft.hidden;
-      body.sizes = draft.sizes;
-      body.rotations = draft.rotations;
-      body.scales = draft.scales;
-      body.aligns = draft.aligns || {};
-      body.rsvp = draft.rsvp || {};
-      body.calDay = draft.calDay || 0;
-      body.added = draft.added;
-      body.share = draft.share;
-      await saveCustomizations({ shortId, ...body }).unwrap();
+      await saveCustomizations({ shortId, ...customizationBody(draft, has) }).unwrap();
       setDirty(false);
       reloadFrame();
       setJustSaved(true);
@@ -1184,19 +1228,7 @@ export default function EditorPage() {
   async function applyRsvp() {
     setError('');
     try {
-      const body = { shortId, rsvp: draft.rsvp || {} };
-      body.hidden = draft.hidden;
-      body.sizes = draft.sizes;
-      body.rotations = draft.rotations;
-      body.scales = draft.scales;
-        body.aligns = draft.aligns || {};
-      body.offsets = draft.offsets;
-      body.added = draft.added;
-      body.calDay = draft.calDay || 0;
-      if (has('fonts')) body.fontFamily = draft.fontFamily;
-      if (has('colors')) body.colors = draft.colors;
-      if (has('images')) body.images = draft.images;
-      await saveCustomizations(body).unwrap();
+      await saveCustomizations({ shortId, ...customizationBody(draft, has) }).unwrap();
       setDirty(false);
       reloadFrame();
       setJustSaved(true);
@@ -1587,6 +1619,24 @@ export default function EditorPage() {
               <ExternalLink size={12} /> {t('dash.open')}
             </a>
           </div>
+        </div>
+      )}
+
+      {/* ===== اسم الدعوة ===== */}
+      {/* بيظهرلك إنت في لوحتك بس عشان تفرّق بين دعواتك — الضيوف عمرهم ما
+          بيشوفوه. بيتحفظ لوحده وإنت بتكتب. */}
+      {!playing && (
+        <div className="flex shrink-0 items-center gap-2 border-b border-line bg-card px-4 py-2">
+          <Tag size={14} className="shrink-0 text-ink-dim" />
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            maxLength={80}
+            placeholder={t('editor.namePlaceholder')}
+            aria-label={t('editor.nameLabel')}
+            className="min-w-0 flex-1 rounded-lg border border-transparent bg-transparent px-2 py-1 text-[13px] font-bold text-ink hover:border-line focus:border-rose focus:bg-ivory focus:outline-none"
+          />
+          <span className="hidden shrink-0 text-[11px] text-ink-dim sm:inline">{t('editor.nameHint')}</span>
         </div>
       )}
 
