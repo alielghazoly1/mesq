@@ -10,6 +10,19 @@ import {
 } from '../../store/adminApi.js';
 import { Panel, Btn, Field, Spinner, fmtDate } from '../../components/admin/ui.jsx';
 
+// صف في checklist متغيّرات XPay — علامة صح/غلط + الاسم + القيمة المختصرة
+function DiagRow({ ok, label, value }) {
+  return (
+    <li className="flex items-center justify-between gap-3">
+      <span className="flex items-center gap-1.5 text-ivory/70">
+        <span className={ok ? 'text-ok' : 'text-error'}>{ok ? '✓' : '✗'}</span>
+        {label}
+      </span>
+      <span dir="ltr" className="truncate font-mono text-[10.5px] text-ivory/45">{value}</span>
+    </li>
+  );
+}
+
 export default function SettingsPage() {
   const { data, isLoading } = useGetPaymentSettingsQuery();
   const [save, { isLoading: saving, isSuccess }] = useSavePaymentSettingsMutation();
@@ -77,16 +90,33 @@ export default function SettingsPage() {
             اختبر اتصال XPay
           </Btn>
           {diag && (
-            <div className={`mt-3 rounded-xl p-3 text-[11.5px] ${diag.test?.ok ? 'bg-ok/[0.08] text-ok' : 'bg-error/[0.1] text-error'}`}>
-              <div className="mb-1.5 font-bold">
-                {diag.test?.ok ? '✓ الاتصال نجح — الدفع بالفيزا شغّال' : '✗ الاتصال فشل — ده السبب:'}
+            <div className="mt-3 space-y-3">
+              {/* المتغيّرات اللي في السيرفر — تتأكد إن اللي حطيته في Hostinger واصل */}
+              <div className="rounded-xl bg-ivory/[0.04] p-3">
+                <div className="mb-2 text-[11px] font-bold text-ivory/60">المتغيّرات اللي وصلت للسيرفر:</div>
+                <ul className="space-y-1.5 text-[11.5px]">
+                  <DiagRow ok={diag.config?.enabledFlag} label="التشغيل (XPAY_ENABLED)" value={diag.config?.enabledFlag ? 'مفعّل' : 'مش true'} />
+                  <DiagRow ok={!!diag.config?.apiBase} label="عنوان الـ API" value={diag.config?.apiBase} />
+                  <DiagRow ok={diag.config?.hasSecretKey} label="المفتاح السري (sk_)" value={diag.config?.secretKeyPrefix || 'فاضي'} />
+                  <DiagRow ok={diag.config?.hasPublishableKey} label="المفتاح العلني (pk_)" value={diag.config?.hasPublishableKey ? 'موجود' : 'فاضي'} />
+                  <DiagRow ok={diag.config?.hasWebhookSecret} label="سر الـ webhook (whsec_)" value={diag.config?.hasWebhookSecret ? 'موجود' : 'فاضي'} />
+                </ul>
               </div>
-              <pre className="max-h-52 overflow-auto whitespace-pre-wrap break-all font-mono text-[10.5px] leading-relaxed opacity-90" dir="ltr">
-                {JSON.stringify(diag, null, 2)}
-              </pre>
-              {!diag.test?.ok && (
-                <p className="mt-2 text-ivory/50">انسخ الكلام ده وابعتهولي عشان أظبط المشكلة بالظبط.</p>
-              )}
+
+              {/* نتيجة اختبار الاتصال الفعلي */}
+              <div className={`rounded-xl p-3 text-[12px] ${diag.test?.ok ? 'bg-ok/[0.1] text-ok' : 'bg-error/[0.1] text-error'}`}>
+                {diag.test?.ok ? (
+                  <div className="font-bold">✓ الاتصال بـ XPay نجح — الدفع بالفيزا شغّال. جرّب دفعة حقيقية من صفحة باقة.</div>
+                ) : (
+                  <>
+                    <div className="mb-1 font-bold">✗ الاتصال فشل:</div>
+                    <p dir="ltr" className="whitespace-pre-wrap break-words font-mono text-[10.5px] leading-relaxed opacity-90">
+                      {diag.test?.message}
+                    </p>
+                    <p className="mt-2 text-ivory/50">لو مش واضح، انسخ ده وابعتهولي.</p>
+                  </>
+                )}
+              </div>
             </div>
           )}
         </div>

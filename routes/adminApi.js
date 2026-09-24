@@ -948,7 +948,9 @@ router.get('/admin/api/xpay/diagnose', requireAdminSession, async (req, res) => 
 
   try {
     const session = await createCheckoutSession({
-      amount: 10,
+      // فوق الحد الأدنى للفيزا (50 جنيه) عشان الاختبار يعدّي — الباقات
+      // الحقيقية كلها أعلى من كده أصلاً
+      amount: 100,
       currency: 'EGP',
       orderId: 'diagnostic',
       userId: 'diagnostic',
