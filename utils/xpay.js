@@ -56,27 +56,27 @@ function toMinorUnits(amount) {
  * ⚠️ لو أسماء حقول XPay اختلفت، ده المكان الوحيد اللي بيتظبط فيه.
  */
 function buildSessionBody({ amount, currency, orderId, userId, customerEmail, successUrl, cancelUrl, description }) {
+  // XPay API متوافق مع Stripe: كل الأسماء snake_case زي Checkout Session
+  // بتاعت Stripe بالحرف (اتأكدنا من ده من رسالة الخطأ parameter_unknown).
   return {
     mode: 'payment',
-    // XPay بتقرا المبلغ بالوحدة الصغرى (قرش/سنت)
-    lineItems: [{
+    line_items: [{
       quantity: 1,
-      priceData: {
+      price_data: {
         currency: String(currency || '').toLowerCase(),
-        unitAmount: toMinorUnits(amount),
-        productData: { name: description || 'Mithaq invitation package' },
+        // المبلغ بالوحدة الصغرى (قرش/سنت)
+        unit_amount: toMinorUnits(amount),
+        product_data: { name: description || 'Mithaq invitation package' },
       },
     }],
-    // بيرجع رقم الطلب في الـ webhook — ده اللي بنربط بيه الدفعة بالطلب
-    // والعميل. حجر الأساس في التفعيل الأوتوماتيكي الآمن.
-    metadata: { orderId: String(orderId), userId: String(userId) },
-    // clientReferenceId كمان (بعض الـ APIs بترجّعه أصرح من metadata)
-    clientReferenceId: String(orderId),
-    customerEmail: customerEmail || undefined,
     // لفين يرجع العميل بعد نجاح/إلغاء الدفع
-    successUrl,
-    cancelUrl,
-    afterCompletion: { type: 'redirect', redirect: { url: successUrl } },
+    success_url: successUrl,
+    cancel_url: cancelUrl,
+    // بيرجع رقم الطلب في الـ webhook — بنربط بيه الدفعة بالطلب والعميل.
+    // حجر الأساس في التفعيل الأوتوماتيكي الآمن.
+    client_reference_id: String(orderId),
+    customer_email: customerEmail || undefined,
+    metadata: { orderId: String(orderId), userId: String(userId) },
   };
 }
 
@@ -117,7 +117,14 @@ async function xpayRequest(method, path, body) {
   try { data = text ? JSON.parse(text) : null; } catch { data = { raw: text }; }
 
   if (!res.ok) {
-    const msg = (data && (data.message || data.error)) || `XPay API ${res.status}`;
+    // رسالة الخطأ ممكن تكون data.message، أو data.error (نص)، أو
+    // data.error.message (كائن زي Stripe: { error: { message, code, ... } })
+    let msg = `XPay API ${res.status}`;
+    if (data) {
+      if (typeof data.message === 'string') msg = data.message;
+      else if (data.error && typeof data.error === 'object' && data.error.message) msg = data.error.message;
+      else if (typeof data.error === 'string') msg = data.error;
+    }
     const err = new Error(msg);
     err.status = res.status;
     err.body = data;
