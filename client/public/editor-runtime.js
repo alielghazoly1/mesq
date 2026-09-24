@@ -12,7 +12,25 @@
 (function () {
   'use strict';
 
+  // ===== وضع العرض في المحرر =====
+  // ?stage=cover  → التليفون الشمال في المحرر: بيعرض شاشة الغلاف بس
+  //                والدوس على زرار الدخول مبيفتحش الدعوة (بيسيب الغلاف
+  //                زي ما هو عشان العميل يعدّل عليه).
+  // ?stage=inside → التليفون اليمين: الدعوة من جوه — الغلاف بيتشال تلقائيًا
+  //                ومبيرجعش من نفسه، والعميل بيعدّل على المحتوى مباشرة.
+  // بدون stage    → السلوك الافتراضي القديم (وضع تشغيل/معاينة كامل).
+  var STAGE = (function () {
+    try {
+      var m = /[?&]stage=([a-z]+)/i.exec(window.location.search);
+      return m ? String(m[1]).toLowerCase() : '';
+    } catch (e) { return ''; }
+  }());
+  var STAGE_COVER = STAGE === 'cover';
+  var STAGE_INSIDE = STAGE === 'inside';
+
   var state = {
+    // أنهي وضع نحن فيه — بنعرضه للـshell (لو حبيت تعرفه لاحقًا)
+    stage: STAGE || 'full',
     offsets: {}, selected: null,
     // العنصر اللي بيتسحب دلوقتي. مش دايمًا هو اللي المتصفح سلّمه
     // لـ interact — بيتحدد من نقطة السحب بنفس منطق اختيار الضغطة،
@@ -43,8 +61,13 @@
   };
 
   // ===== التواصل مع الصفحة الأم =====
+  // بنضيف "stage" لكل رسالة عشان الـshell يعرف الرسالة جاية من أنهي
+  // تليفون (في وضع الشاشتين). ده مهم لرسايل زي 'ready' (شبكة الصور
+  // كاملة بترجع من stage=inside بس، غيره ما يدهسش قايمته).
   function send(type, payload) {
-    parent.postMessage({ source: 'mithaq-editor', type: type, payload: payload || {} }, window.location.origin);
+    var body = payload || {};
+    body.stage = STAGE || 'full';
+    parent.postMessage({ source: 'mithaq-editor', type: type, payload: body }, window.location.origin);
   }
 
   // ===== ستايل أدوات التحرير (بيتشال عند الحفظ النهائي) =====
@@ -92,6 +115,11 @@
     // اللي تحتها. بنشيلها خالص في وضع التحرير، ولها زرار مستقل تفتحه بيه
     // لما تحب تعدّل عليها هي نفسها.
     '.wda-cover-off{ display:none !important; }',
+    // scrollbar داخل الـiframe — بيبان كشريط رمادي على الجنب (screenshot
+    // العميل قال إنه "خرا"). بنخفيه في الموبايل mock بس السكرول شغّال
+    // عادي بالسحب. WebKit + Firefox.
+    'html{ scrollbar-width:none; }',
+    'html::-webkit-scrollbar, body::-webkit-scrollbar{ display:none; width:0; height:0; }',
     // الخريطة المدمجة iframe جوه صفحة تانية — بتبلع أي ضغطة قبل ما
     // توصل للمحرر، فكان مستحيل تختارها. في وضع التحرير بنقفل التفاعل
     // معاها (مش محتاجه وإنت بتعدّل أصلاً) فالضغطة توصل لنا.
@@ -1498,10 +1526,46 @@
         el.style.pointerEvents = 'auto';
       });
 
-      // الغلاف بيتشال من الطريق أول ما المحرر يفتح
+      // شاشة الغلاف: التصرّف بيختلف حسب وضع التحرير.
+      //   stage=cover  → نبقّيها ظاهرة والعميل يعدّل عليها. زرار الدخول
+      //                  بيتعطّل عشان الضغط عليه ما يفتحش الدعوة.
+      //   stage=inside → نشيلها ونمنع رجوعها (يعني يفضل شايف المحتوى بس).
+      //   بدون stage   → السلوك القديم: بنشيلها من طريق التحرير، وزرار
+      //                  "الغلاف" في الشريط الجانبي بيرجّعها لما يحتاج.
       var rec = coverRecord();
-      if (rec) rec.classList.add('wda-cover-off');
-      send('cover', { visible: false, exists: !!rec });
+      if (rec) {
+        if (STAGE_COVER) {
+          // الغلاف مقفول على "ظاهر". نلغي أي فتح تلقائي من التصميم نفسه
+          rec.classList.remove('wda-cover-off');
+          rec.style.removeProperty('display');
+          state.coverVisible = true;
+          // نمنع الضغط على زرار الدخول (بتاع "افتح الدعوة") من فتحها
+          // نمنع كل زر معروف لفتح الغلاف من أن يغلق الغلاف:
+          //   .popup-enter          — قوالب Tilda (blossom-oud, dolce-vita, viktor-paula)
+          //   #openBtn              — royal-maroon (المحدّد الفعلي في اسكريبت التصميم)
+          //   .cover-enter, [data-cover-enter] — أي قالب جديد بيتبع المعرّفين دول
+          document.querySelectorAll(
+            '.popup-enter, #openBtn, #coverScreen .cover-enter, #coverScreen [data-cover-enter]'
+          ).forEach(function (btn) {
+            btn.addEventListener('click', function (e) {
+              e.preventDefault(); e.stopPropagation();
+            }, true);
+            btn.style.cursor = 'default';
+          });
+        } else if (STAGE_INSIDE) {
+          // مخفي دايمًا — العميل بيعدّل على "الدعوة من جوه"
+          rec.classList.add('wda-cover-off');
+          state.coverVisible = false;
+        } else {
+          rec.classList.add('wda-cover-off');
+          state.coverVisible = false;
+        }
+      }
+      send('cover', {
+        visible: state.coverVisible,
+        exists: !!rec,
+        stage: state.stage,
+      });
 
       // التحرير مفتوح لأي صاحب دعوة مميزة — حتى الباقة الأساسية.
       // السحب هو اللي ميزة باقة لوحدها.
@@ -1607,7 +1671,11 @@
       });
     }
 
-    if (msg.type === 'toggle-cover') setCoverVisible(!!p.on);
+    if (msg.type === 'toggle-cover') {
+      // في وضع الشاشتين، كل تليفون مالوش غير غلافه/محتواه. تجاهل التبديل
+      // بدل ما نلخبط العميل بتيار غير متوقّع.
+      if (!STAGE_COVER && !STAGE_INSIDE) setCoverVisible(!!p.on);
+    }
 
     // ===== النصوص المضافة =====
     // البناء نفسه بيتم بنفس الدالة اللي الضيف بيشوف بيها الدعوة

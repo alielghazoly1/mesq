@@ -105,6 +105,51 @@ function customizationBody(draft, has) {
   return body;
 }
 
+/**
+ * إطار موبايل mock حول iframe الدعوة.
+ *
+ * ليه mock مش iframe عريان: قبل كده الـiframe كان بيبان زي صفحة ويب
+ * كاملة بscrollbar رمادي واضح على الجنب — بيلغي إحساس "معاينة موبايل".
+ * دلوقتي بينضم في bezel أسود بزوايا مستديرة وnotch فوق: العميل بيشوف
+ * دعوته زي ما هي على تليفون، وأي تعديل بيصير على شكل حقيقي مش نظري.
+ *
+ * الـ mock نفسه responsive:
+ *  - compact/موبايل: بيمدّ عرض الشاشة كلها
+ *  - device=mobile ديسكتوب: عرض ثابت 340 بكسل (شكل تليفون بجوار تليفون)
+ *  - device=desktop ديسكتوب: بيمدّ الطول عشان الدعوة تظهر كاملة
+ */
+function PhoneMock({ children, label, compact, device }) {
+  const isMobileDevice = device !== 'desktop';
+  return (
+    <div className="flex flex-col items-center gap-2">
+      {label && (
+        <span className="rounded-full bg-ink/[0.06] px-3 py-0.5 text-[10.5px] font-bold text-ink-dim">
+          {label}
+        </span>
+      )}
+      {/* الإطار الأسود (bezel) */}
+      <div
+        className="relative rounded-[36px] bg-[#0a0d0f] p-[8px] shadow-[0_28px_60px_-24px_rgba(0,0,0,.45)]"
+        style={{
+          // ارتفاع ثابت على الديسكتوب عشان الاتنين متساويين، ومطاطي على
+          // الموبايل. الحدود الدنيا بتضمن إن الدعوة تبان حتى لو الشاشة
+          // صغيرة جدًا.
+          width: compact ? 'min(340px, 100%)' : (isMobileDevice ? 340 : 'min(560px, 100%)'),
+          height: compact ? 'min(620px, 78vh)' : (isMobileDevice ? 680 : 'min(760px, 80vh)'),
+          maxWidth: '100%',
+        }}
+      >
+        {/* Notch فوق — الشوية دي بتفرق في إحساس "موبايل حقيقي" */}
+        <div className="pointer-events-none absolute start-1/2 top-[10px] z-10 h-[18px] w-[92px] -translate-x-1/2 rounded-full bg-[#0a0d0f]" />
+        {/* الشاشة نفسها */}
+        <div className="relative h-full w-full overflow-hidden rounded-[28px] bg-[#12100e]">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /** الكلام ده تاريخ؟ (فيه سنة زي 2027) — ساعتها بنفتحله نتيجة بدل كتابة */
 const looksLikeDate = (text) => /\b20\d{2}\b/.test(String(text || ''));
 
@@ -229,7 +274,14 @@ export default function EditorPage() {
   const [uploadImage, { isLoading: uploadingImage }] = useUploadImageMutation();
   const [uploadAudio, { isLoading: uploadingAudio }] = useUploadAudioMutation();
 
-  const iframeRef = useRef(null);
+  // ===== تليفونين جنب بعض =====
+  // في وضع التحرير: يسار = الغلاف (ثابت، للتعديل عليه)، يمين = الدعوة
+  // من جوه (بعد الغلاف). كل واحد iframe مستقل بـstage خاص.
+  // في وضع التشغيل: تليفون واحد بيعرض الدعوة كاملة زي ما الضيف بيشوفها.
+  // نخزّن الـiframes كلها في مصفوفة والـpost بيبعت لكلها.
+  const insideFrameRef = useRef(null);
+  const coverFrameRef = useRef(null);
+  const playFrameRef = useRef(null);
   const imageInputRef = useRef(null);
   const audioInputRef = useRef(null);
 
@@ -261,6 +313,10 @@ export default function EditorPage() {
   // كل صور الدعوة بترتيبها — الدعوة نفسها هي اللي بتقولنا بيها
   const [photos, setPhotos] = useState([]);
   const [runtimeReady, setRuntimeReady] = useState(false);
+  // كل ما iframe يبعت 'loaded' بنزوّد الـtick — الـinit-effect بيلاقيه
+  // كـdependency فيعيد إرسال الحالة الكاملة للتليفونات كلها. ده بيغطّي
+  // حالة التليفون التاني اللي بيخلص التحميل بعد الأول.
+  const [lastLoadTick, setLastLoadTick] = useState(0);
   const [error, setError] = useState('');
   const [dirty, setDirty] = useState(false);
   const [sectionsBusy, setSectionsBusy] = useState(false);
@@ -340,10 +396,22 @@ export default function EditorPage() {
     setHistTick((n) => n + 1);
   }, [snapshot]);
 
-  // ===== إرسال أمر للـ iframe =====
+  // ===== إرسال أمر للـiframes =====
+  // بيبعت لكل iframe موجود على الشاشة دلوقتي. في وضع التحرير ده تليفونين
+  // (غلاف + جوه) والاتنين محتاجين نفس التخصيص. في التشغيل تليفون واحد.
+  // الرسالة ما بتتبعت لـiframe لسه ماحمّلش (لسه ما فيهش contentWindow) —
+  // useEffect بتاع init بيبعت لهم من جديد لما الـruntimeReady يحصل.
   const post = useCallback((type, payload) => {
-    const win = iframeRef.current?.contentWindow;
-    if (win) win.postMessage({ source: SHELL, type, payload: payload || {} }, window.location.origin);
+    const targets = [
+      playFrameRef.current,
+      insideFrameRef.current,
+      coverFrameRef.current,
+    ];
+    const msg = { source: SHELL, type, payload: payload || {} };
+    for (const el of targets) {
+      const win = el && el.contentWindow;
+      if (win) win.postMessage(msg, window.location.origin);
+    }
   }, []);
 
   // أول ما البيانات توصل، نجهّز النسخة الشغالة
@@ -435,14 +503,32 @@ export default function EditorPage() {
       const p = msg.payload || {};
 
       // الدعوة خلّصت تحميل — التجهيز نفسه في useEffect تحت، لأن ممكن
-      // الـ iframe يخلص قبل ما بيانات المحرر توصل من السيرفر (أو العكس)
-      if (msg.type === 'loaded') setRuntimeReady(true);
+      // الـ iframe يخلص قبل ما بيانات المحرر توصل من السيرفر (أو العكس).
+      // في وضع التليفونين، أول iframe يخلّص كافي عشان نبدأ التجهيز.
+      // اللي بعده لو حمّل، postToFrame من initFrame تحت بتلقّطه بنفسها
+      // (كل ما يوصلنا loaded تاني بنعيد البعث للاثنين — رخيص وآمن).
+      if (msg.type === 'loaded') {
+        setRuntimeReady(true);
+        setLastLoadTick((n) => n + 1);
+      }
       if (msg.type === 'ready') {
+        // في وضع الشاشتين: العدّاد والشبكة كاملين بيرجعوا من التليفون
+        // بتاع "جوه الدعوة" بس. لو غيره بعت، بنتجاهله عشان مايدهسش
+        // القايمة اللي منها للشريط الجانبي.
+        if (p.stage && p.stage !== 'inside' && p.stage !== 'full') return;
         setCounts({ texts: p.textCount, images: p.imageCount });
-        // شبكة الصور المرقّمة في تبويب الصور بتتبني من هنا
         if (Array.isArray(p.photos)) setPhotos(p.photos);
       }
-      if (msg.type === 'cover') { setCoverOpen(!!p.visible); setHasCover(!!p.exists); }
+      if (msg.type === 'cover') {
+        // زرار "الغلاف" في الشريط الجانبي مالوش معنى في وضع الشاشتين
+        // (كل تليفون بيعرض حاجة ثابتة)، فبنعتمد بس على تليفون التشغيل
+        // الواحد (stage=full). في التحرير: بنسجّل وجود الغلاف من التليفون
+        // الشمال (stage=cover) عشان الشريط الجانبي يعرف يخفي/يظهر الزرار.
+        if (p.stage === 'cover' || p.stage === 'full' || !p.stage) {
+          setCoverOpen(!!p.visible);
+          setHasCover(!!p.exists);
+        }
+      }
 
       // الدعوة بدأت تشغّل موسيقاها — نسكّت أي معاينة شغالة في الشريط
       if (msg.type === 'audio-playing') {
@@ -681,7 +767,11 @@ export default function EditorPage() {
     setDirty(true);
   };
 
-  // التجهيز بيحصل لما الطرفين يبقوا جاهزين — أيًا كان مين وصل الأول
+  // التجهيز بيحصل لما الطرفين يبقوا جاهزين — أيًا كان مين وصل الأول.
+  // بنعتمد على lastLoadTick كـdependency كمان: في وضع التليفونين، لما
+  // يخلص التليفون الثاني التحميل بعد الأول، بنعيد إرسال الحالة الكاملة
+  // له. الرسائل بتتبعت للاثنين — الأول اللي اتجهّز بيتجاهل التكرار
+  // ويطبّق التغيير من غير أي أثر جانبي.
   useEffect(() => {
     if (!runtimeReady || !draft) return;
     post('init', {
@@ -689,9 +779,8 @@ export default function EditorPage() {
       colors: draft.colors, rotations: draft.rotations, scales: draft.scales, aligns: draft.aligns, features,
     });
     if (draft.fontFamily) post('set-font', { font: draft.fontFamily });
-    // مرة واحدة بس عند الجاهزية — بعد كده كل تغيير بيتبعت لحظيًا لوحده
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [runtimeReady, !!draft, features]);
+  }, [runtimeReady, !!draft, features, lastLoadTick]);
 
   // ===== الحفظ التلقائي =====
   useEffect(() => {
@@ -2536,35 +2625,50 @@ export default function EditorPage() {
               <PlayCircle size={12} /> {t('editor.playingHint')}
             </p>
           )}
-          <motion.div
-            layout
-            transition={{ type: 'spring', stiffness: 220, damping: 26 }}
-            className={`w-full overflow-hidden border border-line bg-card shadow-[0_18px_50px_-20px_rgba(0,0,0,.35)] ${
-              compact ? 'rounded-[18px]' : 'rounded-[26px]'
-            }`}
-            // على الموبايل الشاشة نفسها هي المقاس — أي عرض ثابت هنا كان
-            // بيخلي الصفحة أعرض من الجهاز، فالمتصفح يصغّر كل حاجة ويطلع
-            // شريط تمرير أفقي. `min()` بتمنع ده نهائيًا.
-            style={{
-              width: compact ? '100%' : (device === 'mobile' ? 'min(390px, 100%)' : '100%'),
-              maxWidth: '100%',
-              height: '100%',
-              minHeight: compact ? 420 : 560,
-            }}
-          >
-            <iframe
-              // الـ key بيجبر المتصفح يبني الإطار من الأول — وده اللي
-              // بيخلي "إعادة التشغيل" تعيد الأنميشن والموسيقى فعلاً بدل
-              // ما تسيب الصفحة زي ما هي
-              key={`${playing ? 'play' : 'edit'}-${frameKey}`}
-              ref={iframeRef}
-              title={t('editor.title')}
-              // في وضع التشغيل بنحمّل نفس لينك الضيف بالظبط — من غير
-              // ?edit=1 فمفيش سكريبت تحرير أصلاً بيتحقن
-              src={playing ? `/i/${shortId}` : `/i/${shortId}?edit=1`}
-              className="h-full w-full border-0"
-            />
-          </motion.div>
+
+          {playing ? (
+            // ===== وضع التشغيل: تليفون واحد كبير =====
+            // زي ما الضيف بيشوفها بالظبط — الغلاف ثم الدعوة.
+            <PhoneMock compact={compact} device={device}>
+              <iframe
+                key={`play-${frameKey}`}
+                ref={playFrameRef}
+                title={t('editor.title')}
+                src={`/i/${shortId}`}
+                className="h-full w-full border-0"
+              />
+            </PhoneMock>
+          ) : (
+            // ===== وضع التحرير: تليفونين جنب بعض =====
+            // يسار = الغلاف (ثابت) — لتعديل شاشة الظرف.
+            // يمين = الدعوة من جوه — لتعديل باقي الشاشات.
+            // العميل بيعدّل على أي واحد فيهم والاتنين بيتعدّلوا مع بعض
+            // (نفس draft، بنبعت الرسائل للاثنين).
+            <div
+              className={`flex w-full flex-1 items-start justify-center ${
+                compact ? 'flex-col gap-3' : 'flex-row gap-6'
+              }`}
+            >
+              <PhoneMock label={t('editor.stageCover')} compact={compact} device={device}>
+                <iframe
+                  key={`edit-cover-${frameKey}`}
+                  ref={coverFrameRef}
+                  title={t('editor.stageCover')}
+                  src={`/i/${shortId}?edit=1&stage=cover`}
+                  className="h-full w-full border-0"
+                />
+              </PhoneMock>
+              <PhoneMock label={t('editor.stageInside')} compact={compact} device={device}>
+                <iframe
+                  key={`edit-inside-${frameKey}`}
+                  ref={insideFrameRef}
+                  title={t('editor.stageInside')}
+                  src={`/i/${shortId}?edit=1&stage=inside`}
+                  className="h-full w-full border-0"
+                />
+              </PhoneMock>
+            </div>
+          )}
         </main>
       </div>
     </div>

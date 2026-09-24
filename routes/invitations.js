@@ -231,6 +231,13 @@ router.get('/i/:shortId', async (req, res) => {
     // عادي من غير أي أدوات تحرير — والدعوة نفسها بتفضل شغالة.
     const editMode = req.query.edit === '1' && isOwner && invitation.isPremium
       && isEditWindowOpen(req.user.subscription);
+    // ?stage= بيتحكم في وضع العرض داخل الـiframe:
+    //   cover  → الغلاف يفضل ظاهر (autoOpen=false) — التليفون الشمال
+    //   inside → الغلاف بيتخطّى تلقائيًا (autoOpen=true) — التليفون اليمين
+    //   بدون   → السلوك العادي (autoOpen يتحدد من editMode/data)
+    // بيشتغل مع editMode بس — الضيف مش عنده stage.
+    const stage = editMode && ['cover', 'inside'].includes(String(req.query.stage || ''))
+      ? String(req.query.stage) : '';
 
     // عدّاد المشاهدات للضيوف بس — صاحب الدعوة وهو بيعدّل مايزوّدش أرقامه
     // بنفسه (بيفتح ويقفل عشرات المرات وهو شغال).
@@ -243,7 +250,7 @@ router.get('/i/:shortId', async (req, res) => {
     const pageUrl = `${req.protocol}://${req.get('host')}/i/${invitation.shortId}`;
 
     const html = invitation.templateId
-      ? renderNewPathHtml(invitation, { editMode, pageUrl })
+      ? renderNewPathHtml(invitation, { editMode, pageUrl, stage })
       : renderLegacyHtml(invitation);
 
     res.set('Content-Type', 'text/html; charset=utf-8');

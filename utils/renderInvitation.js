@@ -183,7 +183,12 @@ function renderNewPathHtml(data, options) {
     // في وضع التحرير بنتخطى شاشة "اضغط للفتح": صاحب الدعوة جاي يعدّل
     // المحتوى، ولو سيبناها هيفضل محبوس على الغلاف (الضغط على عناصره
     // بيتحسب اختيار للتعديل مش فتح).
-    autoOpen: !!data.autoOpen || !!(options && options.editMode),
+    // autoOpen بيتخطّى شاشة الغلاف تلقائيًا. في وضع التحرير: هو الافتراضي
+    // (العميل بيعدّل المحتوى، مش عايز يقعد يفتح كل مرة). لكن في stage=cover
+    // نلغيه — عشان الغلاف يفضل ظاهر ويقدر يعدّل عليه.
+    autoOpen: (options && options.stage === 'cover')
+      ? false
+      : (!!data.autoOpen || !!(options && options.editMode)),
     // لازم في أي دعوة متحفظة فعليًا عشان نعرف نربط ردود الحضور (RSVP)
     // بيها؛ بيفضل null في وضع المعاينة (مفيش دعوة محفوظة أصلاً نربط بيها)
     shortId: data.shortId || null,
