@@ -3,18 +3,17 @@
 // شغال من غير أي حساب زي ما هو بالظبط؛ الحسابات دي البنية التحتية للتحكم
 // في الوصول لأي محتوى مميز مستقبلي (templates/registry.js: isPremium).
 const express = require('express');
-const bcrypt = require('bcryptjs');
 
 const User = require('../models/User');
 const { sanitizeText } = require('../utils/sanitize');
 const { isValidEmail, isValidPassword, isValidCountryCode } = require('../utils/validators');
 const { createSession, destroySession } = require('../middleware/auth');
+const { hashPassword, verifyPassword } = require('../utils/password');
 const { sendWelcomeMessage } = require('../utils/welcomeMessage');
 const { editWindowInfo } = require('../utils/editWindow');
 
 const router = express.Router();
 
-const BCRYPT_COST = 12;
 // نفس رسالة الخطأ بالظبط لإيميل مش موجود أو باسورد غلط — عشان محدش يقدر
 // يكتشف إيه إيميلات مسجلة فعليًا على الموقع (منع user enumeration).
 const GENERIC_LOGIN_ERROR = 'بيانات الدخول غير صحيحة.';
@@ -44,7 +43,7 @@ router.post('/api/auth/register', async (req, res) => {
       return res.status(409).json({ error: 'الإيميل ده مسجل بالفعل، جرب تسجل الدخول.' });
     }
 
-    const passwordHash = await bcrypt.hash(password, BCRYPT_COST);
+    const passwordHash = await hashPassword(password);
     let user;
     try {
       user = await User.create({ email, passwordHash, name, country });
@@ -86,7 +85,7 @@ router.post('/api/auth/login', async (req, res) => {
       return res.status(401).json({ error: GENERIC_LOGIN_ERROR });
     }
 
-    const match = await bcrypt.compare(password, user.passwordHash);
+    const match = await verifyPassword(password, user.passwordHash);
     if (!match) {
       return res.status(401).json({ error: GENERIC_LOGIN_ERROR });
     }

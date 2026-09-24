@@ -21,6 +21,7 @@ const ACTIONS = {
   'subscription.note': { label: 'ملاحظة إدارية', tone: 'muted' },
   'subscription.extendEdit': { label: 'مدّ مدة التعديل', tone: 'warn' },
   'subscription.unlimitedEdit': { label: 'تعديل بلا حدود', tone: 'gold' },
+  'user.password': { label: 'تغيير باسورد عميل', tone: 'danger' },
   'user.block': { label: 'حظر حساب', tone: 'danger' },
   'user.unblock': { label: 'رفع حظر', tone: 'ok' },
   'settings.payment': { label: 'تعديل بيانات الدفع', tone: 'muted' },
@@ -50,6 +51,12 @@ function summarize(entry) {
   }
   if (entry.action === 'user.block') {
     return `اتقفل ${m.killedSessions || 0} جلسة مفتوحة`;
+  }
+  if (entry.action === 'user.password') {
+    // الباسورد نفسه عمره ما بيتسجّل — الرقم ده بس أثر الإجراء
+    return m.keptSessions
+      ? 'الجلسات المفتوحة اتسابت زي ما هي'
+      : `اتقفل ${m.killedSessions || 0} جلسة مفتوحة`;
   }
   if (m.before && m.after && m.before.status !== m.after.status) {
     return `الحالة: ${m.before.status} ← ${m.after.status}`;

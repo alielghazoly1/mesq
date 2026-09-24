@@ -27,6 +27,8 @@ const {
   invalidateCache: invalidatePricingCache,
 } = require('../utils/pricing');
 const { sanitizeText } = require('../utils/sanitize');
+const { hashPassword } = require('../utils/password');
+const { isValidPassword } = require('../utils/validators');
 const {
   editUntilAfterActivation, extendEditUntil, editWindowInfo,
 } = require('../utils/editWindow');
@@ -537,6 +539,79 @@ router.patch('/admin/api/users/:id/block', requireAdminSession, async (req, res)
     return res.json({ ok: true, killedSessions });
   } catch (err) {
     console.error('Error blocking user:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+// تغيير باسورد العميل — بيتعمل لما العميل ينسى باسورده ويطلب منك تغييره.
+//
+// ⚠ الباسورد الجديد بيعدّي من هنا مرة واحدة بس وبيتشفّر على طول: مفيش
+// أي مكان في السيرفر بيخزّنه أو يسجّله كنص صريح — لا في سجل الإجراءات
+// ولا في رسالة الدعم ولا في الـ logs. اللي بيوصل للعميل بيوصل منك إنت
+// بره الموقع (واتساب/مكالمة).
+//
+// وبيقفل كل جلساته المفتوحة افتراضيًا: ده الصح لما السبب يكون حساب
+// اتسرب أو باسورد وصل لحد غلط — من غير كده اللي داخل من تاب مفتوح
+// بيفضل داخل بالباسورد القديم. تقدر تسيبها مفتوحة (keepSessions) لما
+// يكون العميل معاك بيشتغل على دعوته دلوقتي ومش عايز تقطع عليه.
+router.patch('/admin/api/users/:id/password', requireAdminSession, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ error: 'العميل ده مش موجود.' });
+
+    const password = String((req.body || {}).password || '');
+    if (!isValidPassword(password)) {
+      return res.status(400).json({ error: 'الباسورد لازم يكون من 8 لـ 200 حرف.' });
+    }
+
+    const passwordHash = await hashPassword(password);
+    await saveUserFields(user, { passwordHash });
+
+    // بنقفل الجلسات **بعد** ما الباسورد يتغيّر فعلًا — لو قفلناها الأول
+    // وفشل الحفظ، كنا هنطلّع العميل بره على الفاضي.
+    let killedSessions = 0;
+    const keepSessions = !!(req.body || {}).keepSessions;
+    if (!keepSessions) {
+      const result = await Session.deleteMany({ userId: user._id });
+      killedSessions = result.deletedCount || 0;
+    }
+
+    // رسالة في صندوق رسايله تقوله إن الباسورد اتغيّر — من غير الباسورد
+    // نفسه. الرسايل دي متخزّنة كنص عادي في الداتابيز وبتفضل في حسابه
+    // للأبد، فحط سر جواها غلط مهما كان مريح.
+    const notify = (req.body || {}).notify !== false;
+    if (notify) {
+      SupportMessage.create({
+        userId: user._id,
+        from: 'admin',
+        body: [
+          'غيّرنا باسورد حسابك بناءً على طلبك.',
+          '',
+          keepSessions
+            ? 'حسابك لسه مفتوح على أجهزتك زي ما هو، والباسورد الجديد هتستخدمه في أي تسجيل دخول جديد.'
+            : 'قفلنا كل الجلسات المفتوحة للأمان، فهتحتاج تسجّل دخول من تاني بالباسورد الجديد.',
+          '',
+          'الباسورد الجديد بيوصلك مننا مباشرة، مش في الرسالة دي — دي مش مكان آمن لسر زي ده.',
+          'ولو مش إنت اللي طلبت التغيير، ردّ عليّ هنا فورًا.',
+        ].join('\n'),
+        // متقرّية من ناحيتك: دي رسالة إخطار، مش عميل مستنيك ترد عليه
+        readByAdmin: true,
+        readByUser: false,
+      }).catch((err) => {
+        // الباسورد اتغيّر خلاص — رسالة إخطار فشلت مايصحّش تفشّل الإجراء
+        console.error('Password-change notice failed:', err.message);
+      });
+    }
+
+    // السجل بيقول **إن** الباسورد اتغيّر وإمتى وكام جلسة اتقفلت — عمره
+    // ما بيقول الباسورد نفسه
+    logAdminAction(req, 'user.password', {
+      type: 'user', id: user._id, label: user.email,
+    }, { killedSessions, keptSessions: keepSessions, notified: notify });
+
+    return res.json({ ok: true, killedSessions });
+  } catch (err) {
+    console.error('Error changing user password:', err);
     return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
   }
 });

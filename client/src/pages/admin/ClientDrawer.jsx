@@ -16,6 +16,7 @@ import {
   Panel, StatTile, Badge, Btn, Field, Table, Row, Cell,
   Spinner, Empty, fmtDate, fmtNum, fmtMoney,
 } from '../../components/admin/ui.jsx';
+import ClientPasswordPanel from './ClientPasswordPanel.jsx';
 
 /** تأكيد صريح قبل أي إجراء مش سهل الرجوع فيه */
 function Confirm({ text, onYes, onCancel, busy }) {
@@ -275,6 +276,10 @@ export default function ClientDrawer({ userId, onClose }) {
                 </div>
               )}
             </Panel>
+
+            {/* باسورده — بانل لوحده لأنه مش جزء من الاشتراك، وعشان
+                حالته (الباسورد الظاهر بعد التغيير) متتمسحش مع أي إجراء تاني */}
+            <ClientPasswordPanel key={userId} userId={userId} userName={data.user.name} />
 
             {/* دعواته */}
             <Panel title={`دعواته (${data.invitations.length})`}>

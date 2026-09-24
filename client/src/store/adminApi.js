@@ -48,6 +48,14 @@ export const adminApi = createApi({
       query: ({ id, blocked }) => ({ url: `/users/${id}/block`, method: 'PATCH', body: { blocked } }),
       invalidatesTags: (r, e, { id }) => [{ type: 'User', id }, 'Users', 'Overview', 'Audit'],
     }),
+    // تغيير باسورد العميل. الباسورد نفسه بيروح للسيرفر ومبيرجعش تاني
+    // في أي رد — اللي بيتعرض في الشاشة هو اللي الأدمن كتبه/ولّده عنده.
+    // مبنلمسش 'Overview' و'Users': مفيش رقم فيهم بيتغيّر — اللي بيتغيّر
+    // عدد الجلسات المفتوحة في ملف العميل نفسه.
+    setUserPassword: builder.mutation({
+      query: ({ id, ...body }) => ({ url: `/users/${id}/password`, method: 'PATCH', body }),
+      invalidatesTags: (r, e, { id }) => [{ type: 'User', id }, 'Audit'],
+    }),
 
     // ===== الطلبات =====
     getOrders: builder.query({
@@ -139,6 +147,7 @@ export const {
   useGetUserQuery,
   useUpdateSubscriptionMutation,
   useBlockUserMutation,
+  useSetUserPasswordMutation,
   useGetOrdersQuery,
   useActivateOrderMutation,
   useCancelOrderMutation,
