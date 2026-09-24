@@ -19,6 +19,10 @@ const dashboardRouter = require('./routes/dashboard');
 const editorRouter = require('./routes/editor');
 const { ensureDeviceId, deviceInvitationLimiter } = require('./middleware/deviceLimiter');
 const { attachUser } = require('./middleware/auth');
+const { requestLogger, installProcessHandlers, write: logLine, LOG_FILE } = require('./utils/requestLogger');
+
+// بنمسك أي عطل بيوقّع عملية Node ونسجّله في اللوج قبل ما يطلع.
+installProcessHandlers();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -29,6 +33,11 @@ const PORT = process.env.PORT || 3000;
 // الناس تتحجب. و1 معناها "بروكسي واحد بينا وبين العميل" (مش true
 // المفتوحة، اللي بتخلي أي حد يقدر يزوّر IP من هيدر X-Forwarded-For).
 app.set('trust proxy', 1);
+
+// تسجيل كل طلب (الوقت/الـIP/المسار/حالة الرد/الزمن) في logs/app.log —
+// بيعلّم الطلبات البطيئة [SLOW] والأخطاء [ERROR] والمحاولات المشبوهة
+// [SUSPICIOUS]. أول middleware عشان يشوف كل طلب حتى الملفات الثابتة و404.
+app.use(requestLogger);
 
 // أمان أساسي على مستوى الـ HTTP headers، بما فيها Content-Security-Policy
 // مضبوطة فعليًا (مش متقفلة) — بتسمح بس بالمصادر الخارجية اللي التصميم
@@ -321,6 +330,7 @@ app.use((req, res) => {
 if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`🚀 السيرفر شغال على http://localhost:${PORT}`);
+    logLine(`server started on port ${PORT} (logging to ${LOG_FILE})`);
   });
 }
 

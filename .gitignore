@@ -7,6 +7,7 @@ node_modules/
 !.env.example
 .vercel
 *.log
+logs/
 client/dist/
 
 # الفيديو الأصلي بتاع العرض (52 ميجا) — بيفضل على جهازك بس.
