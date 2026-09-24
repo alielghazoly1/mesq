@@ -14,6 +14,11 @@ const userSchema = new mongoose.Schema({
   // (client/src/components/form/CountrySelect.jsx، مكتبة world-countries)
   country: { type: String, required: true, uppercase: true, minlength: 2, maxlength: 2 },
 
+  // رقم التليفون بصيغة دولية E.164 (يبدأ بـ+ ثم أرقام بس، بدون فراغات).
+  // اختياري: العميل ممكن يسجّل من غيره؛ لو حطه، الأدمن بيلاقي زرار
+  // واتساب جنب اسمه في اللوحة. سيبناه فاضي في الحسابات القديمة.
+  phone: { type: String, default: '', maxlength: 20 },
+
   // الاشتراك — بيتفعّل يدويًا من لوحة التحكم بعد ما العميل يدفع
   // (packages/registry.js فيه تعريف الباقات ومميزاتها)
   subscription: {

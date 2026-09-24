@@ -1,6 +1,8 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { AnimatePresence } from 'motion/react';
-import { Search, Crown, Ban, PauseCircle } from 'lucide-react';
+import { Search, Crown, Ban, PauseCircle, MessageCircle } from 'lucide-react';
+import { countryLabel } from '../../data/countryLookup.js';
+import { whatsappForNumber } from '../../lib/contact.js';
 import { useGetUsersQuery } from '../../store/adminApi.js';
 import {
   setUsersQuery, setUsersStatus, setUsersPage, openUser, closeUser,
@@ -53,8 +55,10 @@ export default function ClientsPage() {
           <Empty>مفيش عملاء بالفلتر ده.</Empty>
         ) : (
           <>
-            <Table head={['العميل', 'الباقة', 'الرصيد', 'الدعوات', 'الدولة', 'سجّل']}>
-              {data.users.map((u) => (
+            <Table head={['العميل', 'تواصل', 'الباقة', 'الرصيد', 'الدعوات', 'الدولة', 'سجّل']}>
+              {data.users.map((u) => {
+                const wa = whatsappForNumber(u.phone);
+                return (
                 <Row key={u.id} onClick={() => dispatch(openUser(u.id))}>
                   <Cell>
                     <div className="flex flex-wrap items-center gap-1.5">
@@ -63,6 +67,23 @@ export default function ClientsPage() {
                       {u.isBlocked && <Badge tone="danger" icon={Ban}>محظور</Badge>}
                     </div>
                     <div className="text-[11px] text-ivory/40">{u.email}</div>
+                  </Cell>
+                  <Cell>
+                    {wa ? (
+                      <a
+                        href={wa}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="inline-flex items-center gap-1.5 rounded-full bg-emerald/15 px-2.5 py-1 text-[11.5px] font-bold text-emerald hover:bg-emerald/25"
+                        title={u.phone}
+                      >
+                        <MessageCircle size={12} />
+                        <span dir="ltr">{u.phone}</span>
+                      </a>
+                    ) : (
+                      <span className="text-[11px] text-ivory/30">—</span>
+                    )}
                   </Cell>
                   <Cell>
                     {u.isPremium
@@ -81,10 +102,11 @@ export default function ClientsPage() {
                     {fmtNum(u.invitations)}
                     {u.drafts > 0 && <span className="text-ivory/35"> +{u.drafts} مسودة</span>}
                   </Cell>
-                  <Cell className="text-ivory/55">{u.country}</Cell>
+                  <Cell className="whitespace-nowrap text-ivory/70">{countryLabel(u.country, 'ar')}</Cell>
                   <Cell className="whitespace-nowrap text-ivory/45">{fmtDate(u.createdAt)}</Cell>
                 </Row>
-              ))}
+                );
+              })}
             </Table>
             <Pager page={data.page} pages={data.pages} onChange={(p) => dispatch(setUsersPage(p))} />
           </>

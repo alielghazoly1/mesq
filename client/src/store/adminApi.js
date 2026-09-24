@@ -58,8 +58,34 @@ export const adminApi = createApi({
     }),
 
     // ===== الطلبات =====
+    // بنستخدم cursor pagination من السيرفر (nextCursor) + merge في الكاش
+    // عشان نعمل infinite scroll. كل status ليه كاش مستقل، وأي fetchMore
+    // بيلحق الصفوف الجديدة بدون ما يمسح الأولى.
     getOrders: builder.query({
-      query: (status = 'pending') => `/orders?status=${status}`,
+      query: ({ status = 'pending', cursor = null } = {}) => ({
+        url: `/orders?status=${status}${cursor ? `&cursor=${cursor}` : ''}`,
+      }),
+      // نفس الكاش لكل قيم cursor في نفس الـ status
+      serializeQueryArgs: ({ endpointName, queryArgs }) =>
+        `${endpointName}:${(queryArgs && queryArgs.status) || 'pending'}`,
+      // ندمج الصفحة الجديدة على الأولى
+      merge: (currentCache, newItems, { arg }) => {
+        // بدء جديد (بدون cursor): نستبدل الكاش
+        if (!arg || !arg.cursor) return newItems;
+        return {
+          ...newItems,
+          orders: [...(currentCache.orders || []), ...(newItems.orders || [])],
+        };
+      },
+      // لما نعيد الجلب لنفس الـ status (بعد تفعيل مثلاً)، نبدأ من الأول
+      forceRefetch: ({ currentArg, previousArg }) => {
+        const cur = (currentArg && currentArg.status) || 'pending';
+        const prev = (previousArg && previousArg.status) || 'pending';
+        // status اتغير → refetch من الصفر
+        if (cur !== prev) return true;
+        // نفس status لكن الـ cursor اتغير → نجيب صفحة جديدة
+        return (currentArg && currentArg.cursor) !== (previousArg && previousArg.cursor);
+      },
       providesTags: ['Orders'],
     }),
     activateOrder: builder.mutation({

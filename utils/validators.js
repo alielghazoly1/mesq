@@ -26,4 +26,14 @@ function isValidCountryCode(str) {
   return typeof str === 'string' && /^[A-Za-z]{2}$/.test(str.trim());
 }
 
-module.exports = { isValidEmail, isValidPassword, isValidCountryCode };
+/**
+ * رقم تليفون بصيغة E.164: بيبدأ بـ+ وبعده 8 لـ15 رقم (بدون صفر بيّن).
+ * فاضي = مقبول (الحقل اختياري).
+ * @param {*} str @returns {boolean}
+ */
+function isValidPhone(str) {
+  if (str == null || str === '') return true;
+  return typeof str === 'string' && /^\+[1-9]\d{7,14}$/.test(str.trim());
+}
+
+module.exports = { isValidEmail, isValidPassword, isValidCountryCode, isValidPhone };

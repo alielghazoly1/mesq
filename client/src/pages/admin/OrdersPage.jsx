@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Check, X, Receipt, ExternalLink, Undo2, ShieldAlert, CreditCard } from 'lucide-react';
+import { Check, X, Receipt, ExternalLink, Undo2, ShieldAlert, CreditCard, MessageCircle, Loader2 } from 'lucide-react';
+import { countryLabel } from '../../data/countryLookup.js';
+import { whatsappForNumber } from '../../lib/contact.js';
 import {
   useGetOrdersQuery, useActivateOrderMutation, useCancelOrderMutation,
   useGetAdminPackagesQuery,
@@ -19,7 +21,11 @@ const FILTERS = [
 export default function OrdersPage() {
   const dispatch = useDispatch();
   const status = useSelector((s) => s.admin.ordersStatus);
-  const { data, isLoading, isFetching } = useGetOrdersQuery(status);
+  // cursor بيحدّد أنهي صفحة بنجيبها؛ null = من الأول.
+  // كل ما ننزل تحت، بنغيّر الـcursor للـ nextCursor اللي رجع من السيرفر،
+  // فالكاش بيتلمّ فيه كل الطلبات (merge في adminApi).
+  const [cursor, setCursor] = useState(null);
+  const { data, isLoading, isFetching } = useGetOrdersQuery({ status, cursor });
   const [activate, { isLoading: activating }] = useActivateOrderMutation();
   const [cancel, { isLoading: cancelling }] = useCancelOrderMutation();
   const { data: pkgData } = useGetAdminPackagesQuery();
@@ -29,6 +35,29 @@ export default function OrdersPage() {
   // إلغاء باقة مدفوعة بيسحب رصيد من عميل دافع — تأكيد صريح قبل التنفيذ
   const [confirmId, setConfirmId] = useState(null);
   const [result, setResult] = useState('');
+
+  // تغيّر التبويب: cursor يرجع للأول، والكاش هيتستبدل (merge بيشيك arg.cursor)
+  const prevStatusRef = useRef(status);
+  useEffect(() => {
+    if (prevStatusRef.current !== status) {
+      prevStatusRef.current = status;
+      setCursor(null);
+    }
+  }, [status]);
+
+  // ملاحظ آخر صف بيدخل الشاشة → نجيب الصفحة اللي بعده تلقائيًا
+  const sentinelRef = useRef(null);
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el || !data?.hasMore || isFetching) return undefined;
+    const io = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && data.nextCursor) {
+        setCursor(data.nextCursor);
+      }
+    }, { rootMargin: '400px' });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [data?.hasMore, data?.nextCursor, isFetching]);
 
   async function act(fn, id) {
     setError('');
@@ -94,8 +123,8 @@ export default function OrdersPage() {
       )}
 
       <Panel
-        title={data ? `${data.orders.length} طلب` : 'الطلبات'}
-        subtitle={isFetching ? 'بيحدّث...' : undefined}
+        title={data ? `${data.orders.length}${data.hasMore ? '+' : ''} طلب` : 'الطلبات'}
+        subtitle={isFetching && !cursor ? 'بيحدّث...' : undefined}
         action={<Tabs value={status} onChange={(v) => dispatch(setOrdersStatus(v))} options={FILTERS} />}
       >
         {isLoading ? <Spinner /> : !data || data.orders.length === 0 ? (
@@ -112,7 +141,24 @@ export default function OrdersPage() {
                   >
                     {o.user.name}
                   </button>
-                  <div className="text-[11px] text-ivory/40">{o.user.email} · {o.user.country}</div>
+                  <div className="text-[11px] text-ivory/40">
+                    {o.user.email} · {countryLabel(o.user.country, 'ar')}
+                  </div>
+                  {(() => {
+                    const wa = whatsappForNumber(o.user.phone);
+                    if (!wa) return null;
+                    return (
+                      <a
+                        href={wa}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="mt-1 inline-flex items-center gap-1 rounded-full bg-emerald/15 px-2 py-0.5 text-[10.5px] font-bold text-emerald hover:bg-emerald/25"
+                      >
+                        <MessageCircle size={10} /> <span dir="ltr">{o.user.phone}</span>
+                      </a>
+                    );
+                  })()}
                 </Cell>
                 <Cell>
                   {o.packageName}
@@ -179,6 +225,17 @@ export default function OrdersPage() {
               </Row>
             ))}
           </Table>
+        )}
+
+        {/* Sentinel لجلب الصفحة اللي بعد كل ما نوصلها بالسكرول */}
+        {data?.hasMore && (
+          <div ref={sentinelRef} className="flex justify-center py-4 text-[12.5px] text-ivory/45">
+            {isFetching ? (
+              <span className="inline-flex items-center gap-2">
+                <Loader2 size={14} className="animate-spin" /> بنجيب المزيد...
+              </span>
+            ) : 'اسحب لتحت للمزيد'}
+          </div>
         )}
       </Panel>
     </div>

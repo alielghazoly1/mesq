@@ -6,7 +6,7 @@ const express = require('express');
 
 const User = require('../models/User');
 const { sanitizeText } = require('../utils/sanitize');
-const { isValidEmail, isValidPassword, isValidCountryCode } = require('../utils/validators');
+const { isValidEmail, isValidPassword, isValidCountryCode, isValidPhone } = require('../utils/validators');
 const { createSession, destroySession } = require('../middleware/auth');
 const { hashPassword, verifyPassword } = require('../utils/password');
 const { sendWelcomeMessage } = require('../utils/welcomeMessage');
@@ -24,6 +24,9 @@ router.post('/api/auth/register', async (req, res) => {
     const password = String((req.body && req.body.password) || '');
     const name = sanitizeText(req.body && req.body.name, 80);
     const country = String((req.body && req.body.country) || '').trim().toUpperCase();
+    // رقم التليفون: بنشيل أي فراغات/شرطات يمكن العميل حطها في الفورم قبل
+    // ما نتحقق منه — عشان نقبل أشكال متعارف عليها زي "+20 100 123 4567"
+    const rawPhone = String((req.body && req.body.phone) || '').replace(/[\s-]/g, '');
 
     if (!isValidEmail(email)) {
       return res.status(400).json({ error: 'من فضلك اكتب إيميل صحيح.' });
@@ -37,6 +40,9 @@ router.post('/api/auth/register', async (req, res) => {
     if (!isValidCountryCode(country)) {
       return res.status(400).json({ error: 'من فضلك اختار الدولة.' });
     }
+    if (!isValidPhone(rawPhone)) {
+      return res.status(400).json({ error: 'من فضلك اكتب رقم تليفون صحيح بالكود الدولي.' });
+    }
 
     const existing = await User.findOne({ email });
     if (existing) {
@@ -46,7 +52,7 @@ router.post('/api/auth/register', async (req, res) => {
     const passwordHash = await hashPassword(password);
     let user;
     try {
-      user = await User.create({ email, passwordHash, name, country });
+      user = await User.create({ email, passwordHash, name, country, phone: rawPhone });
     } catch (err) {
       if (err.code === 11000) {
         return res.status(409).json({ error: 'الإيميل ده مسجل بالفعل، جرب تسجل الدخول.' });

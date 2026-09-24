@@ -20,6 +20,21 @@ export function whatsappLink(message) {
 }
 
 /**
+ * لينك واتساب لأي رقم E.164 (بيبدأ بـ+) — للأدمن يفتح على العميل مباشرة
+ * من اللوحة. بنشيل الـ+ لأن wa.me مبيقبلهاش، وبنتأكد إن اللي فاضل أرقام
+ * بس. رقم غير صالح بيرجّع null فالزرار مايبانش.
+ * @param {string} phone
+ * @param {string} [message]
+ */
+export function whatsappForNumber(phone, message) {
+  if (!phone) return null;
+  const digits = String(phone).replace(/[^\d]/g, '');
+  if (digits.length < 8) return null;
+  const base = 'https://wa.me/' + digits;
+  return message ? base + '?text=' + encodeURIComponent(message) : base;
+}
+
+/**
  * رسايل جاهزة حسب سبب التواصل. كل واحدة بتقول لصاحب الموقع الموضوع
  * من أول سطر، فمفيش وقت بيضيع في "أقدر أساعدك في إيه؟"
  */

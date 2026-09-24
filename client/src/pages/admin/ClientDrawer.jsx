@@ -7,11 +7,14 @@ import { motion } from 'motion/react';
 import {
   X, Crown, Ban, PauseCircle, PlayCircle, Trash2, Plus, Save,
   Mail, Globe, Calendar, Eye, FileText, MessageSquare, Wallet, ShieldAlert, Monitor,
+  MessageCircle,
 } from 'lucide-react';
 import {
   useGetUserQuery, useUpdateSubscriptionMutation, useBlockUserMutation,
   useGetAdminPackagesQuery,
 } from '../../store/adminApi.js';
+import { countryLabel } from '../../data/countryLookup.js';
+import { whatsappForNumber } from '../../lib/contact.js';
 import {
   Panel, StatTile, Badge, Btn, Field, Table, Row, Cell,
   Spinner, Empty, fmtDate, fmtNum, fmtMoney,
@@ -97,10 +100,26 @@ export default function ClientDrawer({ userId, onClose }) {
 
               <div className="grid gap-2 text-[12.5px] text-ivory/60 sm:grid-cols-2">
                 <span className="inline-flex items-center gap-1.5"><Mail size={12} /> {data.user.email}</span>
-                <span className="inline-flex items-center gap-1.5"><Globe size={12} /> {data.user.country}</span>
+                <span className="inline-flex items-center gap-1.5"><Globe size={12} /> {countryLabel(data.user.country, 'ar')}</span>
                 <span className="inline-flex items-center gap-1.5"><Calendar size={12} /> سجّل {fmtDate(data.user.createdAt)}</span>
                 <span className="inline-flex items-center gap-1.5"><Monitor size={12} /> {data.user.activeSessions} جلسة مفتوحة</span>
               </div>
+              {(() => {
+                const wa = whatsappForNumber(data.user.phone);
+                if (!wa) return null;
+                return (
+                  <a
+                    href={wa}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 inline-flex items-center gap-2 rounded-full bg-emerald/15 px-3.5 py-2 text-[12.5px] font-bold text-emerald hover:bg-emerald/25"
+                  >
+                    <MessageCircle size={13} />
+                    <span>واتساب</span>
+                    <span dir="ltr" className="text-ivory/70">{data.user.phone}</span>
+                  </a>
+                );
+              })()}
             </div>
 
             {/* أرقامه */}

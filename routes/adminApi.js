@@ -271,7 +271,7 @@ router.get('/admin/api/users', requireAdminSession, async (req, res) => {
         .sort({ createdAt: -1 })
         .skip((page - 1) * perPage)
         .limit(perPage)
-        .select('name email country subscription isBlocked createdAt')
+        .select('name email phone country subscription isBlocked createdAt')
         .lean(),
       User.countDocuments(filter),
     ]);
@@ -303,6 +303,7 @@ router.get('/admin/api/users', requireAdminSession, async (req, res) => {
           id: String(u._id),
           name: u.name,
           email: u.email,
+          phone: u.phone || '',
           country: u.country,
           isPremium: !!sub.packageId,
           isSuspended: sub.status === 'suspended',
@@ -365,6 +366,7 @@ router.get('/admin/api/users/:id', requireAdminSession, async (req, res) => {
         id: String(user._id),
         name: user.name,
         email: user.email,
+        phone: user.phone || '',
         country: user.country,
         createdAt: user.createdAt,
         isBlocked: !!user.isBlocked,
@@ -625,13 +627,28 @@ router.get('/admin/api/orders', requireAdminSession, async (req, res) => {
   try {
     const status = String(req.query.status || 'pending');
     const filter = ['pending', 'activated', 'cancelled'].includes(status) ? { status } : {};
+    // cursor pagination: بنستخدم _id مباشرة (بتتولّد بترتيب زمني في Mongo)
+    // بدل createdAt عشان مانخافش من طلبين اتعملوا في نفس الميلي-ثانية
+    // (كان بيسبب تكرار/فقدان صفوف بين الصفحات).
+    const PAGE_SIZE = 50;
+    const cursor = req.query.cursor && /^[a-f0-9]{24}$/i.test(req.query.cursor)
+      ? req.query.cursor : null;
+    if (cursor) filter._id = { $lt: cursor };
 
-    const orders = await Order.find(filter).sort({ createdAt: -1 }).limit(100).lean();
+    const orders = await Order.find(filter)
+      .sort({ _id: -1 })
+      .limit(PAGE_SIZE + 1)
+      .lean();
+    const hasMore = orders.length > PAGE_SIZE;
+    if (hasMore) orders.pop();
+    const nextCursor = hasMore ? String(orders[orders.length - 1]._id) : null;
     const userIds = [...new Set(orders.map((o) => String(o.userId)))];
-    const users = await User.find({ _id: { $in: userIds } }).select('name email country').lean();
+    const users = await User.find({ _id: { $in: userIds } }).select('name email phone country').lean();
     const byId = users.reduce((acc, u) => { acc[String(u._id)] = u; return acc; }, {});
 
     return res.json({
+      nextCursor,
+      hasMore,
       orders: orders.map((o) => {
         const u = byId[String(o.userId)] || {};
         const pkg = getPackage(o.packageId);
@@ -651,7 +668,10 @@ router.get('/admin/api/orders', requireAdminSession, async (req, res) => {
           activatedAt: o.activatedAt || null,
           paymentProofUrl: o.paymentProofUrl || null,
           paymentProofAt: o.paymentProofAt || null,
-          user: { name: u.name || '—', email: u.email || '—', country: u.country || '—' },
+          user: {
+            name: u.name || '—', email: u.email || '—',
+            phone: u.phone || '', country: u.country || '—',
+          },
         };
       }),
     });
