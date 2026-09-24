@@ -259,6 +259,12 @@ export const resources = {
         contactSupport: 'Contact support',
         helpMsg: 'Hello, I paid for a package but it was not activated. Can you help?',
       },
+      activated: {
+        title: 'Your package is active! 🎉',
+        body: 'Your payment is confirmed — you can start designing now.',
+        cta: 'Start designing',
+        close: 'Close',
+      },
       upsell: {
         keepFree: '✓ This invitation stays live, free, exactly as it is.',
         eyebrow: 'Premium',
@@ -868,6 +874,12 @@ export const resources = {
         backToPackages: 'ارجع للباقات',
         contactSupport: 'تواصل مع الدعم',
         helpMsg: 'السلام عليكم، دفعت باقة بس ماتفعّلتش. ممكن تساعدوني؟',
+      },
+      activated: {
+        title: 'باقتك اتفعّلت! 🎉',
+        body: 'دفعتك اتأكّدت — تقدر تبدأ تصمّم دلوقتي.',
+        cta: 'ابدأ التصميم',
+        close: 'إغلاق',
       },
       upsell: {
         keepFree: '✓ الدعوة دي هتفضل شغالة مجانًا زي ما هي، مش هتروح.',

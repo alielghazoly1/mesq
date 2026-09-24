@@ -11,6 +11,10 @@ const baseQuery = fetchBaseQuery({ baseUrl: '/api', credentials: 'include' });
 export const api = createApi({
   reducerPath: 'api',
   baseQuery,
+  // لما العميل يرجع لتابه أو النت يرجع، بنعيد جلب البيانات — عشان أي تفعيل
+  // اشتراك حصل من لوحة الأدمن (في متصفّح تاني) يوصل للعميل لوحده.
+  refetchOnFocus: true,
+  refetchOnReconnect: true,
   tagTypes: ['Me', 'Packages', 'Dashboard', 'Support', 'Editor', 'Quota'],
   endpoints: (builder) => ({
     // بنبعت اللغة عشان أسماء التصاميم وأوصافها وأسماء الأقسام ترجع مترجمة

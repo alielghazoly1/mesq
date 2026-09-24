@@ -2,6 +2,7 @@ import { Suspense, lazy } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import AuthBar from './components/AuthBar.jsx';
 import AuthModal from './components/AuthModal.jsx';
+import SubscriptionWatcher from './components/SubscriptionWatcher.jsx';
 import WelcomeGate from './components/WelcomeGate.jsx';
 import SupportLauncher from './components/SupportLauncher.jsx';
 import GalleryPage from './pages/GalleryPage.jsx';
@@ -48,6 +49,7 @@ export default function App() {
   return (
     <ErrorBoundary>
       {!isFullScreen && <AuthBar />}
+      {!isFullScreen && <SubscriptionWatcher />}
       <Routes>
         <Route path="/" element={<GalleryPage />} />
         <Route path="/create/:templateId" element={<CreateInvitationPage />} />

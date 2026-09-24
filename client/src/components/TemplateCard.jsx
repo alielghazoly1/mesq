@@ -9,7 +9,9 @@ import { isEditOpen } from '../lib/editWindow.js';
 export default function TemplateCard({ template, index }) {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { data } = useGetMeQuery();
+  // refetchOnMountOrArgChange: أول ما المعرض يفتح بنتأكد من أحدث حالة
+  // اشتراك — عشان التوجيه (محرر مباشر ولا فورم) يبقى صح بعد أي تفعيل
+  const { data } = useGetMeQuery(undefined, { refetchOnMountOrArgChange: true });
   const [createDraft, { isLoading: startingEditor }] = useCreateDraftMutation();
   const [imgError, setImgError] = useState(false);
   const [startError, setStartError] = useState('');

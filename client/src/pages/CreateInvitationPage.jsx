@@ -124,7 +124,9 @@ export default function CreateInvitationPage() {
   const { t, i18n } = useTranslation();
 
   const { data: templates, isLoading: templatesLoading } = useGetTemplatesQuery(i18n.language);
-  const { data: meData } = useGetMeQuery();
+  // بنعيد جلب حالة الاشتراك أول ما نفتح الصفحة — عشان عميل لسه اتفعّل
+  // مايشوفش شاشة "اشترك الأول" بالغلط لإن نسخته قديمة
+  const { data: meData } = useGetMeQuery(undefined, { refetchOnMountOrArgChange: true });
   const [preview, { data: previewHtml }] = usePreviewMutation();
   const [createInvitation, { isLoading: creating }] = useCreateInvitationMutation();
 
