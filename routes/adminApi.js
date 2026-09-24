@@ -23,7 +23,7 @@ const {
 } = require('../packages/registry');
 const PricingSettings = require('../models/PricingSettings');
 const { getPaymentSettings, updatePaymentSettings } = require('../utils/paymentSettings');
-const { isXpayEnabled } = require('../utils/xpay');
+const { isXpayEnabled, xpayConfig, createCheckoutSession } = require('../utils/xpay');
 const {
   getPricingSettings, getPricingSettingsCached, priceFor, clampPercent,
   invalidateCache: invalidatePricingCache,
@@ -919,6 +919,56 @@ router.put('/admin/api/payment-settings', requireAdminSession, async (req, res) 
   } catch (err) {
     console.error('Error saving payment settings:', err);
     return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+// GET /admin/api/xpay/diagnose — تشخيص اتصال XPay.
+// بيقول أنهي متغيّرات env متظبطة (من غير ما يكشف المفاتيح)، وبيجرّب
+// إنشاء جلسة دفع تجريبية ويرجّع رد XPay الخام — عشان نعرف السبب الحقيقي
+// لأي فشل (مفتاح غلط؟ عنوان غلط؟ أسماء حقول مختلفة؟) من غير ما ندوّر في
+// لوجز السيرفر.
+router.get('/admin/api/xpay/diagnose', requireAdminSession, async (req, res) => {
+  const cfg = xpayConfig();
+  const config = {
+    enabledFlag: cfg.enabledFlag,
+    apiBase: cfg.apiBase,
+    hasSecretKey: !!cfg.secretKey,
+    // بروكسي بس مش المفتاح كامل — عشان نتأكد إنه النوع الصح من غير تسريب
+    secretKeyPrefix: cfg.secretKey ? `${cfg.secretKey.slice(0, 8)}…(${cfg.secretKey.length})` : null,
+    hasPublishableKey: !!cfg.publishableKey,
+    hasWebhookSecret: !!cfg.webhookSecret,
+  };
+
+  if (!cfg.enabledFlag) {
+    return res.json({ config, test: { ok: false, reason: 'XPAY_ENABLED مش true' } });
+  }
+  if (!cfg.secretKey) {
+    return res.json({ config, test: { ok: false, reason: 'XPAY_SECRET_KEY فاضي' } });
+  }
+
+  try {
+    const session = await createCheckoutSession({
+      amount: 10,
+      currency: 'EGP',
+      orderId: 'diagnostic',
+      userId: 'diagnostic',
+      customerEmail: 'test@example.com',
+      description: 'XPay connection test',
+      successUrl: `${req.protocol}://${req.get('host')}/pay/complete?order=diagnostic`,
+      cancelUrl: `${req.protocol}://${req.get('host')}/packages`,
+    });
+    return res.json({ config, test: { ok: true, sessionId: session.id, url: session.url } });
+  } catch (err) {
+    // رد XPay الخام — ده اللي بيقول السبب بالظبط
+    return res.json({
+      config,
+      test: {
+        ok: false,
+        message: err.message || 'unknown error',
+        status: err.status || null,
+        body: err.body || null,
+      },
+    });
   }
 });
 

@@ -100,6 +100,8 @@ export const adminApi = createApi({
       query: (body) => ({ url: '/payment-settings', method: 'PUT', body }),
       invalidatesTags: ['Settings', 'Audit'],
     }),
+    // تشخيص اتصال XPay — بيرجّع رد البوابة الخام عشان نعرف سبب أي فشل
+    diagnoseXpay: builder.query({ query: () => '/xpay/diagnose' }),
     getAdminPackages: builder.query({ query: () => '/packages', providesTags: ['Pricing'] }),
 
     // ===== الخصومات =====
@@ -157,6 +159,7 @@ export const {
   useReplySupportMutation,
   useGetPaymentSettingsQuery,
   useSavePaymentSettingsMutation,
+  useLazyDiagnoseXpayQuery,
   useGetAdminPackagesQuery,
   useGetPricingSettingsQuery,
   useSavePricingSettingsMutation,

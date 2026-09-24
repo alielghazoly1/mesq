@@ -6,13 +6,14 @@ import {
   Save, Smartphone, Landmark, MessageCircle, Check, CreditCard, AlertTriangle,
 } from 'lucide-react';
 import {
-  useGetPaymentSettingsQuery, useSavePaymentSettingsMutation,
+  useGetPaymentSettingsQuery, useSavePaymentSettingsMutation, useLazyDiagnoseXpayQuery,
 } from '../../store/adminApi.js';
 import { Panel, Btn, Field, Spinner, fmtDate } from '../../components/admin/ui.jsx';
 
 export default function SettingsPage() {
   const { data, isLoading } = useGetPaymentSettingsQuery();
   const [save, { isLoading: saving, isSuccess }] = useSavePaymentSettingsMutation();
+  const [runDiagnose, { data: diag, isFetching: diagBusy }] = useLazyDiagnoseXpayQuery();
   const { register, handleSubmit, reset, formState } = useForm({ defaultValues: {} });
 
   useEffect(() => {
@@ -69,6 +70,26 @@ export default function SettingsPage() {
             الدفع بالفيزا مش هيبان للعملاء حتى لو الخيار مفعّل — والموقع بيرجع للتحويل اليدوي عادي.
           </p>
         )}
+
+        {/* اختبار الاتصال — بيوري السبب الحقيقي لأي فشل في الدفع بالفيزا */}
+        <div className="mt-3 border-t border-ivory/10 pt-3">
+          <Btn tone="ghost" size="sm" loading={diagBusy} onClick={() => runDiagnose()}>
+            اختبر اتصال XPay
+          </Btn>
+          {diag && (
+            <div className={`mt-3 rounded-xl p-3 text-[11.5px] ${diag.test?.ok ? 'bg-ok/[0.08] text-ok' : 'bg-error/[0.1] text-error'}`}>
+              <div className="mb-1.5 font-bold">
+                {diag.test?.ok ? '✓ الاتصال نجح — الدفع بالفيزا شغّال' : '✗ الاتصال فشل — ده السبب:'}
+              </div>
+              <pre className="max-h-52 overflow-auto whitespace-pre-wrap break-all font-mono text-[10.5px] leading-relaxed opacity-90" dir="ltr">
+                {JSON.stringify(diag, null, 2)}
+              </pre>
+              {!diag.test?.ok && (
+                <p className="mt-2 text-ivory/50">انسخ الكلام ده وابعتهولي عشان أظبط المشكلة بالظبط.</p>
+              )}
+            </div>
+          )}
+        </div>
       </Panel>
 
       <div className="grid gap-5 lg:grid-cols-2">
