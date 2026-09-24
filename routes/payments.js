@@ -97,7 +97,8 @@ router.post('/api/pay/xpay/checkout', requireAuth, async (req, res) => {
         userId: String(req.user.id),
         customerEmail: req.user.email,
         description: `${pkg.name.en} — Mithaq`,
-        successUrl: `${origin}/pay/complete?order=${order._id}`,
+        // XPay بتستبدل {CHECKOUT_SESSION_ID} برقم الجلسة الحقيقي عند الرجوع
+        successUrl: `${origin}/pay/complete?order=${order._id}&session_id={CHECKOUT_SESSION_ID}`,
         cancelUrl: `${origin}/checkout/${pkg.id}?canceled=1`,
       });
     } catch (err) {

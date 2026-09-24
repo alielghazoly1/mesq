@@ -55,27 +55,28 @@ function toMinorUnits(amount) {
  * بيبني جسم طلب إنشاء جلسة الدفع.
  * ⚠️ لو أسماء حقول XPay اختلفت، ده المكان الوحيد اللي بيتظبط فيه.
  */
-function buildSessionBody({ amount, currency, orderId, userId, customerEmail, successUrl, cancelUrl, description }) {
-  // XPay API متوافق مع Stripe: كل الأسماء snake_case زي Checkout Session
-  // بتاعت Stripe بالحرف (اتأكدنا من ده من رسالة الخطأ parameter_unknown).
+function buildSessionBody({ amount, currency, orderId, userId, successUrl, description }) {
+  // شكل جسم إنشاء جلسة XPay — اتأكد بالتجربة على الـ API الحقيقي:
+  //   • camelCase: lineItems / priceData / unitAmount / productData / afterCompletion
+  //   • المبلغ بالوحدة الصغرى (قرش/سنت)، والعملة بحروف كبيرة ("EGP")
+  //   • الرجوع بعد الدفع عن طريق afterCompletion.redirect.url
+  //     (XPay بتستبدل {CHECKOUT_SESSION_ID} برقم الجلسة لو موجود في اللينك)
+  //   • metadata بيرجع في الـ webhook — بنربط بيه الدفعة بالطلب والعميل
+  // (successUrl/cancelUrl/customerEmail مش معاملات مباشرة في XPay —
+  //  الرجوع كله جوه afterCompletion، ورقم الطلب في metadata + اللينك)
   return {
-    mode: 'payment',
-    line_items: [{
+    lineItems: [{
       quantity: 1,
-      price_data: {
-        currency: String(currency || '').toLowerCase(),
-        // المبلغ بالوحدة الصغرى (قرش/سنت)
-        unit_amount: toMinorUnits(amount),
-        product_data: { name: description || 'Mithaq invitation package' },
+      priceData: {
+        currency: String(currency || '').toUpperCase(),
+        unitAmount: toMinorUnits(amount),
+        productData: { name: description || 'Mithaq invitation package' },
       },
     }],
-    // لفين يرجع العميل بعد نجاح/إلغاء الدفع
-    success_url: successUrl,
-    cancel_url: cancelUrl,
-    // بيرجع رقم الطلب في الـ webhook — بنربط بيه الدفعة بالطلب والعميل.
-    // حجر الأساس في التفعيل الأوتوماتيكي الآمن.
-    client_reference_id: String(orderId),
-    customer_email: customerEmail || undefined,
+    afterCompletion: {
+      type: 'redirect',
+      redirect: { url: successUrl },
+    },
     metadata: { orderId: String(orderId), userId: String(userId) },
   };
 }
