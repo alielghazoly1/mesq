@@ -28,7 +28,7 @@ const { requireAuth } = require('../middleware/auth');
 const { activateOrder } = require('../utils/activateOrder');
 const {
   isXpayEnabled, createCheckoutSession, retrieveSession,
-  verifyWebhook, parsePaidStatus, orderIdFromSession,
+  verifyWebhook, parsePaidStatus, orderIdFromSession, toXpayCharge,
 } = require('../utils/xpay');
 
 const router = express.Router();
@@ -87,12 +87,15 @@ router.post('/api/pay/xpay/checkout', requireAuth, async (req, res) => {
       });
     }
 
+    // XPay بتقبل الجنيه بس — العميل بالدولار بيتشحن المقابل بالجنيه
+    const charge = toXpayCharge(priced.price, currency);
+
     const origin = siteOrigin(req);
     let session;
     try {
       session = await createCheckoutSession({
-        amount: priced.price,
-        currency,
+        amount: charge.amount,
+        currency: charge.currency,
         orderId: String(order._id),
         userId: String(req.user.id),
         customerEmail: req.user.email,

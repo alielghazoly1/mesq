@@ -343,6 +343,9 @@ export default function CheckoutPage() {
                   <CreditCard size={22} />
                 </div>
                 <p className="text-[13.5px] leading-relaxed text-ink-dim">{t('checkout.payCardNote')}</p>
+                {pkg.currency === 'USD' && (
+                  <p className="mt-2 text-[12px] leading-relaxed text-ink-dim/80">{t('checkout.cardEgpNote')}</p>
+                )}
                 <div className="mt-4 flex items-center justify-center gap-2 text-[12px] text-ink-dim">
                   <ShieldCheck size={14} className="text-emerald" /> {t('checkout.securedByXpay')}
                 </div>

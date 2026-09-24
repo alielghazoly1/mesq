@@ -29,7 +29,25 @@ function xpayConfig() {
     enabledFlag: String(process.env.XPAY_ENABLED || '').toLowerCase() === 'true',
     // سماحية فرق التوقيت في الـ webhook (ثواني) — بتمنع إعادة إرسال قديمة
     webhookToleranceSec: Number(process.env.XPAY_WEBHOOK_TOLERANCE_SEC || 300),
+    // سعر تحويل الدولار لجنيه — XPay بتقبل الجنيه بس، فالعميل بالدولار
+    // بيتشحن المبلغ المقابل بالجنيه (بطاقته الدولية بتحوّل عادي). ظبّطه
+    // من env حسب سعر السوق.
+    usdToEgp: Number(process.env.XPAY_USD_TO_EGP || 50),
   };
+}
+
+/**
+ * XPay بتقبل الجنيه المصري بس. الدالة دي بترجّع المبلغ والعملة اللي
+ * هتتشحن فعليًا: الجنيه زي ما هو، والدولار بيتحوّل لجنيه بسعر الصرف.
+ * @returns {{ amount:number, currency:'EGP' }}
+ */
+function toXpayCharge(amount, currency) {
+  const c = xpayConfig();
+  const num = Number(amount) || 0;
+  if (String(currency || '').toUpperCase() === 'USD') {
+    return { amount: Math.round(num * c.usdToEgp), currency: 'EGP' };
+  }
+  return { amount: num, currency: 'EGP' };
 }
 
 /** XPay جاهزة للاستخدام؟ (مفعّلة + فيها مفتاح سري) */
@@ -222,6 +240,7 @@ module.exports = {
   xpayConfig,
   isXpayEnabled,
   xpayPublishableKey,
+  toXpayCharge,
   toMinorUnits,
   buildSessionBody,
   parsePaidStatus,
