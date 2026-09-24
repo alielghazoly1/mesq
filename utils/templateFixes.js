@@ -408,11 +408,44 @@ const TEMPLATE_FIX_SCRIPT = `
     }
   }
 
+  // ===== تأجيل تحميل خريطة جوجل لحد ما الضيف يقرب منها =====
+  // إطار الخريطة (iframe) بيجرّ مكتبة جافاسكريبت تقيلة من جوجل (~250KB+)
+  // بمجرد ما ياخد src — حتى وهو تحت في الصفحة والضيف لسه بعيد عنه.
+  // بنشيل الـ src ونحفظه، ونرجّعه بس لما القسم يقرب من الشاشة
+  // (IntersectionObserver مع هامش 500px عشان يبدأ التحميل قبل ما يبان).
+  // متصفح قديم من غير IntersectionObserver → بنسيب الخريطة زي ما هي بالظبط
+  // (بتحمّل عادي)، فمفيش أي دعوة بتفضل من غير خريطة.
+  function deferMaps() {
+    if (!('IntersectionObserver' in window)) return;
+    var frames = document.querySelectorAll(
+      'iframe[src*="google.com/maps"], iframe[src*="maps.google"], iframe[src*="output=embed"]'
+    );
+    for (var i = 0; i < frames.length; i++) {
+      var f = frames[i];
+      if (f.getAttribute('data-wda-map-deferred')) continue;
+      var src = f.getAttribute('src');
+      if (!src) continue;
+      f.setAttribute('data-wda-map-deferred', '1');
+      f.setAttribute('data-wda-map-src', src);
+      f.removeAttribute('src');
+      var io = new IntersectionObserver(function (entries, obs) {
+        for (var j = 0; j < entries.length; j++) {
+          if (!entries[j].isIntersecting) continue;
+          var fr = entries[j].target;
+          obs.unobserve(fr);
+          var s = fr.getAttribute('data-wda-map-src');
+          if (s && !fr.getAttribute('src')) fr.setAttribute('src', s);
+        }
+      }, { rootMargin: '500px' });
+      io.observe(f);
+    }
+  }
+
   fixTimes();
   fixViktorMap(); fixMissingAudio();
-  fixMapLayer(); fixRoyalCardGap(); initEnvelopeCover(); lockDecorText();
-  document.addEventListener('DOMContentLoaded', function () { fixTimes(); fixViktorMap(); fixMissingAudio(); fixMapLayer(); fixRoyalCardGap(); initEnvelopeCover(); lockDecorText(); nudgeSoon(); });
-  window.addEventListener('load', function () { fixTimes(); fixViktorMap(); fixMissingAudio(); fixMapLayer(); fixRoyalCardGap(); initEnvelopeCover(); lockDecorText(); nudgeSoon(); });
+  fixMapLayer(); deferMaps(); fixRoyalCardGap(); initEnvelopeCover(); lockDecorText();
+  document.addEventListener('DOMContentLoaded', function () { fixTimes(); fixViktorMap(); fixMissingAudio(); fixMapLayer(); deferMaps(); fixRoyalCardGap(); initEnvelopeCover(); lockDecorText(); nudgeSoon(); });
+  window.addEventListener('load', function () { fixTimes(); fixViktorMap(); fixMissingAudio(); fixMapLayer(); deferMaps(); fixRoyalCardGap(); initEnvelopeCover(); lockDecorText(); nudgeSoon(); });
 
   // الأوقات بتتحقن من سكريبت التصميم نفسه بعد التحميل، فبنعيد المحاولة
   // شوية ثواني بدل ما نفترض إنها موجودة من أول لحظة.
@@ -420,7 +453,7 @@ const TEMPLATE_FIX_SCRIPT = `
   var timer = setInterval(function () {
     fixTimes();
     fixViktorMap(); fixMissingAudio();
-    fixMapLayer();
+    fixMapLayer(); deferMaps();
     if (++tries > 20) clearInterval(timer);
   }, 250);
 
