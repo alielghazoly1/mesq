@@ -4,6 +4,7 @@
 // sanitizeText زي أي نص تاني بيتعرض في الموقع (utils/sanitize.js).
 const PaymentSettings = require('../models/PaymentSettings');
 const { sanitizeText } = require('./sanitize');
+const { isXpayEnabled } = require('./xpay');
 
 const KEY = 'default';
 
@@ -40,10 +41,21 @@ async function updatePaymentSettings(body) {
       note: sanitizeText(k.note, 400),
     },
     whatsapp: sanitizeText(b.whatsapp, 40),
+    // القيمة الافتراضية true — بس لو الأدمن بعت false صريح بنقفلها
+    xpayEnabled: b.xpayEnabled !== false,
     updatedAt: new Date(),
   };
 
   return PaymentSettings.findOneAndUpdate({ key: KEY }, update, { new: true, upsert: true });
+}
+
+/**
+ * الدفع بالفيزا شغّال فعليًا؟ = المفاتيح متظبطة في env **و** الأدمن مقفلوش
+ * من اللوحة. ده المصدر الوحيد اللي الراوتس بتسأله.
+ * @param {object} doc مستند إعدادات الدفع
+ */
+function xpayLive(doc) {
+  return isXpayEnabled() && (!doc || doc.xpayEnabled !== false);
 }
 
 /**
@@ -53,9 +65,12 @@ async function updatePaymentSettings(body) {
  */
 function publicPaymentInfo(doc, countryCode) {
   const isEgypt = String(countryCode || '').toUpperCase() === 'EG';
+  // الدفع بالفيزا متاح؟ الواجهة بتقرا ده عشان تعرض خيار الفيزا من عدمه
+  const xpay = xpayLive(doc);
   if (isEgypt) {
     return {
       method: 'vodafone',
+      xpay,
       whatsapp: doc.whatsapp || '',
       vodafone: {
         number: doc.vodafone?.number || '',
@@ -66,6 +81,7 @@ function publicPaymentInfo(doc, countryCode) {
   }
   return {
     method: 'bank',
+    xpay,
     whatsapp: doc.whatsapp || '',
     bank: {
       bankName: doc.bank?.bankName || '',
@@ -80,4 +96,4 @@ function publicPaymentInfo(doc, countryCode) {
   };
 }
 
-module.exports = { getPaymentSettings, updatePaymentSettings, publicPaymentInfo };
+module.exports = { getPaymentSettings, updatePaymentSettings, publicPaymentInfo, xpayLive };

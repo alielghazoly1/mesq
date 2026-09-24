@@ -69,6 +69,8 @@ export default function Footer() {
           <span className="h-3 w-px bg-line" />
           <Link to="/dashboard" className="hover:text-rose">{t('nav.dashboard')}</Link>
           <span className="h-3 w-px bg-line" />
+          <Link to="/terms" className="hover:text-rose">{t('footer.terms')}</Link>
+          <span className="h-3 w-px bg-line" />
           <a href={whatsappLink(WHATSAPP_MESSAGES.help)} target="_blank" rel="noopener noreferrer" className="hover:text-rose">
             {t('footer.contact')}
           </a>

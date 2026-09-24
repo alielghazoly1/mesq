@@ -9,6 +9,7 @@ const express = require('express');
 const Invitation = require('../models/Invitation');
 const User = require('../models/User');
 const Order = require('../models/Order');
+const { activateOrder } = require('../utils/activateOrder');
 const Rsvp = require('../models/Rsvp');
 const Session = require('../models/Session');
 const SupportMessage = require('../models/SupportMessage');
@@ -22,6 +23,7 @@ const {
 } = require('../packages/registry');
 const PricingSettings = require('../models/PricingSettings');
 const { getPaymentSettings, updatePaymentSettings } = require('../utils/paymentSettings');
+const { isXpayEnabled } = require('../utils/xpay');
 const {
   getPricingSettings, getPricingSettingsCached, priceFor, clampPercent,
   invalidateCache: invalidatePricingCache,
@@ -642,6 +644,9 @@ router.get('/admin/api/orders', requireAdminSession, async (req, res) => {
           price: o.price,
           currency: o.currency,
           status: o.status,
+          // طريقة الدفع — xpay (فيزا أوتوماتيك) أو manual (تحويل يدوي)
+          paymentMethod: o.paymentMethod || 'manual',
+          paidAt: o.paidAt || null,
           createdAt: o.createdAt,
           activatedAt: o.activatedAt || null,
           paymentProofUrl: o.paymentProofUrl || null,
@@ -664,40 +669,21 @@ router.post('/admin/api/orders/:id/activate', requireAdminSession, async (req, r
       return res.status(409).json({ error: 'الطلب ده متفعّل أو ملغي بالفعل.' });
     }
 
-    const pkg = getPackage(order.packageId);
-    if (!pkg) return res.status(400).json({ error: 'الباقة دي مش موجودة.' });
-
-    const user = await User.findById(order.userId);
-    if (!user) return res.status(404).json({ error: 'المستخدم ده مش موجود.' });
-
-    // الرصيد بيتجمع مش بيتستبدل — لو اشترى باقة تانية، الدعوات بتتضاف
-    const current = (user.subscription && user.subscription.invitationsLeft) || 0;
-    // مدة التعديل الجديدة — بتتحسب من الاشتراك **قبل** ما نستبدله (utils/editWindow.js):
-    // عميل جديد ← 30 يوم من دلوقتي، عميل جدّد ← بتتضاف فوق اللي فاضل،
-    // عميل قديم (تعديله مفتوح) ← بيفضل مفتوح.
-    const editUntil = editUntilAfterActivation(user.subscription);
-    user.subscription = {
-      packageId: pkg.id,
-      invitationsLeft: current + pkg.invitations,
-      activatedAt: new Date(),
-      status: 'active',
-      suspendedAt: null,
-      adminNote: (user.subscription && user.subscription.adminNote) || '',
-      editUntil,
-    };
-    await saveUserFields(user, { subscription: subscriptionOf(user) });
-
-    order.status = 'activated';
-    order.activatedAt = new Date();
-    await order.save();
+    // نفس دالة التفعيل اللي بيستخدمها الدفع الأوتوماتيكي (utils/activateOrder.js)
+    // — مصدر واحد لإضافة الرصيد وفتح مدة التعديل، ذرّي ومامنش تفعيل مكرر.
+    const result = await activateOrder(order);
+    if (result.alreadyActive) {
+      return res.status(409).json({ error: 'الطلب ده متفعّل أو ملغي بالفعل.' });
+    }
+    const { user, pkg, invitationsLeft, editUntil } = result;
 
     logAdminAction(req, 'order.activate', {
       type: 'order', id: order._id, label: user.email,
-    }, { packageId: pkg.id, price: order.price, currency: order.currency, creditsAfter: user.subscription.invitationsLeft });
+    }, { packageId: pkg.id, price: order.price, currency: order.currency, creditsAfter: invitationsLeft });
 
     return res.json({
       ok: true,
-      invitationsLeft: user.subscription.invitationsLeft,
+      invitationsLeft,
       editUntil: editUntil ? editUntil.toISOString() : null,
     });
   } catch (err) {
@@ -914,6 +900,9 @@ router.get('/admin/api/payment-settings', requireAdminSession, async (req, res) 
       vodafone: doc.vodafone || {},
       bank: doc.bank || {},
       whatsapp: doc.whatsapp || '',
+      // الدفع بالفيزا: توجل الأدمن + هل المفاتيح متظبطة في env أصلاً
+      xpayEnabled: doc.xpayEnabled !== false,
+      xpayConfigured: isXpayEnabled(),
       updatedAt: doc.updatedAt,
     });
   } catch (err) {

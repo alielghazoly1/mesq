@@ -2,7 +2,9 @@
 // المصريين بيشوفوا فودافون كاش، وغيرهم بيشوفوا الحساب البنكي.
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { Save, Smartphone, Landmark, MessageCircle, Check } from 'lucide-react';
+import {
+  Save, Smartphone, Landmark, MessageCircle, Check, CreditCard, AlertTriangle,
+} from 'lucide-react';
 import {
   useGetPaymentSettingsQuery, useSavePaymentSettingsMutation,
 } from '../../store/adminApi.js';
@@ -19,6 +21,7 @@ export default function SettingsPage() {
         vodafone: data.vodafone || {},
         bank: data.bank || {},
         whatsapp: data.whatsapp || '',
+        xpayEnabled: data.xpayEnabled !== false,
       });
     }
   }, [data, reset]);
@@ -44,6 +47,29 @@ export default function SettingsPage() {
           {isSuccess && !formState.isDirty ? 'اتحفظ' : 'احفظ التعديلات'}
         </Btn>
       </div>
+
+      {/* الدفع بالفيزا (XPay) — الطريقة الأوتوماتيكية */}
+      <Panel title="الدفع بالفيزا (XPay)" subtitle="دفع أوتوماتيك بالبطاقة — بيتفعّل لوحده بعد الدفع">
+        <label className="flex cursor-pointer items-center gap-3 rounded-xl bg-ivory/[0.04] p-3.5">
+          <input type="checkbox" {...register('xpayEnabled')} className="h-5 w-5 shrink-0 accent-emerald" />
+          <span className="flex items-center gap-2 text-[13.5px] font-bold text-ivory">
+            <CreditCard size={15} className="text-brass-soft" /> تفعيل الدفع بالفيزا للعملاء
+          </span>
+        </label>
+
+        {data?.xpayConfigured ? (
+          <p className="mt-3 flex items-start gap-2 rounded-xl bg-ok/[0.08] p-3 text-[11.5px] text-ok">
+            <Check size={13} className="mt-0.5 shrink-0" />
+            مفاتيح XPay متظبطة في السيرفر ✓ — الدفع بالفيزا شغّال (طول ما الخيار فوق مفعّل).
+          </p>
+        ) : (
+          <p className="mt-3 flex items-start gap-2 rounded-xl bg-brass/[0.1] p-3 text-[11.5px] text-brass-soft">
+            <AlertTriangle size={13} className="mt-0.5 shrink-0" />
+            مفاتيح XPay لسه مش متظبطة في إعدادات السيرفر (متغيّرات XPAY_ في env). لحد ما تتحط،
+            الدفع بالفيزا مش هيبان للعملاء حتى لو الخيار مفعّل — والموقع بيرجع للتحويل اليدوي عادي.
+          </p>
+        )}
+      </Panel>
 
       <div className="grid gap-5 lg:grid-cols-2">
         <Panel title="فودافون كاش" subtitle="بيظهر للعملاء المصريين">

@@ -67,6 +67,16 @@ export const api = createApi({
       query: (body) => ({ url: '/packages/order', method: 'POST', body }),
       invalidatesTags: ['Packages'],
     }),
+    // ===== الدفع بالفيزا (XPay) =====
+    // بيبدأ جلسة دفع ويرجّع { url } نوجّه العميل عليها
+    createXpayCheckout: builder.mutation({
+      query: (body) => ({ url: '/pay/xpay/checkout', method: 'POST', body }),
+    }),
+    // العميل رجع من صفحة الدفع — بنأكّد الحالة ونفعّل لو مدفوعة
+    verifyXpayPayment: builder.mutation({
+      query: (body) => ({ url: '/pay/xpay/verify', method: 'POST', body }),
+      invalidatesTags: ['Packages', 'Dashboard', 'Me'],
+    }),
     getPaymentInfo: builder.query({
       query: () => '/packages/payment-info',
       providesTags: ['Me'],
@@ -202,6 +212,8 @@ export const {
   useCreateInvitationMutation,
   useGetPackagesQuery,
   useOrderPackageMutation,
+  useCreateXpayCheckoutMutation,
+  useVerifyXpayPaymentMutation,
   useGetPaymentInfoQuery,
   useGetDashboardQuery,
   useGetRsvpsQuery,

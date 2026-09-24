@@ -17,6 +17,7 @@ const packagesRouter = require('./routes/packages');
 const uploadsRouter = require('./routes/uploads');
 const dashboardRouter = require('./routes/dashboard');
 const editorRouter = require('./routes/editor');
+const paymentsRouter = require('./routes/payments');
 const { ensureDeviceId, deviceInvitationLimiter } = require('./middleware/deviceLimiter');
 const { attachUser } = require('./middleware/auth');
 
@@ -104,7 +105,17 @@ app.use(cors({
   },
   credentials: true,
 }));
-app.use(express.json({ limit: '20kb' }));
+// بنحتفظ بالجسم الخام لـ webhook الدفع (XPay) عشان نتحقق من توقيعه — أي
+// تعديل بسيط في الـ JSON بيكسر الـ HMAC، فلازم البايتات الأصلية زي ما هي.
+// بنعمله لمسار الـ webhook بس عشان مانخزّنش نسخة زيادة من كل طلب.
+app.use(express.json({
+  limit: '20kb',
+  verify: (req, res, buf) => {
+    if (req.originalUrl && req.originalUrl.startsWith('/api/pay/xpay/webhook')) {
+      req.rawBody = Buffer.from(buf);
+    }
+  },
+}));
 app.use(cookieParser());
 
 // بنتأكد إن قاعدة البيانات متصلة قبل أي طلب يحتاجها فعليًا (إنشاء/عرض دعوة).
@@ -133,13 +144,14 @@ app.use('/api/packages', requireDB);
 app.use('/api/uploads', requireDB);
 app.use('/api/dashboard', requireDB);
 app.use('/api/editor', requireDB);
+app.use('/api/pay', requireDB);
 
 // لو فيه جلسة دخول صالحة (كوكي wda_session)، بيحط req.user؛ غير كده
 // req.user = null من غير ما يوقف الطلب (middleware/auth.js). مربوط بس
 // بالمسارات اللي فعلاً محتاجة تعرف حالة الدخول — مش عالميًا على كل الموقع
 // (زي الملفات الثابتة أو صفحة الدعوة نفسها)، عشان نفس فلسفة الأداء
 // والمرونة اللي requireDB بتتبعها.
-app.use(['/api/preview', '/preview-sample', '/api/invitations', '/api/free-quota', '/api/auth', '/api/packages', '/api/uploads', '/api/dashboard', '/api/editor'], attachUser);
+app.use(['/api/preview', '/preview-sample', '/api/invitations', '/api/free-quota', '/api/auth', '/api/packages', '/api/uploads', '/api/dashboard', '/api/editor', '/api/pay'], attachUser);
 
 // الموقع التسويقي/فورم الإنشاء بقى React (client/) مبني بـ Vite — الملفات
 // الثابتة الناتجة (client/dist) هي اللي بتتقدم هنا بدل public/ القديم.
@@ -196,6 +208,17 @@ const rsvpIpLimiter = rateLimit({
   message: { error: 'عدد كبير جدًا من المحاولات، حاول تاني بعد شوية.' },
 });
 app.use('/i/:shortId/rsvp', rsvpIpLimiter);
+
+// حد على بدء الدفع بالفيزا — بيمنع إساءة إنشاء جلسات دفع. مطبّق على
+// checkout بس، **مش** على الـ webhook (XPay لازم تقدر تعيد الإرسال بحرية).
+const payCheckoutLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'محاولات دفع كتير في وقت قصير، استنى شوية وحاول تاني.' },
+});
+app.use('/api/pay/xpay/checkout', payCheckoutLimiter);
 
 // المعاينة الحية بتتنادى كل شوية وهو بيكتب في الفورم، فمحتاجة سقف أعلى
 // بكتير من إنشاء الدعوة الفعلي (مفيش حفظ في قاعدة البيانات هنا أصلًا)
@@ -282,6 +305,7 @@ app.use('/', packagesRouter);
 app.use('/', uploadsRouter);
 app.use('/', dashboardRouter);
 app.use('/', editorRouter);
+app.use('/', paymentsRouter);
 
 // أي GET route تاني مش API معروف بيرجع صفحة React (client/dist/index.html)
 // عشان react-router يشتغل صح حتى لو حد عمل refresh على لينك زي /create/xyz

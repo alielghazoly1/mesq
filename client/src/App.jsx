@@ -8,6 +8,8 @@ import GalleryPage from './pages/GalleryPage.jsx';
 import CreateInvitationPage from './pages/CreateInvitationPage.jsx';
 import PackagesPage from './pages/PackagesPage.jsx';
 import CheckoutPage from './pages/CheckoutPage.jsx';
+import PayCompletePage from './pages/PayCompletePage.jsx';
+import TermsPage from './pages/TermsPage.jsx';
 import DashboardPage from './pages/DashboardPage.jsx';
 import EditorPage from './pages/EditorPage.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
@@ -51,6 +53,8 @@ export default function App() {
         <Route path="/create/:templateId" element={<CreateInvitationPage />} />
         <Route path="/packages" element={<PackagesPage />} />
         <Route path="/checkout/:packageId" element={<CheckoutPage />} />
+        <Route path="/pay/complete" element={<PayCompletePage />} />
+        <Route path="/terms" element={<TermsPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/editor/:shortId" element={<EditorPage />} />
         <Route

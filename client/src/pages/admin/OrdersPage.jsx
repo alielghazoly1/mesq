@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Check, X, Receipt, ExternalLink, Undo2, ShieldAlert } from 'lucide-react';
+import { Check, X, Receipt, ExternalLink, Undo2, ShieldAlert, CreditCard } from 'lucide-react';
 import {
   useGetOrdersQuery, useActivateOrderMutation, useCancelOrderMutation,
   useGetAdminPackagesQuery,
@@ -122,7 +122,11 @@ export default function OrdersPage() {
                   {fmtMoney(o.price, o.currency)}
                 </Cell>
                 <Cell>
-                  {o.paymentProofUrl ? (
+                  {o.paymentMethod === 'xpay' ? (
+                    <Badge tone="ok">
+                      <span className="inline-flex items-center gap-1"><CreditCard size={11} /> فيزا · XPay</span>
+                    </Badge>
+                  ) : o.paymentProofUrl ? (
                     <a
                       href={o.paymentProofUrl}
                       target="_blank"

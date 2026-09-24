@@ -36,6 +36,11 @@ const paymentSettingsSchema = new mongoose.Schema({
   // رقم واتساب التواصل بعد التحويل
   whatsapp: { type: String, default: '', maxlength: 40 },
 
+  // مفتاح الأدمن لتشغيل/إيقاف الدفع بالفيزا (XPay) من اللوحة من غير ما
+  // يلمس env. المفاتيح السرية نفسها بتفضل في env دايمًا — ده بيقفل الخيار
+  // بس. الدفع بالفيزا بيشتغل بس لو ده true **و** المفاتيح متظبطة في env.
+  xpayEnabled: { type: Boolean, default: true },
+
   updatedAt: { type: Date, default: Date.now },
 });
 

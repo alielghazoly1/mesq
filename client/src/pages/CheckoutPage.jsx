@@ -1,41 +1,34 @@
 // صفحة الدفع — /checkout/:packageId
 //
-// ليه صفحة مستقلة: قبل كده العميل كان بيضغط "اطلب الباقة" في نص صفحة
-// طولها 5 شاشات، والزرار كان بيغيّر كلمة بس، وبيانات التحويل تحت في
-// آخر الصفحة. يعني اللحظة الوحيدة اللي بيدفع فيها فلوس كانت أضعف لحظة
-// في الموقع. دلوقتي بقت صفحة واحدة بتقوله بالترتيب: بتدفع كام، لمين،
-// وإيه اللي بعد كده.
+// طريقتين للدفع:
+//   • بالفيزا (XPay): العميل بيدوس زرار، بيتحوّل لصفحة دفع XPay آمنة،
+//     ويرجع متفعّل أوتوماتيك. ده الأساسي للأجانب والأسهل للكل.
+//   • تحويل يدوي (فودافون كاش للمصريين / بنكي للأجانب): بيحوّل ويرفع
+//     الإيصال، والأدمن بيفعّل. بيفضل متاح لو الفيزا متعطّلة أو العميل
+//     اختاره.
 //
-// السعر وبيانات التحويل الاتنين بييجوا من السيرفر حسب دولة العميل
-// (مصر ← جنيه + فودافون كاش، غيرها ← دولار + تحويل بنكي).
+// السعر وبيانات الدفع بييجوا من السيرفر حسب دولة العميل. الفيزا بتبان
+// بس لو مظبوطة (payInfo.xpay).
 import { useEffect, useRef, useState } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import {
   ArrowRight, Check, Copy, Upload, Loader2, ChevronDown, ChevronUp,
   Clock, AlertCircle, Sparkles, MessageCircle, Infinity as InfinityIcon, Pencil,
+  CreditCard, ShieldCheck,
 } from 'lucide-react';
 import { VodafoneCashLogo, BankMark } from '../components/PayBrand.jsx';
 import {
   useGetPackagesQuery, useGetPaymentInfoQuery, useOrderPackageMutation,
-  useUploadPaymentProofMutation, useGetMeQuery,
+  useUploadPaymentProofMutation, useGetMeQuery, useCreateXpayCheckoutMutation,
 } from '../store/api.js';
 import { openAuthModal } from '../store/uiSlice.js';
 import { tooBig, sizeError, uploadError } from '../lib/uploadLimits.js';
 import { whatsappLink } from '../lib/contact.js';
 import Footer from '../components/Footer.jsx';
 
-/**
- * خانة بيانات جنب بعضها — كل واحدة كارت مستقل فيه العنوان فوق والقيمة
- * تحته كاملة، والكارت كله زرار نسخ.
- *
- * ليه كارت مش صف: الأرقام دي (حساب بنكي، IBAN، محفظة) بتتكتب غلط
- * بسهولة، والصف الأفقي كان بيزنق الرقم في نص المساحة ويقصّه. الكارت
- * بيدّي الرقم السطر بتاعه كامل، والمساحة كلها هدف للضغط — وده أهم حاجة
- * على الموبايل.
- */
 function CopyTile({ label, value, wide }) {
   const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
@@ -51,8 +44,6 @@ function CopyTile({ label, value, wide }) {
         copied ? 'border-ok bg-ok/[0.07]' : 'border-line bg-ivory/60 hover:border-ink/25 active:bg-ink/5'
       } ${wide ? 'col-span-2' : ''}`}
     >
-      {/* العنوان بيتحول لـ"اتنسخ" مكانه — من غير سطر زيادة فاضي ولا
-          قفزة في التصميم وقت الضغط */}
       <span className={`flex items-center justify-between gap-2 text-[11.5px] font-bold ${
         copied ? 'text-ok' : 'text-ink-dim'
       }`}
@@ -93,6 +84,8 @@ export default function CheckoutPage() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { t, i18n } = useTranslation();
+  const [params] = useSearchParams();
+  const canceled = params.get('canceled') === '1';
 
   const { data: meData, isLoading: meLoading } = useGetMeQuery();
   const { data: pkgData, isLoading: pkgLoading } = useGetPackagesQuery(i18n.language);
@@ -101,15 +94,19 @@ export default function CheckoutPage() {
   });
   const [orderPackage] = useOrderPackageMutation();
   const [uploadProof, { isLoading: uploading }] = useUploadPaymentProofMutation();
+  const [createXpayCheckout] = useCreateXpayCheckoutMutation();
 
   const fileRef = useRef(null);
   const [uploaded, setUploaded] = useState(false);
   const [error, setError] = useState('');
   const [orderReady, setOrderReady] = useState(false);
-  // أنهي حاجة اتنسخت آخر مرة — عشان التأكيد يبان في مكانها بالظبط
   const [copied, setCopied] = useState('');
-  // تفاصيل الحساب الإضافية (IBAN وSWIFT والعنوان) — مطويّة افتراضيًا
   const [moreBank, setMoreBank] = useState(false);
+  // طريقة الدفع المختارة: 'card' (فيزا) أو 'manual' (تحويل). بتتظبط لوحدها
+  // أول ما بيانات الدفع توصل، والعميل يقدر يبدّل.
+  const [method, setMethod] = useState(null);
+  const [termsOk, setTermsOk] = useState(false);
+  const [paying, setPaying] = useState(false);
 
   function copy(value, key) {
     if (!value) return;
@@ -121,20 +118,26 @@ export default function CheckoutPage() {
 
   const user = meData?.user ?? null;
   const pkg = pkgData?.packages?.find((p) => p.id === packageId) || null;
+  const xpayOn = !!payInfo?.xpay;
 
-  // الطلب بيتسجّل أول ما يوصل الصفحة. السيرفر مبيعملش طلب جديد لو عنده
-  // واحد معلّق لنفس الباقة، فإعادة تحميل الصفحة مش بتكرّر حاجة — وده
-  // مهم عشان رفع الإيصال محتاج طلب معلّق موجود فعلاً.
+  // أول ما نعرف الطريقة المتاحة، بنختار الافتراضي: الفيزا لو متاحة
+  useEffect(() => {
+    if (!payInfo || method) return;
+    setMethod(xpayOn ? 'card' : 'manual');
+  }, [payInfo, xpayOn, method]);
+
+  // الطلب اليدوي بيتسجّل أول ما يوصل الصفحة (رفع الإيصال محتاج طلب معلّق).
+  // بس لما الطريقة تكون تحويل يدوي — الفيزا بتعمل طلبها لوحدها.
   useEffect(() => {
     let alive = true;
-    if (!user || !pkg || orderReady) return undefined;
+    if (!user || !pkg || orderReady || method !== 'manual') return undefined;
     orderPackage({ packageId: pkg.id }).unwrap()
       .then(() => { if (alive) setOrderReady(true); })
       .catch((err) => {
         if (alive) setError(err?.data?.error || t('checkout.orderFailed'));
       });
     return () => { alive = false; };
-  }, [user, pkg, orderReady, orderPackage, t]);
+  }, [user, pkg, orderReady, orderPackage, t, method]);
 
   async function onPickFile(e) {
     const file = e.target.files?.[0];
@@ -149,6 +152,25 @@ export default function CheckoutPage() {
       setUploaded(true);
     } catch (err) {
       setError(uploadError(err, t));
+    }
+  }
+
+  // بدء الدفع بالفيزا: بنعمل جلسة في السيرفر ونحوّل العميل لصفحة XPay
+  async function payByCard() {
+    if (!termsOk) { setError(t('checkout.termsError')); return; }
+    setError('');
+    setPaying(true);
+    try {
+      const res = await createXpayCheckout({ packageId: pkg.id, termsAccepted: true }).unwrap();
+      if (res.url) {
+        window.location.href = res.url;
+      } else {
+        setError(t('checkout.cardFailed'));
+        setPaying(false);
+      }
+    } catch (err) {
+      setError(err?.data?.error || t('checkout.cardFailed'));
+      setPaying(false);
     }
   }
 
@@ -191,20 +213,30 @@ export default function CheckoutPage() {
   const v = payInfo?.vodafone || {};
   const b = payInfo?.bank || {};
   const hasPayData = isVodafone ? !!v.number : !!(b.accountNumber || b.iban);
-  // مدة التعديل بعد التفعيل — من السيرفر، و0 = القاعدة متقفلة
   const days = pkgData?.editWindowDays ?? 30;
+  const cardMode = method === 'card' && xpayOn;
+  // لسه بنختار الطريقة؟ متبانش أي بانل قبل ما نعرف
+  const methodResolved = !!method || !payLoading;
 
-  // طرق دفع تانية بالواتساب — للدفع بالدولار بس. المصري بيدفع فودافون
-  // كاش وده كفاية، فمفيش سبب نزحم صفحته. الفحص على عملة الباقة (USD) مش
-  // على وصول بيانات الدفع، عشان الزرار يبان حتى لو بيانات التحويل لسه
-  // ماتحملتش أو مش متظبطة.
-  const showOtherMethods = pkg.currency === 'USD';
+  const termsBox = (
+    <label className="flex cursor-pointer items-start gap-2.5 rounded-xl border border-line bg-ivory/50 px-3.5 py-3">
+      <input
+        type="checkbox"
+        checked={termsOk}
+        onChange={(e) => setTermsOk(e.target.checked)}
+        className="mt-0.5 h-4 w-4 shrink-0 accent-emerald"
+      />
+      <span className="text-[12.5px] leading-relaxed text-ink-dim">
+        {t('checkout.termsPre')}{' '}
+        <Link to="/terms" target="_blank" className="font-bold text-rose underline">
+          {t('checkout.termsLink')}
+        </Link>
+      </span>
+    </label>
+  );
 
   return (
     <div className="min-h-screen bg-ivory">
-      {/* pb للشريط الثابت تحت على الموبايل.
-          على الشاشة الكبيرة الصفحة بتبقى عمودين: الخطوات في ناحية
-          والملخص ثابت جنبها — بدل عمود ضيق في النص وفضا على الجنبين. */}
       <div className="mx-auto max-w-2xl px-4 pb-40 pt-6 sm:px-6 sm:pb-16 lg:max-w-5xl lg:pb-20">
         <Link
           to="/packages"
@@ -213,9 +245,6 @@ export default function CheckoutPage() {
           <ArrowRight size={15} /> {t('checkout.backToPackages')}
         </Link>
 
-        {/* المقدمة مضغوطة على الموبايل: كل سطر هنا بيزقّ بيانات التحويل
-            تحت الشاشة، وده بالظبط اللي كان بيخلي الناس تقفل قبل ما
-            توصلها */}
         <h1 className="mb-1 font-serif text-[20px] font-bold text-ink sm:text-[clamp(22px,5vw,30px)]">
           {t('checkout.title')}
         </h1>
@@ -223,6 +252,11 @@ export default function CheckoutPage() {
           {t('checkout.subtitle')}
         </p>
 
+        {canceled && (
+          <div className="mb-5 flex items-start gap-2 rounded-xl bg-brass/[0.12] px-4 py-3 text-[12.5px] text-[#7a5a1a]">
+            <AlertCircle size={14} className="mt-0.5 shrink-0" /> {t('checkout.canceled')}
+          </div>
+        )}
         {error && (
           <div className="mb-5 flex items-start gap-2 rounded-xl bg-error/10 px-4 py-3 text-[12.5px] text-error">
             <AlertCircle size={14} className="mt-0.5 shrink-0" /> {error}
@@ -231,10 +265,6 @@ export default function CheckoutPage() {
 
         <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start lg:gap-7">
         {/* ===== ملخص الطلب ===== */}
-        {/* سطر واحد على الموبايل، وكارت كامل على الشاشة الكبيرة.
-            السبب: ده مش اللي العميل محتاجه دلوقتي — هو محتاج يعرف
-            يحوّل فين. الملخص كان بياخد نص الشاشة وبيزقّ بيانات
-            التحويل تحت، فالناس كانت بتقفل قبل ما توصلها. */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -257,8 +287,6 @@ export default function CheckoutPage() {
             <div className="flex shrink-0 items-baseline gap-1.5 lg:mt-5 lg:justify-between lg:border-t lg:border-ivory/12 lg:pt-4">
               <span className="hidden text-[13px] text-ivory/65 lg:inline">{t('checkout.total')}</span>
               <span className="flex flex-wrap items-baseline justify-end gap-x-1.5 gap-y-1">
-                {/* الخصم بيبان هنا بس — باقي أماكن المبلغ في الصفحة
-                    بتفضل رقم واحد صريح، عشان مايحوّلش الرقم الغلط */}
                 {pkg.listPrice > 0 && (
                   <span className="text-[13px] text-ivory/40 line-through lg:text-[15px]">
                     {pkg.listPrice}
@@ -281,7 +309,62 @@ export default function CheckoutPage() {
         </motion.div>
 
         <div className="space-y-4 lg:order-1">
-          {/* ===== 1) التحويل — أول وأهم حاجة على الشاشة ===== */}
+          {/* ===== اختيار طريقة الدفع — بيبان بس لما الاتنين متاحين ===== */}
+          {xpayOn && hasPayData && (
+            <div className="grid grid-cols-2 gap-2.5">
+              <button
+                type="button"
+                onClick={() => { setMethod('card'); setError(''); }}
+                className={`flex items-center justify-center gap-2 rounded-2xl border-2 px-3 py-3.5 text-[13px] font-bold transition ${
+                  cardMode ? 'border-emerald bg-emerald/[0.06] text-ink' : 'border-line bg-card text-ink-dim hover:border-ink/25'
+                }`}
+              >
+                <CreditCard size={16} className={cardMode ? 'text-emerald' : ''} />
+                {t('checkout.methodCard')}
+              </button>
+              <button
+                type="button"
+                onClick={() => { setMethod('manual'); setError(''); }}
+                className={`flex items-center justify-center gap-2 rounded-2xl border-2 px-3 py-3.5 text-[13px] font-bold transition ${
+                  !cardMode ? 'border-emerald bg-emerald/[0.06] text-ink' : 'border-line bg-card text-ink-dim hover:border-ink/25'
+                }`}
+              >
+                {isVodafone ? <VodafoneCashLogo height={17} /> : <BankMark size={20} />}
+                {isVodafone ? t('checkout.methodVodafone') : t('checkout.methodBank')}
+              </button>
+            </div>
+          )}
+
+          {/* ===== مسار الفيزا ===== */}
+          {cardMode && methodResolved && (
+            <Step n="1" title={t('checkout.payByCard')}>
+              <div className="rounded-2xl border border-emerald/25 bg-emerald/[0.04] p-5 text-center">
+                <div className="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-full bg-night text-brass-soft">
+                  <CreditCard size={22} />
+                </div>
+                <p className="text-[13.5px] leading-relaxed text-ink-dim">{t('checkout.payCardNote')}</p>
+                <div className="mt-4 flex items-center justify-center gap-2 text-[12px] text-ink-dim">
+                  <ShieldCheck size={14} className="text-emerald" /> {t('checkout.securedByXpay')}
+                </div>
+              </div>
+
+              <div className="mt-4">{termsBox}</div>
+
+              <button
+                type="button"
+                onClick={payByCard}
+                disabled={paying || !termsOk}
+                className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-l from-brass to-brass-soft py-3.5 text-[14px] font-extrabold text-[#241608] transition hover:brightness-105 disabled:opacity-50"
+              >
+                {paying ? <Loader2 size={16} className="animate-spin" /> : <CreditCard size={16} />}
+                {paying ? t('checkout.redirecting') : t('checkout.payCardBtn', { amount: `${pkg.price} ${pkg.currencyLabel}` })}
+              </button>
+            </Step>
+          )}
+
+          {/* ===== مسار التحويل اليدوي ===== */}
+          {!cardMode && methodResolved && (
+          <>
           <Step n="1" title={t('checkout.step1')}>
             {payLoading ? (
               <p className="flex items-center gap-2 text-[13px] text-ink-dim">
@@ -293,16 +376,12 @@ export default function CheckoutPage() {
               </p>
             ) : isVodafone ? (
               <>
-                {/* ===== كارت فودافون كاش ===== */}
                 <div className="overflow-hidden rounded-2xl border-2 border-[#E60000]/25 bg-[#E60000]/[0.04]">
-                  {/* اللوجو لوحده كفاية — العميل بيعرفه على طول، ومش
-                      محتاج عنوان مكتوب جنبه يقوله نفس الحاجة */}
                   <div className="flex flex-col items-center gap-1.5 border-b border-[#E60000]/15 bg-white px-4 py-4">
                     <VodafoneCashLogo height={38} />
                     <div className="text-[11.5px] text-ink-dim">{t('checkout.vodafoneNote')}</div>
                   </div>
 
-                  {/* الرقم — أكبر حاجة في الصفحة، والكارت كله زرار نسخ */}
                   <button
                     type="button"
                     onClick={() => copy(v.number, 'number')}
@@ -331,7 +410,6 @@ export default function CheckoutPage() {
                     </div>
                   )}
 
-                  {/* المبلغ — لازم يبان جنب الرقم بالظبط */}
                   <button
                     type="button"
                     onClick={() => copy(String(pkg.price), 'amount')}
@@ -364,11 +442,6 @@ export default function CheckoutPage() {
                   {t('payment.bankTitle')}
                 </div>
 
-                {/* التلاتة اللي بيتم التحويل بيهم فعلاً بس — والأول
-                    فيهم الـIBAN، ده الرقم اللي العميل بيحوّل عليه.
-                    الباقي (رقم الحساب الداخلي، SWIFT، العنوان، الاسم
-                    بالعربي) بيلزم في حالات معيّنة بس، وعرضه كله مع
-                    بعض كان بيعمل حيطة أرقام العميل بيتوه فيها. */}
                 <div className="grid grid-cols-2 gap-2.5">
                   <CopyTile label={t('payment.iban')} value={b.iban} wide />
                   <CopyTile label={t('payment.bank')} value={b.bankName} />
@@ -376,12 +449,11 @@ export default function CheckoutPage() {
                 </div>
                 <p className="mt-2.5 text-center text-[11.5px] text-ink-dim">{t('checkout.tapToCopy')}</p>
 
-                {/* الباقي تحت زرار — موجود لما يحتاجه، ومش واقف في وشه */}
                 {(b.accountNumber || b.swift || b.address || b.accountNameAr) && (
                   <>
                     <button
                       type="button"
-                      onClick={() => setMoreBank((v) => !v)}
+                      onClick={() => setMoreBank((x) => !x)}
                       aria-expanded={moreBank}
                       className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-full border border-line py-2 text-[12px] font-bold text-ink-dim transition hover:border-ink/30 hover:text-ink"
                     >
@@ -405,8 +477,6 @@ export default function CheckoutPage() {
                   </>
                 )}
 
-                {/* المبلغ مكرر هنا بالقصد: ده آخر حاجة بيشوفها قبل ما
-                    يفتح تطبيق التحويل */}
                 <div className="mt-3 flex items-center justify-between rounded-xl bg-emerald/[0.07] px-4 py-3">
                   <span className="text-[12.5px] font-bold text-emerald">{t('checkout.amountToSend')}</span>
                   <span className="font-serif text-[18px] font-bold text-emerald">
@@ -418,24 +488,6 @@ export default function CheckoutPage() {
                   <p className="mt-3 text-[12.5px] leading-relaxed text-ink-dim">{b.note}</p>
                 )}
               </>
-            )}
-
-            {/* ===== طرق دفع تانية (الدولار بس) ===== */}
-            {!payLoading && showOtherMethods && (
-              <div className="mt-4 rounded-2xl border border-brass/40 bg-brass/[0.07] p-4">
-                <div className="mb-1 flex items-center gap-2 font-serif text-[15px] font-bold text-ink">
-                  <MessageCircle size={16} className="text-brass" /> {t('checkout.otherTitle')}
-                </div>
-                <p className="mb-3 text-[12.5px] leading-relaxed text-ink-dim">{t('checkout.otherBody')}</p>
-                <a
-                  href={whatsappLink(t('checkout.otherMsg', { name: pkg.name, amount: '$' + pkg.price }))}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-night py-3 text-[13px] font-bold text-ivory transition hover:bg-emerald"
-                >
-                  <MessageCircle size={15} /> {t('checkout.otherCta')}
-                </a>
-              </div>
             )}
           </Step>
 
@@ -462,12 +514,13 @@ export default function CheckoutPage() {
               </div>
             ) : (
               <>
-                <p className="mb-4 text-[13px] leading-relaxed text-ink-dim">{t('checkout.step2Hint')}</p>
+                <p className="mb-3 text-[13px] leading-relaxed text-ink-dim">{t('checkout.step2Hint')}</p>
+                <div className="mb-4">{termsBox}</div>
                 <button
                   type="button"
-                  onClick={() => fileRef.current?.click()}
-                  disabled={uploading}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-night py-3.5 text-[13.5px] font-bold text-ivory transition hover:bg-emerald disabled:opacity-60"
+                  onClick={() => (termsOk ? fileRef.current?.click() : setError(t('checkout.termsError')))}
+                  disabled={uploading || !termsOk}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-night py-3.5 text-[13.5px] font-bold text-ivory transition hover:bg-emerald disabled:opacity-50"
                 >
                   {uploading ? <Loader2 size={15} className="animate-spin" /> : <Upload size={15} />}
                   {uploading ? t('payment.uploading') : t('payment.uploadProof')}
@@ -476,15 +529,18 @@ export default function CheckoutPage() {
               </>
             )}
           </Step>
+          </>
+          )}
 
-          {/* ===== 3) التفعيل ===== */}
-          <Step n="3" title={t('checkout.step3')}>
-            <p className="text-[13px] leading-[1.9] text-ink-dim">{t('checkout.step3Hint')}</p>
-            {/* اللي هيستلمه بعد التفعيل — بيتقري هنا آخر حاجة قبل ما يدفع */}
+          {/* ===== التفعيل — بيبان في الطريقتين ===== */}
+          <Step n={cardMode ? '2' : '3'} title={t('checkout.step3')}>
+            <p className="text-[13px] leading-[1.9] text-ink-dim">
+              {cardMode ? t('checkout.step3HintCard') : t('checkout.step3Hint')}
+            </p>
             <div className="mt-4 grid gap-2.5">
               <div className="flex items-start gap-2.5 rounded-xl bg-ivory/70 px-3.5 py-3">
                 <Clock size={14} className="mt-0.5 shrink-0 text-emerald" />
-                <span className="text-[12.5px] text-ink-dim">{t('checkout.perk1')}</span>
+                <span className="text-[12.5px] text-ink-dim">{cardMode ? t('checkout.perk1Card') : t('checkout.perk1')}</span>
               </div>
               <div className="flex items-start gap-2.5 rounded-xl bg-ivory/70 px-3.5 py-3">
                 <InfinityIcon size={14} className="mt-0.5 shrink-0 text-emerald" />
@@ -497,19 +553,12 @@ export default function CheckoutPage() {
                 </div>
               )}
             </div>
-            <button
-              type="button"
-              onClick={() => navigate('/dashboard')}
-              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full border border-line py-3 text-[13px] font-bold text-ink transition hover:border-ink/35"
-            >
-              {t('checkout.goDashboard')}
-            </button>
           </Step>
         </div>
         </div>
       </div>
 
-      {/* شريط ثابت تحت على الموبايل: المبلغ قدامه دايمًا وهو بيقرا */}
+      {/* شريط ثابت تحت على الموبايل: المبلغ + زرار الفعل حسب الطريقة */}
       <div className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-card/95 px-4 py-3 backdrop-blur sm:hidden">
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
@@ -518,16 +567,28 @@ export default function CheckoutPage() {
               {pkg.price} <span className="text-[12px] font-sans text-ink-dim">{pkg.currencyLabel}</span>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={() => (uploaded ? navigate('/dashboard') : fileRef.current?.click())}
-            disabled={uploading}
-            className="inline-flex shrink-0 items-center gap-2 rounded-full bg-gradient-to-l from-brass to-brass-soft px-5 py-3 text-[13px] font-extrabold text-[#241608] disabled:opacity-60"
-          >
-            {uploading ? <Loader2 size={14} className="animate-spin" />
-              : uploaded ? <Check size={14} /> : <Upload size={14} />}
-            {uploaded ? t('checkout.goDashboard') : t('payment.uploadProof')}
-          </button>
+          {cardMode ? (
+            <button
+              type="button"
+              onClick={payByCard}
+              disabled={paying || !termsOk}
+              className="inline-flex shrink-0 items-center gap-2 rounded-full bg-gradient-to-l from-brass to-brass-soft px-5 py-3 text-[13px] font-extrabold text-[#241608] disabled:opacity-50"
+            >
+              {paying ? <Loader2 size={14} className="animate-spin" /> : <CreditCard size={14} />}
+              {t('checkout.payShort')}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => (uploaded ? navigate('/dashboard') : (termsOk ? fileRef.current?.click() : setError(t('checkout.termsError'))))}
+              disabled={uploading}
+              className="inline-flex shrink-0 items-center gap-2 rounded-full bg-gradient-to-l from-brass to-brass-soft px-5 py-3 text-[13px] font-extrabold text-[#241608] disabled:opacity-60"
+            >
+              {uploading ? <Loader2 size={14} className="animate-spin" />
+                : uploaded ? <Check size={14} /> : <Upload size={14} />}
+              {uploaded ? t('checkout.goDashboard') : t('payment.uploadProof')}
+            </button>
+          )}
         </div>
       </div>
 
