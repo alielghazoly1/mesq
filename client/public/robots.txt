@@ -1,0 +1,17 @@
+# ميثاق — robots.txt
+# نسمح لكل محركات البحث تفهرس الصفحات العامة، ونمنع المسارات الخاصة
+# (لوحة التحكم، الـ API، صفحات الدعوات الخاصة بكل عميل، وصفحات الحساب).
+
+User-agent: *
+Allow: /$
+Allow: /packages
+Allow: /create/
+Disallow: /admin
+Disallow: /api/
+Disallow: /i/
+Disallow: /s/
+Disallow: /editor/
+Disallow: /dashboard
+Disallow: /checkout/
+
+Sitemap: https://mithaq-invitation.com/sitemap.xml
