@@ -780,6 +780,89 @@ router.post('/admin/api/orders/:id/cancel', requireAdminSession, async (req, res
 });
 
 // ==========================================================================
+// الأرباح — الفلوس جت من مين (كل عميل دافع + إجمالي اللي دفعه)
+// ==========================================================================
+router.get('/admin/api/revenue', requireAdminSession, async (req, res) => {
+  try {
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const perPage = 25;
+
+    // كل عميل: مجموع اللي دفعه فعلًا (الطلبات المفعّلة بس)، وعدد طلباته، وآخر دفعة
+    const groupStage = {
+      $group: {
+        _id: '$userId',
+        egp: { $sum: { $cond: [{ $eq: ['$currency', 'EGP'] }, '$price', 0] } },
+        usd: { $sum: { $cond: [{ $eq: ['$currency', 'USD'] }, '$price', 0] } },
+        orders: { $sum: 1 },
+        lastPaidAt: { $max: '$activatedAt' },
+      },
+    };
+
+    const [rows, totalsAgg, grandAgg] = await Promise.all([
+      Order.aggregate([
+        { $match: { status: 'activated' } },
+        groupStage,
+        { $sort: { egp: -1, usd: -1, lastPaidAt: -1 } },
+        { $skip: (page - 1) * perPage },
+        { $limit: perPage },
+      ]),
+      // عدد العملاء الدافعين (للترقيم)
+      Order.aggregate([
+        { $match: { status: 'activated' } },
+        { $group: { _id: '$userId' } },
+        { $count: 'n' },
+      ]),
+      // الإجمالي الكلي
+      Order.aggregate([
+        { $match: { status: 'activated' } },
+        { $group: { _id: '$currency', total: { $sum: '$price' } } },
+      ]),
+    ]);
+
+    const totalPayers = (totalsAgg[0] && totalsAgg[0].n) || 0;
+    const userIds = rows.map((r) => r._id);
+    const users = await User.find({ _id: { $in: userIds } })
+      .select('name email country phone subscription createdAt').lean();
+    const byId = users.reduce((acc, u) => { acc[String(u._id)] = u; return acc; }, {});
+
+    const grand = CURRENCIES.reduce((acc, c) => {
+      const f = grandAgg.find((r) => r._id === c);
+      acc[c] = f ? f.total : 0;
+      return acc;
+    }, {});
+
+    return res.json({
+      page,
+      perPage,
+      totalPayers,
+      pages: Math.max(1, Math.ceil(totalPayers / perPage)),
+      hasMore: page * perPage < totalPayers,
+      grand,
+      customers: rows.map((r) => {
+        const u = byId[String(r._id)] || {};
+        const sub = u.subscription || {};
+        const pkg = sub.packageId ? getPackage(sub.packageId) : null;
+        return {
+          userId: String(r._id),
+          name: u.name || '—',
+          email: u.email || '—',
+          country: u.country || '—',
+          phone: u.phone || '',
+          egp: r.egp || 0,
+          usd: r.usd || 0,
+          orders: r.orders || 0,
+          lastPaidAt: r.lastPaidAt || null,
+          packageName: pkg ? (pkg.name.ar || pkg.name.en) : null,
+        };
+      }),
+    });
+  } catch (err) {
+    console.error('Error building revenue breakdown:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+// ==========================================================================
 // الدعوات
 // ==========================================================================
 router.get('/admin/api/invitations', requireAdminSession, async (req, res) => {

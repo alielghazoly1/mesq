@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 import {
-  Users, Crown, FileText, Eye, MessageSquare, Wallet, Clock, Ban, PauseCircle,
+  Users, Crown, FileText, Eye, MessageSquare, Wallet, Clock, Ban, PauseCircle, ArrowLeft,
 } from 'lucide-react';
 import { useGetOverviewQuery } from '../../store/adminApi.js';
 import { setPeriod } from '../../store/adminSlice.js';
@@ -41,6 +42,15 @@ export default function OverviewPage() {
       </div>
 
       {/* الأرباح */}
+      <div className="flex items-center justify-between">
+        <h2 className="font-serif text-[15px] font-bold text-ivory/80">الأرباح</h2>
+        <Link
+          to="/admin/earnings"
+          className="inline-flex items-center gap-1 text-[12.5px] font-bold text-brass-soft hover:text-brass"
+        >
+          شوف مين دفع <ArrowLeft size={13} />
+        </Link>
+      </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatTile
           icon={Wallet} tone="gold" delay={0}

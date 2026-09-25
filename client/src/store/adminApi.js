@@ -62,6 +62,12 @@ export const adminApi = createApi({
       query: ({ status = 'pending', page = 1 } = {}) => `/orders?status=${status}&page=${page}`,
       providesTags: ['Orders'],
     }),
+    // الأرباح — الفلوس جت من مين (كل عميل دافع). بتتحدّث مع أي تفعيل/إلغاء طلب
+    // (نفس تاج Overview اللي بيتلغّى في الحالتين).
+    getRevenue: builder.query({
+      query: ({ page = 1 } = {}) => `/revenue?page=${page}`,
+      providesTags: ['Overview'],
+    }),
     activateOrder: builder.mutation({
       query: (id) => ({ url: `/orders/${id}/activate`, method: 'POST' }),
       invalidatesTags: ['Orders', 'Users', 'Overview', 'Audit'],
@@ -149,6 +155,7 @@ export const {
   useBlockUserMutation,
   useSetUserPasswordMutation,
   useGetOrdersQuery,
+  useGetRevenueQuery,
   useActivateOrderMutation,
   useCancelOrderMutation,
   useGetInvitationsQuery,
