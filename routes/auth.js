@@ -24,6 +24,9 @@ router.post('/api/auth/register', async (req, res) => {
     const password = String((req.body && req.body.password) || '');
     const name = sanitizeText(req.body && req.body.name, 80);
     const country = String((req.body && req.body.country) || '').trim().toUpperCase();
+    // رقم التليفون اختياري — بنسيب بس الأرقام و + و - و () والمسافات
+    const phone = String((req.body && req.body.phone) || '')
+      .replace(/[^\d+\-() ]/g, '').trim().slice(0, 30);
 
     if (!isValidEmail(email)) {
       return res.status(400).json({ error: 'من فضلك اكتب إيميل صحيح.' });
@@ -46,7 +49,7 @@ router.post('/api/auth/register', async (req, res) => {
     const passwordHash = await hashPassword(password);
     let user;
     try {
-      user = await User.create({ email, passwordHash, name, country });
+      user = await User.create({ email, passwordHash, name, country, phone });
     } catch (err) {
       if (err.code === 11000) {
         return res.status(409).json({ error: 'الإيميل ده مسجل بالفعل، جرب تسجل الدخول.' });

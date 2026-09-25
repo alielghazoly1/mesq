@@ -14,6 +14,10 @@ const userSchema = new mongoose.Schema({
   // (client/src/components/form/CountrySelect.jsx، مكتبة world-countries)
   country: { type: String, required: true, uppercase: true, minlength: 2, maxlength: 2 },
 
+  // رقم تليفون اختياري بيدخله العميل وقت التسجيل — بيظهر في لوحة التحكم
+  // عشان تقدر تتواصل معاه (واتساب). الحسابات القديمة مالهاش الحقل ده (فاضي).
+  phone: { type: String, default: '', maxlength: 30 },
+
   // الاشتراك — بيتفعّل يدويًا من لوحة التحكم بعد ما العميل يدفع
   // (packages/registry.js فيه تعريف الباقات ومميزاتها)
   subscription: {
