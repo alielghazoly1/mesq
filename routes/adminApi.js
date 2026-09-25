@@ -269,7 +269,7 @@ router.get('/admin/api/users', requireAdminSession, async (req, res) => {
         .sort({ createdAt: -1 })
         .skip((page - 1) * perPage)
         .limit(perPage)
-        .select('name email country subscription isBlocked createdAt')
+        .select('name email country phone subscription isBlocked createdAt')
         .lean(),
       User.countDocuments(filter),
     ]);
@@ -302,6 +302,7 @@ router.get('/admin/api/users', requireAdminSession, async (req, res) => {
           name: u.name,
           email: u.email,
           country: u.country,
+          phone: u.phone || '',
           isPremium: !!sub.packageId,
           isSuspended: sub.status === 'suspended',
           isBlocked: !!u.isBlocked,
@@ -364,6 +365,7 @@ router.get('/admin/api/users/:id', requireAdminSession, async (req, res) => {
         name: user.name,
         email: user.email,
         country: user.country,
+        phone: user.phone || '',
         createdAt: user.createdAt,
         isBlocked: !!user.isBlocked,
         blockedAt: user.blockedAt || null,

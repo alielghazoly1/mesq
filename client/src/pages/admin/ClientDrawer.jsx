@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { motion } from 'motion/react';
 import {
   X, Crown, Ban, PauseCircle, PlayCircle, Trash2, Plus, Save,
-  Mail, Globe, Calendar, Eye, FileText, MessageSquare, Wallet, ShieldAlert, Monitor,
+  Mail, Globe, Calendar, Eye, FileText, MessageSquare, Wallet, ShieldAlert, Monitor, MessageCircle,
 } from 'lucide-react';
 import {
   useGetUserQuery, useUpdateSubscriptionMutation, useBlockUserMutation,
@@ -16,6 +16,7 @@ import {
   Panel, StatTile, Badge, Btn, Field, Table, Row, Cell,
   Spinner, Empty, fmtDate, fmtNum, fmtMoney,
 } from '../../components/admin/ui.jsx';
+import { countryName, waLink } from './format.js';
 import ClientPasswordPanel from './ClientPasswordPanel.jsx';
 
 /** تأكيد صريح قبل أي إجراء مش سهل الرجوع فيه */
@@ -97,8 +98,24 @@ export default function ClientDrawer({ userId, onClose }) {
 
               <div className="grid gap-2 text-[12.5px] text-ivory/60 sm:grid-cols-2">
                 <span className="inline-flex items-center gap-1.5"><Mail size={12} /> {data.user.email}</span>
-                <span className="inline-flex items-center gap-1.5"><Globe size={12} /> {data.user.country}</span>
+                <span className="inline-flex items-center gap-1.5"><Globe size={12} /> {countryName(data.user.country)}</span>
+                {data.user.phone ? (
+                  <a
+                    href={waLink(data.user.phone, data.user.country)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-emerald-bright hover:underline"
+                    dir="ltr"
+                  >
+                    <MessageCircle size={12} /> {data.user.phone}
+                  </a>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 text-ivory/35"><MessageCircle size={12} /> مفيش رقم</span>
+                )}
                 <span className="inline-flex items-center gap-1.5"><Calendar size={12} /> سجّل {fmtDate(data.user.createdAt)}</span>
+                {data.user.subscription.activatedAt && (
+                  <span className="inline-flex items-center gap-1.5"><Wallet size={12} /> دفع {fmtDate(data.user.subscription.activatedAt)}</span>
+                )}
                 <span className="inline-flex items-center gap-1.5"><Monitor size={12} /> {data.user.activeSessions} جلسة مفتوحة</span>
               </div>
             </div>

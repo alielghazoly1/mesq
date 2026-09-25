@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { AnimatePresence } from 'motion/react';
-import { Search, Crown, Ban, PauseCircle } from 'lucide-react';
+import { Search, Crown, Ban, PauseCircle, MessageCircle } from 'lucide-react';
 import { useGetUsersQuery } from '../../store/adminApi.js';
 import {
   setUsersQuery, setUsersStatus, setUsersPage, openUser, closeUser,
@@ -8,6 +8,7 @@ import {
 import {
   Panel, Badge, Table, Row, Cell, Spinner, Empty, Tabs, Pager, Field, fmtDate, fmtNum,
 } from '../../components/admin/ui.jsx';
+import { countryName, waLink } from './format.js';
 import ClientDrawer from './ClientDrawer.jsx';
 
 const FILTERS = [
@@ -53,7 +54,7 @@ export default function ClientsPage() {
           <Empty>مفيش عملاء بالفلتر ده.</Empty>
         ) : (
           <>
-            <Table head={['العميل', 'الباقة', 'الرصيد', 'الدعوات', 'الدولة', 'سجّل']}>
+            <Table head={['العميل', 'الباقة', 'الرصيد', 'الدعوات', 'الدولة', 'سجّل', 'دفع']}>
               {data.users.map((u) => (
                 <Row key={u.id} onClick={() => dispatch(openUser(u.id))}>
                   <Cell>
@@ -63,6 +64,18 @@ export default function ClientsPage() {
                       {u.isBlocked && <Badge tone="danger" icon={Ban}>محظور</Badge>}
                     </div>
                     <div className="text-[11px] text-ivory/40">{u.email}</div>
+                    {u.phone && (
+                      <a
+                        href={waLink(u.phone, u.country)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="mt-0.5 inline-flex items-center gap-1 text-[11px] text-emerald-bright hover:underline"
+                        dir="ltr"
+                      >
+                        <MessageCircle size={11} /> {u.phone}
+                      </a>
+                    )}
                   </Cell>
                   <Cell>
                     {u.isPremium
@@ -81,8 +94,11 @@ export default function ClientsPage() {
                     {fmtNum(u.invitations)}
                     {u.drafts > 0 && <span className="text-ivory/35"> +{u.drafts} مسودة</span>}
                   </Cell>
-                  <Cell className="text-ivory/55">{u.country}</Cell>
+                  <Cell className="text-ivory/55">{countryName(u.country)}</Cell>
                   <Cell className="whitespace-nowrap text-ivory/45">{fmtDate(u.createdAt)}</Cell>
+                  <Cell className="whitespace-nowrap text-ivory/45">
+                    {u.activatedAt ? fmtDate(u.activatedAt) : '—'}
+                  </Cell>
                 </Row>
               ))}
             </Table>
