@@ -2489,31 +2489,53 @@ export default function EditorPage() {
           <motion.div
             layout
             transition={{ type: 'spring', stiffness: 220, damping: 26 }}
-            className={`w-full overflow-hidden border border-line bg-card shadow-[0_18px_50px_-20px_rgba(0,0,0,.35)] ${
-              compact ? 'rounded-[18px]' : 'rounded-[26px]'
-            }`}
+            // في وضع الموبايل (وإحنا بنعدّل على شاشة كبيرة) بنلفّ الدعوة في
+            // موك-أب موبايل حقيقي: حافة سودا معدنية، زوايا دائرية جدًا، وجزيرة
+            // ديناميكية فوق. على الشاشة الكبيرة (monitor) أو لما المحرر نفسه على
+            // موبايل (compact) بنسيبها إطار بسيط — الجهاز نفسه بقى هو الفريم.
+            className={
+              !compact && device === 'mobile'
+                ? 'relative mx-auto overflow-hidden rounded-[48px] bg-gradient-to-b from-[#3a3a42] via-[#141418] to-[#050506] p-[12px] shadow-[0_50px_100px_-38px_rgba(0,0,0,.8)]'
+                : `w-full overflow-hidden border border-line bg-card shadow-[0_18px_50px_-20px_rgba(0,0,0,.35)] ${
+                  compact ? 'rounded-[18px]' : 'rounded-[26px]'
+                }`
+            }
             // على الموبايل الشاشة نفسها هي المقاس — أي عرض ثابت هنا كان
             // بيخلي الصفحة أعرض من الجهاز، فالمتصفح يصغّر كل حاجة ويطلع
             // شريط تمرير أفقي. `min()` بتمنع ده نهائيًا.
-            style={{
-              width: compact ? '100%' : (device === 'mobile' ? 'min(390px, 100%)' : '100%'),
-              maxWidth: '100%',
-              height: '100%',
-              minHeight: compact ? 420 : 560,
-            }}
+            style={
+              !compact && device === 'mobile'
+                ? { width: 'min(384px, 100%)', maxWidth: '100%', height: '100%', minHeight: 620 }
+                : {
+                  width: compact ? '100%' : (device === 'mobile' ? 'min(390px, 100%)' : '100%'),
+                  maxWidth: '100%',
+                  height: '100%',
+                  minHeight: compact ? 420 : 560,
+                }
+            }
           >
-            <iframe
-              // الـ key بيجبر المتصفح يبني الإطار من الأول — وده اللي
-              // بيخلي "إعادة التشغيل" تعيد الأنميشن والموسيقى فعلاً بدل
-              // ما تسيب الصفحة زي ما هي
-              key={`${playing ? 'play' : 'edit'}-${frameKey}`}
-              ref={iframeRef}
-              title={t('editor.title')}
-              // في وضع التشغيل بنحمّل نفس لينك الضيف بالظبط — من غير
-              // ?edit=1 فمفيش سكريبت تحرير أصلاً بيتحقن
-              src={playing ? `/i/${shortId}` : `/i/${shortId}?edit=1`}
-              className="h-full w-full border-0"
-            />
+            {!compact && device === 'mobile' && (
+              <>
+                {/* حافة الشاشة الداخلية اللامعة */}
+                <span className="pointer-events-none absolute inset-[12px] z-10 rounded-[38px] ring-1 ring-white/[0.08]" />
+                {/* الجزيرة الديناميكية فوق (زي الموبايلات الحديثة) */}
+                <span className="pointer-events-none absolute left-1/2 top-[22px] z-20 h-[24px] w-[88px] -translate-x-1/2 rounded-full bg-black shadow-[inset_0_0_0_1px_rgba(255,255,255,.06)]" />
+              </>
+            )}
+            <div className={!compact && device === 'mobile' ? 'h-full w-full overflow-hidden rounded-[38px] bg-card' : 'h-full w-full'}>
+              <iframe
+                // الـ key بيجبر المتصفح يبني الإطار من الأول — وده اللي
+                // بيخلي "إعادة التشغيل" تعيد الأنميشن والموسيقى فعلاً بدل
+                // ما تسيب الصفحة زي ما هي
+                key={`${playing ? 'play' : 'edit'}-${frameKey}`}
+                ref={iframeRef}
+                title={t('editor.title')}
+                // في وضع التشغيل بنحمّل نفس لينك الضيف بالظبط — من غير
+                // ?edit=1 فمفيش سكريبت تحرير أصلاً بيتحقن
+                src={playing ? `/i/${shortId}` : `/i/${shortId}?edit=1`}
+                className="h-full w-full border-0"
+              />
+            </div>
           </motion.div>
         </main>
       </div>

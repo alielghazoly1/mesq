@@ -10,6 +10,13 @@
 // متوسّط أصلًا) بدل ما ينزل لتحت ويتداخل.
 
 const TEMPLATE_FIX_SCRIPT = `
+<style>
+  /* شكل نظيف زي الموبايل الحقيقي — بنخفي شريط التمرير (الصفحة بتفضل بتتمرّر
+     عادي باللمس أو العجلة، بس من غير الشريط اللي كان بيبان على الجنب وشكله وحش،
+     خصوصًا جوه فريم المعاينة في المحرر). */
+  html { scrollbar-width: none; -ms-overflow-style: none; }
+  html::-webkit-scrollbar, body::-webkit-scrollbar { width: 0; height: 0; display: none; }
+</style>
 <script>
 (function () {
   // أي عنصر نصه بيبدأ بوقت (5:00 ...) هو خانة وقت في جدول البرنامج
