@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+# صفحات خاصة/إدارية مش محتاجة تتفهرس
+Disallow: /admin
+Disallow: /api/
+Disallow: /dashboard
+Disallow: /editor
+# دعوات العملاء وصفحات الإحصائيات روابط خاصة — مش بتتفهرس (خصوصية)
+Disallow: /i/
+Disallow: /s/
+
+Sitemap: https://mithaq-invitation.com/sitemap.xml
