@@ -138,6 +138,16 @@ router.post('/api/uploads/payment-proof', requireAuth, upload.single('file'), as
     order.paymentProofAt = new Date();
     await order.save();
 
+    // دقة الفلوس: العميل ممكن يكون قدّم على أكتر من باقة قبل ما يدفع (مثلاً
+    // 340 وبعدين 150). اللي رفع له إيصال دلوقتي هو اللي عايز يدفع فيه فعلًا،
+    // فبنلغي باقي طلباته المستنية **اللي مرفعش لها إيصال** (المهجورة) عشان
+    // مايظهرش للأدمن غير الطلب الصح — وماتحصلش لخبطة في المبلغ اللي هيتفعّل.
+    // آمن تمامًا: بننقل طلبات مستنية لـ"ملغية" بس، من غير أي مساس بالرصيد أو الفلوس.
+    await Order.updateMany(
+      { userId: req.user.id, status: 'pending', _id: { $ne: order._id }, paymentProofUrl: null },
+      { $set: { status: 'cancelled' } }
+    );
+
     return res.status(201).json({ ok: true, url: result.secure_url });
   } catch (err) {
     console.error('Payment proof upload failed:', err);
