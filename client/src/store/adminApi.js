@@ -59,7 +59,7 @@ export const adminApi = createApi({
 
     // ===== الطلبات =====
     getOrders: builder.query({
-      query: (status = 'pending') => `/orders?status=${status}`,
+      query: ({ status = 'pending', page = 1 } = {}) => `/orders?status=${status}&page=${page}`,
       providesTags: ['Orders'],
     }),
     activateOrder: builder.mutation({

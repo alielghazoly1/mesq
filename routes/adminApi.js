@@ -624,14 +624,28 @@ router.patch('/admin/api/users/:id/password', requireAdminSession, async (req, r
 router.get('/admin/api/orders', requireAdminSession, async (req, res) => {
   try {
     const status = String(req.query.status || 'pending');
-    const filter = ['pending', 'activated', 'cancelled'].includes(status) ? { status } : {};
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const perPage = 25;
 
-    const orders = await Order.find(filter).sort({ createdAt: -1 }).limit(100).lean();
+    // الفلاتر: مستني تفعيل / مفعّل / ملغي / رفعوا إيصال / الكل
+    let filter = {};
+    if (['pending', 'activated', 'cancelled'].includes(status)) filter = { status };
+    else if (status === 'receipt') filter = { paymentProofUrl: { $ne: null } };
+
+    const [orders, total] = await Promise.all([
+      Order.find(filter).sort({ createdAt: -1 }).skip((page - 1) * perPage).limit(perPage).lean(),
+      Order.countDocuments(filter),
+    ]);
     const userIds = [...new Set(orders.map((o) => String(o.userId)))];
-    const users = await User.find({ _id: { $in: userIds } }).select('name email country').lean();
+    const users = await User.find({ _id: { $in: userIds } }).select('name email country phone').lean();
     const byId = users.reduce((acc, u) => { acc[String(u._id)] = u; return acc; }, {});
 
     return res.json({
+      page,
+      perPage,
+      total,
+      pages: Math.max(1, Math.ceil(total / perPage)),
+      hasMore: page * perPage < total,
       orders: orders.map((o) => {
         const u = byId[String(o.userId)] || {};
         const pkg = getPackage(o.packageId);
@@ -648,7 +662,10 @@ router.get('/admin/api/orders', requireAdminSession, async (req, res) => {
           activatedAt: o.activatedAt || null,
           paymentProofUrl: o.paymentProofUrl || null,
           paymentProofAt: o.paymentProofAt || null,
-          user: { name: u.name || '—', email: u.email || '—', country: u.country || '—' },
+          user: {
+            name: u.name || '—', email: u.email || '—',
+            country: u.country || '—', phone: u.phone || '',
+          },
         };
       }),
     });
