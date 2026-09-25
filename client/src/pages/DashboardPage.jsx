@@ -5,12 +5,15 @@ import { motion } from 'motion/react';
 import {
   ArrowRight, Eye, Users, Crown, Sparkles, MessageCircle,
   Send, ExternalLink, BarChart3, Check, X as XIcon, Lock, Wand2, FileText,
+  Pencil, Share2,
 } from 'lucide-react';
 import {
   useGetDashboardQuery,
   useGetRsvpsQuery,
   useGetSupportQuery,
   useSendSupportMessageMutation,
+  useRenameInvitationMutation,
+  useGetStatsLinkMutation,
 } from '../store/api.js';
 import EditorDemo from '../components/EditorDemo.jsx';
 import Footer from '../components/Footer.jsx';
@@ -62,6 +65,128 @@ function RsvpList({ shortId, onClose }) {
   );
 }
 
+// كارت دعوة واحدة في اللوحة: اسمها (اللي حطه صاحبها) مع إمكانية تغييره،
+// إحصائياتها السريعة، وزراير التعديل/الردود/الفتح + مشاركة رابط الإحصائيات.
+function InvitationCard({ inv, lang, editEnded, openRsvp, setOpenRsvp }) {
+  const { t } = useTranslation();
+  const [renaming, setRenaming] = useState(false);
+  const [nameDraft, setNameDraft] = useState(inv.name || '');
+  const [copied, setCopied] = useState(false);
+  const [linkErr, setLinkErr] = useState(false);
+  const [renameInvitation, { isLoading: saving }] = useRenameInvitationMutation();
+  const [getStatsLink, { isLoading: linking }] = useGetStatsLinkMutation();
+
+  const coupleNames = inv.names[lang] || inv.names.ar;
+  const title = (inv.name && inv.name.trim()) || coupleNames || t('dash.untitled');
+  const showSub = !!(inv.name && inv.name.trim() && coupleNames && coupleNames !== '&');
+
+  async function saveName() {
+    try {
+      await renameInvitation({ shortId: inv.shortId, name: nameDraft.trim() }).unwrap();
+      setRenaming(false);
+    } catch { /* بيفضل مفتوح عشان يجرّب تاني */ }
+  }
+
+  async function shareStats() {
+    setLinkErr(false);
+    try {
+      let path = inv.statsPath;
+      if (!path) { const r = await getStatsLink(inv.shortId).unwrap(); path = r.statsPath; }
+      await navigator.clipboard.writeText(window.location.origin + path);
+      setCopied(true); setTimeout(() => setCopied(false), 2500);
+    } catch { setLinkErr(true); setTimeout(() => setLinkErr(false), 3000); }
+  }
+
+  return (
+    <div className="rounded-xl border border-line p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="min-w-0">
+          {renaming ? (
+            <div className="flex items-center gap-2">
+              <input
+                autoFocus
+                value={nameDraft}
+                maxLength={80}
+                onChange={(e) => setNameDraft(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') saveName(); if (e.key === 'Escape') setRenaming(false); }}
+                placeholder={t('dash.renamePlaceholder')}
+                className="w-44 rounded-lg border border-line bg-card px-2.5 py-1.5 text-[14px] focus:border-brass focus:outline-none"
+              />
+              <button type="button" onClick={saveName} disabled={saving}
+                className="rounded-full bg-night px-3 py-1.5 text-[12px] font-bold text-ivory hover:bg-emerald disabled:opacity-60">
+                {t('dash.saveName')}
+              </button>
+              <button type="button" onClick={() => { setRenaming(false); setNameDraft(inv.name || ''); }}
+                className="text-[12px] text-ink-dim hover:text-ink">{t('dash.cancel')}</button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <span className="truncate font-bold text-ink">{title}</span>
+              <button type="button" onClick={() => { setNameDraft(inv.name || ''); setRenaming(true); }}
+                title={t('dash.rename')} aria-label={t('dash.rename')}
+                className="shrink-0 text-ink-dim hover:text-brass">
+                <Pencil size={13} />
+              </button>
+              {inv.isDraft && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-ink/10 px-2 py-0.5 text-[10.5px] font-bold text-ink-dim">
+                  <FileText size={10} /> {t('dash.draftBadge')}
+                </span>
+              )}
+              {inv.isPremium && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-brass/15 px-2 py-0.5 text-[10.5px] font-bold text-brass">
+                  <Crown size={10} /> {t('dash.premiumBadge')}
+                </span>
+              )}
+            </div>
+          )}
+          {showSub && !renaming && (
+            <div className="mt-0.5 truncate text-[12px] text-ink-dim">{coupleNames}</div>
+          )}
+          <div className="mt-1 flex flex-wrap gap-3 text-[12.5px] text-ink-dim">
+            <span className="inline-flex items-center gap-1"><Eye size={12} /> {inv.views}</span>
+            <span className="inline-flex items-center gap-1 text-ok"><Check size={12} /> {inv.rsvp.yes}</span>
+            <span className="inline-flex items-center gap-1 text-error"><XIcon size={12} /> {inv.rsvp.no}</span>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {inv.isPremium && (editEnded ? (
+            <span title={t('dash.editEndedTitle')}
+              className="inline-flex items-center gap-1 rounded-full border border-line px-3.5 py-2 text-[12.5px] font-bold text-ink-dim">
+              <Lock size={12} /> {t('dash.editLocked')}
+            </span>
+          ) : (
+            <Link to={`/editor/${inv.shortId}`}
+              className="inline-flex items-center gap-1 rounded-full bg-gradient-to-l from-brass to-brass-soft px-3.5 py-2 text-[12.5px] font-extrabold text-[#241608] hover:brightness-105">
+              <Wand2 size={12} /> {inv.isDraft ? t('dash.continueDraft') : t('dash.edit')}
+            </Link>
+          ))}
+          {!inv.isDraft && (
+            <>
+              <button type="button"
+                onClick={() => setOpenRsvp(openRsvp === inv.shortId ? null : inv.shortId)}
+                className="rounded-full border border-line px-3.5 py-2 text-[12.5px] font-bold text-ink hover:bg-ink/5">
+                {t('dash.viewRsvps')}
+              </button>
+              <button type="button" onClick={shareStats} disabled={linking}
+                className="inline-flex items-center gap-1 rounded-full border border-brass/40 bg-brass/[0.07] px-3.5 py-2 text-[12.5px] font-bold text-brass hover:bg-brass/15 disabled:opacity-60">
+                <Share2 size={12} /> {copied ? t('dash.statsCopied') : linkErr ? t('dash.statsError') : t('dash.shareStats')}
+              </button>
+              <a href={inv.url} target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 rounded-full bg-night px-3.5 py-2 text-[12.5px] font-bold text-ivory hover:bg-emerald">
+                <ExternalLink size={12} /> {t('dash.open')}
+              </a>
+            </>
+          )}
+        </div>
+      </div>
+
+      {openRsvp === inv.shortId && (
+        <RsvpList shortId={inv.shortId} onClose={() => setOpenRsvp(null)} />
+      )}
+    </div>
+  );
+}
 function SupportBox() {
   const { t } = useTranslation();
   const { data } = useGetSupportQuery();
@@ -264,81 +389,14 @@ export default function DashboardPage() {
             ) : (
               <div className="space-y-3">
                 {data.invitations.map((inv) => (
-                  <div key={inv.shortId} className="rounded-xl border border-line p-4">
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-ink">{inv.names[lang] || inv.names.ar}</span>
-                          {inv.isDraft && (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-ink/10 px-2 py-0.5 text-[10.5px] font-bold text-ink-dim">
-                              <FileText size={10} /> {t('dash.draftBadge')}
-                            </span>
-                          )}
-                          {inv.isPremium && (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-brass/15 px-2 py-0.5 text-[10.5px] font-bold text-brass">
-                              <Crown size={10} /> {t('dash.premiumBadge')}
-                            </span>
-                          )}
-                        </div>
-                        <div className="mt-1 flex flex-wrap gap-3 text-[12.5px] text-ink-dim">
-                          <span className="inline-flex items-center gap-1">
-                            <Eye size={12} /> {inv.views}
-                          </span>
-                          <span className="inline-flex items-center gap-1 text-ok">
-                            <Check size={12} /> {inv.rsvp.yes}
-                          </span>
-                          <span className="inline-flex items-center gap-1 text-error">
-                            <XIcon size={12} /> {inv.rsvp.no}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="flex gap-2">
-                        {/* المحرر للدعوات المميزة بس — نفس الشرط المطبّق
-                            على السيرفر في routes/editor.js */}
-                        {inv.isPremium && (editEnded ? (
-                          <span
-                            title={t('dash.editEndedTitle')}
-                            className="inline-flex items-center gap-1 rounded-full border border-line px-3.5 py-2 text-[12.5px] font-bold text-ink-dim"
-                          >
-                            <Lock size={12} /> {t('dash.editLocked')}
-                          </span>
-                        ) : (
-                          <Link
-                            to={`/editor/${inv.shortId}`}
-                            className="inline-flex items-center gap-1 rounded-full bg-gradient-to-l from-brass to-brass-soft px-3.5 py-2 text-[12.5px] font-extrabold text-[#241608] hover:brightness-105"
-                          >
-                            <Wand2 size={12} /> {inv.isDraft ? t('dash.continueDraft') : t('dash.edit')}
-                          </Link>
-                        ))}
-                        {/* المسودة لسه مالهاش ضيوف ولا لينك يتشارك، فمفيش
-                            لازمة لزراير الردود والفتح عليها */}
-                        {!inv.isDraft && (
-                          <>
-                            <button
-                              type="button"
-                              onClick={() => setOpenRsvp(openRsvp === inv.shortId ? null : inv.shortId)}
-                              className="rounded-full border border-line px-3.5 py-2 text-[12.5px] font-bold text-ink hover:bg-ink/5"
-                            >
-                              {t('dash.viewRsvps')}
-                            </button>
-                            <a
-                              href={inv.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 rounded-full bg-night px-3.5 py-2 text-[12.5px] font-bold text-ivory hover:bg-emerald"
-                            >
-                              <ExternalLink size={12} /> {t('dash.open')}
-                            </a>
-                          </>
-                        )}
-                      </div>
-                    </div>
-
-                    {openRsvp === inv.shortId && (
-                      <RsvpList shortId={inv.shortId} onClose={() => setOpenRsvp(null)} />
-                    )}
-                  </div>
+                  <InvitationCard
+                    key={inv.shortId}
+                    inv={inv}
+                    lang={lang}
+                    editEnded={editEnded}
+                    openRsvp={openRsvp}
+                    setOpenRsvp={setOpenRsvp}
+                  />
                 ))}
               </div>
             )}

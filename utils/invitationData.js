@@ -125,6 +125,9 @@ async function buildInvitationDataFromRequest(body, { skipMapNetwork, user, owns
   const groomNameAr = sanitizeText(body.groomNameAr, 60);
   const venueName = sanitizeText(body.venueName, 100);
   const venueCity = sanitizeText(body.venueCity, 100);
+  // اسم الدعوة اختياري تمامًا — بيميّز الدعوة في لوحة صاحبها بس، ومالوش
+  // أي علاقة بمحتوى الدعوة. لو فاضي بيتخزّن فاضي عادي.
+  const name = sanitizeText(body.name, 80);
   // بنقبل هنا أي حاجة: لينك جوجل مابس كامل، لينك مصغّر، أو مجرد نص عنوان —
   // ورابط التضمين النهائي بيتحسب بعدين بمعالجة ذكية (utils/mapsLink.js)
   const venueMapQueryRaw = String(body.venueMapQuery || '').trim().slice(0, 300);
@@ -149,6 +152,7 @@ async function buildInvitationDataFromRequest(body, { skipMapNetwork, user, owns
 
   return {
     templateId: template.id, language, occasionType, hiddenSections, timeline,
+    name,
     brideName, groomName, brideNameAr, groomNameAr,
     venueName, venueCity,
     venueMapQuery: venueMapQueryRaw || `${venueName}, ${venueCity}`,

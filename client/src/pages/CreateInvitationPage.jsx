@@ -63,6 +63,7 @@ function buildPayload(values, template, { withPlaceholders }) {
 
   const payload = {
     templateId: template.id,
+    name: (values.name || '').trim(),
     occasionType: values.occasionType,
     language: values.language,
     groomName: pick('groomName'),
@@ -271,6 +272,17 @@ export default function CreateInvitationPage() {
           <QuotaExhausted hours={quotaHours} />
         ) : (
           <form onSubmit={handleSubmit(onSubmit)} noValidate>
+            <fieldset className="mb-7 border-0 p-0">
+              <legend className="mb-2 text-xs font-bold uppercase tracking-[0.15em] text-emerald">{t('create.inviteName')}</legend>
+              <input
+                placeholder={t('create.inviteNamePlaceholder')}
+                maxLength={80}
+                className="w-full border-0 border-b border-line bg-transparent px-0.5 py-2.5 text-base focus:border-rose focus:outline-none"
+                {...register('name')}
+              />
+              <p className="mt-2 text-[12px] leading-[1.7] text-ink-dim">{t('create.inviteNameHint')}</p>
+            </fieldset>
+
             <fieldset className="mb-7 border-0 p-0">
               <legend className="mb-3.5 text-xs font-bold uppercase tracking-[0.15em] text-emerald">{t('create.occasion')}</legend>
               <ChoiceCards

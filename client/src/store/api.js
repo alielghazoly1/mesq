@@ -78,6 +78,21 @@ export const api = createApi({
     getRsvps: builder.query({
       query: (shortId) => `/dashboard/rsvps/${shortId}`,
     }),
+    // تغيير اسم الدعوة (بيميّزها في اللوحة). بيعمل invalidate لـ Dashboard
+    // عشان الاسم الجديد يبان على طول.
+    renameInvitation: builder.mutation({
+      query: ({ shortId, name }) => ({
+        url: `/dashboard/invitations/${shortId}/name`, method: 'PATCH', body: { name },
+      }),
+      invalidatesTags: ['Dashboard'],
+    }),
+    // بيرجّع رابط صفحة الإحصائيات السري (وبيولّده أول مرة للدعوات القديمة).
+    getStatsLink: builder.mutation({
+      query: (shortId) => ({
+        url: `/dashboard/invitations/${shortId}/stats-link`, method: 'POST',
+      }),
+      invalidatesTags: ['Dashboard'],
+    }),
     getSupport: builder.query({
       query: () => '/dashboard/support',
       providesTags: ['Support'],
@@ -163,6 +178,8 @@ export const {
   useGetPaymentInfoQuery,
   useGetDashboardQuery,
   useGetRsvpsQuery,
+  useRenameInvitationMutation,
+  useGetStatsLinkMutation,
   useGetSupportQuery,
   useSendSupportMessageMutation,
   useUploadPaymentProofMutation,

@@ -8,6 +8,7 @@ const Rsvp = require('../models/Rsvp');
 const SupportMessage = require('../models/SupportMessage');
 const { requireAuth } = require('../middleware/auth');
 const { sanitizeText } = require('../utils/sanitize');
+const { ensureStatsToken } = require('../utils/statsPage');
 const { getPackage, EDIT_WINDOW_DAYS } = require('../packages/registry');
 const { editWindowInfo } = require('../utils/editWindow');
 
@@ -19,7 +20,7 @@ router.get('/api/dashboard', requireAuth, async (req, res) => {
     const invitations = await Invitation.find({ ownerId: req.user.id })
       .sort({ createdAt: -1 })
       .limit(100)
-      .select('shortId templateId brideNameAr groomNameAr brideName groomName weddingDateTime viewCount isPremium status createdAt')
+      .select('shortId templateId name statsToken brideNameAr groomNameAr brideName groomName weddingDateTime viewCount isPremium status createdAt')
       .lean();
 
     const shortIds = invitations.map((i) => i.shortId);
@@ -75,6 +76,10 @@ router.get('/api/dashboard', requireAuth, async (req, res) => {
       invitations: invitations.map((inv) => ({
         shortId: inv.shortId,
         templateId: inv.templateId,
+        // اسم الدعوة اللي حطه صاحبها (فاضي في الدعوات القديمة)
+        name: inv.name || '',
+        // رابط صفحة الإحصائيات السري لو اتولّد قبل كده (null لو لسه)
+        statsPath: inv.statsToken ? `/s/${inv.statsToken}` : null,
         names: {
           ar: `${inv.brideNameAr || ''} & ${inv.groomNameAr || ''}`.trim(),
           en: `${inv.brideName || ''} & ${inv.groomName || ''}`.trim(),
@@ -112,6 +117,38 @@ router.get('/api/dashboard/rsvps/:shortId', requireAuth, async (req, res) => {
     return res.json({ rsvps });
   } catch (err) {
     console.error('Error loading rsvps:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر.' });
+  }
+});
+
+// PATCH /api/dashboard/invitations/:shortId/name — تغيير اسم الدعوة (بيميّزها
+// في اللوحة بس). بيشتغل على أي دعوة يملكها العميل، قديمة أو جديدة.
+router.patch('/api/dashboard/invitations/:shortId/name', requireAuth, async (req, res) => {
+  try {
+    const name = sanitizeText((req.body || {}).name, 80);
+    const result = await Invitation.updateOne(
+      { shortId: req.params.shortId, ownerId: req.user.id },
+      { $set: { name } }
+    );
+    if (!result.matchedCount) return res.status(404).json({ error: 'الدعوة دي مش موجودة.' });
+    return res.json({ name });
+  } catch (err) {
+    console.error('Error renaming invitation:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر.' });
+  }
+});
+
+// POST /api/dashboard/invitations/:shortId/stats-link — بيرجّع رابط صفحة
+// الإحصائيات السري للدعوة، وبيولّد التوكن أول مرة لو الدعوة قديمة ومالهاش
+// واحد. بيتأكد إن الدعوة بتاعت العميل قبل ما يديله أي رابط.
+router.post('/api/dashboard/invitations/:shortId/stats-link', requireAuth, async (req, res) => {
+  try {
+    const invitation = await Invitation.findOne({ shortId: req.params.shortId, ownerId: req.user.id });
+    if (!invitation) return res.status(404).json({ error: 'الدعوة دي مش موجودة.' });
+    const token = await ensureStatsToken(invitation);
+    return res.json({ statsPath: `/s/${token}` });
+  } catch (err) {
+    console.error('Error creating stats link:', err);
     return res.status(500).json({ error: 'حصل خطأ في السيرفر.' });
   }
 });
