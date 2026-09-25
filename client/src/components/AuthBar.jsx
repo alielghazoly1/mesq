@@ -13,7 +13,7 @@ import {
   LogOut, Languages, Menu, X, LayoutDashboard, Crown,
   LayoutTemplate, MessageCircle, UserPlus, LogIn,
 } from 'lucide-react';
-import { useGetMeQuery, useLogoutMutation } from '../store/api.js';
+import { api, useGetMeQuery, useLogoutMutation } from '../store/api.js';
 import { openAuthModal } from '../store/uiSlice.js';
 import { setLanguage } from '../i18n/index.js';
 import { readAuthHint, writeAuthHint } from '../lib/authHint.js';
@@ -59,6 +59,9 @@ export default function AuthBar() {
     writeAuthHint(null);
     setMenuOpen(false);
     await logout();
+    // بنمسح كل كاش الـ API عشان مايفضلش أي بيانات من الحساب القديم (دعواته،
+    // اشتراكه، ردوده) لما ندخل بحساب تاني — كل حساب بيبدأ من الأول نضيف.
+    dispatch(api.util.resetApiState());
   }
 
   const firstName = String(user?.name || '').trim().split(/\s+/)[0] || '';
