@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
-import { Lock, Sparkles, Wand2, Loader2 } from 'lucide-react';
+import { Sparkles, Wand2, Loader2, Eye, Crown } from 'lucide-react';
 import { useGetMeQuery, useCreateDraftMutation } from '../store/api.js';
 import { isEditOpen } from '../lib/editWindow.js';
 
@@ -89,55 +89,43 @@ export default function TemplateCard({ template, index }) {
         </h3>
         <p className="flex-1 text-[13.5px] text-ink-dim">{template.description}</p>
 
-        <div className="flex gap-2.5">
+        <div className="flex gap-2">
+          {/* المعاينة مفتوحة زي أي تصميم — العميل لازم يشوف اللي هيدفع فيه.
+              المقفول هو الاستخدام بس. زراير مدمجة وأنيقة بأيقونات. */}
+          <a
+            href={`/preview-sample/${template.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-line px-3.5 py-2.5 text-[12.5px] font-bold leading-tight text-ink-dim transition hover:border-brass/50 hover:text-ink"
+          >
+            <Eye size={14} className="shrink-0" /> {t(locked ? 'gallery.lockedPreview' : 'gallery.preview')}
+          </a>
           {locked ? (
-            <>
-              {/* المعاينة مفتوحة زي أي تصميم — العميل لازم يشوف اللي
-                  هيدفع فيه. المقفول هو الاستخدام بس. */}
-              <a
-                href={`/preview-sample/${template.id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 rounded-full border border-ink px-4 py-3 text-center text-sm font-bold text-ink hover:bg-ink/5"
-              >
-                {t('gallery.lockedPreview')}
-              </a>
-              <button
-                type="button"
-                onClick={() => navigate('/packages')}
-                className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-gradient-to-l from-brass to-brass-soft px-4 py-3 text-sm font-extrabold text-[#241608] hover:brightness-105"
-              >
-                <Lock size={14} /> {t('gallery.lockedUse')}
-              </button>
-            </>
+            <button
+              type="button"
+              onClick={() => navigate('/packages')}
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-gradient-to-l from-brass to-brass-soft px-3.5 py-2.5 text-[12.5px] font-bold leading-tight text-[#3a2708] shadow-[0_4px_14px_-7px_rgba(184,137,43,.9)] transition hover:brightness-[1.04]"
+            >
+              <Crown size={14} className="shrink-0" /> {t('gallery.lockedUse')}
+            </button>
           ) : (
-            <>
-              <a
-                href={`/preview-sample/${template.id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 rounded-full border border-ink px-4 py-3 text-center text-sm font-bold text-ink hover:bg-ink/5"
-              >
-                {t('gallery.preview')}
-              </a>
-              <button
-                type="button"
-                onClick={useTemplate}
-                disabled={startingEditor}
-                className={`flex flex-1 items-center justify-center gap-1.5 rounded-full px-4 py-3 text-sm font-bold disabled:opacity-60 ${
-                  subscribed
-                    ? 'bg-gradient-to-l from-brass to-brass-soft text-[#241608] hover:brightness-105'
-                    : 'bg-night text-ivory hover:bg-emerald'
-                }`}
-              >
-                {startingEditor ? (
-                  <Loader2 size={14} className="animate-spin" />
-                ) : subscribed ? (
-                  <Wand2 size={14} />
-                ) : null}
-                {subscribed ? t('gallery.useWithEditor') : t('gallery.use')}
-              </button>
-            </>
+            <button
+              type="button"
+              onClick={useTemplate}
+              disabled={startingEditor}
+              className={`flex flex-1 items-center justify-center gap-1.5 rounded-full px-3.5 py-2.5 text-[12.5px] font-bold leading-tight transition disabled:opacity-60 ${
+                subscribed
+                  ? 'bg-gradient-to-l from-brass to-brass-soft text-[#3a2708] shadow-[0_4px_14px_-7px_rgba(184,137,43,.9)] hover:brightness-[1.04]'
+                  : 'bg-night text-ivory hover:bg-emerald'
+              }`}
+            >
+              {startingEditor ? (
+                <Loader2 size={14} className="shrink-0 animate-spin" />
+              ) : subscribed ? (
+                <Wand2 size={14} className="shrink-0" />
+              ) : null}
+              {subscribed ? t('gallery.useWithEditor') : t('gallery.use')}
+            </button>
           )}
         </div>
 
