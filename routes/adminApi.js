@@ -800,6 +800,14 @@ router.post('/admin/api/users/:id/ugc', requireAdminSession, async (req, res) =>
     const action = String((req.body || {}).action || '');
     const before = { isUgc: !!user.isUgc, commissionRate: user.commissionRate || 0 };
 
+    // مهم: بنستخدم updateOne مش user.save() — عشان save() بيعمل تحقق (validation)
+    // على المستند كله، فأي حساب قديم فيه حقل مايوافقش السكيمة الحالية (مثلاً
+    // دولة فاضية من قبل ما تبقى إجبارية) كان بيرمي خطأ. updateOne بيغيّر
+    // الحقول المطلوبة بس من غير ما يلمس أو يتحقق من باقي المستند.
+    let { isUgc, commissionRate, referralCode } = {
+      isUgc: !!user.isUgc, commissionRate: user.commissionRate || 0, referralCode: user.referralCode || null,
+    };
+
     if (action === 'enable' || action === 'setRate') {
       const rate = Number((req.body || {}).commissionRate);
       if (!Number.isFinite(rate) || rate < 0 || rate > 100) {
@@ -808,39 +816,40 @@ router.post('/admin/api/users/:id/ugc', requireAdminSession, async (req, res) =>
       if (action === 'setRate' && !user.isUgc) {
         return res.status(400).json({ error: 'الحساب ده مش UGC أصلًا.' });
       }
-      user.commissionRate = rate;
-      if (action === 'enable') {
-        user.isUgc = true;
-        if (!user.referralCode) {
-          let saved = false;
-          for (let i = 0; i < 5 && !saved; i += 1) {
-            user.referralCode = generateReferralCode();
-            try { await user.save(); saved = true; }
-            catch (e) { if (e && e.code === 11000) { user.referralCode = undefined; continue; } throw e; }
+      commissionRate = rate;
+      const set = { commissionRate: rate };
+      if (action === 'enable') { set.isUgc = true; isUgc = true; }
+
+      if (action === 'enable' && !referralCode) {
+        // نولّد كود إحالة فريد ونحفظه؛ لو اتكرر (نادر جدًا) نجرّب تاني
+        let done = false;
+        for (let i = 0; i < 6 && !done; i += 1) {
+          const code = generateReferralCode();
+          try {
+            await User.updateOne({ _id: user._id }, { $set: { ...set, referralCode: code } });
+            referralCode = code; done = true;
+          } catch (e) {
+            if (e && e.code === 11000) continue;
+            throw e;
           }
-          if (!saved) throw new Error('could not generate a unique referralCode');
-        } else {
-          await user.save();
         }
+        if (!done) throw new Error('could not generate a unique referralCode');
       } else {
-        await user.save();
+        await User.updateOne({ _id: user._id }, { $set: set });
       }
     } else if (action === 'disable') {
       // بنسيب الكود والتاريخ زي ما هما (عشان الإحالات القديمة تفضل صح)، بس
       // الحساب مبقاش UGC — لوحته بترجع عادية.
-      user.isUgc = false;
-      await user.save();
+      await User.updateOne({ _id: user._id }, { $set: { isUgc: false } });
+      isUgc = false;
     } else {
       return res.status(400).json({ error: 'الإجراء ده مش معروف.' });
     }
 
     logAdminAction(req, `ugc.${action}`, { type: 'user', id: user._id, label: user.email }, {
-      before,
-      after: { isUgc: user.isUgc, commissionRate: user.commissionRate, referralCode: user.referralCode || null },
+      before, after: { isUgc, commissionRate, referralCode },
     });
-    return res.json({
-      ok: true, isUgc: user.isUgc, referralCode: user.referralCode || null, commissionRate: user.commissionRate,
-    });
+    return res.json({ ok: true, isUgc, referralCode, commissionRate });
   } catch (err) {
     console.error('Error updating UGC:', err);
     return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
