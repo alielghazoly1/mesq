@@ -97,6 +97,23 @@ const TEMPLATES = [
     // قابلة للتعديل، فمنطقي يكون جزء من الباقة
     isPremium: true,
   },
+  {
+    id: 'ivory-swans',
+    name: 'Ivory Swans',
+    description: 'تصميم كلاسيكي فاخر بألوان عاجية — بجعتان وإطار ورد وخط عربي أنيق، وسجل حضور احترافي',
+    file: 'ivory-swans.html',
+    languages: SUPPORTED_LANGUAGES,
+    occasionTypes: SUPPORTED_OCCASIONS,
+    // التصميم فيه قسم تأكيد الحضور بس كقسم اختياري يقدر العميل يشيله؛ باقي
+    // الأقسام (الوش/التاريخ/القاعة) أساسية في التصميم.
+    optionalSections: [
+      { key: 'rsvp', label: 'تأكيد الحضور (RSVP)' },
+    ],
+    // مفيش جدول أوقات في التصميم ده
+    timelineStages: [],
+    extraFields: [],
+    isPremium: true,
+  },
 ];
 
 function getTemplate(templateId) {
