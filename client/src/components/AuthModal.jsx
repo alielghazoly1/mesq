@@ -44,7 +44,7 @@ function LoginForm() {
   const dispatch = useDispatch();
   const { t } = useTranslation();
   const { register, handleSubmit } = useForm();
-  const [login, { isLoading, error }] = useLoginMutation();
+  const [login, { isLoading, error, reset }] = useLoginMutation();
 
   async function onSubmit(values) {
     try {
@@ -59,7 +59,8 @@ function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-3.5">
+    // أول ما يعدّل أي حقل، بنمسح رسالة الخطأ القديمة (مكانتش بتختفي قبل كده)
+    <form onSubmit={handleSubmit(onSubmit)} onChange={() => { if (error) reset(); }} className="space-y-3.5">
       <div className="space-y-1.5">
         <label className="text-[13px] text-ink-dim">{t('auth.email')}</label>
         <input type="email" required autoComplete="email" className={inputClass} {...register('email')} />
@@ -84,7 +85,7 @@ function RegisterForm() {
   const dispatch = useDispatch();
   const { t } = useTranslation();
   const { register, handleSubmit, control, formState } = useForm();
-  const [doRegister, { isLoading, error }] = useRegisterMutation();
+  const [doRegister, { isLoading, error, reset }] = useRegisterMutation();
 
   async function onSubmit(values) {
     try {
@@ -99,7 +100,8 @@ function RegisterForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-3.5">
+    // أول ما يعدّل أي حقل، بنمسح رسالة الخطأ القديمة (زي "الإيميل مسجل بالفعل")
+    <form onSubmit={handleSubmit(onSubmit)} onChange={() => { if (error) reset(); }} className="space-y-3.5">
       <div className="space-y-1.5">
         <label className="text-[13px] text-ink-dim">{t('auth.name')}</label>
         <input type="text" required maxLength={80} autoComplete="name" className={inputClass} {...register('name')} />
