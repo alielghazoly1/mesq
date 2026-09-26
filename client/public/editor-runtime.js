@@ -595,7 +595,7 @@
     // والصور مالهاش نص — دول بيتحركوا ويتكبّروا من الشريط الجانبي.
     // زرار RSVP كمان: مبنفتحش كتابة عليه على طول عشان أيقونة تعديل
     // الفورم تبان في الشريط العائم بدل ما ندخل كتابة لحظيًا ونخبّيها.
-    if (elementKind(best) === 'text' && !isRsvpEl(best)) startWriting(best);
+    if (elementKind(best) === 'text' && !isRsvpEl(best)) startWriting(best, e.clientX, e.clientY);
   }, true);
 
   /** بيفتح التحرير (تعليم العناصر + الضغط عليها) — من غير سحب */
@@ -1081,7 +1081,24 @@
     return rgbToHex(isSwatchEl(el) ? cs.backgroundColor : cs.color);
   }
 
-  function startWriting(el) {
+  /** مدى بمؤشر عند نقطة الضغط (لو جوه عنصر الكتابة) — عشان المؤشر ينزل
+   *  مكان ما العميل ضغط بالظبط، مش في آخر الكلام. */
+  function caretRangeAt(x, y, target) {
+    if (!isFinite(x) || !isFinite(y)) return null;
+    var r = null;
+    try {
+      if (document.caretRangeFromPoint) {
+        r = document.caretRangeFromPoint(x, y);
+      } else if (document.caretPositionFromPoint) {
+        var pos = document.caretPositionFromPoint(x, y);
+        if (pos) { r = document.createRange(); r.setStart(pos.offsetNode, pos.offset); }
+      }
+    } catch (e) { return null; }
+    if (r && target.contains(r.startContainer)) { r.collapse(true); return r; }
+    return null;
+  }
+
+  function startWriting(el, clickX, clickY) {
     if (!el || state.writing) return;
     // عناصر متعلّم عليها إنها ديكورية (نقاط ألوان الزي، صندوق الهدية في
     // Royal Maroon) — التعديل النصي مقفول عليها. القفل محكوم بالسمة
@@ -1101,12 +1118,23 @@
     try { target.contentEditable = 'plaintext-only'; } catch (err) { target.contentEditable = 'true'; }
     if (target.contentEditable !== 'plaintext-only') target.contentEditable = 'true';
 
-    target.focus();
-    var range = document.createRange();
-    range.selectNodeContents(target);
+    // preventScroll: من غيرها الـ focus بيعمل سكرول عشان يوري العنصر،
+    // والعناصر العريضة (زي بوكس الأسماء في Tilda، عرضه 560px وبيبدأ بره
+    // الشاشة) كانت بتتزحلق وتبان كإنها "طارت يمين وبوّظت الصفحة".
+    try { target.focus({ preventScroll: true }); } catch (e) { target.focus(); }
+    // المؤشر مكان الضغطة بالظبط — مش تحديد الكلام كله. تحديد الكل على
+    // الموبايل بيطلّع شريط التحديد/الترجمة وبيعمل بلوك أزرق عريض على
+    // العناصر الواسعة (والعنصر ده ساعات فيه اسمين مع بعض، فتحديد الكل
+    // بيحدّد الاتنين). المؤشر مكان الضغطة أنضف وأدق.
     var sel = window.getSelection();
     sel.removeAllRanges();
-    sel.addRange(range);
+    var caret = caretRangeAt(clickX, clickY, target);
+    if (!caret) {
+      caret = document.createRange();
+      caret.selectNodeContents(target);
+      caret.collapse(false); // للآخر لو مقدرناش نحدد مكان الضغطة
+    }
+    sel.addRange(caret);
 
     target.addEventListener('keydown', onWriteKey);
     target.addEventListener('paste', onWritePaste);
