@@ -7,10 +7,11 @@ import { motion } from 'motion/react';
 import {
   X, Crown, Ban, PauseCircle, PlayCircle, Trash2, Plus, Save,
   Mail, Globe, Calendar, Eye, FileText, MessageSquare, Wallet, ShieldAlert, Monitor, MessageCircle,
+  Megaphone, Copy, MousePointerClick, UserPlus,
 } from 'lucide-react';
 import {
   useGetUserQuery, useUpdateSubscriptionMutation, useBlockUserMutation,
-  useGetAdminPackagesQuery,
+  useGetAdminPackagesQuery, useSetUserUgcMutation,
 } from '../../store/adminApi.js';
 import {
   Panel, StatTile, Badge, Btn, Field, Table, Row, Cell,
@@ -31,6 +32,91 @@ function Confirm({ text, onYes, onCancel, busy }) {
         <Btn size="sm" onClick={onCancel}>لأ</Btn>
       </div>
     </div>
+  );
+}
+
+// قسم التسويق بالعمولة داخل ملف العميل: تفعيل/إلغاء الحساب كمسوّق، تحديد نسبته،
+// ولينكه وإحصائياته (زيارات/تسجيلات/دافعين/أرباح بعملتين).
+function UgcPanel({ userId, ugc }) {
+  const [setUgc, { isLoading }] = useSetUserUgcMutation();
+  const [rate, setRate] = useState(String(ugc?.commissionRate || ''));
+  const [copied, setCopied] = useState(false);
+  const [err, setErr] = useState('');
+  const isUgc = !!ugc?.isUgc;
+  const s = ugc?.stats;
+  const link = ugc?.referralCode ? `${window.location.origin}/r/${ugc.referralCode}` : '';
+
+  async function run(body) {
+    setErr('');
+    try { await setUgc({ id: userId, ...body }).unwrap(); }
+    catch (e) { setErr(e?.data?.error || 'حصل خطأ، جرّب تاني.'); }
+  }
+  async function copyLink() {
+    try { await navigator.clipboard.writeText(link); setCopied(true); setTimeout(() => setCopied(false), 2000); }
+    catch (e) { /* المتصفح رفض */ }
+  }
+
+  return (
+    <Panel title="التسويق بالعمولة (UGC)" subtitle="مسوّق بياخد نسبة على كل عميل بيجي من لينكه">
+      {err && <div className="mb-3 rounded-lg bg-error/15 px-3 py-2 text-[12px] text-error">{err}</div>}
+      {!isUgc ? (
+        <div className="space-y-3">
+          <p className="text-[12.5px] text-ivory/55">
+            فعّل الحساب ده كمسوّق: هياخد لينك إحالة خاص، وكل عميل يسجّل ويدفع من خلاله بتتحسبله نسبة.
+          </p>
+          <div className="flex items-end gap-2">
+            <div className="flex-1">
+              <label className="mb-1 block text-[11px] text-ivory/45">نسبة العمولة %</label>
+              <Field type="number" min="0" max="100" placeholder="مثلاً 30" value={rate} onChange={(e) => setRate(e.target.value)} />
+            </div>
+            <Btn tone="gold" icon={Megaphone} loading={isLoading} disabled={rate === ''} onClick={() => run({ action: 'enable', commissionRate: Number(rate) })}>
+              فعّل UGC
+            </Btn>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge tone="gold" icon={Megaphone}>UGC مفعّل</Badge>
+            <span className="text-[12px] text-ivory/55">النسبة: <b className="text-brass-soft">{ugc.commissionRate}%</b></span>
+          </div>
+
+          {/* لينك الإحالة */}
+          <div>
+            <label className="mb-1 block text-[11px] text-ivory/45">لينك الإحالة</label>
+            <div className="flex items-center gap-2">
+              <input readOnly value={link} dir="ltr"
+                className="flex-1 rounded-lg border border-line-lite bg-night px-3 py-2 text-[12px] text-ivory/80" />
+              <Btn size="sm" icon={Copy} onClick={copyLink}>{copied ? 'اتنسخ ✓' : 'انسخ'}</Btn>
+            </div>
+          </div>
+
+          {/* إحصائياته */}
+          {s && (
+            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+              <StatTile icon={MousePointerClick} label="زيارات اللينك" value={fmtNum(s.clicks)} />
+              <StatTile icon={UserPlus} label="سجّلوا" value={fmtNum(s.registrations)} />
+              <StatTile icon={Crown} tone="gold" label="دفعوا" value={fmtNum(s.paidCustomers)} />
+              <StatTile icon={Wallet} tone="ok" label="عمولته (جنيه)" value={fmtMoney(s.earned.EGP, 'EGP')} hint={`متاح ${fmtMoney(s.available.EGP, 'EGP')}`} />
+              <StatTile icon={Wallet} tone="ok" label="عمولته (دولار)" value={fmtMoney(s.earned.USD, 'USD')} hint={`متاح ${fmtMoney(s.available.USD, 'USD')}`} />
+            </div>
+          )}
+
+          {/* تعديل النسبة */}
+          <div className="flex items-end gap-2 border-t border-line-lite pt-3">
+            <div className="flex-1">
+              <label className="mb-1 block text-[11px] text-ivory/45">غيّر نسبة العمولة %</label>
+              <Field type="number" min="0" max="100" value={rate} onChange={(e) => setRate(e.target.value)} />
+            </div>
+            <Btn icon={Save} loading={isLoading} onClick={() => run({ action: 'setRate', commissionRate: Number(rate) })}>حدّث النسبة</Btn>
+          </div>
+
+          <Btn tone="danger" size="sm" icon={Ban} loading={isLoading} onClick={() => run({ action: 'disable' })}>
+            ألغِ UGC (اللوحة ترجع عادية)
+          </Btn>
+        </div>
+      )}
+    </Panel>
   );
 }
 
@@ -293,6 +379,8 @@ export default function ClientDrawer({ userId, onClose }) {
                 </div>
               )}
             </Panel>
+
+            <UgcPanel userId={userId} ugc={data.user.ugc} />
 
             {/* باسورده — بانل لوحده لأنه مش جزء من الاشتراك، وعشان
                 حالته (الباسورد الظاهر بعد التغيير) متتمسحش مع أي إجراء تاني */}

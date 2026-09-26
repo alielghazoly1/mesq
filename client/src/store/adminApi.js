@@ -23,7 +23,7 @@ const baseQuery = fetchBaseQuery({
 export const adminApi = createApi({
   reducerPath: 'adminApi',
   baseQuery,
-  tagTypes: ['Overview', 'Users', 'User', 'Orders', 'Invitations', 'Support', 'Settings', 'Pricing', 'Thread', 'Audit', 'Tracks'],
+  tagTypes: ['Overview', 'Users', 'User', 'Orders', 'Invitations', 'Support', 'Settings', 'Pricing', 'Thread', 'Audit', 'Tracks', 'Withdrawals'],
   endpoints: (builder) => ({
     getOverview: builder.query({
       query: (period = 30) => `/overview?period=${period}`,
@@ -47,6 +47,20 @@ export const adminApi = createApi({
     blockUser: builder.mutation({
       query: ({ id, blocked }) => ({ url: `/users/${id}/block`, method: 'PATCH', body: { blocked } }),
       invalidatesTags: (r, e, { id }) => [{ type: 'User', id }, 'Users', 'Overview', 'Audit'],
+    }),
+    // ===== UGC (التسويق بالعمولة) =====
+    // enable/disable/setRate — بيفعّل الحساب كمسوّق أو يغيّر نسبته
+    setUserUgc: builder.mutation({
+      query: ({ id, ...body }) => ({ url: `/users/${id}/ugc`, method: 'POST', body }),
+      invalidatesTags: (r, e, { id }) => [{ type: 'User', id }, 'Users', 'Audit'],
+    }),
+    getWithdrawals: builder.query({
+      query: ({ status = 'pending', page = 1 } = {}) => `/withdrawals?status=${status}&page=${page}`,
+      providesTags: ['Withdrawals'],
+    }),
+    resolveWithdrawal: builder.mutation({
+      query: ({ id, ...body }) => ({ url: `/withdrawals/${id}`, method: 'POST', body }),
+      invalidatesTags: ['Withdrawals', 'Audit'],
     }),
     // تغيير باسورد العميل. الباسورد نفسه بيروح للسيرفر ومبيرجعش تاني
     // في أي رد — اللي بيتعرض في الشاشة هو اللي الأدمن كتبه/ولّده عنده.
@@ -152,6 +166,9 @@ export const {
   useGetUsersQuery,
   useGetUserQuery,
   useUpdateSubscriptionMutation,
+  useSetUserUgcMutation,
+  useGetWithdrawalsQuery,
+  useResolveWithdrawalMutation,
   useBlockUserMutation,
   useSetUserPasswordMutation,
   useGetOrdersQuery,

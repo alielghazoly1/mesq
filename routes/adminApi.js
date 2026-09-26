@@ -15,6 +15,8 @@ const SupportMessage = require('../models/SupportMessage');
 const AdminAudit = require('../models/AdminAudit');
 const Track = require('../models/Track');
 const SiteTotals = require('../models/SiteTotals');
+const Withdrawal = require('../models/Withdrawal');
+const { computeUgcStats, generateReferralCode } = require('../utils/ugc');
 const { cleanupExpiredInvitations, DEFAULT_GRACE_DAYS } = require('../utils/cleanupExpired');
 const { TEMPLATES } = require('../templates/registry');
 const {
@@ -379,6 +381,14 @@ router.get('/admin/api/users/:id', requireAdminSession, async (req, res) => {
           suspendedAt: sub.suspendedAt || null,
           adminNote: sub.adminNote || '',
           ...editWindowInfo(sub),
+        },
+        ugc: {
+          isUgc: !!user.isUgc,
+          referralCode: user.referralCode || null,
+          commissionRate: user.commissionRate || 0,
+          payoutPhone: user.payoutPhone || '',
+          referredBy: user.referredBy || null,
+          stats: user.isUgc ? await computeUgcStats(user) : null,
         },
       },
       totals: {
@@ -775,6 +785,120 @@ router.post('/admin/api/orders/:id/cancel', requireAdminSession, async (req, res
     return res.json({ ok: true, wasActivated, creditsRemoved });
   } catch (err) {
     console.error('Error cancelling order:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+// ==========================================================================
+// UGC (التسويق بالعمولة)
+// ==========================================================================
+// تفعيل/إلغاء حساب UGC + تحديد نسبة العمولة. بيولّد كود إحالة فريد أول تفعيل.
+router.post('/admin/api/users/:id/ugc', requireAdminSession, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ error: 'العميل ده مش موجود.' });
+    const action = String((req.body || {}).action || '');
+    const before = { isUgc: !!user.isUgc, commissionRate: user.commissionRate || 0 };
+
+    if (action === 'enable' || action === 'setRate') {
+      const rate = Number((req.body || {}).commissionRate);
+      if (!Number.isFinite(rate) || rate < 0 || rate > 100) {
+        return res.status(400).json({ error: 'نسبة العمولة لازم تكون رقم بين 0 و 100.' });
+      }
+      if (action === 'setRate' && !user.isUgc) {
+        return res.status(400).json({ error: 'الحساب ده مش UGC أصلًا.' });
+      }
+      user.commissionRate = rate;
+      if (action === 'enable') {
+        user.isUgc = true;
+        if (!user.referralCode) {
+          let saved = false;
+          for (let i = 0; i < 5 && !saved; i += 1) {
+            user.referralCode = generateReferralCode();
+            try { await user.save(); saved = true; }
+            catch (e) { if (e && e.code === 11000) { user.referralCode = undefined; continue; } throw e; }
+          }
+          if (!saved) throw new Error('could not generate a unique referralCode');
+        } else {
+          await user.save();
+        }
+      } else {
+        await user.save();
+      }
+    } else if (action === 'disable') {
+      // بنسيب الكود والتاريخ زي ما هما (عشان الإحالات القديمة تفضل صح)، بس
+      // الحساب مبقاش UGC — لوحته بترجع عادية.
+      user.isUgc = false;
+      await user.save();
+    } else {
+      return res.status(400).json({ error: 'الإجراء ده مش معروف.' });
+    }
+
+    logAdminAction(req, `ugc.${action}`, { type: 'user', id: user._id, label: user.email }, {
+      before,
+      after: { isUgc: user.isUgc, commissionRate: user.commissionRate, referralCode: user.referralCode || null },
+    });
+    return res.json({
+      ok: true, isUgc: user.isUgc, referralCode: user.referralCode || null, commissionRate: user.commissionRate,
+    });
+  } catch (err) {
+    console.error('Error updating UGC:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+// قائمة طلبات السحب (مع بيانات المسوّق) — بترقيم + فلتر حالة
+router.get('/admin/api/withdrawals', requireAdminSession, async (req, res) => {
+  try {
+    const status = String(req.query.status || 'pending');
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const perPage = 25;
+    const filter = ['pending', 'paid', 'rejected'].includes(status) ? { status } : {};
+    const [rows, total] = await Promise.all([
+      Withdrawal.find(filter).sort({ createdAt: -1 }).skip((page - 1) * perPage).limit(perPage).lean(),
+      Withdrawal.countDocuments(filter),
+    ]);
+    const ids = [...new Set(rows.map((r) => String(r.ugcUserId)))];
+    const users = await User.find({ _id: { $in: ids } }).select('name email phone country').lean();
+    const byId = users.reduce((a, u) => { a[String(u._id)] = u; return a; }, {});
+    return res.json({
+      page, total, hasMore: page * perPage < total,
+      withdrawals: rows.map((w) => {
+        const u = byId[String(w.ugcUserId)] || {};
+        return {
+          id: String(w._id), ugcUserId: String(w.ugcUserId),
+          amount: w.amount, currency: w.currency, phone: w.phone, status: w.status,
+          adminNote: w.adminNote || '', createdAt: w.createdAt, resolvedAt: w.resolvedAt || null,
+          user: { name: u.name || '—', email: u.email || '—', phone: u.phone || '', country: u.country || '—' },
+        };
+      }),
+    });
+  } catch (err) {
+    console.error('Error listing withdrawals:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+// معالجة طلب سحب: paid (اتحوّل واتأكد) / rejected (مرفوض)
+router.post('/admin/api/withdrawals/:id', requireAdminSession, async (req, res) => {
+  try {
+    const w = await Withdrawal.findById(req.params.id);
+    if (!w) return res.status(404).json({ error: 'الطلب ده مش موجود.' });
+    if (w.status !== 'pending') return res.status(409).json({ error: 'الطلب ده اتعالج بالفعل.' });
+    const action = String((req.body || {}).action || '');
+    if (action !== 'paid' && action !== 'rejected') {
+      return res.status(400).json({ error: 'الإجراء ده مش معروف.' });
+    }
+    w.status = action;
+    w.adminNote = sanitizeText((req.body || {}).adminNote, 300);
+    w.resolvedAt = new Date();
+    await w.save();
+    logAdminAction(req, `withdrawal.${action}`, { type: 'withdrawal', id: w._id }, {
+      amount: w.amount, currency: w.currency,
+    });
+    return res.json({ ok: true, status: w.status });
+  } catch (err) {
+    console.error('Error resolving withdrawal:', err);
     return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
   }
 });
