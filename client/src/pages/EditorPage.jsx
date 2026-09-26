@@ -1918,14 +1918,23 @@ export default function EditorPage() {
                                 <div className="mb-2 flex items-center gap-1.5 text-[12px] font-bold text-[#7a5a1a]">
                                   <CalendarDays size={12} /> {t('editor.dateTitle')}
                                 </div>
-                                <input
-                                  type="date"
-                                  defaultValue={data.details.weddingDate}
-                                  onChange={(e) => changeDetail({ weddingDate: e.target.value })}
-                                  className="w-full rounded-lg border border-line bg-card px-3 py-2 text-[13px] text-ink focus:border-brass focus:outline-none"
-                                />
+                                <div className="flex items-center gap-2">
+                                  <input
+                                    type="date"
+                                    defaultValue={data.details.weddingDate}
+                                    onChange={(e) => changeDetail({ weddingDate: e.target.value })}
+                                    className="min-w-0 flex-1 rounded-lg border border-line bg-card px-3 py-2 text-[13px] text-ink focus:border-brass focus:outline-none"
+                                  />
+                                  {/* ساعة الحفلة — العدّاد التنازلي بينزل عندها */}
+                                  <input
+                                    type="time"
+                                    defaultValue={data.details.weddingTime || ''}
+                                    onChange={(e) => changeDetail({ weddingTime: e.target.value })}
+                                    className="w-[112px] shrink-0 rounded-lg border border-line bg-card px-2.5 py-2 text-[13px] text-ink focus:border-brass focus:outline-none"
+                                  />
+                                </div>
                                 <p className="mt-2 text-[11px] text-ink-dim">
-                                  {selected.kind === 'live' ? t('editor.liveHint') : t('editor.dateHint')}
+                                  {selected.kind === 'live' ? t('editor.liveHint') : t('editor.countdownTimeHint')}
                                 </p>
                               </div>
                             )}

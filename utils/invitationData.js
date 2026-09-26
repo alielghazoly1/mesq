@@ -108,10 +108,22 @@ async function buildInvitationDataFromRequest(body, { skipMapNetwork, user, owns
     return { key, hour };
   });
 
+  // وقت الحفلة اختياري بصيغة "HH:MM". لو العميل حدّده بنستخدمه للساعة
+  // والدقيقة — وده اللي العدّاد التنازلي بينزل عنده. لو مادخلوش بنرجع
+  // للساعة الافتراضية (أول محطة في التايملاين أو ٦ مساءً) والدقيقة صفر،
+  // فالدعوات القديمة تفضل زي ما هي بالظبط.
   const baseHour = timeline[0] ? timeline[0].hour : 18;
+  let weddingHour = baseHour;
+  let weddingMinute = 0;
+  const timeMatch = /^(\d{1,2}):(\d{2})$/.exec(String(body.weddingTime || '').trim());
+  if (timeMatch) {
+    const hh = Number(timeMatch[1]);
+    const mm = Number(timeMatch[2]);
+    if (hh >= 0 && hh <= 23 && mm >= 0 && mm <= 59) { weddingHour = hh; weddingMinute = mm; }
+  }
   const weddingDateTime = new Date(
     weddingDateOnly.getFullYear(), weddingDateOnly.getMonth(), weddingDateOnly.getDate(),
-    baseHour, 0, 0
+    weddingHour, weddingMinute, 0
   );
 
   const allowedSectionKeys = template.optionalSections.map((s) => s.key);

@@ -100,6 +100,9 @@ function detailsOf(invitation) {
     // <input type="date"> عايز YYYY-MM-DD بالتوقيت المحلي، و toISOString
     // بيحوّل لـ UTC فبيرجّع اليوم اللي قبله لأي حفلة بالليل.
     weddingDate: d ? `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` : '',
+    // وقت الحفلة "HH:MM" — العدّاد التنازلي بينزل عنده. بيرجع للفورم عشان
+    // العميل يعدّله ويشوف الوقت المحفوظ.
+    weddingTime: d ? `${pad(d.getHours())}:${pad(d.getMinutes())}` : '',
     timeline: (invitation.timeline || []).map((s) => ({ key: s.key, hour: s.hour })),
     hiddenSections: invitation.hiddenSections || [],
   };

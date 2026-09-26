@@ -42,7 +42,7 @@ function defaultsFor(template) {
     occasionType: template.occasionTypes[0],
     language: template.languages[0],
     groomName: '', brideName: '', groomNameAr: '', brideNameAr: '',
-    venueName: '', venueCity: '', venueMapQuery: '', weddingDate: '',
+    venueName: '', venueCity: '', venueMapQuery: '', weddingDate: '', weddingTime: '',
     timeline, sections, extra: {},
   };
 }
@@ -74,6 +74,7 @@ function buildPayload(values, template, { withPlaceholders }) {
     venueCity: pick('venueCity'),
     venueMapQuery: (values.venueMapQuery || '').trim(),
     weddingDate: values.weddingDate || (withPlaceholders ? new Date().toISOString().slice(0, 10) : ''),
+    weddingTime: values.weddingTime || '',
     timeline,
     hiddenSections,
   };
@@ -363,13 +364,23 @@ export default function CreateInvitationPage() {
                   {...register('venueCity')}
                 />
               </div>
-              <div className="mb-4 flex flex-col gap-1.5">
-                <label className="text-[13px] text-ink-dim">{t('create.weddingDate')}</label>
-                <input
-                  type="date"
-                  className="border-0 border-b border-line bg-transparent px-0.5 py-2.5 text-base focus:border-rose focus:outline-none"
-                  {...register('weddingDate')}
-                />
+              <div className="mb-4 grid grid-cols-2 gap-3">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[13px] text-ink-dim">{t('create.weddingDate')}</label>
+                  <input
+                    type="date"
+                    className="border-0 border-b border-line bg-transparent px-0.5 py-2.5 text-base focus:border-rose focus:outline-none"
+                    {...register('weddingDate')}
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-[13px] text-ink-dim">{t('create.weddingTime')}</label>
+                  <input
+                    type="time"
+                    className="border-0 border-b border-line bg-transparent px-0.5 py-2.5 text-base focus:border-rose focus:outline-none"
+                    {...register('weddingTime')}
+                  />
+                </div>
               </div>
               <div className="flex flex-col gap-1.5">
                 <label className="text-[13px] text-ink-dim">{t('create.mapLink')}</label>
