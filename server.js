@@ -135,6 +135,8 @@ app.use('/i', requireDB);
 app.use('/i', attachUser);
 // صفحة الإحصائيات المشاركة (رابط سري) محتاجة قاعدة البيانات
 app.use('/s', requireDB);
+// لينك إحالة الـ UGC محتاج قاعدة البيانات (بيعدّ زيارة ويحط كوكي)
+app.use('/r', requireDB);
 app.use('/admin', requireDB);
 app.use('/api/auth', requireDB);
 app.use('/api/packages', requireDB);

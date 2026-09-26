@@ -393,4 +393,31 @@ router.get('/preview-sample/:templateId', (req, res) => {
   return res.send(html);
 });
 
+// GET /r/:code — لينك إحالة الـ UGC. بيعدّ زيارة، بيحط كوكي إحالة يعيش طويل
+// (لحد ما يسجّل)، وبيوجّه للصفحة الرئيسية. لو الكود مش بتاع UGC شغّال، بيوجّه
+// عادي من غير ما يعدّ أو يحط كوكي.
+router.get('/r/:code', async (req, res) => {
+  try {
+    const code = String(req.params.code || '').slice(0, 40);
+    const ugc = code
+      ? await User.findOne({ referralCode: code, isUgc: true }).select('_id')
+      : null;
+    if (ugc) {
+      // بنعدّ الزيارة قبل التوجيه عشان الرقم يكون مضمون ودقيق للمسوّق
+      await User.updateOne({ _id: ugc._id }, { $inc: { referralClicks: 1 } });
+      res.cookie('mithaq_ref', code, {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 5 * 365 * 24 * 60 * 60 * 1000, // ~5 سنين = "للأبد" عمليًا
+        path: '/',
+      });
+    }
+    return res.redirect(302, '/');
+  } catch (err) {
+    console.error('Referral link error:', err);
+    return res.redirect(302, '/');
+  }
+});
+
 module.exports = router;

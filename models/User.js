@@ -18,6 +18,22 @@ const userSchema = new mongoose.Schema({
   // عشان تقدر تتواصل معاه (واتساب). الحسابات القديمة مالهاش الحقل ده (فاضي).
   phone: { type: String, default: '', maxlength: 30 },
 
+  // ===== نظام التسويق بالعمولة (UGC / أفلييت) =====
+  // حساب UGC = مسوّق بياخد نسبة على كل عميل بيجي من لينك إحالته. الأدمن هو
+  // اللي بيفعّله ويحدّد نسبته. الحسابات العادية كل الحقول دي فاضية/false.
+  isUgc: { type: Boolean, default: false },
+  // كود الإحالة الفريد — بيتولّد أول ما الأدمن يعمل الحساب UGC. لينكه /r/<code>
+  referralCode: { type: String, index: { unique: true, sparse: true } },
+  // نسبة عمولته (٪) — الأدمن بيحددها لكل UGC لوحده
+  commissionRate: { type: Number, default: 0, min: 0, max: 100 },
+  // رقم فودافون كاش اللي بيسحب عليه (بيدخله هو من لوحته)
+  payoutPhone: { type: String, default: '', maxlength: 30 },
+  // عدد مرات فتح لينك إحالته (زيارات)
+  referralClicks: { type: Number, default: 0 },
+  // للحسابات العادية: كود الـ UGC اللي جابهم لو سجّلوا من لينك إحالة. بيتحط
+  // مرة واحدة وقت التسجيل ومبيتغيّرش. الحسابات القديمة = null (مش تابعة لحد).
+  referredBy: { type: String, default: null, index: true },
+
   // الاشتراك — بيتفعّل يدويًا من لوحة التحكم بعد ما العميل يدفع
   // (packages/registry.js فيه تعريف الباقات ومميزاتها)
   subscription: {

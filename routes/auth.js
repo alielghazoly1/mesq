@@ -46,10 +46,19 @@ router.post('/api/auth/register', async (req, res) => {
       return res.status(409).json({ error: 'الإيميل ده مسجل بالفعل، جرب تسجل الدخول.' });
     }
 
+    // لو سجّل من لينك إحالة UGC، بنربطه بالمسوّق (مرة واحدة وقت التسجيل بس).
+    // بنتأكد إن الكود بتاع UGC شغّال فعلًا قبل ما نربط.
+    let referredBy = null;
+    const refCode = String((req.cookies && req.cookies.mithaq_ref) || '').slice(0, 40);
+    if (refCode) {
+      const refExists = await User.exists({ referralCode: refCode, isUgc: true });
+      if (refExists) referredBy = refCode;
+    }
+
     const passwordHash = await hashPassword(password);
     let user;
     try {
-      user = await User.create({ email, passwordHash, name, country, phone });
+      user = await User.create({ email, passwordHash, name, country, phone, referredBy });
     } catch (err) {
       if (err.code === 11000) {
         return res.status(409).json({ error: 'الإيميل ده مسجل بالفعل، جرب تسجل الدخول.' });
@@ -58,6 +67,8 @@ router.post('/api/auth/register', async (req, res) => {
     }
 
     await createSession(res, user._id);
+    // خلصنا الربط — نمسح كوكي الإحالة عشان مايتربطش بحساب تاني بعدين
+    if (referredBy) res.clearCookie('mithaq_ref', { path: '/' });
 
     // رسالة ترحيب تستناه في صندوق رسايله. مش بننتظرها (ولا بنوقف عليها
     // لو فشلت) — الحساب اتعمل خلاص والرد لازم يوصل له فورًا.
