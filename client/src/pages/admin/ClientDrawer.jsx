@@ -53,7 +53,7 @@ function UgcPanel({ userId, ugc }) {
   }
   async function copyLink() {
     try { await navigator.clipboard.writeText(link); setCopied(true); setTimeout(() => setCopied(false), 2000); }
-    catch (e) { /* المتصفح رفض */ }
+    catch { /* المتصفح رفض */ }
   }
 
   return (

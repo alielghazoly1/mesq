@@ -6,9 +6,12 @@ const express = require('express');
 const Invitation = require('../models/Invitation');
 const Rsvp = require('../models/Rsvp');
 const SupportMessage = require('../models/SupportMessage');
+const User = require('../models/User');
+const Withdrawal = require('../models/Withdrawal');
 const { requireAuth } = require('../middleware/auth');
 const { sanitizeText } = require('../utils/sanitize');
 const { ensureStatsToken } = require('../utils/statsPage');
+const { computeUgcStats, CURRENCIES } = require('../utils/ugc');
 const { getPackage, EDIT_WINDOW_DAYS } = require('../packages/registry');
 const { editWindowInfo } = require('../utils/editWindow');
 
@@ -60,6 +63,8 @@ router.get('/api/dashboard', requireAuth, async (req, res) => {
     });
 
     return res.json({
+      // لو الحساب مسوّق (UGC)، الواجهة بتحوّل للوحة المسوّق بالكامل
+      isUgc: !!req.user.isUgc,
       user: { name: req.user.name, email: req.user.email, country: req.user.country },
       subscription: {
         packageId: sub.packageId || null,
@@ -149,6 +154,77 @@ router.post('/api/dashboard/invitations/:shortId/stats-link', requireAuth, async
     return res.json({ statsPath: `/s/${token}` });
   } catch (err) {
     console.error('Error creating stats link:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر.' });
+  }
+});
+
+// ===== لوحة المسوّق (UGC) =====
+// كل ده لصاحب حساب UGC نفسه بس.
+function requireUgc(req, res) {
+  if (!req.user.isUgc || !req.user.referralCode) {
+    res.status(403).json({ error: 'الحساب ده مش حساب تسويق.' });
+    return false;
+  }
+  return true;
+}
+
+// GET /api/dashboard/ugc — كل بيانات لوحة المسوّق (إحصائيات + سحوباته)
+router.get('/api/dashboard/ugc', requireAuth, async (req, res) => {
+  try {
+    if (!requireUgc(req, res)) return undefined;
+    const stats = await computeUgcStats(req.user);
+    const withdrawals = await Withdrawal.find({ ugcUserId: req.user.id })
+      .sort({ createdAt: -1 }).limit(50).lean();
+    return res.json({
+      referralCode: req.user.referralCode,
+      commissionRate: req.user.commissionRate || 0,
+      payoutPhone: req.user.payoutPhone || '',
+      stats,
+      withdrawals: withdrawals.map((w) => ({
+        id: String(w._id), amount: w.amount, currency: w.currency,
+        status: w.status, createdAt: w.createdAt, resolvedAt: w.resolvedAt || null,
+      })),
+    });
+  } catch (err) {
+    console.error('Error loading ugc dashboard:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر.' });
+  }
+});
+
+// POST /api/dashboard/ugc/payout-phone — حفظ رقم فودافون كاش بتاعه
+router.post('/api/dashboard/ugc/payout-phone', requireAuth, async (req, res) => {
+  try {
+    if (!requireUgc(req, res)) return undefined;
+    const phone = String((req.body || {}).phone || '')
+      .replace(/[^\d+\-() ]/g, '').trim().slice(0, 30);
+    await User.updateOne({ _id: req.user.id }, { $set: { payoutPhone: phone } });
+    return res.json({ ok: true, payoutPhone: phone });
+  } catch (err) {
+    console.error('Error saving payout phone:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر.' });
+  }
+});
+
+// POST /api/dashboard/ugc/withdraw — طلب سحب مبلغ من الرصيد المتاح
+router.post('/api/dashboard/ugc/withdraw', requireAuth, async (req, res) => {
+  try {
+    if (!requireUgc(req, res)) return undefined;
+    const currency = String((req.body || {}).currency || '');
+    const amount = Number((req.body || {}).amount);
+    if (!CURRENCIES.includes(currency)) return res.status(400).json({ error: 'العملة مش صحيحة.' });
+    if (!Number.isFinite(amount) || amount <= 0) return res.status(400).json({ error: 'اكتب مبلغ صحيح.' });
+    if (!req.user.payoutPhone) return res.status(400).json({ error: 'ضيف رقم فودافون كاش الأول.' });
+    // بنعيد حساب المتاح لحظيًا (المعلّق داخل الحساب) عشان مايطلبش أكتر من رصيده
+    const stats = await computeUgcStats(req.user);
+    if (amount > stats.available[currency]) {
+      return res.status(400).json({ error: `المبلغ أكبر من رصيدك المتاح (${stats.available[currency]}).` });
+    }
+    const w = await Withdrawal.create({
+      ugcUserId: req.user.id, currency, amount, phone: req.user.payoutPhone, status: 'pending',
+    });
+    return res.status(201).json({ ok: true, id: String(w._id) });
+  } catch (err) {
+    console.error('Error requesting withdrawal:', err);
     return res.status(500).json({ error: 'حصل خطأ في السيرفر.' });
   }
 });

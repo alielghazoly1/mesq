@@ -17,6 +17,7 @@ import {
 } from '../store/api.js';
 import EditorDemo from '../components/EditorDemo.jsx';
 import Footer from '../components/Footer.jsx';
+import UgcDashboard from './UgcDashboard.jsx';
 import { whatsappLink } from '../lib/contact.js';
 import { formatDay } from '../lib/editWindow.js';
 
@@ -259,6 +260,9 @@ export default function DashboardPage() {
       </div>
     );
   }
+
+  // الحساب مسوّق (UGC)؟ اللوحة بتتحوّل بالكامل للوحة المسوّق.
+  if (data.isUgc) return <UgcDashboard />;
 
   const isPremium = !!data.subscription.packageId;
   // مدة التعديل: null = من غير حد (كل اللي اشترى قبل القاعدة دي)

@@ -154,7 +154,8 @@ async function attachUser(req, res, next) {
       return next();
     }
 
-    const user = await User.findById(session.userId).select('email name country subscription isBlocked');
+    const user = await User.findById(session.userId)
+      .select('email name country subscription isBlocked isUgc referralCode commissionRate payoutPhone referralClicks');
     if (!user) return next();
 
     // حساب محظور من لوحة التحكم = زائر مجهول. الحظر بيمسح جلساته وقتها،
@@ -170,10 +171,17 @@ async function attachUser(req, res, next) {
 
     req.user = {
       id: String(user._id),
+      _id: user._id,
       email: user.email,
       name: user.name,
       country: user.country,
       subscription: user.subscription || null,
+      // حقول التسويق بالعمولة (UGC) — لوحة المسوّق بتعتمد عليها
+      isUgc: !!user.isUgc,
+      referralCode: user.referralCode || null,
+      commissionRate: user.commissionRate || 0,
+      payoutPhone: user.payoutPhone || '',
+      referralClicks: user.referralClicks || 0,
     };
 
     // ===== تجديد الصلاحية والتدوير =====

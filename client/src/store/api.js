@@ -11,7 +11,7 @@ const baseQuery = fetchBaseQuery({ baseUrl: '/api', credentials: 'include' });
 export const api = createApi({
   reducerPath: 'api',
   baseQuery,
-  tagTypes: ['Me', 'Packages', 'Dashboard', 'Support', 'Editor', 'Quota'],
+  tagTypes: ['Me', 'Packages', 'Dashboard', 'Support', 'Editor', 'Quota', 'Ugc'],
   endpoints: (builder) => ({
     // بنبعت اللغة عشان أسماء التصاميم وأوصافها وأسماء الأقسام ترجع مترجمة
     getTemplates: builder.query({
@@ -77,6 +77,19 @@ export const api = createApi({
     }),
     getRsvps: builder.query({
       query: (shortId) => `/dashboard/rsvps/${shortId}`,
+    }),
+    // ===== لوحة المسوّق (UGC) =====
+    getUgcDashboard: builder.query({
+      query: () => '/dashboard/ugc',
+      providesTags: ['Ugc'],
+    }),
+    setPayoutPhone: builder.mutation({
+      query: (phone) => ({ url: '/dashboard/ugc/payout-phone', method: 'POST', body: { phone } }),
+      invalidatesTags: ['Ugc'],
+    }),
+    requestWithdrawal: builder.mutation({
+      query: (body) => ({ url: '/dashboard/ugc/withdraw', method: 'POST', body }),
+      invalidatesTags: ['Ugc'],
     }),
     // تغيير اسم الدعوة (بيميّزها في اللوحة). بيعمل invalidate لـ Dashboard
     // عشان الاسم الجديد يبان على طول.
@@ -180,6 +193,9 @@ export const {
   useGetRsvpsQuery,
   useRenameInvitationMutation,
   useGetStatsLinkMutation,
+  useGetUgcDashboardQuery,
+  useSetPayoutPhoneMutation,
+  useRequestWithdrawalMutation,
   useGetSupportQuery,
   useSendSupportMessageMutation,
   useUploadPaymentProofMutation,
