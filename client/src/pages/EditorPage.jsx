@@ -212,6 +212,10 @@ export default function EditorPage() {
   // الدرج بيفتح مقفول: أول حاجة العميل يشوفها هي دعوته كاملة، مش لوحة
   // أدوات نصها مقصوص. المقبض قدامه وواضح إنه بيتسحب.
   const [sheetOpen, setSheetOpen] = useState(false);
+  // الكيبورد مفتوح على الموبايل؟ (بنكتشفه من تصغير visualViewport) — لما
+  // يفتح بنقفل درج الأدوات عشان الشاشة ماتخشش في بعضها.
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
+  const keyboardOpenRef = useRef(false);
   const [rsvpOpen, setRsvpOpen] = useState(false);
   const [showBigScreenHint, setShowBigScreenHint] = useState(false);
   // ارتفاع الجزء الظاهر من الدرج — بيتقاس فعليًا مش بالتخمين، لأنه
@@ -314,10 +318,32 @@ export default function EditorPage() {
     if (compact && data && !hintDismissed()) setShowBigScreenHint(true);
   }, [compact, data]);
 
-  // على الموبايل: أول ما العميل يضغط على جزء في الدعوة، الأدوات بتاعته
-  // لازم تطلعله من غير ما يدوّر — زي أي محرر على الموبايل.
+  // كشف فتح كيبورد الموبايل: الكيبورد بيصغّر visualViewport بمقدار كبير.
   useEffect(() => {
-    if (compact && selected) setSheetOpen(true);
+    if (!compact || typeof window === 'undefined' || !window.visualViewport) return undefined;
+    const vv = window.visualViewport;
+    const onResize = () => {
+      const kb = (window.innerHeight - vv.height) > 150;
+      keyboardOpenRef.current = kb;
+      setKeyboardOpen(kb);
+    };
+    vv.addEventListener('resize', onResize);
+    onResize();
+    return () => vv.removeEventListener('resize', onResize);
+  }, [compact]);
+
+  // أول ما الكيبورد يفتح، درج الأدوات يتقفل تلقائيًا (الديفولت) — عشان
+  // الكيبورد وأدوات التعديل ما يبقوش فوق بعض. لما الكيبورد يتشال، العميل
+  // يفتح/يقفل الدرج براحته (مبنعملش أي فتح تلقائي وقتها).
+  useEffect(() => {
+    if (keyboardOpen) setSheetOpen(false);
+  }, [keyboardOpen]);
+
+  // على الموبايل: أول ما العميل يضغط على جزء في الدعوة، الأدوات بتاعته
+  // لازم تطلعله من غير ما يدوّر — إلا لو الكيبورد مفتوح (بيعدّل نص)، ساعتها
+  // بنسيب الأدوات مقفولة عشان الشاشة تفضل مريحة.
+  useEffect(() => {
+    if (compact && selected && !keyboardOpenRef.current) setSheetOpen(true);
   }, [compact, selected]);
 
   // وضع التشغيل بياخد الشاشة كلها — الدرج مالوش لازمة وهو شغال
