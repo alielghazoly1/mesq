@@ -497,23 +497,6 @@ export default function CheckoutPage() {
               </>
             )}
 
-            {/* ===== طرق دفع تانية (الدولار بس) ===== */}
-            {!payLoading && showOtherMethods && (
-              <div className="mt-4 rounded-2xl border border-brass/40 bg-brass/[0.07] p-4">
-                <div className="mb-1 flex items-center gap-2 font-serif text-[15px] font-bold text-ink">
-                  <MessageCircle size={16} className="text-brass" /> {t('checkout.otherTitle')}
-                </div>
-                <p className="mb-3 text-[12.5px] leading-relaxed text-ink-dim">{t('checkout.otherBody')}</p>
-                <a
-                  href={whatsappLink(t('checkout.otherMsg', { name: pkg.name, amount: '$' + pkg.price }))}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-night py-3 text-[13px] font-bold text-ivory transition hover:bg-emerald"
-                >
-                  <MessageCircle size={15} /> {t('checkout.otherCta')}
-                </a>
-              </div>
-            )}
           </Step>
 
           {/* ===== 2) الإيصال ===== */}
@@ -582,6 +565,24 @@ export default function CheckoutPage() {
               {t('checkout.goDashboard')}
             </button>
           </Step>
+
+          {/* ===== طرق دفع تانية — تحت خالص بعد كل الخطوات (الدولار بس) ===== */}
+          {!payLoading && showOtherMethods && (
+            <div className="mt-2 rounded-2xl border border-brass/40 bg-brass/[0.07] p-4">
+              <div className="mb-1 flex items-center gap-2 font-serif text-[15px] font-bold text-ink">
+                <MessageCircle size={16} className="text-brass" /> {t('checkout.otherTitle')}
+              </div>
+              <p className="mb-3 text-[12.5px] leading-relaxed text-ink-dim">{t('checkout.otherBody')}</p>
+              <a
+                href={whatsappLink(t('checkout.otherMsg', { name: pkg.name, amount: '$' + pkg.price }))}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-night py-3 text-[13px] font-bold text-ivory transition hover:bg-emerald"
+              >
+                <MessageCircle size={15} /> {t('checkout.otherCta')}
+              </a>
+            </div>
+          )}
         </div>
         </div>
       </div>
