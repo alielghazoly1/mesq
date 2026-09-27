@@ -9,6 +9,7 @@ const fs = require('fs');
 const path = require('path');
 
 const { buildDisplayFields, formatHour, getMonthName } = require('./dateFormatter');
+const { cairoWallToDate } = require('./cairoTime');
 const { getStrings } = require('../i18n/strings');
 const { buildMainParagraph } = require('../i18n/invitationText');
 const { getTemplate, getDefaultTemplate } = require('../templates/registry');
@@ -170,9 +171,19 @@ function renderNewPathHtml(data, options) {
     // حقول بيحتاجها قالب Royal Maroon (والقوالب التانية بتتجاهلها):
     // التاريخ بصيغة قياسية للعد التنازلي وإضافة الحدث للتقويم، واسم
     // الشهر واليوم بلغة الدعوة
+    // العدّاد التنازلي والإضافة للتقويم بيعتمدوا على اللحظة دي. العميل
+    // بيختار الساعة بتوقيت مصر، بس متخزّنة كساعة حائط بتوقيت السيرفر
+    // (الإنتاج UTC) — يعني new Date(y,m,d,h) بتطلع h:00 UTC. لو رجّعناها
+    // زي ما هي، العدّاد بينزل عند h:00 UTC = h+2/h+3 في مصر (شكوى العميل
+    // "بيزود ٣ ساعات"). فبناخد مكوّنات ساعة الحائط ونحوّلها للحظة UTC
+    // الصح بتوقيت مصر (مع التوقيت الصيفي). بيصلّح القديم والجديد سوا من
+    // غير أي migration للبيانات المخزّنة.
     weddingDateTimeISO: (() => {
       const d = new Date(data.weddingDateTime);
-      return Number.isNaN(d.getTime()) ? '' : d.toISOString();
+      if (Number.isNaN(d.getTime())) return '';
+      return cairoWallToDate(
+        d.getFullYear(), d.getMonth(), d.getDate(), d.getHours(), d.getMinutes()
+      ).toISOString();
     })(),
     monthName: getMonthName(display.countdown.monthIndex, data.language),
     weekdayName: data.language === 'ar' ? display.dayNameAr : display.dayNameEn,

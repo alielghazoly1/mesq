@@ -2407,7 +2407,11 @@
                                         </div>
                                         <script>
                                             var _cd = (window.top && window.top.WEDDING_CONFIG) || window.WEDDING_CONFIG || {countdown:{year:2027,monthIndex:4,day:20,hour:0,minute:0}};
-                                            const eventLocal = new Date(_cd.countdown.year, _cd.countdown.monthIndex, _cd.countdown.day, _cd.countdown.hour, _cd.countdown.minute, 0);
+                                            // العدّاد بينزل للحظة الفرح الصح بتوقيت مصر (weddingDateTimeISO) لأي
+                                            // ضيف في أي مكان. القديم (بناء بتوقيت المتصفح) fallback بس.
+                                            const eventLocal = _cd.weddingDateTimeISO
+                                                ? new Date(_cd.weddingDateTimeISO)
+                                                : new Date(_cd.countdown.year, _cd.countdown.monthIndex, _cd.countdown.day, _cd.countdown.hour, _cd.countdown.minute, 0);
                                             const interval = setInterval( () => {
                                                 const now = new Date();
                                                 const distance = eventLocal - now;
