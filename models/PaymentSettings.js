@@ -33,6 +33,16 @@ const paymentSettingsSchema = new mongoose.Schema({
     note: { type: String, default: '', maxlength: 400 },
   },
 
+  // KAST — وسيلة دفع عالمية اختيارية (بتتفعّل/تتقفل من لوحة التحكم).
+  // بتظهر جنب الحساب البنكي للعملاء بره مصر. link = لينك الـ KastTag،
+  // والـ QR بيتولّد منه تلقائيًا وقت العرض.
+  kast: {
+    enabled: { type: Boolean, default: false },
+    link: { type: String, default: '', maxlength: 300 },
+    holderName: { type: String, default: '', maxlength: 120 },
+    note: { type: String, default: '', maxlength: 400 },
+  },
+
   // رقم واتساب التواصل بعد التحويل
   whatsapp: { type: String, default: '', maxlength: 40 },
 

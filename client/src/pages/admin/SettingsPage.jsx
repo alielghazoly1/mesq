@@ -18,6 +18,7 @@ export default function SettingsPage() {
       reset({
         vodafone: data.vodafone || {},
         bank: data.bank || {},
+        kast: data.kast || { enabled: false, link: '', holderName: '', note: '' },
         whatsapp: data.whatsapp || '',
       });
     }
@@ -75,6 +76,23 @@ export default function SettingsPage() {
           </p>
         </Panel>
       </div>
+
+      <Panel title="KAST (وسيلة دفع عالمية)" subtitle="بتظهر جنب الحساب البنكي للعملاء برّه مصر — فعّلها أو اقفلها وقت ما تحب">
+        <label className="mb-3.5 flex cursor-pointer items-center gap-2.5 rounded-xl border border-ivory/10 bg-ivory/[0.03] p-3">
+          <input type="checkbox" {...register('kast.enabled')} className="h-4 w-4 accent-brass" />
+          <span className="text-[13px] font-bold text-ivory">اعرض KAST للعملاء</span>
+          <span className="text-[11.5px] text-ivory/40">— لو اتقفلت، مش هتظهر خالص</span>
+        </label>
+        <div className="space-y-3.5">
+          <Field label="لينك KastTag" placeholder="https://app.kast.xyz/kasttag/user_..." {...register('kast.link')} />
+          <Field label="اسم صاحب الحساب (اختياري)" {...register('kast.holderName')} />
+          <Field label="ملاحظة للعميل (اختياري)" placeholder="اكتب اسمك في الملاحظة عند التحويل..." {...register('kast.note')} />
+        </div>
+        <p className="mt-4 flex items-start gap-2 rounded-xl bg-ivory/[0.04] p-3 text-[11.5px] text-ivory/50">
+          <Landmark size={13} className="mt-0.5 shrink-0" />
+          العميل بيشوف لوجو KAST + QR بيتولّد من اللينك تلقائيًا + اللينك نفسه. غيّر اللينك أي وقت والـ QR بيتغيّر معاه.
+        </p>
+      </Panel>
 
       <Panel title="واتساب الدعم" subtitle="لو حطيته، بيظهر للعميل كطريقة تواصل سريعة">
         <Field label="رقم الواتساب (بكود الدولة)" placeholder="201xxxxxxxxx" {...register('whatsapp')} />

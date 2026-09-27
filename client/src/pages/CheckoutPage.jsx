@@ -190,6 +190,7 @@ export default function CheckoutPage() {
   const isVodafone = payInfo?.method === 'vodafone';
   const v = payInfo?.vodafone || {};
   const b = payInfo?.bank || {};
+  const kast = payInfo?.kast || null;
   const hasPayData = isVodafone ? !!v.number : !!(b.accountNumber || b.iban);
   // مدة التعديل بعد التفعيل — من السيرفر، و0 = القاعدة متقفلة
   const days = pkgData?.editWindowDays ?? 30;
@@ -416,6 +417,48 @@ export default function CheckoutPage() {
 
                 {b.note && (
                   <p className="mt-3 text-[12.5px] leading-relaxed text-ink-dim">{b.note}</p>
+                )}
+
+                {/* ===== KAST — وسيلة دفع عالمية (بتظهر لو المالك مفعّلها) ===== */}
+                {kast && (
+                  <div className="mt-4 rounded-2xl border border-line bg-ink/[0.02] p-4">
+                    <div className="mb-3 flex items-center justify-between gap-2">
+                      <span className="inline-flex items-center rounded-lg bg-[#0a0a0a] px-3 py-2">
+                        <img src="/img/kast-logo.svg" alt="KAST" className="h-4 w-auto" />
+                      </span>
+                      <span className="text-[11.5px] font-bold text-ink-dim">{t('checkout.kastTagline')}</span>
+                    </div>
+                    {kast.qr && (
+                      <div className="flex flex-col items-center">
+                        <img
+                          src={kast.qr}
+                          alt="KAST QR"
+                          width={168}
+                          height={168}
+                          className="rounded-xl border border-line bg-white p-2"
+                          style={{ imageRendering: 'pixelated' }}
+                        />
+                        <p className="mt-2 text-center text-[11.5px] text-ink-dim">{t('checkout.kastScan')}</p>
+                      </div>
+                    )}
+                    {kast.holderName && (
+                      <div className="mt-3 flex items-center justify-between rounded-xl bg-ink/[0.03] px-3 py-2">
+                        <span className="text-[11.5px] text-ink-dim">{t('checkout.kastHolder')}</span>
+                        <span className="text-[13px] font-bold text-ink">{kast.holderName}</span>
+                      </div>
+                    )}
+                    <a
+                      href={kast.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#0a0a0a] py-3 text-[13px] font-bold text-white transition hover:brightness-150"
+                    >
+                      <img src="/img/kast-logo.svg" alt="" className="h-3.5 w-auto" /> {t('checkout.kastPay')}
+                    </a>
+                    {kast.note && (
+                      <p className="mt-3 text-[12.5px] leading-relaxed text-ink-dim">{kast.note}</p>
+                    )}
+                  </div>
                 )}
               </>
             )}

@@ -4,6 +4,7 @@
 // sanitizeText زي أي نص تاني بيتعرض في الموقع (utils/sanitize.js).
 const PaymentSettings = require('../models/PaymentSettings');
 const { sanitizeText } = require('./sanitize');
+const { qrDataUrl } = require('./qr');
 
 const KEY = 'default';
 
@@ -39,6 +40,12 @@ async function updatePaymentSettings(body) {
       address: sanitizeText(k.address, 300),
       note: sanitizeText(k.note, 400),
     },
+    kast: {
+      enabled: !!(b.kast && b.kast.enabled),
+      link: sanitizeText(b.kast && b.kast.link, 300),
+      holderName: sanitizeText(b.kast && b.kast.holderName, 120),
+      note: sanitizeText(b.kast && b.kast.note, 400),
+    },
     whatsapp: sanitizeText(b.whatsapp, 40),
     updatedAt: new Date(),
   };
@@ -64,7 +71,7 @@ function publicPaymentInfo(doc, countryCode) {
       },
     };
   }
-  return {
+  const info = {
     method: 'bank',
     whatsapp: doc.whatsapp || '',
     bank: {
@@ -78,6 +85,17 @@ function publicPaymentInfo(doc, countryCode) {
       note: doc.bank?.note || '',
     },
   };
+  // KAST وسيلة عالمية اختيارية — بتظهر جنب البنك للعميل الدولي لو المالك
+  // مفعّلها. الـ QR بيتولّد من اللينك الحالي في السيرفر.
+  if (doc.kast?.enabled && doc.kast?.link) {
+    info.kast = {
+      link: doc.kast.link,
+      holderName: doc.kast.holderName || '',
+      note: doc.kast.note || '',
+      qr: qrDataUrl(doc.kast.link, { cellSize: 6, margin: 2 }),
+    };
+  }
+  return info;
 }
 
 module.exports = { getPaymentSettings, updatePaymentSettings, publicPaymentInfo };

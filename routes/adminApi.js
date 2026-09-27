@@ -1200,6 +1200,7 @@ router.get('/admin/api/payment-settings', requireAdminSession, async (req, res) 
     return res.json({
       vodafone: doc.vodafone || {},
       bank: doc.bank || {},
+      kast: doc.kast || { enabled: false, link: '', holderName: '', note: '' },
       whatsapp: doc.whatsapp || '',
       updatedAt: doc.updatedAt,
     });
