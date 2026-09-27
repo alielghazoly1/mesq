@@ -19,6 +19,7 @@ const Withdrawal = require('../models/Withdrawal');
 const { computeUgcStats, generateReferralCode, round2 } = require('../utils/ugc');
 const { cleanupExpiredInvitations, DEFAULT_GRACE_DAYS } = require('../utils/cleanupExpired');
 const { TEMPLATES } = require('../templates/registry');
+const { getHiddenTemplateIds, setHiddenTemplateIds } = require('../utils/siteConfig');
 const {
   getPackage, PACKAGES, packageAllowedInCountry, EDIT_WINDOW_DAYS,
 } = require('../packages/registry');
@@ -1217,6 +1218,41 @@ router.put('/admin/api/payment-settings', requireAdminSession, async (req, res) 
     return res.json({ ok: true, updatedAt: doc.updatedAt });
   } catch (err) {
     console.error('Error saving payment settings:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+// ==========================================================================
+// التحكم في القوالب — إخفاء/إظهار أي قالب من قايمة العملاء
+// ==========================================================================
+router.get('/admin/api/site-templates', requireAdminSession, async (req, res) => {
+  try {
+    const hidden = new Set(await getHiddenTemplateIds());
+    return res.json({
+      templates: TEMPLATES.map((t) => ({
+        id: t.id,
+        name: t.name,
+        description: t.description || '',
+        thumb: `/img/template-thumbs/${t.id}.jpg`,
+        isPremium: !!t.isPremium,
+        hidden: hidden.has(t.id),
+      })),
+    });
+  } catch (err) {
+    console.error('Error loading site templates:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+router.put('/admin/api/site-templates', requireAdminSession, async (req, res) => {
+  try {
+    const ids = (req.body && req.body.hiddenTemplates) || [];
+    const saved = await setHiddenTemplateIds(ids);
+    logAdminAction(req, 'settings.templates', { type: 'settings', id: 'default' }, { hidden: saved });
+    return res.json({ ok: true, hiddenTemplates: saved });
+  } catch (err) {
+    if (err.status === 400) return res.status(400).json({ error: err.message });
+    console.error('Error saving site templates:', err);
     return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
   }
 });

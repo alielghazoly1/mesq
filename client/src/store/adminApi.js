@@ -23,7 +23,7 @@ const baseQuery = fetchBaseQuery({
 export const adminApi = createApi({
   reducerPath: 'adminApi',
   baseQuery,
-  tagTypes: ['Overview', 'Users', 'User', 'Orders', 'Invitations', 'Support', 'Settings', 'Pricing', 'Thread', 'Audit', 'Tracks', 'Withdrawals', 'Ugc'],
+  tagTypes: ['Overview', 'Users', 'User', 'Orders', 'Invitations', 'Support', 'Settings', 'Pricing', 'Thread', 'Audit', 'Tracks', 'Withdrawals', 'Ugc', 'SiteTemplates'],
   endpoints: (builder) => ({
     getOverview: builder.query({
       query: (period = 30) => `/overview?period=${period}`,
@@ -62,6 +62,15 @@ export const adminApi = createApi({
     getUgc: builder.query({
       query: () => '/ugc',
       providesTags: ['Ugc', 'Users'],
+    }),
+    // التحكم في ظهور القوالب للعملاء
+    getSiteTemplates: builder.query({
+      query: () => '/site-templates',
+      providesTags: ['SiteTemplates'],
+    }),
+    saveSiteTemplates: builder.mutation({
+      query: (body) => ({ url: '/site-templates', method: 'PUT', body }),
+      invalidatesTags: ['SiteTemplates', 'Audit'],
     }),
     resolveWithdrawal: builder.mutation({
       query: ({ id, ...body }) => ({ url: `/withdrawals/${id}`, method: 'POST', body }),
@@ -174,6 +183,8 @@ export const {
   useSetUserUgcMutation,
   useGetWithdrawalsQuery,
   useGetUgcQuery,
+  useGetSiteTemplatesQuery,
+  useSaveSiteTemplatesMutation,
   useResolveWithdrawalMutation,
   useBlockUserMutation,
   useSetUserPasswordMutation,

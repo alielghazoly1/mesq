@@ -13,16 +13,28 @@ const { isEditWindowOpen, editWindowEndedBody } = require('../utils/editWindow')
 const { freeQuotaFor, hashIp } = require('../middleware/freeQuota');
 const SiteTotals = require('../models/SiteTotals');
 const { getTemplate, TEMPLATES } = require('../templates/registry');
+const { getHiddenTemplateIds } = require('../utils/siteConfig');
 const { localizeTemplate } = require('../templates/i18n');
 const { ensureDeviceId, rsvpLimiter } = require('../middleware/deviceLimiter');
 
 const router = express.Router();
 
 // GET /api/templates — القوالب المتاحة (الفورم بيبني نفسه منها تلقائيًا)
-router.get('/api/templates', (req, res) => {
-  // ?lang=ar|en — بترجّع أسماء الأقسام والحقول والوصف باللغة المطلوبة
-  const publicList = TEMPLATES.map((t) => localizeTemplate(t, req.query.lang));
-  res.json(publicList);
+router.get('/api/templates', async (req, res) => {
+  try {
+    // ?lang=ar|en — بترجّع أسماء الأقسام والحقول والوصف باللغة المطلوبة.
+    // بنشيل القوالب اللي المالك مخفيها من لوحة التحكم — بس من القايمة اللي
+    // بتظهر للعملاء؛ الدعوات الموجودة اللي بتستخدمها بتفضل شغالة عادي.
+    const hidden = new Set(await getHiddenTemplateIds());
+    const publicList = TEMPLATES
+      .filter((t) => !hidden.has(t.id))
+      .map((t) => localizeTemplate(t, req.query.lang));
+    res.json(publicList);
+  } catch (err) {
+    console.error('Error listing templates:', err);
+    // لو حصل خطأ في قراءة الإعدادات، نعرض الكل بدل ما نكسر الفورم
+    res.json(TEMPLATES.map((t) => localizeTemplate(t, req.query.lang)));
+  }
 });
 
 // GET /api/public-stats — أرقام حقيقية آمنة (مفيش أي بيانات شخصية) بتتعرض
