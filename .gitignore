@@ -20,3 +20,4 @@ client/src/vedio/
 # لمكانها المخدوم (client/public/...). مش محتاج يترفع.
 assets/
 new/
+graphify-out/

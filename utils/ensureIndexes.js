@@ -45,6 +45,33 @@ async function ensureIndexes() {
     }
   } catch (err) {
     // مش مشكلة: لو فشل، السكيما هي اللي بتحكم والسيرفر بيكمّل شغل
+    console.error('ensureIndexes (sessions) skipped:', err.message);
+  }
+
+  // ===== users.phone =====
+  // نفس قصة الجلسات بالظبط: بعض قواعد الإنتاج فيها فهرس unique على
+  // `phone` من غير sparse/partial. التليفون بقى اختياري وبيتخزّن '' لما
+  // العميل يسيبه فاضي — فأول عميلين من غير تليفون بيتعارضوا بخطأ "قيمة
+  // مكررة"، واللي كان بيتفسّر غلط كـ "الإيميل مسجل بالفعل" فأي حساب جديد
+  // من غير تليفون كان بيفشل. الحل: نشيل الفهرس القديم ونحط فهرس جزئي
+  // يفرض التفرّد بس على الأرقام المكتوبة فعلًا.
+  try {
+    const users = mongoose.connection.collection('users');
+    const uidx = await users.indexes();
+    const badPhone = uidx.find((i) => i.key && i.key.phone === 1 && !i.partialFilterExpression);
+    if (badPhone) {
+      await users.dropIndex(badPhone.name);
+      console.log('🔧 اتشال فهرس التليفون القديم:', badPhone.name);
+    }
+    const unames = new Set((await users.indexes()).map((i) => i.name));
+    if (!unames.has('phone_unique_nonempty')) {
+      await users.createIndex(
+        { phone: 1 },
+        { unique: true, name: 'phone_unique_nonempty', partialFilterExpression: { phone: { $gt: '' } } }
+      );
+    }
+  } catch (err) {
+    // مش مشكلة: لو فشل، السكيما هي اللي بتحكم والسيرفر بيكمّل شغل
     console.error('ensureIndexes skipped:', err.message);
   }
 }

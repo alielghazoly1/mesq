@@ -45,6 +45,14 @@ router.post('/api/auth/register', async (req, res) => {
     if (existing) {
       return res.status(409).json({ error: 'الإيميل ده مسجل بالفعل، جرب تسجل الدخول.' });
     }
+    // التليفون اختياري — بس لو كتبه، لازم ميكونش مستخدم في حساب تاني.
+    // رسالة خاصة بيه عشان متتلخبطش مع رسالة الإيميل.
+    if (phone) {
+      const phoneTaken = await User.findOne({ phone });
+      if (phoneTaken) {
+        return res.status(409).json({ error: 'رقم التليفون ده مستخدم في حساب تاني.' });
+      }
+    }
 
     // لو سجّل من لينك إحالة UGC، بنربطه بالمسوّق (مرة واحدة وقت التسجيل بس).
     // بنتأكد إن الكود بتاع UGC شغّال فعلًا قبل ما نربط.
@@ -60,7 +68,13 @@ router.post('/api/auth/register', async (req, res) => {
     try {
       user = await User.create({ email, passwordHash, name, country, phone, referredBy });
     } catch (err) {
+      // خطأ "قيمة مكررة" — نعرف الحقل بالظبط ونرجّع رسالته الصح، مش
+      // نقول "الإيميل مسجل" على طول (اللي كان بيلخبط لو التعارض في التليفون).
       if (err.code === 11000) {
+        const dupKey = err.keyPattern || err.keyValue || {};
+        if ('phone' in dupKey) {
+          return res.status(409).json({ error: 'رقم التليفون ده مستخدم في حساب تاني.' });
+        }
         return res.status(409).json({ error: 'الإيميل ده مسجل بالفعل، جرب تسجل الدخول.' });
       }
       throw err;

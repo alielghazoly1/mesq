@@ -66,4 +66,14 @@ const userSchema = new mongoose.Schema({
 userSchema.index({ createdAt: -1 });
 userSchema.index({ 'subscription.packageId': 1 });
 
+// رقم التليفون فريد — بس لما يكون مكتوب فعلًا. partialFilterExpression
+// بـ { $gt: '' } بتغطي أي نص مش فاضي، فالعملاء اللي سايبين التليفون فاضي
+// ('') مش بيتعارضوا مع بعض (التليفون اختياري)، وفي نفس الوقت مينفعش
+// رقمين حقيقيين يتكرروا. الاسم صريح عشان يتطابق مع utils/ensureIndexes.js
+// (اللي بيشيل أي فهرس phone قديم مش جزئي على قواعد الإنتاج).
+userSchema.index(
+  { phone: 1 },
+  { unique: true, name: 'phone_unique_nonempty', partialFilterExpression: { phone: { $gt: '' } } }
+);
+
 module.exports = mongoose.model('User', userSchema);
