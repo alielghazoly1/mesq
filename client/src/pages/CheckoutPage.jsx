@@ -110,6 +110,9 @@ export default function CheckoutPage() {
   const [copied, setCopied] = useState('');
   // تفاصيل الحساب الإضافية (IBAN وSWIFT والعنوان) — مطويّة افتراضيًا
   const [moreBank, setMoreBank] = useState(false);
+  // لأي عميل دولي: تبويب بيبدّل بين البنك و KAST (لو المالك مفعّل KAST)
+  // — عشان مايبقاش الاتنين تحت بعض والشاشة تطول.
+  const [payTab, setPayTab] = useState('bank');
 
   function copy(value, key) {
     if (!value) return;
@@ -360,11 +363,34 @@ export default function CheckoutPage() {
               </>
             ) : (
               <>
-                <div className="mb-3 inline-flex items-center gap-2.5 rounded-full border border-line px-3 py-2 text-[12.5px] font-bold text-ink">
-                  <BankMark size={26} />
-                  {t('payment.bankTitle')}
-                </div>
+                {kast ? (
+                  /* زرارين: البنك (الافتراضي) و KAST — كل واحد بيعرض تفاصيله
+                     لوحدها، عشان الشاشة ماتطولش */
+                  <div className="mb-4 grid grid-cols-2 gap-1.5 rounded-2xl bg-ink/[0.05] p-1">
+                    <button
+                      type="button"
+                      onClick={() => setPayTab('bank')}
+                      className={`inline-flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-[12.5px] font-bold transition ${payTab === 'bank' ? 'bg-white text-ink shadow-sm' : 'text-ink-dim'}`}
+                    >
+                      <BankMark size={17} /> {t('payment.bankTitle')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPayTab('kast')}
+                      className={`inline-flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-[12.5px] font-extrabold tracking-wide transition ${payTab === 'kast' ? 'bg-[#0a0a0a] text-white shadow-sm' : 'text-ink-dim'}`}
+                    >
+                      KAST
+                    </button>
+                  </div>
+                ) : (
+                  <div className="mb-3 inline-flex items-center gap-2.5 rounded-full border border-line px-3 py-2 text-[12.5px] font-bold text-ink">
+                    <BankMark size={26} />
+                    {t('payment.bankTitle')}
+                  </div>
+                )}
 
+                {(!kast || payTab === 'bank') && (
+                <>
                 {/* التلاتة اللي بيتم التحويل بيهم فعلاً بس — والأول
                     فيهم الـIBAN، ده الرقم اللي العميل بيحوّل عليه.
                     الباقي (رقم الحساب الداخلي، SWIFT، العنوان، الاسم
@@ -418,9 +444,11 @@ export default function CheckoutPage() {
                 {b.note && (
                   <p className="mt-3 text-[12.5px] leading-relaxed text-ink-dim">{b.note}</p>
                 )}
+                </>
+                )}
 
-                {/* ===== KAST — وسيلة دفع عالمية (بتظهر لو المالك مفعّلها) ===== */}
-                {kast && (
+                {/* ===== KAST — تبويبه (بيظهر لو المالك مفعّلها) ===== */}
+                {kast && payTab === 'kast' && (
                   <div className="mt-4 rounded-2xl border border-line bg-ink/[0.02] p-4">
                     <div className="mb-3 flex items-center justify-between gap-2">
                       <span className="inline-flex items-center rounded-lg bg-[#0a0a0a] px-3 py-2">
@@ -447,6 +475,12 @@ export default function CheckoutPage() {
                         <span className="text-[13px] font-bold text-ink">{kast.holderName}</span>
                       </div>
                     )}
+                    <div className="mt-3 flex items-center justify-between rounded-xl bg-emerald/[0.07] px-4 py-3">
+                      <span className="text-[12.5px] font-bold text-emerald">{t('checkout.amountToSend')}</span>
+                      <span className="font-serif text-[18px] font-bold text-emerald">
+                        {pkg.price} {pkg.currencyLabel}
+                      </span>
+                    </div>
                     <a
                       href={kast.link}
                       target="_blank"
