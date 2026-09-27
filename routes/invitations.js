@@ -250,6 +250,11 @@ router.get('/i/:shortId', async (req, res) => {
       : renderLegacyHtml(invitation);
 
     res.set('Content-Type', 'text/html; charset=utf-8');
+    // مهم: الصفحة دي لازم تتقدّم طازة كل مرة — لو اتكاشت (في المتصفح أو أي
+    // CDN)، أي تعديل بيعمله صاحب الدعوة (مكان، تاريخ، أسماء...) مايوصلش
+    // لناس شافوا نسخة قديمة، فيبقى ناس شايفين القديم وناس الجديد. وكمان
+    // عدّاد المشاهدات لازم يزيد مع كل فتحة حقيقية.
+    res.set('Cache-Control', 'no-store, must-revalidate');
     return res.send(html);
   } catch (err) {
     console.error('Error rendering invitation:', err);
