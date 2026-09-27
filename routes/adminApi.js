@@ -16,7 +16,7 @@ const AdminAudit = require('../models/AdminAudit');
 const Track = require('../models/Track');
 const SiteTotals = require('../models/SiteTotals');
 const Withdrawal = require('../models/Withdrawal');
-const { computeUgcStats, generateReferralCode } = require('../utils/ugc');
+const { computeUgcStats, generateReferralCode, round2 } = require('../utils/ugc');
 const { cleanupExpiredInvitations, DEFAULT_GRACE_DAYS } = require('../utils/cleanupExpired');
 const { TEMPLATES } = require('../templates/registry');
 const {
@@ -908,6 +908,58 @@ router.post('/admin/api/withdrawals/:id', requireAdminSession, async (req, res) 
     return res.json({ ok: true, status: w.status });
   } catch (err) {
     console.error('Error resolving withdrawal:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+// ==========================================================================
+// المسوّقين (UGC) — كل حسابات العمولة + إحصائياتهم + إجمالي المستحقات
+// عشان المالك يشوف مين اللي عامله UGC، وعليه فلوس قد إيه لكل واحد.
+// ==========================================================================
+router.get('/admin/api/ugc', requireAdminSession, async (req, res) => {
+  try {
+    const users = await User.find({ isUgc: true })
+      .select('name email phone country payoutPhone referralCode commissionRate referralClicks createdAt subscription')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const zero = () => ({ EGP: 0, USD: 0 });
+    const totals = {
+      count: users.length,
+      registrations: 0,
+      paidCustomers: 0,
+      earned: zero(), withdrawn: zero(), pending: zero(), available: zero(),
+    };
+
+    const affiliates = [];
+    for (const u of users) {
+      // نفس دالة حساب أرباح لوحة المسوّق نفسها — عشان الأرقام هنا وعنده واحدة
+      const stats = await computeUgcStats(u);
+      affiliates.push({
+        id: String(u._id),
+        name: u.name || '—',
+        email: u.email || '—',
+        phone: u.phone || '',
+        payoutPhone: u.payoutPhone || '',
+        country: u.country || '—',
+        referralCode: u.referralCode || null,
+        commissionRate: u.commissionRate || 0,
+        createdAt: u.createdAt,
+        stats,
+      });
+      ['EGP', 'USD'].forEach((c) => {
+        totals.earned[c] = round2(totals.earned[c] + stats.earned[c]);
+        totals.withdrawn[c] = round2(totals.withdrawn[c] + stats.withdrawn[c]);
+        totals.pending[c] = round2(totals.pending[c] + stats.pending[c]);
+        totals.available[c] = round2(totals.available[c] + stats.available[c]);
+      });
+      totals.registrations += stats.registrations;
+      totals.paidCustomers += stats.paidCustomers;
+    }
+
+    return res.json({ affiliates, totals });
+  } catch (err) {
+    console.error('Error listing UGC affiliates:', err);
     return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
   }
 });

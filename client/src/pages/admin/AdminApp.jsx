@@ -10,7 +10,7 @@ import { NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { useDispatch } from 'react-redux';
 import {
   LayoutDashboard, Users, Receipt, FileText, MessageSquare,
-  Settings, ScrollText, LogOut, Loader2, Menu, X, Music, BadgePercent, Wallet, Banknote,
+  Settings, ScrollText, LogOut, Loader2, Menu, X, Music, BadgePercent, Wallet, Banknote, Megaphone,
 } from 'lucide-react';
 import { adminApi } from '../../store/adminApi.js';
 import AdminLogin from './AdminLogin.jsx';
@@ -19,6 +19,7 @@ import ClientsPage from './ClientsPage.jsx';
 import OrdersPage from './OrdersPage.jsx';
 import EarningsPage from './EarningsPage.jsx';
 import WithdrawalsPage from './WithdrawalsPage.jsx';
+import UgcPage from './UgcPage.jsx';
 import InvitationsPage from './InvitationsPage.jsx';
 import MusicPage from './MusicPage.jsx';
 import SupportPage from './SupportPage.jsx';
@@ -30,6 +31,7 @@ const NAV = [
   { to: '/admin', end: true, icon: LayoutDashboard, label: 'نظرة عامة' },
   { to: '/admin/earnings', icon: Wallet, label: 'الأرباح' },
   { to: '/admin/withdrawals', icon: Banknote, label: 'طلبات السحب' },
+  { to: '/admin/ugc', icon: Megaphone, label: 'المسوّقين' },
   { to: '/admin/clients', icon: Users, label: 'العملاء' },
   { to: '/admin/orders', icon: Receipt, label: 'الطلبات' },
   { to: '/admin/invitations', icon: FileText, label: 'الدعوات' },
@@ -172,6 +174,7 @@ export default function AdminApp() {
             <Route index element={<OverviewPage />} />
             <Route path="earnings" element={<EarningsPage />} />
             <Route path="withdrawals" element={<WithdrawalsPage />} />
+            <Route path="ugc" element={<UgcPage />} />
             <Route path="clients" element={<ClientsPage />} />
             <Route path="orders" element={<OrdersPage />} />
             <Route path="invitations" element={<InvitationsPage />} />

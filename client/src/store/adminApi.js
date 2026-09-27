@@ -23,7 +23,7 @@ const baseQuery = fetchBaseQuery({
 export const adminApi = createApi({
   reducerPath: 'adminApi',
   baseQuery,
-  tagTypes: ['Overview', 'Users', 'User', 'Orders', 'Invitations', 'Support', 'Settings', 'Pricing', 'Thread', 'Audit', 'Tracks', 'Withdrawals'],
+  tagTypes: ['Overview', 'Users', 'User', 'Orders', 'Invitations', 'Support', 'Settings', 'Pricing', 'Thread', 'Audit', 'Tracks', 'Withdrawals', 'Ugc'],
   endpoints: (builder) => ({
     getOverview: builder.query({
       query: (period = 30) => `/overview?period=${period}`,
@@ -52,15 +52,20 @@ export const adminApi = createApi({
     // enable/disable/setRate — بيفعّل الحساب كمسوّق أو يغيّر نسبته
     setUserUgc: builder.mutation({
       query: ({ id, ...body }) => ({ url: `/users/${id}/ugc`, method: 'POST', body }),
-      invalidatesTags: (r, e, { id }) => [{ type: 'User', id }, 'Users', 'Audit'],
+      invalidatesTags: (r, e, { id }) => [{ type: 'User', id }, 'Users', 'Audit', 'Ugc'],
     }),
     getWithdrawals: builder.query({
       query: ({ status = 'pending', page = 1 } = {}) => `/withdrawals?status=${status}&page=${page}`,
       providesTags: ['Withdrawals'],
     }),
+    // كل حسابات المسوّقين (UGC) مع إحصائياتهم وإجمالي المستحقات
+    getUgc: builder.query({
+      query: () => '/ugc',
+      providesTags: ['Ugc', 'Users'],
+    }),
     resolveWithdrawal: builder.mutation({
       query: ({ id, ...body }) => ({ url: `/withdrawals/${id}`, method: 'POST', body }),
-      invalidatesTags: ['Withdrawals', 'Audit'],
+      invalidatesTags: ['Withdrawals', 'Audit', 'Ugc'],
     }),
     // تغيير باسورد العميل. الباسورد نفسه بيروح للسيرفر ومبيرجعش تاني
     // في أي رد — اللي بيتعرض في الشاشة هو اللي الأدمن كتبه/ولّده عنده.
@@ -168,6 +173,7 @@ export const {
   useUpdateSubscriptionMutation,
   useSetUserUgcMutation,
   useGetWithdrawalsQuery,
+  useGetUgcQuery,
   useResolveWithdrawalMutation,
   useBlockUserMutation,
   useSetUserPasswordMutation,
