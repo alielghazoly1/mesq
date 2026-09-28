@@ -165,16 +165,27 @@ export default function AuthBar() {
             )}
           </div>
 
-          {/* ===== الموبايل: زرار القايمة بس ===== */}
-          <button
-            type="button"
-            onClick={() => setMenuOpen((v) => !v)}
-            aria-label={t('nav.menu')}
-            aria-expanded={menuOpen}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-ivory/20 text-ivory transition active:bg-ivory/10 sm:hidden"
-          >
-            {menuOpen ? <X size={18} /> : <Menu size={18} />}
-          </button>
+          {/* ===== الموبايل: زرار اللغة + زرار القايمة ===== */}
+          <div className="flex shrink-0 items-center gap-2 sm:hidden">
+            <button
+              type="button"
+              onClick={() => setLanguage(i18n.language === 'ar' ? 'en' : 'ar')}
+              aria-label={t('nav.language')}
+              className="flex h-9 items-center gap-1.5 rounded-full border border-ivory/20 px-3 text-[12.5px] font-extrabold text-ivory transition active:bg-ivory/10"
+            >
+              <Languages size={13} />
+              {i18n.language === 'ar' ? 'EN' : 'ع'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setMenuOpen((v) => !v)}
+              aria-label={t('nav.menu')}
+              aria-expanded={menuOpen}
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-ivory/20 text-ivory transition active:bg-ivory/10"
+            >
+              {menuOpen ? <X size={18} /> : <Menu size={18} />}
+            </button>
+          </div>
         </div>
       </div>
 
