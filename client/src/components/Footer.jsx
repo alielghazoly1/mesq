@@ -72,7 +72,24 @@ export default function Footer() {
           <a href={whatsappLink(WHATSAPP_MESSAGES.help)} target="_blank" rel="noopener noreferrer" className="hover:text-rose">
             {t('footer.contact')}
           </a>
+          <span className="h-3 w-px bg-line" />
+          <a href="mailto:mithaq@mithaq-invitation.com" className="hover:text-rose">
+            {t('footer.email')}
+          </a>
         </div>
+
+        {/* سطر أعمال/إعلانات — هادي تحت خالص، للتواصل الاحترافي مش
+            للعميل العادي */}
+        <p className="mt-6 text-[11.5px] text-ink-dim/60">
+          {t('footer.business')}{' '}
+          <a
+            href="mailto:mithaq@mithaq-invitation.com"
+            dir="ltr"
+            className="font-bold text-ink-dim hover:text-rose"
+          >
+            mithaq@mithaq-invitation.com
+          </a>
+        </p>
       </div>
     </footer>
   );

@@ -98,6 +98,8 @@ export const resources = {
         customTitle: 'A website or a custom design',
         customDesc: 'Anything built just for you — talk to me directly',
         contact: 'Contact us',
+        email: 'Email',
+        business: 'Business & partnerships:',
       },
       auth: {
         loginTab: 'Log in',
@@ -685,6 +687,8 @@ export const resources = {
         customTitle: 'موقع أو تصميم مخصص',
         customDesc: 'أي حاجة متعمولة ليك إنت — كلّمني على طول',
         contact: 'تواصل معانا',
+        email: 'إيميل',
+        business: 'للأعمال والإعلانات:',
       },
       auth: {
         loginTab: 'تسجيل الدخول',
