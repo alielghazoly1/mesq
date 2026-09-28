@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Check, X, Receipt, ExternalLink, Undo2, ShieldAlert, MessageCircle } from 'lucide-react';
 import {
@@ -33,7 +33,10 @@ export default function OrdersPage() {
   const [error, setError] = useState('');
   const [confirmId, setConfirmId] = useState(null);
   const [result, setResult] = useState('');
-  const sentinelRef = useRef(null);
+  // أحدث القيم في ref عشان كول-باك المراقب مايقراش قيم قديمة (stale)
+  const flags = useRef({ hasMore: false, isFetching: true });
+  flags.current = { hasMore: !!data?.hasMore, isFetching };
+  const ioRef = useRef(null);
 
   // بنجمّع الصفحات مع بعض: صفحة 1 بتستبدل، والباقي بتتضاف (من غير تكرار).
   useEffect(() => {
@@ -45,18 +48,22 @@ export default function OrdersPage() {
     });
   }, [data]);
 
-  // تحميل تلقائي وإحنا بننزل (infinite scroll)
-  useEffect(() => {
-    const el = sentinelRef.current;
-    if (!el) return undefined;
-    const io = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && data?.hasMore && !isFetching) {
-        setPage((p) => p + 1);
-      }
-    }, { rootMargin: '250px' });
-    io.observe(el);
-    return () => io.disconnect();
-  }, [data?.hasMore, isFetching]);
+  function loadMore() {
+    if (flags.current.hasMore && !flags.current.isFetching) setPage((p) => p + 1);
+  }
+
+  // تحميل تلقائي وإحنا بننزل (infinite scroll). بنستخدم callback ref عشان
+  // المراقب يتعلّق بعنصر النهاية أول ما يظهر فعلًا في الصفحة (مش قبل ما
+  // يترسم)، وبنقرا القيم الحديثة من flags.current عشان مايعلّقش على قيم
+  // قديمة. rootMargin كبير عشان يبدأ التحميل بدري وإنت بتقرّب من التحت.
+  const sentinelRef = useCallback((node) => {
+    if (ioRef.current) { ioRef.current.disconnect(); ioRef.current = null; }
+    if (!node) return;
+    ioRef.current = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) loadMore();
+    }, { rootMargin: '600px 0px' });
+    ioRef.current.observe(node);
+  }, []);
 
   function changeStatus(v) {
     dispatch(setOrdersStatus(v));
@@ -224,12 +231,23 @@ export default function OrdersPage() {
               ))}
             </Table>
             {/* نقطة التحميل التلقائي وإحنا بننزل */}
-            <div ref={sentinelRef} className="h-8" />
+            <div ref={sentinelRef} aria-hidden="true" className="h-1" />
             {isFetching && items.length > 0 && (
               <p className="py-2 text-center text-[12px] text-ivory/40">بيحمّل المزيد...</p>
             )}
+            {/* زرار احتياطي — يضمن إن العميل يقدر يجيب باقي الطلبات حتى لو
+                التحميل التلقائي ما اشتغلش لأي سبب */}
+            {data?.hasMore && !isFetching && (
+              <button
+                type="button"
+                onClick={loadMore}
+                className="mx-auto mt-2 flex items-center justify-center gap-1.5 rounded-full border border-ivory/20 px-5 py-2.5 text-[12.5px] font-bold text-ivory/80 transition hover:border-brass/50 hover:text-brass-soft"
+              >
+                حمّل المزيد ({fmtNum((data?.total || 0) - items.length)} فاضلين)
+              </button>
+            )}
             {!data?.hasMore && items.length > 0 && (
-              <p className="py-2 text-center text-[12px] text-ivory/30">دي كل الطلبات</p>
+              <p className="py-2 text-center text-[12px] text-ivory/30">دي كل الطلبات ({fmtNum(items.length)})</p>
             )}
           </>
         )}

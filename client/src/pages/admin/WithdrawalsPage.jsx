@@ -1,6 +1,6 @@
 // صفحة طلبات السحب — المسوّقين (UGC) بيطلبوا سحب أرباحهم فودافون كاش، وإنت
 // بتحوّل وتأكّد (paid) أو ترفض (rejected). بالضغط على العميل بيفتح ملفه.
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Check, X, MessageCircle } from 'lucide-react';
 import { useGetWithdrawalsQuery, useResolveWithdrawalMutation } from '../../store/adminApi.js';
@@ -29,7 +29,9 @@ export default function WithdrawalsPage() {
   const [resolve, { isLoading: resolving }] = useResolveWithdrawalMutation();
   const [busyId, setBusyId] = useState(null);
   const [error, setError] = useState('');
-  const sentinelRef = useRef(null);
+  const flags = useRef({ hasMore: false, isFetching: true });
+  flags.current = { hasMore: !!data?.hasMore, isFetching };
+  const ioRef = useRef(null);
 
   useEffect(() => {
     if (!data) return;
@@ -40,15 +42,17 @@ export default function WithdrawalsPage() {
     });
   }, [data]);
 
-  useEffect(() => {
-    const el = sentinelRef.current;
-    if (!el) return undefined;
-    const io = new IntersectionObserver((entries) => {
-      if (entries[0].isIntersecting && data?.hasMore && !isFetching) setPage((p) => p + 1);
-    }, { rootMargin: '250px' });
-    io.observe(el);
-    return () => io.disconnect();
-  }, [data?.hasMore, isFetching]);
+  function loadMore() {
+    if (flags.current.hasMore && !flags.current.isFetching) setPage((p) => p + 1);
+  }
+  const sentinelRef = useCallback((node) => {
+    if (ioRef.current) { ioRef.current.disconnect(); ioRef.current = null; }
+    if (!node) return;
+    ioRef.current = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) loadMore();
+    }, { rootMargin: '600px 0px' });
+    ioRef.current.observe(node);
+  }, []);
 
   function changeStatus(v) { setStatus(v); setPage(1); setItems([]); }
 
@@ -114,8 +118,17 @@ export default function WithdrawalsPage() {
                 </Row>
               ))}
             </Table>
-            <div ref={sentinelRef} className="h-8" />
+            <div ref={sentinelRef} aria-hidden="true" className="h-1" />
             {isFetching && items.length > 0 && <p className="py-2 text-center text-[12px] text-ivory/40">بيحمّل المزيد...</p>}
+            {data?.hasMore && !isFetching && (
+              <button
+                type="button"
+                onClick={loadMore}
+                className="mx-auto mt-2 flex items-center justify-center gap-1.5 rounded-full border border-ivory/20 px-5 py-2.5 text-[12.5px] font-bold text-ivory/80 transition hover:border-brass/50 hover:text-brass-soft"
+              >
+                حمّل المزيد
+              </button>
+            )}
           </>
         )}
       </Panel>
