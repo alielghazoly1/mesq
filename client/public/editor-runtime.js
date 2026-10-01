@@ -575,6 +575,14 @@
     // بانل تعديل الفورم على اليمين على طول — العميل عايز يعدّل كلام كل مدخل
     // ويشيل مدخلات من هناك، مش يكتب جوه الفورم مباشرة (ده بيكسر تركيبه).
     var rsvpHost = e.target.closest && e.target.closest('#wdaRsvpForm, #rsvpBtn, #mithaq-rsvp');
+    // استثناء: فورم #mithaq-rsvp اللي كلامه عناصر قابلة للتعديل (Lily Garden —
+    // كل كلمة فيه عليها data-elem-id). الضغط على الكلام نفسه بيكتب فيه زي أي
+    // نص، والضغط على باقي الفورم (الخانات/الكارت) بيفتح بانل الفورم زي ما كان.
+    // Ivory Swans كلام فورمها من غير data-elem-id، فمبيتأثرش.
+    if (rsvpHost && rsvpHost.id === 'mithaq-rsvp') {
+      var innerText = editableAtPoint(e.clientX, e.clientY);
+      if (innerText && rsvpHost.contains(innerText)) rsvpHost = null;
+    }
     if (rsvpHost) {
       e.preventDefault();
       e.stopPropagation();

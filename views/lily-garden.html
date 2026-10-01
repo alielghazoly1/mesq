@@ -1319,6 +1319,7 @@
                 #wg-invite-2 .fam { font-size: 4.6cqw; letter-spacing: .06em; margin-top: 2.4cqw; font-weight: 500; }
                 #wg-invite-2 .body { font-size: 4.3cqw; letter-spacing: .05em; line-height: 1.5; margin-top: 7cqw; font-weight: 500; }
                 #wg-invite-2 .big-date { font-size: 12.5cqw; margin-top: 6cqw; }
+                #wg-invite-2 .wg-line { display: block; margin: 0; }
                 #wg-invite-2 .end { font-size: 3.6cqw; letter-spacing: .04em; line-height: 1.5; margin-top: 5cqw; font-weight: 500; }
 
                 /* ===== الصفحة 3 ===== */
@@ -1393,7 +1394,9 @@
                     box-shadow: 0 10px 22px -10px rgba(85,88,47,.7); transition: background .25s ease, transform .2s ease, opacity .2s ease; -webkit-tap-highlight-color: transparent; }
                 .wg-btn:hover { background: var(--rose); }
                 .wg-btn:active { transform: scale(.98); }
-                .wg-btn:disabled { opacity: .6; cursor: default; }
+                .wg-btn:disabled, .wg-btn[aria-disabled="true"] { opacity: .6; cursor: default; pointer-events: none; }
+                .wg-btn:focus-visible { outline: 2px solid var(--rose); outline-offset: 3px; }
+                .wg-btn { user-select: none; -webkit-user-select: none; }
                 .wg-btn svg { width: 18px; height: 18px; }
                 .wg-err { min-height: 18px; margin: 10px 2px 0; font: 600 14px/1.5 'Cormorant Garamond', 'Amiri', Georgia, serif; color: #b03a3a; text-align: center; }
                 .wg-done { display: none; text-align: center; padding: 6px 4px 2px; }
@@ -1524,7 +1527,7 @@
                     <p class="wg-abs wg-caps date" data-elem-id="lg1" data-wg="date">23.10.2026</p>
                     <h1 class="wg-abs wg-script names"><span class="amp" data-elem-id="lg2" data-wg="name1">Eslam</span><span class="second" data-elem-id="lg3" data-wg="name2">Amira</span></h1>
                     <p class="wg-abs wg-caps wday" data-elem-id="lg4" data-wg="wday">Wedding Day</p>
-                    <div class="arch"><img data-elem-id="lg5" src="/templates/lily-garden/cake.webp" alt="" decoding="async" fetchpriority="high" width="487" height="629"/></div>
+                    <div class="arch"><img data-elem-id="lg5" src="/templates/lily-garden/hands.webp" alt="" decoding="async" fetchpriority="high" width="941" height="1672"/></div>
                 </section>
 
                 <!-- ===== الصفحة 2 ===== -->
@@ -1533,9 +1536,19 @@
                     <div class="card">
                         <p class="wg-script dear" data-elem-id="lg9" data-wg="dear" data-wg-reveal>Dear</p>
                         <p class="wg-caps fam" data-elem-id="lg10" data-wg="fam" data-wg-reveal>Friends &amp; Family!</p>
-                        <p class="wg-caps body" data-elem-id="lg11" data-wg="body" data-wg-reveal>We invite you<br/>to celebrate<br/>the most special day<br/>in our lives &ndash;<br/>our wedding!</p>
+                        <div class="wg-caps body" data-wg-reveal>
+                            <p class="wg-line" data-elem-id="lg40" data-wg="body1">We invite you</p>
+                            <p class="wg-line" data-elem-id="lg41" data-wg="body2">to celebrate</p>
+                            <p class="wg-line" data-elem-id="lg42" data-wg="body3">the most special day</p>
+                            <p class="wg-line" data-elem-id="lg43" data-wg="body4">in our lives &ndash;</p>
+                            <p class="wg-line" data-elem-id="lg44" data-wg="body5">our wedding!</p>
+                        </div>
                         <p class="wg-script big-date" data-elem-id="lg12" data-wg="date" data-wg-reveal>23.10.2026</p>
-                        <p class="wg-caps end" data-elem-id="lg13" data-wg="end" data-wg-reveal>We will be so happy<br/>to share this unforgettable day<br/>with you!</p>
+                        <div class="wg-caps end" data-wg-reveal>
+                            <p class="wg-line" data-elem-id="lg45" data-wg="end1">We will be so happy</p>
+                            <p class="wg-line" data-elem-id="lg46" data-wg="end2">to share this unforgettable day</p>
+                            <p class="wg-line" data-elem-id="lg47" data-wg="end3">with you!</p>
+                        </div>
                     </div>
                 </section>
 
@@ -1555,10 +1568,10 @@
                     <h2 class="wg-script until" data-elem-id="lg19" data-wg="until" data-wg-reveal>Until our special day</h2>
                     <svg class="cd-orn" viewBox="0 0 160 14" fill="none" aria-hidden="true"><path d="M2 7h58M100 7h58" stroke="#c9a46a" stroke-width="1"/><path d="M80 1.5c3 2.7 3 8.3 0 11-3-2.7-3-8.3 0-11Z" fill="#b9506a"/><circle cx="68" cy="7" r="1.6" fill="#c9a46a"/><circle cx="92" cy="7" r="1.6" fill="#c9a46a"/></svg>
                     <div id="wg-countdown" role="timer" aria-label="Countdown to the wedding" data-wg-reveal>
-                        <div class="wg-cd-block"><span class="wg-cd-num" id="wg-cd-d">00</span><span class="wg-cd-label" data-wg-cd="days">Days</span></div>
-                        <div class="wg-cd-block"><span class="wg-cd-num" id="wg-cd-h">00</span><span class="wg-cd-label" data-wg-cd="hours">Hours</span></div>
-                        <div class="wg-cd-block"><span class="wg-cd-num" id="wg-cd-m">00</span><span class="wg-cd-label" data-wg-cd="minutes">Mins</span></div>
-                        <div class="wg-cd-block"><span class="wg-cd-num" id="wg-cd-s">00</span><span class="wg-cd-label" data-wg-cd="seconds">Secs</span></div>
+                        <div class="wg-cd-block"><span class="wg-cd-num" id="days" data-elem-id="lg50">00</span><span class="wg-cd-label" data-elem-id="lg54" data-wg-cd="days">Days</span></div>
+                        <div class="wg-cd-block"><span class="wg-cd-num" id="hours" data-elem-id="lg51">00</span><span class="wg-cd-label" data-elem-id="lg55" data-wg-cd="hours">Hours</span></div>
+                        <div class="wg-cd-block"><span class="wg-cd-num" id="minutes" data-elem-id="lg52">00</span><span class="wg-cd-label" data-elem-id="lg56" data-wg-cd="minutes">Mins</span></div>
+                        <div class="wg-cd-block"><span class="wg-cd-num" id="seconds" data-elem-id="lg53">00</span><span class="wg-cd-label" data-elem-id="lg57" data-wg-cd="seconds">Secs</span></div>
                     </div>
                     <p class="wg-script cd-done" data-wg="cdDone">The celebration has begun</p>
                 </section>
@@ -1576,55 +1589,55 @@
 
                 <!-- ===== تأكيد الحضور ===== -->
                 <section id="mithaq-rsvp" class="wg-panel" aria-labelledby="mrsvp-title">
-                    <p class="wg-eyebrow" data-wg="rsvpEyebrow">R.S.V.P</p>
-                    <h2 class="wg-ptitle" id="mrsvp-title">Will you join us?</h2>
-                    <p class="wg-pintro" id="mrsvp-intro">Kindly let us know if you can make it.</p>
+                    <p class="wg-eyebrow" data-elem-id="lg60" data-wg="rsvpEyebrow">R.S.V.P</p>
+                    <h2 class="wg-ptitle" id="mrsvp-title" data-elem-id="lg61">Will you join us?</h2>
+                    <p class="wg-pintro" id="mrsvp-intro" data-elem-id="lg62">Kindly let us know if you can make it.</p>
                     <div class="wg-card" data-wg-reveal>
                         <form id="mrsvp-form" novalidate="">
                             <label class="wg-field">
-                                <span class="wg-field-label" id="mrsvp-name-lbl">Your name</span>
+                                <span class="wg-field-label" id="mrsvp-name-lbl" data-elem-id="lg63">Your name</span>
                                 <input class="wg-input" type="text" id="mrsvp-name" maxlength="80" autocomplete="name"/>
                             </label>
                             <div class="wg-choice" role="radiogroup">
-                                <label id="mrsvp-yes-lbl"><input type="radio" name="mrsvp-att" value="yes"/><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.6-7.5-10.1A4.4 4.4 0 0 1 12 7.6a4.4 4.4 0 0 1 7.5 2.8c0 5.5-7.5 10.1-7.5 10.1Z"/></svg><span>Joyfully accepts</span></label>
-                                <label id="mrsvp-no-lbl"><input type="radio" name="mrsvp-att" value="no"/><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 14.5c1.3-1.3 3-2 5-2s3.7.7 5 2"/><circle cx="12" cy="12" r="9"/><path d="M9 9.5h.01M15 9.5h.01"/></svg><span>Regretfully declines</span></label>
+                                <label id="mrsvp-yes-lbl"><input type="radio" name="mrsvp-att" value="yes"/><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5s-7.5-4.6-7.5-10.1A4.4 4.4 0 0 1 12 7.6a4.4 4.4 0 0 1 7.5 2.8c0 5.5-7.5 10.1-7.5 10.1Z"/></svg><span data-elem-id="lg64">Joyfully accepts</span></label>
+                                <label id="mrsvp-no-lbl"><input type="radio" name="mrsvp-att" value="no"/><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 14.5c1.3-1.3 3-2 5-2s3.7.7 5 2"/><circle cx="12" cy="12" r="9"/><path d="M9 9.5h.01M15 9.5h.01"/></svg><span data-elem-id="lg65">Regretfully declines</span></label>
                             </div>
                             <label class="wg-field">
-                                <span class="wg-field-label" id="mrsvp-note-lbl">A message for the couple</span>
+                                <span class="wg-field-label" id="mrsvp-note-lbl" data-elem-id="lg66">A message for the couple</span>
                                 <textarea class="wg-input" id="mrsvp-note" maxlength="200"></textarea>
                             </label>
-                            <button type="submit" class="wg-btn" id="mrsvp-submit">Send</button>
+                            <div role="button" tabindex="0" class="wg-btn" id="mrsvp-submit"><span id="mrsvp-submit-txt" data-elem-id="lg67">Send</span></div>
                             <p class="wg-err" id="mrsvp-err" role="alert"></p>
                         </form>
                         <div class="wg-done" id="mrsvp-done">
                             <div class="wg-done-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
-                            <h3 id="mrsvp-done-title">Thank you</h3>
-                            <p id="mrsvp-done-msg">Your response has been received.</p>
+                            <h3 id="mrsvp-done-title" data-elem-id="lg68">Thank you</h3>
+                            <p id="mrsvp-done-msg" data-elem-id="lg69">Your response has been received.</p>
                         </div>
                     </div>
                 </section>
 
                 <!-- ===== صور الضيوف ===== -->
                 <section id="mithaq-photos" class="wg-panel" aria-labelledby="wgp-title">
-                    <p class="wg-eyebrow" data-wg="photosEyebrow">Our album</p>
-                    <h2 class="wg-ptitle" id="wgp-title" data-wg="photosTitle">Share the moments</h2>
-                    <p class="wg-pintro" data-wg="photosIntro">Took photos at our celebration? Add them here so we can keep every beautiful moment.</p>
+                    <p class="wg-eyebrow" data-elem-id="lg70" data-wg="photosEyebrow">Our album</p>
+                    <h2 class="wg-ptitle" id="wgp-title" data-elem-id="lg71" data-wg="photosTitle">Share the moments</h2>
+                    <p class="wg-pintro" data-elem-id="lg72" data-wg="photosIntro">Took photos at our celebration? Add them here so we can keep every beautiful moment.</p>
                     <div class="wg-card" data-wg-reveal>
                         <div class="wgp-actions">
                             <label class="wg-field" id="wgp-name-wrap">
-                                <span class="wg-field-label" data-wg="photosName">Your name</span>
+                                <span class="wg-field-label" data-elem-id="lg73" data-wg="photosName">Your name</span>
                                 <input class="wg-input" type="text" id="wgp-name" maxlength="60" autocomplete="name"/>
                             </label>
                             <input class="wgp-file" type="file" id="wgp-file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,image/*" multiple/>
-                            <button type="button" class="wg-btn" id="wgp-add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.7l1.3-2h5l1.3 2h1.7A2.5 2.5 0 0 1 20 8.5v9A2.5 2.5 0 0 1 17.5 20h-11A2.5 2.5 0 0 1 4 17.5Z"/><circle cx="12" cy="13" r="3.6"/></svg><span data-wg="photosAdd">Add your photos</span></button>
+                            <div role="button" tabindex="0" class="wg-btn" id="wgp-add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.7l1.3-2h5l1.3 2h1.7A2.5 2.5 0 0 1 20 8.5v9A2.5 2.5 0 0 1 17.5 20h-11A2.5 2.5 0 0 1 4 17.5Z"/><circle cx="12" cy="13" r="3.6"/></svg><span data-elem-id="lg74" data-wg="photosAdd">Add your photos</span></div>
                         </div>
                         <p class="wg-err" id="wgp-err" role="alert"></p>
-                        <p class="wgp-note" id="wgp-note" data-wg="photosNote">Your photos appear here for everyone. You can delete your own photos any time.</p>
+                        <p class="wgp-note" id="wgp-note" data-elem-id="lg75" data-wg="photosNote">Your photos appear here for everyone. You can delete your own photos any time.</p>
                     </div>
                     <p class="wgp-count" id="wgp-count" hidden></p>
                     <div class="wgp-grid" id="wgp-grid"></div>
-                    <p class="wgp-empty" id="wgp-empty" data-wg="photosEmpty" hidden>Be the first to share a moment</p>
-                    <button type="button" class="wg-btn wgp-more" id="wgp-more" hidden><span data-wg="photosMore">Show more</span></button>
+                    <p class="wgp-empty" id="wgp-empty" data-elem-id="lg76" data-wg="photosEmpty" hidden>Be the first to share a moment</p>
+                    <div role="button" tabindex="0" class="wg-btn wgp-more" id="wgp-more" hidden><span data-elem-id="lg77" data-wg="photosMore">Show more</span></div>
                 </section>
 
                 <!-- ===== الختام ===== -->
@@ -1665,9 +1678,9 @@
                 var T = {
                     en: {
                         dear: 'Dear', fam: 'Friends &amp; Family!',
-                        body: ENG ? 'We invite you<br>to celebrate<br>a beautiful beginning<br>in our lives &ndash;<br>our engagement!'
-                                  : 'We invite you<br>to celebrate<br>the most special day<br>in our lives &ndash;<br>our wedding!',
-                        end: 'We will be so happy<br>to share this unforgettable day<br>with you!',
+                        body: ENG ? ['We invite you', 'to celebrate', 'a beautiful beginning', 'in our lives &ndash;', 'our engagement!']
+                                  : ['We invite you', 'to celebrate', 'the most special day', 'in our lives &ndash;', 'our wedding!'],
+                        end: ['We will be so happy', 'to share this unforgettable day', 'with you!'],
                         tv: 'Time &amp; Venue', until: 'Until our special day', cdDone: 'The celebration has begun',
                         cd: { days: 'Days', hours: 'Hours', minutes: 'Mins', seconds: 'Secs' },
                         location: 'Location', directions: 'Get Directions',
@@ -1692,9 +1705,9 @@
                     },
                     ar: {
                         dear: 'أحبابنا', fam: 'الأهل والأصدقاء',
-                        body: ENG ? 'ندعوكم لمشاركتنا<br>بداية أجمل حكاية في حياتنا<br>حفل خطوبتنا'
-                                  : 'ندعوكم لمشاركتنا<br>أسعد أيام عمرنا<br>حفل زفافنا',
-                        end: 'سيكتمل فرحنا بوجودكم<br>ومشاركتكم هذا اليوم الذي لا يُنسى',
+                        body: ENG ? ['ندعوكم لمشاركتنا', 'بداية أجمل حكاية في حياتنا', 'حفل خطوبتنا']
+                                  : ['ندعوكم لمشاركتنا', 'أسعد أيام عمرنا', 'حفل زفافنا'],
+                        end: ['سيكتمل فرحنا بوجودكم', 'ومشاركتكم هذا اليوم الذي لا يُنسى'],
                         tv: 'الموعد والمكان', until: 'باقي على يومنا المميز', cdDone: 'بدأ الاحتفال',
                         cd: { days: 'يوم', hours: 'ساعة', minutes: 'دقيقة', seconds: 'ثانية' },
                         location: 'الموقع', directions: 'اعرف الطريق',
@@ -1736,6 +1749,16 @@
                     });
                 }
                 function pad(n) { return n < 10 ? '0' + n : '' + n; }
+                // زراير div (مش <button>): الضغط + Enter/Space من الكيبورد
+                function onPress(el, fn) {
+                    if (!el) return;
+                    el.addEventListener('click', function (e) { if (el.getAttribute('aria-disabled') === 'true') return; fn(e); });
+                    el.addEventListener('keydown', function (e) {
+                        if (e.target !== el) return; // الكتابة جوه الزرار في المحرر متتأثرش
+                        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (el.getAttribute('aria-disabled') !== 'true') fn(e); }
+                    });
+                }
+                function setBusy(el, on) { if (el) el.setAttribute('aria-disabled', on ? 'true' : 'false'); }
 
                 /* ---------- البيانات ---------- */
                 var cd = C.countdown || {};
@@ -1762,7 +1785,17 @@
                     if (first) setText('[data-wg="name1"]', first);
                     if (second) setText('[data-wg="name2"]', second);
                     setText('[data-wg="wday"]', L.wday);
-                    ['dear', 'fam', 'body', 'end', 'tv', 'until', 'cdDone', 'location', 'directions', 'rsvpEyebrow',
+                    // سطور الكارت: كل سطر عنصر لوحده (العربي سطوره أقل — اللي ملوش كلام بيستخبى)
+                    [['body', 5], ['end', 3]].forEach(function (pair) {
+                        var lines = L[pair[0]] || [];
+                        for (var i = 1; i <= pair[1]; i++) {
+                            var el = box.querySelector('[data-wg="' + pair[0] + i + '"]');
+                            if (!el) continue;
+                            if (lines[i - 1]) { el.innerHTML = lines[i - 1]; el.style.display = ''; }
+                            else { el.textContent = ''; el.style.display = 'none'; }
+                        }
+                    });
+                    ['dear', 'fam', 'tv', 'until', 'cdDone', 'location', 'directions', 'rsvpEyebrow',
                      'photosEyebrow', 'photosTitle', 'photosIntro', 'photosName', 'photosAdd', 'photosMore', 'photosNote',
                      'photosEmpty', 'photosDownload', 'closing'].forEach(function (k) { setText('[data-wg="' + k + '"]', L[k], true); });
                     setText('[data-wg="venue"]', C.venueName);
@@ -1847,8 +1880,8 @@
                 if (!noCountdown) (function () {
                     var target = Date.parse(C.weddingDateTimeISO || '') || Date.parse('2026-10-23T19:00:00+03:00');
                     var sec4 = document.getElementById('wg-invite-4');
-                    var els = { d: document.getElementById('wg-cd-d'), h: document.getElementById('wg-cd-h'),
-                                m: document.getElementById('wg-cd-m'), s: document.getElementById('wg-cd-s') };
+                    var els = { d: document.getElementById('days'), h: document.getElementById('hours'),
+                                m: document.getElementById('minutes'), s: document.getElementById('seconds') };
                     var last = {};
                     var timer = null;
                     function put(k, v) {
@@ -1879,12 +1912,13 @@
                     var done = document.getElementById('mrsvp-done');
                     var err = document.getElementById('mrsvp-err');
                     var btn = document.getElementById('mrsvp-submit');
+                    var btnTxt = document.getElementById('mrsvp-submit-txt');
                     function lbl(id, v) { var e = document.getElementById(id); if (e && v) e.textContent = v; }
                     lbl('mrsvp-title', OV.title || L.rsvpTitle);
                     lbl('mrsvp-intro', OV.intro || L.rsvpIntro);
                     lbl('mrsvp-name-lbl', OV.nameLabel || L.nameLabel);
                     lbl('mrsvp-note-lbl', OV.foodLabel || L.noteLabel);
-                    lbl('mrsvp-submit', OV.submit || L.submit);
+                    lbl('mrsvp-submit-txt', OV.submit || L.submit);
                     lbl('mrsvp-done-title', L.doneTitle);
                     lbl('mrsvp-done-msg', L.doneMsg);
                     var yes = document.querySelector('#mrsvp-yes-lbl span'), no = document.querySelector('#mrsvp-no-lbl span');
@@ -1898,8 +1932,9 @@
                     if (!C.autoOpen && shortId) {
                         try { if (localStorage.getItem(key)) { showDone(); return; } } catch (e) { /* تصفح خاص */ }
                     }
-                    form.addEventListener('submit', function (ev) {
-                        ev.preventDefault();
+                    form.addEventListener('submit', function (ev) { ev.preventDefault(); send(); });
+                    onPress(btn, function () { send(); });
+                    function send() {
                         var name = (document.getElementById('mrsvp-name').value || '').trim();
                         var att = (form.querySelector('input[name=mrsvp-att]:checked') || {}).value;
                         var note = (document.getElementById('mrsvp-note').value || '').trim();
@@ -1907,20 +1942,20 @@
                         if (!name) { err.textContent = L.errName; return; }
                         if (!att) { err.textContent = L.errAtt; return; }
                         if (!shortId) { err.textContent = L.errPreview; return; }
-                        var label = btn.textContent;
-                        btn.disabled = true; btn.textContent = L.sending;
+                        var label = btnTxt.textContent;
+                        setBusy(btn, true); btnTxt.textContent = L.sending;
                         fetch('/i/' + encodeURIComponent(shortId) + '/rsvp', {
                             method: 'POST', headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ guestName: name, attending: att, note: note })
                         }).then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; }); })
                           .then(function (res) {
-                              if (!res.ok) { err.textContent = (res.j && res.j.error) || L.errNet; btn.disabled = false; btn.textContent = label; return; }
+                              if (!res.ok) { err.textContent = (res.j && res.j.error) || L.errNet; setBusy(btn, false); btnTxt.textContent = label; return; }
                               try { localStorage.setItem(key, '1'); } catch (e) { /* */ }
                               showDone();
                               done.scrollIntoView({ behavior: 'smooth', block: 'center' });
                           })
-                          .catch(function () { err.textContent = L.errNet; btn.disabled = false; btn.textContent = label; });
-                    });
+                          .catch(function () { err.textContent = L.errNet; setBusy(btn, false); btnTxt.textContent = label; });
+                    }
                 })();
 
                 /* ---------- صور الضيوف ----------
@@ -2083,7 +2118,7 @@
                         });
                     }
 
-                    addBtn.addEventListener('click', function () {
+                    onPress(addBtn, function () {
                         errEl.textContent = '';
                         if (!shortId) { errEl.textContent = L.errPhotoPreview; return; }
                         if (!nameIn.value.trim()) { errEl.textContent = L.errPhotoName; nameIn.focus(); return; }
@@ -2107,7 +2142,7 @@
                             jobs.push({ file: f, ph: ph });
                         });
                         render();
-                        addBtn.disabled = true;
+                        setBusy(addBtn, true);
                         // واحدة ورا التانية: أخف على نت الموبايل في القاعة، والترتيب بيفضل صح
                         var failed = 0;
                         jobs.reduce(function (p, job) {
@@ -2116,12 +2151,12 @@
                                     .then(function (ok) { if (!ok) failed++; });
                             });
                         }, Promise.resolve()).then(function () {
-                            addBtn.disabled = false;
+                            setBusy(addBtn, false);
                             if (failed && !errEl.textContent) errEl.textContent = L.errPhotoFail;
                             render();
                         });
                     });
-                    moreBtn.addEventListener('click', function () { load(true); });
+                    onPress(moreBtn, function () { load(true); });
 
                     /* ---- عرض الصورة كبيرة ---- */
                     var lb = document.getElementById('wgp-lightbox');
