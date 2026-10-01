@@ -136,6 +136,16 @@ export const adminApi = createApi({
     }),
     getAdminPackages: builder.query({ query: () => '/packages', providesTags: ['Pricing'] }),
 
+    // ===== أسعار الباقات وتشغيلها =====
+    getPackagePrices: builder.query({
+      query: () => '/package-prices',
+      providesTags: ['Pricing'],
+    }),
+    savePackagePrices: builder.mutation({
+      query: (body) => ({ url: '/package-prices', method: 'PUT', body }),
+      invalidatesTags: ['Pricing', 'Audit'],
+    }),
+
     // ===== الخصومات =====
     getPricingSettings: builder.query({
       query: () => '/pricing-settings',
@@ -200,6 +210,8 @@ export const {
   useSavePaymentSettingsMutation,
   useGetAdminPackagesQuery,
   useGetPricingSettingsQuery,
+  useGetPackagePricesQuery,
+  useSavePackagePricesMutation,
   useSavePricingSettingsMutation,
   useGetAuditQuery,
   useGetTracksQuery,

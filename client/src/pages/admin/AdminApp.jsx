@@ -10,7 +10,7 @@ import { NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { useDispatch } from 'react-redux';
 import {
   LayoutDashboard, Users, Receipt, FileText, MessageSquare,
-  Settings, ScrollText, LogOut, Loader2, Menu, X, Music, BadgePercent, Wallet, Banknote, Megaphone, LayoutTemplate,
+  Settings, ScrollText, LogOut, Loader2, Menu, X, Music, BadgePercent, Wallet, Banknote, Megaphone, LayoutTemplate, Tags,
 } from 'lucide-react';
 import { adminApi } from '../../store/adminApi.js';
 import AdminLogin from './AdminLogin.jsx';
@@ -26,6 +26,7 @@ import MusicPage from './MusicPage.jsx';
 import SupportPage from './SupportPage.jsx';
 import SettingsPage from './SettingsPage.jsx';
 import DiscountsPanel from './DiscountsPanel.jsx';
+import PackagesPricesPage from './PackagesPricesPage.jsx';
 import AuditPage from './AuditPage.jsx';
 
 const NAV = [
@@ -39,6 +40,7 @@ const NAV = [
   { to: '/admin/templates', icon: LayoutTemplate, label: 'القوالب' },
   { to: '/admin/music', icon: Music, label: 'الموسيقى' },
   { to: '/admin/support', icon: MessageSquare, label: 'الدعم' },
+  { to: '/admin/packages', icon: Tags, label: 'الباقات والأسعار' },
   { to: '/admin/discounts', icon: BadgePercent, label: 'الخصومات' },
   { to: '/admin/settings', icon: Settings, label: 'بيانات الدفع' },
   { to: '/admin/audit', icon: ScrollText, label: 'سجل الإجراءات' },
@@ -183,6 +185,7 @@ export default function AdminApp() {
             <Route path="templates" element={<TemplatesPage />} />
             <Route path="music" element={<MusicPage />} />
             <Route path="support" element={<SupportPage />} />
+            <Route path="packages" element={<PackagesPricesPage />} />
             <Route path="discounts" element={<DiscountsPanel />} />
             <Route path="settings" element={<SettingsPage />} />
             <Route path="audit" element={<AuditPage />} />

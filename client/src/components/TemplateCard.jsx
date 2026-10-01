@@ -87,7 +87,10 @@ export default function TemplateCard({ template, index }) {
       )}
 
       <div className="flex justify-center bg-gradient-to-b from-emerald/[0.06] to-transparent px-3 pt-5 sm:px-7 sm:pt-7">
-        <div className="relative aspect-[9/17] w-[74%] overflow-hidden rounded-[18px] border-[4px] border-[#050b08] bg-[#050b08] shadow-[0_16px_30px_-18px_rgba(8,19,15,.8)] sm:w-[62%] sm:rounded-[26px] sm:border-[6px]">
+        {/* الصورة = غلاف الدعوة على شاشة موبايل حقيقية (390×844) بنفس الطريقة
+            لكل التصاميم، والإطار بنفس نسبة الشاشة — فمفيش قص ولا تكبير،
+            والختم بيبان في مكانه الطبيعي زي ما الضيف هيشوفه */}
+        <div className="relative aspect-[390/844] w-[66%] overflow-hidden rounded-[18px] border-[4px] border-[#050b08] bg-[#050b08] shadow-[0_16px_30px_-18px_rgba(8,19,15,.8)] sm:w-[54%] sm:rounded-[26px] sm:border-[6px]">
           {imgError ? (
             <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-night to-[#16281f] p-3 text-center font-serif text-[13px] italic text-brass-soft">
               {template.name}
@@ -97,7 +100,7 @@ export default function TemplateCard({ template, index }) {
               src={`/img/template-thumbs/${template.id}.jpg`}
               alt={`معاينة تصميم ${template.name}`}
               loading="lazy"
-              className="h-full w-full object-cover object-top"
+              className="h-full w-full object-cover object-center"
               onError={() => setImgError(true)}
             />
           )}

@@ -25,6 +25,9 @@ const ACTIONS = {
   'user.block': { label: 'حظر حساب', tone: 'danger' },
   'user.unblock': { label: 'رفع حظر', tone: 'ok' },
   'settings.payment': { label: 'تعديل بيانات الدفع', tone: 'muted' },
+  'settings.pricing': { label: 'تعديل الخصومات', tone: 'muted' },
+  'settings.templates': { label: 'تعديل القوالب', tone: 'muted' },
+  'settings.packagePrices': { label: 'تعديل أسعار الباقات', tone: 'warn' },
 };
 
 /** ملخص قصير للتفاصيل بدل ما نرمي JSON خام في وش المستخدم */

@@ -35,6 +35,15 @@ const pricingSettingsSchema = new mongoose.Schema({
   // ما حد يفتح اللوحة — عشان عرض مؤقت مايفضلش شغال شهور بالغلط.
   endsAt: { type: Date, default: null },
 
+  // ===== الأسعار وتشغيل الباقات (من لوحة التحكم — صفحة "الباقات والأسعار") =====
+  // سعر القايمة لكل باقة بالعملتين: { solo: { EGP: 150 }, basic: { EGP: 400, USD: 15 } }.
+  // اللي مش متحدد هنا بيفضل على السعر المكتوب في packages/registry.js —
+  // يعني من غير ما المالك يلمس حاجة، كل الأسعار زي ما هي بالظبط.
+  prices: { type: mongoose.Schema.Types.Mixed, default: {} },
+  // الباقات المقفولة: مبتظهرش في صفحة الباقات ومحدش يقدر يطلبها. اشتراكات
+  // العملاء الحاليين والطلبات القديمة مبتتأثرش.
+  disabledPackages: { type: [String], default: [] },
+
   updatedAt: { type: Date, default: Date.now },
 });
 

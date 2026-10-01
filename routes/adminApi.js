@@ -30,6 +30,7 @@ const { getPaymentSettings, updatePaymentSettings } = require('../utils/paymentS
 const {
   getPricingSettings, getPricingSettingsCached, priceFor, clampPercent,
   invalidateCache: invalidatePricingCache,
+  listPriceFor, isPackageEnabled, savePackagePrices, MAX_PRICE,
 } = require('../utils/pricing');
 const { sanitizeText } = require('../utils/sanitize');
 const { hashPassword } = require('../utils/password');
@@ -1292,9 +1293,11 @@ router.get('/admin/api/packages', requireAdminSession, async (req, res) => {
           id: p.id,
           name: p.name.ar || p.name.en,
           invitations: p.invitations,
-          // سعر القايمة (قبل الخصم)
-          priceEGP: p.price.EGP,
-          priceUSD: p.price.USD,
+          // سعر القايمة (قبل الخصم) — بعد أي سعر حدّده المالك من اللوحة
+          priceEGP: listPriceFor(p, 'EGP', settings),
+          priceUSD: listPriceFor(p, 'USD', settings),
+          // مقفولة للعملاء؟ (المالك يقدر يمنحها يدويًا برضو)
+          enabled: isPackageEnabled(p.id, settings),
           // السعر اللي العميل بيدفعه فعلاً دلوقتي
           finalEGP: egp.price,
           finalUSD: usd.price,
@@ -1308,6 +1311,71 @@ router.get('/admin/api/packages', requireAdminSession, async (req, res) => {
     });
   } catch (err) {
     console.error('Error listing packages:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+// ==========================================================================
+// الباقات والأسعار — المالك بيحدد سعر كل باقة بالجنيه والدولار، وبيقفل
+// أو يفتح أي باقة. اللي مش متحدد بيفضل على سعر packages/registry.js.
+// ==========================================================================
+router.get('/admin/api/package-prices', requireAdminSession, async (req, res) => {
+  try {
+    const doc = await getPricingSettings();
+    const settings = {
+      enabled: !!doc.enabled,
+      percent: Number(doc.percent) || 0,
+      perPackage: doc.perPackage || {},
+      endsAt: doc.endsAt || null,
+      prices: doc.prices || {},
+      disabledPackages: doc.disabledPackages || [],
+    };
+    const own = settings.prices;
+    return res.json({
+      maxPrice: MAX_PRICE,
+      updatedAt: doc.updatedAt,
+      packages: PACKAGES.map((p) => {
+        const egp = priceFor(p, 'EGP', settings);
+        const usd = priceFor(p, 'USD', settings);
+        return {
+          id: p.id,
+          name: p.name.ar || p.name.en,
+          nameEn: p.name.en,
+          invitations: p.invitations,
+          // متاحة في دول معيّنة بس؟ (باقة الدعوة الواحدة = مصر بس)
+          countries: p.countries || [],
+          // السعر الأصلي في الكود — "ارجع للأصلي" بيرجعله
+          defaultEGP: (p.price && p.price.EGP) || 0,
+          defaultUSD: (p.price && p.price.USD) || 0,
+          // السعر اللي المالك حاطه (null = ماشي على الأصلي)
+          customEGP: (own[p.id] && own[p.id].EGP) || null,
+          customUSD: (own[p.id] && own[p.id].USD) || null,
+          // سعر القايمة الفعلي، واللي العميل بيدفعه بعد أي خصم شغال
+          listEGP: egp.listPrice,
+          listUSD: usd.listPrice,
+          finalEGP: egp.price,
+          finalUSD: usd.price,
+          discountPercent: egp.discountPercent,
+          enabled: isPackageEnabled(p.id, settings),
+        };
+      }),
+    });
+  } catch (err) {
+    console.error('Error loading package prices:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+router.put('/admin/api/package-prices', requireAdminSession, async (req, res) => {
+  try {
+    const doc = await savePackagePrices(req.body);
+    logAdminAction(req, 'settings.packagePrices', { type: 'settings', id: 'default' }, {
+      prices: doc.prices || {}, disabled: doc.disabledPackages || [],
+    });
+    return res.json({ ok: true, updatedAt: doc.updatedAt });
+  } catch (err) {
+    if (err.status === 400) return res.status(400).json({ error: err.message });
+    console.error('Error saving package prices:', err);
     return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
   }
 });
@@ -1327,6 +1395,9 @@ router.get('/admin/api/pricing-settings', requireAdminSession, async (req, res) 
       labelAr: doc.labelAr || '',
       labelEn: doc.labelEn || '',
       endsAt: doc.endsAt || null,
+      // الأسعار اللي المالك حدّدها — عشان المعاينة تحسب الخصم على السعر الحقيقي
+      prices: doc.prices || {},
+      disabledPackages: doc.disabledPackages || [],
     };
     return res.json({
       ...settings,

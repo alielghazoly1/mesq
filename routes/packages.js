@@ -76,6 +76,10 @@ router.post('/api/packages/order', requireAuth, async (req, res) => {
     // السعر بياخد الخصم الشغال دلوقتي — نفس الرقم اللي العميل شافه على
     // الشاشة بالظبط، لأن الاتنين بيعدوا من utils/pricing.js
     const priced = await priceForOrder(pkg.id, req.user.country);
+    // الباقة اتقفلت من لوحة التحكم (أو مالهاش سعر بعملته)
+    if (!priced) {
+      return res.status(403).json({ error: 'الباقة دي مش متاحة دلوقتي — اختار باقة تانية.' });
+    }
 
     // لو عنده طلب معلّق لنفس الباقة، مانعملش طلب جديد فوقه.
     // بس بنحدّث سعره لو الخصم اتغير من ساعة ما طلب — غير كده هيحوّل
@@ -86,7 +90,11 @@ router.post('/api/packages/order', requireAuth, async (req, res) => {
       status: 'pending',
     });
     if (existing) {
-      if (existing.price !== priced.price || existing.currency !== currency) {
+      // دقة الفلوس: لو العميل رفع إيصال خلاص، يبقى حوّل المبلغ اللي كان مكتوب
+      // ساعتها — السعر ده متقفل ومبيتغيّرش حتى لو السعر اتغيّر من اللوحة بعدها
+      // (غير كده اللوحة هتوري مبلغ غير اللي اتحوّل فعلًا)
+      if (!existing.paymentProofUrl
+        && (existing.price !== priced.price || existing.currency !== currency)) {
         existing.price = priced.price;
         existing.currency = currency;
         await existing.save();
