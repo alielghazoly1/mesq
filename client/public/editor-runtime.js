@@ -159,6 +159,11 @@
   /** عنصر الخريطة — ليه تحكّم خاص (لينك مكان) مش كتابة */
   function isMapElement(el) {
     if (el.querySelector('iframe[src*="google.com/maps"], iframe[src*="maps.google"]')) return true;
+    // الخريطة اللي لسه مظهرتش في الشاشة: deferMaps (utils/templateFixes.js)
+    // بيشيل الـ src لحد ما توصل للشاشة ويحطه في data-wda-map-src. من غير
+    // السطر ده، الخريطة اللي تحت في الصفحة كانت مبتتعرفش كـ"خريطة" وقت
+    // تشغيل المحرر (بتتعامل كعنصر عادي) لحد ما العميل ينزل لها.
+    if (el.querySelector('iframe[data-wda-map-src*="google.com/maps"], iframe[data-wda-map-src*="maps.google"]')) return true;
     if (el.querySelector('a[href*="google.com/maps"], a[href*="maps.app.goo.gl"]')) return true;
     // العنصر نفسه رابط خرائط (زي "افتح في خرائط جوجل" في dolce-vita)
     if (el.tagName === 'A') {

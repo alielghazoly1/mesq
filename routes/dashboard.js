@@ -8,12 +8,14 @@ const Rsvp = require('../models/Rsvp');
 const SupportMessage = require('../models/SupportMessage');
 const User = require('../models/User');
 const Withdrawal = require('../models/Withdrawal');
+const GuestPhoto = require('../models/GuestPhoto');
 const { requireAuth } = require('../middleware/auth');
 const { sanitizeText } = require('../utils/sanitize');
 const { ensureStatsToken } = require('../utils/statsPage');
 const { computeUgcStats, CURRENCIES } = require('../utils/ugc');
 const { getPackage, EDIT_WINDOW_DAYS } = require('../packages/registry');
 const { editWindowInfo } = require('../utils/editWindow');
+const { templateHasAlbum } = require('../utils/guestPhotos');
 
 const router = express.Router();
 
@@ -33,6 +35,17 @@ router.get('/api/dashboard', requireAuth, async (req, res) => {
       { $match: { shortId: { $in: shortIds } } },
       { $group: { _id: { shortId: '$shortId', attending: '$attending' }, count: { $sum: 1 } } },
     ]);
+
+    // عدد صور الضيوف لكل دعوة (للقوالب اللي فيها ألبوم بس)
+    const albumIds = invitations.filter((i) => templateHasAlbum(i.templateId)).map((i) => i.shortId);
+    const photoCounts = albumIds.length
+      ? await GuestPhoto.aggregate([
+        { $match: { shortId: { $in: albumIds } } },
+        { $group: { _id: '$shortId', count: { $sum: 1 } } },
+      ])
+      : [];
+    const photosByShortId = {};
+    photoCounts.forEach((row) => { photosByShortId[row._id] = row.count; });
 
     const countsByShortId = {};
     rsvpCounts.forEach((row) => {
@@ -92,6 +105,10 @@ router.get('/api/dashboard', requireAuth, async (req, res) => {
         weddingDate: inv.weddingDateTime,
         views: inv.viewCount || 0,
         rsvp: countsByShortId[inv.shortId] || { yes: 0, no: 0 },
+        // ألبوم صور الضيوف: القالب بيدعمه؟ وكام صورة اترفعت
+        album: templateHasAlbum(inv.templateId)
+          ? { photos: photosByShortId[inv.shortId] || 0 }
+          : null,
         isPremium: !!inv.isPremium,
         // 'draft' = لسه متنشرتش (الدعوات القديمة مفيهاش الحقل ده أصلًا،
         // فبتتحسب منشورة زي ما هي بالظبط)

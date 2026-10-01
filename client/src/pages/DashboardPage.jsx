@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { motion } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import {
   ArrowRight, Eye, Users, Crown, Sparkles, MessageCircle,
   Send, ExternalLink, BarChart3, Check, X as XIcon, Lock, Wand2, FileText,
-  Pencil, Share2,
+  Pencil, Share2, Images,
 } from 'lucide-react';
 import {
   useGetDashboardQuery,
@@ -18,6 +18,7 @@ import {
 import EditorDemo from '../components/EditorDemo.jsx';
 import Footer from '../components/Footer.jsx';
 import UgcDashboard from './UgcDashboard.jsx';
+import GuestAlbum from '../components/GuestAlbum.jsx';
 import { whatsappLink } from '../lib/contact.js';
 import { formatDay } from '../lib/editWindow.js';
 
@@ -74,6 +75,7 @@ function InvitationCard({ inv, lang, editEnded, openRsvp, setOpenRsvp }) {
   const [nameDraft, setNameDraft] = useState(inv.name || '');
   const [copied, setCopied] = useState(false);
   const [linkErr, setLinkErr] = useState(false);
+  const [albumOpen, setAlbumOpen] = useState(false);
   const [renameInvitation, { isLoading: saving }] = useRenameInvitationMutation();
   const [getStatsLink, { isLoading: linking }] = useGetStatsLinkMutation();
 
@@ -169,6 +171,15 @@ function InvitationCard({ inv, lang, editEnded, openRsvp, setOpenRsvp }) {
                 className="rounded-full border border-line px-3.5 py-2 text-[12.5px] font-bold text-ink hover:bg-ink/5">
                 {t('dash.viewRsvps')}
               </button>
+              {inv.album && (
+                <button type="button" onClick={() => setAlbumOpen(true)}
+                  className="inline-flex items-center gap-1 rounded-full border border-rose/35 bg-rose/[0.07] px-3.5 py-2 text-[12.5px] font-bold text-[#a2465e] hover:bg-rose/15">
+                  <Images size={12} /> {t('dash.album')}
+                  {inv.album.photos > 0 && (
+                    <span className="rounded-full bg-[#a2465e] px-1.5 text-[10.5px] leading-[17px] text-white">{inv.album.photos}</span>
+                  )}
+                </button>
+              )}
               <button type="button" onClick={shareStats} disabled={linking}
                 className="inline-flex items-center gap-1 rounded-full border border-brass/40 bg-brass/[0.07] px-3.5 py-2 text-[12.5px] font-bold text-brass hover:bg-brass/15 disabled:opacity-60">
                 <Share2 size={12} /> {copied ? t('dash.statsCopied') : linkErr ? t('dash.statsError') : t('dash.shareStats')}
@@ -185,6 +196,11 @@ function InvitationCard({ inv, lang, editEnded, openRsvp, setOpenRsvp }) {
       {openRsvp === inv.shortId && (
         <RsvpList shortId={inv.shortId} onClose={() => setOpenRsvp(null)} />
       )}
+      <AnimatePresence>
+        {albumOpen && (
+          <GuestAlbum shortId={inv.shortId} title={title} onClose={() => setAlbumOpen(false)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

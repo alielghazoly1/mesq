@@ -133,7 +133,38 @@ async function rsvpLimiter(req, res, next) {
   }
 }
 
+// صور الضيوف: 60 صورة في الساعة لكل جهاز — ضيف رافع صور الفرح كلها مرة
+// واحدة مايتوقفش، وفي نفس الوقت محدش يقدر يغرق الألبوم. نفس آلية العدّ
+// بتاعة الردود، بمفتاح منفصل ("gp:").
+const MAX_GUEST_PHOTOS_PER_WINDOW = 60;
+
+async function guestPhotoLimiter(req, res, next) {
+  try {
+    const deviceId = `gp:${req.deviceId || req.ip || 'unknown'}`;
+    const now = Date.now();
+    const windowStart = new Date(Math.floor(now / WINDOW_MS) * WINDOW_MS);
+    const expiresAt = new Date(windowStart.getTime() + WINDOW_MS);
+
+    const record = await RateLimit.findOneAndUpdate(
+      { deviceId, windowStart },
+      { $inc: { count: 1 }, $setOnInsert: { expiresAt } },
+      { upsert: true, new: true }
+    );
+
+    if (record.count > MAX_GUEST_PHOTOS_PER_WINDOW) {
+      return res.status(429).json({
+        error: 'رفعت صور كتير في وقت قصير — استنى شوية وكمّل.',
+      });
+    }
+
+    return next();
+  } catch (err) {
+    console.error('Guest photo limiter check failed:', err);
+    return next();
+  }
+}
+
 module.exports = {
-  ensureDeviceId, deviceInvitationLimiter, rsvpLimiter, COOKIE_NAME,
+  ensureDeviceId, deviceInvitationLimiter, rsvpLimiter, guestPhotoLimiter, COOKIE_NAME,
   signDeviceId, readDeviceId,
 };

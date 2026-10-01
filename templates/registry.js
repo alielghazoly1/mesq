@@ -114,6 +114,28 @@ const TEMPLATES = [
     extraFields: [],
     isPremium: true,
   },
+  {
+    id: 'lily-garden',
+    name: 'Lily Garden',
+    description: 'ظرف بختم شمع وزنبق وردي ينفتح — عدّاد تنازلي، تأكيد حضور، وألبوم يرفع فيه الضيوف صور الفرح',
+    file: 'lily-garden.html',
+    languages: SUPPORTED_LANGUAGES,
+    occasionTypes: SUPPORTED_OCCASIONS,
+    optionalSections: [
+      { key: 'countdown', label: 'العداد التنازلي' },
+      { key: 'map', label: 'مكان الحفل والخريطة' },
+      { key: 'rsvp', label: 'تأكيد الحضور (RSVP)' },
+      { key: 'guestPhotos', label: 'ألبوم صور الضيوف' },
+    ],
+    timelineStages: [],
+    extraFields: [
+      { key: 'venueAddress', label: 'عنوان القاعة (بيظهر تحت اسمها — اختياري)', maxlength: 200 },
+    ],
+    // القوالب اللي فيها قسم رفع صور الضيوف — لوحة العميل بتظهر "صور
+    // الضيوف" للدعوات دي بس، والسيرفر بيرفض الرفع لأي قالب تاني
+    guestPhotos: true,
+    isPremium: true,
+  },
 ];
 
 function getTemplate(templateId) {

@@ -11,7 +11,7 @@ const baseQuery = fetchBaseQuery({ baseUrl: '/api', credentials: 'include' });
 export const api = createApi({
   reducerPath: 'api',
   baseQuery,
-  tagTypes: ['Me', 'Packages', 'Dashboard', 'Support', 'Editor', 'Quota', 'Ugc'],
+  tagTypes: ['Me', 'Packages', 'Dashboard', 'Support', 'Editor', 'Quota', 'Ugc', 'GuestPhotos'],
   endpoints: (builder) => ({
     // بنبعت اللغة عشان أسماء التصاميم وأوصافها وأسماء الأقسام ترجع مترجمة
     getTemplates: builder.query({
@@ -106,6 +106,20 @@ export const api = createApi({
       }),
       invalidatesTags: ['Dashboard'],
     }),
+    // ===== ألبوم صور الضيوف (routes/guestPhotos.js) =====
+    // صفحة من الصور بالأحدث الأول — before = id آخر صورة في الصفحة اللي فاتت
+    getGuestPhotos: builder.query({
+      query: ({ shortId, before }) => `/dashboard/invitations/${shortId}/photos${before ? `?before=${encodeURIComponent(before)}` : ''}`,
+      providesTags: ['GuestPhotos'],
+    }),
+    deleteGuestPhoto: builder.mutation({
+      query: ({ shortId, id }) => ({ url: `/dashboard/invitations/${shortId}/photos/${id}`, method: 'DELETE' }),
+      // Dashboard عشان عدّاد الصور على كارت الدعوة ينقص
+      invalidatesTags: ['Dashboard'],
+    }),
+    getAlbumLink: builder.mutation({
+      query: (shortId) => ({ url: `/dashboard/invitations/${shortId}/album-link`, method: 'POST' }),
+    }),
     getSupport: builder.query({
       query: () => '/dashboard/support',
       providesTags: ['Support'],
@@ -197,6 +211,9 @@ export const {
   useSetPayoutPhoneMutation,
   useRequestWithdrawalMutation,
   useGetSupportQuery,
+  useLazyGetGuestPhotosQuery,
+  useDeleteGuestPhotoMutation,
+  useGetAlbumLinkMutation,
   useSendSupportMessageMutation,
   useUploadPaymentProofMutation,
   useGetEditorQuery,

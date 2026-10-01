@@ -17,6 +17,7 @@ const packagesRouter = require('./routes/packages');
 const uploadsRouter = require('./routes/uploads');
 const dashboardRouter = require('./routes/dashboard');
 const editorRouter = require('./routes/editor');
+const guestPhotosRouter = require('./routes/guestPhotos');
 const { ensureDeviceId, deviceInvitationLimiter } = require('./middleware/deviceLimiter');
 const { attachUser } = require('./middleware/auth');
 const { requestLogger, installProcessHandlers, write: logLine, LOG_FILE } = require('./utils/requestLogger');
@@ -137,6 +138,8 @@ app.use('/i', attachUser);
 app.use('/s', requireDB);
 // لينك إحالة الـ UGC محتاج قاعدة البيانات (بيعدّ زيارة ويحط كوكي)
 app.use('/r', requireDB);
+// صفحة ألبوم صور الضيوف المشاركة (routes/guestPhotos.js)
+app.use('/a', requireDB);
 app.use('/admin', requireDB);
 app.use('/api/auth', requireDB);
 app.use('/api/packages', requireDB);
@@ -284,6 +287,18 @@ const uploadLimiter = rateLimit({
 });
 app.use('/api/uploads', uploadLimiter);
 
+// صور الضيوف من جوه الدعوة: حد واسع لكل IP (ضيوف كتير على شبكة القاعة
+// نفسها)، والحد الدقيق لكل جهاز في middleware/deviceLimiter.js
+// (guestPhotoLimiter). على الرفع بس — العرض والمسح من غيره.
+const guestPhotoIpLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 200,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'صور كتير من نفس الشبكة في وقت قصير، استنى شوية وكمّل.' },
+});
+app.post('/i/:shortId/photos', guestPhotoIpLimiter);
+
 app.use('/', invitationsRouter);
 app.use('/', adminRouter);
 app.use('/', adminApiRouter);
@@ -292,6 +307,7 @@ app.use('/', packagesRouter);
 app.use('/', uploadsRouter);
 app.use('/', dashboardRouter);
 app.use('/', editorRouter);
+app.use('/', guestPhotosRouter);
 
 // أي GET route تاني مش API معروف بيرجع صفحة React (client/dist/index.html)
 // عشان react-router يشتغل صح حتى لو حد عمل refresh على لينك زي /create/xyz

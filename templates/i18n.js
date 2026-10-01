@@ -16,6 +16,10 @@ const TEMPLATE_TEXT = {
     ar: { description: 'تصميم عصري بألوان باستيل هادية، وفيه ودجت تفاعلي لطيف لكشف تاريخ الفرح بالخدش' },
     en: { description: 'A modern design in soft pastels, with a playful scratch-to-reveal date widget' },
   },
+  'lily-garden': {
+    ar: { description: 'ظرف بختم شمع وزنبق وردي ينفتح — عدّاد تنازلي، تأكيد حضور، وألبوم يرفع فيه الضيوف صور الفرح' },
+    en: { description: 'A wax-sealed envelope of pink lilies that opens — countdown, RSVP, and an album where guests upload their photos' },
+  },
 };
 
 const SECTION_LABELS = {
@@ -25,6 +29,7 @@ const SECTION_LABELS = {
   rsvp: { ar: 'تأكيد الحضور (RSVP)', en: 'RSVP' },
   map: { ar: 'خريطة جوجل', en: 'Google map' },
   details: { ar: 'تفاصيل التواصل والهدايا', en: 'Contact & gift details' },
+  guestPhotos: { ar: 'ألبوم صور الضيوف', en: 'Guest photo album' },
 };
 
 const EXTRA_FIELD_LABELS = {

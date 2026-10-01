@@ -188,6 +188,11 @@ function renderNewPathHtml(data, options) {
     monthName: getMonthName(display.countdown.monthIndex, data.language),
     weekdayName: data.language === 'ar' ? display.dayNameAr : display.dayNameEn,
     language: data.language,
+    // نوع المناسبة وتعديلات فورم الحضور الخام — القوالب اللي ليها كلامها
+    // الخاص (Lily Garden) بتعرف منهم: خطوبة ولا فرح، وصاحب الدعوة غيّر
+    // أنهي نص بنفسه (يغلب كلام التصميم). القوالب التانية بتتجاهلهم.
+    occasionType: data.occasionType || 'wedding',
+    rsvpOverrides: rsvpOv,
     hiddenSections: data.hiddenSections || [],
     // بيخلي شاشة "اضغط للفتح" تتخطى نفسها تلقائيًا — مستخدم بس في صفحات
     // المعاينة (زي كروت المعرض) اللي محدش هيضغط عليها فعليًا

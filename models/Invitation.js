@@ -17,6 +17,11 @@ const invitationSchema = new mongoose.Schema({
   // الدعوات القديمة (والمسودات) اللي ملهاش توكن ما بتتعارضش مع بعض.
   statsToken: { type: String, index: { unique: true, sparse: true } },
 
+  // رابط سري لصفحة ألبوم صور الضيوف (/a/:token) — صاحب الدعوة بيبعته
+  // لأي حد يشوف الصور وينزّلها. بيتولّد أول مرة يطلبه (الدعوات القديمة
+  // مالهاش الحقل خالص).
+  albumToken: { type: String, index: { unique: true, sparse: true } },
+
   // لو الحقل ده مش موجود (null/undefined) بيبقى معناه: دعوة قديمة اتعملت
   // قبل نظام القوالب، وبالتالي بتتعرض بالتصميم الأصلي بالظبط من غير أي تغيير.
   templateId: { type: String, default: null },
