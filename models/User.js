@@ -59,6 +59,10 @@ const userSchema = new mongoose.Schema({
   isBlocked: { type: Boolean, default: false },
   blockedAt: { type: Date, default: null },
 
+  // آخر مرة كان فاتح الموقع (routes/presence.js — بيتكتب كل دقيقتين على الأكتر).
+  // null = من قبل الميزة دي أو لسه مفتحش من ساعتها
+  lastSeenAt: { type: Date, default: null },
+
   createdAt: { type: Date, default: Date.now },
 });
 

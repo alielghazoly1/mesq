@@ -162,6 +162,26 @@ export function fmtDate(value, withTime) {
   });
 }
 
+/** نقطة "متصل دلوقتي" الزرقا المتوهجة (index.css: .live-dot) */
+export function LiveDot({ size = 9, title = 'متصل دلوقتي' }) {
+  return <span className="live-dot" style={{ '--live-size': `${size}px` }} title={title} aria-label={title} role="img" />;
+}
+
+/** آخر ظهور بشكل مقروء: "دلوقتي" / "من 5 دقايق" / "من 3 ساعات" / تاريخ */
+export function fmtLastSeen(value, online) {
+  if (online) return 'متصل دلوقتي';
+  if (!value) return 'مفيش ظهور مسجّل';
+  const diff = Math.max(0, Date.now() - new Date(value).getTime());
+  const min = Math.floor(diff / 60000);
+  if (min < 1) return 'من أقل من دقيقة';
+  if (min < 60) return min === 1 ? 'من دقيقة' : min === 2 ? 'من دقيقتين' : `من ${min} ${min <= 10 ? 'دقايق' : 'دقيقة'}`;
+  const h = Math.floor(min / 60);
+  if (h < 24) return h === 1 ? 'من ساعة' : h === 2 ? 'من ساعتين' : `من ${h} ${h <= 10 ? 'ساعات' : 'ساعة'}`;
+  const d = Math.floor(h / 24);
+  if (d < 30) return d === 1 ? 'من يوم' : d === 2 ? 'من يومين' : `من ${d} ${d <= 10 ? 'أيام' : 'يوم'}`;
+  return fmtDate(value);
+}
+
 /** أرقام بفواصل */
 export function fmtNum(n) {
   return Number(n || 0).toLocaleString('en-US');

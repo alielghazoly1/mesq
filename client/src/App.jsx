@@ -5,6 +5,7 @@ import AuthModal from './components/AuthModal.jsx';
 import WelcomeGate from './components/WelcomeGate.jsx';
 import SupportLauncher from './components/SupportLauncher.jsx';
 import BottomNav from './components/BottomNav.jsx';
+import PresencePing from './components/PresencePing.jsx';
 import GalleryPage from './pages/GalleryPage.jsx';
 import CreateInvitationPage from './pages/CreateInvitationPage.jsx';
 import PackagesPage from './pages/PackagesPage.jsx';
@@ -75,6 +76,8 @@ export default function App() {
       {!isFullScreen && <SupportLauncher />}
       {/* شريط التنقّل السفلي — موبايل بس، وبيقرر لوحده هو يظهر فين */}
       <BottomNav />
+      {/* "أنا فاتح الموقع" للوحة التحكم (مبيشتغلش في صفحات اللوحة نفسها) */}
+      <PresencePing />
     </ErrorBoundary>
   );
 }

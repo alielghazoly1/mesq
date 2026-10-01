@@ -15,7 +15,7 @@ import {
 } from '../../store/adminApi.js';
 import {
   Panel, StatTile, Badge, Btn, Field, Table, Row, Cell,
-  Spinner, Empty, fmtDate, fmtNum, fmtMoney,
+  Spinner, Empty, fmtDate, fmtNum, fmtMoney, LiveDot, fmtLastSeen,
 } from '../../components/admin/ui.jsx';
 import { countryName, waLink } from './format.js';
 import ClientPasswordPanel from './ClientPasswordPanel.jsx';
@@ -173,6 +173,16 @@ export default function ClientDrawer({ userId, onClose }) {
             <div className="rounded-2xl border border-line-lite bg-panel p-5">
               <div className="mb-3 flex flex-wrap items-center gap-2">
                 <span className="font-serif text-[19px] font-bold text-ivory">{data.user.name}</span>
+                {/* متصل دلوقتي (نقطة زرقا متوهجة) أو آخر ظهور */}
+                {data.user.online ? (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-[#38a8ff]/12 px-2.5 py-1 text-[11px] font-bold text-[#8fcbff]">
+                    <LiveDot size={8} /> متصل دلوقتي
+                  </span>
+                ) : (
+                  <span className="rounded-full bg-ivory/[0.06] px-2.5 py-1 text-[11px] text-ivory/45">
+                    آخر ظهور: {fmtLastSeen(data.user.lastSeenAt, false)}
+                  </span>
+                )}
                 {data.user.subscription.packageId && (
                   <Badge tone="gold" icon={Crown}>{data.user.subscription.packageName}</Badge>
                 )}

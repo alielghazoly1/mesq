@@ -136,6 +136,14 @@ export const adminApi = createApi({
     }),
     getAdminPackages: builder.query({ query: () => '/packages', providesTags: ['Pricing'] }),
 
+    // ===== اللحظة دي + الأرباح شهر بشهر =====
+    // مين على الموقع دلوقتي — الصفحة بتسأل كل 15 ثانية (pollingInterval)
+    getLive: builder.query({ query: () => '/live' }),
+    getRevenueMonthly: builder.query({
+      query: (months = 12) => `/revenue-monthly?months=${months}`,
+      providesTags: ['Overview'],
+    }),
+
     // ===== أسعار الباقات وتشغيلها =====
     getPackagePrices: builder.query({
       query: () => '/package-prices',
@@ -210,6 +218,8 @@ export const {
   useSavePaymentSettingsMutation,
   useGetAdminPackagesQuery,
   useGetPricingSettingsQuery,
+  useGetLiveQuery,
+  useGetRevenueMonthlyQuery,
   useGetPackagePricesQuery,
   useSavePackagePricesMutation,
   useSavePricingSettingsMutation,

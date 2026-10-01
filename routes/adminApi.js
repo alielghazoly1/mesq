@@ -16,6 +16,10 @@ const AdminAudit = require('../models/AdminAudit');
 const Track = require('../models/Track');
 const SiteTotals = require('../models/SiteTotals');
 const Withdrawal = require('../models/Withdrawal');
+const Presence = require('../models/Presence');
+const {
+  isOnline, onlineSince, liveCounts, cairoTodayStart, cairoMonthStart, ONLINE_WINDOW_MS,
+} = require('../utils/presence');
 const { computeUgcStats, generateReferralCode, round2 } = require('../utils/ugc');
 const { cleanupExpiredInvitations, DEFAULT_GRACE_DAYS } = require('../utils/cleanupExpired');
 const { TEMPLATES } = require('../templates/registry');
@@ -251,6 +255,129 @@ router.get('/admin/api/overview', requireAdminSession, async (req, res) => {
 });
 
 // ==========================================================================
+// اللحظة دي — مين على الموقع دلوقتي + أرقام النهارده (بتوقيت مصر)
+// اللوحة بتسأل كل 15 ثانية، فالاستعلامات هنا خفيفة ومتفهرسة.
+// ==========================================================================
+router.get('/admin/api/live', requireAdminSession, async (req, res) => {
+  try {
+    const todayStart = cairoTodayStart();
+    const [online, onlineRows, signupsToday, ordersToday, invitationsToday, pendingToday] = await Promise.all([
+      liveCounts(),
+      Presence.find({ lastSeen: { $gte: onlineSince() }, userId: { $ne: null } })
+        .sort({ lastSeen: -1 }).limit(30).lean(),
+      User.countDocuments({ createdAt: { $gte: todayStart } }),
+      Order.aggregate([
+        { $match: { status: 'activated', activatedAt: { $gte: todayStart } } },
+        { $group: { _id: '$currency', total: { $sum: '$price' }, count: { $sum: 1 } } },
+      ]),
+      Invitation.countDocuments({ createdAt: { $gte: todayStart }, status: { $ne: 'draft' } }),
+      Order.countDocuments({ createdAt: { $gte: todayStart } }),
+    ]);
+
+    const users = onlineRows.length
+      ? await User.find({ _id: { $in: onlineRows.map((r) => r.userId) } })
+        .select('name email country subscription').lean()
+      : [];
+    const byId = new Map(users.map((u) => [String(u._id), u]));
+
+    const money = (c) => {
+      const row = ordersToday.find((r) => r._id === c);
+      return { total: row ? row.total : 0, orders: row ? row.count : 0 };
+    };
+
+    return res.json({
+      at: new Date(),
+      windowSeconds: Math.round(ONLINE_WINDOW_MS / 1000),
+      online,
+      onlineUsers: onlineRows.map((r) => {
+        const u = byId.get(String(r.userId));
+        if (!u) return null;
+        return {
+          id: String(u._id),
+          name: u.name,
+          email: u.email,
+          country: u.country,
+          isPremium: !!(u.subscription && u.subscription.packageId),
+          path: r.path || '/',
+          lastSeen: r.lastSeen,
+        };
+      }).filter(Boolean),
+      today: {
+        signups: signupsToday,
+        invitations: invitationsToday,
+        orders: pendingToday,
+        revenue: { EGP: money('EGP'), USD: money('USD') },
+      },
+    });
+  } catch (err) {
+    console.error('Error loading live stats:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+// ==========================================================================
+// الأرباح شهر بشهر (بتوقيت مصر) — كل عملة لوحدها، ومعاها عدد الطلبات
+// والتسجيلات في نفس الشهر. الطلبات المفعّلة بس (اللي الفلوس وصلت فعلًا).
+// ==========================================================================
+router.get('/admin/api/revenue-monthly', requireAdminSession, async (req, res) => {
+  try {
+    const months = Math.max(1, Math.min(36, parseInt(req.query.months, 10) || 12));
+    const now = new Date();
+    const from = cairoMonthStart(now, months - 1);
+    const monthKey = (field) => ({ $dateToString: { format: '%Y-%m', date: field, timezone: 'Africa/Cairo' } });
+
+    const [orders, signups, firstOrder] = await Promise.all([
+      Order.aggregate([
+        { $match: { status: 'activated', activatedAt: { $gte: from } } },
+        {
+          $group: {
+            _id: monthKey('$activatedAt'),
+            egp: { $sum: { $cond: [{ $eq: ['$currency', 'EGP'] }, '$price', 0] } },
+            usd: { $sum: { $cond: [{ $eq: ['$currency', 'USD'] }, '$price', 0] } },
+            egpOrders: { $sum: { $cond: [{ $eq: ['$currency', 'EGP'] }, 1, 0] } },
+            usdOrders: { $sum: { $cond: [{ $eq: ['$currency', 'USD'] }, 1, 0] } },
+          },
+        },
+      ]),
+      User.aggregate([
+        { $match: { createdAt: { $gte: from } } },
+        { $group: { _id: monthKey('$createdAt'), count: { $sum: 1 } } },
+      ]),
+      Order.findOne({ status: 'activated', activatedAt: { $ne: null } }).sort({ activatedAt: 1 }).select('activatedAt').lean(),
+    ]);
+
+    const o = new Map(orders.map((r) => [r._id, r]));
+    const s = new Map(signups.map((r) => [r._id, r.count]));
+    const list = [];
+    for (let i = months - 1; i >= 0; i -= 1) {
+      const start = cairoMonthStart(now, i);
+      const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Cairo', year: 'numeric', month: '2-digit' }).format(new Date(start.getTime() + 12 * 3600 * 1000));
+      const key = parts.slice(0, 7);
+      const row = o.get(key) || {};
+      list.push({
+        month: key,
+        egp: row.egp || 0,
+        usd: row.usd || 0,
+        egpOrders: row.egpOrders || 0,
+        usdOrders: row.usdOrders || 0,
+        orders: (row.egpOrders || 0) + (row.usdOrders || 0),
+        signups: s.get(key) || 0,
+        current: i === 0,
+      });
+    }
+    const sum = (k) => list.reduce((a, r) => a + r[k], 0);
+    return res.json({
+      months: list,
+      totals: { egp: sum('egp'), usd: sum('usd'), orders: sum('orders'), signups: sum('signups') },
+      firstSale: firstOrder ? firstOrder.activatedAt : null,
+    });
+  } catch (err) {
+    console.error('Error loading monthly revenue:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+// ==========================================================================
 // العملاء
 // ==========================================================================
 router.get('/admin/api/users', requireAdminSession, async (req, res) => {
@@ -269,13 +396,15 @@ router.get('/admin/api/users', requireAdminSession, async (req, res) => {
     if (status === 'free') filter['subscription.packageId'] = null;
     if (status === 'suspended') filter['subscription.status'] = 'suspended';
     if (status === 'blocked') filter.isBlocked = true;
+    // المتصلين دلوقتي بس (فاتحين الموقع في آخر دقيقة ونص)
+    if (status === 'online') filter.lastSeenAt = { $gte: onlineSince() };
 
     const [users, total] = await Promise.all([
       User.find(filter)
         .sort({ createdAt: -1 })
         .skip((page - 1) * perPage)
         .limit(perPage)
-        .select('name email country phone subscription isBlocked createdAt')
+        .select('name email country phone subscription isBlocked createdAt lastSeenAt')
         .lean(),
       User.countDocuments(filter),
     ]);
@@ -321,6 +450,9 @@ router.get('/admin/api/users', requireAdminSession, async (req, res) => {
           premiumInvitations: counts.premium,
           drafts: counts.drafts,
           createdAt: u.createdAt,
+          // فاتح الموقع دلوقتي؟ وآخر مرة فتحه
+          online: isOnline(u.lastSeenAt),
+          lastSeenAt: u.lastSeenAt || null,
         };
       }),
     });
@@ -373,6 +505,8 @@ router.get('/admin/api/users/:id', requireAdminSession, async (req, res) => {
         country: user.country,
         phone: user.phone || '',
         createdAt: user.createdAt,
+        online: isOnline(user.lastSeenAt),
+        lastSeenAt: user.lastSeenAt || null,
         isBlocked: !!user.isBlocked,
         blockedAt: user.blockedAt || null,
         activeSessions: sessions,

@@ -1,10 +1,14 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { AnimatePresence } from 'motion/react';
 import {
   Users, Crown, FileText, Eye, MessageSquare, Wallet, Clock, Ban, PauseCircle, ArrowLeft,
 } from 'lucide-react';
 import { useGetOverviewQuery } from '../../store/adminApi.js';
-import { setPeriod } from '../../store/adminSlice.js';
+import { setPeriod, closeUser } from '../../store/adminSlice.js';
+import LivePanel from '../../components/admin/LivePanel.jsx';
+import MonthlyRevenue from '../../components/admin/MonthlyRevenue.jsx';
+import ClientDrawer from './ClientDrawer.jsx';
 import {
   Panel, StatTile, Spinner, Tabs, Empty, fmtNum, fmtMoney,
 } from '../../components/admin/ui.jsx';
@@ -20,6 +24,8 @@ const PERIODS = [
 export default function OverviewPage() {
   const dispatch = useDispatch();
   const period = useSelector((s) => s.admin.period);
+  // ملف العميل بيتفتح من قايمة "العملاء المتصلين"
+  const openUserId = useSelector((s) => s.admin.openUserId);
   const { data, isLoading, isFetching } = useGetOverviewQuery(period);
 
   if (isLoading) return <Spinner label="بنجمّع الأرقام..." />;
@@ -40,6 +46,9 @@ export default function OverviewPage() {
         </div>
         <Tabs value={period} onChange={(v) => dispatch(setPeriod(v))} options={PERIODS} />
       </div>
+
+      {/* اللحظة دي: مين على الموقع + أرقام النهارده */}
+      <LivePanel />
 
       {/* الأرباح */}
       <div className="flex items-center justify-between">
@@ -77,6 +86,9 @@ export default function OverviewPage() {
           hint={`${revenue.period.USD.orders} طلب`}
         />
       </div>
+
+      {/* الأرباح شهر بشهر */}
+      <MonthlyRevenue />
 
       {/* أرقام الموقع */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -170,6 +182,10 @@ export default function OverviewPage() {
             : <Empty>لسه مفيش عملاء.</Empty>}
         </Panel>
       </div>
+
+      <AnimatePresence>
+        {openUserId && <ClientDrawer userId={openUserId} onClose={() => dispatch(closeUser())} />}
+      </AnimatePresence>
     </div>
   );
 }

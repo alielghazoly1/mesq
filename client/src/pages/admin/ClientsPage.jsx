@@ -6,13 +6,14 @@ import {
   setUsersQuery, setUsersStatus, setUsersPage, openUser, closeUser,
 } from '../../store/adminSlice.js';
 import {
-  Panel, Badge, Table, Row, Cell, Spinner, Empty, Tabs, Pager, Field, fmtDate, fmtNum,
+  Panel, Badge, Table, Row, Cell, Spinner, Empty, Tabs, Pager, Field, fmtDate, fmtNum, LiveDot,
 } from '../../components/admin/ui.jsx';
 import { countryName, waLink } from './format.js';
 import ClientDrawer from './ClientDrawer.jsx';
 
 const FILTERS = [
   { value: 'all', label: 'الكل' },
+  { value: 'online', label: 'متصلين دلوقتي' },
   { value: 'premium', label: 'مدفوعين' },
   { value: 'free', label: 'مجانيين' },
   { value: 'suspended', label: 'موقوفين' },
@@ -24,6 +25,11 @@ export default function ClientsPage() {
   const { usersQuery, usersStatus, usersPage, openUserId } = useSelector((s) => s.admin);
   const { data, isLoading, isFetching } = useGetUsersQuery({
     q: usersQuery, status: usersStatus, page: usersPage,
+  }, {
+    // النقطة الزرقا (متصل دلوقتي) بتتحدّث لوحدها — كل 30 ثانية، وكل 15 لو
+    // إنت فاتح فلتر "متصلين دلوقتي"
+    pollingInterval: usersStatus === 'online' ? 15000 : 30000,
+    skipPollingIfUnfocused: true,
   });
 
   return (
@@ -59,7 +65,9 @@ export default function ClientsPage() {
                 <Row key={u.id} onClick={() => dispatch(openUser(u.id))}>
                   <Cell>
                     <div className="flex flex-wrap items-center gap-1.5">
+                      {u.online && <LiveDot size={8} />}
                       <span className="font-bold text-ivory">{u.name}</span>
+                      {u.online && <span className="text-[10.5px] font-bold text-[#8fcbff]">متصل</span>}
                       {u.isSuspended && <Badge tone="danger" icon={PauseCircle}>موقوف</Badge>}
                       {u.isBlocked && <Badge tone="danger" icon={Ban}>محظور</Badge>}
                     </div>

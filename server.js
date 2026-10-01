@@ -18,6 +18,7 @@ const uploadsRouter = require('./routes/uploads');
 const dashboardRouter = require('./routes/dashboard');
 const editorRouter = require('./routes/editor');
 const guestPhotosRouter = require('./routes/guestPhotos');
+const presenceRouter = require('./routes/presence');
 const { ensureDeviceId, deviceInvitationLimiter } = require('./middleware/deviceLimiter');
 const { attachUser } = require('./middleware/auth');
 const { requestLogger, installProcessHandlers, write: logLine, LOG_FILE } = require('./utils/requestLogger');
@@ -146,13 +147,14 @@ app.use('/api/packages', requireDB);
 app.use('/api/uploads', requireDB);
 app.use('/api/dashboard', requireDB);
 app.use('/api/editor', requireDB);
+app.use('/api/presence', requireDB);
 
 // لو فيه جلسة دخول صالحة (كوكي wda_session)، بيحط req.user؛ غير كده
 // req.user = null من غير ما يوقف الطلب (middleware/auth.js). مربوط بس
 // بالمسارات اللي فعلاً محتاجة تعرف حالة الدخول — مش عالميًا على كل الموقع
 // (زي الملفات الثابتة أو صفحة الدعوة نفسها)، عشان نفس فلسفة الأداء
 // والمرونة اللي requireDB بتتبعها.
-app.use(['/api/preview', '/preview-sample', '/api/invitations', '/api/free-quota', '/api/auth', '/api/packages', '/api/uploads', '/api/dashboard', '/api/editor'], attachUser);
+app.use(['/api/preview', '/preview-sample', '/api/invitations', '/api/free-quota', '/api/auth', '/api/packages', '/api/uploads', '/api/dashboard', '/api/editor', '/api/presence'], attachUser);
 
 // الموقع التسويقي/فورم الإنشاء بقى React (client/) مبني بـ Vite — الملفات
 // الثابتة الناتجة (client/dist) هي اللي بتتقدم هنا بدل public/ القديم.
@@ -299,6 +301,17 @@ const guestPhotoIpLimiter = rateLimit({
 });
 app.post('/i/:shortId/photos', guestPhotoIpLimiter);
 
+// إشارة "أنا فاتح الموقع" — كل تاب بيبعتها كل 40 ثانية، فالحد واسع (لو
+// العيلة كلها فاتحة من نفس الواي فاي). لمنع الإغراق بس.
+const presenceLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 400,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'عدد كبير جدًا من الطلبات.' },
+});
+app.use('/api/presence', presenceLimiter);
+
 app.use('/', invitationsRouter);
 app.use('/', adminRouter);
 app.use('/', adminApiRouter);
@@ -308,6 +321,7 @@ app.use('/', uploadsRouter);
 app.use('/', dashboardRouter);
 app.use('/', editorRouter);
 app.use('/', guestPhotosRouter);
+app.use('/', presenceRouter);
 
 // أي GET route تاني مش API معروف بيرجع صفحة React (client/dist/index.html)
 // عشان react-router يشتغل صح حتى لو حد عمل refresh على لينك زي /create/xyz
