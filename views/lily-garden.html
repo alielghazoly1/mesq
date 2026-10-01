@@ -1411,39 +1411,16 @@
                 .wgp-actions { display: flex; flex-direction: column; gap: 10px; }
                 .wgp-file { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
                 .wgp-note { margin: 10px 2px 0; font: 500 13.5px/1.6 'Cormorant Garamond', 'Amiri', Georgia, serif; color: #8a8a62; text-align: center; }
-                .wgp-count { margin: 26px 0 12px; font: 700 13px/1 'Cormorant Garamond', 'Amiri', Georgia, serif; letter-spacing: .26em; text-transform: uppercase; color: #a2845a; }
-                .wgp-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; max-width: 440px; margin: 0 auto; }
-                .wgp-item { position: relative; aspect-ratio: 1; border-radius: 12px; overflow: hidden; background: #ebe1c8; cursor: zoom-in; box-shadow: 0 6px 14px -10px rgba(60,58,20,.6); animation: wgpIn .5s ease both; }
-                .wgp-item img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .6s cubic-bezier(.16,.84,.44,1); }
-                .wgp-item:hover img { transform: scale(1.06); }
-                .wgp-item .wgp-del { position: absolute; top: 5px; inset-inline-end: 5px; width: 28px; height: 28px; border-radius: 50%; border: 0; background: rgba(31,36,16,.72); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
-                .wgp-item .wgp-del svg { width: 14px; height: 14px; }
-                .wgp-item .wgp-mine { position: absolute; bottom: 5px; inset-inline-start: 5px; padding: 3px 8px; border-radius: 999px; background: rgba(251,246,232,.92); color: var(--olive); font: 700 10px/1.2 'Cormorant Garamond', 'Amiri', Georgia, serif; letter-spacing: .1em; text-transform: uppercase; }
-                .wgp-item.is-up { cursor: default; }
-                .wgp-item.is-up img { filter: blur(1px) brightness(.85); }
-                .wgp-item .wgp-prog { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
-                .wgp-item .wgp-prog svg { width: 46px; height: 46px; transform: rotate(-90deg); }
-                .wgp-item .wgp-prog circle { fill: none; stroke-width: 4; }
-                .wgp-item .wgp-prog .bg { stroke: rgba(255,255,255,.35); }
-                .wgp-item .wgp-prog .fg { stroke: #fff; stroke-linecap: round; transition: stroke-dashoffset .2s linear; }
-                .wgp-item.is-failed::after { content: "!"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(176,58,58,.55); color: #fff; font: 700 28px/1 Georgia, serif; }
-                @keyframes wgpIn { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: none; } }
-                .wgp-empty { margin: 22px auto 0; max-width: 300px; font: 500 16px/1.7 'Cormorant Garamond', 'Amiri', Georgia, serif; color: #8a8a62; }
-                .wgp-more { margin: 16px auto 0; max-width: 240px; background: transparent; color: var(--olive); border: 1px solid rgba(93,97,57,.5); box-shadow: none; }
-                .wgp-more:hover { background: rgba(93,97,57,.08); }
-                /* عرض الصورة كبيرة */
-                /* نفس z بتاع زرار الموسيقى وجاي بعده في الصفحة — فبيغطيه (كان بيقعد فوق زرار التحميل) */
-                #wgp-lightbox { position: fixed; inset: 0; z-index: 2147483647; display: none; flex-direction: column; background: rgba(18,20,10,.96); }
-                #wgp-lightbox.is-open { display: flex; animation: wgpFade .25s ease; }
-                @keyframes wgpFade { from { opacity: 0; } to { opacity: 1; } }
-                #wgp-lightbox .lb-stage { position: relative; flex: 1; display: flex; align-items: center; justify-content: center; min-height: 0; touch-action: pan-y; }
-                #wgp-lightbox .lb-img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; user-select: none; -webkit-user-drag: none; }
-                #wgp-lightbox .lb-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px calc(14px + env(safe-area-inset-bottom)); color: #f1e8d0; font: 600 14px/1.3 'Cormorant Garamond', 'Amiri', Georgia, serif; }
-                #wgp-lightbox .lb-top { display: flex; justify-content: space-between; align-items: center; padding: calc(12px + env(safe-area-inset-top)) 14px 6px; color: #f1e8d0; font: 600 14px/1 'Cormorant Garamond', Georgia, serif; letter-spacing: .14em; }
-                #wgp-lightbox button, #wgp-lightbox a { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 44px; height: 44px; padding: 0 14px; border-radius: 999px; border: 1px solid rgba(241,232,208,.25); background: rgba(241,232,208,.08); color: #f1e8d0; cursor: pointer; text-decoration: none; font: inherit; }
-                #wgp-lightbox svg { width: 18px; height: 18px; }
-                #wgp-lightbox .lb-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 44px; padding: 0; background: rgba(18,20,10,.5); }
-                #wgp-lightbox .lb-prev { left: 10px; } #wgp-lightbox .lb-next { right: 10px; }
+                .wgp-progress { margin-top: 14px; }
+                .wgp-bar { height: 6px; border-radius: 999px; background: rgba(93,97,57,.15); overflow: hidden; }
+                .wgp-bar span { display: block; height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, var(--olive), var(--rose)); transition: width .25s linear; }
+                .wgp-status { margin: 8px 2px 0; font: 600 14px/1.5 'Cormorant Garamond', 'Amiri', Georgia, serif; color: #6b6a45; text-align: center; }
+                .wgp-sent { margin-top: 16px; padding: 18px 14px 14px; border-radius: 18px; background: linear-gradient(180deg, #f8f4e6, #f1ecdb); text-align: center; animation: wgPop .6s cubic-bezier(.3,1.6,.5,1) both; }
+                .wgp-sent-mark { width: 54px; height: 54px; margin: 0 auto 10px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+                    background: radial-gradient(circle at 35% 30%, #8b8f5a, #5d6139 60%, #474a2a); color: #f3ead2; box-shadow: 0 10px 22px -10px rgba(71,74,42,.9); }
+                .wgp-sent-mark svg { width: 26px; height: 26px; }
+                .wgp-sent-title { margin: 0; font: 600 18px/1.5 'Cormorant Garamond', 'Amiri', Georgia, serif; color: #3f3f22; }
+                .wgp-sent-count { margin: 4px 0 0; font: 500 14px/1.5 'Cormorant Garamond', 'Amiri', Georgia, serif; color: #8a8a62; }
 
                 /* ===== الختام ===== */
                 #wg-closing { background: #f3ebd7; padding: 10px 20px 70px; color: var(--rose); }
@@ -1472,7 +1449,7 @@
                 #wg-invite.wg-rtl #wg-countdown .wg-cd-label { letter-spacing: 0; font-size: 3.6cqw; }
                 #wg-invite.wg-rtl .wg-ptitle, #wg-invite.wg-rtl #wg-map .wg-map-script, #wg-invite.wg-rtl .wg-done h3, #wg-invite.wg-rtl #wg-closing .wg-closing-names { font-size: 32px; line-height: 1.5; }
                 #wg-invite.wg-rtl .wg-eyebrow, #wg-invite.wg-rtl .wg-field-label, #wg-invite.wg-rtl .wg-btn, #wg-invite.wg-rtl #wg-map .wg-map-venue,
-                #wg-invite.wg-rtl #wg-map .wg-map-btn, #wg-invite.wg-rtl .wgp-count, #wg-invite.wg-rtl .wgp-item .wgp-mine, #wg-invite.wg-rtl #wg-closing .wg-closing-line { letter-spacing: 0; }
+                #wg-invite.wg-rtl #wg-map .wg-map-btn, #wg-invite.wg-rtl .wgp-status, #wg-invite.wg-rtl .wgp-sent-title, #wg-invite.wg-rtl #wg-closing .wg-closing-line { letter-spacing: 0; }
 
                 /* ===== الحركة =====
                    (١) أول ما الختم يتفتح: الزنبق بيدخل من الجنبين ويتمايل، والأسماء
@@ -1631,13 +1608,20 @@
                             <input class="wgp-file" type="file" id="wgp-file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,image/*" multiple/>
                             <div role="button" tabindex="0" class="wg-btn" id="wgp-add"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.7l1.3-2h5l1.3 2h1.7A2.5 2.5 0 0 1 20 8.5v9A2.5 2.5 0 0 1 17.5 20h-11A2.5 2.5 0 0 1 4 17.5Z"/><circle cx="12" cy="13" r="3.6"/></svg><span data-elem-id="lg74" data-wg="photosAdd">Add your photos</span></div>
                         </div>
+                        <!-- حالة الرفع: شريط تقدّم من غير أي صور -->
+                        <div class="wgp-progress" id="wgp-progress" hidden>
+                            <div class="wgp-bar"><span id="wgp-bar-fill"></span></div>
+                            <p class="wgp-status" id="wgp-status" aria-live="polite"></p>
+                        </div>
                         <p class="wg-err" id="wgp-err" role="alert"></p>
-                        <p class="wgp-note" id="wgp-note" data-elem-id="lg75" data-wg="photosNote">Your photos appear here for everyone. You can delete your own photos any time.</p>
+                        <!-- بعد الرفع: رسالة إن الصور وصلت (الصور نفسها مبتظهرش لأي حد في الدعوة) -->
+                        <div class="wgp-sent" id="wgp-sent" hidden>
+                            <span class="wgp-sent-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+                            <p class="wgp-sent-title" data-elem-id="lg78" data-wg="photosSent">Thank you! Your photos were sent to the couple</p>
+                            <p class="wgp-sent-count" id="wgp-sent-count"></p>
+                        </div>
+                        <p class="wgp-note" id="wgp-note" data-elem-id="lg75" data-wg="photosNote">Your photos go privately to the couple — only they can see them.</p>
                     </div>
-                    <p class="wgp-count" id="wgp-count" hidden></p>
-                    <div class="wgp-grid" id="wgp-grid"></div>
-                    <p class="wgp-empty" id="wgp-empty" data-elem-id="lg76" data-wg="photosEmpty" hidden>Be the first to share a moment</p>
-                    <div role="button" tabindex="0" class="wg-btn wgp-more" id="wgp-more" hidden><span data-elem-id="lg77" data-wg="photosMore">Show more</span></div>
                 </section>
 
                 <!-- ===== الختام ===== -->
@@ -1648,14 +1632,6 @@
                 </section>
             </div>
 
-            <!-- عرض الصورة كبيرة (بره #wg-invite عشان يغطي الشاشة كلها) -->
-            <div id="wgp-lightbox" role="dialog" aria-modal="true" aria-label="Photo">
-                <div class="lb-top"><span id="wgp-lb-count"></span><button type="button" id="wgp-lb-close" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
-                <div class="lb-stage">
-                    <img class="lb-img" id="wgp-lb-img" alt=""/>
-                    <button type="button" class="lb-nav lb-prev" id="wgp-lb-prev" aria-label="Previous"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
-                    <button type="button" class="lb-nav lb-next" id="wgp-lb-next" aria-label="Next"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg></button>
-                </div>
                 <div class="lb-bar"><span id="wgp-lb-by"></span><a id="wgp-lb-dl" href="#" download><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10.5l5 5 5-5M5 20h14"/></svg><span data-wg="photosDownload">Download</span></a></div>
             </div>
             <script>
@@ -1693,11 +1669,11 @@
                         errNet: 'Connection problem, please try again.',
                         photosEyebrow: 'Our album', photosTitle: 'Share the moments',
                         photosIntro: 'Took photos at our celebration? Add them here so we can keep every beautiful moment.',
-                        photosName: 'Your name', photosAdd: 'Add your photos', photosMore: 'Show more',
-                        photosNote: 'Your photos appear here for everyone. You can delete your own photos any time.',
-                        photosEmpty: 'Be the first to share a moment', photosDownload: 'Download',
-                        photosCount: function (n) { return n === 1 ? '1 photo' : n + ' photos'; },
-                        mine: 'Yours', by: 'By', delAsk: 'Delete this photo?',
+                        photosName: 'Your name', photosAdd: 'Add your photos',
+                        photosNote: 'Your photos go privately to the couple — only they can see them.',
+                        photosSent: 'Thank you! Your photos were sent to the couple',
+                        photosSentCount: function (n) { return n === 1 ? '1 photo sent' : n + ' photos sent'; },
+                        photosUploading: function (i, n) { return 'Sending ' + i + ' of ' + n + '…'; },
                         errPhotoName: 'Please write your name first.', errPhotoType: 'This file is not a photo.',
                         errPhotoPreview: 'Photo sharing works on the published invitation.',
                         errPhotoFail: 'Some photos could not be uploaded. Please try again.',
@@ -1720,11 +1696,11 @@
                         errNet: 'مشكلة في الاتصال، حاول تاني.',
                         photosEyebrow: 'ألبوم الفرح', photosTitle: 'شاركونا اللحظات',
                         photosIntro: 'اتصوّرت في الفرح؟ ارفع صورك هنا عشان نحتفظ بكل لحظة حلوة معاكم.',
-                        photosName: 'اسمك', photosAdd: 'ارفع صورك', photosMore: 'صور أكتر',
-                        photosNote: 'صورك بتظهر هنا للكل، وتقدر تمسح صورك إنت في أي وقت.',
-                        photosEmpty: 'كن أول واحد يشارك لحظة', photosDownload: 'تحميل',
-                        photosCount: function (n) { return n === 1 ? 'صورة واحدة' : n === 2 ? 'صورتين' : n <= 10 ? n + ' صور' : n + ' صورة'; },
-                        mine: 'صورتك', by: 'من', delAsk: 'تمسح الصورة دي؟',
+                        photosName: 'اسمك', photosAdd: 'ارفع صورك',
+                        photosNote: 'صورك بتوصل للعروسين بس — محدش غيرهم يقدر يشوفها.',
+                        photosSent: 'شكرًا ليك! صورك وصلت للعروسين',
+                        photosSentCount: function (n) { return n === 1 ? 'اتبعتت صورة واحدة' : n === 2 ? 'اتبعتت صورتين' : 'اتبعتت ' + n + (n <= 10 ? ' صور' : ' صورة'); },
+                        photosUploading: function (i, n) { return 'بنبعت ' + i + ' من ' + n + '…'; },
                         errPhotoName: 'اكتب اسمك الأول.', errPhotoType: 'الملف ده مش صورة.',
                         errPhotoPreview: 'رفع الصور بيشتغل في الدعوة بعد نشرها.',
                         errPhotoFail: 'في صور مترفعتش، حاول تاني.',
@@ -1796,8 +1772,8 @@
                         }
                     });
                     ['dear', 'fam', 'tv', 'until', 'cdDone', 'location', 'directions', 'rsvpEyebrow',
-                     'photosEyebrow', 'photosTitle', 'photosIntro', 'photosName', 'photosAdd', 'photosMore', 'photosNote',
-                     'photosEmpty', 'photosDownload', 'closing'].forEach(function (k) { setText('[data-wg="' + k + '"]', L[k], true); });
+                     'photosEyebrow', 'photosTitle', 'photosIntro', 'photosName', 'photosAdd', 'photosNote',
+                     'photosSent', 'closing'].forEach(function (k) { setText('[data-wg="' + k + '"]', L[k], true); });
                     setText('[data-wg="venue"]', C.venueName);
                     setText('[data-wg="addr"]', C.venueAddress || C.venueCity);
                     setText('[data-wg="time"]', timeStr() || C.heroTimeDisplay);
@@ -1958,27 +1934,28 @@
                     }
                 })();
 
-                /* ---------- صور الضيوف ----------
-                   كل ضيف بياخد "مفتاح" عشوائي بيتحفظ على جهازه (localStorage).
-                   السيرفر بيخزّن بصمته بس، وبيسمح بمسح الصورة لصاحب نفس المفتاح.
+                /* ---------- صور الضيوف (رفع بس) ----------
+                   الصور خاصة بصاحب الدعوة: بتوصله في لوحته (ويشارك لينك الألبوم)،
+                   ومبتظهرش في الدعوة لأي حد — ولا حتى للي رفعها. الضيف بيشوف شريط
+                   تقدّم ورسالة إن صوره وصلت.
+                   كل ضيف بياخد "مفتاح" عشوائي على جهازه (حد أقصى صور لكل ضيف).
                    الصور بتتصغّر على الموبايل قبل الرفع (أقصى ضلع 2560 بكسل —
-                   جودة عالية للطباعة والمشاركة، وفي نفس الوقت تحت حد الرفع). */
+                   جودة عالية، وفي نفس الوقت تحت حد الرفع). */
                 if (!noPhotos) (function () {
                     var shortId = C.shortId;
-                    var grid = document.getElementById('wgp-grid');
-                    var countEl = document.getElementById('wgp-count');
-                    var emptyEl = document.getElementById('wgp-empty');
-                    var moreBtn = document.getElementById('wgp-more');
                     var addBtn = document.getElementById('wgp-add');
                     var fileIn = document.getElementById('wgp-file');
                     var nameIn = document.getElementById('wgp-name');
                     var errEl = document.getElementById('wgp-err');
+                    var prog = document.getElementById('wgp-progress');
+                    var fill = document.getElementById('wgp-bar-fill');
+                    var status = document.getElementById('wgp-status');
+                    var sent = document.getElementById('wgp-sent');
+                    var sentCount = document.getElementById('wgp-sent-count');
                     var KEY = 'mithaq_gp_key_' + (shortId || 'preview');
                     var NAME_KEY = 'mithaq_guest_name';
-                    var photos = [];      // من السيرفر
-                    var total = 0;
-                    var cursor = null;
                     var MAX_SIDE = 2560;
+                    var totalSent = 0; // في الزيارة دي بس
 
                     function guestKey() {
                         var k = null;
@@ -1993,61 +1970,6 @@
                     }
                     try { nameIn.value = localStorage.getItem(NAME_KEY) || ''; } catch (e) { /* */ }
 
-                    function render() {
-                        countEl.hidden = total === 0;
-                        countEl.textContent = L.photosCount(total);
-                        emptyEl.hidden = total !== 0 || grid.querySelector('.is-up');
-                        moreBtn.hidden = !cursor;
-                    }
-                    function tile(p) {
-                        var d = document.createElement('div');
-                        d.className = 'wgp-item';
-                        d.setAttribute('data-id', p.id);
-                        var img = document.createElement('img');
-                        img.src = p.thumb; img.alt = p.guestName ? (L.by + ' ' + p.guestName) : '';
-                        img.loading = 'lazy'; img.decoding = 'async';
-                        d.appendChild(img);
-                        if (p.mine) {
-                            var tag = document.createElement('span'); tag.className = 'wgp-mine'; tag.textContent = L.mine; d.appendChild(tag);
-                            var del = document.createElement('button');
-                            del.type = 'button'; del.className = 'wgp-del'; del.setAttribute('aria-label', L.delAsk);
-                            del.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
-                            del.addEventListener('click', function (e) { e.stopPropagation(); remove(p, d); });
-                            d.appendChild(del);
-                        }
-                        d.addEventListener('click', function () { openLb(photos.indexOf(p)); });
-                        return d;
-                    }
-                    function load(more) {
-                        if (!shortId) { render(); return; }
-                        var url = '/i/' + encodeURIComponent(shortId) + '/photos?limit=30' + (more && cursor ? '&before=' + encodeURIComponent(cursor) : '');
-                        fetch(url, { headers: { 'X-Guest-Key': guestKey() } })
-                            .then(function (r) { return r.ok ? r.json() : null; })
-                            .then(function (j) {
-                                if (!j) return;
-                                total = j.total || 0;
-                                cursor = j.nextCursor || null;
-                                (j.photos || []).forEach(function (p) {
-                                    if (photos.some(function (x) { return x.id === p.id; })) return;
-                                    photos.push(p);
-                                    grid.appendChild(tile(p));
-                                });
-                                render();
-                            }).catch(function () { /* القسم بيفضل فاضي */ });
-                    }
-                    function remove(p, el) {
-                        if (!window.confirm(L.delAsk)) return;
-                        fetch('/i/' + encodeURIComponent(shortId) + '/photos/' + encodeURIComponent(p.id), {
-                            method: 'DELETE', headers: { 'X-Guest-Key': guestKey() }
-                        }).then(function (r) {
-                            if (!r.ok) return;
-                            photos.splice(photos.indexOf(p), 1);
-                            total = Math.max(0, total - 1);
-                            el.remove();
-                            render();
-                        });
-                    }
-
                     /* تصغير الصورة على الجهاز قبل الرفع. لو المتصفح مقدرش يقراها
                        (HEIC على أندرويد مثلًا) بنبعتها زي ما هي والسيرفر بيقرر. */
                     function shrink(file) {
@@ -2056,8 +1978,7 @@
                             createImageBitmap(file, { imageOrientation: 'from-image' }).then(function (bmp) {
                                 var w = bmp.width, h = bmp.height;
                                 var scale = Math.min(1, MAX_SIDE / Math.max(w, h));
-                                // صورة صغيرة أصلًا وبصيغة مسموحة؟ بتترفع زي ما هي من غير أي
-                                // إعادة ضغط — أعلى جودة ممكنة
+                                // صورة صغيرة أصلًا وبصيغة مسموحة؟ بتترفع زي ما هي — أعلى جودة
                                 if (scale === 1 && file.size < 3.2 * 1024 * 1024 && /^image\/(jpeg|webp|png)$/i.test(file.type)) {
                                     if (bmp.close) bmp.close();
                                     resolve(file); return;
@@ -2065,7 +1986,7 @@
                                 var cv = document.createElement('canvas');
                                 cv.width = Math.round(w * scale); cv.height = Math.round(h * scale);
                                 cv.getContext('2d').drawImage(bmp, 0, 0, cv.width, cv.height);
-                                bmp.close && bmp.close();
+                                if (bmp.close) bmp.close();
                                 var qlt = 0.9;
                                 (function tryBlob() {
                                     cv.toBlob(function (b) {
@@ -2078,7 +1999,8 @@
                         });
                     }
 
-                    function upload(file, placeholder) {
+                    // رفع صورة واحدة — onPart(نسبة الصورة دي من 0 لـ 1) لشريط التقدّم
+                    function upload(file, onPart) {
                         return new Promise(function (resolve) {
                             var fd = new FormData();
                             fd.append('file', file);
@@ -2086,34 +2008,15 @@
                             var xhr = new XMLHttpRequest();
                             xhr.open('POST', '/i/' + encodeURIComponent(shortId) + '/photos');
                             xhr.setRequestHeader('X-Guest-Key', guestKey());
-                            var fg = placeholder.querySelector('.fg');
-                            xhr.upload.onprogress = function (e) {
-                                if (e.lengthComputable && fg) fg.style.strokeDashoffset = String(126 * (1 - e.loaded / e.total));
-                            };
+                            xhr.upload.onprogress = function (e) { if (e.lengthComputable) onPart(e.loaded / e.total); };
                             xhr.onload = function () {
                                 var j = null;
                                 try { j = JSON.parse(xhr.responseText); } catch (e) { /* */ }
-                                if (xhr.status === 201 && j && j.photo) {
-                                    j.photo.mine = true;
-                                    photos.unshift(j.photo);
-                                    total++;
-                                    var t = tile(j.photo);
-                                    grid.replaceChild(t, placeholder);
-                                    resolve(true);
-                                } else {
-                                    placeholder.classList.remove('is-up');
-                                    placeholder.classList.add('is-failed');
-                                    if (j && j.error) errEl.textContent = j.error;
-                                    setTimeout(function () { placeholder.remove(); render(); }, 3500);
-                                    resolve(false);
-                                }
-                            };
-                            xhr.onerror = function () {
-                                placeholder.classList.add('is-failed');
-                                errEl.textContent = L.errNet;
-                                setTimeout(function () { placeholder.remove(); render(); }, 3500);
+                                if (xhr.status === 201) { resolve(true); return; }
+                                if (j && j.error) errEl.textContent = j.error;
                                 resolve(false);
                             };
+                            xhr.onerror = function () { errEl.textContent = L.errNet; resolve(false); };
                             xhr.send(fd);
                         });
                     }
@@ -2126,77 +2029,40 @@
                         fileIn.click();
                     });
                     fileIn.addEventListener('change', function () {
-                        var files = Array.prototype.slice.call(fileIn.files || [], 0, 20);
+                        var files = Array.prototype.slice.call(fileIn.files || [], 0, 20).filter(function (f) {
+                            if (f.type && !/^image\//i.test(f.type)) { errEl.textContent = L.errPhotoType; return false; }
+                            return true;
+                        });
                         fileIn.value = '';
                         if (!files.length) return;
-                        var jobs = [];
-                        files.forEach(function (f) {
-                            if (f.type && !/^image\//i.test(f.type)) { errEl.textContent = L.errPhotoType; return; }
-                            var ph = document.createElement('div');
-                            ph.className = 'wgp-item is-up';
-                            var url = '';
-                            try { url = URL.createObjectURL(f); } catch (e) { /* */ }
-                            ph.innerHTML = (url ? '<img alt="" src="' + url + '">' : '')
-                                + '<div class="wgp-prog"><svg viewBox="0 0 46 46"><circle class="bg" cx="23" cy="23" r="20"/><circle class="fg" cx="23" cy="23" r="20" stroke-dasharray="126" stroke-dashoffset="126"/></svg></div>';
-                            grid.insertBefore(ph, grid.firstChild);
-                            jobs.push({ file: f, ph: ph });
-                        });
-                        render();
+                        var n = files.length, done = 0, ok = 0;
                         setBusy(addBtn, true);
-                        // واحدة ورا التانية: أخف على نت الموبايل في القاعة، والترتيب بيفضل صح
-                        var failed = 0;
-                        jobs.reduce(function (p, job) {
-                            return p.then(function () {
-                                return shrink(job.file).then(function (f) { return upload(f, job.ph); })
-                                    .then(function (ok) { if (!ok) failed++; });
+                        prog.hidden = false;
+                        fill.style.width = '0%';
+                        function show(part) {
+                            fill.style.width = Math.round(((done + part) / n) * 100) + '%';
+                            status.textContent = L.photosUploading(Math.min(done + 1, n), n);
+                        }
+                        show(0);
+                        // واحدة ورا التانية: أخف على نت الموبايل في القاعة
+                        files.reduce(function (pr, f) {
+                            return pr.then(function () {
+                                return shrink(f).then(function (ff) { return upload(ff, show); })
+                                    .then(function (good) { if (good) ok++; done++; show(0); });
                             });
                         }, Promise.resolve()).then(function () {
                             setBusy(addBtn, false);
-                            if (failed && !errEl.textContent) errEl.textContent = L.errPhotoFail;
-                            render();
+                            prog.hidden = true;
+                            if (ok) {
+                                totalSent += ok;
+                                sentCount.textContent = L.photosSentCount(totalSent);
+                                sent.hidden = false;
+                                // الرسالة بتتحرك من الأول مع كل رفعة جديدة
+                                sent.style.animation = 'none'; void sent.offsetWidth; sent.style.animation = '';
+                            }
+                            if (ok < n && !errEl.textContent) errEl.textContent = L.errPhotoFail;
                         });
                     });
-                    onPress(moreBtn, function () { load(true); });
-
-                    /* ---- عرض الصورة كبيرة ---- */
-                    var lb = document.getElementById('wgp-lightbox');
-                    var lbImg = document.getElementById('wgp-lb-img');
-                    var lbIdx = 0;
-                    function showLb() {
-                        var p = photos[lbIdx];
-                        if (!p) return;
-                        lbImg.src = p.large;
-                        document.getElementById('wgp-lb-count').textContent = (lbIdx + 1) + ' / ' + photos.length;
-                        document.getElementById('wgp-lb-by').textContent = p.guestName ? (L.by + ' ' + p.guestName) : '';
-                        document.getElementById('wgp-lb-dl').href = p.download;
-                    }
-                    function openLb(i) {
-                        if (i < 0) return;
-                        lbIdx = i; showLb();
-                        lb.classList.add('is-open');
-                        document.documentElement.style.overflow = 'hidden';
-                    }
-                    function closeLb() { lb.classList.remove('is-open'); document.documentElement.style.overflow = ''; lbImg.removeAttribute('src'); }
-                    function step(d) { if (!photos.length) return; lbIdx = (lbIdx + d + photos.length) % photos.length; showLb(); }
-                    document.getElementById('wgp-lb-close').addEventListener('click', closeLb);
-                    document.getElementById('wgp-lb-prev').addEventListener('click', function () { step(LANG === 'ar' ? 1 : -1); });
-                    document.getElementById('wgp-lb-next').addEventListener('click', function () { step(LANG === 'ar' ? -1 : 1); });
-                    document.addEventListener('keydown', function (e) {
-                        if (!lb.classList.contains('is-open')) return;
-                        if (e.key === 'Escape') closeLb();
-                        if (e.key === 'ArrowLeft') step(-1);
-                        if (e.key === 'ArrowRight') step(1);
-                    });
-                    // سحب يمين/شمال على الموبايل
-                    var sx = null;
-                    lb.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; }, { passive: true });
-                    lb.addEventListener('touchend', function (e) {
-                        if (sx == null) return;
-                        var dx = e.changedTouches[0].clientX - sx; sx = null;
-                        if (Math.abs(dx) > 50) step(dx < 0 ? 1 : -1);
-                    });
-
-                    load(false);
                 })();
             })();
             </script>

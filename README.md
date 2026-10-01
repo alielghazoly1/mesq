@@ -131,8 +131,10 @@ npm start
 
 ### ألبوم صور الضيوف (`routes/guestPhotos.js`)
 
-الضيوف بيرفعوا صور الفرح من جوه الدعوة (من غير حساب)، وصاحب الدعوة بيشوفها
-في لوحته ويبعت لينك صفحة الألبوم لأي حد. متاح للقوالب اللي عليها
+الضيوف بيرفعوا صور الفرح من جوه الدعوة (من غير حساب). **الصور خاصة بصاحب
+الدعوة**: مبتظهرش في الدعوة لأي حد (ولا حتى للي رفعها — بيشوف رسالة إن صوره
+وصلت بس)، ومفيش أي مسار عام بيعرضها. صاحب الدعوة بيشوفها في لوحته ويبعت لينك
+صفحة الألبوم للي هو عايزه. متاح للقوالب اللي عليها
 `guestPhotos: true` في `templates/registry.js` (دلوقتي Lily Garden).
 
 - **الموديل:** `models/GuestPhoto.js` (`shortId`, رابط Cloudinary، المقاس،
@@ -149,7 +151,7 @@ npm start
 - **الحدود** (`utils/guestPhotos.js`): 40 صورة لكل ضيف، 1500 للألبوم،
   60 رفعة في الساعة لكل جهاز (`guestPhotoLimiter`)، و200 لكل IP.
 - **المسارات:**
-  - `GET/POST /i/:shortId/photos`, `DELETE /i/:shortId/photos/:id` — الضيوف.
+  - `POST /i/:shortId/photos` — الضيوف (رفع بس؛ الرد من غير أي رابط للصورة).
   - `GET /api/dashboard/invitations/:shortId/photos`,
     `DELETE …/photos/:id`, `POST …/album-link` — صاحب الدعوة.
   - `GET /a/:token` — صفحة الألبوم المشاركة (`utils/albumPage.js`)،

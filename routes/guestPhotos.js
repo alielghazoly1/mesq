@@ -1,14 +1,14 @@
 // routes/guestPhotos.js
 // ألبوم صور الضيوف: الضيوف بيرفعوا صور الفرح من جوه الدعوة نفسها (من غير
-// حساب)، وكل ضيف يقدر يمسح صوره هو بس. صاحب الدعوة بيشوف الألبوم كله في
-// لوحته، يمسح أي صورة، ويبعت لينك سري لصفحة الألبوم (/a/:token) يقدر أي
-// حد معاه يشوف الصور وينزّلها بجودتها الأصلية.
+// حساب). **الصور خاصة بصاحب الدعوة**: مبتظهرش في الدعوة لأي حد (ولا حتى للي
+// رفعها) ومفيش أي مسار عام بيعرضها. صاحب الدعوة بيشوف الألبوم كله في لوحته،
+// يمسح أي صورة، ويبعت لينك سري لصفحة الألبوم (/a/:token) للي هو عايزه.
 //
 // الحماية:
 //  • الملف بيتفحص بمحتواه الحقيقي (utils/uploadSecurity.js) وبيتعاد ترميزه
 //    على Cloudinary — زي باقي الرفع في الموقع بالظبط.
 //  • حدود: صور لكل ضيف، صور للألبوم كله، وصور في الساعة لكل جهاز.
-//  • المسح: الضيف بمفتاحه (السيرفر شايل بصمته بس)، أو صاحب الدعوة.
+//  • المسح والعرض: لصاحب الدعوة بس (لوحته + اللينك السري اللي بيشاركه).
 const express = require('express');
 const multer = require('multer');
 const mongoose = require('mongoose');
@@ -85,20 +85,8 @@ async function findAlbumInvitation(shortId) {
 
 // ================= الضيوف (من جوه الدعوة) =================
 
-// GET /i/:shortId/photos — صور الألبوم (عامة لأي حد معاه لينك الدعوة)
-router.get('/i/:shortId/photos', async (req, res) => {
-  try {
-    const invitation = await findAlbumInvitation(req.params.shortId);
-    if (!invitation) return res.status(404).json({ error: 'الألبوم ده مش موجود.' });
-    const viewer = readGuestKeyHash(req);
-    const { page, total, nextCursor } = await loadPage(invitation.shortId, req.query);
-    res.set('Cache-Control', 'no-store');
-    return res.json({ photos: page.map((p) => serializePhoto(p, viewer)), total, nextCursor });
-  } catch (err) {
-    console.error('Error listing guest photos:', err);
-    return res.status(500).json({ error: 'حصل خطأ في السيرفر.' });
-  }
-});
+// (مفيش GET /i/:shortId/photos — الصور مبتتعرضش لأي حد من لينك الدعوة.
+// المالك بيشوفها من GET /api/dashboard/invitations/:shortId/photos بس.)
 
 // POST /i/:shortId/photos — ضيف بيرفع صورة
 router.post(
@@ -157,34 +145,14 @@ router.post(
         deviceId: req.deviceId || null,
       });
 
-      return res.status(201).json({ photo: serializePhoto(photo.toObject(), keyHash) });
+      // من غير أي رابط للصورة — الضيف مش بيشوفها، صاحب الدعوة بس
+      return res.status(201).json({ ok: true, id: String(photo._id) });
     } catch (err) {
       console.error('Guest photo upload failed:', err);
       return res.status(500).json({ error: 'الرفع فشل، حاول تاني.' });
     }
   }
 );
-
-// DELETE /i/:shortId/photos/:id — الضيف بيمسح صورته هو (بنفس المفتاح)
-router.delete('/i/:shortId/photos/:id', async (req, res) => {
-  try {
-    const keyHash = readGuestKeyHash(req);
-    if (!keyHash || !mongoose.isValidObjectId(req.params.id)) {
-      return res.status(404).json({ error: 'الصورة دي مش موجودة.' });
-    }
-    const photo = await GuestPhoto.findOne({
-      _id: req.params.id, shortId: String(req.params.shortId || ''), guestKeyHash: keyHash,
-    }).lean();
-    // صورة حد تاني = "مش موجودة" — من غير ما نأكد إنها موجودة أصلًا
-    if (!photo) return res.status(404).json({ error: 'الصورة دي مش موجودة.' });
-    await GuestPhoto.deleteOne({ _id: photo._id });
-    await destroyRemote(photo.publicId);
-    return res.json({ ok: true });
-  } catch (err) {
-    console.error('Guest photo delete failed:', err);
-    return res.status(500).json({ error: 'حصل خطأ في السيرفر.' });
-  }
-});
 
 // ================= صاحب الدعوة (لوحته) =================
 
