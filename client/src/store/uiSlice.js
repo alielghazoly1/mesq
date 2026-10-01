@@ -12,6 +12,9 @@ const uiSlice = createSlice({
     // اسم العميل اللي لسه مسجّل — وجوده معناه نعرض شاشة الترحيب.
     // في الحالة مش في localStorage: دي لحظة واحدة مش تفضيل بيتحفظ.
     welcomeFor: null,
+    // لوحة التواصل (SupportLauncher): بتتفتح من زرارها العايم على الكمبيوتر،
+    // ومن أيقونة "الدعم" في الشريط السفلي على الموبايل — فحالتها هنا.
+    supportOpen: false,
   },
   reducers: {
     openAuthModal(state, action) {
@@ -27,10 +30,16 @@ const uiSlice = createSlice({
     hideWelcome(state) {
       state.welcomeFor = null;
     },
+    setSupportOpen(state, action) {
+      state.supportOpen = !!action.payload;
+    },
+    toggleSupport(state) {
+      state.supportOpen = !state.supportOpen;
+    },
   },
 });
 
 export const {
-  openAuthModal, closeAuthModal, showWelcome, hideWelcome,
+  openAuthModal, closeAuthModal, showWelcome, hideWelcome, setSupportOpen, toggleSupport,
 } = uiSlice.actions;
 export default uiSlice.reducer;

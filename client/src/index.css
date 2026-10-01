@@ -83,6 +83,20 @@ h3 {
 [dir="rtl"] .keep-tracking {
   letter-spacing: 0.05em !important;
 }
+/* كلمة VIP في الشريط السفلي: دهبي بلمعة بتعدّي عليه */
+.bn-vip-text {
+  background: linear-gradient(100deg, #8a6a20 0%, #c9a24a 35%, #f6e3b0 50%, #c9a24a 65%, #8a6a20 100%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: bn-shimmer 2.8s linear infinite;
+}
+@keyframes bn-shimmer {
+  from { background-position: 110% 0; }
+  to { background-position: -110% 0; }
+}
+
 img,
 iframe {
   max-width: 100%;

@@ -10,6 +10,8 @@
 // معاها سياقها، فالعميل مايقعدش يشرح هو جاي منين.
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useDispatch, useSelector } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'motion/react';
 import {
   MessageCircle, X, Send, Loader2, Headphones, Palette, ArrowLeft, Check,
@@ -18,6 +20,8 @@ import {
   useGetMeQuery, useGetSupportQuery, useSendSupportMessageMutation, useGetDashboardQuery,
 } from '../store/api.js';
 import { whatsappLink, WHATSAPP_MESSAGES, phoneDisplay } from '../lib/contact.js';
+import { setSupportOpen, toggleSupport } from '../store/uiSlice.js';
+import { hasBottomNav } from '../lib/bottomNav.js';
 
 /** أيقونة واتساب — مش موجودة في lucide فرسمناها */
 function WhatsAppIcon({ size = 18 }) {
@@ -110,8 +114,21 @@ function Chat({ onClose }) {
 
 export default function SupportLauncher() {
   const { t } = useTranslation();
-  const [open, setOpen] = useState(false);
+  const dispatch = useDispatch();
+  const { pathname } = useLocation();
+  // الحالة في Redux عشان أيقونة "الدعم" في الشريط السفلي تفتح نفس اللوحة
+  const open = useSelector((s) => s.ui.supportOpen);
+  const setOpen = (v) => dispatch(setSupportOpen(v));
   const [view, setView] = useState('menu'); // menu | chat
+  // على الموبايل والشريط السفلي ظاهر: الزرار العايم بيستخبى (الشريط فيه
+  // أيقونة الدعم)، واللوحة بتطلع فوق الشريط بدل ما تقعد عليه
+  const withNav = hasBottomNav(pathname);
+
+  // كل فتحة بتبدأ من القايمة، مهما كان آخر مكان وقف فيه
+  useEffect(() => { if (open) setView('menu'); }, [open]);
+
+  // اللوحة بتتقفل مع أي تنقّل لصفحة تانية
+  useEffect(() => { dispatch(setSupportOpen(false)); }, [pathname, dispatch]);
   const { data: meData } = useGetMeQuery();
   const user = meData?.user ?? null;
   // عدد الرسايل اللي مش مقروءة — بيتقرا من نفس طلب اللوحة الموجود أصلاً
@@ -121,10 +138,10 @@ export default function SupportLauncher() {
   // ESC بتقفل
   useEffect(() => {
     if (!open) return undefined;
-    const onKey = (e) => { if (e.key === 'Escape') setOpen(false); };
+    const onKey = (e) => { if (e.key === 'Escape') dispatch(setSupportOpen(false)); };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [open]);
+  }, [open, dispatch]);
 
   const options = [
     {
@@ -159,10 +176,10 @@ export default function SupportLauncher() {
       {/* الزرار العايم */}
       <button
         type="button"
-        onClick={() => { setOpen((v) => !v); setView('menu'); }}
+        onClick={() => dispatch(toggleSupport())}
         aria-label={t('support.launcher')}
-        className="fixed bottom-4 start-4 z-[120] flex h-13 items-center gap-2 rounded-full bg-night px-4 py-3.5
-          text-ivory shadow-[0_12px_30px_-10px_rgba(8,19,15,.7)] transition hover:bg-emerald active:scale-95"
+        className={`fixed bottom-4 start-4 z-[120] ${withNav ? 'hidden md:flex' : 'flex'} h-13 items-center gap-2 rounded-full bg-night px-4 py-3.5
+          text-ivory shadow-[0_12px_30px_-10px_rgba(8,19,15,.7)] transition hover:bg-emerald active:scale-95`}
       >
         {open ? <X size={19} /> : <MessageCircle size={19} />}
         {!open && (
@@ -192,9 +209,11 @@ export default function SupportLauncher() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 16, scale: 0.98 }}
               transition={{ type: 'spring', stiffness: 280, damping: 26 }}
-              className="fixed bottom-20 start-3 end-3 z-[120] flex max-h-[72vh] flex-col overflow-hidden
+              className={`fixed start-3 end-3 z-[120] flex flex-col overflow-hidden
                 rounded-[22px] border border-line bg-card shadow-[0_28px_70px_-24px_rgba(8,19,15,.6)]
-                sm:end-auto sm:w-[360px]"
+                sm:end-auto sm:w-[360px] ${withNav
+                  ? 'bottom-[calc(96px+env(safe-area-inset-bottom))] max-h-[calc(100dvh-180px)] md:bottom-20 md:max-h-[72vh]'
+                  : 'bottom-20 max-h-[72vh]'}`}
             >
               {/* العنوان */}
               <div className="flex shrink-0 items-center gap-2.5 border-b border-line bg-gradient-to-l from-[#0d1f18] to-night px-4 py-3.5 text-ivory">
