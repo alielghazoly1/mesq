@@ -1264,7 +1264,7 @@
                  الأسماء/التاريخ/المكان/الخريطة/العداد بيتملوا من البيانات، وأي نص
                  أو صورة عليها data-elem-id (lgN) صاحب الدعوة يقدر يعدّلها أو
                  يبدّلها من المحرر — تعديله بيغلب القيمة الافتراضية دي. -->
-            <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Pinyon+Script&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400&family=Aref+Ruqaa:wght@400;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet"/>
+            <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Pinyon+Script&family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400&family=Amiri:wght@400;700&display=swap" rel="stylesheet"/>
             <style>
                 html, body { background: #f3ebd7; }
                 #wg-invite {
@@ -1285,9 +1285,9 @@
                 /* hidden لازم يغلب display بتاع الزراير (wg-btn = flex) */
                 #wg-invite [hidden] { display: none !important; }
                 .wg-sec { position: relative; width: 100%; container-type: inline-size; overflow: hidden; line-height: 1.2; font-size: 16px; text-align: center; direction: ltr; }
-                /* الخطوط: اللاتيني بياخد Pinyon/Cormorant، والعربي بياخد Aref Ruqaa/Amiri
+                /* الخطوط: اللاتيني بياخد Pinyon/Cormorant، وAmiri احتياطي لو اسم القاعة اتكتب عربي
                    — المتصفح بيختار لكل حرف الخط اللي فيه شكله */
-                .wg-script { font-family: 'Pinyon Script', 'Aref Ruqaa', 'Great Vibes', cursive; font-weight: 400; margin: 0; }
+                .wg-script { font-family: 'Pinyon Script', 'Amiri', 'Great Vibes', cursive; font-weight: 400; margin: 0; }
                 .wg-caps { font-family: 'Cormorant Garamond', 'Amiri', 'EB Garamond', Georgia, serif; text-transform: uppercase; font-weight: 600; margin: 0; }
                 .wg-abs { position: absolute; left: 0; width: 100%; transform: translateY(-50%); }
                 .wg-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; display: block; margin: 0; padding: 0; border: 0; z-index: 0; }
@@ -1306,7 +1306,6 @@
                    الاسم اللي تحت ويبان كأنه حرف زيادة. ومش جوه النص: صاحب الدعوة
                    بيعدّل الاسم بس من غير ما يتعامل مع العلامة */
                 #wg-invite-1 .names .amp::after { content: "\00a0&"; font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-weight: 500; font-size: .62em; vertical-align: .18em; color: #c58a9a; }
-                #wg-invite.wg-rtl #wg-invite-1 .names .amp::after { content: "\00a0و"; font-family: 'Aref Ruqaa', 'Amiri', serif; font-style: normal; font-size: .8em; vertical-align: 0; }
                 #wg-invite-1 .names .second { margin-top: -1cqw; }
                 #wg-invite-1 .wday { top: 37%; font-size: 5.6cqw; letter-spacing: .04em; font-weight: 500; }
                 #wg-invite-1 .arch { position: absolute; left: 22.2%; top: 41.3%; width: 55.6%; height: 56.4%; border-radius: 50% 50% 0 0 / 39% 39% 0 0; overflow: hidden; }
@@ -1352,7 +1351,7 @@
                 /* ===== الخريطة ===== */
                 #wg-map { width: 100%; box-sizing: border-box; padding: 34px 22px 52px; background: #f3ebd7; text-align: center; direction: ltr; color: #4a4a2a; position: relative; font-size: 16px; line-height: 1.35; }
                 #wg-map::before { content: ""; display: block; height: 1px; margin: 0 auto 30px; width: 62%; background: linear-gradient(90deg, transparent, #b9506a 50%, transparent); opacity: .55; }
-                #wg-map .wg-map-script { font-family: 'Pinyon Script', 'Aref Ruqaa', cursive; font-size: 44px; line-height: 1.1; color: #b9506a; margin: 0; font-weight: 400; }
+                #wg-map .wg-map-script { font-family: 'Pinyon Script', 'Amiri', cursive; font-size: 44px; line-height: 1.1; color: #b9506a; margin: 0; font-weight: 400; }
                 #wg-map .wg-map-venue { font-family: 'Cormorant Garamond', 'Amiri', Georgia, serif; font-size: 21px; letter-spacing: .14em; text-transform: uppercase; color: #55582f; margin: 14px 0 4px; font-weight: 600; }
                 #wg-map .wg-map-addr { font-family: 'Cormorant Garamond', 'Amiri', Georgia, serif; font-size: 18px; color: #6b6a45; margin: 0 0 22px; font-weight: 500; }
                 #wg-map .wg-map-frame { position: relative; padding: 9px; background: #fbf6e8; border: 1.5px solid #5d6139; border-radius: 26px; box-shadow: 0 0 0 5px #f3ebd7, 0 0 0 6px rgba(185,80,106,.55), 0 14px 30px rgba(85,88,47,.22); }
@@ -1365,7 +1364,7 @@
                 #mithaq-rsvp { background: linear-gradient(180deg, #f3ebd7 0%, #f6eedb 100%); }
                 #mithaq-photos { background: linear-gradient(180deg, #f6eedb 0%, #f3ebd7 100%); }
                 .wg-panel .wg-eyebrow { font-family: 'Cormorant Garamond', 'Amiri', Georgia, serif; font-size: 12px; letter-spacing: .38em; text-transform: uppercase; font-weight: 700; color: #a2845a; margin: 0 0 6px; }
-                .wg-panel .wg-ptitle { font-family: 'Pinyon Script', 'Aref Ruqaa', cursive; font-size: 46px; line-height: 1.15; color: var(--rose); margin: 0; font-weight: 400; }
+                .wg-panel .wg-ptitle { font-family: 'Pinyon Script', 'Amiri', cursive; font-size: 46px; line-height: 1.15; color: var(--rose); margin: 0; font-weight: 400; }
                 .wg-panel .wg-pintro { font-family: 'Cormorant Garamond', 'Amiri', Georgia, serif; font-size: 17px; font-weight: 500; color: #6b6a45; margin: 10px auto 26px; max-width: 34ch; line-height: 1.6; }
                 .wg-panel .wg-orn { display: block; width: 120px; height: 14px; margin: 14px auto 0; color: var(--gold); }
                 .wg-card { position: relative; max-width: 420px; margin: 0 auto; padding: 26px 20px 22px; background: var(--paper); border: 1.5px solid var(--olive); border-radius: 26px; box-sizing: border-box;
@@ -1396,7 +1395,7 @@
                 .wg-done .wg-done-mark { width: 74px; height: 74px; margin: 0 auto 14px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
                     background: radial-gradient(circle at 35% 30%, #8b8f5a, #5d6139 60%, #474a2a); box-shadow: 0 10px 22px -10px rgba(71,74,42,.9), inset 0 2px 3px rgba(255,255,255,.25); color: #f3ead2; animation: wgPop .7s cubic-bezier(.3,1.6,.5,1) both; }
                 .wg-done .wg-done-mark svg { width: 34px; height: 34px; }
-                .wg-done h3 { font-family: 'Pinyon Script', 'Aref Ruqaa', cursive; font-size: 40px; font-weight: 400; color: var(--rose); margin: 0 0 6px; line-height: 1.2; }
+                .wg-done h3 { font-family: 'Pinyon Script', 'Amiri', cursive; font-size: 40px; font-weight: 400; color: var(--rose); margin: 0 0 6px; line-height: 1.2; }
                 .wg-done p { font: 500 17px/1.7 'Cormorant Garamond', 'Amiri', Georgia, serif; color: #5f5f3c; margin: 0; }
                 @keyframes wgPop { 0% { transform: scale(.4); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
@@ -1441,31 +1440,8 @@
                 /* ===== الختام ===== */
                 #wg-closing { background: #f3ebd7; padding: 10px 20px 70px; color: var(--rose); }
                 #wg-closing .wg-closing-line { font-family: 'Cormorant Garamond', 'Amiri', Georgia, serif; font-size: 13px; letter-spacing: .36em; text-transform: uppercase; font-weight: 700; color: #a2845a; margin: 0 0 8px; }
-                #wg-closing .wg-closing-names { font-family: 'Pinyon Script', 'Aref Ruqaa', cursive; font-size: 42px; line-height: 1.2; margin: 0; }
+                #wg-closing .wg-closing-names { font-family: 'Pinyon Script', 'Amiri', cursive; font-size: 42px; line-height: 1.2; margin: 0; }
                 #wg-closing .wg-closing-lily { display: block; width: 44px; height: auto; margin: 0 auto 12px; opacity: .85; }
-
-                /* ===== العربي (اتجاه + مقاسات الخط العربي) =====
-                   Aref Ruqaa أعرض من Pinyon بكتير، فالأسماء والعناوين بتصغر شوية
-                   عشان تفضل في نفس مساحة التصميم */
-                #wg-invite.wg-rtl .wg-sec, #wg-invite.wg-rtl .wg-panel, #wg-invite.wg-rtl #wg-map, #wg-invite.wg-rtl #wg-closing { direction: rtl; }
-                #wg-invite.wg-rtl #wg-invite-1 .names { font-size: 12.5cqw; line-height: 1.3; }
-                #wg-invite.wg-rtl #wg-invite-1 .names .amp { margin-left: 0; margin-right: 8cqw; }
-                #wg-invite.wg-rtl #wg-invite-1 .wday, #wg-invite.wg-rtl #wg-invite-1 .date { letter-spacing: 0; }
-                /* الكارت ارتفاعه ثابت (جزء من الصورة) — والسطر العربي أطول من
-                   اللاتيني، فالمقاسات هنا محسوبة إن كل الكلام يقعد جوه الكارت */
-                #wg-invite.wg-rtl #wg-invite-2 .dear { font-size: 10cqw; line-height: 1.35; }
-                #wg-invite.wg-rtl #wg-invite-2 .fam { font-size: 5cqw; letter-spacing: 0; margin-top: 0; }
-                #wg-invite.wg-rtl #wg-invite-2 .body { font-size: 4.7cqw; letter-spacing: 0; line-height: 1.7; margin-top: 4cqw; }
-                #wg-invite.wg-rtl #wg-invite-2 .big-date { font-size: 11cqw; margin-top: 3.5cqw; }
-                #wg-invite.wg-rtl #wg-invite-2 .end { font-size: 3.9cqw; letter-spacing: 0; line-height: 1.7; margin-top: 3.5cqw; }
-                #wg-invite.wg-rtl #wg-invite-3 .tv { font-size: 10cqw; }
-                #wg-invite.wg-rtl #wg-invite-3 .venue, #wg-invite.wg-rtl #wg-invite-3 .addr { letter-spacing: 0; }
-                #wg-invite.wg-rtl #wg-invite-3 .time { font-size: 8cqw; }
-                #wg-invite.wg-rtl #wg-invite-4 .until { font-size: 8.4cqw; line-height: 1.5; }
-                #wg-invite.wg-rtl #wg-countdown .wg-cd-label { letter-spacing: 0; font-size: 3.6cqw; }
-                #wg-invite.wg-rtl .wg-ptitle, #wg-invite.wg-rtl #wg-map .wg-map-script, #wg-invite.wg-rtl .wg-done h3, #wg-invite.wg-rtl #wg-closing .wg-closing-names { font-size: 32px; line-height: 1.5; }
-                #wg-invite.wg-rtl .wg-eyebrow, #wg-invite.wg-rtl .wg-field-label, #wg-invite.wg-rtl .wg-btn, #wg-invite.wg-rtl #wg-map .wg-map-venue,
-                #wg-invite.wg-rtl #wg-map .wg-map-btn, #wg-invite.wg-rtl .wgp-count, #wg-invite.wg-rtl .wgp-item .wgp-mine, #wg-invite.wg-rtl #wg-closing .wg-closing-line { letter-spacing: 0; }
 
                 /* ===== الحركة =====
                    (١) أول ما الختم يتفتح: الزنبق بيدخل من الجنبين ويتمايل، والأسماء
@@ -1489,8 +1465,6 @@
                 @keyframes wgFadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
                 @keyframes wgFadeDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
                 @keyframes wgArch { 0% { opacity: 0; transform: translateY(8%) scale(.94); clip-path: inset(100% 0 0 0 round 50% 50% 0 0); } 100% { opacity: 1; transform: none; clip-path: inset(0 0 0 0 round 0); } }
-                #wg-invite.wg-rtl.wg-opened #wg-invite-1 .names span { animation-name: wgWriteRtl; }
-                @keyframes wgWriteRtl { 0% { opacity: 0; clip-path: inset(0 0 0 100%); filter: blur(2px); } 25% { opacity: 1; } 100% { opacity: 1; clip-path: inset(0 0 0 0); filter: none; } }
                 /* .wg-cy عناصر بيتعاد ظهورها بالكلاس wg-in */
                 [data-wg-reveal] { opacity: 0; transform: translateY(26px); transition: opacity 1s ease, transform 1.1s cubic-bezier(.2,.8,.2,1); }
                 [data-wg-reveal="zoom"] { transform: scale(1.06); transition: opacity 1.2s ease, transform 2.4s cubic-bezier(.2,.8,.2,1); }
@@ -1646,7 +1620,9 @@
                القيم الافتراضية المكتوبة في الـHTML. */
             (function () {
                 var C = window.WEDDING_CONFIG || {};
-                var LANG = C.language === 'ar' || C.language === 'fr' ? C.language : 'en';
+                // التصميم إنجليزي دايمًا (نفس الخطوط والكلام) أيًا كانت لغة الدعوة —
+                // ده قرار صاحب الموقع. اللغة بتأثر بس على باقي الموقع مش على القالب ده.
+                var LANG = 'en';
                 var ENG = C.occasionType === 'engagement';
                 var box = document.getElementById('wg-invite');
                 if (!box) return;
@@ -1681,60 +1657,6 @@
                         errPhotoPreview: 'Photo sharing works on the published invitation.',
                         errPhotoFail: 'Some photos could not be uploaded. Please try again.',
                         closing: 'With love', wday: ENG ? 'Engagement Day' : 'Wedding Day'
-                    },
-                    ar: {
-                        dear: 'أحبابنا', fam: 'الأهل والأصدقاء',
-                        body: ENG ? 'ندعوكم لمشاركتنا<br>بداية أجمل حكاية في حياتنا<br>حفل خطوبتنا'
-                                  : 'ندعوكم لمشاركتنا<br>أسعد أيام عمرنا<br>حفل زفافنا',
-                        end: 'سيكتمل فرحنا بوجودكم<br>ومشاركتكم هذا اليوم الذي لا يُنسى',
-                        tv: 'الموعد والمكان', until: 'باقي على يومنا المميز', cdDone: 'بدأ الاحتفال',
-                        cd: { days: 'يوم', hours: 'ساعة', minutes: 'دقيقة', seconds: 'ثانية' },
-                        location: 'الموقع', directions: 'اعرف الطريق',
-                        rsvpEyebrow: 'تأكيد الحضور', rsvpTitle: 'هتشرّفونا؟', rsvpIntro: 'من فضلكم عرّفونا هتقدروا تحضروا ولا لأ.',
-                        nameLabel: 'اسمك', yes: 'بكل سرور، هحضر', no: 'للأسف، معتذر',
-                        noteLabel: 'رسالة للعروسين', submit: 'إرسال', sending: 'جارِ الإرسال…',
-                        doneTitle: 'شكرًا ليك', doneMsg: 'وصلنا ردّك، ومستنيين نحتفل معاك!',
-                        errName: 'من فضلك اكتب اسمك.', errAtt: 'من فضلك اختار هتحضر ولا لأ.',
-                        errPreview: 'دي معاينة — الإرسال بيشتغل في الدعوة بعد نشرها.',
-                        errNet: 'مشكلة في الاتصال، حاول تاني.',
-                        photosEyebrow: 'ألبوم الفرح', photosTitle: 'شاركونا اللحظات',
-                        photosIntro: 'اتصوّرت في الفرح؟ ارفع صورك هنا عشان نحتفظ بكل لحظة حلوة معاكم.',
-                        photosName: 'اسمك', photosAdd: 'ارفع صورك', photosMore: 'صور أكتر',
-                        photosNote: 'صورك بتظهر هنا للكل، وتقدر تمسح صورك إنت في أي وقت.',
-                        photosEmpty: 'كن أول واحد يشارك لحظة', photosDownload: 'تحميل',
-                        photosCount: function (n) { return n === 1 ? 'صورة واحدة' : n === 2 ? 'صورتين' : n <= 10 ? n + ' صور' : n + ' صورة'; },
-                        mine: 'صورتك', by: 'من', delAsk: 'تمسح الصورة دي؟',
-                        errPhotoName: 'اكتب اسمك الأول.', errPhotoType: 'الملف ده مش صورة.',
-                        errPhotoPreview: 'رفع الصور بيشتغل في الدعوة بعد نشرها.',
-                        errPhotoFail: 'في صور مترفعتش، حاول تاني.',
-                        closing: 'مع كل الحب', wday: ENG ? 'يوم الخطوبة' : 'يوم الزفاف'
-                    },
-                    fr: {
-                        dear: 'Chers', fam: 'Famille &amp; Amis !',
-                        body: ENG ? 'Nous vous invitons<br>à célébrer<br>un nouveau chapitre<br>de notre vie &ndash;<br>nos fiançailles !'
-                                  : 'Nous vous invitons<br>à célébrer<br>le plus beau jour<br>de notre vie &ndash;<br>notre mariage !',
-                        end: 'Nous serons si heureux<br>de partager ce jour inoubliable<br>avec vous !',
-                        tv: 'Lieu &amp; Heure', until: 'Jusqu’à notre grand jour', cdDone: 'La fête a commencé',
-                        cd: { days: 'Jours', hours: 'Heures', minutes: 'Min', seconds: 'Sec' },
-                        location: 'Le lieu', directions: 'Itinéraire',
-                        rsvpEyebrow: 'R.S.V.P', rsvpTitle: 'Serez-vous des nôtres ?', rsvpIntro: 'Merci de nous dire si vous pourrez venir.',
-                        nameLabel: 'Votre nom', yes: 'Avec joie', no: 'Avec regret',
-                        noteLabel: 'Un mot pour les mariés', submit: 'Envoyer', sending: 'Envoi…',
-                        doneTitle: 'Merci', doneMsg: 'Votre réponse a bien été reçue. À très bientôt !',
-                        errName: 'Merci d’écrire votre nom.', errAtt: 'Merci d’indiquer si vous venez.',
-                        errPreview: 'Ceci est un aperçu — les réponses fonctionnent sur l’invitation publiée.',
-                        errNet: 'Problème de connexion, réessayez.',
-                        photosEyebrow: 'Notre album', photosTitle: 'Partagez les moments',
-                        photosIntro: 'Vous avez pris des photos ? Ajoutez-les ici pour garder chaque beau moment.',
-                        photosName: 'Votre nom', photosAdd: 'Ajouter vos photos', photosMore: 'Voir plus',
-                        photosNote: 'Vos photos sont visibles par tous. Vous pouvez supprimer les vôtres à tout moment.',
-                        photosEmpty: 'Soyez le premier à partager un moment', photosDownload: 'Télécharger',
-                        photosCount: function (n) { return n + (n === 1 ? ' photo' : ' photos'); },
-                        mine: 'À vous', by: 'Par', delAsk: 'Supprimer cette photo ?',
-                        errPhotoName: 'Écrivez d’abord votre nom.', errPhotoType: 'Ce fichier n’est pas une photo.',
-                        errPhotoPreview: 'Le partage de photos fonctionne sur l’invitation publiée.',
-                        errPhotoFail: 'Certaines photos n’ont pas pu être envoyées. Réessayez.',
-                        closing: 'Avec amour', wday: ENG ? 'Jour des Fiançailles' : 'Jour du Mariage'
                     }
                 };
                 var L = T[LANG];
@@ -1742,7 +1664,6 @@
                 // كلام التصميم — وإلا بنستخدم كلام التصميم الأحلى من النص العام
                 var OV = C.rsvpOverrides || {};
 
-                if (LANG === 'ar') box.classList.add('wg-rtl');
 
                 function q(sel) { return box.querySelectorAll(sel); }
                 function setText(sel, val, html) {
@@ -1760,16 +1681,14 @@
                 var cd = C.countdown || {};
                 var dateStr = (cd.year != null && cd.monthIndex != null)
                     ? pad(cd.day) + '.' + pad(cd.monthIndex + 1) + '.' + cd.year : '';
-                var first = C.groomName || '', second = C.brideName || '';
-                var conn = LANG === 'ar' ? ' و' : ' &amp;';
-                // الساعة بالدقايق من نفس مصدر العداد (ساعة الفرح بتوقيت مصر):
-                // "7:30 PM" / "7:30 مساءً" / "19h30" — من غير "Starting at"
+                // الأسماء اللاتيني دايمًا (حتى لو الدعوة عربي) — التصميم بخط لاتيني
+                var first = C.groomNameLatin || C.groomName || '', second = C.brideNameLatin || C.brideName || '';
+                var conn = ' &amp;';
+                // الساعة بالدقايق من نفس مصدر العداد (ساعة الفرح بتوقيت مصر): "7:30 PM"
                 function timeStr() {
                     if (cd.hour == null) return '';
                     var h = cd.hour, mi = pad(cd.minute || 0);
-                    if (LANG === 'fr') return h + 'h' + mi;
                     var h12 = h % 12 === 0 ? 12 : h % 12;
-                    if (LANG === 'ar') return h12 + ':' + mi + (h < 12 ? ' صباحًا' : ' مساءً');
                     return h12 + ':' + mi + (h < 12 ? ' AM' : ' PM');
                 }
 
@@ -1778,7 +1697,7 @@
                     setText('[data-wg="date"]', dateStr);
                     if (first) setText('[data-wg="name1"]', first);
                     if (second) setText('[data-wg="name2"]', second);
-                    setText('[data-wg="wday"]', C.heroEyebrow || L.wday);
+                    setText('[data-wg="wday"]', L.wday);
                     ['dear', 'fam', 'body', 'end', 'tv', 'until', 'cdDone', 'location', 'directions', 'rsvpEyebrow',
                      'photosEyebrow', 'photosTitle', 'photosIntro', 'photosName', 'photosAdd', 'photosMore', 'photosNote',
                      'photosEmpty', 'photosDownload', 'closing'].forEach(function (k) { setText('[data-wg="' + k + '"]', L[k], true); });
@@ -1795,7 +1714,7 @@
                     }
                     var link = document.getElementById('wg-map-link');
                     if (link && C.venueMapDirectLink) link.href = C.venueMapDirectLink;
-                    document.title = (first && second) ? (first + (LANG === 'ar' ? ' و' : ' & ') + second) : document.title;
+                    document.title = (first && second) ? (first + ' & ' + second) : document.title;
                 }
                 applyConfig();
 
@@ -2161,8 +2080,8 @@
                     function closeLb() { lb.classList.remove('is-open'); document.documentElement.style.overflow = ''; lbImg.removeAttribute('src'); }
                     function step(d) { if (!photos.length) return; lbIdx = (lbIdx + d + photos.length) % photos.length; showLb(); }
                     document.getElementById('wgp-lb-close').addEventListener('click', closeLb);
-                    document.getElementById('wgp-lb-prev').addEventListener('click', function () { step(LANG === 'ar' ? 1 : -1); });
-                    document.getElementById('wgp-lb-next').addEventListener('click', function () { step(LANG === 'ar' ? -1 : 1); });
+                    document.getElementById('wgp-lb-prev').addEventListener('click', function () { step(-1); });
+                    document.getElementById('wgp-lb-next').addEventListener('click', function () { step(1); });
                     document.addEventListener('keydown', function (e) {
                         if (!lb.classList.contains('is-open')) return;
                         if (e.key === 'Escape') closeLb();
@@ -2185,14 +2104,5 @@
             <!-- ===== /Lily Garden ===== -->
         </div>
         <!--/allrecords-->
-        <script>
-            (function () {
-                var C = window.WEDDING_CONFIG || {};
-                var w = document.getElementById('wg-scroll-word');
-                if (!w) return;
-                if (C.language === 'ar') { w.textContent = 'مرّر لتحت'; w.style.letterSpacing = '0'; w.style.fontFamily = "'Amiri', serif"; w.style.fontSize = '15px'; }
-                else if (C.language === 'fr') w.textContent = 'Défiler';
-            })();
-        </script>
     </body>
 </html>

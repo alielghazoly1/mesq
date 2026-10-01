@@ -192,6 +192,10 @@ function renderNewPathHtml(data, options) {
     // الخاص (Lily Garden) بتعرف منهم: خطوبة ولا فرح، وصاحب الدعوة غيّر
     // أنهي نص بنفسه (يغلب كلام التصميم). القوالب التانية بتتجاهلهم.
     occasionType: data.occasionType || 'wedding',
+    // الأسماء اللاتيني دايمًا (أيًا كانت اللغة) — Lily Garden تصميم إنجليزي
+    // ثابت فبيعرضها هي حتى في الدعوة العربي
+    brideNameLatin: data.brideName || '',
+    groomNameLatin: data.groomName || '',
     rsvpOverrides: rsvpOv,
     hiddenSections: data.hiddenSections || [],
     // بيخلي شاشة "اضغط للفتح" تتخطى نفسها تلقائيًا — مستخدم بس في صفحات
