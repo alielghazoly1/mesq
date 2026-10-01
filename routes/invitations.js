@@ -413,8 +413,14 @@ router.get('/preview-sample/:templateId', (req, res) => {
     timeline,
     brideName: 'Amira', groomName: 'Yusuf',
     brideNameAr: 'أميرة', groomNameAr: 'يوسف',
-    venueName: 'قاعة النموذج', venueCity: 'القاهرة، مصر',
-    venueMapQuery: '', venueMapEmbedSrc: 'https://www.google.com/maps?q=Cairo&output=embed',
+    // النسخة الإنجليزي (المعاينة الافتراضية لـ Lily Garden) لازم تبقى إنجليزي
+    // بالكامل — حتى اسم القاعة والعنوان والخريطة. باقي القوالب زي ما كانت.
+    venueName: previewLang === 'en' ? 'Rose Garden Hall' : 'قاعة النموذج',
+    venueCity: previewLang === 'en' ? 'New Cairo, Egypt' : 'القاهرة، مصر',
+    venueMapQuery: '',
+    venueMapEmbedSrc: previewLang === 'en'
+      ? 'https://www.google.com/maps?q=Cairo&hl=en&output=embed'
+      : 'https://www.google.com/maps?q=Cairo&output=embed',
     venueMapDirectLink: 'https://www.google.com/maps/search/?api=1&query=Cairo',
     contactName: '', contactPhone: '', venueAddress: '',
     weddingDateTime: sampleDate,

@@ -29,6 +29,9 @@ export default function TemplateCard({ template, index }) {
   const subscribed = !!sub && !!sub.packageId && sub.status !== 'suspended'
     && (sub.invitationsLeft || 0) > 0 && isEditOpen(data?.user);
 
+  // دفع وعنده باقة شغالة (حتى لو رصيده خلص) — شريط "للمشتركين" مبيظهرلوش
+  const paid = !!sub && !!sub.packageId && sub.status !== 'suspended';
+
   // التصميم المدفوع مقفول على أي حد مش مشترك — مش على غير المسجّلين بس.
   // المعاينة بتفضل مفتوحة للكل (السيرفر كمان: /preview-sample مفتوح).
   const locked = !!template.isPremium && !subscribed;
@@ -67,9 +70,10 @@ export default function TemplateCard({ template, index }) {
       transition={{ duration: 0.45, delay: Math.min(index, 6) * 0.06 }}
       whileHover={{ y: -6 }}
     >
-      {/* شريط أحمر مايل على ركن الكارت — العميل يعرف من نظرة إن
-          التصميم ده للمشتركين، قبل ما يقرا أي كلام */}
-      {template.isPremium && (
+      {/* شريط أحمر مايل على ركن الكارت — اللي لسه مدفعش يعرف من نظرة إن
+          التصميم ده للمشتركين. العميل اللي دفع خلاص مبيشوفوش: هو مشترك
+          أصلًا، والتصميم متاح له */}
+      {template.isPremium && !paid && (
         <div className="pointer-events-none absolute -end-10 top-4 z-10 w-36 rotate-45 bg-gradient-to-l from-[#a01020] to-[#e0142c] py-1 text-center text-[9px] font-extrabold tracking-wide text-white shadow-[0_6px_16px_-6px_rgba(160,16,32,.8)] sm:-end-12 sm:top-6 sm:w-44 sm:py-1.5 sm:text-[11px]">
           {t('gallery.premiumRibbon')}
         </div>
@@ -103,7 +107,7 @@ export default function TemplateCard({ template, index }) {
       <div className="flex flex-1 flex-col gap-2 px-3 pb-3.5 pt-3.5 text-center sm:gap-3.5 sm:px-6 sm:py-6">
         <h3 className="flex items-center justify-center gap-2 font-serif text-[16px] font-bold italic leading-tight text-ink sm:text-[23px]">
           {template.name}
-          {template.isPremium && (
+          {template.isPremium && !paid && (
             <span className="hidden items-center gap-1 rounded-full bg-brass/15 px-2.5 py-0.5 text-[11px] font-bold not-italic text-brass sm:inline-flex">
               <Sparkles size={11} /> {t('gallery.premiumBadge')}
             </span>

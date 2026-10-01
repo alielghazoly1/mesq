@@ -1324,9 +1324,13 @@
                 /* ===== الصفحة 3 ===== */
                 #wg-invite-3 { aspect-ratio: 868/1389; background: #cfc99a; color: #14140a; }
                 #wg-invite-3 .tv { top: 32.8%; font-size: 14.5cqw; }
-                #wg-invite-3 .venue { top: 45.7%; font-size: 5.4cqw; letter-spacing: .03em; font-weight: 600; padding: 0 14%; box-sizing: border-box; }
-                #wg-invite-3 .addr { top: 51.4%; font-size: 4.9cqw; font-family: 'Cormorant Garamond', 'Amiri', Georgia, serif; font-weight: 600; padding: 0 14%; box-sizing: border-box; }
-                #wg-invite-3 .time { top: 60.2%; font-size: 10cqw; }
+                /* القاعة والعنوان والساعة تحت بعض (مش كل واحد في مكان ثابت): اسم
+                   قاعة طويل بيلف على سطرين ويزق اللي تحته بدل ما يركب فوقه.
+                   المسافات محسوبة إن الشكل مع اسم قصير يطابق التصميم الأصلي بالظبط */
+                #wg-invite-3 .wg-vblock { position: absolute; top: 43.6%; left: 0; width: 100%; padding: 0 14%; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; }
+                #wg-invite-3 .venue { font-size: 5.4cqw; letter-spacing: .03em; font-weight: 600; line-height: 1.2; }
+                #wg-invite-3 .addr { margin-top: 2.9cqw; font-size: 4.9cqw; font-family: 'Cormorant Garamond', 'Amiri', Georgia, serif; font-weight: 600; line-height: 1.2; }
+                #wg-invite-3 .time { margin-top: 5.2cqw; font-size: 10cqw; line-height: 1.2; }
 
                 /* ===== الصفحة 4: العد التنازلي =====
                    كل رقم في "قوس" صغير بنفس شكل قوس الصورة في أول صفحة. الأربع
@@ -1539,9 +1543,11 @@
                 <section class="wg-sec" id="wg-invite-3">
                     <img class="wg-bg" data-elem-id="lg14" data-wg-reveal="zoom" src="/templates/lily-garden/seal-frame.webp" alt="" decoding="async" loading="lazy" width="884" height="1414"/>
                     <h2 class="wg-abs wg-script tv" data-elem-id="lg15" data-wg="tv">Time &amp; Venue</h2>
-                    <p class="wg-abs wg-caps venue" data-elem-id="lg16" data-wg="venue">Viola at Gardenia</p>
-                    <p class="wg-abs addr" data-elem-id="lg17" data-wg="addr">Gardinia, Suez Road</p>
-                    <p class="wg-abs wg-script time" data-elem-id="lg18" data-wg="time">7:00 PM</p>
+                    <div class="wg-vblock">
+                        <p class="wg-caps venue" data-elem-id="lg16" data-wg="venue">Viola at Gardenia</p>
+                        <p class="addr" data-elem-id="lg17" data-wg="addr">Gardinia, Suez Road</p>
+                        <p class="wg-script time" data-elem-id="lg18" data-wg="time">7:00 PM</p>
+                    </div>
                 </section>
 
                 <!-- ===== الصفحة 4: العد التنازلي ===== -->
