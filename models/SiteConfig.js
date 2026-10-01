@@ -10,6 +10,14 @@ const mongoose = require('mongoose');
 const siteConfigSchema = new mongoose.Schema({
   key: { type: String, default: 'default', unique: true, index: true },
   hiddenTemplates: { type: [String], default: [] },
+  // ترتيب القوالب في المعرض (معرّفات بالترتيب) — اللي مش في القايمة بييجي
+  // بعدهم بترتيب السجل. فاضية = الترتيب الافتراضي.
+  templateOrder: { type: [String], default: [] },
+  // القوالب اللي عليها شارة "جديد"
+  newTemplates: { type: [String], default: [] },
+  // false = المالك لسه مرتّبش بنفسه → بنستخدم الافتراضي من السجل (isNew
+  // بييجي الأول وعليه "جديد"). أول ما يحفظ من اللوحة بتبقى true واختياره هو اللي بيمشي.
+  templatesConfigured: { type: Boolean, default: false },
   updatedAt: { type: Date, default: Date.now },
 });
 

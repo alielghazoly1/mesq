@@ -76,6 +76,8 @@ function localizeTemplate(t, lang) {
       maxlength: f.maxlength,
     })),
     isPremium: !!t.isPremium,
+    // التصميم ليه نسختين لغة يختار منهم العميل (مثلًا ['en','ar'])
+    designLanguages: t.designLanguages || null,
   };
 }
 

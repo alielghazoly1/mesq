@@ -13,7 +13,10 @@ const { isEditWindowOpen, editWindowEndedBody } = require('../utils/editWindow')
 const { freeQuotaFor, hashIp } = require('../middleware/freeQuota');
 const SiteTotals = require('../models/SiteTotals');
 const { getTemplate, TEMPLATES } = require('../templates/registry');
-const { getHiddenTemplateIds } = require('../utils/siteConfig');
+const {
+  getHiddenTemplateIds, getTemplateLayout, sortByOrder, defaultTemplateLayout,
+} = require('../utils/siteConfig');
+const connectDB = require('../config/db');
 const { localizeTemplate } = require('../templates/i18n');
 const { ensureDeviceId, rsvpLimiter } = require('../middleware/deviceLimiter');
 
@@ -25,15 +28,25 @@ router.get('/api/templates', async (req, res) => {
     // ?lang=ar|en — بترجّع أسماء الأقسام والحقول والوصف باللغة المطلوبة.
     // بنشيل القوالب اللي المالك مخفيها من لوحة التحكم — بس من القايمة اللي
     // بتظهر للعملاء؛ الدعوات الموجودة اللي بتستخدمها بتفضل شغالة عادي.
+    // بنوصل لقاعدة البيانات هنا (المسار ده مش تحت requireDB عن قصد — لازم
+    // يشتغل حتى لو القاعدة واقعة). من غير السطر ده، أول طلب بعد ما السيرفر
+    // يصحى كان بيستنى 10 ثواني لحد ما mongoose يستسلم، وبعدين يرجّع الافتراضي.
+    await connectDB();
     const hidden = new Set(await getHiddenTemplateIds());
-    const publicList = TEMPLATES
-      .filter((t) => !hidden.has(t.id))
-      .map((t) => localizeTemplate(t, req.query.lang));
+    // الترتيب وشارة "جديد" زي ما المالك ظبطهم من لوحة التحكم
+    const { order, newIds } = await getTemplateLayout();
+    const fresh = new Set(newIds);
+    const publicList = sortByOrder(TEMPLATES.filter((t) => !hidden.has(t.id)), order)
+      .map((t) => ({ ...localizeTemplate(t, req.query.lang), isNew: fresh.has(t.id) }));
     res.json(publicList);
   } catch (err) {
     console.error('Error listing templates:', err);
-    // لو حصل خطأ في قراءة الإعدادات، نعرض الكل بدل ما نكسر الفورم
-    res.json(TEMPLATES.map((t) => localizeTemplate(t, req.query.lang)));
+    // لو حصل خطأ في قراءة الإعدادات، نعرض الكل بالترتيب الافتراضي بدل ما
+    // نكسر المعرض (الجديد الأول وعليه "جديد" زي ما السجل بيقول)
+    const { order, newIds } = defaultTemplateLayout();
+    const fresh = new Set(newIds);
+    res.json(sortByOrder(TEMPLATES, order)
+      .map((t) => ({ ...localizeTemplate(t, req.query.lang), isNew: fresh.has(t.id) })));
   }
 });
 
@@ -385,9 +398,16 @@ router.get('/preview-sample/:templateId', (req, res) => {
   const sampleDate = new Date(now.getFullYear(), now.getMonth() + 2, 15, 18, 0, 0);
   const timeline = template.timelineStages.map((key, i) => ({ key, hour: 17 + i }));
 
+  // القوالب اللي ليها نسختين لغة (Lily Garden): المعاينة إنجليزي افتراضيًا —
+  // ده شكل التصميم الأصلي — و?lang=ar بتوري النسخة العربي (نافذة الاختيار).
+  const designLangs = template.designLanguages || null;
+  const previewLang = designLangs
+    ? (designLangs.includes(req.query.lang) ? req.query.lang : designLangs[0])
+    : 'ar';
+
   const data = {
     templateId: template.id,
-    language: 'ar',
+    language: previewLang,
     occasionType: 'wedding',
     hiddenSections: [],
     timeline,

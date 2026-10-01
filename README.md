@@ -73,8 +73,12 @@ npm start
 
 - **الأسماء/التاريخ/الساعة/القاعة/العنوان/الخريطة/العداد** بتتملا من
   `WEDDING_CONFIG` (الساعة والعداد من `C.countdown` و`C.weddingDateTimeISO`
-  — بتوقيت مصر الصح). القالب **إنجليزي دايمًا** (نفس كلام وخطوط التصميم) أيًا كانت لغة الدعوة —
-  قرار صاحب الموقع — والأسماء بالحروف اللاتيني (`C.groomNameLatin`/`C.brideNameLatin`).
+  — بتوقيت مصر الصح). القالب **بنسختين** (`designLanguages: ['en','ar']` في السجل): الإنجليزي هو
+  التصميم الأصلي والافتراضي (المعاينة للزوار `/preview-sample/lily-garden`)،
+  والعربي لما العميل يختاره (`?lang=ar` للمعاينة). العميل المشترك بيختار من
+  نافذة `DesignLanguagePicker.jsx` لما يضغط "استخدم القالب"، والمسودة بتتعمل
+  باللغة دي (`POST /api/editor/draft {templateId, language}`). الإنجليزي
+  بالأسماء اللاتيني دايمًا (`C.groomNameLatin`/`C.brideNameLatin`).
   خطوبة ولا فرح حسب `C.occasionType`.
 - **التعديل:** كل نص وصورة عليه `data-elem-id="lgN"` (lg1…lg26) — صاحب
   الدعوة يعدّله أو يبدّله من المحرر، وتعديله بيغلب القيمة الافتراضية.
@@ -90,6 +94,16 @@ npm start
 - الأقسام الاختيارية: `countdown`, `map`, `rsvp`, `guestPhotos`.
 - الأغنية الرسمية: "Forever and Ever and Always" (نفس أغنية Dolce Vita،
   على r2.dev) — صاحب الدعوة يقدر يغيّرها من المحرر.
+
+### ترتيب المعرض وشارة "جديد"
+
+المالك بيتحكم من لوحة التحكم (القوالب) في: ترتيب القوالب في المعرض، شارة
+"جديد" على أي قالب، والإخفاء. محفوظين في `SiteConfig` (`templateOrder`,
+`newTemplates`, `templatesConfigured`) — `utils/siteConfig.js`
+(`getTemplateLayout`). قبل ما المالك يرتّب بنفسه، القوالب اللي عليها
+`isNew: true` في السجل بتيجي الأول وعليها "جديد". `GET /api/templates`
+بيرجّع القوالب بالترتيب ومعاها `isNew` و`designLanguages`. المعرض على
+الموبايل كارتين جنب بعض (`TemplateGallery.jsx`).
 
 ### ألبوم صور الضيوف (`routes/guestPhotos.js`)
 

@@ -41,4 +41,56 @@ async function setHiddenTemplateIds(ids) {
   return doc.hiddenTemplates || [];
 }
 
-module.exports = { getSiteConfig, getHiddenTemplateIds, setHiddenTemplateIds };
+/**
+ * ترتيب القوالب وشارة "جديد" — زي ما المالك ظبطهم، أو الافتراضي من السجل
+ * لو لسه مظبطش (القوالب اللي عليها isNew بتيجي الأول وعليها "جديد").
+ * @returns {Promise<{ order: string[], newIds: string[] }>}
+ */
+/** الترتيب الافتراضي من السجل (من غير قاعدة بيانات): الجديد الأول وعليه "جديد" */
+function defaultTemplateLayout() {
+  const all = TEMPLATES.map((t) => t.id);
+  const fresh = TEMPLATES.filter((t) => t.isNew).map((t) => t.id);
+  return { order: [...fresh, ...all.filter((id) => !fresh.includes(id))], newIds: fresh };
+}
+
+async function getTemplateLayout() {
+  const doc = await getSiteConfig();
+  const all = TEMPLATES.map((t) => t.id);
+  const valid = new Set(all);
+  if (!doc.templatesConfigured) return defaultTemplateLayout();
+  const saved = (doc.templateOrder || []).filter((id) => valid.has(id));
+  const order = [...new Set(saved), ...all.filter((id) => !saved.includes(id))];
+  const newIds = (doc.newTemplates || []).filter((id) => valid.has(id));
+  return { order, newIds };
+}
+
+/**
+ * بيحفظ ترتيب القوالب وشارة "جديد" (معرّفات حقيقية بس — أي حاجة تانية بتتشال).
+ * @param {{ order?: string[], newIds?: string[] }} input
+ */
+async function setTemplateLayout({ order, newIds }) {
+  const valid = new Set(TEMPLATES.map((t) => t.id));
+  const clean = (arr) => (Array.isArray(arr) ? [...new Set(arr.filter((id) => valid.has(id)))] : []);
+  const doc = await SiteConfig.findOneAndUpdate(
+    { key: KEY },
+    {
+      templateOrder: clean(order),
+      newTemplates: clean(newIds),
+      templatesConfigured: true,
+      updatedAt: new Date(),
+    },
+    { new: true, upsert: true }
+  );
+  return { order: doc.templateOrder, newIds: doc.newTemplates };
+}
+
+/** بيرتّب أي مصفوفة قوالب حسب الترتيب المحفوظ */
+function sortByOrder(list, order) {
+  const pos = new Map(order.map((id, i) => [id, i]));
+  return [...list].sort((a, b) => (pos.has(a.id) ? pos.get(a.id) : 1e6) - (pos.has(b.id) ? pos.get(b.id) : 1e6));
+}
+
+module.exports = {
+  getSiteConfig, getHiddenTemplateIds, setHiddenTemplateIds,
+  getTemplateLayout, setTemplateLayout, sortByOrder, defaultTemplateLayout,
+};

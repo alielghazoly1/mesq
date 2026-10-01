@@ -8,7 +8,7 @@ export default function TemplateGallery() {
   const { data: templates, isLoading, isError } = useGetTemplatesQuery(i18n.language);
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-[70px]" id="gallery">
+    <div className="mx-auto max-w-6xl px-3.5 py-[56px] sm:px-6 sm:py-[70px]" id="gallery">
       <div className="mx-auto mb-11 max-w-[58ch] text-center">
         <div className="mb-3 text-[12.5px] font-extrabold tracking-[0.3em] text-emerald uppercase">
           {t('gallery.eyebrow')}
@@ -26,7 +26,9 @@ export default function TemplateGallery() {
       )}
 
       {templates && templates.length > 0 && (
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(264px,1fr))] gap-8">
+        // اتنين جنب بعض على الموبايل (الزائر يقارن تصميمين في نفس النظرة)،
+        // وتلاتة من التابلت وطالع
+        <div className="grid grid-cols-2 gap-3 sm:gap-6 md:grid-cols-3 lg:gap-8">
           {templates.map((tpl, i) => (
             <TemplateCard key={tpl.id} template={tpl} index={i} />
           ))}

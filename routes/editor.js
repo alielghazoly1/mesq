@@ -145,7 +145,11 @@ router.post('/api/editor/draft', requireAuth, async (req, res) => {
     const data = await buildInvitationDataFromRequest({
       templateId: template.id,
       occasionType: template.occasionTypes[0],
-      language: template.languages[0],
+      // لغة النسخة اللي العميل اختارها من نافذة الاختيار (لو القالب بيدعمها)،
+      // وإلا أول لغة في القالب زي ما كان
+      language: (template.designLanguages || template.languages).includes((req.body || {}).language)
+        ? req.body.language
+        : (template.designLanguages ? template.designLanguages[0] : template.languages[0]),
       brideName: 'Bride', groomName: 'Groom',
       brideNameAr: 'العروسة', groomNameAr: 'العريس',
       venueName: 'Venue', venueCity: 'City',

@@ -19,7 +19,9 @@ const Withdrawal = require('../models/Withdrawal');
 const { computeUgcStats, generateReferralCode, round2 } = require('../utils/ugc');
 const { cleanupExpiredInvitations, DEFAULT_GRACE_DAYS } = require('../utils/cleanupExpired');
 const { TEMPLATES } = require('../templates/registry');
-const { getHiddenTemplateIds, setHiddenTemplateIds } = require('../utils/siteConfig');
+const {
+  getHiddenTemplateIds, setHiddenTemplateIds, getTemplateLayout, setTemplateLayout, sortByOrder,
+} = require('../utils/siteConfig');
 const {
   getPackage, PACKAGES, packageAllowedInCountry, EDIT_WINDOW_DAYS,
 } = require('../packages/registry');
@@ -1223,19 +1225,23 @@ router.put('/admin/api/payment-settings', requireAdminSession, async (req, res) 
 });
 
 // ==========================================================================
-// التحكم في القوالب — إخفاء/إظهار أي قالب من قايمة العملاء
+// التحكم في القوالب — إخفاء/إظهار، الترتيب في المعرض، وشارة "جديد"
 // ==========================================================================
 router.get('/admin/api/site-templates', requireAdminSession, async (req, res) => {
   try {
     const hidden = new Set(await getHiddenTemplateIds());
+    const { order, newIds } = await getTemplateLayout();
+    const fresh = new Set(newIds);
     return res.json({
-      templates: TEMPLATES.map((t) => ({
+      // بنفس ترتيب المعرض بالظبط
+      templates: sortByOrder(TEMPLATES, order).map((t) => ({
         id: t.id,
         name: t.name,
         description: t.description || '',
         thumb: `/img/template-thumbs/${t.id}.jpg`,
         isPremium: !!t.isPremium,
         hidden: hidden.has(t.id),
+        isNew: fresh.has(t.id),
       })),
     });
   } catch (err) {
@@ -1246,10 +1252,23 @@ router.get('/admin/api/site-templates', requireAdminSession, async (req, res) =>
 
 router.put('/admin/api/site-templates', requireAdminSession, async (req, res) => {
   try {
-    const ids = (req.body && req.body.hiddenTemplates) || [];
-    const saved = await setHiddenTemplateIds(ids);
-    logAdminAction(req, 'settings.templates', { type: 'settings', id: 'default' }, { hidden: saved });
-    return res.json({ ok: true, hiddenTemplates: saved });
+    const body = req.body || {};
+    // كل جزء بيتحفظ لو اتبعت بس — الإخفاء لوحده، أو الترتيب و"جديد" لوحدهم
+    const result = {};
+    if (Array.isArray(body.hiddenTemplates)) {
+      result.hiddenTemplates = await setHiddenTemplateIds(body.hiddenTemplates);
+    }
+    if (Array.isArray(body.templateOrder) || Array.isArray(body.newTemplates)) {
+      const current = await getTemplateLayout();
+      const layout = await setTemplateLayout({
+        order: Array.isArray(body.templateOrder) ? body.templateOrder : current.order,
+        newIds: Array.isArray(body.newTemplates) ? body.newTemplates : current.newIds,
+      });
+      result.templateOrder = layout.order;
+      result.newTemplates = layout.newIds;
+    }
+    logAdminAction(req, 'settings.templates', { type: 'settings', id: 'default' }, result);
+    return res.json({ ok: true, ...result });
   } catch (err) {
     if (err.status === 400) return res.status(400).json({ error: err.message });
     console.error('Error saving site templates:', err);
