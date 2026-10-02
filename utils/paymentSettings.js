@@ -13,6 +13,18 @@ const SOLANA_ADDRESS_RE = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
 // الشبكة ثابتة — USDT على Solana بس (أي شبكة تانية الفلوس بتضيع)
 const USDT_NETWORK = 'Solana';
 
+// Taptap Send: البلاد اللي التطبيق بيبعت منها فلوس لمصر (من موقعهم
+// taptapsend.com) — العميل اللي مسجّل من واحدة منهم بس هو اللي بيشوفها.
+// النمسا، أستراليا، البحرين، بلجيكا، البرازيل، كندا، كرواتيا، التشيك، قبرص،
+// الدنمارك، إستونيا، فنلندا، فرنسا، ألمانيا، اليونان، المجر، أيرلندا، إيطاليا،
+// لوكسمبورغ، مالطا، مايوت، هولندا، النرويج، بولندا، البرتغال، ريونيون،
+// رومانيا، سلوفاكيا، إسبانيا، السويد، الإمارات، المملكة المتحدة، أمريكا.
+const TAPTAP_COUNTRIES = new Set([
+  'AT', 'AU', 'BH', 'BE', 'BR', 'CA', 'HR', 'CZ', 'CY', 'DK', 'EE', 'FI', 'FR',
+  'DE', 'GR', 'HU', 'IE', 'IT', 'LU', 'MT', 'YT', 'NL', 'NO', 'PL', 'PT', 'RE',
+  'RO', 'SK', 'ES', 'SE', 'AE', 'GB', 'US',
+]);
+
 /** بيرجع المستند (وبينشئه فاضي أول مرة) */
 async function getPaymentSettings() {
   let doc = await PaymentSettings.findOne({ key: KEY });
@@ -51,6 +63,13 @@ async function updatePaymentSettings(body) {
       holderName: sanitizeText(b.kast && b.kast.holderName, 120),
       note: sanitizeText(b.kast && b.kast.note, 400),
     },
+    taptap: {
+      enabled: !!(b.taptap && b.taptap.enabled),
+      phone: sanitizeText(b.taptap && b.taptap.phone, 40),
+      recipientName: sanitizeText(b.taptap && b.taptap.recipientName, 120),
+      location: sanitizeText(b.taptap && b.taptap.location, 160),
+      note: sanitizeText(b.taptap && b.taptap.note, 400),
+    },
     usdt: {
       enabled: !!(b.usdt && b.usdt.enabled),
       address: String((b.usdt && b.usdt.address) || '').trim().slice(0, 64),
@@ -63,6 +82,11 @@ async function updatePaymentSettings(body) {
   // عنوان غلط = فلوس العميل تضيع، فمبنحفظوش أصلًا
   if (update.usdt.address && !SOLANA_ADDRESS_RE.test(update.usdt.address)) {
     const err = new Error('عنوان محفظة USDT (Solana) مش صحيح — راجعه حرف حرف.');
+    err.status = 400;
+    throw err;
+  }
+  if (update.taptap.enabled && (!update.taptap.phone || !update.taptap.recipientName)) {
+    const err = new Error('Taptap Send محتاجة رقم إنستاباي واسم المستلم قبل ما تتفعّل.');
     err.status = 400;
     throw err;
   }
@@ -117,6 +141,18 @@ function publicPaymentInfo(doc, countryCode) {
       qr: qrDataUrl(doc.kast.link, { cellSize: 6, margin: 2 }),
     };
   }
+  // Taptap Send — للعميل اللي بلده من البلاد اللي التطبيق بيبعت منها بس.
+  // بيحوّل من التطبيق على إنستاباي (رقم الموبايل) باسم المستلم ومكانه.
+  const cc = String(countryCode || '').toUpperCase();
+  if (doc.taptap?.enabled && doc.taptap?.phone && doc.taptap?.recipientName && TAPTAP_COUNTRIES.has(cc)) {
+    info.taptap = {
+      phone: doc.taptap.phone,
+      recipientName: doc.taptap.recipientName,
+      location: doc.taptap.location || '',
+      note: doc.taptap.note || '',
+    };
+  }
+
   // USDT (Solana) — التالتة للعميل الدولي. الـ QR = العنوان نفسه (أي محفظة
   // بتقراه)، والشبكة ثابتة ومكتوبة قدامه بوضوح.
   if (doc.usdt?.enabled && doc.usdt?.address && SOLANA_ADDRESS_RE.test(doc.usdt.address)) {
@@ -130,4 +166,4 @@ function publicPaymentInfo(doc, countryCode) {
   return info;
 }
 
-module.exports = { getPaymentSettings, updatePaymentSettings, publicPaymentInfo };
+module.exports = { getPaymentSettings, updatePaymentSettings, publicPaymentInfo, TAPTAP_COUNTRIES };

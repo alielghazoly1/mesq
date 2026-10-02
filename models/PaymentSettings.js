@@ -43,6 +43,18 @@ const paymentSettingsSchema = new mongoose.Schema({
     note: { type: String, default: '', maxlength: 400 },
   },
 
+  // Taptap Send — للعملاء في البلاد اللي التطبيق بيبعت منها لمصر بس
+  // (utils/paymentSettings.js: TAPTAP_COUNTRIES). العميل بيحوّل من التطبيق
+  // على إنستاباي: رقم الموبايل + اسم المستلم + المكان. بتتملي من اللوحة،
+  // ومبتظهرش للعميل غير لما الرقم والاسم يبقوا مكتوبين.
+  taptap: {
+    enabled: { type: Boolean, default: false },
+    phone: { type: String, default: '', maxlength: 40 },
+    recipientName: { type: String, default: '', maxlength: 120 },
+    location: { type: String, default: '', maxlength: 160 },
+    note: { type: String, default: '', maxlength: 400 },
+  },
+
   // USDT على شبكة Solana — وسيلة تالتة للعملاء بره مصر بس (جنب البنك و KAST).
   // العنوان الافتراضي = محفظة المالك (KAST)، فبتشتغل من أول يوم من غير ما
   // حد يدخل اللوحة؛ ويقدر يغيّره أو يقفلها من "بيانات الدفع".

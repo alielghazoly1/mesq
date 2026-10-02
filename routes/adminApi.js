@@ -32,7 +32,7 @@ const {
   getPackage, PACKAGES, packageAllowedInCountry, EDIT_WINDOW_DAYS,
 } = require('../packages/registry');
 const PricingSettings = require('../models/PricingSettings');
-const { getPaymentSettings, updatePaymentSettings } = require('../utils/paymentSettings');
+const { getPaymentSettings, updatePaymentSettings, TAPTAP_COUNTRIES } = require('../utils/paymentSettings');
 const {
   getPricingSettings, getPricingSettingsCached, priceFor, clampPercent,
   invalidateCache: invalidatePricingCache,
@@ -1406,6 +1406,9 @@ router.get('/admin/api/payment-settings', requireAdminSession, async (req, res) 
       bank: doc.bank || {},
       kast: doc.kast || { enabled: false, link: '', holderName: '', note: '' },
       usdt: doc.usdt || { enabled: false, address: '', note: '' },
+      taptap: doc.taptap || { enabled: false, phone: '', recipientName: '', location: '', note: '' },
+      // البلاد اللي بتشوف Taptap Send (للعرض في اللوحة)
+      taptapCountries: [...TAPTAP_COUNTRIES],
       whatsapp: doc.whatsapp || '',
       updatedAt: doc.updatedAt,
     });

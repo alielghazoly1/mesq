@@ -112,7 +112,8 @@ export default function CheckoutPage() {
   const [moreBank, setMoreBank] = useState(false);
   // لأي عميل دولي: تبويب بيبدّل بين البنك و KAST و USDT (اللي المالك مفعّله منهم)
   // — عشان مايبقاش الاتنين تحت بعض والشاشة تطول.
-  const [payTab, setPayTab] = useState('bank');
+  // null = لسه مختارش — بيتفتح أول تبويب متاح (Taptap لو بلده فيها، وإلا البنك)
+  const [payTab, setPayTab] = useState(null);
 
   function copy(value, key) {
     if (!value) return;
@@ -195,8 +196,13 @@ export default function CheckoutPage() {
   const b = payInfo?.bank || {};
   const kast = payInfo?.kast || null;
   const usdt = payInfo?.usdt || null;
-  // تبويبات العميل الدولي: البنك دايمًا + KAST و USDT لو المالك مفعّلهم
-  const intlTabs = ['bank', ...(kast ? ['kast'] : []), ...(usdt ? ['usdt'] : [])];
+  // Taptap Send — السيرفر بيبعتها بس لو بلد العميل من البلاد اللي التطبيق شغال فيها
+  const taptap = payInfo?.taptap || null;
+  // تبويبات العميل الدولي: Taptap (لو متاحة لبلده — الأسهل، فبتيجي الأول)
+  // + البنك دايمًا + KAST و USDT لو المالك مفعّلهم
+  const intlTabs = [...(taptap ? ['taptap'] : []), 'bank', ...(kast ? ['kast'] : []), ...(usdt ? ['usdt'] : [])];
+  // التبويب المفتوح: اللي العميل اختاره، وإلا أول واحد متاح
+  const activeTab = intlTabs.includes(payTab) ? payTab : intlTabs[0];
   const hasPayData = isVodafone ? !!v.number : !!(b.accountNumber || b.iban);
   // مدة التعديل بعد التفعيل — من السيرفر، و0 = القاعدة متقفلة
   const days = pkgData?.editWindowDays ?? 30;
@@ -370,10 +376,20 @@ export default function CheckoutPage() {
                   /* زرار لكل وسيلة: البنك (الافتراضي) و KAST و USDT — كل
                      واحدة بتعرض تفاصيلها لوحدها، عشان الشاشة ماتطولش */
                   <div className={`mb-4 grid gap-1.5 rounded-2xl bg-ink/[0.05] p-1 ${intlTabs.length === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
+                    {taptap && (
+                      <button
+                        type="button"
+                        onClick={() => setPayTab('taptap')}
+                        className={`inline-flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-[12.5px] font-extrabold transition ${activeTab === 'taptap' ? 'bg-[#1a7f3c] text-white shadow-sm' : 'text-ink-dim'}`}
+                      >
+                        <img src="/img/taptap-logo.svg" alt="" className="h-[18px] w-[18px] rounded-full" />
+                        <span className="whitespace-nowrap" dir="ltr">{intlTabs.length === 3 ? 'Taptap' : 'Taptap Send'}</span>
+                      </button>
+                    )}
                     <button
                       type="button"
                       onClick={() => setPayTab('bank')}
-                      className={`inline-flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-[12.5px] font-bold transition ${payTab === 'bank' ? 'bg-white text-ink shadow-sm' : 'text-ink-dim'}`}
+                      className={`inline-flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-[12.5px] font-bold transition ${activeTab === 'bank' ? 'bg-white text-ink shadow-sm' : 'text-ink-dim'}`}
                     >
                       {/* اسم قصير في الزرار (الطويل كان بيلف على 3 سطور جنب KAST و USDT) */}
                       <BankMark size={17} /> <span className="whitespace-nowrap">{t('payment.bankShort')}</span>
@@ -382,7 +398,7 @@ export default function CheckoutPage() {
                     <button
                       type="button"
                       onClick={() => setPayTab('kast')}
-                      className={`inline-flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-[12.5px] font-extrabold tracking-wide transition ${payTab === 'kast' ? 'bg-[#0a0a0a] text-white shadow-sm' : 'text-ink-dim'}`}
+                      className={`inline-flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-[12.5px] font-extrabold tracking-wide transition ${activeTab === 'kast' ? 'bg-[#0a0a0a] text-white shadow-sm' : 'text-ink-dim'}`}
                     >
                       KAST
                     </button>
@@ -391,7 +407,7 @@ export default function CheckoutPage() {
                       <button
                         type="button"
                         onClick={() => setPayTab('usdt')}
-                        className={`inline-flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-[12.5px] font-extrabold transition ${payTab === 'usdt' ? 'bg-[#26A17B] text-white shadow-sm' : 'text-ink-dim'}`}
+                        className={`inline-flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-[12.5px] font-extrabold transition ${activeTab === 'usdt' ? 'bg-[#26A17B] text-white shadow-sm' : 'text-ink-dim'}`}
                       >
                         <img src="/img/usdt-logo.svg" alt="" className="h-[17px] w-[17px] rounded-full ring-2 ring-white/90" /> USDT
                       </button>
@@ -404,7 +420,7 @@ export default function CheckoutPage() {
                   </div>
                 )}
 
-                {(intlTabs.length === 1 || payTab === 'bank') && (
+                {(intlTabs.length === 1 || activeTab === 'bank') && (
                 <>
                 {/* التلاتة اللي بيتم التحويل بيهم فعلاً بس — والأول
                     فيهم الـIBAN، ده الرقم اللي العميل بيحوّل عليه.
@@ -463,7 +479,7 @@ export default function CheckoutPage() {
                 )}
 
                 {/* ===== KAST — تبويبه (بيظهر لو المالك مفعّلها) ===== */}
-                {kast && payTab === 'kast' && (
+                {kast && activeTab === 'kast' && (
                   <div className="mt-4 rounded-2xl border border-line bg-ink/[0.02] p-4">
                     <div className="mb-3 flex items-center justify-between gap-2">
                       <span className="inline-flex items-center rounded-lg bg-[#0a0a0a] px-3 py-2">
@@ -510,8 +526,59 @@ export default function CheckoutPage() {
                   </div>
                 )}
 
+                {/* ===== Taptap Send — للبلاد اللي التطبيق شغال فيها بس ===== */}
+                {taptap && activeTab === 'taptap' && (
+                  <div className="mt-4 rounded-2xl border border-line bg-ink/[0.02] p-4">
+                    <div className="mb-3 flex items-center justify-between gap-2">
+                      <span className="inline-flex items-center gap-2">
+                        <img src="/img/taptap-logo.svg" alt="Taptap Send" className="h-10 w-10 rounded-full shadow-sm ring-1 ring-[#1a7f3c]/15" />
+                        <span className="flex flex-col leading-tight">
+                          <span className="whitespace-nowrap text-[15px] font-extrabold text-[#1a7f3c]" dir="ltr">Taptap Send</span>
+                          <span className="text-[11px] font-bold text-ink-dim">{t('checkout.taptapTagline')}</span>
+                        </span>
+                      </span>
+                      <span className="inline-flex shrink-0 items-center rounded-full bg-[#1a7f3c]/[0.09] px-2.5 py-1 text-[11px] font-extrabold text-[#14612e]" dir="ltr">
+                        InstaPay
+                      </span>
+                    </div>
+
+                    <p className="mb-3 rounded-xl bg-[#1a7f3c]/[0.07] px-3.5 py-2.5 text-[12.5px] font-bold leading-relaxed text-[#14612e]">
+                      {t('checkout.taptapHow')}
+                    </p>
+
+                    <div className="grid grid-cols-2 gap-2.5">
+                      <CopyTile label={t('checkout.taptapPhone')} value={taptap.phone} wide />
+                      <CopyTile label={t('checkout.taptapName')} value={taptap.recipientName} wide />
+                      <CopyTile label={t('checkout.taptapLocation')} value={taptap.location} wide />
+                    </div>
+                    <p className="mt-2.5 text-center text-[11.5px] text-ink-dim">{t('checkout.tapToCopy')}</p>
+
+                    <div className="mt-3 rounded-xl bg-emerald/[0.07] px-4 py-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[12.5px] font-bold text-emerald">{t('checkout.amountToSend')}</span>
+                        <span className="font-serif text-[18px] font-bold text-emerald">
+                          {pkg.price} {pkg.currencyLabel}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-[11.5px] leading-relaxed text-emerald/80">{t('checkout.taptapAmountHint')}</p>
+                    </div>
+
+                    <a
+                      href="https://www.taptapsend.com/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#1a7f3c] py-3 text-[13px] font-bold text-white transition hover:brightness-110"
+                    >
+                      <img src="/img/taptap-logo.svg" alt="" className="h-5 w-5 rounded-full" /> {t('checkout.taptapOpen')}
+                    </a>
+                    {taptap.note && (
+                      <p className="mt-3 text-[12.5px] leading-relaxed text-ink-dim">{taptap.note}</p>
+                    )}
+                  </div>
+                )}
+
                 {/* ===== USDT على Solana — تبويبه (بيظهر لو المالك مفعّله) ===== */}
-                {usdt && payTab === 'usdt' && (
+                {usdt && activeTab === 'usdt' && (
                   <div className="mt-4 rounded-2xl border border-line bg-ink/[0.02] p-4">
                     <div className="mb-3 flex items-center justify-between gap-2">
                       <span className="inline-flex items-center gap-2">

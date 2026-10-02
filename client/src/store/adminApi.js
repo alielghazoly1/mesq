@@ -140,9 +140,11 @@ export const adminApi = createApi({
       query: () => '/payment-settings',
       providesTags: ['Settings'],
     }),
+    // لو الحفظ اترفض (عنوان غلط مثلًا) مبنعيدش تحميل البيانات — غير كده
+    // الفورم بيرجع للقديم ويمسح اللي الأدمن كان كاتبه
     savePaymentSettings: builder.mutation({
       query: (body) => ({ url: '/payment-settings', method: 'PUT', body }),
-      invalidatesTags: ['Settings', 'Audit'],
+      invalidatesTags: (r, e) => (e ? [] : ['Settings', 'Audit']),
     }),
     getAdminPackages: builder.query({ query: () => '/packages', providesTags: ['Pricing'] }),
 
