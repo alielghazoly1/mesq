@@ -10,7 +10,7 @@ import { Panel, Btn, Field, Spinner, fmtDate } from '../../components/admin/ui.j
 
 export default function SettingsPage() {
   const { data, isLoading } = useGetPaymentSettingsQuery();
-  const [save, { isLoading: saving, isSuccess }] = useSavePaymentSettingsMutation();
+  const [save, { isLoading: saving, isSuccess, error: saveError }] = useSavePaymentSettingsMutation();
   const { register, handleSubmit, reset, formState } = useForm({ defaultValues: {} });
 
   useEffect(() => {
@@ -19,6 +19,7 @@ export default function SettingsPage() {
         vodafone: data.vodafone || {},
         bank: data.bank || {},
         kast: data.kast || { enabled: false, link: '', holderName: '', note: '' },
+        usdt: data.usdt || { enabled: false, address: '', note: '' },
         whatsapp: data.whatsapp || '',
       });
     }
@@ -45,6 +46,13 @@ export default function SettingsPage() {
           {isSuccess && !formState.isDirty ? 'اتحفظ' : 'احفظ التعديلات'}
         </Btn>
       </div>
+
+      {/* السيرفر بيرفض عنوان محفظة غلط — الرسالة بتظهر هنا */}
+      {saveError && (
+        <div className="rounded-xl bg-error/15 px-4 py-3 text-[12.5px] text-error">
+          {saveError?.data?.error || 'الحفظ فشل، جرّب تاني.'}
+        </div>
+      )}
 
       <div className="grid gap-5 lg:grid-cols-2">
         <Panel title="فودافون كاش" subtitle="بيظهر للعملاء المصريين">
@@ -91,6 +99,24 @@ export default function SettingsPage() {
         <p className="mt-4 flex items-start gap-2 rounded-xl bg-ivory/[0.04] p-3 text-[11.5px] text-ivory/50">
           <Landmark size={13} className="mt-0.5 shrink-0" />
           العميل بيشوف لوجو KAST + QR بيتولّد من اللينك تلقائيًا + اللينك نفسه. غيّر اللينك أي وقت والـ QR بيتغيّر معاه.
+        </p>
+      </Panel>
+
+      <Panel title="USDT على شبكة Solana" subtitle="وسيلة تالتة للعملاء برّه مصر بس — جنب البنك و KAST">
+        <label className="mb-3.5 flex cursor-pointer items-center gap-2.5 rounded-xl border border-ivory/10 bg-ivory/[0.03] p-3">
+          <input type="checkbox" {...register('usdt.enabled')} className="h-4 w-4 accent-brass" />
+          <img src="/img/usdt-logo.svg" alt="" className="h-5 w-5" />
+          <span className="text-[13px] font-bold text-ivory">اعرض USDT للعملاء</span>
+          <span className="text-[11.5px] text-ivory/40">— لو اتقفلت، مش هتظهر خالص</span>
+        </label>
+        <div className="space-y-3.5">
+          <Field label="عنوان المحفظة (Solana)" dir="ltr" className="font-mono" placeholder="DQZ5mr...p1Ec" {...register('usdt.address')} />
+          <Field label="ملاحظة للعميل (اختياري)" placeholder="ابعت صورة التحويل بعد ما تبعت..." {...register('usdt.note')} />
+        </div>
+        <p className="mt-4 flex items-start gap-2 rounded-xl bg-ivory/[0.04] p-3 text-[11.5px] text-ivory/50">
+          <Landmark size={13} className="mt-0.5 shrink-0" />
+          العميل بيشوف لوجو USDT + شبكة Solana + QR بالعنوان + زرار نسخ، وتحذير إنه يبعت على Solana بس.
+          السيرفر بيرفض أي عنوان مش بصيغة Solana عشان فلوس العميل ماتضيعش.
         </p>
       </Panel>
 

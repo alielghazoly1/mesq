@@ -43,6 +43,15 @@ const paymentSettingsSchema = new mongoose.Schema({
     note: { type: String, default: '', maxlength: 400 },
   },
 
+  // USDT على شبكة Solana — وسيلة تالتة للعملاء بره مصر بس (جنب البنك و KAST).
+  // العنوان الافتراضي = محفظة المالك (KAST)، فبتشتغل من أول يوم من غير ما
+  // حد يدخل اللوحة؛ ويقدر يغيّره أو يقفلها من "بيانات الدفع".
+  usdt: {
+    enabled: { type: Boolean, default: true },
+    address: { type: String, default: 'DQZ5mrPgLFWUgaQBq1ymB5zwBFhny7UmGGjAFPiAp1Ec', maxlength: 64 },
+    note: { type: String, default: '', maxlength: 400 },
+  },
+
   // رقم واتساب التواصل بعد التحويل
   whatsapp: { type: String, default: '', maxlength: 40 },
 

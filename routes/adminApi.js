@@ -1405,6 +1405,7 @@ router.get('/admin/api/payment-settings', requireAdminSession, async (req, res) 
       vodafone: doc.vodafone || {},
       bank: doc.bank || {},
       kast: doc.kast || { enabled: false, link: '', holderName: '', note: '' },
+      usdt: doc.usdt || { enabled: false, address: '', note: '' },
       whatsapp: doc.whatsapp || '',
       updatedAt: doc.updatedAt,
     });
@@ -1420,6 +1421,7 @@ router.put('/admin/api/payment-settings', requireAdminSession, async (req, res) 
     logAdminAction(req, 'settings.payment', { type: 'settings', id: 'default' });
     return res.json({ ok: true, updatedAt: doc.updatedAt });
   } catch (err) {
+    if (err.status === 400) return res.status(400).json({ error: err.message });
     console.error('Error saving payment settings:', err);
     return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
   }

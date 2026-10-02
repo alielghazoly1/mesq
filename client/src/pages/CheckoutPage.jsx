@@ -15,7 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import {
   ArrowRight, Check, Copy, Upload, Loader2, ChevronDown, ChevronUp,
-  Clock, AlertCircle, Sparkles, MessageCircle, Infinity as InfinityIcon, Pencil,
+  Clock, AlertCircle, AlertTriangle, Sparkles, MessageCircle, Infinity as InfinityIcon, Pencil,
 } from 'lucide-react';
 import { VodafoneCashLogo, BankMark } from '../components/PayBrand.jsx';
 import {
@@ -110,7 +110,7 @@ export default function CheckoutPage() {
   const [copied, setCopied] = useState('');
   // تفاصيل الحساب الإضافية (IBAN وSWIFT والعنوان) — مطويّة افتراضيًا
   const [moreBank, setMoreBank] = useState(false);
-  // لأي عميل دولي: تبويب بيبدّل بين البنك و KAST (لو المالك مفعّل KAST)
+  // لأي عميل دولي: تبويب بيبدّل بين البنك و KAST و USDT (اللي المالك مفعّله منهم)
   // — عشان مايبقاش الاتنين تحت بعض والشاشة تطول.
   const [payTab, setPayTab] = useState('bank');
 
@@ -194,6 +194,9 @@ export default function CheckoutPage() {
   const v = payInfo?.vodafone || {};
   const b = payInfo?.bank || {};
   const kast = payInfo?.kast || null;
+  const usdt = payInfo?.usdt || null;
+  // تبويبات العميل الدولي: البنك دايمًا + KAST و USDT لو المالك مفعّلهم
+  const intlTabs = ['bank', ...(kast ? ['kast'] : []), ...(usdt ? ['usdt'] : [])];
   const hasPayData = isVodafone ? !!v.number : !!(b.accountNumber || b.iban);
   // مدة التعديل بعد التفعيل — من السيرفر، و0 = القاعدة متقفلة
   const days = pkgData?.editWindowDays ?? 30;
@@ -363,17 +366,19 @@ export default function CheckoutPage() {
               </>
             ) : (
               <>
-                {kast ? (
-                  /* زرارين: البنك (الافتراضي) و KAST — كل واحد بيعرض تفاصيله
-                     لوحدها، عشان الشاشة ماتطولش */
-                  <div className="mb-4 grid grid-cols-2 gap-1.5 rounded-2xl bg-ink/[0.05] p-1">
+                {intlTabs.length > 1 ? (
+                  /* زرار لكل وسيلة: البنك (الافتراضي) و KAST و USDT — كل
+                     واحدة بتعرض تفاصيلها لوحدها، عشان الشاشة ماتطولش */
+                  <div className={`mb-4 grid gap-1.5 rounded-2xl bg-ink/[0.05] p-1 ${intlTabs.length === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
                     <button
                       type="button"
                       onClick={() => setPayTab('bank')}
                       className={`inline-flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-[12.5px] font-bold transition ${payTab === 'bank' ? 'bg-white text-ink shadow-sm' : 'text-ink-dim'}`}
                     >
-                      <BankMark size={17} /> {t('payment.bankTitle')}
+                      {/* اسم قصير في الزرار (الطويل كان بيلف على 3 سطور جنب KAST و USDT) */}
+                      <BankMark size={17} /> <span className="whitespace-nowrap">{t('payment.bankShort')}</span>
                     </button>
+                    {kast && (
                     <button
                       type="button"
                       onClick={() => setPayTab('kast')}
@@ -381,6 +386,16 @@ export default function CheckoutPage() {
                     >
                       KAST
                     </button>
+                    )}
+                    {usdt && (
+                      <button
+                        type="button"
+                        onClick={() => setPayTab('usdt')}
+                        className={`inline-flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-[12.5px] font-extrabold transition ${payTab === 'usdt' ? 'bg-[#26A17B] text-white shadow-sm' : 'text-ink-dim'}`}
+                      >
+                        <img src="/img/usdt-logo.svg" alt="" className="h-[17px] w-[17px] rounded-full ring-2 ring-white/90" /> USDT
+                      </button>
+                    )}
                   </div>
                 ) : (
                   <div className="mb-3 inline-flex items-center gap-2.5 rounded-full border border-line px-3 py-2 text-[12.5px] font-bold text-ink">
@@ -389,7 +404,7 @@ export default function CheckoutPage() {
                   </div>
                 )}
 
-                {(!kast || payTab === 'bank') && (
+                {(intlTabs.length === 1 || payTab === 'bank') && (
                 <>
                 {/* التلاتة اللي بيتم التحويل بيهم فعلاً بس — والأول
                     فيهم الـIBAN، ده الرقم اللي العميل بيحوّل عليه.
@@ -491,6 +506,56 @@ export default function CheckoutPage() {
                     </a>
                     {kast.note && (
                       <p className="mt-3 text-[12.5px] leading-relaxed text-ink-dim">{kast.note}</p>
+                    )}
+                  </div>
+                )}
+
+                {/* ===== USDT على Solana — تبويبه (بيظهر لو المالك مفعّله) ===== */}
+                {usdt && payTab === 'usdt' && (
+                  <div className="mt-4 rounded-2xl border border-line bg-ink/[0.02] p-4">
+                    <div className="mb-3 flex items-center justify-between gap-2">
+                      <span className="inline-flex items-center gap-2">
+                        <img src="/img/usdt-logo.svg" alt="USDT" className="h-9 w-9 drop-shadow-sm" />
+                        <span className="flex flex-col leading-tight">
+                          <span className="text-[15px] font-extrabold text-ink" dir="ltr">USDT</span>
+                          <span className="text-[11px] font-bold text-ink-dim">Tether</span>
+                        </span>
+                      </span>
+                      {/* الشبكة — أهم معلومة، فواضحة جدًا */}
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-[#0b0b14] px-3 py-1.5 text-[11.5px] font-bold text-white" dir="ltr">
+                        <img src="/img/solana-logo.svg" alt="" className="h-3 w-auto" /> Solana
+                      </span>
+                    </div>
+
+                    <div className="flex flex-col items-center">
+                      <img
+                        src={usdt.qr}
+                        alt="USDT Solana QR"
+                        width={168}
+                        height={168}
+                        className="rounded-xl border border-line bg-white p-2"
+                        style={{ imageRendering: 'pixelated' }}
+                      />
+                      <p className="mt-2 text-center text-[11.5px] text-ink-dim">{t('checkout.usdtScan')}</p>
+                    </div>
+
+                    <div className="mt-3 grid grid-cols-2 gap-2.5">
+                      <CopyTile label={t('checkout.usdtAddress')} value={usdt.address} wide />
+                    </div>
+
+                    {/* تحذير الشبكة: أي شبكة غير Solana الفلوس بتضيع */}
+                    <p className="mt-3 flex items-start gap-2 rounded-xl bg-[#f5a524]/[0.12] px-3.5 py-3 text-[12px] font-bold leading-relaxed text-[#8a5a00]">
+                      <AlertTriangle size={15} className="mt-0.5 shrink-0" /> {t('checkout.usdtWarn')}
+                    </p>
+
+                    <div className="mt-3 flex items-center justify-between rounded-xl bg-emerald/[0.07] px-4 py-3">
+                      <span className="text-[12.5px] font-bold text-emerald">{t('checkout.amountToSend')}</span>
+                      <span className="font-serif text-[18px] font-bold text-emerald" dir="ltr">
+                        {pkg.currency === 'USD' ? `${pkg.price} USDT` : `${pkg.price} ${pkg.currencyLabel}`}
+                      </span>
+                    </div>
+                    {usdt.note && (
+                      <p className="mt-3 text-[12.5px] leading-relaxed text-ink-dim">{usdt.note}</p>
                     )}
                   </div>
                 )}
