@@ -183,4 +183,19 @@ invitationSchema.index({ creatorDeviceId: 1 });
 invitationSchema.index({ creatorDeviceId: 1, createdAt: -1 });
 invitationSchema.index({ creatorIpHash: 1, createdAt: -1 });
 
+// قفل نهائي للدعوات المجانية: أي دعوة **جديدة** لازم تكون مدفوعة (من رصيد
+// باقة) وليها صاحب حساب. ده آخر خط دفاع تحت كل المسارات — حتى لو أي كود
+// اتغيّر بعدين بالغلط، مونجو مش هيحفظ دعوة مجانية جديدة أبدًا.
+// الدعوات القديمة المجانية مش متأثرة: الشرط على الجديد بس (isNew)،
+// فعرضها وتعديلها شغالين زي ما هم.
+invitationSchema.pre('validate', function blockFreeInvitations(next) {
+  if (this.isNew && (!this.isPremium || !this.ownerId)) {
+    const err = new Error('إنشاء الدعوات بباقة بس — مفيش دعوات مجانية.');
+    err.status = 403;
+    err.code = 'SUBSCRIPTION_REQUIRED';
+    return next(err);
+  }
+  return next();
+});
+
 module.exports = mongoose.model('Invitation', invitationSchema);

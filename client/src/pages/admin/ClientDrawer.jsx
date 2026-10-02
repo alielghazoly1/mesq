@@ -497,7 +497,7 @@ export default function ClientDrawer({ userId, onClose }) {
                         <div className="flex flex-wrap gap-1">
                           {inv.isDraft && <Badge>مسودة</Badge>}
                           {inv.isPremium && <Badge tone="gold">مميزة</Badge>}
-                          {!inv.isDraft && !inv.isPremium && <Badge tone="muted">مجانية</Badge>}
+                          {!inv.isDraft && !inv.isPremium && <Badge tone="muted">مجانية (قديمة)</Badge>}
                         </div>
                       </Cell>
                       <Cell>{fmtNum(inv.views)}</Cell>

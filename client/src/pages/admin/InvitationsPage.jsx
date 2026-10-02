@@ -48,6 +48,8 @@ export default function InvitationsPage() {
                       <span className="font-bold text-ivory">{inv.namesAr || inv.namesEn}</span>
                       {inv.isDraft && <Badge>مسودة</Badge>}
                       {inv.isPremium && <Badge tone="gold">مميزة</Badge>}
+                      {/* المجانية كلها من قبل قفل المجاني (21 سبتمبر 2026) — مفيش جديد منها */}
+                      {!inv.isPremium && !inv.isDraft && <Badge tone="muted">مجانية (قديمة)</Badge>}
                     </div>
                     <div className="text-[11px] text-ivory/35">{inv.shortId} · {inv.venueName}</div>
                   </Cell>

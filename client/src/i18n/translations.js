@@ -408,7 +408,7 @@ export const resources = {
       },
       dash: {
         needLogin: 'Sign in to see your dashboard.',
-        freeTitle: 'Free account',
+        freeTitle: 'No package yet',
         freeSubtitle: 'Choose a package to create your invitations with the full editor: fonts, photos, music and text positioning. Any invitation you made before keeps working.',
         premiumTitle: '{{name}} — active',
         premiumSubtitle: '{{count}} premium invitations left. The full editor is unlocked for you.',
@@ -1052,7 +1052,7 @@ export const resources = {
       },
       dash: {
         needLogin: 'سجّل دخولك عشان تشوف لوحتك.',
-        freeTitle: 'حساب مجاني',
+        freeTitle: 'لسه مفيش باقة',
         freeSubtitle: 'اختار باقة عشان تعمل دعواتك بالمحرر الكامل: الخطوط والصور والموسيقى وتحريك النصوص. وأي دعوة عملتها قبل كده بتفضل شغالة.',
         premiumTitle: '{{name}} — مفعّلة',
         premiumSubtitle: 'فاضلك {{count}} دعوة مميزة، والمحرر الكامل مفتوح ليك.',

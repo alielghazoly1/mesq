@@ -10,7 +10,7 @@ const { renderNewPathHtml, renderLegacyHtml } = require('../utils/renderInvitati
 const { buildInvitationDataFromRequest, hasActivePackage } = require('../utils/invitationData');
 const { buildStatsPage, loadStatsData, ensureStatsToken } = require('../utils/statsPage');
 const { isEditWindowOpen, editWindowEndedBody } = require('../utils/editWindow');
-const { freeQuotaFor, hashIp } = require('../middleware/freeQuota');
+const { hashIp } = require('../middleware/freeQuota');
 const SiteTotals = require('../models/SiteTotals');
 const { getTemplate, TEMPLATES } = require('../templates/registry');
 const {
@@ -102,28 +102,6 @@ router.post('/api/preview', async (req, res) => {
     if (err.status) return res.status(err.status).send('');
     console.error('Error building preview:', err);
     return res.status(500).send('');
-  }
-});
-
-// GET /api/free-quota — رصيد الدعوات المجانية اليومي للجهاز ده.
-// الفورم بيعرضه للعميل قبل ما يملا، فمحدش بيتفاجئ في الآخر.
-router.get('/api/free-quota', async (req, res) => {
-  try {
-    if (hasActivePackage(req.user)) {
-      return res.json({ subscribed: true, limit: 0, used: 0, remaining: 0, resetsInHours: 0 });
-    }
-    const q = await freeQuotaFor(req.deviceId, req.user && req.user.id);
-    return res.json({
-      subscribed: false,
-      limit: q.limit,
-      used: Math.min(q.used, q.limit),
-      remaining: q.blocked ? 0 : q.remaining,
-      resetsInHours: Math.max(1, Math.ceil(q.resetsInMs / 3600000)),
-    });
-  } catch (err) {
-    console.error('Error reading free quota:', err);
-    // مش سبب نوقف الفورم — بنرجّع الحد الكامل ونسيب السيرفر يحكم عند الإنشاء
-    return res.json({ subscribed: false, limit: 3, used: 0, remaining: 3, resetsInHours: 24 });
   }
 });
 
