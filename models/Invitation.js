@@ -101,6 +101,9 @@ const invitationSchema = new mongoose.Schema({
     // { "data-elem-id": "center" } — محاذاة النص (شمال/توسيط/يمين) جوه
     // مساحة العنصر. تنسيق العميل، مش ميزة باقة.
     aligns: { type: mongoose.Schema.Types.Mixed, default: {} },
+    // { "data-elem-id": "Amiri" } — خط لجملة معيّنة بس (اسم العريس والعروسة
+    // مثلًا)، فوق خط الدعوة العام. من نفس قايمة الخطوط المسموحة.
+    elemFonts: { type: mongoose.Schema.Types.Mixed, default: {} },
     // اليوم المعلّم في نتيجة الشهر. 0 = يوم الفرح زي ما هو.
     calDay: { type: Number, default: 0 },
     // نصوص العميل ضافها بنفسه فوق التصميم.

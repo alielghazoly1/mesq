@@ -299,6 +299,7 @@ function cloneCustomizations(c = {}) {
     rotations: { ...(c.rotations || {}) },
     scales: { ...(c.scales || {}) },
     aligns: { ...(c.aligns || {}) },
+    elemFonts: { ...(c.elemFonts || {}) },
     rsvp: { ...(c.rsvp || {}) },
     calDay: c.calDay || 0,
     added: [...(c.added || [])],
@@ -517,6 +518,7 @@ router.patch('/api/editor/:shortId', requireAuth, async (req, res) => {
       rotations: { ...(current.rotations || {}) },
       scales: { ...(current.scales || {}) },
       aligns: { ...(current.aligns || {}) },
+      elemFonts: { ...(current.elemFonts || {}) },
       rsvp: { ...(current.rsvp || {}) },
       calDay: current.calDay || 0,
       added: [...(current.added || [])],
@@ -541,6 +543,17 @@ router.patch('/api/editor/:shortId', requireAuth, async (req, res) => {
         return res.status(400).json({ error: 'الخط ده مش متاح.' });
       }
       next.fontFamily = body.fontFamily || '';
+    }
+
+    // خط جملة معيّنة (فوق خط الدعوة العام) — نفس ميزة الخط في الباقة.
+    // استبدال كامل عشان "رجّع للأصل" والرجوع للخلف يشتغلوا صح.
+    if (body.elemFonts !== undefined) {
+      if (!allowed.includes('fonts')) return res.status(403).json({ error: 'باقتك مافيهاش تغيير الخط.' });
+      next.elemFonts = {};
+      Object.keys(body.elemFonts || {}).slice(0, 200).forEach((id) => {
+        const f = body.elemFonts[id];
+        if (isSafeElemId(id) && f && isAllowedFont(f)) next.elemFonts[id] = f;
+      });
     }
 
     // الموسيقى

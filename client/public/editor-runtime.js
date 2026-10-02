@@ -1589,6 +1589,37 @@
       }
     }
 
+    // خط جملة معيّنة (فوق خط الدعوة العام) — بنبني بلوك wda-elem-fonts
+    // من الأول بالخريطة كلها، فالتغيير والإلغاء والرجوع للخلف كلهم واحد
+    if (msg.type === 'set-elem-fonts') {
+      var map = p.fonts || {};
+      var st2 = document.getElementById('wda-elem-fonts');
+      if (!st2) {
+        st2 = document.createElement('style');
+        st2.id = 'wda-elem-fonts';
+        document.head.appendChild(st2);
+      }
+      var rules = [];
+      Object.keys(map).forEach(function (fid) {
+        var fam = String(map[fid] || '');
+        // نفس شروط السيرفر: id آمن واسم خط حروف ومسافات بس
+        if (!/^[A-Za-z0-9_-]{1,64}$/.test(fid) || !/^[A-Za-z ]{2,40}$/.test(fam)) return;
+        var lid = 'wda-font-' + fam.replace(/ /g, '-');
+        if (!document.getElementById(lid)) {
+          var fl = document.createElement('link');
+          fl.id = lid;
+          fl.rel = 'stylesheet';
+          fl.href = 'https://fonts.googleapis.com/css2?family=' + fam.replace(/ /g, '+') + ':wght@400;700&display=swap';
+          document.head.appendChild(fl);
+        }
+        // نفس طريقة الوصول للعنصر: data-wda-uid للمتكرر، وإلا data-elem-id
+        var u = '[data-wda-uid="' + fid + '"]';
+        var e2 = '[data-elem-id="' + fid + '"]:not([data-wda-uid])';
+        rules.push(u + ', ' + u + ' *, ' + e2 + ', ' + e2 + ' * { font-family: \'' + fam + '\', serif !important; }');
+      });
+      st2.textContent = rules.join('\n');
+    }
+
     if (msg.type === 'set-image' && p.id && p.url) {
       var host = byUid(p.id);
       if (host) applyImageTo(host, p.url);

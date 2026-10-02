@@ -300,6 +300,7 @@ export default function EditorPage() {
         rotations: c.rotations || {},
         scales: c.scales || {},
         aligns: c.aligns || {},
+        elemFonts: c.elemFonts || {},
         rsvp: c.rsvp || {},
         calDay: c.calDay || 0,
         added: c.added || [],
@@ -648,6 +649,7 @@ export default function EditorPage() {
       colors: draft.colors, rotations: draft.rotations, scales: draft.scales, aligns: draft.aligns, features,
     });
     if (draft.fontFamily) post('set-font', { font: draft.fontFamily });
+    post('set-elem-fonts', { fonts: draft.elemFonts || {} });
     // مرة واحدة بس عند الجاهزية — بعد كده كل تغيير بيتبعت لحظيًا لوحده
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [runtimeReady, !!draft, features]);
@@ -659,7 +661,10 @@ export default function EditorPage() {
       try {
         // بنبعت اللي الباقة سامحة بيه بس — السيرفر بيرفض الباقي أصلاً
         const body = {};
-        if (has('fonts')) body.fontFamily = draft.fontFamily;
+        if (has('fonts')) {
+          body.fontFamily = draft.fontFamily;
+          body.elemFonts = draft.elemFonts || {};
+        }
         if (has('music')) {
           body.audioUrl = draft.audioUrl;
           body.audioStart = draft.audioStart || 0;
@@ -706,6 +711,20 @@ export default function EditorPage() {
     remember();
     setDraft((d) => ({ ...d, fontFamily: font }));
     post('set-font', { font });
+    setDirty(true);
+  }
+
+  // خط الجملة المختارة بس (فوق خط الدعوة العام). '' = يرجع لخط الدعوة.
+  function chooseElemFont(font) {
+    if (!selected?.id) return;
+    remember();
+    const id = selected.id;
+    setDraft((d) => {
+      const elemFonts = { ...(d.elemFonts || {}) };
+      if (font) elemFonts[id] = font; else delete elemFonts[id];
+      post('set-elem-fonts', { fonts: elemFonts });
+      return { ...d, elemFonts };
+    });
     setDirty(true);
   }
 
@@ -808,7 +827,10 @@ export default function EditorPage() {
         calDay: snap.customizations.calDay || 0,
         added: snap.customizations.added,
       };
-      if (has('fonts')) body.fontFamily = snap.customizations.fontFamily;
+      if (has('fonts')) {
+        body.fontFamily = snap.customizations.fontFamily;
+        body.elemFonts = snap.customizations.elemFonts || {};
+      }
       if (has('music')) {
         body.audioUrl = snap.customizations.audioUrl;
         body.audioStart = snap.customizations.audioStart || 0;
@@ -825,6 +847,7 @@ export default function EditorPage() {
       } else {
         post('restore', { customizations: snap.customizations });
         post('set-font', { font: snap.customizations.fontFamily || '' });
+        post('set-elem-fonts', { fonts: snap.customizations.elemFonts || {} });
         setSelected(null);
       }
       setDirty(false);
@@ -1172,7 +1195,10 @@ export default function EditorPage() {
     setError('');
     try {
       const body = {};
-      if (has('fonts')) body.fontFamily = draft.fontFamily;
+      if (has('fonts')) {
+        body.fontFamily = draft.fontFamily;
+        body.elemFonts = draft.elemFonts || {};
+      }
       if (has('music')) {
         body.audioUrl = draft.audioUrl;
         body.audioStart = draft.audioStart || 0;
@@ -1208,10 +1234,12 @@ export default function EditorPage() {
 
   // يحفظ تعديلات الفورم ويعيد تحميل الدعوة عشان تظهر (النصوص بتتحقن من
   // السيرفر وقت العرض)
-  async function applyRsvp() {
+  // rsvpOverride: لما نطبّق على طول من غير ما نستنى الـ state يتحدّث
+  // (زي علامة "شيل خانة ملاحظات الأكل" — بتتطبّق أول ما تتعلّم)
+  async function applyRsvp(rsvpOverride) {
     setError('');
     try {
-      const body = { shortId, rsvp: draft.rsvp || {} };
+      const body = { shortId, rsvp: rsvpOverride || draft.rsvp || {} };
       body.hidden = draft.hidden;
       body.sizes = draft.sizes;
       body.rotations = draft.rotations;
@@ -1220,7 +1248,10 @@ export default function EditorPage() {
       body.offsets = draft.offsets;
       body.added = draft.added;
       body.calDay = draft.calDay || 0;
-      if (has('fonts')) body.fontFamily = draft.fontFamily;
+      if (has('fonts')) {
+        body.fontFamily = draft.fontFamily;
+        body.elemFonts = draft.elemFonts || {};
+      }
       if (has('colors')) body.colors = draft.colors;
       if (has('images')) body.images = draft.images;
       await saveCustomizations(body).unwrap();
@@ -1793,10 +1824,15 @@ export default function EditorPage() {
                             <input
                               type="checkbox"
                               checked={!!draft.rsvp?.hideFood}
-                              onChange={(e) => setRsvpField('hideFood', e.target.checked)}
+                              onChange={(e) => {
+                                // بتتشال/ترجع في الدعوة على طول — من غير "طبّق وشوف"
+                                const nextRsvp = { ...(draft.rsvp || {}), hideFood: e.target.checked };
+                                setRsvpField('hideFood', e.target.checked);
+                                applyRsvp(nextRsvp);
+                              }}
                               className="h-4 w-4 accent-emerald"
                             />
-                            <span className="text-[12.5px] font-bold text-ink">شيل خانة ملاحظات الأكل</span>
+                            <span className="text-[12.5px] font-bold text-ink">شيل خانة الكتابة من الفورم (ملاحظات الأكل / الرسالة)</span>
                           </label>
 
                           {/* صورة النموذج — إخفاء (لو موجودة في القالب) */}
@@ -1812,7 +1848,7 @@ export default function EditorPage() {
 
                           <button
                             type="button"
-                            onClick={applyRsvp}
+                            onClick={() => applyRsvp()}
                             className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-full bg-emerald px-4 py-2.5 text-[12.5px] font-bold text-ivory hover:brightness-110"
                           >
                             <Check size={13} /> طبّق وشوف
@@ -2005,6 +2041,46 @@ export default function EditorPage() {
                                 </div>
                               );
                             })()}
+
+                            {/* خط الجملة دي بس — اسم العريس والعروسة مثلًا.
+                                بيشتغل على أي نص، حتى الأقسام اللي ليها خطها
+                                الثابت ومبتتأثرش بخط الدعوة العام */}
+                            {['text', 'rich', 'live'].includes(selected.kind) && (data.fonts || []).length > 0 && (
+                              <div className="mb-4 rounded-xl border border-line bg-card p-3">
+                                <div className="mb-2.5 flex items-center justify-between">
+                                  <span className="inline-flex items-center gap-1.5 text-[12px] font-bold text-ink">
+                                    <Type size={13} /> {t('editor.elemFontTitle')}
+                                  </span>
+                                  {!has('fonts') && <Lock size={11} className="text-ink-dim" />}
+                                </div>
+                                {has('fonts') ? (
+                                  <div className="flex items-center gap-2">
+                                    <select
+                                      value={draft.elemFonts?.[selected.id] || ''}
+                                      onChange={(e) => chooseElemFont(e.target.value)}
+                                      className="min-w-0 flex-1 rounded-lg border border-line bg-card px-2.5 py-2 text-[13px] text-ink focus:border-rose focus:outline-none"
+                                      style={draft.elemFonts?.[selected.id] ? { fontFamily: `'${draft.elemFonts[selected.id]}', serif` } : undefined}
+                                    >
+                                      <option value="">{t('editor.elemFontDefault')}</option>
+                                      {(data.fonts || []).map((font) => (
+                                        <option key={font} value={font} style={{ fontFamily: `'${font}', serif` }}>{font}</option>
+                                      ))}
+                                    </select>
+                                    {draft.elemFonts?.[selected.id] && (
+                                      <button
+                                        type="button"
+                                        onClick={() => chooseElemFont('')}
+                                        className="inline-flex shrink-0 items-center gap-1 text-[11.5px] font-bold text-ink-dim hover:text-rose"
+                                      >
+                                        <RotateCcw size={11} /> {t('editor.colorReset')}
+                                      </button>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <p className="text-[11.5px] text-ink-dim">{t('editor.elemFontLocked')}</p>
+                                )}
+                              </div>
+                            )}
 
                             {/* اللون — لون الخط للكلام، ولون الخلفية
                                 للمربعات الفاضية (زي مربعات الزي المقترح) */}
