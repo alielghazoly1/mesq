@@ -19,6 +19,7 @@ const dashboardRouter = require('./routes/dashboard');
 const editorRouter = require('./routes/editor');
 const guestPhotosRouter = require('./routes/guestPhotos');
 const presenceRouter = require('./routes/presence');
+const clientErrorsRouter = require('./routes/clientErrors');
 const { ensureDeviceId, deviceInvitationLimiter } = require('./middleware/deviceLimiter');
 const { attachUser } = require('./middleware/auth');
 const { requestLogger, installProcessHandlers, write: logLine, LOG_FILE } = require('./utils/requestLogger');
@@ -76,7 +77,9 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', ...TILDA_CDN_HOSTS],
       fontSrc: ["'self'", 'https://fonts.gstatic.com', ...TILDA_CDN_HOSTS, 'data:'],
       imgSrc: ["'self'", 'data:', 'https://res.cloudinary.com', ...TILDA_CDN_HOSTS],
-      mediaSrc: ["'self'", 'https://res.cloudinary.com', 'https://pub-4dc8201144ca418fb604349c73e8c724.r2.dev'],
+      // asmaa-mohamed.vercel.app: أغنية Ivory Swans الافتراضية متخزّنة هناك — من
+      // غيره الأغنية كانت متمنوعة ومبتشتغلش خالص في القالب ده
+      mediaSrc: ["'self'", 'https://res.cloudinary.com', 'https://pub-4dc8201144ca418fb604349c73e8c724.r2.dev', 'https://asmaa-mohamed.vercel.app'],
       connectSrc: ["'self'", ...TILDA_CDN_HOSTS],
       // 'self' لازم عشان المحرر المباشر بيعرض الدعوة نفسها جوه iframe من
       // نفس الأوريجن؛ google.com للخرايط المضمّنة جوه الدعوة.
@@ -148,13 +151,14 @@ app.use('/api/uploads', requireDB);
 app.use('/api/dashboard', requireDB);
 app.use('/api/editor', requireDB);
 app.use('/api/presence', requireDB);
+app.use('/api/client-error', requireDB);
 
 // لو فيه جلسة دخول صالحة (كوكي wda_session)، بيحط req.user؛ غير كده
 // req.user = null من غير ما يوقف الطلب (middleware/auth.js). مربوط بس
 // بالمسارات اللي فعلاً محتاجة تعرف حالة الدخول — مش عالميًا على كل الموقع
 // (زي الملفات الثابتة أو صفحة الدعوة نفسها)، عشان نفس فلسفة الأداء
 // والمرونة اللي requireDB بتتبعها.
-app.use(['/api/preview', '/preview-sample', '/api/invitations', '/api/free-quota', '/api/auth', '/api/packages', '/api/uploads', '/api/dashboard', '/api/editor', '/api/presence'], attachUser);
+app.use(['/api/preview', '/preview-sample', '/api/invitations', '/api/free-quota', '/api/auth', '/api/packages', '/api/uploads', '/api/dashboard', '/api/editor', '/api/presence', '/api/client-error'], attachUser);
 
 // الموقع التسويقي/فورم الإنشاء بقى React (client/) مبني بـ Vite — الملفات
 // الثابتة الناتجة (client/dist) هي اللي بتتقدم هنا بدل public/ القديم.
@@ -312,6 +316,16 @@ const presenceLimiter = rateLimit({
 });
 app.use('/api/presence', presenceLimiter);
 
+// تبليغ أعطال الواجهة — حد صغير (الانهيار نادر، ومنعًا للإغراق)
+const clientErrorLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'عدد كبير جدًا من الطلبات.' },
+});
+app.use('/api/client-error', clientErrorLimiter);
+
 app.use('/', invitationsRouter);
 app.use('/', adminRouter);
 app.use('/', adminApiRouter);
@@ -322,6 +336,7 @@ app.use('/', dashboardRouter);
 app.use('/', editorRouter);
 app.use('/', guestPhotosRouter);
 app.use('/', presenceRouter);
+app.use('/', clientErrorsRouter);
 
 // أي GET route تاني مش API معروف بيرجع صفحة React (client/dist/index.html)
 // عشان react-router يشتغل صح حتى لو حد عمل refresh على لينك زي /create/xyz

@@ -1755,6 +1755,12 @@
       Object.keys(state.originals).forEach(function (oid) {
         var host = byUid(oid);
         if (!host) return;
+        // النصوص العادية بس. العداد التنازلي (وأي عنصر مركّب) نصه بيتغيّر
+        // لوحده كل ثانية، فكان "التراجع" بيرجّعه لنصه الأصلي بـ textContent
+        // ويمسح الخانات اللي جواه (#days/#hours…) — والعداد يقف ويطلّع خطأ
+        // كل ثانية (اتلاقت في Ivory Swans).
+        var hk = elementKind(host);
+        if (hk === 'live' || hk === 'rich' || hk === 'map') return;
         var want = (oid in texts) ? texts[oid] : state.originals[oid].text;
         if ((textTarget(host).innerText || '').trim() !== want) setTextOn(host, want);
       });

@@ -10,7 +10,7 @@ import { NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { useDispatch } from 'react-redux';
 import {
   LayoutDashboard, Users, Receipt, FileText, MessageSquare,
-  Settings, ScrollText, LogOut, Loader2, Menu, X, Music, BadgePercent, Wallet, Banknote, Megaphone, LayoutTemplate, Tags,
+  Settings, ScrollText, LogOut, Loader2, Menu, X, Music, BadgePercent, Wallet, Banknote, Megaphone, LayoutTemplate, Tags, Bug,
 } from 'lucide-react';
 import { adminApi } from '../../store/adminApi.js';
 import AdminLogin from './AdminLogin.jsx';
@@ -27,6 +27,7 @@ import SupportPage from './SupportPage.jsx';
 import SettingsPage from './SettingsPage.jsx';
 import DiscountsPanel from './DiscountsPanel.jsx';
 import PackagesPricesPage from './PackagesPricesPage.jsx';
+import ClientErrorsPage from './ClientErrorsPage.jsx';
 import AuditPage from './AuditPage.jsx';
 
 const NAV = [
@@ -44,6 +45,7 @@ const NAV = [
   { to: '/admin/discounts', icon: BadgePercent, label: 'الخصومات' },
   { to: '/admin/settings', icon: Settings, label: 'بيانات الدفع' },
   { to: '/admin/audit', icon: ScrollText, label: 'سجل الإجراءات' },
+  { to: '/admin/errors', icon: Bug, label: 'أعطال الواجهة' },
 ];
 
 export default function AdminApp() {
@@ -186,6 +188,7 @@ export default function AdminApp() {
             <Route path="music" element={<MusicPage />} />
             <Route path="support" element={<SupportPage />} />
             <Route path="packages" element={<PackagesPricesPage />} />
+            <Route path="errors" element={<ClientErrorsPage />} />
             <Route path="discounts" element={<DiscountsPanel />} />
             <Route path="settings" element={<SettingsPage />} />
             <Route path="audit" element={<AuditPage />} />

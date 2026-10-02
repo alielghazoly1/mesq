@@ -1264,7 +1264,7 @@
                             <!-- nominify begin -->
                             <!-- Hidden Audio -->
                             <div style="display:none">
-                                <audio id="invitation-audio" loop="">
+                                <audio id="invitation-audio" loop="" preload="none">
                                     <source src="https://asmaa-mohamed.vercel.app/images/hessenelgassme.mp3" type="audio/mp3">Your browser does not support the audio element.
   
                                 </audio>
@@ -2819,20 +2819,20 @@
                                             // (دعوة قديمة) نرجع للتاريخ الافتراضي زي ما كان.
                                             var _cfg = window.WEDDING_CONFIG || {};
                                             const eventLocal = _cfg.weddingDateTimeISO ? new Date(_cfg.weddingDateTimeISO) : new Date(2026,9,10,00,00,0);
-                                            const interval = setInterval( () => {
-                                                const now = new Date();
-                                                const distance = eventLocal - now;
-                                                if (distance < 0) {
-                                                    clearInterval(interval);
-                                                    document.getElementById("countdownContainer").innerHTML = "EXPIRED";
-                                                    return;
-                                                }
-                                                document.getElementById("days").textContent = String(Math.floor(distance / (1000 * 60 * 60 * 24))).padStart(2, '0');
-                                                document.getElementById("hours").textContent = String(Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
-                                                document.getElementById("minutes").textContent = String(Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
-                                                document.getElementById("seconds").textContent = String(Math.floor((distance % (1000 * 60)) / 1000)).padStart(2, '0');
+                                            // كل خانة بتتكتب لو موجودة بس — قبل كده لو خانة اتشالت (أو
+                                            // المحرر بدّل العنصر) السكريبت كان بيرمي خطأ كل ثانية والعداد يقف.
+                                            // وبعد ميعاد الفرح بيفضل أصفار بدل كلمة "EXPIRED" الإنجليزي.
+                                            function _cdSet(id, v) { var el = document.getElementById(id); if (el) el.textContent = v; }
+                                            function _cdTick() {
+                                                const distance = Math.max(0, eventLocal - new Date());
+                                                _cdSet("days", String(Math.floor(distance / (1000 * 60 * 60 * 24))).padStart(2, '0'));
+                                                _cdSet("hours", String(Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0'));
+                                                _cdSet("minutes", String(Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0'));
+                                                _cdSet("seconds", String(Math.floor((distance % (1000 * 60)) / 1000)).padStart(2, '0'));
+                                                if (distance <= 0) clearInterval(interval);
                                             }
-                                            , 1000);
+                                            const interval = setInterval(_cdTick, 1000);
+                                            _cdTick();
                                         </script>
                                     
                                 
@@ -6140,7 +6140,19 @@
     if (yl && C.yesOption) yl.lastChild.textContent = ' ' + C.yesOption;
     if (nl && C.noOption)  nl.lastChild.textContent = ' ' + C.noOption;
 
-    // إخفاء القسم لو العميل شاله من الأقسام الاختيارية
+    // إخفاء أي قسم العميل شاله من "الأقسام" في المحرر (templates/registry.js:
+    // optionalSections). الدعوات القديمة مفيهاش غير 'rsvp' أو مفيش — فكلها
+    // بتفضل زي ما هي.
+    var SECTIONS = {
+      hero: '#rec2443433723', verse: '#rec2443433743', countdown: '#rec2443433753',
+      saveTheDate: '#std-section', story: '#hf-section', families: '#fb-section',
+      venue: '#loc-section', map: '#loc-section .loc-map-wrap'
+    };
+    (C.hiddenSections || []).forEach(function (key) {
+      var sel = SECTIONS[key];
+      if (!sel) return;
+      document.querySelectorAll(sel).forEach(function (el) { el.style.display = 'none'; });
+    });
     if ((C.hiddenSections||[]).indexOf('rsvp') !== -1){
       var sec=document.getElementById('mithaq-rsvp'); if(sec) sec.style.display='none';
       return;

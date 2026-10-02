@@ -37,6 +37,7 @@ import EditWindowEnded from '../components/editor/EditWindowEnded.jsx';
 import useIsCompact from '../hooks/useIsCompact.js';
 import { tooBig, sizeError, uploadError } from '../lib/uploadLimits.js';
 import { installSoloAudio, setFramePauser } from '../lib/soloAudio.js';
+import PanelBoundary from '../components/PanelBoundary.jsx';
 
 const SHELL = 'mithaq-shell';
 const RUNTIME = 'mithaq-editor';
@@ -1735,6 +1736,13 @@ export default function EditorPage() {
                   exit={{ opacity: 0, y: -6 }}
                   transition={{ duration: 0.16 }}
                 >
+                  {/* أي خطأ في الشريط الجانبي بيفضل جوه الشريط بس — المحرر والدعوة
+                      بيكمّلوا، والجزء بيرجع لوحده أول ما العميل يختار عنصر تاني */}
+                  <PanelBoundary
+                    where="editor-panel"
+                    resetKey={`${tab}|${selected ? selected.id : ''}|${selected ? selected.kind : ''}`}
+                    context={`tab=${tab} kind=${selected ? selected.kind : '-'} id=${selected ? selected.id : '-'}`}
+                  >
                   {/* ---- تعديل مباشر ---- */}
                   {/* flex عشان نقدر نقدّم لوحة العنصر المختار على الشرح
                       في وضع الموبايل (order) من غير ما نكرر الكود */}
@@ -2492,6 +2500,7 @@ export default function EditorPage() {
                       )}
                     </>
                   )}
+                  </PanelBoundary>
                 </motion.div>
               </AnimatePresence>
             )}

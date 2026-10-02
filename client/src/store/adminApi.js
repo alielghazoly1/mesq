@@ -136,6 +136,9 @@ export const adminApi = createApi({
     }),
     getAdminPackages: builder.query({ query: () => '/packages', providesTags: ['Pricing'] }),
 
+    // ===== أعطال الواجهة عند العملاء =====
+    getClientErrors: builder.query({ query: () => '/client-errors' }),
+
     // ===== اللحظة دي + الأرباح شهر بشهر =====
     // مين على الموقع دلوقتي — الصفحة بتسأل كل 15 ثانية (pollingInterval)
     getLive: builder.query({ query: () => '/live' }),
@@ -219,6 +222,7 @@ export const {
   useGetAdminPackagesQuery,
   useGetPricingSettingsQuery,
   useGetLiveQuery,
+  useGetClientErrorsQuery,
   useGetRevenueMonthlyQuery,
   useGetPackagePricesQuery,
   useSavePackagePricesMutation,

@@ -7,6 +7,7 @@
 // مهم: الحاجز بيمسك أخطاء **الرسم** بس. أخطاء جوه المعالجات (onClick)
 // ووعود مرفوضة مش بتعدي من هنا — دي بتتعالج في مكانها.
 import { Component } from 'react';
+import { reportError } from '../lib/reportError.js';
 
 export default class ErrorBoundary extends Component {
   constructor(props) {
@@ -21,6 +22,8 @@ export default class ErrorBoundary extends Component {
   componentDidCatch(error, info) {
     // بيفضل في الكونسول عشان لو العميل بعتلنا صورة نعرف السبب
     console.error('انهيار في الواجهة:', error, info && info.componentStack);
+    // السبب بيوصل للوحة التحكم ← "أعطال الواجهة"
+    reportError(error, { where: 'page', componentStack: info && info.componentStack });
   }
 
   render() {

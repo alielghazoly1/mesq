@@ -104,9 +104,17 @@ const TEMPLATES = [
     file: 'ivory-swans.html',
     languages: SUPPORTED_LANGUAGES,
     occasionTypes: SUPPORTED_OCCASIONS,
-    // التصميم فيه قسم تأكيد الحضور بس كقسم اختياري يقدر العميل يشيله؛ باقي
-    // الأقسام (الوش/التاريخ/القاعة) أساسية في التصميم.
+    // كل قسم في التصميم العميل يقدر يشيله من "الأقسام" في المحرر (ما عدا
+    // الغلاف). الإخفاء نفسه في views/ivory-swans.html (SECTIONS).
     optionalSections: [
+      { key: 'hero', label: 'الصورة الرئيسية (البجعتين)' },
+      { key: 'verse', label: 'الآية الكريمة' },
+      { key: 'countdown', label: 'العداد التنازلي' },
+      { key: 'saveTheDate', label: 'احفظ الموعد (التقويم)' },
+      { key: 'story', label: 'صوركم وحكايتكم' },
+      { key: 'families', label: 'الأهل والعائلات' },
+      { key: 'venue', label: 'القاعة والمكان' },
+      { key: 'map', label: 'خريطة جوجل' },
       { key: 'rsvp', label: 'تأكيد الحضور (RSVP)' },
     ],
     // مفيش جدول أوقات في التصميم ده

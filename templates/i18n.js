@@ -30,6 +30,12 @@ const SECTION_LABELS = {
   map: { ar: 'خريطة جوجل', en: 'Google map' },
   details: { ar: 'تفاصيل التواصل والهدايا', en: 'Contact & gift details' },
   guestPhotos: { ar: 'ألبوم صور الضيوف', en: 'Guest photo album' },
+  hero: { ar: 'الصورة الرئيسية', en: 'Main picture' },
+  verse: { ar: 'الآية الكريمة', en: 'Quran verse' },
+  saveTheDate: { ar: 'احفظ الموعد (التقويم)', en: 'Save the date (calendar)' },
+  story: { ar: 'صوركم وحكايتكم', en: 'Your photos & story' },
+  families: { ar: 'الأهل والعائلات', en: 'Families' },
+  venue: { ar: 'القاعة والمكان', en: 'Venue' },
 };
 
 const EXTRA_FIELD_LABELS = {
