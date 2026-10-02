@@ -72,9 +72,11 @@ export default function TemplateCard({ template, index }) {
     >
       {/* شريط أحمر مايل على ركن الكارت — اللي لسه مدفعش يعرف من نظرة إن
           التصميم ده للمشتركين. العميل اللي دفع خلاص مبيشوفوش: هو مشترك
-          أصلًا، والتصميم متاح له */}
+          أصلًا، والتصميم متاح له. في العربي الركن على الشمال، فالميل بيتعكس
+          (rtl:-rotate-45) عشان الشريط يقفل الركن زي الإنجليزي بالظبط بدل ما
+          يدخل على نص الكارت */}
       {template.isPremium && !paid && (
-        <div className="pointer-events-none absolute -end-10 top-4 z-10 w-36 rotate-45 bg-gradient-to-l from-[#a01020] to-[#e0142c] py-1 text-center text-[9px] font-extrabold tracking-wide text-white shadow-[0_6px_16px_-6px_rgba(160,16,32,.8)] sm:-end-12 sm:top-6 sm:w-44 sm:py-1.5 sm:text-[11px]">
+        <div className="pointer-events-none absolute -end-10 top-4 z-10 w-36 rotate-45 rtl:-rotate-45 bg-gradient-to-l from-[#a01020] to-[#e0142c] py-1 text-center text-[9px] font-extrabold tracking-wide text-white shadow-[0_6px_16px_-6px_rgba(160,16,32,.8)] sm:-end-12 sm:top-6 sm:w-44 sm:py-1.5 sm:text-[11px]">
           {t('gallery.premiumRibbon')}
         </div>
       )}
