@@ -26,6 +26,8 @@
     scales: {},
     // { elemId: 'left'|'center'|'right' } — محاذاة النص جوه العنصر
     aligns: {},
+    // لغة نتيجة الشهر: '' = زي القالب، أو 'ar' / 'en'
+    calLang: '',
     // التحرير (اختيار وكتابة) منفصل عن السحب: الباقة الأساسية عندها
     // التحرير من غير السحب
     editingOn: false, dragEnabled: false, imagesEnabled: false, colorsEnabled: false,
@@ -568,7 +570,7 @@
   // للخلفية والنص اللي تحتها ميتحددش أبدًا.
   document.addEventListener('click', function (e) {
     if (!state.editingOn || !e.isTrusted) return;
-    if (e.target.closest && e.target.closest('.wda-tools')) return;
+    if (e.target.closest && e.target.closest('.wda-tools, .wda-cal-picker')) return;
     if (Date.now() - state.lastDragEnd < 250) return;
 
     // الضغط على أي جزء من فورم تأكيد الحضور (أو زرار RSVP في Royal) بيفتح
@@ -1507,6 +1509,7 @@
 
     if (msg.type === 'init') {
       state.offsets = p.offsets || {};
+      state.calLang = p.calLang || '';
       // المقاسات المحفوظة بتتطبّق inline في وضع التحرير (زي الإزاحات)،
       // لأن قاعدة الـ CSS المحقونة بـ !important هتغلب على المعاينة
       // اللحظية وإنت بتحرّك السلايدر
@@ -1894,6 +1897,11 @@
         }
       }
 
+      // 8ب) لغة نتيجة الشهر ('' = عربي زي القالب)
+      state.calLang = c.calLang || '';
+      if (window.__wda && window.__wda.setCalLang) window.__wda.setCalLang(state.calLang);
+      hideCalPicker();
+
       // 9) النصوص المضافة (إضافة أو حذف بيترجعوا من هنا)
       if (typeof window.__wdaApplyAdded === 'function') {
         window.__wdaApplyAdded(c.added || []);
@@ -1980,6 +1988,87 @@
     cell.classList.add('today');
     send('cal-day', { day: day });
   }, true);
+
+  // ===== نتيجة الشهر: لغتها (AR / EN) =====
+  // ضغطة على أي مكان فاضي في كارت النتيجة (مش على رقم يوم) بتطلّع
+  // زرارين صغيرين جنب الضغطة: ع / EN. الاختيار بيتطبّق فورًا (نفس دالة
+  // الدعوة المنشورة window.__wda.setCalLang) والشريط بيحفظه.
+  var calPicker = null;
+  var calPickerAt = 0;
+  function hideCalPicker() {
+    if (calPicker) { calPicker.remove(); calPicker = null; }
+  }
+  function showCalPicker(x, y) {
+    hideCalPicker();
+    var cur = state.calLang || 'ar';
+    var box = document.createElement('div');
+    // كلاس لوحده (مش wda-tools — ده مخفي ومبيتضغطش لحد ما الشريط يتفعّل)،
+    // وسكريبت التحديد بيتجاهل أي ضغطة جوّاه
+    box.className = 'wda-cal-picker';
+    box.setAttribute('role', 'group');
+    box.setAttribute('aria-label', 'لغة النتيجة');
+    // absolute + إزاحة السكرول — نفس طريقة الشريط العائم بالظبط. fixed
+    // كان بيترسم في مكان غير اللي بيبان فيه في بعض القوالب (Royal Maroon)
+    box.style.cssText = 'position:absolute;z-index:2147483647;display:flex;gap:6px;padding:6px;'
+      + 'background:#08130f;border:1px solid rgba(230,198,132,.45);border-radius:999px;'
+      + 'box-shadow:0 10px 26px -10px rgba(0,0,0,.6);font-family:system-ui,sans-serif;';
+    [['ar', 'ع', 'عربي'], ['en', 'EN', 'English']].forEach(function (o) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.setAttribute('data-cal-lang', o[0]);
+      b.setAttribute('aria-pressed', cur === o[0] ? 'true' : 'false');
+      b.title = o[2];
+      b.textContent = o[1];
+      var on = cur === o[0];
+      b.style.cssText = 'min-width:42px;height:34px;padding:0 12px;border-radius:999px;cursor:pointer;'
+        + 'font-size:13px;font-weight:800;letter-spacing:.04em;transition:.15s;'
+        + (on ? 'background:linear-gradient(90deg,#c9a24a,#e6c684);color:#241608;border:0;'
+          : 'background:transparent;color:#e6c684;border:1px solid rgba(230,198,132,.35);');
+      b.addEventListener('click', function (ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        state.calLang = o[0];
+        if (window.__wda && window.__wda.setCalLang) window.__wda.setCalLang(o[0]);
+        send('cal-lang', { lang: o[0] });
+        hideCalPicker();
+      });
+      box.appendChild(b);
+    });
+    document.body.appendChild(box);
+    // جنب الضغطة، ومن غير ما يطلع برّه الشاشة
+    var w = box.offsetWidth || 110;
+    var h = box.offsetHeight || 46;
+    // clientWidth من غير شريط السكرول — عشان مايلزقش في الحرف
+    var vw = document.documentElement.clientWidth || window.innerWidth;
+    var left = Math.max(8, Math.min(vw - w - 10, x - w / 2));
+    // فوق الضغطة عادةً، بس لو الضغطة قريبة من فوق الشاشة بيطلع تحتها —
+    // عشان مايستخبّاش تحت النوتش/شريط الموبايل اللي فوق المعاينة
+    var top = y < 140 ? y + 16 : y - h - 12;
+    box.style.left = (left + window.scrollX) + 'px';
+    box.style.top = (top + window.scrollY) + 'px';
+    calPicker = box;
+    calPickerAt = Date.now();
+  }
+  document.addEventListener('click', function (e) {
+    if (!state.editingOn || !e.isTrusted) return;
+    var t = e.target;
+    if (!t.closest) return;
+    if (t.closest('.wda-cal-picker')) return;
+    var card = t.closest('.calendar-card');
+    // برّه الكارت، أو على رقم يوم (ده بيعلّم اليوم)، أو على عنصر له تعديل خاص
+    if (!card || !card.querySelector('#calGrid') || t.closest('.cal-day[data-cal-day]')
+      || (t.closest('[data-elem-id]') && card.contains(t.closest('[data-elem-id]')))) {
+      hideCalPicker();
+      return;
+    }
+    showCalPicker(e.clientX, e.clientY);
+  }, true);
+  // بيتقفل لو العميل سحب الصفحة — بس مش من الهزّة الصغيرة اللي بتيجي مع
+  // اللمسة نفسها على الموبايل (غير كده يختفي من تحت صباعه)
+  window.addEventListener('scroll', function () {
+    if (calPicker && Date.now() - calPickerAt > 500) hideCalPicker();
+  }, true);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') hideCalPicker(); });
 
   // ===== التبليغ إن السكريبت جاهز =====
   // مانستناش حدث load: تصاميم Tilda بتفضل بتحمّل موارد خارجية (خطوط،

@@ -303,6 +303,7 @@ export default function EditorPage() {
         elemFonts: c.elemFonts || {},
         rsvp: c.rsvp || {},
         calDay: c.calDay || 0,
+        calLang: c.calLang || '',
         added: c.added || [],
         hidden: c.hidden || [],
         share: {
@@ -554,6 +555,14 @@ export default function EditorPage() {
         setDirty(true);
       }
 
+      // لغة نتيجة الشهر (AR / EN) من الزرارين اللي بيظهروا على النتيجة —
+      // اتطبّقت جوه الدعوة خلاص، وإحنا بنحفظ
+      if (msg.type === 'cal-lang' && (p.lang === 'ar' || p.lang === 'en')) {
+        rememberRef.current();
+        setDraft((d) => (d ? { ...d, calLang: p.lang } : d));
+        setDirty(true);
+      }
+
       // العميل ضغط على أيقونة الحذف
       if (msg.type === 'hide' && p.id) {
         rememberRef.current();
@@ -647,6 +656,7 @@ export default function EditorPage() {
     post('init', {
       offsets: draft.offsets, hidden: draft.hidden, sizes: draft.sizes,
       colors: draft.colors, rotations: draft.rotations, scales: draft.scales, aligns: draft.aligns, features,
+      calLang: draft.calLang || '',
     });
     if (draft.fontFamily) post('set-font', { font: draft.fontFamily });
     post('set-elem-fonts', { fonts: draft.elemFonts || {} });
@@ -684,9 +694,15 @@ export default function EditorPage() {
         body.aligns = draft.aligns || {};
         body.rsvp = draft.rsvp || {};
         body.calDay = draft.calDay || 0;
+        body.calLang = draft.calLang || '';
         body.added = draft.added;
         body.share = draft.share;
         await saveCustomizations({ shortId, ...body }).unwrap();
+        // لو العميل عمل تعديل تاني والحفظ ده لسه رايح (مثلًا اختار لغة
+        // النتيجة وبعدها على طول علّم يوم)، مانقولش "اتحفظ" — غير كده
+        // التعديل التاني كان بيضيع لأن مؤقّت حفظه كان بيتلغي. بنسيبها
+        // "محتاجة حفظ" والمؤقّت اللي اتعمل للتعديل الجديد يكمّل.
+        if (draftRef.current !== draft) return;
         setDirty(false);
         setError('');
         setJustSaved(true);
@@ -825,6 +841,7 @@ export default function EditorPage() {
         scales: snap.customizations.scales || {},
         aligns: snap.customizations.aligns || {},
         calDay: snap.customizations.calDay || 0,
+        calLang: snap.customizations.calLang || '',
         added: snap.customizations.added,
       };
       if (has('fonts')) {
@@ -1214,6 +1231,7 @@ export default function EditorPage() {
       body.aligns = draft.aligns || {};
       body.rsvp = draft.rsvp || {};
       body.calDay = draft.calDay || 0;
+      body.calLang = draft.calLang || '';
       body.added = draft.added;
       body.share = draft.share;
       await saveCustomizations({ shortId, ...body }).unwrap();
@@ -1248,6 +1266,7 @@ export default function EditorPage() {
       body.offsets = draft.offsets;
       body.added = draft.added;
       body.calDay = draft.calDay || 0;
+      body.calLang = draft.calLang || '';
       if (has('fonts')) {
         body.fontFamily = draft.fontFamily;
         body.elemFonts = draft.elemFonts || {};

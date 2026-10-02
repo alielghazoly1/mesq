@@ -302,6 +302,7 @@ function cloneCustomizations(c = {}) {
     elemFonts: { ...(c.elemFonts || {}) },
     rsvp: { ...(c.rsvp || {}) },
     calDay: c.calDay || 0,
+    calLang: c.calLang || '',
     added: [...(c.added || [])],
     texts: { ...(c.texts || {}) },
     hidden: [...(c.hidden || [])],
@@ -521,6 +522,7 @@ router.patch('/api/editor/:shortId', requireAuth, async (req, res) => {
       elemFonts: { ...(current.elemFonts || {}) },
       rsvp: { ...(current.rsvp || {}) },
       calDay: current.calDay || 0,
+      calLang: current.calLang || '',
       added: [...(current.added || [])],
       hidden: [...(current.hidden || [])],
       share: { ...(current.share || {}) },
@@ -692,6 +694,12 @@ router.patch('/api/editor/:shortId', requireAuth, async (req, res) => {
     if (body.calDay !== undefined) {
       const day = Math.round(Number(body.calDay));
       next.calDay = Number.isFinite(day) && day >= 1 && day <= 31 ? day : 0;
+    }
+
+    // لغة نتيجة الشهر — تنسيق العميل في دعوته، مش ميزة باقة.
+    // '' يرجّعها زي القالب بالظبط.
+    if (body.calLang !== undefined) {
+      next.calLang = ['ar', 'en'].includes(body.calLang) ? body.calLang : '';
     }
 
     // النصوص المضافة — استبدال كامل، وكل عنصر بيتنضّف ويتحط في حدوده.
