@@ -6,7 +6,7 @@ import {
   setUsersQuery, setUsersStatus, setUsersPage, openUser, closeUser,
 } from '../../store/adminSlice.js';
 import {
-  Panel, Badge, Table, Row, Cell, Spinner, Empty, Tabs, Pager, Field, fmtDate, fmtNum, LiveDot,
+  Panel, Badge, Table, Row, Cell, Spinner, Empty, Tabs, Pager, Field, fmtDate, fmtNum, LiveDot, fmtLastSeen,
 } from '../../components/admin/ui.jsx';
 import { countryName, waLink } from './format.js';
 import ClientDrawer from './ClientDrawer.jsx';
@@ -14,6 +14,7 @@ import ClientDrawer from './ClientDrawer.jsx';
 const FILTERS = [
   { value: 'all', label: 'الكل' },
   { value: 'online', label: 'متصلين دلوقتي' },
+  { value: 'visits', label: 'الأكثر زيارة' },
   { value: 'premium', label: 'مدفوعين' },
   { value: 'free', label: 'مجانيين' },
   { value: 'suspended', label: 'موقوفين' },
@@ -60,7 +61,7 @@ export default function ClientsPage() {
           <Empty>مفيش عملاء بالفلتر ده.</Empty>
         ) : (
           <>
-            <Table head={['العميل', 'الباقة', 'الرصيد', 'الدعوات', 'الدولة', 'سجّل', 'دفع']}>
+            <Table head={['العميل', 'الباقة', 'الرصيد', 'الدعوات', 'زيارات', 'الدولة', 'سجّل', 'دفع']}>
               {data.users.map((u) => (
                 <Row key={u.id} onClick={() => dispatch(openUser(u.id))}>
                   <Cell>
@@ -101,6 +102,12 @@ export default function ClientsPage() {
                   <Cell>
                     {fmtNum(u.invitations)}
                     {u.drafts > 0 && <span className="text-ivory/35"> +{u.drafts} مسودة</span>}
+                  </Cell>
+                  <Cell className={u.visitCount > 0 ? 'font-bold text-ivory/80' : 'text-ivory/35'}>
+                    {fmtNum(u.visitCount)}
+                    {u.lastSeenAt && !u.online && (
+                      <div className="whitespace-nowrap text-[10.5px] font-normal text-ivory/35">{fmtLastSeen(u.lastSeenAt, false)}</div>
+                    )}
                   </Cell>
                   <Cell className="text-ivory/55">{countryName(u.country)}</Cell>
                   <Cell className="whitespace-nowrap text-ivory/45">{fmtDate(u.createdAt)}</Cell>

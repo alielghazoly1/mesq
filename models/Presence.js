@@ -12,6 +12,8 @@ const presenceSchema = new mongoose.Schema({
   // الصفحة اللي هو عليها (المسار بس — من غير أي query) عشان تعرف هو فين
   path: { type: String, default: '', maxlength: 120 },
   lastSeen: { type: Date, default: Date.now },
+  // الزيارة الحالية للعميل المسجّل (models/Visit.js)
+  visitId: { type: mongoose.Schema.Types.ObjectId, default: null },
 });
 
 // السجل بيتمسح تلقائيًا بعد 15 دقيقة من آخر ظهور

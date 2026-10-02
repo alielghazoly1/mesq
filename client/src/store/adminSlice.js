@@ -8,7 +8,7 @@ const initialState = {
   period: 30,
   // فلاتر قايمة العملاء
   usersQuery: '',
-  usersStatus: 'all', // all | premium | free | suspended | blocked
+  usersStatus: 'all', // all | online | visits | premium | free | suspended | blocked
   usersPage: 1,
   // العميل المفتوح ملفه
   openUserId: null,

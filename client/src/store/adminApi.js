@@ -40,6 +40,11 @@ export const adminApi = createApi({
       query: (id) => `/users/${id}`,
       providesTags: (r, e, id) => [{ type: 'User', id }],
     }),
+    // زيارات العميل للموقع (جلسات التصفح) — صفحات، أحدث الأول
+    getUserVisits: builder.query({
+      query: ({ id, page = 1 }) => `/users/${id}/visits?page=${page}`,
+      providesTags: (r, e, { id }) => [{ type: 'User', id }],
+    }),
     updateSubscription: builder.mutation({
       query: ({ id, ...body }) => ({ url: `/users/${id}/subscription`, method: 'PATCH', body }),
       invalidatesTags: (r, e, { id }) => [{ type: 'User', id }, 'Users', 'Overview', 'Audit'],
@@ -88,6 +93,11 @@ export const adminApi = createApi({
     // ===== الطلبات =====
     getOrders: builder.query({
       query: ({ status = 'pending', page = 1 } = {}) => `/orders?status=${status}&page=${page}`,
+      providesTags: ['Orders'],
+    }),
+    // عدد الإيصالات اللي مستنية تفعيل — العداد اللي جنب "الطلبات" في القايمة
+    getOrdersAttention: builder.query({
+      query: () => '/orders/attention',
       providesTags: ['Orders'],
     }),
     // الأرباح — الفلوس جت من مين (كل عميل دافع). بتتحدّث مع أي تفعيل/إلغاء طلب
@@ -200,6 +210,7 @@ export const {
   useGetOverviewQuery,
   useGetUsersQuery,
   useGetUserQuery,
+  useGetUserVisitsQuery,
   useUpdateSubscriptionMutation,
   useSetUserUgcMutation,
   useGetWithdrawalsQuery,
@@ -210,6 +221,7 @@ export const {
   useBlockUserMutation,
   useSetUserPasswordMutation,
   useGetOrdersQuery,
+  useGetOrdersAttentionQuery,
   useGetRevenueQuery,
   useActivateOrderMutation,
   useCancelOrderMutation,

@@ -12,7 +12,7 @@ import {
   LayoutDashboard, Users, Receipt, FileText, MessageSquare,
   Settings, ScrollText, LogOut, Loader2, Menu, X, Music, BadgePercent, Wallet, Banknote, Megaphone, LayoutTemplate, Tags, Bug,
 } from 'lucide-react';
-import { adminApi } from '../../store/adminApi.js';
+import { adminApi, useGetOrdersAttentionQuery } from '../../store/adminApi.js';
 import AdminLogin from './AdminLogin.jsx';
 import OverviewPage from './OverviewPage.jsx';
 import ClientsPage from './ClientsPage.jsx';
@@ -36,7 +36,7 @@ const NAV = [
   { to: '/admin/withdrawals', icon: Banknote, label: 'طلبات السحب' },
   { to: '/admin/ugc', icon: Megaphone, label: 'المسوّقين' },
   { to: '/admin/clients', icon: Users, label: 'العملاء' },
-  { to: '/admin/orders', icon: Receipt, label: 'الطلبات' },
+  { to: '/admin/orders', icon: Receipt, label: 'الطلبات', badge: 'orders' },
   { to: '/admin/invitations', icon: FileText, label: 'الدعوات' },
   { to: '/admin/templates', icon: LayoutTemplate, label: 'القوالب' },
   { to: '/admin/music', icon: Music, label: 'الموسيقى' },
@@ -47,6 +47,25 @@ const NAV = [
   { to: '/admin/audit', icon: ScrollText, label: 'سجل الإجراءات' },
   { to: '/admin/errors', icon: Bug, label: 'أعطال الواجهة' },
 ];
+
+// عدد الإيصالات اللي مستنية تفعيل جنب "الطلبات" — بيتحدّث لوحده كل 30
+// ثانية، فأي عميل يرفع إيصال تشوفه من أي صفحة في اللوحة.
+function OrdersBadge() {
+  const { data } = useGetOrdersAttentionQuery(undefined, {
+    pollingInterval: 30000,
+    skipPollingIfUnfocused: true,
+  });
+  const n = data?.review || 0;
+  if (!n) return null;
+  return (
+    <span
+      className="ms-auto min-w-[20px] rounded-full bg-brass px-1.5 py-0.5 text-center text-[10.5px] font-bold leading-none text-[#241608]"
+      title={`${n} إيصال مستني تفعيل`}
+    >
+      {n > 99 ? '99+' : n}
+    </span>
+  );
+}
 
 export default function AdminApp() {
   const dispatch = useDispatch();
@@ -130,7 +149,7 @@ export default function AdminApp() {
             </div>
 
             <nav className="flex-1 space-y-1">
-              {NAV.map(({ to, end, icon: Icon, label }) => (
+              {NAV.map(({ to, end, icon: Icon, label, badge }) => (
                 <NavLink
                   key={to}
                   to={to}
@@ -143,6 +162,7 @@ export default function AdminApp() {
                     }`}
                 >
                   <Icon size={15} /> {label}
+                  {badge === 'orders' && <OrdersBadge />}
                 </NavLink>
               ))}
             </nav>
@@ -174,6 +194,8 @@ export default function AdminApp() {
             className="mb-4 inline-flex items-center gap-2 rounded-full border border-line-lite px-4 py-2 text-[12.5px] text-ivory/70 lg:hidden"
           >
             <Menu size={15} /> الأقسام
+            {/* على الموبايل القايمة مقفولة — العداد يبان على الزرار نفسه */}
+            <OrdersBadge />
           </button>
 
           <Routes>

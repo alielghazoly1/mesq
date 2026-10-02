@@ -63,11 +63,18 @@ const userSchema = new mongoose.Schema({
   // null = من قبل الميزة دي أو لسه مفتحش من ساعتها
   lastSeenAt: { type: Date, default: null },
 
+  // كام مرة فتح الموقع (زيارة = رجع بعد 15 دقيقة من غير نشاط) وأول زيارة
+  // اتحسبت. العدّ بدأ من يوم الميزة دي — الحسابات القديمة بتبدأ من صفر.
+  visitCount: { type: Number, default: 0 },
+  firstVisitAt: { type: Date, default: null },
+
   createdAt: { type: Date, default: Date.now },
 });
 
 // لوحة التحكم بترتّب العملاء بالأحدث وبتفلتر على حالة الاشتراك
 userSchema.index({ createdAt: -1 });
+// فلتر "الأكثر زيارة" في لوحة التحكم
+userSchema.index({ visitCount: -1 });
 userSchema.index({ 'subscription.packageId': 1 });
 
 // رقم التليفون فريد — بس لما يكون مكتوب فعلًا. partialFilterExpression

@@ -2,16 +2,16 @@
 //
 // الإجراءات الخطيرة (إيقاف باقة، إلغاء، حظر حساب) بتطلب تأكيد صريح
 // قبل ما تتنفّذ، وكل واحد منها بيتسجّل في سجل الإجراءات على السيرفر.
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import {
   X, Crown, Ban, PauseCircle, PlayCircle, Trash2, Plus, Save,
   Mail, Globe, Calendar, Eye, FileText, MessageSquare, Wallet, ShieldAlert, Monitor, MessageCircle,
-  Megaphone, Copy, MousePointerClick, UserPlus,
+  Megaphone, Copy, MousePointerClick, UserPlus, Smartphone, Tablet, Activity,
 } from 'lucide-react';
 import {
   useGetUserQuery, useUpdateSubscriptionMutation, useBlockUserMutation,
-  useGetAdminPackagesQuery, useSetUserUgcMutation,
+  useGetAdminPackagesQuery, useSetUserUgcMutation, useGetUserVisitsQuery,
 } from '../../store/adminApi.js';
 import {
   Panel, StatTile, Badge, Btn, Field, Table, Row, Cell,
@@ -19,6 +19,82 @@ import {
 } from '../../components/admin/ui.jsx';
 import { countryName, waLink } from './format.js';
 import ClientPasswordPanel from './ClientPasswordPanel.jsx';
+
+/** مدة الزيارة بشكل مقروء (الدقة دقيقتين — آخر نشاط بيتكتب كل دقيقتين) */
+function fmtDuration(from, to) {
+  const min = Math.round(Math.max(0, new Date(to) - new Date(from)) / 60000);
+  if (min < 2) return 'أقل من دقيقتين';
+  if (min < 60) return `${min} دقيقة`;
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  return m ? `${h} س ${m} د` : `${h} ساعة`;
+}
+
+const DEVICE = {
+  mobile: { icon: Smartphone, label: 'موبايل' },
+  tablet: { icon: Tablet, label: 'تابلت' },
+  desktop: { icon: Monitor, label: 'كمبيوتر' },
+};
+
+// زيارات العميل للموقع: كل جلسة تصفح بدأت إمتى وقعد قد إيه ومن أنهي جهاز.
+// الصفحات بتتجمّع على بعض ("حمّل المزيد") من غير تكرار.
+function VisitsPanel({ userId, visitCount, firstVisitAt }) {
+  const [page, setPage] = useState(1);
+  const [items, setItems] = useState([]);
+  const { data, isFetching } = useGetUserVisitsQuery({ id: userId, page });
+
+  useEffect(() => { setPage(1); setItems([]); }, [userId]);
+  useEffect(() => {
+    if (!data) return;
+    setItems((prev) => {
+      if (data.page === 1) return data.visits;
+      const seen = new Set(prev.map((v) => v.id));
+      return [...prev, ...data.visits.filter((v) => !seen.has(v.id))];
+    });
+  }, [data]);
+
+  return (
+    <Panel
+      title={`زياراته للموقع (${fmtNum(visitCount)})`}
+      subtitle={firstVisitAt
+        ? `أول زيارة متسجّلة ${fmtDate(firstVisitAt)} — الزيارة الجديدة بتتحسب لما يرجع بعد ربع ساعة من غير نشاط`
+        : 'لسه مفيش زيارات متسجّلة (العدّ بدأ من يوم تشغيل الميزة)'}
+    >
+      {!data && isFetching ? <Spinner /> : items.length === 0 ? <Empty>مفيش زيارات متسجّلة.</Empty> : (
+        <>
+          <Table head={['بدأت', 'المدة', 'الجهاز', 'دخل من']}>
+            {items.map((v) => {
+              const d = DEVICE[v.device] || DEVICE.desktop;
+              const DIcon = d.icon;
+              return (
+                <Row key={v.id}>
+                  <Cell className="whitespace-nowrap">
+                    {fmtDate(v.startedAt, true)}
+                    <div className="text-[11px] text-ivory/35">{fmtLastSeen(v.startedAt, false)}</div>
+                  </Cell>
+                  <Cell className="whitespace-nowrap text-ivory/70">{fmtDuration(v.startedAt, v.lastSeenAt)}</Cell>
+                  <Cell className="whitespace-nowrap text-ivory/60">
+                    <span className="inline-flex items-center gap-1"><DIcon size={12} /> {d.label}{v.os ? ` · ${v.os}` : ''}</span>
+                  </Cell>
+                  <Cell className="text-[11.5px] text-ivory/45">
+                    <span dir="ltr" className="block max-w-[140px] truncate">{v.path || '/'}</span>
+                  </Cell>
+                </Row>
+              );
+            })}
+          </Table>
+          {data?.hasMore && (
+            <div className="mt-3 flex justify-center">
+              <Btn size="sm" loading={isFetching} onClick={() => setPage((p) => p + 1)}>
+                حمّل المزيد ({fmtNum((data?.total || 0) - items.length)} فاضلين)
+              </Btn>
+            </div>
+          )}
+        </>
+      )}
+    </Panel>
+  );
+}
 
 /** تأكيد صريح قبل أي إجراء مش سهل الرجوع فيه */
 function Confirm({ text, onYes, onCancel, busy }) {
@@ -224,6 +300,10 @@ export default function ClientDrawer({ userId, onClose }) {
               <StatTile icon={Crown} tone="gold" label="رصيد متبقي" value={fmtNum(data.user.subscription.invitationsLeft)} />
               <StatTile icon={Wallet} tone="ok" label="دفع بالجنيه" value={fmtMoney(data.totals.paid.EGP, 'EGP')} />
               <StatTile icon={Wallet} tone="ok" label="دفع بالدولار" value={fmtMoney(data.totals.paid.USD, 'USD')} />
+              <StatTile
+                icon={Activity} label="فتح الموقع" value={`${fmtNum(data.user.visitCount)} مرة`}
+                hint={data.user.firstVisitAt ? `من ${fmtDate(data.user.firstVisitAt)}` : 'العدّ لسه بادئ'}
+              />
             </div>
 
             {/* التحكم */}
@@ -455,6 +535,9 @@ export default function ClientDrawer({ userId, onClose }) {
                 </Table>
               )}
             </Panel>
+
+            {/* زياراته للموقع */}
+            <VisitsPanel userId={userId} visitCount={data.user.visitCount || 0} firstVisitAt={data.user.firstVisitAt} />
           </>
         )}
       </div>

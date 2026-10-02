@@ -5,6 +5,7 @@
 // كل مسار هنا وراه requireAdminSession — اللي بيتأكد من جلسة الأدمن
 // ومن هيدر X-Admin-Request (middleware/adminAuth.js).
 const express = require('express');
+const mongoose = require('mongoose');
 
 const Invitation = require('../models/Invitation');
 const User = require('../models/User');
@@ -17,6 +18,7 @@ const Track = require('../models/Track');
 const SiteTotals = require('../models/SiteTotals');
 const Withdrawal = require('../models/Withdrawal');
 const Presence = require('../models/Presence');
+const Visit = require('../models/Visit');
 const {
   isOnline, onlineSince, liveCounts, cairoTodayStart, cairoMonthStart, ONLINE_WINDOW_MS,
 } = require('../utils/presence');
@@ -399,12 +401,16 @@ router.get('/admin/api/users', requireAdminSession, async (req, res) => {
     // المتصلين دلوقتي بس (فاتحين الموقع في آخر دقيقة ونص)
     if (status === 'online') filter.lastSeenAt = { $gte: onlineSince() };
 
+    // "الأكثر زيارة": الترتيب بعدد مرات فتح الموقع بدل الأحدث تسجيلًا
+    const sort = status === 'visits' ? { visitCount: -1, createdAt: -1 } : { createdAt: -1 };
+    if (status === 'visits') filter.visitCount = { $gt: 0 };
+
     const [users, total] = await Promise.all([
       User.find(filter)
-        .sort({ createdAt: -1 })
+        .sort(sort)
         .skip((page - 1) * perPage)
         .limit(perPage)
-        .select('name email country phone subscription isBlocked createdAt lastSeenAt')
+        .select('name email country phone subscription isBlocked createdAt lastSeenAt visitCount')
         .lean(),
       User.countDocuments(filter),
     ]);
@@ -453,6 +459,7 @@ router.get('/admin/api/users', requireAdminSession, async (req, res) => {
           // فاتح الموقع دلوقتي؟ وآخر مرة فتحه
           online: isOnline(u.lastSeenAt),
           lastSeenAt: u.lastSeenAt || null,
+          visitCount: u.visitCount || 0,
         };
       }),
     });
@@ -510,6 +517,8 @@ router.get('/admin/api/users/:id', requireAdminSession, async (req, res) => {
         isBlocked: !!user.isBlocked,
         blockedAt: user.blockedAt || null,
         activeSessions: sessions,
+        visitCount: user.visitCount || 0,
+        firstVisitAt: user.firstVisitAt || null,
         subscription: {
           packageId: sub.packageId || null,
           packageName: pkg ? (pkg.name.ar || pkg.name.en) : null,
@@ -567,6 +576,37 @@ router.get('/admin/api/users/:id', requireAdminSession, async (req, res) => {
     });
   } catch (err) {
     console.error('Error loading user profile:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+// زيارات العميل للموقع (كل جلسة تصفح: بدأت إمتى، قعد قد إيه، من أنهي جهاز)
+// — أحدث الأول، 30 في الصفحة
+router.get('/admin/api/users/:id/visits', requireAdminSession, async (req, res) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) return res.status(404).json({ error: 'العميل ده مش موجود.' });
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const perPage = 30;
+    const userId = new mongoose.Types.ObjectId(req.params.id);
+    const [visits, total] = await Promise.all([
+      Visit.find({ userId }).sort({ startedAt: -1 }).skip((page - 1) * perPage).limit(perPage).lean(),
+      Visit.countDocuments({ userId }),
+    ]);
+    return res.json({
+      page,
+      total,
+      hasMore: page * perPage < total,
+      visits: visits.map((v) => ({
+        id: String(v._id),
+        startedAt: v.startedAt,
+        lastSeenAt: v.lastSeenAt || v.startedAt,
+        path: v.path || '',
+        device: v.device || 'desktop',
+        os: v.os || '',
+      })),
+    });
+  } catch (err) {
+    console.error('Error listing user visits:', err);
     return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
   }
 });
@@ -775,14 +815,25 @@ router.get('/admin/api/orders', requireAdminSession, async (req, res) => {
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);
     const perPage = 25;
 
-    // الفلاتر: مستني تفعيل / مفعّل / ملغي / رفعوا إيصال / الكل
+    // الفلاتر: إيصالات مستنية تفعيل / مستني / مفعّل / ملغي / رفعوا إيصال / الكل
     let filter = {};
-    if (['pending', 'activated', 'cancelled'].includes(status)) filter = { status };
+    if (status === 'review') filter = { status: 'pending', paymentProofUrl: { $ne: null } };
+    else if (['pending', 'activated', 'cancelled'].includes(status)) filter = { status };
     else if (status === 'receipt') filter = { paymentProofUrl: { $ne: null } };
 
-    const [orders, total] = await Promise.all([
-      Order.find(filter).sort({ createdAt: -1 }).skip((page - 1) * perPage).limit(perPage).lean(),
+    // الترتيب بآخر حركة على الطلب: إمتى اتطلب أو إمتى اترفع إيصاله — أيهم
+    // أحدث. فالعميل اللي طلب من 3 أيام ورفع الإيصال دلوقتي بيطلع أول القايمة
+    // على طول. محسوب وقت الطلب (مفيش أي تعديل على الطلبات القديمة).
+    const [orders, total, review] = await Promise.all([
+      Order.aggregate([
+        { $match: filter },
+        { $addFields: { activityAt: { $max: ['$createdAt', '$paymentProofAt'] } } },
+        { $sort: { activityAt: -1, _id: -1 } },
+        { $skip: (page - 1) * perPage },
+        { $limit: perPage },
+      ]),
       Order.countDocuments(filter),
+      Order.countDocuments({ status: 'pending', paymentProofUrl: { $ne: null } }),
     ]);
     const userIds = [...new Set(orders.map((o) => String(o.userId)))];
     const users = await User.find({ _id: { $in: userIds } }).select('name email country phone').lean();
@@ -794,6 +845,8 @@ router.get('/admin/api/orders', requireAdminSession, async (req, res) => {
       total,
       pages: Math.max(1, Math.ceil(total / perPage)),
       hasMore: page * perPage < total,
+      // عدد الإيصالات اللي مستنية تفعيل (للعداد على التاب)
+      counts: { review },
       orders: orders.map((o) => {
         const u = byId[String(o.userId)] || {};
         const pkg = getPackage(o.packageId);
@@ -810,6 +863,7 @@ router.get('/admin/api/orders', requireAdminSession, async (req, res) => {
           activatedAt: o.activatedAt || null,
           paymentProofUrl: o.paymentProofUrl || null,
           paymentProofAt: o.paymentProofAt || null,
+          activityAt: o.activityAt || o.createdAt,
           user: {
             name: u.name || '—', email: u.email || '—',
             country: u.country || '—', phone: u.phone || '',
@@ -819,6 +873,18 @@ router.get('/admin/api/orders', requireAdminSession, async (req, res) => {
     });
   } catch (err) {
     console.error('Error listing orders:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+// عدد الإيصالات اللي مستنية تفعيل — للعداد اللي جنب "الطلبات" في القايمة
+// الجانبية. اللوحة بتسأل كل 30 ثانية؛ استعلام عدّ واحد على فهرس الحالة.
+router.get('/admin/api/orders/attention', requireAdminSession, async (req, res) => {
+  try {
+    const review = await Order.countDocuments({ status: 'pending', paymentProofUrl: { $ne: null } });
+    return res.json({ review });
+  } catch (err) {
+    console.error('Error counting orders to review:', err);
     return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
   }
 });

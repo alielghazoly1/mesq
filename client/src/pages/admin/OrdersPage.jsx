@@ -1,17 +1,19 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Check, X, Receipt, ExternalLink, Undo2, ShieldAlert, MessageCircle } from 'lucide-react';
+import { Check, X, Receipt, ExternalLink, Undo2, ShieldAlert, MessageCircle, Sparkles } from 'lucide-react';
 import {
+  adminApi,
   useGetOrdersQuery, useActivateOrderMutation, useCancelOrderMutation,
   useGetAdminPackagesQuery,
 } from '../../store/adminApi.js';
 import { setOrdersStatus, openUser } from '../../store/adminSlice.js';
 import {
-  Panel, Badge, Btn, Table, Row, Cell, Spinner, Empty, Tabs, fmtDate, fmtMoney, fmtNum,
+  Panel, Badge, Btn, Table, Row, Cell, Spinner, Empty, Tabs, fmtDate, fmtMoney, fmtNum, fmtLastSeen,
 } from '../../components/admin/ui.jsx';
 import { countryName, waLink } from './format.js';
 
 const FILTERS = [
+  { value: 'review', label: 'إيصالات مستنية تفعيل' },
   { value: 'pending', label: 'مستنية' },
   { value: 'activated', label: 'مفعّلة' },
   { value: 'cancelled', label: 'ملغية' },
@@ -19,12 +21,33 @@ const FILTERS = [
   { value: 'all', label: 'الكل' },
 ];
 
+// إيصال "جديد" = اترفع في آخر 24 ساعة والطلب لسه مستني تفعيل
+const NEW_RECEIPT_MS = 24 * 60 * 60 * 1000;
+function isNewReceipt(o) {
+  return o.status === 'pending' && o.paymentProofAt
+    && Date.now() - new Date(o.paymentProofAt).getTime() < NEW_RECEIPT_MS;
+}
+
 export default function OrdersPage() {
   const dispatch = useDispatch();
   const status = useSelector((s) => s.admin.ordersStatus);
   const [page, setPage] = useState(1);
   const [items, setItems] = useState([]);
-  const { data, isLoading, isFetching } = useGetOrdersQuery({ status, page });
+  // القايمة مترتبة بآخر حركة (طلب أو رفع إيصال)، فأي إيصال جديد بيطلع
+  // أولها. وإنت على أول صفحة بتتحدّث لوحدها كل 20 ثانية — فالإيصال يظهرلك
+  // من غير ما تعمل refresh. (مش بنحدّث وإنت نازل تحت عشان القايمة ماتتلخبطش.)
+  const { data, isLoading, isFetching } = useGetOrdersQuery({ status, page }, {
+    pollingInterval: page === 1 ? 20000 : 0,
+    skipPollingIfUnfocused: true,
+  });
+  const reviewCount = data?.counts?.review;
+  // العداد اللي في القايمة الجانبية ياخد نفس الرقم فورًا مع كل تحديث للقايمة
+  // (من غير ما يستنى دورته هو) — رقم واحد في الكاش، مكانين بيعرضوه.
+  useEffect(() => {
+    if (typeof reviewCount !== 'number') return;
+    dispatch(adminApi.util.upsertQueryData('getOrdersAttention', undefined, { review: reviewCount }));
+  }, [reviewCount, dispatch]);
+  const filters = FILTERS.map((f) => (f.value === 'review' && typeof reviewCount === 'number' ? { ...f, count: reviewCount } : f));
   const [activate, { isLoading: activating }] = useActivateOrderMutation();
   const [cancel, { isLoading: cancelling }] = useCancelOrderMutation();
   const { data: pkgData } = useGetAdminPackagesQuery();
@@ -140,23 +163,26 @@ export default function OrdersPage() {
       <Panel
         title={data ? `${fmtNum(data.total)} طلب` : 'الطلبات'}
         subtitle={isFetching ? 'بيحدّث...' : undefined}
-        action={<Tabs value={status} onChange={changeStatus} options={FILTERS} />}
+        action={<Tabs value={status} onChange={changeStatus} options={filters} />}
       >
         {isLoading && items.length === 0 ? <Spinner /> : items.length === 0 ? (
           <Empty>مفيش طلبات هنا.</Empty>
         ) : (
           <>
-            <Table head={['العميل', 'الباقة', 'المبلغ', 'الإيصال', 'التاريخ', '']}>
+            <Table head={['العميل', 'الباقة', 'المبلغ', 'الإيصال', 'اتطلب', '']}>
               {items.map((o) => (
                 <Row key={o.id}>
                   <Cell>
-                    <button
-                      type="button"
-                      onClick={() => dispatch(openUser(o.userId))}
-                      className="font-bold text-ivory hover:text-brass-soft"
-                    >
-                      {o.user.name}
-                    </button>
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => dispatch(openUser(o.userId))}
+                        className="font-bold text-ivory hover:text-brass-soft"
+                      >
+                        {o.user.name}
+                      </button>
+                      {isNewReceipt(o) && <Badge tone="gold" icon={Sparkles}>إيصال جديد</Badge>}
+                    </div>
                     <div className="text-[11px] text-ivory/40">{o.user.email} · {countryName(o.user.country)}</div>
                     {o.user.phone && (
                       <a
@@ -187,11 +213,23 @@ export default function OrdersPage() {
                       >
                         <Receipt size={12} /> شوف الصورة <ExternalLink size={10} />
                       </a>
-                    ) : (
+                    ) : null}
+                    {o.paymentProofUrl && o.paymentProofAt && (
+                      <div className="mt-0.5 whitespace-nowrap text-[11px] text-ivory/45" title={fmtDate(o.paymentProofAt, true)}>
+                        اترفع {fmtDate(o.paymentProofAt, true)}
+                        <span className={isNewReceipt(o) ? 'block font-bold text-brass-soft' : 'block'}>
+                          ({fmtLastSeen(o.paymentProofAt, false)})
+                        </span>
+                      </div>
+                    )}
+                    {!o.paymentProofUrl && (
                       <Badge tone="muted">مرفعش إيصال</Badge>
                     )}
                   </Cell>
-                  <Cell className="whitespace-nowrap text-ivory/45">{fmtDate(o.createdAt, true)}</Cell>
+                  <Cell className="whitespace-nowrap text-ivory/45">
+                    {fmtDate(o.createdAt, true)}
+                    <div className="text-[11px] text-ivory/35">({fmtLastSeen(o.createdAt, false)})</div>
+                  </Cell>
                   <Cell>
                     {o.status === 'pending' && (
                       <div className="flex gap-1.5">
