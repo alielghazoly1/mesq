@@ -112,7 +112,7 @@ export default function ClientsPage() {
                   <Cell className="text-ivory/55">{countryName(u.country)}</Cell>
                   <Cell className="whitespace-nowrap text-ivory/45">{fmtDate(u.createdAt)}</Cell>
                   <Cell className="whitespace-nowrap text-ivory/45">
-                    {u.activatedAt ? fmtDate(u.activatedAt) : '—'}
+                    {u.activatedAt ? fmtDate(u.activatedAt) : <span className="text-ivory/25">لسه</span>}
                   </Cell>
                 </Row>
               ))}

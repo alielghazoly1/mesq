@@ -52,7 +52,7 @@ function PriceInput({ label, currency, value, def, disabled, max, onChange }) {
           dir="ltr"
           disabled={disabled}
           value={value}
-          placeholder={def ? String(def) : '—'}
+          placeholder={def ? String(def) : 'مفيش سعر افتراضي'}
           onChange={(e) => onChange(e.target.value)}
           className="w-full min-w-0 bg-transparent px-3.5 py-2.5 text-[16px] font-bold text-ivory placeholder:font-normal placeholder:text-ivory/30 focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
         />

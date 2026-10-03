@@ -64,7 +64,7 @@ function summarize(entry) {
   if (m.before && m.after && m.before.status !== m.after.status) {
     return `الحالة: ${m.before.status} ← ${m.after.status}`;
   }
-  return '—';
+  return '';
 }
 
 export default function AuditPage() {
@@ -92,9 +92,9 @@ export default function AuditPage() {
                 return (
                   <Row key={e.id}>
                     <Cell><Badge tone={meta.tone}>{meta.label}</Badge></Cell>
-                    <Cell className="text-ivory/75">{e.targetLabel || e.targetId || '—'}</Cell>
+                    <Cell className="text-ivory/75">{e.targetLabel || e.targetId || ''}</Cell>
                     <Cell className="text-ivory/50">{summarize(e)}</Cell>
-                    <Cell className="font-mono text-[11px] text-ivory/35">{e.ip || '—'}</Cell>
+                    <Cell className="font-mono text-[11px] text-ivory/35">{e.ip || ''}</Cell>
                     <Cell className="whitespace-nowrap text-ivory/45">{fmtDate(e.createdAt, true)}</Cell>
                   </Row>
                 );

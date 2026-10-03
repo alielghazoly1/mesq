@@ -153,9 +153,9 @@ export function Empty({ children }) {
 
 /** تنسيق التاريخ بالعربي */
 export function fmtDate(value, withTime) {
-  if (!value) return '—';
+  if (!value) return '';
   const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return '—';
+  if (Number.isNaN(d.getTime())) return '';
   return d.toLocaleDateString('ar-EG', {
     year: 'numeric', month: 'short', day: 'numeric',
     ...(withTime ? { hour: '2-digit', minute: '2-digit' } : {}),

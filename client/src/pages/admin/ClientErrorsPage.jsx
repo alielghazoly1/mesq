@@ -36,7 +36,7 @@ export default function ClientErrorsPage() {
                       <span className="block truncate text-[13px] font-bold text-ivory" dir="ltr">{r.message}</span>
                       <span className="mt-0.5 flex flex-wrap gap-x-3 gap-y-1 text-[11.5px] text-ivory/45">
                         <span>{fmtDate(r.createdAt, true)}</span>
-                        <span>{WHERE[r.where] || r.where || '—'}</span>
+                        <span>{WHERE[r.where] || r.where || ''}</span>
                         <span dir="ltr">{r.path}</span>
                         <span className="inline-flex items-center gap-1">{mobile ? <Smartphone size={11} /> : <Monitor size={11} />}{mobile ? 'موبايل' : 'كمبيوتر'}</span>
                         {r.user && <span className="inline-flex items-center gap-1"><User size={11} />{r.user.name}</span>}

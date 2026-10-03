@@ -92,7 +92,7 @@ export default function EarningsPage() {
                     {c.usd ? fmtMoney(c.usd, 'USD') : <span className="text-ivory/25">—</span>}
                   </Cell>
                   <Cell className="text-ivory/55">{fmtNum(c.orders)}</Cell>
-                  <Cell className="whitespace-nowrap text-ivory/45">{c.lastPaidAt ? fmtDate(c.lastPaidAt) : '—'}</Cell>
+                  <Cell className="whitespace-nowrap text-ivory/45">{c.lastPaidAt ? fmtDate(c.lastPaidAt) : 'لسه'}</Cell>
                 </Row>
               ))}
             </Table>

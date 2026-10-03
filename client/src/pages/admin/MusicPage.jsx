@@ -153,7 +153,7 @@ export default function MusicPage() {
                 <Cell>
                   <div className="font-bold text-ivory">{tr.title}</div>
                   <div className="text-[11px] text-ivory/40">
-                    {tr.artist || '—'} · {fmtDate(tr.createdAt)}
+                    {tr.artist ? `${tr.artist} · ` : ''}{fmtDate(tr.createdAt)}
                   </div>
                 </Cell>
                 <Cell>{tr.mood ? <Badge tone="gold">{tr.mood}</Badge> : <span className="text-ivory/30">—</span>}</Cell>

@@ -13,6 +13,59 @@ import {
   Panel, StatTile, Spinner, Tabs, Empty, fmtNum, fmtMoney,
 } from '../../components/admin/ui.jsx';
 import { AreaTrend, BarTrend, LineTrend, Donut, COLORS } from '../../components/admin/Charts.jsx';
+import { countryName } from './format.js';
+
+/**
+ * العملاء حسب الدولة — ترتيب واضح بدل الدايرة: اسم الدولة كامل، عدد
+ * المسجّلين، كام منهم دفع، وشريط بنسبتها من الكل. الدول الكتير الصغيرة
+ * بتتجمّع في سطر "باقي الدول".
+ */
+function CountriesPanel({ rows, other, total, users }) {
+  if (!rows.length) return <Empty>لسه مفيش عملاء.</Empty>;
+  const max = rows[0].count || 1;
+  const all = users || rows.reduce((a, r) => a + r.count, 0) + (other?.count || 0);
+  const pct = (n) => (all ? Math.round((n / all) * 1000) / 10 : 0);
+  return (
+    <div>
+      <ol className="grid gap-x-8 gap-y-2.5 md:grid-cols-2">
+        {rows.map((r, i) => (
+          <li key={r.id || 'unknown'} className="min-w-0">
+            <div className="mb-1 flex items-baseline justify-between gap-3 text-[12.5px]">
+              <span className="flex min-w-0 items-baseline gap-2">
+                <span className="w-5 shrink-0 text-center font-mono text-[11px] text-ivory/35">{i + 1}</span>
+                <span className="truncate font-bold text-ivory/90">{r.id ? countryName(r.id) : 'دولة مش محددة'}</span>
+              </span>
+              <span className="flex shrink-0 items-baseline gap-2">
+                <span className="font-bold text-ivory">{fmtNum(r.count)}</span>
+                <span className="text-[11px] text-ivory/40">{pct(r.count)}%</span>
+                {r.paid > 0 && (
+                  <span className="rounded-full bg-brass/15 px-1.5 py-0.5 text-[10.5px] font-bold text-brass-soft" title="منهم دفعوا">
+                    {fmtNum(r.paid)} دفع
+                  </span>
+                )}
+              </span>
+            </div>
+            <div className="ms-7 h-1.5 overflow-hidden rounded-full bg-ivory/[0.06]">
+              <div
+                className="h-full rounded-full bg-gradient-to-l from-brass to-brass-soft"
+                style={{ width: `${Math.max(2, (r.count / max) * 100)}%` }}
+              />
+            </div>
+          </li>
+        ))}
+      </ol>
+      {other && other.countries > 0 && (
+        <p className="mt-4 rounded-xl bg-ivory/[0.04] px-3.5 py-2.5 text-[12px] text-ivory/55">
+          وباقي الدول ({fmtNum(other.countries)} دولة): {fmtNum(other.count)} عميل
+          {other.paid > 0 ? ` · ${fmtNum(other.paid)} دفعوا` : ''}
+        </p>
+      )}
+      <p className="mt-3 text-[11.5px] text-ivory/35">
+        عملاء من {fmtNum(total)} دولة.
+      </p>
+    </div>
+  );
+}
 
 const PERIODS = [
   { value: 7, label: 'آخر أسبوع' },
@@ -149,7 +202,7 @@ export default function OverviewPage() {
       </div>
 
       {/* التوزيعات */}
-      <div className="grid gap-5 lg:grid-cols-3">
+      <div className="grid gap-5 lg:grid-cols-2">
         <Panel title="التصاميم الأكثر استخدامًا">
           {breakdown.templates.length
             ? <Donut data={breakdown.templates.map((t) => ({ label: t.label, count: t.count }))} />
@@ -176,12 +229,16 @@ export default function OverviewPage() {
           ) : <Empty>لسه مفيش باقات متفعّلة.</Empty>}
         </Panel>
 
-        <Panel title="العملاء حسب الدولة">
-          {breakdown.countries.length
-            ? <Donut data={breakdown.countries.map((c) => ({ label: c.id, count: c.count }))} />
-            : <Empty>لسه مفيش عملاء.</Empty>}
-        </Panel>
       </div>
+
+      <Panel title="العملاء حسب الدولة" subtitle="أكتر الدول اللي العملاء سجّلوا منها، وكام واحد منهم دفع">
+        <CountriesPanel
+          rows={breakdown.countries}
+          other={breakdown.countriesOther}
+          total={breakdown.countriesTotal || breakdown.countries.length}
+          users={kpis.users}
+        />
+      </Panel>
 
       <AnimatePresence>
         {openUserId && <ClientDrawer userId={openUserId} onClose={() => dispatch(closeUser())} />}

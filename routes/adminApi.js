@@ -19,6 +19,7 @@ const SiteTotals = require('../models/SiteTotals');
 const Withdrawal = require('../models/Withdrawal');
 const Presence = require('../models/Presence');
 const Visit = require('../models/Visit');
+const { cairoParts, cairoWallToDate } = require('../utils/cairoTime');
 const {
   isOnline, onlineSince, liveCounts, cairoTodayStart, cairoMonthStart, ONLINE_WINDOW_MS,
 } = require('../utils/presence');
@@ -91,13 +92,23 @@ function escapeRegex(s) {
 }
 
 /** الفترة المطلوبة بالأيام — 7/30/90/365، والافتراضي 30 */
+// كل أيام اللوحة بتوقيت مصر — زي لوحة "النهارده" بالظبط. قبل كده الرسوم
+// كانت بتعدّ اليوم بتوقيت السيرفر (UTC، متأخر 2–3 ساعات)، فرقم "سجّلوا
+// النهارده" فوق كان بيختلف عن آخر نقطة في رسم التسجيلات تحت.
+const CAIRO_TZ = 'Africa/Cairo';
+/** مفتاح اليوم (YYYY-MM-DD) بتوقيت مصر */
+function cairoDayKey(date) {
+  const p = cairoParts(date);
+  return `${p.year}-${String(p.month).padStart(2, '0')}-${String(p.day).padStart(2, '0')}`;
+}
+
 function periodOf(req) {
   const days = parseInt(req.query.period, 10);
   const allowed = [7, 30, 90, 365];
   const period = allowed.includes(days) ? days : 30;
-  const from = new Date();
-  from.setHours(0, 0, 0, 0);
-  from.setDate(from.getDate() - (period - 1));
+  // بداية أول يوم في الفترة بتوقيت مصر
+  const p = cairoParts(new Date());
+  const from = cairoWallToDate(p.year, p.month - 1, p.day - (period - 1), 0, 0);
   return { period, from };
 }
 
@@ -108,9 +119,8 @@ function fillDailySeries(rows, from, days, valueKeys) {
 
   const out = [];
   for (let i = 0; i < days; i++) {
-    const d = new Date(from);
-    d.setDate(d.getDate() + i);
-    const key = d.toISOString().slice(0, 10);
+    // نص اليوم (12 الضهر) عشان تغيير التوقيت الصيفي مايوقعناش في يوم غلط
+    const key = cairoDayKey(new Date(from.getTime() + i * 86400000 + 12 * 3600000));
     const row = byDay[key] || {};
     const point = { date: key };
     valueKeys.forEach((k) => { point[k] = row[k] || 0; });
@@ -119,11 +129,11 @@ function fillDailySeries(rows, from, days, valueKeys) {
   return out;
 }
 
-/** تجميع يومي موحّد لأي مجموعة، بالتوقيت المحلي للسيرفر */
+/** تجميع يومي موحّد لأي مجموعة، بتوقيت مصر */
 function dailyGroup(dateField, extraFields = {}) {
   return {
     $group: {
-      _id: { $dateToString: { format: '%Y-%m-%d', date: `$${dateField}` } },
+      _id: { $dateToString: { format: '%Y-%m-%d', date: `$${dateField}`, timezone: CAIRO_TZ } },
       count: { $sum: 1 },
       ...extraFields,
     },
@@ -177,7 +187,7 @@ router.get('/admin/api/overview', requireAdminSession, async (req, res) => {
         { $match: { status: 'activated', activatedAt: { $gte: from } } },
         {
           $group: {
-            _id: { $dateToString: { format: '%Y-%m-%d', date: '$activatedAt' } },
+            _id: { $dateToString: { format: '%Y-%m-%d', date: '$activatedAt', timezone: CAIRO_TZ } },
             count: { $sum: 1 },
             egp: { $sum: { $cond: [{ $eq: ['$currency', 'EGP'] }, '$price', 0] } },
             usd: { $sum: { $cond: [{ $eq: ['$currency', 'USD'] }, '$price', 0] } },
@@ -199,10 +209,16 @@ router.get('/admin/api/overview', requireAdminSession, async (req, res) => {
         { $group: { _id: '$packageId', count: { $sum: 1 }, egp: { $sum: { $cond: [{ $eq: ['$currency', 'EGP'] }, '$price', 0] } }, usd: { $sum: { $cond: [{ $eq: ['$currency', 'USD'] }, '$price', 0] } } } },
         { $sort: { count: -1 } },
       ]),
+      // العملاء حسب الدولة: كام واحد مسجّل، وكام منهم دفع
       User.aggregate([
-        { $group: { _id: '$country', count: { $sum: 1 } } },
-        { $sort: { count: -1 } },
-        { $limit: 8 },
+        {
+          $group: {
+            _id: '$country',
+            count: { $sum: 1 },
+            paid: { $sum: { $cond: [{ $ifNull: ['$subscription.packageId', false] }, 1, 0] } },
+          },
+        },
+        { $sort: { count: -1, _id: 1 } },
       ]),
     ]);
 
@@ -247,7 +263,12 @@ router.get('/admin/api/overview', requireAdminSession, async (req, res) => {
             count: r.count, egp: r.egp, usd: r.usd,
           };
         }),
-        countries: byCountry.map((r) => ({ id: r._id || '—', count: r.count })),
+        // أول 12 دولة، والباقي مجمّعين في سطر واحد
+        countries: byCountry.slice(0, 12).map((r) => ({ id: r._id || '', count: r.count, paid: r.paid })),
+        countriesOther: byCountry.slice(12).reduce((acc, r) => ({
+          countries: acc.countries + 1, count: acc.count + r.count, paid: acc.paid + r.paid,
+        }), { countries: 0, count: 0, paid: 0 }),
+        countriesTotal: byCountry.length,
       },
     });
   } catch (err) {
@@ -865,8 +886,8 @@ router.get('/admin/api/orders', requireAdminSession, async (req, res) => {
           paymentProofAt: o.paymentProofAt || null,
           activityAt: o.activityAt || o.createdAt,
           user: {
-            name: u.name || '—', email: u.email || '—',
-            country: u.country || '—', phone: u.phone || '',
+            name: u.name || 'عميل محذوف', email: u.email || '',
+            country: u.country || '', phone: u.phone || '',
           },
         };
       }),
@@ -1097,7 +1118,7 @@ router.get('/admin/api/withdrawals', requireAdminSession, async (req, res) => {
           id: String(w._id), ugcUserId: String(w.ugcUserId),
           amount: w.amount, currency: w.currency, phone: w.phone, status: w.status,
           adminNote: w.adminNote || '', createdAt: w.createdAt, resolvedAt: w.resolvedAt || null,
-          user: { name: u.name || '—', email: u.email || '—', phone: u.phone || '', country: u.country || '—' },
+          user: { name: u.name || 'عميل محذوف', email: u.email || '', phone: u.phone || '', country: u.country || '' },
         };
       }),
     });
@@ -1156,11 +1177,11 @@ router.get('/admin/api/ugc', requireAdminSession, async (req, res) => {
       const stats = await computeUgcStats(u);
       affiliates.push({
         id: String(u._id),
-        name: u.name || '—',
-        email: u.email || '—',
+        name: u.name || 'عميل محذوف',
+        email: u.email || '',
         phone: u.phone || '',
         payoutPhone: u.payoutPhone || '',
-        country: u.country || '—',
+        country: u.country || '',
         referralCode: u.referralCode || null,
         commissionRate: u.commissionRate || 0,
         createdAt: u.createdAt,
@@ -1248,9 +1269,9 @@ router.get('/admin/api/revenue', requireAdminSession, async (req, res) => {
         const pkg = sub.packageId ? getPackage(sub.packageId) : null;
         return {
           userId: String(r._id),
-          name: u.name || '—',
-          email: u.email || '—',
-          country: u.country || '—',
+          name: u.name || 'عميل محذوف',
+          email: u.email || '',
+          country: u.country || '',
           phone: u.phone || '',
           egp: r.egp || 0,
           usd: r.usd || 0,
@@ -1354,8 +1375,8 @@ router.get('/admin/api/support', requireAdminSession, async (req, res) => {
         const u = byId[String(t._id)] || {};
         return {
           userId: String(t._id),
-          name: u.name || '—',
-          email: u.email || '—',
+          name: u.name || 'عميل محذوف',
+          email: u.email || '',
           isPremium: !!(u.subscription && u.subscription.packageId),
           isBlocked: !!u.isBlocked,
           lastMessage: t.lastMessage,

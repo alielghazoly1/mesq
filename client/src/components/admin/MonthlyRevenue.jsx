@@ -99,7 +99,7 @@ export default function MonthlyRevenue() {
             <div className="rounded-xl border border-line-lite bg-night/40 px-4 py-3">
               <div className="text-[11.5px] text-ivory/50">أحسن شهر</div>
               <div className="mt-1 font-serif text-[22px] font-bold text-ivory">
-                {best && best[currency] > 0 ? fmtMoney(best[currency], cur) : '—'}
+                {best && best[currency] > 0 ? fmtMoney(best[currency], cur) : 'لسه مفيش'}
               </div>
               <div className="mt-0.5 text-[11.5px] text-ivory/45">{best && best[currency] > 0 ? monthName(best.month, true) : 'لسه مفيش أرباح بالعملة دي'}</div>
             </div>
