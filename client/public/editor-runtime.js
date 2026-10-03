@@ -884,7 +884,13 @@
 
     var r = el.getBoundingClientRect();
     tools.style.left = (r.left + window.scrollX + r.width / 2) + 'px';
-    tools.style.top = (r.top + window.scrollY - 8) + 'px';
+    // الشريط بيطلع فوق العنصر. لو العنصر طويل وراسه برّه الشاشة (خريطة
+    // Ivory مثلًا وإنت نازل في نصها)، الشريط كان بيطلع برّه الشاشة أو تحت
+    // شارة "وضع التحرير" فمحدش يقدر يضغطه — فبننزّله لأول الجزء الظاهر.
+    var anchor = r.top - 8;
+    var MIN_ANCHOR = 104; // تحت الشارة (≈ 12 + 34) + طول الشريط نفسه
+    if (anchor < MIN_ANCHOR) anchor = Math.min(MIN_ANCHOR, Math.max(r.bottom - 4, 0));
+    tools.style.top = (anchor + window.scrollY) + 'px';
     tools.classList.add('on');
   }
 

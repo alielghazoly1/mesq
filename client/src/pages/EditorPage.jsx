@@ -441,7 +441,13 @@ export default function EditorPage() {
       if (msg.type === 'pick-map') {
         setSelected((s) => (s ? { ...s, kind: 'map' } : s));
         setTab('inline');
+        // على الموبايل الدرج ممكن يكون مقفول — نفتحه على خانة المكان على طول
+        if (compact) setSheetOpen(true);
         setError('');
+        setTimeout(() => {
+          const el = document.getElementById('wda-map-field');
+          if (el) el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }, 350);
       }
       if (msg.type === 'offsets') {
         // السحبة بدأت من مكان معروف — بنسجّله قبل ما نحفظ الجديد
@@ -1717,17 +1723,18 @@ export default function EditorPage() {
                 >
                   <Redo2 size={14} />
                 </button>
+                {/* شاشة الغلاف — زرار باسمه (كان أيقونة لوحدها ومحدش كان بيعرف إنها
+                    الغلاف). منوّر لما الغلاف ظاهر. */}
                 {hasCover && (
                   <button
                     type="button"
                     onClick={toggleCover}
-                    aria-label={t('editor.cover')}
                     aria-pressed={coverOpen}
-                    className={`flex h-8 w-8 items-center justify-center rounded-full border ${
+                    className={`inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-[12px] font-bold ${
                       coverOpen ? 'border-brass bg-brass/15 text-[#7a5a1a]' : 'border-line text-ink-dim'
                     }`}
                   >
-                    <Layers size={14} />
+                    <Layers size={14} /> {t('editor.cover')}
                   </button>
                 )}
               </div>
@@ -1962,7 +1969,7 @@ export default function EditorPage() {
 
                             {/* المكان: لينك خرائط جوجل */}
                             {selected.kind === 'map' && (
-                              <div className="mb-4 rounded-xl border border-emerald/40 bg-emerald/[0.07] p-3">
+                              <div id="wda-map-field" className="mb-4 rounded-xl border border-emerald/40 bg-emerald/[0.07] p-3">
                                 <div className="mb-2 flex items-center gap-1.5 text-[12px] font-bold text-emerald">
                                   <MapPin size={12} /> {t('editor.mapTitle')}
                                 </div>
