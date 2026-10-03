@@ -11,7 +11,7 @@ const baseQuery = fetchBaseQuery({ baseUrl: '/api', credentials: 'include' });
 export const api = createApi({
   reducerPath: 'api',
   baseQuery,
-  tagTypes: ['Me', 'Packages', 'Dashboard', 'Support', 'Editor', 'Quota', 'Ugc', 'GuestPhotos'],
+  tagTypes: ['Me', 'Packages', 'Dashboard', 'Support', 'Editor', 'Quota', 'Ugc', 'GuestPhotos', 'OrderStatus'],
   endpoints: (builder) => ({
     // بنبعت اللغة عشان أسماء التصاميم وأوصافها وأسماء الأقسام ترجع مترجمة
     getTemplates: builder.query({
@@ -59,7 +59,23 @@ export const api = createApi({
     }),
     orderPackage: builder.mutation({
       query: (body) => ({ url: '/packages/order', method: 'POST', body }),
-      invalidatesTags: ['Packages'],
+      invalidatesTags: ['Packages', 'OrderStatus'],
+    }),
+    // حالة طلب العميل: بنراجع إيصاله؟ + رسالة مرة واحدة (اتفعّلت/اترفض)
+    getOrderStatus: builder.query({
+      query: () => '/packages/status',
+      providesTags: ['OrderStatus', 'Me'],
+    }),
+    markOrderNoticeSeen: builder.mutation({
+      query: (orderId) => ({ url: `/packages/notice/${orderId}/seen`, method: 'POST' }),
+      // الرسالة تختفي فورًا من غير ما نستنى السيرفر
+      async onQueryStarted(orderId, { dispatch, queryFulfilled }) {
+        const patch = dispatch(api.util.updateQueryData('getOrderStatus', undefined, (d) => {
+          if (d && d.notice && d.notice.orderId === orderId) d.notice = null;
+        }));
+        try { await queryFulfilled; } catch { patch.undo(); }
+      },
+      invalidatesTags: ['OrderStatus'],
     }),
     getPaymentInfo: builder.query({
       query: () => '/packages/payment-info',
@@ -124,7 +140,7 @@ export const api = createApi({
     }),
     uploadPaymentProof: builder.mutation({
       query: (formData) => ({ url: '/uploads/payment-proof', method: 'POST', body: formData }),
-      invalidatesTags: ['Packages'],
+      invalidatesTags: ['Packages', 'OrderStatus'],
     }),
 
     // ===== المحرر المباشر =====
@@ -196,6 +212,8 @@ export const {
   useGetPackagesQuery,
   useOrderPackageMutation,
   useGetPaymentInfoQuery,
+  useGetOrderStatusQuery,
+  useMarkOrderNoticeSeenMutation,
   useGetDashboardQuery,
   useGetRsvpsQuery,
   useRenameInvitationMutation,

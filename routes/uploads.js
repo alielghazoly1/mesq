@@ -116,16 +116,22 @@ router.post('/admin/api/tracks/upload', requireAdminSession, upload.single('file
 // بتتربط بالطلب المعلّق بتاع العميل عشان تظهر لك في لوحة التحكم.
 router.post('/api/uploads/payment-proof', requireAuth, upload.single('file'), async (req, res) => {
   try {
+    // الطلب الأول: لو مفيش طلب، أو الطلب ليه إيصال خلاص، مالوش لازمة نرفع
+    // أي حاجة. رفع إيصال مرة واحدة للطلب: بعدها "جاري المراجعة". لو الإيصال
+    // اترفض من اللوحة الطلب بيتلغي، وصفحة الدفع بتعمل طلب جديد فيقدر يرفع تاني.
+    const order = await Order.findOne({ userId: req.user.id, status: 'pending' }).sort({ createdAt: -1 });
+    if (!order) {
+      return res.status(400).json({ error: 'مفيش طلب باقة مستني — اطلب الباقة الأول.' });
+    }
+    if (order.paymentProofUrl) {
+      return res.status(409).json({ code: 'RECEIPT_UNDER_REVIEW', error: 'إيصالك وصلنا وجاري مراجعته — هتوصلك رسالة أول ما الباقة تتفعّل.' });
+    }
+
     if (!ensureReady(res)) return undefined;
     if (!req.file) return res.status(400).json({ error: 'مفيش ملف مرفوع.' });
 
     const check = await validateImage(req.file.buffer);
     if (!check.ok) return res.status(400).json({ error: check.error });
-
-    const order = await Order.findOne({ userId: req.user.id, status: 'pending' }).sort({ createdAt: -1 });
-    if (!order) {
-      return res.status(400).json({ error: 'مفيش طلب باقة مستني — اطلب الباقة الأول.' });
-    }
 
     const result = await uploadBuffer(req.file.buffer, {
       folder: `mithaq/payment-proofs/${req.user.id}`,

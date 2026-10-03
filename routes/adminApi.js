@@ -922,6 +922,9 @@ router.post('/admin/api/orders/:id/activate', requireAdminSession, async (req, r
 
     order.status = 'activated';
     order.activatedAt = new Date();
+    // العميل هيشوف "باقتك اتفعّلت" مرة واحدة أول ما يفتح الموقع
+    order.notice = 'activated';
+    order.noticeSeenAt = null;
     await order.save();
 
     logAdminAction(req, 'order.activate', {
@@ -976,7 +979,19 @@ router.post('/admin/api/orders/:id/cancel', requireAdminSession, async (req, res
       }
     }
 
+    // رفض إيصال = إلغاء طلب كان مستني ومرفوع له إيصال. العميل بيشوف "الإيصال
+    // ماتقبلش" مرة واحدة ويقدر يرفع إيصال تاني. (إلغاء باقة مفعّلة أو طلب
+    // مهجور من غير إيصال مالوش رسالة.)
+    const rejectedReceipt = !wasActivated && !!order.paymentProofUrl;
     order.status = 'cancelled';
+    order.cancelledAt = new Date();
+    if (rejectedReceipt) {
+      order.notice = 'rejected';
+      order.noticeSeenAt = null;
+    } else if (order.notice === 'activated') {
+      // الباقة اتلغت قبل ما يشوف رسالة التفعيل — ماينفعش يشوفها بعد كده
+      order.notice = '';
+    }
     await order.save();
 
     logAdminAction(req, wasActivated ? 'order.revoke' : 'order.cancel', {

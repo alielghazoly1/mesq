@@ -99,7 +99,14 @@ router.post('/api/packages/order', requireAuth, async (req, res) => {
         existing.currency = currency;
         await existing.save();
       }
-      return res.status(200).json({ ok: true, orderId: String(existing._id), alreadyPending: true });
+      return res.status(200).json({
+        ok: true,
+        orderId: String(existing._id),
+        alreadyPending: true,
+        // رفع إيصال خلاص؟ الصفحة بتوريله "جاري المراجعة" بدل ما تطلب إيصال تاني
+        hasReceipt: !!existing.paymentProofUrl,
+        paymentProofAt: existing.paymentProofAt || null,
+      });
     }
 
     const order = await Order.create({
@@ -109,10 +116,53 @@ router.post('/api/packages/order', requireAuth, async (req, res) => {
       price: priced.price,
     });
 
-    return res.status(201).json({ ok: true, orderId: String(order._id) });
+    return res.status(201).json({ ok: true, orderId: String(order._id), hasReceipt: false });
   } catch (err) {
     console.error('Error creating order:', err);
     return res.status(500).json({ error: 'حصل خطأ في السيرفر، حاول تاني بعد شوية.' });
+  }
+});
+
+// GET /api/packages/status — حالة طلب العميل:
+//   reviewing: طلب مستني ومرفوع له إيصال (بنراجعه)
+//   notice: رسالة مرة واحدة بنتيجة المراجعة (اتفعّلت / اترفض) لسه ماشافهاش
+router.get('/api/packages/status', requireAuth, async (req, res) => {
+  try {
+    const [reviewing, notice] = await Promise.all([
+      Order.findOne({ userId: req.user.id, status: 'pending', paymentProofUrl: { $ne: null } })
+        .sort({ paymentProofAt: -1 }).lean(),
+      Order.findOne({ userId: req.user.id, notice: { $in: ['activated', 'rejected'] }, noticeSeenAt: null })
+        .sort({ activatedAt: -1, cancelledAt: -1, _id: -1 }).lean(),
+    ]);
+    const pkgOf = (o) => {
+      const pkg = getPackage(o.packageId);
+      return { packageId: o.packageId, packageName: pkg ? pkg.name : null, invitations: pkg ? pkg.invitations : 0 };
+    };
+    return res.json({
+      reviewing: reviewing ? {
+        orderId: String(reviewing._id), paymentProofAt: reviewing.paymentProofAt, ...pkgOf(reviewing),
+      } : null,
+      notice: notice ? { orderId: String(notice._id), type: notice.notice, ...pkgOf(notice) } : null,
+    });
+  } catch (err) {
+    console.error('Error reading order status:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+// POST /api/packages/notice/:orderId/seen — العميل شاف الرسالة، متظهرش تاني
+router.post('/api/packages/notice/:orderId/seen', requireAuth, async (req, res) => {
+  try {
+    if (!/^[a-f0-9]{24}$/.test(String(req.params.orderId))) return res.status(404).json({ error: 'مش موجود.' });
+    // صاحب الطلب بس — الشرط جوه الاستعلام نفسه
+    await Order.updateOne(
+      { _id: req.params.orderId, userId: req.user.id, noticeSeenAt: null },
+      { $set: { noticeSeenAt: new Date() } }
+    );
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error('Error marking notice seen:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
   }
 });
 

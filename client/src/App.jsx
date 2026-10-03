@@ -3,6 +3,7 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import AuthBar from './components/AuthBar.jsx';
 import AuthModal from './components/AuthModal.jsx';
 import WelcomeGate from './components/WelcomeGate.jsx';
+import OrderNoticeGate from './components/OrderNoticeGate.jsx';
 import SupportLauncher from './components/SupportLauncher.jsx';
 import BottomNav from './components/BottomNav.jsx';
 import PresencePing from './components/PresencePing.jsx';
@@ -71,6 +72,8 @@ export default function App() {
       {!isFullScreen && <AuthModal />}
       {/* برّه الشرط بالقصد: التسجيل ممكن يحصل وهو في المحرر أو لوحته */}
       <WelcomeGate />
+      {/* "باقتك اتفعّلت" / "الإيصال ماتقبلش" — مرة واحدة على أي صفحة */}
+      <OrderNoticeGate />
       {/* زرار التواصل في كل صفحة — إلا المحرر (شاشة شغل كاملة وعنده
           درج أدوات تحت) ولوحة التحكم (دي بتاعتك إنت مش بتاعة العميل) */}
       {!isFullScreen && <SupportLauncher />}

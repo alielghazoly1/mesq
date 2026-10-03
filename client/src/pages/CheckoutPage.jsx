@@ -133,7 +133,13 @@ export default function CheckoutPage() {
     let alive = true;
     if (!user || !pkg || orderReady) return undefined;
     orderPackage({ packageId: pkg.id }).unwrap()
-      .then(() => { if (alive) setOrderReady(true); })
+      .then((r) => {
+        if (!alive) return;
+        setOrderReady(true);
+        // رفع إيصال للطلب ده قبل كده؟ (رجع للصفحة أو عمل refresh) — يبقى
+        // "جاري المراجعة" مش "ارفع إيصال" تاني
+        if (r && r.hasReceipt) setUploaded(true);
+      })
       .catch((err) => {
         if (alive) setError(err?.data?.error || t('checkout.orderFailed'));
       });
@@ -152,6 +158,8 @@ export default function CheckoutPage() {
       await uploadProof(fd).unwrap();
       setUploaded(true);
     } catch (err) {
+      // السيرفر عنده إيصال للطلب ده خلاص — نوريه حالة المراجعة
+      if (err?.data?.code === 'RECEIPT_UNDER_REVIEW') { setUploaded(true); return; }
       setError(uploadError(err, t));
     }
   }
@@ -641,16 +649,15 @@ export default function CheckoutPage() {
               onChange={onPickFile}
             />
             {uploaded ? (
-              <div className="rounded-2xl border border-ok/40 bg-ok/[0.07] p-5 text-center">
-                <Check size={22} className="mx-auto text-ok" />
-                <p className="mt-2 text-[13.5px] font-bold text-ok">{t('payment.proofUploaded')}</p>
-                <button
-                  type="button"
-                  onClick={() => fileRef.current?.click()}
-                  className="mt-3 text-[12px] font-bold text-ink-dim underline"
-                >
-                  {t('checkout.reupload')}
-                </button>
+              /* الإيصال وصل وبنراجعه — مفيش رفع تاني. لو اترفض، العميل بتوصله
+                 رسالة ويقدر يرفع إيصال جديد؛ ولو اتفعّل بتوصله رسالة الترحيب */
+              <div className="rounded-2xl border border-brass/40 bg-brass/[0.07] p-5 text-center" role="status">
+                <span className="relative mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-brass/15 text-[#8a6418]">
+                  <Clock size={20} />
+                  <span className="absolute inset-0 animate-ping rounded-full bg-brass/15" />
+                </span>
+                <p className="mt-3 text-[14px] font-extrabold text-ink">{t('checkout.reviewingTitle')}</p>
+                <p className="mx-auto mt-1.5 max-w-[42ch] text-[12.5px] leading-[1.9] text-ink-dim">{t('checkout.reviewingBody')}</p>
               </div>
             ) : (
               <>

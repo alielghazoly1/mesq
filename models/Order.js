@@ -22,6 +22,15 @@ const orderSchema = new mongoose.Schema({
   paymentProofAt: { type: Date, default: null },
 
   activatedAt: { type: Date, default: null },
+  cancelledAt: { type: Date, default: null },
+
+  // رسالة مرة واحدة للعميل بنتيجة مراجعة الإيصال: 'activated' (الباقة
+  // اتفعّلت) أو 'rejected' (الإيصال اترفض). بتتحط من لوحة التحكم وقت التفعيل
+  // أو الرفض، وبتختفي أول ما العميل يشوفها (noticeSeenAt) — على أي جهاز.
+  // الطلبات القديمة ملهاش notice فمحدش هيوصله رسالة عن حاجة قديمة.
+  notice: { type: String, enum: ['', 'activated', 'rejected'], default: '' },
+  noticeSeenAt: { type: Date, default: null },
+
   createdAt: { type: Date, default: Date.now },
 });
 
