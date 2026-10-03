@@ -2068,6 +2068,72 @@
                     });
                 })();
             })();
+
+            /* ===== حارس مساحة الأسماء في الواجهة =====
+               التصميم مالوش أي مساحة زيادة حوالين الأسماء: التاريخ فوقها على طول،
+               و"يوم الزفاف" والقوس تحتها على طول. لو العميل كبّر الأسماء من المحرر
+               (أو اختار خط حروفه أطول) كانت بتكبر لفوق وتركب على التاريخ — وراس
+               "ح" في "محمد" تبان مقصوصة — ولتحت تركب على "يوم الزفاف".
+               الحل: الأسماء دايمًا "بتتلم" جوه مساحتها — لو أكبر من المكان بتصغر
+               بنفس النسبة لحد ما تتظبط بين التاريخ و"يوم الزفاف"، ومن غير ما أي
+               حاجة تانية في التصميم تتحرك. في المقاس العادي مبنلمسش أي حاجة خالص.
+               بنقيس بـ offsetTop/offsetHeight (من غير الحركات والتصغير نفسه)،
+               ومبنلمسش الأسماء لو العميل سحب واحد منهم بإيده لمكان تاني. */
+            (function () {
+                var sec = document.getElementById('wg-invite-1');
+                if (!sec) return;
+                var date = sec.querySelector('.date');
+                var names = sec.querySelector('.names');
+                var wday = sec.querySelector('.wday');
+                if (!date || !names || !wday) return;
+                var spans = names.querySelectorAll('span');
+                function moved(el) {
+                    var t = el.style.translate || getComputedStyle(el).translate;
+                    return t && t !== 'none' && !/^0px( 0px)?$/.test(t);
+                }
+                // بنكتب بس لو القيمة اتغيّرت — غير كده مراقب التغييرات يفضل يصحّي نفسه
+                function set(el, prop, v) { if (el.style[prop] !== v) el.style[prop] = v; }
+                function reset() { set(names, 'transform', ''); set(names, 'transformOrigin', ''); set(names, 'marginTop', ''); }
+                function guard() {
+                    if (!sec.offsetHeight) return;
+                    for (var i = 0; i < spans.length; i++) if (moved(spans[i])) { reset(); return; }
+                    if (moved(names)) { reset(); return; }
+                    var f = 0;
+                    for (var j = 0; j < spans.length; j++) f = Math.max(f, parseFloat(getComputedStyle(spans[j]).fontSize) || 0);
+                    if (!f) { reset(); return; }
+                    // الخط اليدوي حبره بيطلع فوق صندوق السطر بحوالي خُمس المقاس، والصندوق
+                    // نفسه فيه مسافة سطر من تحت (التصميم الأصلي بيلمس "يوم الزفاف" بيها)
+                    var inkUp = 0.22 * f, slackDown = 0.1 * f, gap = 4, tol = 3;
+                    // التاريخ و"يوم الزفاف" حركتهم بتخلص على transform:none — مكانهم offsetTop
+                    var minTop = date.offsetTop + date.offsetHeight + gap;   // أعلى حد مسموح للحبر
+                    var maxBottom = wday.offsetTop + slackDown;             // أوطى حد للصندوق
+                    var h = names.offsetHeight;
+                    var top0 = names.offsetTop - h / 2 - (parseFloat(names.style.marginTop) || 0);
+                    if (top0 - inkUp >= minTop - tol && top0 + h <= maxBottom + tol) { reset(); return; }
+                    // التصغير اللازم: بعد التصغير بنسبة k الحبر بيبدأ عند minTop والصندوق
+                    // بيخلص عند minTop + k·(inkUp + h)، ومسموحله يلمس "يوم الزفاف"
+                    // بمسافة السطر بتاعته هو (0.1·f·k) — فالحل بالظبط:
+                    var k = Math.min(1, (wday.offsetTop - minTop) / (inkUp + h - slackDown));
+                    var wantTop = minTop + inkUp * k;
+                    set(names, 'transformOrigin', '50% 0');
+                    set(names, 'transform', 'translateY(-50%)' + (k < 0.999 ? ' scale(' + k.toFixed(4) + ')' : ''));
+                    set(names, 'marginTop', Math.round(wantTop - top0) + 'px');
+                }
+                var raf = 0;
+                function schedule() { cancelAnimationFrame(raf); raf = requestAnimationFrame(guard); }
+                schedule();
+                window.addEventListener('resize', schedule);
+                window.addEventListener('load', schedule);
+                if (document.fonts && document.fonts.ready) document.fonts.ready.then(schedule);
+                // المقاس بيتغيّر من المحرر، أو الخط بيتحمّل، أو الاسم بيتكتب
+                if (window.ResizeObserver) {
+                    var ro = new ResizeObserver(schedule);
+                    for (var s = 0; s < spans.length; s++) ro.observe(spans[s]);
+                }
+                if (window.MutationObserver) {
+                    new MutationObserver(schedule).observe(names, { attributes: true, attributeFilter: ['style'], subtree: true, characterData: true, childList: true });
+                }
+            })();
             </script>
             <!-- ===== /Lily Garden ===== -->
         </div>
