@@ -52,11 +52,26 @@ function isValidAdminKey(providedKey) {
   return crypto.timingSafeEqual(a, b);
 }
 
+// بنخزّن بصمة (sha256) التوكن مش التوكن نفسه: لو نسخة من قاعدة البيانات
+// اتسرّبت في أي يوم، الجلسات اللي فيها ماتنفعش تتستخدم للدخول للوحة.
+function hashToken(token) {
+  return crypto.createHash('sha256').update(String(token)).digest('hex');
+}
+
+/** الجلسة من الكوكي — بالبصمة، أو بالتوكن نفسه للجلسات القديمة (قبل التشفير) لحد ما تخلص */
+async function findSessionByToken(token) {
+  // الجديدة: بالبصمة بس. القديمة: بالتوكن نفسه — بشرط إنها مش جلسة جديدة
+  // (غير كده أي حد شاف البصمة في قاعدة البيانات كان يقدر يحطها كوكي)
+  return (await AdminSession.findOne({ token: hashToken(token), hashed: true }))
+    || AdminSession.findOne({ token, hashed: { $ne: true } });
+}
+
 async function createAdminSession(req, res) {
   const token = crypto.randomBytes(32).toString('hex');
   const expiresAt = new Date(Date.now() + ADMIN_SESSION_DURATION_MS);
   await AdminSession.create({
-    token,
+    token: hashToken(token),
+    hashed: true,
     expiresAt,
     fingerprint: fingerprintOf(req),
     lastSeenAt: new Date(),
@@ -67,7 +82,7 @@ async function createAdminSession(req, res) {
 async function destroyAdminSession(req, res) {
   const token = req.cookies && req.cookies[ADMIN_COOKIE_NAME];
   if (token) {
-    try { await AdminSession.deleteOne({ token }); } catch { /* تجاهل، المهم مسح الكوكي في كل الأحوال */ }
+    try { await AdminSession.deleteMany({ token: { $in: [hashToken(token), token] } }); } catch { /* تجاهل، المهم مسح الكوكي في كل الأحوال */ }
   }
   res.clearCookie(ADMIN_COOKIE_NAME, { path: '/' });
 }
@@ -82,7 +97,7 @@ async function hasValidAdminSession(req) {
     if (!token) return false;
     await connectDB();
 
-    const session = await AdminSession.findOne({ token });
+    const session = await findSessionByToken(token);
     if (!session) return false;
 
     const now = new Date();

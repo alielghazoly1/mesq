@@ -18,6 +18,9 @@ const adminSessionSchema = new mongoose.Schema({
   // آخر نشاط — بيسمح بإغلاق الجلسة بعد فترة خمول قصيرة حتى لو مدتها
   // الكلية لسه ما خلصتش
   lastSeenAt: { type: Date, default: Date.now },
+  // true = الـ token المتخزّن بصمة (sha256) للتوكن اللي في الكوكي، مش التوكن
+  // نفسه. الجلسات القديمة (قبل التشفير) ملهاش الحقل ده.
+  hashed: { type: Boolean, default: false },
 });
 
 adminSessionSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });

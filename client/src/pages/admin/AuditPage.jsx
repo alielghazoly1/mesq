@@ -10,6 +10,8 @@ import {
 
 // وصف عربي لكل إجراء + لونه حسب خطورته
 const ACTIONS = {
+  'login.ok': { label: 'دخول للوحة', tone: 'ok' },
+  'login.failed': { label: 'محاولة دخول غلط', tone: 'danger' },
   'order.activate': { label: 'تفعيل طلب', tone: 'ok' },
   'order.cancel': { label: 'إلغاء طلب', tone: 'warn' },
   'order.revoke': { label: 'إلغاء باقة مدفوعة', tone: 'danger' },
