@@ -1469,12 +1469,17 @@
                 @keyframes wgLilyInR { 0% { opacity: 0; transform: translateX(60%) rotate(14deg); } 100% { opacity: 1; transform: none; } }
                 @keyframes wgSwayL { 0%, 100% { opacity: 1; transform: rotate(0deg); } 50% { opacity: 1; transform: rotate(-2.2deg); } }
                 @keyframes wgSwayR { 0%, 100% { opacity: 1; transform: rotate(0deg); } 50% { opacity: 1; transform: rotate(2.2deg); } }
-                @keyframes wgWrite { 0% { opacity: 0; clip-path: inset(0 100% 0 0); filter: blur(2px); } 25% { opacity: 1; } 100% { opacity: 1; clip-path: inset(0 0 0 0); filter: none; } }
+                /* القناع بيكشف الاسم من الجنب. فوق وتحت وبرّه الجنبين سايبين مساحة
+                   زيادة (قيم سالبة): الخطوط اليدوي (Aref Ruqaa / Pinyon) حروفها
+                   بتطلع برّه صندوق السطر — "ح" في "محمد" مثلاً — والقناع كان
+                   بيقف على حدود الصندوق بالظبط فيقص راس الحرف بعد النشر (في
+                   المحرر الحركة مقفولة، فكان بيبان سليم). */
+                @keyframes wgWrite { 0% { opacity: 0; clip-path: inset(-60% 100% -60% -30%); filter: blur(2px); } 25% { opacity: 1; } 100% { opacity: 1; clip-path: inset(-60% -30% -60% -30%); filter: none; } }
                 @keyframes wgFadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
                 @keyframes wgFadeDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
                 @keyframes wgArch { 0% { opacity: 0; transform: translateY(8%) scale(.94); clip-path: inset(100% 0 0 0 round 50% 50% 0 0); } 100% { opacity: 1; transform: none; clip-path: inset(0 0 0 0 round 0); } }
                 #wg-invite.wg-rtl.wg-opened #wg-invite-1 .names span { animation-name: wgWriteRtl; }
-                @keyframes wgWriteRtl { 0% { opacity: 0; clip-path: inset(0 0 0 100%); filter: blur(2px); } 25% { opacity: 1; } 100% { opacity: 1; clip-path: inset(0 0 0 0); filter: none; } }
+                @keyframes wgWriteRtl { 0% { opacity: 0; clip-path: inset(-60% -30% -60% 100%); filter: blur(2px); } 25% { opacity: 1; } 100% { opacity: 1; clip-path: inset(-60% -30% -60% -30%); filter: none; } }
                 /* .wg-cy عناصر بيتعاد ظهورها بالكلاس wg-in */
                 [data-wg-reveal] { opacity: 0; transform: translateY(26px); transition: opacity 1s ease, transform 1.1s cubic-bezier(.2,.8,.2,1); }
                 [data-wg-reveal="zoom"] { transform: scale(1.06); transition: opacity 1.2s ease, transform 2.4s cubic-bezier(.2,.8,.2,1); }
