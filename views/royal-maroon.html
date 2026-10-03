@@ -1005,13 +1005,10 @@ html, body{ overflow-x: clip; overscroll-behavior-x: none; }
       boxes.push({ num: num, unit: u });
     });
 
+    // بعد ميعاد الفرح العداد بيقف على أصفار والخانات بتفضل موجودة —
+    // ولو التاريخ اتعدّل لقدّام بيرجع يعدّ لوحده.
     function tick() {
-      var diff = target - new Date();
-      if (diff <= 0) {
-        cdEl.textContent = C.celebrationBegins || '';
-        cdEl.classList.add('cd-done');
-        return;
-      }
+      var diff = Math.max(0, target - new Date());
       var s = Math.floor(diff / 1000);
       boxes.forEach(function (b) {
         var v = b.unit.mod ? Math.floor((s % b.unit.mod) / b.unit.div) : Math.floor(s / b.unit.div);
