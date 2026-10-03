@@ -179,6 +179,17 @@ app.use(express.static(CLIENT_DIST, {
       // لو فشل الاتصال بالسيرفر مؤقتًا. no-store بتقفل الاحتمال ده
       // تمامًا — الصفحة دي لازم تتجاب من السيرفر كل مرة، من غير نقاش.
       res.setHeader('Cache-Control', 'no-store');
+    } else if (/\.(webp|avif|png|jpe?g|gif|svg|ico|mp4|webm|mp3|woff2?|ttf)$/i.test(filePath)) {
+      // صور القوالب والفيديوهات واللوجو: كانت max-age=0، فالـ CDN بتاع
+      // Hostinger مكانش بيخزّنها خالص (MISS كل مرة) وكل صورة كانت بتيجي
+      // من السيرفر نفسه في كل زيارة — وده كان أبطأ حاجة على الموبايل.
+      // اسمها مفيهوش بصمة فمش immutable: أسبوع، وبعده المتصفح بيعرض
+      // النسخة اللي عنده فورًا ويجيب الجديدة في الخلفية لو اتغيّرت.
+      res.setHeader('Cache-Control', 'public, max-age=604800, stale-while-revalidate=2592000');
+    } else {
+      // editor-runtime.js وأي ملف تاني من غير بصمة: يتأكد كل مرة (304 لو
+      // ماتغيّرش) عشان أي تعديل يوصل للعملاء على طول بعد الرفع
+      res.setHeader('Cache-Control', 'no-cache');
     }
   },
 }));

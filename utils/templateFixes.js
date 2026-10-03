@@ -325,7 +325,11 @@ const TEMPLATE_FIX_SCRIPT = `
     var img = document.createElement('img');
     img.className = 'wda-env-media wda-env-img';
     img.alt = '';
-    img.src = '/royal/envelope-cover.jpg';
+    // WebP أخف بـ 60% من الـ JPG (144KB بدل 358KB) — وده أول حاجة الضيف
+    // بيشوفها. المتصفحات القديمة جدًا اللي مبتعرفش WebP بترجع للـ JPG.
+    img.onerror = function () { img.onerror = null; img.src = '/royal/envelope-cover.jpg'; };
+    img.src = '/royal/envelope-cover.webp';
+    img.setAttribute('fetchpriority', 'high');
 
     var video = document.createElement('video');
     video.className = 'wda-env-media wda-env-video';

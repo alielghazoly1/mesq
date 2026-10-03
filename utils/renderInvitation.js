@@ -232,6 +232,9 @@ function renderNewPathHtml(data, options) {
       + 'body:not(.wda-env-open){background-color:#3a0011!important;}'
       + "body::before{content:'';position:fixed;inset:0;z-index:1500;"
       + "background:#3a0011 url('/royal/envelope-cover.jpg') center center/cover no-repeat;"
+      // نفس الصورة WebP (أخف بـ 60%) للمتصفحات اللي بتفهم image-set بالنوع؛
+      // القديمة بتتجاهل السطر ده وبتفضل على الـ JPG اللي فوق
+      + "background-image:image-set(url('/royal/envelope-cover.webp') type('image/webp'),url('/royal/envelope-cover.jpg') type('image/jpeg'));"
       + 'pointer-events:none;}'
       + 'body.wda-env-open::before{display:none!important;}'
       + '</style>';
