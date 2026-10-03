@@ -23,8 +23,24 @@ const baseQuery = fetchBaseQuery({
 export const adminApi = createApi({
   reducerPath: 'adminApi',
   baseQuery,
-  tagTypes: ['Overview', 'Users', 'User', 'Orders', 'Invitations', 'Support', 'Settings', 'Pricing', 'Thread', 'Audit', 'Tracks', 'Withdrawals', 'Ugc', 'SiteTemplates'],
+  tagTypes: ['Overview', 'Users', 'User', 'Orders', 'Invitations', 'Support', 'Settings', 'Pricing', 'Thread', 'Audit', 'Tracks', 'Withdrawals', 'Ugc', 'SiteTemplates', 'Security'],
   endpoints: (builder) => ({
+    // ===== الأمان (التحقق بخطوتين) =====
+    getSecurity: builder.query({ query: () => '/security', providesTags: ['Security'] }),
+    start2fa: builder.mutation({ query: () => ({ url: '/security/2fa/setup', method: 'POST' }) }),
+    enable2fa: builder.mutation({
+      query: (code) => ({ url: '/security/2fa/enable', method: 'POST', body: { code } }),
+      invalidatesTags: ['Security', 'Audit'],
+    }),
+    disable2fa: builder.mutation({
+      query: (code) => ({ url: '/security/2fa/disable', method: 'POST', body: { code } }),
+      invalidatesTags: ['Security', 'Audit'],
+    }),
+    newBackupCodes: builder.mutation({
+      query: (code) => ({ url: '/security/2fa/backup-codes', method: 'POST', body: { code } }),
+      invalidatesTags: ['Security', 'Audit'],
+    }),
+
     getOverview: builder.query({
       query: (period = 30) => `/overview?period=${period}`,
       providesTags: ['Overview'],
@@ -209,6 +225,7 @@ export const adminApi = createApi({
 });
 
 export const {
+  useGetSecurityQuery, useStart2faMutation, useEnable2faMutation, useDisable2faMutation, useNewBackupCodesMutation,
   useGetOverviewQuery,
   useGetUsersQuery,
   useGetUserQuery,

@@ -46,7 +46,8 @@ const {
   editUntilAfterActivation, extendEditUntil, editWindowInfo,
 } = require('../utils/editWindow');
 const { logAdminAction } = require('../utils/adminAudit');
-const { requireAdminSession } = require('../middleware/adminAuth');
+const { requireAdminSession, destroyOtherAdminSessions } = require('../middleware/adminAuth');
+const twoFactor = require('../utils/adminTwoFactor');
 
 const router = express.Router();
 
@@ -1845,6 +1846,73 @@ router.post('/admin/api/cleanup/run', requireAdminSession, async (req, res) => {
     return res.json(summary);
   } catch (err) {
     console.error('Cleanup run failed:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+// ==========================================================================
+// الأمان: التحقق بخطوتين (Google Authenticator)
+// ==========================================================================
+router.get('/admin/api/security', requireAdminSession, async (req, res) => {
+  try {
+    return res.json(await twoFactor.status());
+  } catch (err) {
+    console.error('Security status failed:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+// بداية التفعيل: سر جديد + رابط الـ QR. مش بيتفعّل غير بعد أول كود صح.
+router.post('/admin/api/security/2fa/setup', requireAdminSession, async (req, res) => {
+  try {
+    if (await twoFactor.isEnabled()) return res.status(409).json({ error: 'التحقق بخطوتين مفعّل بالفعل.' });
+    return res.json(await twoFactor.startSetup());
+  } catch (err) {
+    console.error('2FA setup failed:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+router.post('/admin/api/security/2fa/enable', requireAdminSession, async (req, res) => {
+  try {
+    if (await twoFactor.isEnabled()) return res.status(409).json({ error: 'التحقق بخطوتين مفعّل بالفعل.' });
+    const r = await twoFactor.confirmSetup(req.body && req.body.code);
+    if (!r.ok) return res.status(400).json({ error: r.error });
+    // أي جلسة مفتوحة على جهاز تاني دخلت بكلمة السر بس — بنقفلها
+    const killed = await destroyOtherAdminSessions(req);
+    logAdminAction(req, 'security.2fa.enable', { type: 'admin', label: 'تفعيل التحقق بخطوتين' }, { killedSessions: killed });
+    return res.json({ ok: true, backupCodes: r.backupCodes, killedSessions: killed });
+  } catch (err) {
+    console.error('2FA enable failed:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+// القفل وتجديد الأكواد الاحتياطية محتاجين كود حالي — جلسة مفتوحة لوحدها مش كفاية
+router.post('/admin/api/security/2fa/disable', requireAdminSession, async (req, res) => {
+  try {
+    if (!(await twoFactor.checkCode(req.body && req.body.code))) {
+      return res.status(400).json({ error: 'الكود مش صح.' });
+    }
+    await twoFactor.disable();
+    logAdminAction(req, 'security.2fa.disable', { type: 'admin', label: 'إيقاف التحقق بخطوتين' });
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error('2FA disable failed:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+router.post('/admin/api/security/2fa/backup-codes', requireAdminSession, async (req, res) => {
+  try {
+    if (!(await twoFactor.checkCode(req.body && req.body.code))) {
+      return res.status(400).json({ error: 'الكود مش صح.' });
+    }
+    const codes = await twoFactor.regenerateBackupCodes();
+    logAdminAction(req, 'security.2fa.backup', { type: 'admin', label: 'أكواد احتياطية جديدة' });
+    return res.json({ ok: true, backupCodes: codes });
+  } catch (err) {
+    console.error('2FA backup codes failed:', err);
     return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
   }
 });

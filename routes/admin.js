@@ -7,9 +7,13 @@
 // الـ URL (server logs، تاريخ المتصفح) في كل طلب.
 const express = require('express');
 
+const crypto = require('crypto');
 const {
   isValidAdminKey, createAdminSession, destroyAdminSession, hasValidAdminSession,
+  fingerprintOf, hashToken,
 } = require('../middleware/adminAuth');
+const AdminLoginTicket = require('../models/AdminLoginTicket');
+const twoFactor = require('../utils/adminTwoFactor');
 const connectDB = require('../config/db');
 const RateLimit = require('../models/RateLimit');
 const { hashIp } = require('../middleware/freeQuota');
@@ -65,14 +69,83 @@ router.post('/admin/login', async (req, res) => {
     // على السيرفر" و"المفتاح غلط"، عشان مانديش أي معلومة لحد بيجرّب.
     return res.status(401).json({ error: 'كلمة السر غلط.' });
   }
-  RateLimit.deleteMany({ deviceId: ipKey }).catch(() => {});
   try {
+    // التحقق بخطوتين مفعّل: كلمة السر لوحدها مش كفاية — بنديله تذكرة
+    // (كوكي httpOnly لمدة 5 دقايق) ونستنى كود الموبايل. عدّاد المحاولات
+    // الغلط مبيتمسحش غير بعد الكود الصح.
+    if (await twoFactor.isEnabled()) {
+      const token = crypto.randomBytes(32).toString('hex');
+      await AdminLoginTicket.create({
+        tokenHash: hashToken(token),
+        fingerprint: fingerprintOf(req),
+        expiresAt: new Date(Date.now() + TICKET_MS),
+      });
+      res.cookie(TICKET_COOKIE, token, ticketCookieOptions());
+      return res.json({ needCode: true });
+    }
+    RateLimit.deleteMany({ deviceId: ipKey }).catch(() => {});
     await createAdminSession(req, res);
     logAdminAction(req, 'login.ok', { type: 'admin', label: 'دخول للوحة' });
     return res.json({ ok: true });
   } catch (err) {
     console.error('Error creating admin session:', err);
     return res.status(500).json({ error: 'حصل خطأ في السيرفر.' });
+  }
+});
+
+// ===== الخطوة التانية: كود الموبايل (أو كود احتياطي) =====
+const TICKET_COOKIE = 'wda_admin_otp';
+const TICKET_MS = 5 * 60 * 1000;
+const MAX_CODE_TRIES = 5;
+const ticketCookieOptions = () => ({
+  httpOnly: true,
+  sameSite: 'strict',
+  secure: process.env.NODE_ENV === 'production',
+  maxAge: TICKET_MS,
+  path: '/admin',
+});
+
+router.post('/admin/login/verify', async (req, res) => {
+  const ipKey = 'adminlogin:' + (hashIp(req.ip) || 'unknown');
+  const allKey = 'adminlogin:all';
+  const token = req.cookies && req.cookies[TICKET_COOKIE];
+  const restart = (msg) => {
+    res.clearCookie(TICKET_COOKIE, { path: '/admin' });
+    return res.status(401).json({ error: msg, restart: true });
+  };
+  try {
+    await connectDB();
+    const [mine, all] = await Promise.all([failedCount(ipKey), failedCount(allKey)]);
+    if (mine >= MAX_PER_IP || all >= MAX_GLOBAL) {
+      res.clearCookie(TICKET_COOKIE, { path: '/admin' });
+      return res.status(429).json({ error: 'محاولات كتير غلط — الدخول مقفول ربع ساعة. جرّب بعدين.', restart: true });
+    }
+    if (!token) return restart('الوقت خلص — ادخل كلمة السر تاني.');
+    const ticket = await AdminLoginTicket.findOne({ tokenHash: hashToken(token) });
+    if (!ticket || ticket.expiresAt <= new Date() || ticket.fingerprint !== fingerprintOf(req)) {
+      if (ticket) await AdminLoginTicket.deleteOne({ _id: ticket._id });
+      return restart('الوقت خلص — ادخل كلمة السر تاني.');
+    }
+    const kind = await twoFactor.checkCode(req.body && req.body.code);
+    if (!kind) {
+      await Promise.all([addFailure(ipKey), addFailure(allKey)]);
+      logAdminAction(req, 'login.2fa_failed', { type: 'admin', label: 'كود تحقق غلط بعد كلمة سر صح' });
+      const t = await AdminLoginTicket.findOneAndUpdate({ _id: ticket._id }, { $inc: { attempts: 1 } }, { new: true });
+      if (!t || t.attempts >= MAX_CODE_TRIES) {
+        await AdminLoginTicket.deleteOne({ _id: ticket._id });
+        return restart('الكود غلط كذا مرة — ادخل كلمة السر من الأول.');
+      }
+      return res.status(401).json({ error: 'الكود غلط — اكتب الكود اللي ظاهر دلوقتي في التطبيق.' });
+    }
+    await AdminLoginTicket.deleteOne({ _id: ticket._id });
+    res.clearCookie(TICKET_COOKIE, { path: '/admin' });
+    RateLimit.deleteMany({ deviceId: ipKey }).catch(() => {});
+    await createAdminSession(req, res);
+    logAdminAction(req, 'login.ok', { type: 'admin', label: kind === 'backup' ? 'دخول بكود احتياطي' : 'دخول للوحة (بخطوتين)' });
+    return res.json({ ok: true, usedBackup: kind === 'backup' });
+  } catch (err) {
+    console.error('Admin 2FA verify failed:', err);
+    return res.status(503).json({ error: 'حصل خطأ في السيرفر، جرّب تاني بعد شوية.' });
   }
 });
 

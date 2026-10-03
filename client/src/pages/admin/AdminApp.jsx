@@ -10,7 +10,7 @@ import { NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { useDispatch } from 'react-redux';
 import {
   LayoutDashboard, Users, Receipt, FileText, MessageSquare,
-  Settings, ScrollText, LogOut, Loader2, Menu, X, Music, BadgePercent, Wallet, Banknote, Megaphone, LayoutTemplate, Tags, Bug,
+  Settings, ScrollText, LogOut, Loader2, Menu, X, Music, BadgePercent, Wallet, Banknote, Megaphone, LayoutTemplate, Tags, Bug, ShieldCheck,
 } from 'lucide-react';
 import { adminApi, useGetOrdersAttentionQuery } from '../../store/adminApi.js';
 import AdminLogin from './AdminLogin.jsx';
@@ -29,6 +29,7 @@ import DiscountsPanel from './DiscountsPanel.jsx';
 import PackagesPricesPage from './PackagesPricesPage.jsx';
 import ClientErrorsPage from './ClientErrorsPage.jsx';
 import AuditPage from './AuditPage.jsx';
+import SecurityPage from './SecurityPage.jsx';
 
 const NAV = [
   { to: '/admin', end: true, icon: LayoutDashboard, label: 'نظرة عامة' },
@@ -44,6 +45,7 @@ const NAV = [
   { to: '/admin/packages', icon: Tags, label: 'الباقات والأسعار' },
   { to: '/admin/discounts', icon: BadgePercent, label: 'الخصومات' },
   { to: '/admin/settings', icon: Settings, label: 'بيانات الدفع' },
+  { to: '/admin/security', icon: ShieldCheck, label: 'الأمان' },
   { to: '/admin/audit', icon: ScrollText, label: 'سجل الإجراءات' },
   { to: '/admin/errors', icon: Bug, label: 'أعطال الواجهة' },
 ];
@@ -214,6 +216,7 @@ export default function AdminApp() {
             <Route path="discounts" element={<DiscountsPanel />} />
             <Route path="settings" element={<SettingsPage />} />
             <Route path="audit" element={<AuditPage />} />
+            <Route path="security" element={<SecurityPage />} />
             <Route path="*" element={<Navigate to="/admin" replace />} />
           </Routes>
         </main>

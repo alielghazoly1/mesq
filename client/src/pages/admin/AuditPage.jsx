@@ -12,6 +12,10 @@ import {
 const ACTIONS = {
   'login.ok': { label: 'دخول للوحة', tone: 'ok' },
   'login.failed': { label: 'محاولة دخول غلط', tone: 'danger' },
+  'login.2fa_failed': { label: 'كود تحقق غلط', tone: 'danger' },
+  'security.2fa.enable': { label: 'تفعيل التحقق بخطوتين', tone: 'ok' },
+  'security.2fa.disable': { label: 'إيقاف التحقق بخطوتين', tone: 'danger' },
+  'security.2fa.backup': { label: 'أكواد احتياطية جديدة', tone: 'warn' },
   'order.activate': { label: 'تفعيل طلب', tone: 'ok' },
   'order.cancel': { label: 'إلغاء طلب', tone: 'warn' },
   'order.revoke': { label: 'إلغاء باقة مدفوعة', tone: 'danger' },

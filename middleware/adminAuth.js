@@ -141,8 +141,16 @@ async function requireAdminSession(req, res, next) {
   return next();
 }
 
+/** بيقفل كل جلسات اللوحة المفتوحة على أي جهاز تاني (بعد تفعيل التحقق بخطوتين) */
+async function destroyOtherAdminSessions(req) {
+  const token = req.cookies && req.cookies[ADMIN_COOKIE_NAME];
+  const keep = token ? [hashToken(token), token] : [];
+  const r = await AdminSession.deleteMany({ token: { $nin: keep } });
+  return r.deletedCount || 0;
+}
+
 module.exports = {
-  isValidAdminKey, createAdminSession, destroyAdminSession,
-  hasValidAdminSession, requireAdminSession,
+  isValidAdminKey, createAdminSession, destroyAdminSession, destroyOtherAdminSessions,
+  hasValidAdminSession, requireAdminSession, fingerprintOf, hashToken,
   ADMIN_COOKIE_NAME, ADMIN_REQUEST_HEADER,
 };
