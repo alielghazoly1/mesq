@@ -17,8 +17,9 @@ import {
   ChevronLeft, ChevronRight, Upload, AlertCircle, Crown, FileText,
   Rocket, Trash2, ExternalLink, Copy, MousePointerClick, Undo2,
   PlayCircle, RotateCw, Layers, ALargeSmall, Minus, Plus, CalendarDays, Sparkles,
-  MapPin, Redo2, Palette, Stamp, TypeOutline, Share2, Eye, EyeOff, Maximize2, Clock,
+  MapPin, Redo2, Palette, Stamp, TypeOutline, Share2, Eye, EyeOff, Maximize2, Clock, Download,
 } from 'lucide-react';
+import { downloadImage } from '../lib/downloadImage.js';
 import {
   useGetEditorQuery,
   useSaveCustomizationsMutation,
@@ -228,6 +229,10 @@ export default function EditorPage() {
   const [counts, setCounts] = useState(null);
   // كل صور الدعوة بترتيبها — الدعوة نفسها هي اللي بتقولنا بيها
   const [photos, setPhotos] = useState([]);
+  // الصورة اللي العميل ضغط عليها في الشبكة (بيظهر عليها زرار التحميل)،
+  // وحالة تحميلها: '' | 'busy' | 'done'
+  const [dlPhoto, setDlPhoto] = useState(null);
+  const [dlState, setDlState] = useState('');
   const [runtimeReady, setRuntimeReady] = useState(false);
   const [error, setError] = useState('');
   const [dirty, setDirty] = useState(false);
@@ -1130,6 +1135,21 @@ export default function EditorPage() {
     setPickedImage(id);
     // مفيش داعي لخطوة زيادة: اللي ضغط "غيّر" عايز يختار صورة دلوقتي
     setTimeout(() => imageInputRef.current?.click(), 0);
+  }
+
+  /** نزّل صورة من الشبكة على الجهاز على طول — بجودتها الأصلية */
+  async function downloadPhoto(ph, n) {
+    if (dlState === 'busy') return;
+    setDlState('busy');
+    try {
+      let base;
+      try { base = iframeRef.current?.contentWindow?.location.href; } catch { /* */ }
+      await downloadImage(draft.images?.[ph.id] || ph.src, `mithaq-${shortId}-${n}`, base);
+      setDlState('done');
+      setTimeout(() => { setDlState(''); setDlPhoto(null); }, 1400);
+    } catch {
+      setDlState('');
+    }
   }
 
   /** شيل صورة من الدعوة (بتفضل في الشبكة باهتة عشان ترجّعها) */
@@ -2437,11 +2457,49 @@ export default function EditorPage() {
                                   pickedImage === ph.id ? 'border-rose ring-2 ring-rose/30' : 'border-line'
                                 } ${ph.hidden ? 'opacity-40' : ''}`}
                               >
-                                <img
-                                  src={draft.images?.[ph.id] || ph.src}
-                                  alt=""
-                                  className="aspect-square w-full object-cover"
-                                />
+                                {/* ضغطة على الصورة → زرار تحميل في نصها */}
+                                <button
+                                  type="button"
+                                  onClick={() => { if (dlState !== 'busy') { setDlState(''); setDlPhoto((cur) => (cur === ph.id ? null : ph.id)); } }}
+                                  aria-label={t('editor.photoDownload')}
+                                  className="block w-full cursor-pointer"
+                                >
+                                  <img
+                                    src={draft.images?.[ph.id] || ph.src}
+                                    alt=""
+                                    className="aspect-square w-full object-cover"
+                                  />
+                                </button>
+                                <AnimatePresence>
+                                  {dlPhoto === ph.id && (
+                                    <motion.div
+                                      initial={{ opacity: 0 }}
+                                      animate={{ opacity: 1 }}
+                                      exit={{ opacity: 0 }}
+                                      transition={{ duration: 0.15 }}
+                                      onClick={() => { if (dlState !== 'busy') setDlPhoto(null); }}
+                                      className="absolute inset-0 bottom-[26px] flex items-center justify-center bg-night/45"
+                                    >
+                                      <motion.button
+                                        type="button"
+                                        data-wda-download
+                                        initial={{ scale: 0.6 }}
+                                        animate={{ scale: 1 }}
+                                        transition={{ type: 'spring', stiffness: 420, damping: 22 }}
+                                        onClick={(e) => { e.stopPropagation(); downloadPhoto(ph, i + 1); }}
+                                        title={t('editor.photoDownload')}
+                                        aria-label={t('editor.photoDownload')}
+                                        className={`flex h-11 w-11 items-center justify-center rounded-full shadow-[0_6px_18px_-4px_rgba(0,0,0,.6)] transition ${
+                                          dlState === 'done' ? 'bg-ok text-white' : 'bg-ivory text-night hover:bg-brass-soft'
+                                        }`}
+                                      >
+                                        {dlState === 'busy' ? <Loader2 size={18} className="animate-spin" />
+                                          : dlState === 'done' ? <Check size={18} strokeWidth={3} />
+                                            : <Download size={18} strokeWidth={2.4} />}
+                                      </motion.button>
+                                    </motion.div>
+                                  )}
+                                </AnimatePresence>
                                 <span className="absolute start-1 top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-night/85 px-1 text-[10px] font-bold text-ivory">
                                   {i + 1}
                                 </span>
