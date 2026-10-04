@@ -86,7 +86,7 @@ async function updatePaymentSettings(body) {
     throw err;
   }
   if (update.taptap.enabled && (!update.taptap.phone || !update.taptap.recipientName)) {
-    const err = new Error('Taptap Send محتاجة رقم إنستاباي واسم المستلم قبل ما تتفعّل.');
+    const err = new Error('Taptap Send محتاجة رقم فودافون كاش واسم المستلم قبل ما تتفعّل.');
     err.status = 400;
     throw err;
   }
@@ -142,7 +142,7 @@ function publicPaymentInfo(doc, countryCode) {
     };
   }
   // Taptap Send — للعميل اللي بلده من البلاد اللي التطبيق بيبعت منها بس.
-  // بيحوّل من التطبيق على إنستاباي (رقم الموبايل) باسم المستلم ومكانه.
+  // بيحوّل من التطبيق على فودافون كاش (رقم الموبايل) باسم المستلم ومكانه.
   const cc = String(countryCode || '').toUpperCase();
   if (doc.taptap?.enabled && doc.taptap?.phone && doc.taptap?.recipientName && TAPTAP_COUNTRIES.has(cc)) {
     info.taptap = {

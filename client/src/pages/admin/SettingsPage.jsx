@@ -8,6 +8,7 @@ import {
 } from '../../store/adminApi.js';
 import { Panel, Btn, Field, Spinner, fmtDate } from '../../components/admin/ui.jsx';
 import { countryName } from './format.js';
+import { VodafoneMark } from '../../components/PayBrand.jsx';
 
 export default function SettingsPage() {
   const { data, isLoading } = useGetPaymentSettingsQuery();
@@ -104,7 +105,16 @@ export default function SettingsPage() {
         </p>
       </Panel>
 
-      <Panel title="Taptap Send (تحويل على فودافون كاش)" subtitle="بتظهر بس للعملاء المسجّلين من البلاد اللي التطبيق بيبعت منها لمصر">
+      <Panel
+        title="Taptap Send (تحويل على فودافون كاش)"
+        subtitle="بتظهر بس للعملاء المسجّلين من البلاد اللي التطبيق بيبعت منها لمصر"
+        action={(
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-white py-1 pe-3 ps-1" dir="ltr">
+            <VodafoneMark size={18} />
+            <span className="text-[11px] font-extrabold text-[#E60000]">Vodafone Cash</span>
+          </span>
+        )}
+      >
         <label className="mb-3.5 flex cursor-pointer items-center gap-2.5 rounded-xl border border-ivory/10 bg-ivory/[0.03] p-3">
           <input type="checkbox" {...register('taptap.enabled')} className="h-4 w-4 accent-brass" />
           <img src="/img/taptap-logo.svg" alt="" className="h-5 w-5 rounded-full" />

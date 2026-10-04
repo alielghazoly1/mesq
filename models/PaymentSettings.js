@@ -45,7 +45,7 @@ const paymentSettingsSchema = new mongoose.Schema({
 
   // Taptap Send — للعملاء في البلاد اللي التطبيق بيبعت منها لمصر بس
   // (utils/paymentSettings.js: TAPTAP_COUNTRIES). العميل بيحوّل من التطبيق
-  // على إنستاباي: رقم الموبايل + اسم المستلم + المكان. بتتملي من اللوحة،
+  // على فودافون كاش: رقم الموبايل + اسم المستلم + المكان. بتتملي من اللوحة،
   // ومبتظهرش للعميل غير لما الرقم والاسم يبقوا مكتوبين.
   taptap: {
     enabled: { type: Boolean, default: false },

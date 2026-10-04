@@ -138,7 +138,7 @@ export default function AdminApp() {
           }`}
         >
           <div className="flex h-full flex-col p-4">
-            <div className="mb-6 flex items-center justify-between px-2 pt-2">
+            <div className="mb-4 flex shrink-0 items-center justify-between px-2 pt-2">
               <div>
                 <div className="font-serif text-[17px] font-bold text-brass-soft">ميثاق</div>
                 <div className="text-[11px] text-ivory/35">لوحة التحكم</div>
@@ -152,14 +152,16 @@ export default function AdminApp() {
               </button>
             </div>
 
-            <nav className="flex-1 space-y-1">
+            {/* الأقسام كتير — القايمة نفسها بتسكرول جوه الشريط (والشعار
+                وزرار الخروج ثابتين)، فأي قسم توصله من غير ما حاجة تتقص */}
+            <nav className="-me-2 min-h-0 flex-1 space-y-0.5 overflow-y-auto overscroll-contain pe-2 [scrollbar-width:thin]">
               {NAV.map(({ to, end, icon: Icon, label, badge }) => (
                 <NavLink
                   key={to}
                   to={to}
                   end={end}
                   className={({ isActive }) =>
-                    `flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-[13px] font-bold transition ${
+                    `flex items-center gap-2.5 rounded-xl px-3.5 py-2 text-[13px] font-bold transition ${
                       isActive
                         ? 'bg-brass/15 text-brass-soft'
                         : 'text-ivory/55 hover:bg-ivory/[0.05] hover:text-ivory'
@@ -174,7 +176,7 @@ export default function AdminApp() {
             <button
               type="button"
               onClick={logout}
-              className="flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-[13px] font-bold text-ivory/45 transition hover:bg-error/10 hover:text-error"
+              className="mt-2 flex shrink-0 items-center gap-2.5 rounded-xl px-3.5 py-2.5 text-[13px] font-bold text-ivory/45 transition hover:bg-error/10 hover:text-error"
             >
               <LogOut size={15} /> خروج
             </button>
