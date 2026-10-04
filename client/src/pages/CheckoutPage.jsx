@@ -17,7 +17,7 @@ import {
   ArrowRight, Check, Copy, Upload, Loader2, ChevronDown, ChevronUp,
   Clock, AlertCircle, AlertTriangle, Sparkles, MessageCircle, Infinity as InfinityIcon, Pencil,
 } from 'lucide-react';
-import { VodafoneCashLogo, BankMark } from '../components/PayBrand.jsx';
+import { VodafoneCashLogo, VodafoneMark, BankMark } from '../components/PayBrand.jsx';
 import {
   useGetPackagesQuery, useGetPaymentInfoQuery, useOrderPackageMutation,
   useUploadPaymentProofMutation, useGetMeQuery,
@@ -545,8 +545,10 @@ export default function CheckoutPage() {
                           <span className="text-[11px] font-bold text-ink-dim">{t('checkout.taptapTagline')}</span>
                         </span>
                       </span>
-                      <span className="inline-flex shrink-0 items-center rounded-full bg-[#1a7f3c]/[0.09] px-2.5 py-1 text-[11px] font-extrabold text-[#14612e]" dir="ltr">
-                        InstaPay
+                      {/* المستلم بيستلم على فودافون كاش — اللوجو بيقول للعميل يختار إيه في التطبيق */}
+                      <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[#E60000]/20 bg-white py-1 pe-3 ps-1 shadow-sm" dir="ltr">
+                        <VodafoneMark size={20} />
+                        <span className="text-[11.5px] font-extrabold tracking-tight text-[#E60000]">Vodafone Cash</span>
                       </span>
                     </div>
 

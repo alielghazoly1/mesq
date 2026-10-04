@@ -104,7 +104,7 @@ export default function SettingsPage() {
         </p>
       </Panel>
 
-      <Panel title="Taptap Send (تحويل على إنستاباي)" subtitle="بتظهر بس للعملاء المسجّلين من البلاد اللي التطبيق بيبعت منها لمصر">
+      <Panel title="Taptap Send (تحويل على فودافون كاش)" subtitle="بتظهر بس للعملاء المسجّلين من البلاد اللي التطبيق بيبعت منها لمصر">
         <label className="mb-3.5 flex cursor-pointer items-center gap-2.5 rounded-xl border border-ivory/10 bg-ivory/[0.03] p-3">
           <input type="checkbox" {...register('taptap.enabled')} className="h-4 w-4 accent-brass" />
           <img src="/img/taptap-logo.svg" alt="" className="h-5 w-5 rounded-full" />
@@ -112,7 +112,7 @@ export default function SettingsPage() {
           <span className="text-[11.5px] text-ivory/40">— لو اتقفلت، مش هتظهر خالص</span>
         </label>
         <div className="grid gap-3.5 sm:grid-cols-2">
-          <Field label="رقم موبايل إنستاباي" dir="ltr" placeholder="01xxxxxxxxx" {...register('taptap.phone')} />
+          <Field label="رقم فودافون كاش" dir="ltr" placeholder="01xxxxxxxxx" {...register('taptap.phone')} />
           <Field label="اسم المستلم (زي ما هيكتبه العميل في التطبيق)" {...register('taptap.recipientName')} />
           <Field label="مكان المستلم (المدينة/المحافظة)" placeholder="القاهرة، مصر" {...register('taptap.location')} />
           <Field label="ملاحظة للعميل (اختياري)" placeholder="ابعت صورة التحويل بعد ما تحوّل..." {...register('taptap.note')} />
