@@ -401,9 +401,15 @@ app.use((req, res) => {
 // بنشغل app.listen بس لو الملف ده اتنفذ مباشرة (node server.js) —
 // ده بيخلي نفس الكود يشتغل صح سواء على VPS تقليدي (app.listen) أو على
 // منصة سيرفرلس زي Vercel (اللي بتاخد الـ app نفسه وتستخدمه من غير listen).
-if (require.main === module) {
-  // واتساب المالك (الرسايل التلقائية) — بيتصل لوحده لو كان مربوط قبل كده
+// واتساب المالك (الرسايل التلقائية) — بيتصل لوحده لو كان مربوط قبل كده.
+// برّه شرط require.main: الاستضافة (Hostinger) بتشغّل الملف ده من خلال برنامج
+// تاني، فالشرط ده مابيتحققش هناك — والخدمة ماكانتش بتبدأ خالص. القفل (lease)
+// في قاعدة البيانات بيضمن إن نسخة واحدة بس هي اللي تتصل.
+if (process.env.NODE_ENV !== 'test') {
   require('./utils/whatsapp/manager').startWhatsApp();
+}
+
+if (require.main === module) {
   app.listen(PORT, () => {
     console.log(`🚀 السيرفر شغال على http://localhost:${PORT}`);
     logLine(`server started on port ${PORT} (logging to ${LOG_FILE})`);
