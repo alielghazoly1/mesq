@@ -16,6 +16,7 @@ const ACTIONS = {
   'security.2fa.enable': { label: 'تفعيل التحقق بخطوتين', tone: 'ok' },
   'security.2fa.disable': { label: 'إيقاف التحقق بخطوتين', tone: 'danger' },
   'security.2fa.backup': { label: 'أكواد احتياطية جديدة', tone: 'warn' },
+  'cleanup.run': { label: 'تنضيف دعوات منتهية', tone: 'danger' },
   'order.activate': { label: 'تفعيل طلب', tone: 'ok' },
   'order.cancel': { label: 'إلغاء طلب', tone: 'warn' },
   'order.revoke': { label: 'إلغاء باقة مدفوعة', tone: 'danger' },

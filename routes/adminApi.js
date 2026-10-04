@@ -24,7 +24,7 @@ const {
   isOnline, onlineSince, liveCounts, cairoTodayStart, cairoMonthStart, ONLINE_WINDOW_MS,
 } = require('../utils/presence');
 const { computeUgcStats, generateReferralCode, round2 } = require('../utils/ugc');
-const { cleanupExpiredInvitations, DEFAULT_GRACE_DAYS } = require('../utils/cleanupExpired');
+const { cleanupExpiredInvitations, buildFilter, paidOwnerIds, DEFAULT_GRACE_DAYS } = require('../utils/cleanupExpired');
 const { TEMPLATES } = require('../templates/registry');
 const {
   getHiddenTemplateIds, setHiddenTemplateIds, getTemplateLayout, setTemplateLayout, sortByOrder,
@@ -244,7 +244,7 @@ router.get('/admin/api/overview', requireAdminSession, async (req, res) => {
     });
     const templatesAll = Object.entries(tplCounts)
       .map(([id, count]) => ({ _id: id, count }))
-      .sort((a, b) => b.count - a.count);
+      .sort((a, b) => b.count - a.count || String(a._id).localeCompare(String(b._id)));
 
     const revenueBy = (rows) => CURRENCIES.reduce((acc, c) => {
       const found = rows.find((r) => r._id === c);
@@ -1828,14 +1828,31 @@ router.delete('/admin/api/tracks/:id', requireAdminSession, async (req, res) => 
 // تنضيف الدعوات المنتهية
 // ==========================================================================
 
+let cleanupRunning = false;
+
 // GET — معاينة بس: بيقولك هيتمسح إيه من غير ما يمسح أي حاجة
 router.get('/admin/api/cleanup/preview', requireAdminSession, async (req, res) => {
   try {
     const graceDays = Math.max(0, Math.min(365, parseInt(req.query.graceDays, 10) || DEFAULT_GRACE_DAYS));
     const summary = await cleanupExpiredInvitations({ graceDays, dryRun: true, limit: 5000 });
-    const totals = await SiteTotals.findOne({ key: 'default' }).lean();
+    // الصورة الكاملة: كام دعوة في القاعدة، وكام منها محمي ومش هيتلمس
+    const paidOwners = await paidOwnerIds();
+    const [totals, totalInvitations, premium, paidOwnerFree, viewsAgg] = await Promise.all([
+      SiteTotals.findOne({ key: 'default' }).lean(),
+      Invitation.countDocuments({}),
+      Invitation.countDocuments({ isPremium: true }),
+      Invitation.countDocuments({ isPremium: { $ne: true }, ownerId: { $in: paidOwners } }),
+      Invitation.aggregate([
+        { $match: buildFilter(graceDays, paidOwners) },
+        { $group: { _id: null, views: { $sum: '$viewCount' } } },
+      ]),
+    ]);
     return res.json({
       ...summary,
+      views: viewsAgg[0] ? viewsAgg[0].views : 0,
+      totalInvitations,
+      protected: { premium, paidOwnerFree },
+      running: cleanupRunning,
       archived: totals ? {
         invitations: totals.archivedInvitations || 0,
         views: totals.archivedViews || 0,
@@ -1857,16 +1874,27 @@ router.post('/admin/api/cleanup/run', requireAdminSession, async (req, res) => {
     if (body.confirm !== 'DELETE') {
       return res.status(400).json({ error: 'محتاج تأكيد صريح.' });
     }
+    // دفعة واحدة بس في نفس الوقت — لو اللوحة مفتوحة في تابين والاتنين
+    // داسوا، الأرقام المحفوظة ماتتحسبش مرتين
+    if (cleanupRunning) {
+      return res.status(409).json({ error: 'فيه تنضيف شغال دلوقتي — استنى لما يخلص.' });
+    }
     const graceDays = Math.max(0, Math.min(365, parseInt(body.graceDays, 10) || DEFAULT_GRACE_DAYS));
     const limit = Math.max(1, Math.min(5000, parseInt(body.limit, 10) || 1000));
 
-    const summary = await cleanupExpiredInvitations({ graceDays, dryRun: false, limit });
+    cleanupRunning = true;
+    let summary;
+    try {
+      summary = await cleanupExpiredInvitations({ graceDays, dryRun: false, limit });
+    } finally {
+      cleanupRunning = false;
+    }
 
     logAdminAction(req, 'cleanup.run', { type: 'invitation', id: 'batch' }, {
       graceDays, deleted: summary.deleted, views: summary.views, rsvps: summary.rsvps,
     });
 
-    return res.json(summary);
+    return res.json({ ...summary, remaining: Math.max(0, summary.totalMatching - summary.deleted) });
   } catch (err) {
     console.error('Cleanup run failed:', err);
     return res.status(500).json({ error: 'حصل خطأ في السيرفر' });

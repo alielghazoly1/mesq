@@ -23,7 +23,7 @@ const baseQuery = fetchBaseQuery({
 export const adminApi = createApi({
   reducerPath: 'adminApi',
   baseQuery,
-  tagTypes: ['Overview', 'Users', 'User', 'Orders', 'Invitations', 'Support', 'Settings', 'Pricing', 'Thread', 'Audit', 'Tracks', 'Withdrawals', 'Ugc', 'SiteTemplates', 'Security'],
+  tagTypes: ['Overview', 'Users', 'User', 'Orders', 'Invitations', 'Support', 'Settings', 'Pricing', 'Thread', 'Audit', 'Tracks', 'Withdrawals', 'Ugc', 'SiteTemplates', 'Security', 'Cleanup'],
   endpoints: (builder) => ({
     // ===== الأمان (التحقق بخطوتين) =====
     getSecurity: builder.query({ query: () => '/security', providesTags: ['Security'] }),
@@ -39,6 +39,12 @@ export const adminApi = createApi({
     newBackupCodes: builder.mutation({
       query: (code) => ({ url: '/security/2fa/backup-codes', method: 'POST', body: { code } }),
       invalidatesTags: ['Security', 'Audit'],
+    }),
+
+    // ===== تنضيف الدعوات المجانية المنتهية =====
+    getCleanupPreview: builder.query({ query: () => '/cleanup/preview', providesTags: ['Cleanup'], keepUnusedDataFor: 0 }),
+    runCleanup: builder.mutation({
+      query: () => ({ url: '/cleanup/run', method: 'POST', body: { confirm: 'DELETE', limit: 1000 } }),
     }),
 
     getOverview: builder.query({
@@ -226,6 +232,7 @@ export const adminApi = createApi({
 
 export const {
   useGetSecurityQuery, useStart2faMutation, useEnable2faMutation, useDisable2faMutation, useNewBackupCodesMutation,
+  useGetCleanupPreviewQuery, useRunCleanupMutation,
   useGetOverviewQuery,
   useGetUsersQuery,
   useGetUserQuery,
