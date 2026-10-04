@@ -383,6 +383,8 @@ app.use((req, res) => {
 // ده بيخلي نفس الكود يشتغل صح سواء على VPS تقليدي (app.listen) أو على
 // منصة سيرفرلس زي Vercel (اللي بتاخد الـ app نفسه وتستخدمه من غير listen).
 if (require.main === module) {
+  // واتساب المالك (الرسايل التلقائية) — بيتصل لوحده لو كان مربوط قبل كده
+  require('./utils/whatsapp/manager').startWhatsApp();
   app.listen(PORT, () => {
     console.log(`🚀 السيرفر شغال على http://localhost:${PORT}`);
     logLine(`server started on port ${PORT} (logging to ${LOG_FILE})`);

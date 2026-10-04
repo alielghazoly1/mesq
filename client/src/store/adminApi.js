@@ -23,7 +23,7 @@ const baseQuery = fetchBaseQuery({
 export const adminApi = createApi({
   reducerPath: 'adminApi',
   baseQuery,
-  tagTypes: ['Overview', 'Users', 'User', 'Orders', 'Invitations', 'Support', 'Settings', 'Pricing', 'Thread', 'Audit', 'Tracks', 'Withdrawals', 'Ugc', 'SiteTemplates', 'Security', 'Cleanup'],
+  tagTypes: ['Overview', 'Users', 'User', 'Orders', 'Invitations', 'Support', 'Settings', 'Pricing', 'Thread', 'Audit', 'Tracks', 'Withdrawals', 'Ugc', 'SiteTemplates', 'Security', 'Cleanup', 'WhatsApp'],
   endpoints: (builder) => ({
     // ===== الأمان (التحقق بخطوتين) =====
     getSecurity: builder.query({ query: () => '/security', providesTags: ['Security'] }),
@@ -39,6 +39,19 @@ export const adminApi = createApi({
     newBackupCodes: builder.mutation({
       query: (code) => ({ url: '/security/2fa/backup-codes', method: 'POST', body: { code } }),
       invalidatesTags: ['Security', 'Audit'],
+    }),
+
+    // ===== واتساب (ربط بـ QR + رسالة مساعدة الدفع) =====
+    getWhatsApp: builder.query({ query: () => '/whatsapp', providesTags: ['WhatsApp'] }),
+    linkWhatsApp: builder.mutation({ query: () => ({ url: '/whatsapp/link', method: 'POST' }), invalidatesTags: ['WhatsApp', 'Audit'] }),
+    unlinkWhatsApp: builder.mutation({ query: () => ({ url: '/whatsapp/unlink', method: 'POST' }), invalidatesTags: ['WhatsApp', 'Audit'] }),
+    saveWhatsAppSettings: builder.mutation({
+      query: (body) => ({ url: '/whatsapp/settings', method: 'PUT', body }),
+      invalidatesTags: ['WhatsApp', 'Audit'],
+    }),
+    testWhatsApp: builder.mutation({
+      query: (body) => ({ url: '/whatsapp/test', method: 'POST', body }),
+      invalidatesTags: ['WhatsApp'],
     }),
 
     // ===== تنضيف الدعوات المجانية المنتهية =====
@@ -233,6 +246,7 @@ export const adminApi = createApi({
 export const {
   useGetSecurityQuery, useStart2faMutation, useEnable2faMutation, useDisable2faMutation, useNewBackupCodesMutation,
   useGetCleanupPreviewQuery, useRunCleanupMutation,
+  useGetWhatsAppQuery, useLinkWhatsAppMutation, useUnlinkWhatsAppMutation, useSaveWhatsAppSettingsMutation, useTestWhatsAppMutation,
   useGetOverviewQuery,
   useGetUsersQuery,
   useGetUserQuery,

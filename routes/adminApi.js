@@ -16,6 +16,9 @@ const SupportMessage = require('../models/SupportMessage');
 const AdminAudit = require('../models/AdminAudit');
 const Track = require('../models/Track');
 const SiteTotals = require('../models/SiteTotals');
+const WhatsAppState = require('../models/WhatsAppState');
+const WhatsAppOutbox = require('../models/WhatsAppOutbox');
+const waOutbox = require('../utils/whatsapp/outbox');
 const Withdrawal = require('../models/Withdrawal');
 const Presence = require('../models/Presence');
 const Visit = require('../models/Visit');
@@ -1897,6 +1900,147 @@ router.post('/admin/api/cleanup/run', requireAdminSession, async (req, res) => {
     return res.json({ ...summary, remaining: Math.max(0, summary.totalMatching - summary.deleted) });
   } catch (err) {
     console.error('Cleanup run failed:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+// ==========================================================================
+// واتساب: ربط رقم المالك بـ QR + رسالة "محتاج مساعدة في الدفع؟" التلقائية
+// ==========================================================================
+// اللوحة بتكتب الطلب (اربط/افصل/الإعدادات) في WhatsAppState، والسيرفر اللي
+// ماسك الاتصال بينفّذه (utils/whatsapp/manager.js) — واللوحة بتقرا الحالة كل ثانيتين.
+router.get('/admin/api/whatsapp', requireAdminSession, async (req, res) => {
+  try {
+    const st = await waOutbox.getState();
+    const p = cairoParts(new Date());
+    const todayStart = cairoWallToDate(p.year, p.month - 1, p.day, 0, 0);
+    const [sentToday, pending, sentTotal, recent] = await Promise.all([
+      WhatsAppOutbox.countDocuments({ reason: 'checkout', status: 'sent', sentAt: { $gte: todayStart } }),
+      WhatsAppOutbox.countDocuments({ reason: 'checkout', status: { $in: ['pending', 'sending'] } }),
+      WhatsAppOutbox.countDocuments({ reason: 'checkout', status: 'sent' }),
+      WhatsAppOutbox.find({}).sort({ createdAt: -1 }).limit(40)
+        .select('reason userId name phone packageId status note sendAfter sentAt createdAt').lean(),
+    ]);
+    // السيرفر اللي ماسك الاتصال بيجدّد نبضه كل دقيقة تقريبًا
+    const alive = !!(st.heartbeatAt && Date.now() - new Date(st.heartbeatAt).getTime() < 3 * 60 * 1000);
+    return res.json({
+      link: {
+        wantLinked: !!st.wantLinked,
+        status: alive ? st.status : (st.wantLinked ? 'connecting' : 'off'),
+        qr: st.status === 'qr' ? st.qr : '',
+        qrAt: st.qrAt,
+        phone: st.phone || '',
+        name: st.name || '',
+        connectedAt: st.connectedAt,
+        lastError: st.lastError || '',
+        alive,
+      },
+      settings: {
+        enabled: !!st.enabled,
+        message: st.message || WhatsAppState.DEFAULT_MESSAGE,
+        defaultMessage: WhatsAppState.DEFAULT_MESSAGE,
+        delayMinutes: st.delayMinutes,
+        dailyLimit: st.dailyLimit,
+        sendFromHour: st.sendFromHour,
+        sendToHour: st.sendToHour,
+      },
+      stats: { sentToday, pending, sentTotal },
+      recent: recent.map((r) => ({
+        id: String(r._id),
+        reason: r.reason,
+        userId: r.userId ? String(r.userId) : null,
+        name: r.name || '',
+        phone: r.phone,
+        packageId: r.packageId || '',
+        status: r.status,
+        note: r.note || '',
+        sendAfter: r.sendAfter,
+        sentAt: r.sentAt,
+        createdAt: r.createdAt,
+      })),
+    });
+  } catch (err) {
+    console.error('WhatsApp status failed:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+router.post('/admin/api/whatsapp/link', requireAdminSession, async (req, res) => {
+  try {
+    await WhatsAppState.updateOne(
+      { key: 'default' },
+      { $set: { wantLinked: true, linkRequestedAt: new Date(), unlinkRequestedAt: null, lastError: '' } },
+      { upsert: true }
+    );
+    logAdminAction(req, 'whatsapp.link', { type: 'whatsapp', id: 'default' });
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error('WhatsApp link failed:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+router.post('/admin/api/whatsapp/unlink', requireAdminSession, async (req, res) => {
+  try {
+    const st = await waOutbox.getState();
+    await WhatsAppState.updateOne(
+      { key: 'default' },
+      { $set: { wantLinked: false, enabled: false, unlinkRequestedAt: new Date(), qr: '' } }
+    );
+    logAdminAction(req, 'whatsapp.unlink', { type: 'whatsapp', id: 'default', label: st.phone || '' });
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error('WhatsApp unlink failed:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+router.put('/admin/api/whatsapp/settings', requireAdminSession, async (req, res) => {
+  try {
+    const b = req.body || {};
+    const int = (v, min, max, def) => {
+      const n = parseInt(v, 10);
+      return Number.isFinite(n) ? Math.max(min, Math.min(max, n)) : def;
+    };
+    const message = String(b.message || '').replace(/\r\n/g, '\n').trim().slice(0, 1000);
+    if (!message) return res.status(400).json({ error: 'اكتب نص الرسالة.' });
+    const st = await waOutbox.getState();
+    const enabled = !!b.enabled;
+    if (enabled && !(st.wantLinked && st.status === 'connected')) {
+      return res.status(400).json({ error: 'اربط واتساب الأول قبل ما تشغّل الرسايل.' });
+    }
+    const update = {
+      enabled,
+      message,
+      delayMinutes: int(b.delayMinutes, 1, 1440, 10),
+      dailyLimit: int(b.dailyLimit, 1, 300, 40),
+      sendFromHour: int(b.sendFromHour, 0, 23, 9),
+      sendToHour: int(b.sendToHour, 1, 24, 23),
+    };
+    await WhatsAppState.updateOne({ key: 'default' }, { $set: update }, { upsert: true });
+    logAdminAction(req, 'whatsapp.settings', { type: 'whatsapp', id: 'default' }, {
+      enabled, delayMinutes: update.delayMinutes, dailyLimit: update.dailyLimit,
+    });
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error('WhatsApp settings failed:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+// رسالة تجربة لرقم المالك — بنفس نص الرسالة الحقيقية
+router.post('/admin/api/whatsapp/test', requireAdminSession, async (req, res) => {
+  try {
+    const st = await waOutbox.getState();
+    if (!(st.wantLinked && st.status === 'connected')) {
+      return res.status(400).json({ error: 'واتساب مش متصل دلوقتي.' });
+    }
+    const text = waOutbox.buildMessage((req.body && req.body.message) || st.message, { name: 'أحمد', packageName: 'الباقة الأساسية' });
+    const item = await waOutbox.enqueueTest(String((req.body && req.body.phone) || ''), text);
+    if (!item) return res.status(400).json({ error: 'الرقم ده مش مظبوط — اكتبه زي 01001234567 أو بكود الدولة.' });
+    return res.json({ ok: true, id: String(item._id), phone: item.phone });
+  } catch (err) {
+    console.error('WhatsApp test failed:', err);
     return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
   }
 });

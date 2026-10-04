@@ -10,7 +10,7 @@ import { NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { useDispatch } from 'react-redux';
 import {
   LayoutDashboard, Users, Receipt, FileText, MessageSquare,
-  Settings, ScrollText, LogOut, Loader2, Menu, X, Music, BadgePercent, Wallet, Banknote, Megaphone, LayoutTemplate, Tags, Bug, ShieldCheck, Eraser,
+  Settings, ScrollText, LogOut, Loader2, Menu, X, Music, BadgePercent, Wallet, Banknote, Megaphone, LayoutTemplate, Tags, Bug, ShieldCheck, Eraser, MessageCircle,
 } from 'lucide-react';
 import { adminApi, useGetOrdersAttentionQuery } from '../../store/adminApi.js';
 import AdminLogin from './AdminLogin.jsx';
@@ -31,6 +31,7 @@ import ClientErrorsPage from './ClientErrorsPage.jsx';
 import AuditPage from './AuditPage.jsx';
 import SecurityPage from './SecurityPage.jsx';
 import CleanupPage from './CleanupPage.jsx';
+import WhatsAppPage from './WhatsAppPage.jsx';
 
 const NAV = [
   { to: '/admin', end: true, icon: LayoutDashboard, label: 'نظرة عامة' },
@@ -46,6 +47,7 @@ const NAV = [
   { to: '/admin/packages', icon: Tags, label: 'الباقات والأسعار' },
   { to: '/admin/discounts', icon: BadgePercent, label: 'الخصومات' },
   { to: '/admin/settings', icon: Settings, label: 'بيانات الدفع' },
+  { to: '/admin/whatsapp', icon: MessageCircle, label: 'واتساب' },
   { to: '/admin/cleanup', icon: Eraser, label: 'تنضيف الدعوات' },
   { to: '/admin/security', icon: ShieldCheck, label: 'الأمان' },
   { to: '/admin/audit', icon: ScrollText, label: 'سجل الإجراءات' },
@@ -222,6 +224,7 @@ export default function AdminApp() {
             <Route path="audit" element={<AuditPage />} />
             <Route path="security" element={<SecurityPage />} />
             <Route path="cleanup" element={<CleanupPage />} />
+            <Route path="whatsapp" element={<WhatsAppPage />} />
             <Route path="*" element={<Navigate to="/admin" replace />} />
           </Routes>
         </main>

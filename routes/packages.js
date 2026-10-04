@@ -12,6 +12,7 @@ const { editWindowInfo } = require('../utils/editWindow');
 const { requireAuth } = require('../middleware/auth');
 const { getPaymentSettings, publicPaymentInfo } = require('../utils/paymentSettings');
 const { pricedPackagesFor, priceForOrder } = require('../utils/pricing');
+const { enqueueCheckoutHelp } = require('../utils/whatsapp/outbox');
 
 const router = express.Router();
 
@@ -99,6 +100,9 @@ router.post('/api/packages/order', requireAuth, async (req, res) => {
         existing.currency = currency;
         await existing.save();
       }
+      // رسالة واتساب "محتاج مساعدة في الدفع؟" — لو مارفعش إيصال لسه
+      // (مرة واحدة لكل عميل، وبتتبعت بعد دقايق لو لسه مادفعش — utils/whatsapp/outbox.js)
+      if (!existing.paymentProofUrl) enqueueCheckoutHelp(req.user._id, pkg.id);
       return res.status(200).json({
         ok: true,
         orderId: String(existing._id),
@@ -115,6 +119,7 @@ router.post('/api/packages/order', requireAuth, async (req, res) => {
       currency,
       price: priced.price,
     });
+    enqueueCheckoutHelp(req.user._id, pkg.id);
 
     return res.status(201).json({ ok: true, orderId: String(order._id), hasReceipt: false });
   } catch (err) {
