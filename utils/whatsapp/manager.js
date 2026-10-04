@@ -33,6 +33,15 @@ let sock = null;
 let connecting = false;
 let registered = false;
 let retry = 0;
+let failsWithoutQr = 0;   // محاولات ربط متتالية اتقفلت قبل ما يطلع QR
+let gotQr = false;
+const MAX_FAILS_WITHOUT_QR = 4;
+
+/** تشخيص: آخر خطوة وصلها الاتصال — بيظهر في اللوحة لو الـ QR ماظهرش */
+const diag = (stage, extra = {}) => WhatsAppState.updateOne(
+  { key: 'default' },
+  { $set: { 'diag.stage': stage, 'diag.at': new Date(), ...Object.fromEntries(Object.entries(extra).map(([k, v]) => ['diag.' + k, v])) } }
+).catch(() => {});
 let nextConnectAt = 0;
 let leaseUntil = 0;
 let lastOutboxAt = 0;
@@ -70,13 +79,20 @@ function closeSocket() {
 
 async function connect() {
   connecting = true;
+  gotQr = false;
+  let stage = 'lib';
   try {
+    await diag('lib', { message: '', code: 0 });
     const W = await lib();
+    stage = 'session';
     const { state, saveCreds } = await useMongoAuthState(W);
     registered = !!state.creds.registered;
     // من غير نسخة واتساب حديثة السيرفر بيقفل الاتصال (428)
+    stage = 'version';
     let version;
     try { ({ version } = await withTimeout(W.fetchLatestBaileysVersion(), 8000)); } catch { /* الافتراضي */ }
+    stage = 'socket';
+    await diag('socket', { version: (version || []).join('.') || 'default' });
 
     const s = W.default({
       auth: { creds: state.creds, keys: W.makeCacheableSignalKeyStore(state.keys, logger) },
@@ -96,10 +112,15 @@ async function connect() {
     s.ev.on('connection.update', (u) => {
       if (sock !== s) return;
       if (u.qr) {
+        gotQr = true;
+        failsWithoutQr = 0;
+        diag('qr', { code: 0, message: '' });
         setState({ status: 'qr', qr: u.qr, qrAt: new Date(), lastError: '' }).catch(() => {});
       }
       if (u.connection === 'open') {
         retry = 0;
+        failsWithoutQr = 0;
+        diag('open', { code: 0, message: '' });
         registered = true;
         const id = (s.user && s.user.id) || '';
         setState({
@@ -113,14 +134,22 @@ async function connect() {
         const code = u.lastDisconnect && u.lastDisconnect.error && u.lastDisconnect.error.output
           ? u.lastDisconnect.error.output.statusCode : 0;
         sock = null;
+        const why = String((u.lastDisconnect && u.lastDisconnect.error && u.lastDisconnect.error.message) || '').slice(0, 160);
+        console.error('[whatsapp] closed', code, why);
+        WhatsAppState.updateOne({ key: 'default' }, {
+          $set: { 'diag.stage': 'closed', 'diag.code': code, 'diag.message': why, 'diag.at': new Date() },
+          $inc: { 'diag.attempts': 1 },
+        }).catch(() => {});
         onClosed(code).catch((err) => console.error('[whatsapp] close handling failed:', err && err.message));
       }
     });
   } catch (err) {
     sock = null;
     nextConnectAt = Date.now() + 30000;
-    await setState({ status: 'off', lastError: 'مش قادر يتصل بواتساب دلوقتي — هيحاول تاني لوحده.' }).catch(() => {});
-    console.error('[whatsapp] connect failed:', err && err.message);
+    const why = String((err && err.message) || err).slice(0, 160);
+    await diag(stage + '_failed', { message: why });
+    await setState({ status: 'off', lastError: `مش قادر يتصل بواتساب دلوقتي (${stage}: ${why}) — هيحاول تاني لوحده.` }).catch(() => {});
+    console.error('[whatsapp] connect failed at', stage, why);
   } finally {
     connecting = false;
   }
@@ -134,7 +163,7 @@ async function onClosed(code) {
     await setState({ status: 'off', wantLinked: false, qr: '', phone: '', name: '', lastError: 'الربط اتلغى من الموبايل — اربط تاني لو عايز.' });
     return;
   }
-  if (!registered && code === 408) {
+  if (!registered && gotQr && code === 408) {
     // الـ QR خلص وقته ومحدش مسحه
     await setState({ status: 'off', wantLinked: false, qr: '', lastError: 'الـ QR خلص وقته — دوس "اربط" تاني وامسحه على طول.' });
     return;
@@ -144,6 +173,19 @@ async function onClosed(code) {
     nextConnectAt = Date.now() + 60000;
     await setState({ status: 'connecting', lastError: '' });
     return;
+  }
+  // ربط جديد وواتساب بيقفل الاتصال قبل ما يدّي QR أكتر من مرة ورا بعض —
+  // نوقف ونقول السبب بدل ما اللوحة تفضل تلف من غير نهاية
+  if (!registered && !gotQr && code !== 515) {
+    failsWithoutQr += 1;
+    if (failsWithoutQr >= MAX_FAILS_WITHOUT_QR) {
+      failsWithoutQr = 0;
+      await setState({
+        status: 'off', wantLinked: false, qr: '',
+        lastError: `واتساب قفل الاتصال قبل ما يدّي QR (كود ${code || 'غير معروف'}) — جرّب تاني بعد دقيقة، ولو اتكررت ابعتلي الكود ده.`,
+      });
+      return;
+    }
   }
   // 515 بعد مسح الـ QR (لازم نعيد الاتصال) أو النت قطع — نرجع على طول بالتدريج
   nextConnectAt = Date.now() + (code === 515 ? 500 : Math.min(60000, 2000 * 2 ** retry));

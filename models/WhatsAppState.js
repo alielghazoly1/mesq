@@ -44,6 +44,15 @@ const whatsAppStateSchema = new mongoose.Schema({
   lastError: { type: String, default: '' },
   heartbeatAt: { type: Date, default: null },
   lastSentAt: { type: Date, default: null },
+  // تشخيص: آخر خطوة وصلها الاتصال وآخر كود قفل — عشان لو الـ QR مابيظهرش نعرف ليه
+  diag: {
+    stage: { type: String, default: '' },
+    code: { type: Number, default: 0 },
+    message: { type: String, default: '' },
+    at: { type: Date, default: null },
+    attempts: { type: Number, default: 0 },
+    version: { type: String, default: '' },
+  },
 
   // ===== القفل: مين من نسخ السيرفر ماسك الاتصال =====
   leaseOwner: { type: String, default: '' },

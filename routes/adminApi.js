@@ -1934,6 +1934,7 @@ router.get('/admin/api/whatsapp', requireAdminSession, async (req, res) => {
         connectedAt: st.connectedAt,
         lastError: st.lastError || '',
         alive,
+        diag: st.diag || null,
       },
       settings: {
         enabled: !!st.enabled,

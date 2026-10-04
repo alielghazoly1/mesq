@@ -128,6 +128,18 @@ function LinkCard({ link }) {
           <p className="flex items-center gap-2 text-[12px] text-ivory/45">
             <RefreshCw size={12} /> الكود بيتجدّد لوحده كل كام ثانية — امسحه وهو ظاهر.
           </p>
+          {/* لو الكود اتأخر: نقول السبب بدل ما الدايرة تفضل تلف */}
+          {!qrImg && !link.alive && (
+            <p className="flex items-start gap-2 rounded-xl bg-brass/[0.09] px-3.5 py-2.5 text-[12px] leading-relaxed text-brass" data-wa-diag>
+              <AlertTriangle size={14} className="mt-0.5 shrink-0" />
+              خدمة الواتساب على السيرفر مش بترد — غالبًا السيرفر لسه بيعمل ريستارت. استنى دقيقتين وجرّب تاني.
+            </p>
+          )}
+          {!qrImg && link.alive && link.diag && link.diag.stage && link.diag.stage !== 'qr' && (
+            <p className="rounded-xl bg-ivory/[0.04] px-3.5 py-2.5 font-mono text-[11px] leading-relaxed text-ivory/50" dir="ltr" data-wa-diag>
+              {link.diag.stage}{link.diag.code ? ` · ${link.diag.code}` : ''}{link.diag.message ? ` · ${link.diag.message}` : ''}{link.diag.attempts ? ` · #${link.diag.attempts}` : ''}
+            </p>
+          )}
           <Btn size="sm" loading={unlinking} onClick={doUnlink}>إلغاء</Btn>
           {error && <p className="text-[12.5px] text-error">{error}</p>}
         </div>

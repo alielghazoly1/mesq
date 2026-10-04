@@ -342,6 +342,25 @@ app.use('/', dashboardRouter);
 app.use('/', editorRouter);
 app.use('/', guestPhotosRouter);
 app.use('/', presenceRouter);
+
+// حالة خدمة الواتساب (من غير أي رقم أو بيانات) — للتشخيص من بره من غير لوحة التحكم
+app.get('/api/health/whatsapp', async (req, res) => {
+  try {
+    const st = await require('./models/WhatsAppState').findOne({ key: 'default' }).lean();
+    const alive = !!(st && st.heartbeatAt && Date.now() - new Date(st.heartbeatAt).getTime() < 3 * 60 * 1000);
+    res.setHeader('Cache-Control', 'no-store');
+    return res.json({
+      alive,
+      heartbeatAt: (st && st.heartbeatAt) || null,
+      status: (st && st.status) || 'off',
+      wantLinked: !!(st && st.wantLinked),
+      diag: st && st.diag ? { stage: st.diag.stage, code: st.diag.code, message: st.diag.message, at: st.diag.at, attempts: st.diag.attempts, version: st.diag.version } : null,
+      node: process.version,
+    });
+  } catch {
+    return res.status(500).json({ error: 'failed' });
+  }
+});
 app.use('/', clientErrorsRouter);
 
 // أي GET route تاني مش API معروف بيرجع صفحة React (client/dist/index.html)
