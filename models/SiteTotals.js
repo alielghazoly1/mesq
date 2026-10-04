@@ -2,7 +2,7 @@
 // الأرقام المتراكمة للدعوات اللي **اتمسحت** من قاعدة البيانات.
 //
 // ليه الملف ده موجود أصلاً:
-// الدعوات المجانية اللي عدى على معادها يومين بتتمسح عشان القاعدة
+// الدعوات المجانية اللي عدى على معادها 5 أيام بتتمسح عشان القاعدة
 // ماتكبرش بلا داعي. بس الأرقام اللي بتتعرض في الصفحة الرئيسية
 // (عدد الدعوات، المشاهدات، المستخدمين) لازم تفضل زي ما هي — مينفعش
 // العداد ينقص قدام الزوار كل ما بننضّف.
@@ -24,7 +24,18 @@ const siteTotalsSchema = new mongoose.Schema({
   // إجمالي ردود الحضور اللي اتمسحت معاها
   archivedRsvps: { type: Number, default: 0 },
 
+  // عدد الدعوات الممسوحة لكل تصميم — عشان "أكتر التصاميم" في لوحة التحكم
+  // يفضل بنفس أرقامه
+  archivedByTemplate: { type: Map, of: Number, default: {} },
+  // الدعوات الممسوحة حسب يوم إنشائها، والردود حسب يومها (بتوقيت مصر) —
+  // عشان الرسوم البيانية في اللوحة تفضل بنفس شكلها
+  archivedDaily: { type: Map, of: Number, default: {} },
+  archivedRsvpDaily: { type: Map, of: Number, default: {} },
+  archivedRsvpYesDaily: { type: Map, of: Number, default: {} },
+
   lastCleanupAt: { type: Date, default: null },
+  // آخر مرة التنضيف التلقائي اشتغل (قفل بسيط عشان مايشتغلش مرتين)
+  autoCleanupAt: { type: Date, default: null },
   lastCleanupDeleted: { type: Number, default: 0 },
 });
 

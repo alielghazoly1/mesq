@@ -154,7 +154,7 @@ router.get('/admin/api/overview', requireAdminSession, async (req, res) => {
       viewsAgg, totalRsvps, pendingOrders,
       revenueAll, revenuePeriod,
       usersSeries, invitationsSeries, ordersSeries, rsvpSeries,
-      byTemplate, byPackage, byCountry,
+      byTemplate, byPackage, byCountry, totals,
     ] = await Promise.all([
       User.countDocuments({}),
       User.countDocuments({ 'subscription.packageId': { $ne: null } }),
@@ -221,7 +221,30 @@ router.get('/admin/api/overview', requireAdminSession, async (req, res) => {
         },
         { $sort: { count: -1, _id: 1 } },
       ]),
+      SiteTotals.findOne({ key: 'default' }).lean(),
     ]);
+
+    // الدعوات المجانية المنتهية بتتمسح (utils/cleanupExpired.js) وأرقامها
+    // بتتحفظ في SiteTotals — فبنضيفها هنا عشان الأرقام والرسوم ماتنقصش
+    const ar = totals || {};
+    const withArchived = (rows, map, extra = {}) => {
+      const byDay = {};
+      rows.forEach((r) => { byDay[r._id] = { ...r }; });
+      Object.entries(map || {}).forEach(([day, n]) => {
+        if (!byDay[day]) byDay[day] = { _id: day, count: 0 };
+        byDay[day].count += n;
+        Object.entries(extra).forEach(([k, m]) => { byDay[day][k] = (byDay[day][k] || 0) + ((m || {})[day] || 0); });
+      });
+      return Object.values(byDay);
+    };
+    const tplCounts = {};
+    byTemplate.forEach((r) => { tplCounts[r._id] = r.count; });
+    Object.entries(ar.archivedByTemplate || {}).forEach(([id, n]) => {
+      if (id !== 'unknown') tplCounts[id] = (tplCounts[id] || 0) + n;
+    });
+    const templatesAll = Object.entries(tplCounts)
+      .map(([id, count]) => ({ _id: id, count }))
+      .sort((a, b) => b.count - a.count);
 
     const revenueBy = (rows) => CURRENCIES.reduce((acc, c) => {
       const found = rows.find((r) => r._id === c);
@@ -237,22 +260,22 @@ router.get('/admin/api/overview', requireAdminSession, async (req, res) => {
         premiumUsers,
         blockedUsers,
         suspendedSubs,
-        invitations: totalInvitations,
+        invitations: totalInvitations + (ar.archivedInvitations || 0),
         draftInvitations,
         premiumInvitations,
-        views: viewsAgg[0] ? viewsAgg[0].total : 0,
-        rsvps: totalRsvps,
+        views: (viewsAgg[0] ? viewsAgg[0].total : 0) + (ar.archivedViews || 0),
+        rsvps: totalRsvps + (ar.archivedRsvps || 0),
         pendingOrders,
       },
       revenue: { all: revenueBy(revenueAll), period: revenueBy(revenuePeriod) },
       series: {
         users: fillDailySeries(usersSeries, from, period, ['count']),
-        invitations: fillDailySeries(invitationsSeries, from, period, ['count', 'premium']),
+        invitations: fillDailySeries(withArchived(invitationsSeries, ar.archivedDaily), from, period, ['count', 'premium']),
         revenue: fillDailySeries(ordersSeries, from, period, ['count', 'egp', 'usd']),
-        rsvps: fillDailySeries(rsvpSeries, from, period, ['count', 'yes']),
+        rsvps: fillDailySeries(withArchived(rsvpSeries, ar.archivedRsvpDaily, { yes: ar.archivedRsvpYesDaily }), from, period, ['count', 'yes']),
       },
       breakdown: {
-        templates: byTemplate.map((r) => {
+        templates: templatesAll.map((r) => {
           const tpl = TEMPLATES.find((x) => x.id === r._id);
           return { id: r._id, label: (tpl && (tpl.name.ar || tpl.name.en)) || r._id, count: r.count };
         }),

@@ -28,7 +28,7 @@ require('dotenv').config({ path: path.join(__dirname, '..', envFile) });
 const connectDB = require('../config/db');
 const Invitation = require('../models/Invitation');
 const SiteTotals = require('../models/SiteTotals');
-const { cleanupExpiredInvitations, buildFilter, DEFAULT_GRACE_DAYS } = require('../utils/cleanupExpired');
+const { cleanupExpiredInvitations, buildFilter, paidOwnerIds, DEFAULT_GRACE_DAYS } = require('../utils/cleanupExpired');
 
 const apply = process.argv.includes('--apply');
 const sure = process.argv.includes('--yes-i-am-sure');
@@ -80,10 +80,10 @@ const pad = (label) => (label + ' '.repeat(24)).slice(0, 24);
   console.log('صورة القاعدة دلوقتي:');
   console.log('  ' + pad('إجمالي الدعوات') + n(total));
   console.log('  ' + pad('مميزة (مدفوعة)') + n(premium) + '   ← محمية');
-  console.log('  ' + pad('ليها حساب') + n(owned) + '   ← محمية');
+  console.log('  ' + pad('ليها حساب') + n(owned) + '   ← محمية لو صاحبها دفع');
   console.log('  ' + pad('مسودات') + n(drafts));
 
-  const filter = buildFilter(graceDays);
+  const filter = buildFilter(graceDays, await paidOwnerIds());
   const matching = await Invitation.countDocuments(filter);
 
   console.log('\nالمرشّح للمسح:');

@@ -2,27 +2,54 @@
 // تنضيف الدعوات المجانية اللي عدى على معادها فترة محددة.
 //
 // القواعد (متعمدة وضيقة):
-//   1) المجانية بس — أي دعوة مميزة (العميل دفع فيها) عمرها ما تتمسح.
-//   2) اللي ليها مالك مسجّل بتتستنى كمان — حتى لو مجانية، دي في
-//      لوحة تحكمه وبيشوفها.
-//   3) لازم يكون عدى على معاد الفرح المدة المحددة (يومين افتراضيًا).
-//   4) لازم يكون ليها تاريخ فرح أصلاً — أي دعوة من غير تاريخ بتتستنى.
+//   1) المجانية بس — أي دعوة مميزة (اتعملت بباقة مدفوعة) عمرها ما تتمسح.
+//   2) أي دعوة صاحبها دفع في أي يوم (عنده باقة، أو ليه طلب مش ملغي) بتتستنى
+//      كلها — حتى لو مجانية قديمة من قبل ما يدفع. العميل اللي دفع دعواته
+//      بتفضل طول العمر.
+//   3) لازم يكون عدى على معاد الفرح المدة المحددة (5 أيام افتراضيًا) —
+//      يعني الدعوة خلصت فعلًا ومحدش هيفتحها تاني.
 //
-// وقبل أي مسح، أرقامها بتتضاف في SiteTotals عشان العداد اللي بيبان
-// للزوار مايقلّش (models/SiteTotals.js).
+// وقبل أي مسح، أرقامها بتتضاف في SiteTotals عشان العدادات (اللي بيبان
+// للزوار ولوحة التحكم) ماتقلّش (models/SiteTotals.js).
 
 const Invitation = require('../models/Invitation');
 const Rsvp = require('../models/Rsvp');
 const SiteTotals = require('../models/SiteTotals');
+const User = require('../models/User');
+const Order = require('../models/Order');
+const GuestPhoto = require('../models/GuestPhoto');
+const { cairoParts } = require('./cairoTime');
 
-const DEFAULT_GRACE_DAYS = 2;
+const DEFAULT_GRACE_DAYS = 5;
+
+/** مفتاح اليوم بتوقيت مصر (YYYY-MM-DD) — نفس مفاتيح رسوم لوحة التحكم */
+function cairoDay(date) {
+  const p = cairoParts(date);
+  return `${p.year}-${String(p.month).padStart(2, '0')}-${String(p.day).padStart(2, '0')}`;
+}
+
+/** كل العملاء اللي دفعوا في أي وقت — دعواتهم محمية كلها */
+async function paidOwnerIds() {
+  const [subs, orders] = await Promise.all([
+    User.distinct('_id', { 'subscription.packageId': { $ne: null } }),
+    // أي طلب مش ملغي (اتفعّل، أو لسه مستني مراجعة الإيصال)
+    Order.distinct('userId', { status: { $ne: 'cancelled' } }),
+  ]);
+  const seen = new Set();
+  return subs.concat(orders).filter((id) => {
+    const k = String(id);
+    if (!id || seen.has(k)) return false;
+    seen.add(k);
+    return true;
+  });
+}
 
 /** شرط الدعوات المرشحة للمسح */
-function buildFilter(graceDays) {
+function buildFilter(graceDays, protectedOwners = []) {
   const cutoff = new Date(Date.now() - graceDays * 24 * 60 * 60 * 1000);
   return {
-    isPremium: { $ne: true },     // المدفوعة عمرها ما تتمسح
-    ownerId: null,                // ولا اللي ليها حساب
+    isPremium: { $ne: true },               // المدفوعة عمرها ما تتمسح
+    ownerId: { $nin: protectedOwners },     // ولا أي دعوة صاحبها دفع (null بيعدّي عادي)
     weddingDateTime: { $ne: null, $lt: cutoff },
   };
 }
@@ -37,12 +64,12 @@ async function cleanupExpiredInvitations(options = {}) {
   const dryRun = options.dryRun !== false;   // لازم تقول صراحةً إنك عايز تمسح
   const limit = Math.max(1, Math.min(5000, options.limit || 1000));
 
-  const filter = buildFilter(graceDays);
+  const filter = buildFilter(graceDays, await paidOwnerIds());
 
   const doomed = await Invitation.find(filter)
     .sort({ weddingDateTime: 1 })   // الأقدم الأول
     .limit(limit)
-    .select('shortId viewCount creatorDeviceId weddingDateTime')
+    .select('shortId viewCount creatorDeviceId weddingDateTime status templateId createdAt')
     .lean();
 
   const totalMatching = await Invitation.countDocuments(filter);
@@ -72,6 +99,32 @@ async function cleanupExpiredInvitations(options = {}) {
     creatorsGone = devices.length - stillThere.length;
   }
 
+  // المسودات عمرها ما اتحسبت في العداد أصلًا، فمش بتتضاف للمحفوظ
+  const counted = doomed.filter((d) => d.status !== 'draft');
+  const inc = {};
+  const add = (key, n = 1) => { inc[key] = (inc[key] || 0) + n; };
+  counted.forEach((d) => {
+    add(`archivedByTemplate.${String(d.templateId || 'unknown').replace(/[.$]/g, '_')}`);
+    // يوم إنشاء الدعوة — عشان رسم "الدعوات الجديدة" في اللوحة مايتغيّرش
+    if (d.createdAt) add(`archivedDaily.${cairoDay(d.createdAt)}`);
+  });
+  // ردود الحضور حسب يومها — عشان رسم الردود يفضل زي ما هو
+  const rsvpDays = rsvps ? await Rsvp.aggregate([
+    { $match: { shortId: { $in: shortIds } } },
+    {
+      $group: {
+        _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt', timezone: 'Africa/Cairo' } },
+        count: { $sum: 1 },
+        yes: { $sum: { $cond: ['$attending', 1, 0] } },
+      },
+    },
+  ]) : [];
+  rsvpDays.forEach((r) => {
+    if (!r._id) return;
+    add(`archivedRsvpDaily.${r._id}`, r.count);
+    if (r.yes) add(`archivedRsvpYesDaily.${r._id}`, r.yes);
+  });
+
   const summary = {
     dryRun, graceDays, totalMatching, selected: doomed.length,
     views, rsvps, creatorsGone, deleted: 0,
@@ -88,10 +141,11 @@ async function cleanupExpiredInvitations(options = {}) {
     { key: 'default' },
     {
       $inc: {
-        archivedInvitations: doomed.length,
+        archivedInvitations: counted.length,
         archivedViews: views,
         archivedCreators: creatorsGone,
         archivedRsvps: rsvps,
+        ...inc,
       },
       $set: { lastCleanupAt: new Date(), lastCleanupDeleted: doomed.length },
     },
@@ -99,10 +153,11 @@ async function cleanupExpiredInvitations(options = {}) {
   );
 
   await Rsvp.deleteMany({ shortId: { $in: shortIds } });
+  await GuestPhoto.deleteMany({ shortId: { $in: shortIds } });
   const res = await Invitation.deleteMany({ _id: { $in: ids } });
   summary.deleted = res.deletedCount || 0;
 
   return summary;
 }
 
-module.exports = { cleanupExpiredInvitations, buildFilter, DEFAULT_GRACE_DAYS };
+module.exports = { cleanupExpiredInvitations, buildFilter, paidOwnerIds, DEFAULT_GRACE_DAYS };
