@@ -92,10 +92,11 @@ module.exports = {
   // عناصر بتتشال: صورة القاعة فوق الخريطة، وسطر أسماء العائلات (مش في بيانات العميل)
   hidden: ['iv5', 'iv22'],
 
-  // صور الألبوم (فلسطين) — بتتحط بسكريبت الدعوة دي (صور الموقع نفسه، مش Cloudinary)
+  // صور الألبوم: العريس بالحطّة والعقال جنب عروسته بالثوب المطرّز (من Pinterest باختيار
+  // صاحب الموقع) — بتتحط بسكريبت الدعوة دي (صور الموقع نفسه، مش Cloudinary)
   images: {
-    iv3: `${BASE}/couple-keffiyeh.webp`,
-    iv2: `${BASE}/couple-white.webp`,
+    iv3: `${BASE}/couple-hatta.webp`,
+    iv2: `${BASE}/couple-hatta-red.webp`,
     iv4: `${BASE}/couple-veil.webp`,
     // ختم الشمع على الغلاف: A ♥ S بدل الورد
     '1773847037346': `${BASE}/seal-as.webp`,
@@ -104,8 +105,9 @@ module.exports = {
   // كارت المشاركة على واتساب
   share: {
     title: 'Ahmed ♥ Sa Princesse — Invitation de mariage',
-    description: 'Vous êtes chaleureusement invités à célébrer notre mariage · Salle Mazeline, Damigny',
-    image: `${BASE}/share.jpg`,
+    description: 'Samedi 17 octobre 2026 · Salle Mazeline, Damigny — Vous êtes chaleureusement invités à célébrer notre mariage',
+    // اسم جديد للصورة عشان واتساب مايفضلش عارض القديمة من الكاش
+    image: `${BASE}/share-v2.jpg`,
   },
 
   // فورم تأكيد الحضور
