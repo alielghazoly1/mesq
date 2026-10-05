@@ -124,11 +124,11 @@ module.exports = {
     <div class="qic-cards">
       <div class="qic-card">
         <div class="qic-label">LES HOMMES</div>
-        <div class="qic-time">De 12h00 à 17h00</div>
+        <div class="qic-time">De 12h00 à 16h00</div>
       </div>
       <div class="qic-card">
         <div class="qic-label">LES FEMMES</div>
-        <div class="qic-time">À partir de 17h30</div>
+        <div class="qic-time">À partir de 17h00</div>
       </div>
     </div>`,
   noticeHtml: `
