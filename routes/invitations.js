@@ -7,6 +7,8 @@ const User = require('../models/User');
 const { sanitizeText } = require('../utils/sanitize');
 const { generateShortId } = require('../utils/idGenerator');
 const { renderNewPathHtml, renderLegacyHtml } = require('../utils/renderInvitation');
+const { getCustomInvitation, applyCustomData, customInvitationTags } = require('../utils/customInvitations');
+const { injectBeforeBodyEnd } = require('../utils/templateFixes');
 const { buildInvitationDataFromRequest, hasActivePackage } = require('../utils/invitationData');
 const { buildStatsPage, loadStatsData, ensureStatsToken } = require('../utils/statsPage');
 const { isEditWindowOpen, editWindowEndedBody } = require('../utils/editWindow');
@@ -248,9 +250,16 @@ router.get('/i/:shortId', async (req, res) => {
     // للصفحة نفسها لما حد يضغط على الكارت
     const pageUrl = `${req.protocol}://${req.get('host')}/i/${invitation.shortId}`;
 
-    const html = invitation.templateId
-      ? renderNewPathHtml(invitation, { editMode, pageUrl })
+    // دعوة "كاستم" معمولة لعميل معيّن (custom-invitations/) — محتواها فوق المحفوظ
+    const custom = invitation.templateId ? getCustomInvitation(invitation.shortId) : null;
+    let html = invitation.templateId
+      ? renderNewPathHtml(custom ? applyCustomData(invitation, custom) : invitation, {
+        editMode,
+        pageUrl,
+        ...(custom ? { shareFallbackImage: `${req.protocol}://${req.get('host')}${custom.share.image}` } : {}),
+      })
       : renderLegacyHtml(invitation);
+    if (custom) html = injectBeforeBodyEnd(html, customInvitationTags(custom));
 
     res.set('Content-Type', 'text/html; charset=utf-8');
     // مهم: الصفحة دي لازم تتقدّم طازة كل مرة — لو اتكاشت (في المتصفح أو أي
