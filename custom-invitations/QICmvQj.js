@@ -5,7 +5,11 @@
 // المحتوى ده بيتطبّق وقت العرض فوق الدعوة المحفوظة (utils/customInvitations.js)
 // ومش بيلمس أي دعوة تانية ولا ملف القالب نفسه. تاريخ الفرح بييجي من الدعوة
 // المحفوظة (اللي بيتعدّل من المحرر) — والتاريخ المكتوب فوق وفي "Réservez la date"
-// بيتحسب منه بالفرنساوي، فلو التاريخ اتغيّر كل حاجة بتتغيّر معاه.
+// بيتحسب منه بالفرنساوي.
+//
+// التاريخ: السبت 17 أكتوبر 2026، والعد التنازلي لحد 12:00 بتوقيت فرنسا (بداية
+// حفلة الرجالة). النظام بيحسب الساعة بتوقيت مصر، وفي أكتوبر مصر قدّام فرنسا
+// بساعة — فبنكتب 13:00 عشان العداد يخلص 12:00 بالظبط في فرنسا.
 
 const BASE = '/custom/QICmvQj';
 const MAPS_QUERY = 'Salle Mazeline, Rue du Chemin de Maure, 61250 Damigny';
@@ -29,6 +33,7 @@ module.exports = {
     venueMapQuery: MAPS_QUERY,
     venueMapEmbedSrc: `https://www.google.com/maps?q=${encodeURIComponent(MAPS_QUERY)}&output=embed`,
     venueMapDirectLink: 'https://maps.app.goo.gl/WV42QR8RzqLmnTcU9',
+    weddingDateTime: new Date(2026, 9, 17, 13, 0),
   },
 
   /** نصوص بتعتمد على التاريخ (ساعة الحائط اللي متخزّنة في الدعوة) */
@@ -90,8 +95,10 @@ module.exports = {
   // صور الألبوم (فلسطين) — بتتحط بسكريبت الدعوة دي (صور الموقع نفسه، مش Cloudinary)
   images: {
     iv3: `${BASE}/couple-keffiyeh.webp`,
-    iv2: `${BASE}/couple-aqsa.webp`,
+    iv2: `${BASE}/couple-white.webp`,
     iv4: `${BASE}/couple-veil.webp`,
+    // ختم الشمع على الغلاف: A ♥ S بدل الورد
+    '1773847037346': `${BASE}/seal-as.webp`,
   },
 
   // كارت المشاركة على واتساب

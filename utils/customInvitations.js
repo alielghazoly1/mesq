@@ -22,7 +22,7 @@ function applyCustomData(invitation, custom) {
     ...custom.fields,
     customizations: {
       ...c,
-      texts: { ...(c.texts || {}), ...custom.texts, ...custom.dateTexts(base.weddingDateTime) },
+      texts: { ...(c.texts || {}), ...custom.texts, ...custom.dateTexts(custom.fields.weddingDateTime || base.weddingDateTime) },
       hidden: [...new Set([...(c.hidden || []), ...(custom.hidden || [])])],
       rsvp: { ...(c.rsvp || {}), ...(custom.rsvp || {}) },
       share: { ...(c.share || {}), title: custom.share.title, description: custom.share.description },
@@ -71,7 +71,8 @@ function customInvitationTags(custom) {
   const script = `(function(){
 var C=${json};
 function imgs(){Object.keys(C.images).forEach(function(id){
-  var el=document.querySelector('img[data-elem-id="'+id+'"]');
+  var host=document.querySelector('[data-elem-id="'+id+'"]');
+  var el=host&&(host.tagName==='IMG'?host:host.querySelector('img'));
   if(!el||el.getAttribute('src')===C.images[id])return;
   el.removeAttribute('srcset');el.removeAttribute('data-original');el.src=C.images[id];
 });}
