@@ -37,6 +37,7 @@ import BigScreenNotice, { hintDismissed } from '../components/editor/BigScreenNo
 import EditWindowEnded from '../components/editor/EditWindowEnded.jsx';
 import useIsCompact from '../hooks/useIsCompact.js';
 import { tooBig, sizeError, uploadError } from '../lib/uploadLimits.js';
+import { prepareImage } from '../lib/prepareImage.js';
 import { installSoloAudio, setFramePauser } from '../lib/soloAudio.js';
 import PanelBoundary from '../components/PanelBoundary.jsx';
 
@@ -771,10 +772,12 @@ export default function EditorPage() {
   applyImageFileRef.current = (file, id) => applyImageFile(file, id);
 
   /** يرفع الصورة ويحطها مكان العنصر ده فورًا (من الشريط أو من زرار الصورة جوه الدعوة) */
-  async function applyImageFile(file, targetId) {
-    if (!file || !targetId) return;
+  async function applyImageFile(rawFile, targetId) {
+    if (!rawFile || !targetId) return;
     setError('');
-    if (tooBig(file)) { setError(sizeError(file)); return; }
+    // صور الموبايل الكبيرة بتتصغّر هنا بدل ما تترفض
+    const file = await prepareImage(rawFile);
+    if (tooBig(file)) { setError(sizeError(file)); if (compact) setSheetOpen(true); return; }
     try {
       const fd = new FormData();
       fd.append('file', file);
@@ -785,6 +788,7 @@ export default function EditorPage() {
       setDirty(true);
     } catch (err) {
       setError(uploadError(err, t));
+      if (compact) setSheetOpen(true); // الرسالة بتظهر في الدرج — نفتحه عشان العميل يشوفها
     }
   }
 
@@ -811,10 +815,11 @@ export default function EditorPage() {
 
   /** صورة كارت المشاركة — بتترفع زي أي صورة بس مبتتحطش في التصميم */
   async function onShareImage(e) {
-    const file = e.target.files?.[0];
+    let file = e.target.files?.[0];
     e.target.value = '';
     if (!file) return;
     setError('');
+    file = await prepareImage(file);
     if (tooBig(file)) { setError(sizeError(file)); return; }
     try {
       const fd = new FormData();
