@@ -758,13 +758,35 @@
     if (act === 'edit') startWriting(state.selected);
     else if (act === 'done') stopWriting(true);
     else if (act === 'delete') removeElement(state.selected);
-    else if (act === 'image') send('pick-image', { id: elemId(state.selected) });
+    else if (act === 'image') pickImageFile(elemId(state.selected));
     else if (act === 'map') send('pick-map', { id: elemId(state.selected) });
     else if (act === 'color') openColorPicker(state.selected);
     else if (act === 'resize') send('pick-scale', { id: elemId(state.selected) });
     else if (act === 'rsvp') send('pick-rsvp', {});
     else if (act === 'align') cycleAlign(state.selected);
   });
+
+  /**
+   * زرار الصورة بيفتح اختيار الملف على طول — خطوة واحدة بدل ما العميل يضغط
+   * الزرار وبعدين يدوّر على "اختار صورة" في الشريط (وكتير كانوا بيقفوا
+   * هنا ويفتكروا إن الصورة مابتتغيّرش). الملف بيتفتح من جوه الدعوة
+   * عشان الضغطة تفضل ضغطة مستخدم حقيقية حتى على الموبايل، وبعدها
+   * الملف بيتبعت للمحرر يرفعه ويطبّقه.
+   */
+  function pickImageFile(id) {
+    if (!id) return;
+    var input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/jpeg,image/png,image/webp';
+    input.style.cssText = 'position:fixed;left:-9999px;top:0;width:1px;height:1px;opacity:0;';
+    input.addEventListener('change', function () {
+      var file = input.files && input.files[0];
+      if (file) send('image-file', { id: id, file: file });
+      setTimeout(function () { if (input.parentNode) input.parentNode.removeChild(input); }, 0);
+    });
+    document.body.appendChild(input);
+    input.click();
+  }
 
   // بيدوّر محاذاة النص: يمين ← توسيط ← شمال ← يمين ...
   function cycleAlign(el) {

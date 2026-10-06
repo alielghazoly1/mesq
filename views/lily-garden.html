@@ -1291,6 +1291,8 @@
                 .wg-caps { font-family: 'Cormorant Garamond', 'Amiri', 'EB Garamond', Georgia, serif; text-transform: uppercase; font-weight: 600; margin: 0; }
                 .wg-abs { position: absolute; left: 0; width: 100%; transform: translateY(-50%); }
                 .wg-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; display: block; margin: 0; padding: 0; border: 0; z-index: 0; }
+                /* صورة العميل (Cloudinary) بتتملّى من غير تمطيط — الخلفية الأصلية بس هي اللي object-fit:fill */
+                .wg-bg[src*="res.cloudinary.com"] { object-fit: cover; }
                 .wg-sec > :not(.wg-bg) { z-index: 1; }
 
                 /* ===== الصفحة 1 ===== */

@@ -501,6 +501,12 @@ export default function EditorPage() {
         setTab('photos');
         setError('');
       }
+      // زرار الصورة جوه الدعوة فتح اختيار الملف بنفسه والعميل اختار —
+      // نرفعها ونحطها مكان الصورة فورًا من غير خطوات زيادة
+      if (msg.type === 'image-file') {
+        setPickedImage(p.id);
+        applyImageFileRef.current(p.file, p.id);
+      }
 
       // ضغط على أيقونة تغيير الحجم على الصورة — نفتح تحكّم الحجم في الشريط
       if (msg.type === 'pick-scale') {
@@ -606,6 +612,7 @@ export default function EditorPage() {
   postRef.current = post;
 
   const saveTextRef = useRef(() => {});
+  const applyImageFileRef = useRef(() => {});
   saveTextRef.current = async ({ id, oldText, newText }) => {
     setError('');
     setTextSaving(true);
@@ -758,7 +765,14 @@ export default function EditorPage() {
   async function onImageFile(e) {
     const file = e.target.files?.[0];
     e.target.value = '';
-    if (!file || !pickedImage) return;
+    await applyImageFile(file, pickedImage);
+  }
+
+  applyImageFileRef.current = (file, id) => applyImageFile(file, id);
+
+  /** يرفع الصورة ويحطها مكان العنصر ده فورًا (من الشريط أو من زرار الصورة جوه الدعوة) */
+  async function applyImageFile(file, targetId) {
+    if (!file || !targetId) return;
     setError('');
     if (tooBig(file)) { setError(sizeError(file)); return; }
     try {
@@ -766,8 +780,8 @@ export default function EditorPage() {
       fd.append('file', file);
       const res = await uploadImage(fd).unwrap();
       remember(); // بعد نجاح الرفع — عشان رفعة فاشلة ماتسجّلش خطوة
-      setDraft((d) => ({ ...d, images: { ...d.images, [pickedImage]: res.url } }));
-      post('set-image', { id: pickedImage, url: res.url });
+      setDraft((d) => ({ ...d, images: { ...d.images, [targetId]: res.url } }));
+      post('set-image', { id: targetId, url: res.url });
       setDirty(true);
     } catch (err) {
       setError(uploadError(err, t));
