@@ -504,6 +504,9 @@ export default function EditorPage() {
       }
       // زرار الصورة جوه الدعوة فتح اختيار الملف بنفسه والعميل اختار —
       // نرفعها ونحطها مكان الصورة فورًا من غير خطوات زيادة
+      if (msg.type === 'download-image') {
+        downloadFromPreviewRef.current(p);
+      }
       if (msg.type === 'image-file') {
         setPickedImage(p.id);
         applyImageFileRef.current(p.file, p.id);
@@ -614,6 +617,7 @@ export default function EditorPage() {
 
   const saveTextRef = useRef(() => {});
   const applyImageFileRef = useRef(() => {});
+  const downloadFromPreviewRef = useRef(() => {});
   saveTextRef.current = async ({ id, oldText, newText }) => {
     setError('');
     setTextSaving(true);
@@ -770,6 +774,13 @@ export default function EditorPage() {
   }
 
   applyImageFileRef.current = (file, id) => applyImageFile(file, id);
+  // أيقونة التنزيل اللي فوق الصورة جوه الدعوة — بتنزّل على طول من غير فتح أي حاجة
+  downloadFromPreviewRef.current = async ({ id, src }) => {
+    let base;
+    try { base = iframeRef.current?.contentWindow?.location.href; } catch { /* */ }
+    const n = Math.max(1, photos.findIndex((x) => x.id === id) + 1);
+    try { await downloadImage(draft?.images?.[id] || src, `mithaq-${shortId}-${n}`, base); } catch { /* */ }
+  };
 
   /** يرفع الصورة ويحطها مكان العنصر ده فورًا (من الشريط أو من زرار الصورة جوه الدعوة) */
   async function applyImageFile(rawFile, targetId) {

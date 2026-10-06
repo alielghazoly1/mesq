@@ -120,6 +120,7 @@
   // الملف لأن الصفحة دي تصميم Tilda عادي، مفيش React جواها تستورد منها،
   // و الـ CSP بتاعنا مبيسمحش بتحميل سكريبت من أي CDN.
   var ICON_PENCIL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></svg>';
+  var ICON_DOWNLOAD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>';
   var ICON_TRASH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>';
   var ICON_CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
   var ICON_IMAGE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>';
@@ -548,6 +549,37 @@
    * من غير الشرط الأول، الرسمة اللي جنب الخريطة كانت بتكسبها لأنها
    * أصغر منها بشوية.
    */
+  var alphaCanvas = null;
+  /**
+   * الضغطة وقعت على بكسل شفاف تمامًا في <img>؟ بتتحقق بس لو الصورة على
+   * نفس النطاق أو بتسمح بـ CORS (وإلا الـcanvas بيرفض القراءة) ولو
+   * شكل العرض بيطابق شكل الصورة — غير كده نعتبرها مصمتة ونسيب الاختيار
+   * زي ما كان.
+   */
+  function isTransparentAt(el, x, y) {
+    var img = el.tagName === 'IMG' ? el : null;
+    if (!img || !img.complete || !img.naturalWidth) return false;
+    try {
+      var r = img.getBoundingClientRect();
+      if (!r.width || !r.height) return false;
+      var ratioBox = r.width / r.height;
+      var ratioImg = img.naturalWidth / img.naturalHeight;
+      if (Math.abs(ratioBox - ratioImg) / ratioImg > 0.04) return false;
+      if (!alphaCanvas) { alphaCanvas = document.createElement('canvas'); alphaCanvas.width = 1; alphaCanvas.height = 1; }
+      var cx = alphaCanvas.getContext('2d', { willReadFrequently: true });
+      cx.clearRect(0, 0, 1, 1);
+      var px = Math.min(img.naturalWidth - 1, Math.max(0, Math.floor((x - r.left) / r.width * img.naturalWidth)));
+      var py = Math.min(img.naturalHeight - 1, Math.max(0, Math.floor((y - r.top) / r.height * img.naturalHeight)));
+      cx.drawImage(img, px, py, 1, 1, 0, 0, 1, 1);
+      return cx.getImageData(0, 0, 1, 1).data[3] < 12;
+    } catch (e) { return false; }
+  }
+
+  function rankOf(el) {
+    var k = el.getAttribute('data-wda-kind');
+    return k === 'video' ? 2 : k === 'image' ? 1 : 0;
+  }
+
   function editableAtPoint(x, y) {
     var stack = document.elementsFromPoint(x, y) || [];
     var found = [];
@@ -556,9 +588,16 @@
       if (cand && found.indexOf(cand) === -1) found.push(cand);
     }
     if (!found.length) return null;
+    // صور PNG فيها أجزاء شفافة (زهور، زخارف) صندوقها بيغطي صور تانية: لو
+    // الضغطة وقعت على الجزء الشفاف من صورة، العميل قاصد اللي تحتها مش هي
+    var solid = found.filter(function (el) { return !isTransparentAt(el, x, y); });
+    if (solid.length) found = solid;
     found.sort(function (a, b) {
-      var ai = a.getAttribute('data-wda-kind') === 'image' ? 1 : 0;
-      var bi = b.getAttribute('data-wda-kind') === 'image' ? 1 : 0;
+      // الفيديو آخر الكل: في Blossom Oud فيه فيديو بيغطي الشاشة كلها فوق
+      // الصور، فكانت أي صورة العميل يضغط عليها بيتحدد الفيديو بدالها
+      // و"تغيير الصورة" بيروح للعنصر الغلط (والصورة اللي ضغط عليها ماتتغيّرش)
+      var ai = rankOf(a);
+      var bi = rankOf(b);
       if (ai !== bi) return ai - bi;
       return areaOf(a) - areaOf(b);
     });
@@ -759,6 +798,7 @@
     else if (act === 'done') stopWriting(true);
     else if (act === 'delete') removeElement(state.selected);
     else if (act === 'image') pickImageFile(elemId(state.selected));
+    else if (act === 'download') downloadSelectedImage(state.selected);
     else if (act === 'map') send('pick-map', { id: elemId(state.selected) });
     else if (act === 'color') openColorPicker(state.selected);
     else if (act === 'resize') send('pick-scale', { id: elemId(state.selected) });
@@ -786,6 +826,15 @@
     });
     document.body.appendChild(input);
     input.click();
+  }
+
+  /** تنزيل الصورة المحددة على طول — بجودتها الأصلية (المحرر هو اللي بينزّلها) */
+  function downloadSelectedImage(el) {
+    if (!el) return;
+    var pic = imageInside(el);
+    var src = pic ? imageSrcOf(pic.el) : '';
+    if (!src) return;
+    send('download-image', { id: elemId(el), src: src });
   }
 
   // بيدوّر محاذاة النص: يمين ← توسيط ← شمال ← يمين ...
@@ -892,6 +941,9 @@
 
     // زرار تغيير حجم الصورة — بيبان على الصور والفيديو، متاح في أي باقة.
     // بيفتح تحكّم الحجم في الشريط الجانبي (وعلى الصورة نفسها مقابض الأركان).
+    var downloadBtn = (kind === 'image' && mode !== 'writing')
+      ? '<button type="button" data-act="download" title="نزّل الصورة">' + ICON_DOWNLOAD + '</button>'
+      : '';
     var resizeBtn = (kind === 'image' || kind === 'video')
       ? '<button type="button" data-act="resize" title="غيّر حجم الصورة">' + ICON_RESIZE + '</button>'
       : '';
@@ -901,7 +953,7 @@
       ? '<button type="button" data-act="rsvp" title="عدّل فورم تأكيد الحضور">' + ICON_FORM + '</button>'
       : '';
 
-    tools.innerHTML = first + resizeBtn + rsvpBtn + alignBtn + colorBtn
+    tools.innerHTML = first + downloadBtn + resizeBtn + rsvpBtn + alignBtn + colorBtn
       + '<button type="button" data-act="delete" class="danger" title="احذف">' + ICON_TRASH + '</button>';
 
     var r = el.getBoundingClientRect();
