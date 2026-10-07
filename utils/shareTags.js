@@ -9,7 +9,56 @@
 // الحل: بنشيل وسوم Tilda ونحط بتاعتنا — بأسماء العروسين والتاريخ
 // والمكان افتراضيًا، والعميل المدفوع يقدر يغيّر العنوان والوصف
 // والصورة بنفسه.
+const fs = require('fs');
+const path = require('path');
 const { isAllowedMediaUrl } = require('./customizations');
+
+// كروت المشاركة الجاهزة لكل قالب (1200x630 JPEG) — client/public/img/share/
+// بتتبني مرة واحدة من لقطة القالب. أي دعوة العميل مرفعلهاش صورة مشاركة
+// بتاخد كارت قالبها، فاللينك عمره ما يطلع من غير صورة.
+const SHARE_DIR = path.join(__dirname, '..', 'client', 'public', 'img', 'share');
+const shareCardCache = new Map();
+function shareCardPath(templateId) {
+  const id = String(templateId || '');
+  if (!/^[a-z0-9-]{1,60}$/.test(id)) return '';
+  if (!shareCardCache.has(id)) {
+    shareCardCache.set(id, fs.existsSync(path.join(SHARE_DIR, `${id}.jpg`)) ? `/img/share/${id}.jpg` : '');
+  }
+  return shareCardCache.get(id);
+}
+
+/**
+ * أصل الموقع (https://domain) من لينك الصفحة. ميتا (إنستجرام/فيسبوك/ماسنجر)
+ * بترفض صور og من غير https مطلق، فبنجبر https لأي دومين حقيقي.
+ */
+function originOf(pageUrl) {
+  try {
+    const u = new URL(pageUrl);
+    const local = /^(localhost|127\.|10\.|192\.168\.)/.test(u.hostname);
+    return `${local ? u.protocol : 'https:'}//${u.host}`;
+  } catch {
+    return '';
+  }
+}
+
+/**
+ * صورة Cloudinary اللي العميل رفعها → JPEG بمقاس 1200x630 بالظبط.
+ * إنستجرام بيتجاهل الكارت لو الصورة WebP/HEIC أو ضخمة أو بنسبة غريبة —
+ * فبنطلب من Cloudinary نسخة مقصوصة على النسبة الصح وبصيغة JPEG.
+ * التحويل بيتحط في آخر سلسلة التحويلات الموجودة (لو فيه) عشان يكون هو
+ * الأخير اللي بيتطبّق ويطلع المقاس اللي بنعلن عنه بالظبط.
+ */
+function cloudinaryShareImage(url) {
+  const marker = '/image/upload/';
+  const i = url.indexOf(marker);
+  if (i === -1) return url;
+  const head = url.slice(0, i + marker.length);
+  const parts = url.slice(i + marker.length).split('/');
+  let k = 0;
+  while (k < parts.length - 1 && /^(?:[a-z]{1,3}_[^/]*)(?:,[a-z]{1,3}_[^/]*)*$/.test(parts[k])) k += 1;
+  parts.splice(k, 0, 'c_fill,g_auto,w_1200,h_630,f_jpg,q_auto');
+  return head + parts.join('/');
+}
 
 /** بيهرّب النص عشان يتحط جوه خاصية HTML بأمان */
 function attr(value) {
@@ -68,29 +117,48 @@ function buildShareTags(data, pageUrl, fallbackImage) {
 
   const title = clamp(share.title, MAX_TITLE) || base.title;
   const description = clamp(share.description, MAX_DESC) || base.description;
+  const origin = originOf(pageUrl);
+  const abs = (u) => (u && u.startsWith('/') && origin ? origin + u : u);
+
   // الصورة لازم تعدي نفس فحص الروابط بتاع باقي التخصيصات — محدش
-  // يقدر يحط لينك لأي حاجة برّه المصادر المسموح بيها
-  const image = (isAllowedMediaUrl(share.image) && share.image)
-    || fallbackImage
-    || '';
+  // يقدر يحط لينك لأي حاجة برّه المصادر المسموح بيها. صورة العميل
+  // بتتحوّل لـ JPEG 1200x630، ولو مفيش بنستخدم كارت القالب الجاهز.
+  let image = '';
+  if (isAllowedMediaUrl(share.image) && share.image) {
+    image = /^https:\/\/res\.cloudinary\.com\//.test(share.image)
+      ? cloudinaryShareImage(share.image)
+      : abs(share.image);
+  } else {
+    image = abs(fallbackImage || '');
+  }
+  // ميتا محتاجة رابط مطلق — أي حاجة غير كده مالهاش لازمة نعلن عنها
+  if (!/^https?:\/\//.test(image)) image = '';
 
   const isAr = String(data.language || 'ar').toLowerCase() === 'ar';
+  const url = pageUrl && origin ? origin + new URL(pageUrl).pathname : pageUrl;
+  const siteName = isAr ? 'ميثاق — دعوات الأفراح' : 'Mithaq — Wedding Invitations';
 
   return [
     `<meta property="og:type" content="website">`,
-    pageUrl ? `<meta property="og:url" content="${attr(pageUrl)}">` : '',
+    `<meta property="og:site_name" content="${attr(siteName)}">`,
+    url ? `<meta property="og:url" content="${attr(url)}">` : '',
     `<meta property="og:title" content="${attr(title)}">`,
     `<meta property="og:description" content="${attr(description)}">`,
     `<meta property="og:locale" content="${isAr ? 'ar_EG' : 'en_US'}">`,
     image ? `<meta property="og:image" content="${attr(image)}">` : '',
-    // واتساب بيحب يعرف المقاس — من غيره ساعات بيعرض الصورة صغيرة جنب
+    // إنستجرام/فيسبوك بيعتمدوا على secure_url والنوع والمقاس عشان يعرضوا
+    // الكارت الكبير — من غيرهم ساعات بيبعت اللينك كنص عادي
+    image && image.startsWith('https://') ? `<meta property="og:image:secure_url" content="${attr(image)}">` : '',
+    image ? '<meta property="og:image:type" content="image/jpeg">' : '',
     image ? '<meta property="og:image:width" content="1200">' : '',
     image ? '<meta property="og:image:height" content="630">' : '',
+    image ? `<meta property="og:image:alt" content="${attr(title)}">` : '',
     `<meta name="twitter:card" content="${image ? 'summary_large_image' : 'summary'}">`,
     `<meta name="twitter:title" content="${attr(title)}">`,
     `<meta name="twitter:description" content="${attr(description)}">`,
     image ? `<meta name="twitter:image" content="${attr(image)}">` : '',
     `<meta name="description" content="${attr(description)}">`,
+    url ? `<link rel="canonical" href="${attr(url)}">` : '',
     `<title>${attr(title)}</title>`,
   ].filter(Boolean).join('\n    ');
 }
@@ -146,6 +214,8 @@ function sanitizeShare(input) {
 
 module.exports = {
   buildShareTags,
+  shareCardPath,
+  cloudinaryShareImage,
   injectShareTags,
   stripTemplateShareTags,
   sanitizeShare,

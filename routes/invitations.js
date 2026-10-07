@@ -258,7 +258,7 @@ router.get('/i/:shortId', async (req, res) => {
         pageUrl,
         ...(custom ? { shareFallbackImage: `${req.protocol}://${req.get('host')}${custom.share.image}` } : {}),
       })
-      : renderLegacyHtml(invitation);
+      : renderLegacyHtml(invitation, { pageUrl });
     if (custom) html = injectBeforeBodyEnd(html, customInvitationTags(custom));
 
     res.set('Content-Type', 'text/html; charset=utf-8');

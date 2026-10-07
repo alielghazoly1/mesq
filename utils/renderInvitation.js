@@ -16,7 +16,7 @@ const { getTemplate, getDefaultTemplate } = require('../templates/registry');
 const { safeJsonForScript } = require('./sanitize');
 const { injectTemplateFixes, injectBeforeBodyEnd } = require('./templateFixes');
 const { buildCustomizationTags } = require('./customizations');
-const { buildShareTags, injectShareTags } = require('./shareTags');
+const { buildShareTags, injectShareTags, shareCardPath } = require('./shareTags');
 
 // بيتحقن بس في وضع التحرير (routes/invitations.js بيتأكد إن اللي فاتح هو
 // صاحب الدعوة فعلاً) — الضيوف عمرهم ما يشوفوا الملفات دي.
@@ -251,7 +251,7 @@ function renderNewPathHtml(data, options) {
   html = injectShareTags(html, buildShareTags(
     data,
     (options && options.pageUrl) || '',
-    (options && options.shareFallbackImage) || (template && template.preview) || ''
+    (options && options.shareFallbackImage) || (template && (template.preview || shareCardPath(template.id))) || ''
   ));
 
   // تخصيصات العميل (خط/صور/موسيقى/إزاحات) بتتحقن كطبقة فوق التصميم
@@ -262,7 +262,7 @@ function renderNewPathHtml(data, options) {
   return html;
 }
 
-function renderLegacyHtml(invitation) {
+function renderLegacyHtml(invitation, options) {
   const display = buildDisplayFields(invitation.weddingDateTime);
   const config = {
     brideName: invitation.brideName,
@@ -279,7 +279,14 @@ function renderLegacyHtml(invitation) {
     '__INVITATION_CONFIG_JSON__',
     safeJsonForScript(config)
   );
-  return injectTemplateFixes(html);
+  // الدعوات القديمة كمان بتاخد كارت مشاركة (أسماء + صورة) — قبل كده كانت
+  // بتطلع بوسوم Tilda الأصلية ("Blossom & Oud" وشعارهم)
+  const tags = buildShareTags(
+    { ...(invitation.toObject ? invitation.toObject() : invitation), language: invitation.language || 'ar' },
+    (options && options.pageUrl) || '',
+    shareCardPath('blossom-oud')
+  );
+  return injectShareTags(injectTemplateFixes(html), tags);
 }
 
 module.exports = { renderNewPathHtml, renderLegacyHtml };
