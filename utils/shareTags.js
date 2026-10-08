@@ -9,23 +9,7 @@
 // الحل: بنشيل وسوم Tilda ونحط بتاعتنا — بأسماء العروسين والتاريخ
 // والمكان افتراضيًا، والعميل المدفوع يقدر يغيّر العنوان والوصف
 // والصورة بنفسه.
-const fs = require('fs');
-const path = require('path');
 const { isAllowedMediaUrl } = require('./customizations');
-
-// كروت المشاركة الجاهزة لكل قالب (1200x630 JPEG) — client/public/img/share/
-// بتتبني مرة واحدة من لقطة القالب. أي دعوة العميل مرفعلهاش صورة مشاركة
-// بتاخد كارت قالبها، فاللينك عمره ما يطلع من غير صورة.
-const SHARE_DIR = path.join(__dirname, '..', 'client', 'public', 'img', 'share');
-const shareCardCache = new Map();
-function shareCardPath(templateId) {
-  const id = String(templateId || '');
-  if (!/^[a-z0-9-]{1,60}$/.test(id)) return '';
-  if (!shareCardCache.has(id)) {
-    shareCardCache.set(id, fs.existsSync(path.join(SHARE_DIR, `${id}.jpg`)) ? `/img/share/${id}.jpg` : '');
-  }
-  return shareCardCache.get(id);
-}
 
 /**
  * أصل الموقع (https://domain) من لينك الصفحة. ميتا (إنستجرام/فيسبوك/ماسنجر)
@@ -42,11 +26,13 @@ function originOf(pageUrl) {
 }
 
 /**
- * صورة Cloudinary اللي العميل رفعها → JPEG بمقاس 1200x630 بالظبط.
- * إنستجرام بيتجاهل الكارت لو الصورة WebP/HEIC أو ضخمة أو بنسبة غريبة —
- * فبنطلب من Cloudinary نسخة مقصوصة على النسبة الصح وبصيغة JPEG.
+ * صورة Cloudinary اللي العميل رفعها → نفس الصورة بشكلها الطبيعي بالظبط
+ * (طويلة تفضل طويلة، عريضة تفضل عريضة — **مفيش أي قص**)، بس:
+ *   - بصيغة JPEG: إنستجرام/فيسبوك ساعات بيتجاهلوا WebP/HEIC.
+ *   - بحجم معقول (c_limit = تصغير لو أكبر بس، من غير تكبير ولا قص):
+ *     الصور الضخمة من الموبايل كانت بتتأخر أو تترفض من كراولر ميتا.
  * التحويل بيتحط في آخر سلسلة التحويلات الموجودة (لو فيه) عشان يكون هو
- * الأخير اللي بيتطبّق ويطلع المقاس اللي بنعلن عنه بالظبط.
+ * الأخير اللي بيتطبّق.
  */
 function cloudinaryShareImage(url) {
   const marker = '/image/upload/';
@@ -56,7 +42,7 @@ function cloudinaryShareImage(url) {
   const parts = url.slice(i + marker.length).split('/');
   let k = 0;
   while (k < parts.length - 1 && /^(?:[a-z]{1,3}_[^/]*)(?:,[a-z]{1,3}_[^/]*)*$/.test(parts[k])) k += 1;
-  parts.splice(k, 0, 'c_fill,g_auto,w_1200,h_630,f_jpg,q_auto');
+  parts.splice(k, 0, 'c_limit,w_1200,h_1600,f_jpg,q_auto');
   return head + parts.join('/');
 }
 
@@ -120,9 +106,8 @@ function buildShareTags(data, pageUrl, fallbackImage) {
   const origin = originOf(pageUrl);
   const abs = (u) => (u && u.startsWith('/') && origin ? origin + u : u);
 
-  // الصورة لازم تعدي نفس فحص الروابط بتاع باقي التخصيصات — محدش
-  // يقدر يحط لينك لأي حاجة برّه المصادر المسموح بيها. صورة العميل
-  // بتتحوّل لـ JPEG 1200x630، ولو مفيش بنستخدم كارت القالب الجاهز.
+  // الصورة اللي العميل حطها بنفسه بس — بنفس شكلها (مفيش قص ولا كارت
+  // افتراضي من عندنا). ولازم تعدي نفس فحص الروابط بتاع باقي التخصيصات.
   let image = '';
   if (isAllowedMediaUrl(share.image) && share.image) {
     image = /^https:\/\/res\.cloudinary\.com\//.test(share.image)
@@ -150,8 +135,8 @@ function buildShareTags(data, pageUrl, fallbackImage) {
     // الكارت الكبير — من غيرهم ساعات بيبعت اللينك كنص عادي
     image && image.startsWith('https://') ? `<meta property="og:image:secure_url" content="${attr(image)}">` : '',
     image ? '<meta property="og:image:type" content="image/jpeg">' : '',
-    image ? '<meta property="og:image:width" content="1200">' : '',
-    image ? '<meta property="og:image:height" content="630">' : '',
+    // مبنعلنش عن مقاس ثابت: صورة العميل بأي نسبة (طويلة/عريضة)، ولو
+    // كتبنا مقاس غلط ميتا بتعرضها مضغوطة أو مقصوصة. هي بتقيس الصورة لوحدها.
     image ? `<meta property="og:image:alt" content="${attr(title)}">` : '',
     `<meta name="twitter:card" content="${image ? 'summary_large_image' : 'summary'}">`,
     `<meta name="twitter:title" content="${attr(title)}">`,
@@ -214,7 +199,6 @@ function sanitizeShare(input) {
 
 module.exports = {
   buildShareTags,
-  shareCardPath,
   cloudinaryShareImage,
   injectShareTags,
   stripTemplateShareTags,

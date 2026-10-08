@@ -16,7 +16,7 @@ const { getTemplate, getDefaultTemplate } = require('../templates/registry');
 const { safeJsonForScript } = require('./sanitize');
 const { injectTemplateFixes, injectBeforeBodyEnd } = require('./templateFixes');
 const { buildCustomizationTags } = require('./customizations');
-const { buildShareTags, injectShareTags, shareCardPath } = require('./shareTags');
+const { buildShareTags, injectShareTags } = require('./shareTags');
 
 // بيتحقن بس في وضع التحرير (routes/invitations.js بيتأكد إن اللي فاتح هو
 // صاحب الدعوة فعلاً) — الضيوف عمرهم ما يشوفوا الملفات دي.
@@ -251,7 +251,7 @@ function renderNewPathHtml(data, options) {
   html = injectShareTags(html, buildShareTags(
     data,
     (options && options.pageUrl) || '',
-    (options && options.shareFallbackImage) || (template && (template.preview || shareCardPath(template.id))) || ''
+    (options && options.shareFallbackImage) || (template && template.preview) || ''
   ));
 
   // تخصيصات العميل (خط/صور/موسيقى/إزاحات) بتتحقن كطبقة فوق التصميم
@@ -279,12 +279,12 @@ function renderLegacyHtml(invitation, options) {
     '__INVITATION_CONFIG_JSON__',
     safeJsonForScript(config)
   );
-  // الدعوات القديمة كمان بتاخد كارت مشاركة (أسماء + صورة) — قبل كده كانت
-  // بتطلع بوسوم Tilda الأصلية ("Blossom & Oud" وشعارهم)
+  // الدعوات القديمة كمان بتاخد كارت مشاركة بأسماء العروسين (وصورة العميل
+  // لو حطها) — قبل كده كانت بتطلع بوسوم Tilda الأصلية ("Blossom & Oud" وشعارهم)
   const tags = buildShareTags(
     { ...(invitation.toObject ? invitation.toObject() : invitation), language: invitation.language || 'ar' },
     (options && options.pageUrl) || '',
-    shareCardPath('blossom-oud')
+    ''
   );
   return injectShareTags(injectTemplateFixes(html), tags);
 }
