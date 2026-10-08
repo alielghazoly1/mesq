@@ -120,7 +120,11 @@ function buildShareTags(data, pageUrl, fallbackImage) {
   if (!/^https?:\/\//.test(image)) image = '';
 
   const isAr = String(data.language || 'ar').toLowerCase() === 'ar';
-  const url = pageUrl && origin ? origin + new URL(pageUrl).pathname : pageUrl;
+  // og:url بيشيل بصمة الكارت (?c=) لو موجودة — عشان فيسبوك/إنستجرام يعتبروا
+  // الكارت المعدّل كارت جديد. الـ canonical بيفضل نضيف من غيرها (للبحث).
+  const u = pageUrl && origin ? new URL(pageUrl) : null;
+  const url = u ? origin + u.pathname + u.search : pageUrl;
+  const canonical = u ? origin + u.pathname : pageUrl;
   const siteName = isAr ? 'ميثاق — دعوات الأفراح' : 'Mithaq — Wedding Invitations';
 
   return [
@@ -143,7 +147,7 @@ function buildShareTags(data, pageUrl, fallbackImage) {
     `<meta name="twitter:description" content="${attr(description)}">`,
     image ? `<meta name="twitter:image" content="${attr(image)}">` : '',
     `<meta name="description" content="${attr(description)}">`,
-    url ? `<link rel="canonical" href="${attr(url)}">` : '',
+    canonical ? `<link rel="canonical" href="${attr(canonical)}">` : '',
     `<title>${attr(title)}</title>`,
   ].filter(Boolean).join('\n    ');
 }

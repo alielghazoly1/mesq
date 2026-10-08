@@ -248,7 +248,11 @@ router.get('/i/:shortId', async (req, res) => {
 
     // اللينك الكامل — بيتحط في كارت المشاركة عشان واتساب يعرف يرجّع
     // للصفحة نفسها لما حد يضغط على الكارت
-    const pageUrl = `${req.protocol}://${req.get('host')}/i/${invitation.shortId}`;
+    // بصمة الكارت (?c=) — لينك المشاركة بيتغيّر مع كل تعديل في الكارت
+    // (client/src/lib/shareLink.js). بنحطها في og:url كمان: فيسبوك
+    // وإنستجرام بيعتمدوا عليه كمعرّف للكارت، فلو فضل ثابت بيرجّعوا القديم.
+    const cardVer = /^[a-z0-9]{1,12}$/.test(String(req.query.c || '')) ? `?c=${req.query.c}` : '';
+    const pageUrl = `${req.protocol}://${req.get('host')}/i/${invitation.shortId}${cardVer}`;
 
     // دعوة "كاستم" معمولة لعميل معيّن (custom-invitations/) — محتواها فوق المحفوظ
     const custom = invitation.templateId ? getCustomInvitation(invitation.shortId) : null;

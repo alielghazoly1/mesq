@@ -40,6 +40,7 @@ import { tooBig, sizeError, uploadError } from '../lib/uploadLimits.js';
 import { prepareImage } from '../lib/prepareImage.js';
 import { installSoloAudio, setFramePauser } from '../lib/soloAudio.js';
 import PanelBoundary from '../components/PanelBoundary.jsx';
+import { invitationShareUrl } from '../lib/shareLink.js';
 
 const SHELL = 'mithaq-shell';
 const RUNTIME = 'mithaq-editor';
@@ -1369,7 +1370,10 @@ export default function EditorPage() {
   }
 
   function copyLink() {
-    navigator.clipboard.writeText(`${window.location.origin}/i/${shortId}`).then(
+    // لينك فيه بصمة الكارت المحفوظ — أي تعديل في الكارت بيطلّع لينك جديد،
+    // فواتساب/إنستجرام يقروا الكارت الجديد بدل المحفوظ عندهم (lib/shareLink.js)
+    const url = invitationShareUrl(window.location.origin, shortId, data?.customizations?.share);
+    navigator.clipboard.writeText(url).then(
       () => { setCopied(true); setTimeout(() => setCopied(false), 2000); },
       () => setError(t('editor.errorSave'))
     );
@@ -2581,6 +2585,9 @@ export default function EditorPage() {
                       canImages={has('images')}
                       uploading={uploadingImage}
                       onUploadImage={onShareImage}
+                      onCopyLink={copyLink}
+                      copied={copied}
+                      unsaved={dirty}
                       onChange={(next) => {
                         remember();
                         setDraft((d) => ({ ...d, share: next }));

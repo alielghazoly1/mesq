@@ -48,6 +48,7 @@ function WhatsAppPreview({ title, description, image, host }) {
 
 export default function SharePanel({
   share, defaults, onChange, onUploadImage, uploading, canImages,
+  onCopyLink, copied, unsaved,
 }) {
   const { t } = useTranslation();
   const fileRef = useRef(null);
@@ -136,6 +137,25 @@ export default function SharePanel({
         <Check size={12} className="mt-0.5 shrink-0 text-emerald" />
         {t('editor.shareNote')}
       </p>
+
+      {/* لينك المشاركة — بيتغيّر مع كل تعديل محفوظ في الكارت، فواتساب
+          وإنستجرام يعرضوا الكارت الجديد مش القديم المحفوظ عندهم */}
+      {onCopyLink && (
+        <div className="mt-3 rounded-xl border border-line p-3">
+          <button
+            type="button"
+            onClick={onCopyLink}
+            disabled={unsaved}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-night py-2.5 text-[12.5px] font-bold text-ivory transition hover:bg-emerald disabled:opacity-50"
+          >
+            {copied ? <Check size={13} /> : <Share2 size={13} />}
+            {copied ? t('editor.shareLinkCopied') : t('editor.shareCopyLink')}
+          </button>
+          <p className="mt-2 text-[11px] leading-relaxed text-ink-dim">
+            {unsaved ? t('editor.shareSaveFirst') : t('editor.shareLinkHint')}
+          </p>
+        </div>
+      )}
     </>
   );
 }
