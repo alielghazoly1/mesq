@@ -150,6 +150,29 @@ const TEMPLATES = [
     guestPhotos: true,
     isPremium: true,
   },
+  {
+    id: 'champagne-lace',
+    name: 'Champagne Lace',
+    description: 'ظرف بختم شمع وورد أبيض وزنبق، تاريخ ينكشف بالخدش، ظرف دانتيل ذهبي بآية قرآنية، عدّاد، خريطة، ألبوم صور وتأكيد حضور',
+    file: 'champagne-lace.html',
+    languages: SUPPORTED_LANGUAGES,
+    occasionTypes: SUPPORTED_OCCASIONS,
+    optionalSections: [
+      { key: 'verse', label: 'الآية القرآنية (ظرف الدانتيل)' },
+      { key: 'countdown', label: 'العداد التنازلي' },
+      { key: 'map', label: 'مكان الحفل والخريطة' },
+      { key: 'album', label: 'ألبوم الصور' },
+      { key: 'rsvp', label: 'تأكيد الحضور (RSVP)' },
+    ],
+    timelineStages: [],
+    extraFields: [
+      { key: 'venueAddress', label: 'عنوان القاعة (بيظهر تحت اسمها — اختياري)', maxlength: 200 },
+    ],
+    // نسختين زي Lily Garden: إنجليزي (التصميم الأصلي — المعاينة للزوار) وعربي
+    designLanguages: ['en', 'ar'],
+    isNew: true,
+    isPremium: true,
+  },
 ];
 
 function getTemplate(templateId) {
