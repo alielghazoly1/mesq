@@ -3118,6 +3118,8 @@
             body.cl-ar :is(.hv-small, .hv-venue, .hv-reveal__hint, .hv-tile__label, .cd-lbl, .cd-cal, .vn-addr, .vn-dir,
                 .rs-label, .rs-field legend, .rs-err, .rs-status) { font-size: 13.5px !important; line-height: 1.7 !important; }
             body.cl-ar .hv-date :is(.hv-date__m, .hv-date__y) { font-size: 15px !important; }
+            /* هوامش التاريخ معمولة للاتجاه اللاتيني — في RTL الشهر كان لازق في الخط الفاصل */
+            body.cl-ar .hv-date :is(.hv-date__m, .hv-date__y) { padding-left: 12px !important; padding-right: 12px !important; }
             body.cl-ar :is(.cd-date) { font-size: 15px !important; }
             body.cl-ar :is(.cd-note, .cd-done, .rs-sub, .rs-thanks__text) { font-size: 17px !important; }
             body.cl-ar :is(.rs-choice, .rs-input, .rs-textarea) { font-size: 15px !important; }
