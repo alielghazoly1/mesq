@@ -1111,11 +1111,11 @@
       <p class="hv-eyebrow"><span class="cl-line" data-elem-id="cl1" data-cl="eyebrow1">YOU ARE INVITED TO</span><span class="cl-line" data-elem-id="cl2" data-cl="eyebrow2">THE WEDDING OF</span></p>
       <h1 class="hv-names"><span data-elem-id="cl3" data-cl="name1">Maryam</span><span class="hv-amp" data-elem-id="cl4" data-cl="amp">&amp;</span><span data-elem-id="cl5" data-cl="name2">Mostafa</span></h1>
       <div class="hv-date">
-        <span class="hv-date__m" data-elem-id="cl6" data-cl="dateM">January</span>
-        <span class="hv-date__d" data-elem-id="cl7" data-cl="dateD">7</span>
-        <span class="hv-date__y" data-elem-id="cl8" data-cl="dateY">2027</span>
+        <span class="hv-date__m" data-elem-id="cl6" data-wda-live="date" data-cl="dateM">January</span>
+        <span class="hv-date__d" data-elem-id="cl7" data-wda-live="date" data-cl="dateD">7</span>
+        <span class="hv-date__y" data-elem-id="cl8" data-wda-live="date" data-cl="dateY">2027</span>
       </div>
-      <p class="hv-small hv-time"><span class="cl-line" data-elem-id="cl9" data-cl="time1">at three o’clock in the</span><span class="cl-line" data-elem-id="cl10" data-cl="time2">afternoon</span></p>
+      <p class="hv-small hv-time"><span class="cl-line" data-elem-id="cl9" data-wda-live="date" data-cl="time1">at three o’clock in the</span><span class="cl-line" data-elem-id="cl10" data-wda-live="date" data-cl="time2">afternoon</span></p>
       <p class="hv-venue"><span class="cl-line" data-elem-id="cl11" data-cl="venue1">Love gardens villa</span><span class="cl-line" data-elem-id="cl12" data-cl="venue2">pearlsville ca 1238 miami</span></p>
       <p class="hv-small hv-dress"><span class="cl-line" data-elem-id="cl13" data-cl="dress1">Dresscode:&nbsp; please wear</span><span class="cl-line" data-elem-id="cl14" data-cl="dress2">something white or brown</span></p>
     </div>
@@ -1140,17 +1140,17 @@
     <p class="hv-reveal__hint"><i>✦</i><span data-elem-id="cl21" data-cl="scratchHint">Scratch to reveal the date</span><i>✦</i></p>
     <div class="hv-tiles">
       <div class="hv-tile-wrap">
-        <div class="hv-tile"><div class="hv-tile__face"><span class="hv-tile__val" data-elem-id="cl22" data-cl="tileD">7</span></div>
+        <div class="hv-tile"><div class="hv-tile__face"><span class="hv-tile__val" data-elem-id="cl22" data-wda-live="date" data-cl="tileD">7</span></div>
           <canvas class="hv-tile__coat"></canvas><img class="hv-tile__coat-src" src="/templates/champagne-lace/scratch-coat-day.webp" alt=""></div>
         <span class="hv-tile__label" data-elem-id="cl25" data-cl="lblDay">Day</span>
       </div>
       <div class="hv-tile-wrap">
-        <div class="hv-tile"><div class="hv-tile__face"><span class="hv-tile__val hv-tile__val--word" data-elem-id="cl23" data-cl="tileM">January</span></div>
+        <div class="hv-tile"><div class="hv-tile__face"><span class="hv-tile__val hv-tile__val--word" data-elem-id="cl23" data-wda-live="date" data-cl="tileM">January</span></div>
           <canvas class="hv-tile__coat"></canvas><img class="hv-tile__coat-src" src="/templates/champagne-lace/scratch-coat-month.webp" alt=""></div>
         <span class="hv-tile__label" data-elem-id="cl26" data-cl="lblMonth">Month</span>
       </div>
       <div class="hv-tile-wrap">
-        <div class="hv-tile"><div class="hv-tile__face"><span class="hv-tile__val" data-elem-id="cl24" data-cl="tileY">2027</span></div>
+        <div class="hv-tile"><div class="hv-tile__face"><span class="hv-tile__val" data-elem-id="cl24" data-wda-live="date" data-cl="tileY">2027</span></div>
           <canvas class="hv-tile__coat"></canvas><img class="hv-tile__coat-src" src="/templates/champagne-lace/scratch-coat-year.webp" alt=""></div>
         <span class="hv-tile__label" data-elem-id="cl27" data-cl="lblYear">Year</span>
       </div>
@@ -1165,7 +1165,7 @@
     if (n && /[؀-ۿ]/.test(n.textContent)) n.classList.add('hv-names--ar'); })();
   (function () {
     var root = document.getElementById('hv-hero');
-    if (!root || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
+    if (!root || (window.WEDDING_CONFIG || {}).autoOpen || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
     root.classList.add('hv--armed');
     var played = false;
     function play() { if (!played) { played = true; root.classList.add('hv--play'); } }
@@ -1193,7 +1193,7 @@
     if (!root) return;
     var sec = root.querySelector('.hv-reveal'), msg = root.querySelector('.hv-reveal__msg');
     var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (!reduce && 'IntersectionObserver' in window) {
+    if (!reduce && !(window.WEDDING_CONFIG || {}).autoOpen && 'IntersectionObserver' in window) {
       root.classList.add('hv--reveal-armed');
       var io = new IntersectionObserver(function (es) {
         es.forEach(function (e) { if (e.isIntersecting) { root.classList.add('hv--reveal-in'); io.disconnect(); } });
@@ -2074,29 +2074,11 @@
                     <div class="t396__artboard" data-artboard-recid="2442651013" data-artboard-screens="320,480,640,960,1200" data-artboard-height="670" data-artboard-valign="center" data-artboard-upscale="grid" data-artboard-height-res-320="670" data-artboard-height-res-480="670" data-artboard-height-res-640="670" data-artboard-height-res-960="670">
                         <div class="t396__carrier" data-artboard-recid="2442651013"></div>
                         <div class="t396__filter" data-artboard-recid="2442651013"></div>
-                        <div class='t396__elem tn-elem tn-elem__24426510131705235414643 t-animate' data-elem-id='1705235414643' data-elem-type='shape' data-field-top-value="-142" data-field-left-value="535" data-field-height-value="99" data-field-width-value="108" data-field-axisy-value="top" data-field-axisx-value="left" data-field-container-value="grid" data-field-topunits-value="px" data-field-leftunits-value="px" data-field-heightunits-value="px" data-field-widthunits-value="px" data-animate-style="fadeinup" data-animate-duration="1" data-animate-distance="100" data-animate-mobile="y" data-field-left-res-320-value="106" data-field-left-res-480-value="186" data-field-left-res-640-value="266" data-field-left-res-960-value="426">
-                            <div class='tn-atom t-bgimg' data-original="https://static.tildacdn.net/tild3537-6234-4333-b136-346664343536/a1ac64fc830eb50d2e69.png" aria-label='' role="img"></div>
-                        </div>
                         <div class='t396__elem tn-elem tn-elem__24426510131776873425142 ' data-elem-id='1776873425142' data-elem-type='shape' data-field-top-value="64" data-field-left-value="533" data-field-height-value="84" data-field-width-value="108" data-field-axisy-value="top" data-field-axisx-value="left" data-field-container-value="grid" data-field-topunits-value="px" data-field-leftunits-value="px" data-field-heightunits-value="px" data-field-widthunits-value="px" data-animate-mobile="y" data-animate-sbs-event="intoview" data-animate-sbs-trg="1" data-animate-sbs-trgofst="0" data-animate-sbs-loop="loop" data-animate-sbs-opts="[{'mx':0,'my':0,'sx':1,'sy':1,'op':1,'ro':0,'ti':0,'ea':'0','dt':0},{'mx':0,'my':-10,'sx':1,'sy':1,'op':1,'ro':0,'ti':1000,'ea':'0','dt':100},{'mx':0,'my':0,'sx':1,'sy':1,'op':1,'ro':0,'ti':1000,'ea':'0','dt':0}]" data-field-left-res-320-value="94" data-field-left-res-480-value="174" data-field-left-res-640-value="254" data-field-left-res-960-value="414">
                             <div class='tn-atom' style="background-image:url('/templates/champagne-lace/heart-large.webp');background-size:cover;background-position:center;background-repeat:no-repeat;" aria-label='' role="img"></div>
                         </div>
                         <div class='t396__elem tn-elem tn-elem__24426510131776873478915000001 ' data-elem-id='1776873478915000001' data-elem-type='shape' data-field-top-value="90" data-field-left-value="598" data-field-height-value="59" data-field-width-value="69" data-field-axisy-value="top" data-field-axisx-value="left" data-field-container-value="grid" data-field-topunits-value="px" data-field-leftunits-value="px" data-field-heightunits-value="px" data-field-widthunits-value="px" data-animate-mobile="y" data-animate-sbs-event="intoview" data-animate-sbs-trg="1" data-animate-sbs-trgofst="50" data-animate-sbs-loop="loop" data-animate-sbs-opts="[{'mx':0,'my':0,'sx':1,'sy':1,'op':1,'ro':0,'ti':0,'ea':'0','dt':0},{'mx':0,'my':-10,'sx':1,'sy':1,'op':1,'ro':0,'ti':1000,'ea':'0','dt':0},{'mx':0,'my':0,'sx':1,'sy':1,'op':1,'ro':0,'ti':1000,'ea':'0','dt':0}]" data-field-left-res-320-value="157" data-field-left-res-480-value="237" data-field-left-res-640-value="317" data-field-left-res-960-value="477">
                             <div class='tn-atom' style="background-image:url('/templates/champagne-lace/heart-small.webp');background-size:cover;background-position:center;background-repeat:no-repeat;" aria-label='' role="img"></div>
-                        </div>
-                        <div class='t396__elem tn-elem tn-elem__24426510131772102240915' data-elem-id='1772102240915' data-elem-type='image' data-field-top-value="-293" data-field-left-value="-793" data-field-height-value="368" data-field-width-value="347" data-field-axisy-value="top" data-field-axisx-value="left" data-field-container-value="grid" data-field-topunits-value="px" data-field-leftunits-value="px" data-field-heightunits-value="px" data-field-widthunits-value="px" data-field-filewidth-value="565" data-field-fileheight-value="600" data-field-heightmode-value="hug" data-field-height-res-320-value="368" data-field-height-res-480-value="368" data-field-height-res-640-value="368" data-field-height-res-960-value="368">
-                            <div class='tn-atom'>
-                                <img class='tn-atom__img t-img' data-original='https://static.tildacdn.net/tild3132-3666-4637-a562-616361623963/Old_Open_Envelope_PN.png' src='https://thb.tildacdn.net/tild3132-3666-4637-a562-616361623963/-/resize/20x/Old_Open_Envelope_PN.png' alt='' imgfield='tn_img_1772102240915'/>
-                            </div>
-                        </div>
-                        <div class='t396__elem tn-elem tn-elem__24426510131772102362554000001' data-elem-id='1772102362554000001' data-elem-type='image' data-field-top-value="-308" data-field-left-value="-793" data-field-height-value="368" data-field-width-value="347" data-field-axisy-value="top" data-field-axisx-value="left" data-field-container-value="grid" data-field-topunits-value="px" data-field-leftunits-value="px" data-field-heightunits-value="px" data-field-widthunits-value="px" data-field-filewidth-value="565" data-field-fileheight-value="600" data-field-heightmode-value="hug" data-field-height-res-320-value="368" data-field-height-res-480-value="368" data-field-height-res-640-value="368" data-field-height-res-960-value="368">
-                            <div class='tn-atom'>
-                                <img class='tn-atom__img t-img' data-original='https://static.tildacdn.net/tild3132-3666-4637-a562-616361623963/Old_Open_Envelope_PN.png' src='https://thb.tildacdn.net/tild3132-3666-4637-a562-616361623963/-/resize/20x/Old_Open_Envelope_PN.png' alt='' imgfield='tn_img_1772102362554000001'/>
-                            </div>
-                        </div>
-                        <div class='t396__elem tn-elem tn-elem__24426510131772102977788000003' data-elem-id='1772102977788000003' data-elem-type='image' data-field-top-value="-241" data-field-left-value="-861" data-field-height-value="368" data-field-width-value="347" data-field-axisy-value="top" data-field-axisx-value="left" data-field-container-value="grid" data-field-topunits-value="px" data-field-leftunits-value="px" data-field-heightunits-value="px" data-field-widthunits-value="px" data-field-filewidth-value="565" data-field-fileheight-value="600" data-field-heightmode-value="hug" data-field-height-res-320-value="368" data-field-height-res-480-value="368" data-field-height-res-640-value="368" data-field-height-res-960-value="368">
-                            <div class='tn-atom'>
-                                <img class='tn-atom__img t-img' data-original='https://static.tildacdn.net/tild3132-3666-4637-a562-616361623963/Old_Open_Envelope_PN.png' src='https://thb.tildacdn.net/tild3132-3666-4637-a562-616361623963/-/resize/20x/Old_Open_Envelope_PN.png' alt='' imgfield='tn_img_1772102977788000003'/>
-                            </div>
                         </div>
                         <div class='t396__elem tn-elem tn-elem__24426510131772103890652' data-elem-id='1772103890652' data-elem-type='image' data-field-top-value="110" data-field-left-value="390" data-field-height-value="462" data-field-width-value="420" data-field-axisy-value="top" data-field-axisx-value="left" data-field-container-value="grid" data-field-topunits-value="px" data-field-leftunits-value="px" data-field-heightunits-value="px" data-field-widthunits-value="px" data-animate-fix="1" data-animate-fix-dist="85" data-animate-mobile="y" data-field-filewidth-value="1050" data-field-fileheight-value="1155" data-field-widthmode-value="fixed" data-field-heightmode-value="hug" data-field-top-res-320-value="110" data-field-left-res-320-value="-50" data-field-height-res-320-value="462" data-field-width-res-320-value="420" data-field-container-res-320-value="grid" data-field-widthmode-res-320-value="fixed" data-field-top-res-480-value="110" data-field-left-res-480-value="30" data-field-height-res-480-value="462" data-field-width-res-480-value="420" data-field-widthmode-res-480-value="fixed" data-field-top-res-640-value="110" data-field-left-res-640-value="110" data-field-height-res-640-value="462" data-field-width-res-640-value="420" data-field-widthmode-res-640-value="fixed" data-field-top-res-960-value="110" data-field-left-res-960-value="270" data-field-height-res-960-value="462" data-field-width-res-960-value="420" data-field-container-res-960-value="grid" data-field-widthmode-res-960-value="fixed">
                             <div class='tn-atom'>
@@ -2110,7 +2092,7 @@
                             <div class='tn-atom' field='tn_text_1705235414678'>سورة الروم - الآية ٢١</div>
                         </div>
                         <div class='t396__elem tn-elem tn-elem__24426510131705235414679' data-elem-id='1705235414679' data-elem-type='text' data-field-top-value="174" data-field-left-value="464" data-field-height-value="160" data-field-width-value="272" data-field-axisy-value="top" data-field-axisx-value="left" data-field-container-value="grid" data-field-topunits-value="px" data-field-leftunits-value="px" data-field-heightunits-value="px" data-field-widthunits-value="px" data-field-textfit-value="autoheight" data-field-fontsize-value="20" data-field-left-res-320-value="24" data-field-left-res-480-value="104" data-field-left-res-640-value="184" data-field-top-res-960-value="174" data-field-left-res-960-value="344" data-field-height-res-960-value="160" data-field-width-res-960-value="272" data-field-container-res-960-value="grid" data-field-heightunits-res-960-value="px" data-field-textfit-res-960-value="autoheight">
-                            <div class='tn-atom' field='tn_text_1705235414679'><span class="bsm" role="img" aria-label="بسم الله الرحمن الرحيم">&#xFDFD;</span><span style="color:#a48c69;">﴿</span>وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم<br/>مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا<br/>وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً<span style="color:#a48c69;">﴾</span></div>
+                            <div class='tn-atom' field='tn_text_1705235414679'><span class="bsm" role="img" aria-label="بسم الله الرحمن الرحيم" data-elem-id="cl90">&#xFDFD;</span><span style="color:#a48c69;">﴿</span><span data-elem-id="cl91">وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم</span><br/><span data-elem-id="cl92">مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا</span><br/><span data-elem-id="cl93">وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً</span><span style="color:#a48c69;">﴾</span></div>
                         </div>
                         <div class='t396__elem tn-elem tn-elem__24426510131776870726590' data-elem-id='1776870726590' data-elem-type='image' data-field-top-value="110" data-field-left-value="390" data-field-height-value="462" data-field-width-value="420" data-field-axisy-value="top" data-field-axisx-value="left" data-field-container-value="grid" data-field-topunits-value="px" data-field-leftunits-value="px" data-field-heightunits-value="px" data-field-widthunits-value="px" data-animate-fix="1" data-animate-fix-dist="85" data-animate-mobile="y" data-field-filewidth-value="1050" data-field-fileheight-value="1155" data-field-widthmode-value="fixed" data-field-heightmode-value="hug" data-field-top-res-320-value="110" data-field-left-res-320-value="-50" data-field-height-res-320-value="462" data-field-top-res-480-value="110" data-field-left-res-480-value="30" data-field-height-res-480-value="462" data-field-top-res-640-value="110" data-field-left-res-640-value="110" data-field-height-res-640-value="462" data-field-top-res-960-value="110" data-field-left-res-960-value="270" data-field-height-res-960-value="462">
                             <div class='tn-atom'>
@@ -2237,7 +2219,7 @@
     <div class="cd-card">
       <p class="cd-eyebrow" data-elem-id="cl30" data-cl="cdEyebrow">COUNTING DOWN TO</p>
       <h2 class="cd-title" data-elem-id="cl31" data-cl="cdTitle">Our Wedding Day</h2>
-      <p class="cd-date" data-elem-id="cl32" data-cl="cdDate">JANUARY 7, 2027</p>
+      <p class="cd-date" data-elem-id="cl32" data-wda-live="date" data-cl="cdDate">JANUARY 7, 2027</p>
       <div class="cd-orn" aria-hidden="true"><i></i></div>
       <div class="cd-units" role="timer" aria-live="off">
         <div class="cd-unit"><div class="cd-num" id="days" data-elem-id="cl33" data-unit="days" data-min="2"></div><span class="cd-lbl" data-elem-id="cl37" data-cl="cdDays">Days</span></div>
@@ -2338,7 +2320,7 @@
       setTimeout(function () { render('up', 1500, 140); }, 750);
       setTimeout(tick, 2700);
     }
-    if (!reduce && 'IntersectionObserver' in window) {
+    if (!reduce && !(window.WEDDING_CONFIG || {}).autoOpen && 'IntersectionObserver' in window) {
       root.classList.add('cd--armed');
       var io = new IntersectionObserver(function (es) {
         es.forEach(function (e) { if (e.isIntersecting) { io.disconnect(); start(); } });
@@ -2439,7 +2421,7 @@
     <p class="vn-addr" data-elem-id="cl53" data-cl="vnAddr">First Settlement, New Cairo · Cairo, Egypt</p>
     <div class="vn-frame">
       <div class="vn-map" data-elem-id="cl54">
-        <iframe title="Map: Royal Maxim Palace Kempinski" src="https://maps.google.com/maps?q=Royal+Maxim+Palace+Kempinski+Cairo&amp;z=15&amp;hl=en&amp;output=embed"
+        <iframe title="Map: Royal Maxim Palace Kempinski" src="https://www.google.com/maps?q=Royal+Maxim+Palace+Kempinski+Cairo&amp;z=15&amp;hl=en&amp;output=embed"
                 loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
       </div>
     </div>
@@ -2453,7 +2435,7 @@
 <script>
   (function () {
     var root = document.getElementById('vn-venue');
-    if (!root || !('IntersectionObserver' in window) || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
+    if (!root || (window.WEDDING_CONFIG || {}).autoOpen || !('IntersectionObserver' in window) || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) return;
     root.classList.add('vn--armed');
     var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { root.classList.add('vn--in'); io.disconnect(); } }); }, { threshold: 0.2 });
     io.observe(root);
@@ -2615,7 +2597,7 @@
 
     /* entrance: the cards fan out from the centre when the album scrolls into view */
     layout();
-    if (!reduce && 'IntersectionObserver' in window) {
+    if (!reduce && !(window.WEDDING_CONFIG || {}).autoOpen && 'IntersectionObserver' in window) {
       root.classList.add('al--armed'); spread = 0; layout();
       var io = new IntersectionObserver(function (es) {
         es.forEach(function (e) {
@@ -2744,6 +2726,7 @@
     <p class="rs-eyebrow" data-elem-id="cl70" data-cl="rsEyebrow">KINDLY REPLY</p>
     <h2 class="rs-title" id="rs-title" data-elem-id="cl71" data-cl="rsTitle">Confirm Your Attendance</h2>
     <p class="rs-sub" data-elem-id="cl72" data-cl="rsSub">We would be honoured by your reply</p>
+      <p class="rs-sub cl-deadline" data-elem-id="cl82" data-cl="rsDeadline" style="display:none"></p>
   </div>
   <div class="rs-wrap">
     <div class="rs-card">
@@ -3074,7 +3057,7 @@
                             <div class='tn-atom' field='tn_text_1710522265391'>Alexa &amp;Richard</div>
                         </div>
                         <div class='t396__elem tn-elem tn-elem__24426511631710522265394 t-animate' data-elem-id='1710522265394' data-elem-type='shape' data-field-top-value="158" data-field-left-value="585" data-field-height-value="30" data-field-width-value="30" data-field-axisy-value="top" data-field-axisx-value="left" data-field-container-value="grid" data-field-topunits-value="px" data-field-leftunits-value="px" data-field-heightunits-value="px" data-field-widthunits-value="px" data-animate-style="fadein" data-animate-duration="2" data-animate-delay="0.4" data-animate-mobile="y" data-field-left-res-320-value="145" data-field-left-res-480-value="225" data-field-left-res-640-value="305" data-field-left-res-960-value="465">
-                            <div class='tn-atom t-bgimg' data-original="https://static.tildacdn.net/tild6539-6164-4935-a236-653733393933/d9723fe4-b0e2-4d4e-a.png" aria-label='' role="img"></div>
+                            <div class='tn-atom' style="background-image:url('/templates/champagne-lace/closing-heart.png');background-size:cover;background-position:center;background-repeat:no-repeat;" aria-label='' role="img"></div>
                         </div>
                     </div>
                 </div>
@@ -3094,6 +3077,15 @@
             /* المحرر: التاريخ يبان على طول (من غير طبقة الخدش) عشان يتعدّل */
             body.cl-static .hv-tile__coat { display: none !important; }
             body.cl-static .hv-reveal__msg { opacity: 1 !important; transform: none !important; }
+            /* الصور والورد ديكور مبيستقبلش ضغط في الدعوة — في المحرر لازم
+               يتضغط عليه عشان العميل يغيّره */
+            body.cl-static :is(.hv, .cd, .vn, .al, .rs) img,
+            body.cl-static :is(.vn-fl, .rs-fl) { pointer-events: auto !important; }
+            /* مربعات الخدش: الضغط في أي حتة في المربع يفتح تاريخ الفرح */
+            body.cl-static .hv-tile__face > .hv-tile__val {
+                pointer-events: auto !important; align-self: stretch; width: 100%;
+                display: flex; align-items: center; justify-content: center; cursor: pointer;
+            }
             #rsvp .rs-send[aria-disabled="true"] { cursor: default; opacity: .75; }
             #rsvp .rs-send:focus-visible { outline: none; }
 
@@ -3104,13 +3096,16 @@
             body.cl-ar :is(#hv-hero, #cd-countdown, #vn-venue, #al-album, #rsvp) :is(p, span, label, legend, h1, h2, a, div, input, textarea) {
                 letter-spacing: 0 !important; text-transform: none !important;
             }
-            body.cl-ar :is(.hv-eyebrow, .hv-small, .hv-venue, .hv-date, .hv-reveal__hint, .hv-tile__label, .hv-tile__val,
+            /* خطوط العربي جوه :where (أولوية صفر) — عشان الخط اللي صاحب الدعوة
+               يختاره من المحرر (للدعوة كلها أو لجملة معيّنة) يغلبها دايمًا */
+            :where(body.cl-ar) :where(.hv-eyebrow, .hv-small, .hv-venue, .hv-date, .hv-reveal__hint, .hv-tile__label, .hv-tile__val,
                 .cd-eyebrow, .cd-date, .cd-lbl, .cd-note, .cd-done, .cd-cal, .vn-eyebrow, .vn-name, .vn-addr, .vn-dir,
                 .al-eyebrow, .rs-eyebrow, .rs-sub, .rs-label, .rs-choice, .rs-send, .rs-field legend, .rs-status, .rs-err,
                 .rs-thanks__text, .rs-input, .rs-textarea) { font-family: 'Amiri', serif !important; }
-            body.cl-ar :is(.hv-reveal__title, .hv-reveal__msg, .cd-title, .vn-title, .al-title, .rs-title, .rs-thanks__title) {
-                font-family: 'Aref Ruqaa', 'Amiri', serif !important; line-height: 1.5 !important;
+            :where(body.cl-ar) :where(.hv-reveal__title, .hv-reveal__msg, .cd-title, .vn-title, .al-title, .rs-title, .rs-thanks__title) {
+                font-family: 'Aref Ruqaa', 'Amiri', serif !important;
             }
+            body.cl-ar :is(.hv-reveal__title, .hv-reveal__msg, .cd-title, .vn-title, .al-title, .rs-title, .rs-thanks__title) { line-height: 1.5 !important; }
             body.cl-ar :is(.hv-eyebrow, .cd-eyebrow, .vn-eyebrow, .al-eyebrow, .rs-eyebrow) { font-size: 15px !important; }
             body.cl-ar :is(.cd-title, .vn-title, .al-title, .rs-title) { font-size: 36px !important; }
             body.cl-ar .rs-send { font-size: 15px !important; }
@@ -3126,6 +3121,12 @@
             body.cl-ar .vn-name { font-size: 19px !important; }
             /* أرقام الألبوم والأسهم بالترتيب اللاتيني (01 / 04) */
             body.cl-ar .al-nav { direction: ltr; }
+
+            /* خط الدعوة كلها من المحرر — أقسام التصميم دي مش كلاسات Tilda،
+               فبنقرا الخط من متغيّره (‎--serif-ar). بعد قواعد العربي عشان يغلبها،
+               وأولوية صفر عشان خط الجملة المعيّنة يغلبه هو */
+            :where(body.cl-gfont) :where(#hv-hero, #cd-countdown, #vn-venue, #al-album, #rsvp)
+                :where(p, span, label, legend, h1, h2, a, div, input, textarea) { font-family: var(--cl-gfont) !important; }
         </style>
         <script>
         (function () {
@@ -3203,6 +3204,21 @@
             if (LANG === 'ar') document.body.classList.add('cl-ar');
             if (C.autoOpen) document.body.classList.add('cl-static');
 
+            /* خط الدعوة العام (من المحرر أو المحفوظ) → أقسام التصميم */
+            function syncFont() {
+                var v = '';
+                try { v = getComputedStyle(document.documentElement).getPropertyValue('--serif-ar').trim(); } catch (e) { /* */ }
+                v = v.replace(/\s*!important\s*$/, '');
+                if (v) document.body.style.setProperty('--cl-gfont', v);
+                document.body.classList.toggle('cl-gfont', !!v);
+            }
+            syncFont();
+            if (window.MutationObserver) {
+                new MutationObserver(syncFont).observe(document.head, { childList: true, subtree: true, characterData: true });
+                // تخصيصات الدعوة المحفوظة بتتحط بعد السكربت ده
+                document.addEventListener('DOMContentLoaded', syncFont);
+            }
+
             /* ---------- الوقت بكلام التصميم ---------- */
             var WORDS = ['twelve', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven'];
             function timeLines() {
@@ -3272,6 +3288,19 @@
                 if (fMs) fMs.placeholder = L.msgPh;
             }
 
+            /* باقي إعدادات بانل الفورم: آخر ميعاد، شيل خانة الرسالة، شيل الوردة */
+            q('rsDeadline').forEach(function (e) {
+                if (OV.deadline) { e.textContent = OV.deadline; e.style.display = ''; }
+            });
+            if (OV.hideFood) {
+                var mf = document.querySelector('#rsvp .rs-field[data-f="message"]');
+                if (mf) mf.style.display = 'none';
+            }
+            if (OV.hideImage) {
+                var rf = document.querySelector('#rsvp .rs-fl');
+                if (rf) rf.style.display = 'none';
+            }
+
             /* ---------- الأقسام الاختيارية ---------- */
             var hidden = C.hiddenSections || [];
             function hideIf(key, id) {
@@ -3284,6 +3313,11 @@
             hideIf('countdown', 'cd-countdown');
             hideIf('map', 'vn-venue');
             hideIf('album', 'al-album');
+            hideIf('closing', 'rec2442651163');
+            if (hidden.indexOf('dressCode') !== -1) {
+                var dr = document.querySelector('#hv-hero .hv-dress');
+                if (dr) dr.style.display = 'none';
+            }
             var noRsvp = hideIf('rsvp', 'mithaq-rsvp');
 
             /* ---------- تأكيد الحضور ----------

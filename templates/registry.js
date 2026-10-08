@@ -158,11 +158,13 @@ const TEMPLATES = [
     languages: SUPPORTED_LANGUAGES,
     occasionTypes: SUPPORTED_OCCASIONS,
     optionalSections: [
+      { key: 'dressCode', label: 'الزي المقترح (Dress Code)' },
       { key: 'verse', label: 'الآية القرآنية (ظرف الدانتيل)' },
       { key: 'countdown', label: 'العداد التنازلي' },
       { key: 'map', label: 'مكان الحفل والخريطة' },
       { key: 'album', label: 'ألبوم الصور' },
       { key: 'rsvp', label: 'تأكيد الحضور (RSVP)' },
+      { key: 'closing', label: 'الختام (في انتظاركم + الأسماء)' },
     ],
     timelineStages: [],
     extraFields: [

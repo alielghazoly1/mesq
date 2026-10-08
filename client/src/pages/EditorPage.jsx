@@ -2067,6 +2067,9 @@ export default function EditorPage() {
                                 بيتفتحله منتقي وقت هنا في كل الباقات. بيعدّل نص
                                 العنصر نفسه (تعديل نص عادي، مش ميزة باقة). */}
                             {(() => {
+                              // العنصر الحي (تاريخ/وقت من بيانات الدعوة): الساعة
+                              // بتتغيّر من خانة التاريخ اللي فوق، مش بكتابة نصه
+                              if (selected.kind === 'live') return null;
                               const tp = parseTime(selected.text);
                               if (!tp) return null;
                               const h12 = tp.hour % 12 || 12;

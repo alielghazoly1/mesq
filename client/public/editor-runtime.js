@@ -152,6 +152,10 @@
    */
   function isLiveElement(el) {
     if (['days', 'hours', 'minutes', 'seconds', 'countdown'].indexOf(el.id) !== -1) return true;
+    // القالب نفسه بيعلّم عناصر التاريخ/الوقت اللي بيكتبها من بيانات الدعوة
+    // (Champagne Lace) — الضغط عليها يفتح تاريخ وساعة الفرح بدل الكتابة،
+    // فالتغيير يتطبّق في كل أماكن التاريخ مرة واحدة
+    if (el.hasAttribute && el.hasAttribute('data-wda-live')) return true;
     // القالب الملكي بيعرض العد التنازلي في عنصر واحد اسمه countdown،
     // مش أربع خانات زي قوالب Tilda — من غير السطر ده كان بيتعامل معاه
     // كنص عادي، والعميل يكتب فيه والسكريبت يمسح كلامه بعد ثانية.
