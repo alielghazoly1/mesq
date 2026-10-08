@@ -38,6 +38,8 @@ async function connectDB() {
         // تصليح أي فهرس قديم مخالف للسكيما الحالية — بيشتغل مرة واحدة
         // لكل نسخة سيرفر، وفشله مايأثرش على أي طلب (utils/ensureIndexes.js)
         require('../utils/ensureIndexes')().catch(() => {});
+        // تعديلات لمرة واحدة على دعوات معيّنة بطلب المالك (utils/oneOffFixes.js)
+        require('../utils/oneOffFixes')().catch(() => {});
         return m;
       })
       .catch((err) => {

@@ -1466,6 +1466,9 @@ window.ASSETS = {
   programItems.forEach(function(item, idx){
     var row = document.createElement('div');
     row.className = 'tl-item';
+    // معرّف للصف كله (النقطة والخط) — عشان ينفع يتشال صف بالكامل من غير
+    // ما تفضل نقطته فاضية. ولا دعوة قديمة فيها المعرّفات دي، فمفيش تغيير
+    row.setAttribute('data-elem-id', String(7000000000400 + idx));
     var line = document.createElement('div');
     line.className = 'tl-line';
     row.appendChild(line);
