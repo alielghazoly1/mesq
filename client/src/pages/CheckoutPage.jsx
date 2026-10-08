@@ -177,7 +177,6 @@ export default function CheckoutPage() {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-8 text-center">
         <p className="font-serif text-[19px] font-bold text-ink">{t('packages.authTitle')}</p>
-        <p className="max-w-[44ch] text-[13.5px] leading-[1.9] text-ink-dim">{t('packages.authBody')}</p>
         <button
           type="button"
           onClick={() => dispatch(openAuthModal('register'))}

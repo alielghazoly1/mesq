@@ -15,11 +15,10 @@ import { motion } from 'motion/react';
 import {
   Check, ArrowRight, Sparkles, Lock, Crown, Plus, ShieldCheck,
   Clock, Infinity as InfinityIcon, ArrowLeft, BadgePercent,
-  Users, Pencil, CreditCard, MessageCircle, Briefcase, Building2, ChevronDown,
+  Users, Pencil, CreditCard, ChevronDown,
 } from 'lucide-react';
 import { useGetPackagesQuery, useGetMeQuery } from '../store/api.js';
 import { openAuthModal } from '../store/uiSlice.js';
-import { whatsappLink } from '../lib/contact.js';
 import { formatDay } from '../lib/editWindow.js';
 import EditorDemo from '../components/EditorDemo.jsx';
 import Footer from '../components/Footer.jsx';
@@ -291,95 +290,6 @@ function HowItWorks({ days }) {
 }
 
 /**
- * باقة سعرها مش ثابت (أصحاب البيزنس، القاعات واللوكيشنات): مفيش رقم ولا زرار
- * "اطلب" — السعر بيتحدد مع صاحب الموقع على واتساب. الطلب مش بيمر على
- * السيرفر أصلًا (الباقتين مش في packages/registry.js)، فمفيش طريق يشتريها
- * بالغلط من صفحة الدفع.
- */
-function ContactPackageCard({ icon: Icon, name, forText, points, message, index }) {
-  const { t } = useTranslation();
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 22 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-40px' }}
-      transition={{ duration: 0.4, delay: index * 0.08 }}
-      className="flex flex-col rounded-[24px] border border-brass/40 bg-gradient-to-b from-brass/[0.09] to-transparent p-6 sm:p-7"
-    >
-      <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-brass/20 text-brass">
-        <Icon size={22} />
-      </span>
-      <h3 className="font-serif text-[22px] font-bold text-ink">{name}</h3>
-      <p className="mt-1.5 text-[13.5px] leading-[1.85] text-ink-dim">{forText}</p>
-
-      <div className="mt-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-night px-3.5 py-1.5 text-[12px] font-bold text-brass-soft">
-        <MessageCircle size={13} /> {t('packages.priceViaWa')}
-      </div>
-
-      <ul className="mt-5 flex flex-col gap-2.5 border-t border-line pt-5">
-        {points.map((p) => (
-          <li key={p} className="flex items-start gap-2.5 text-[13.5px] leading-snug text-ink">
-            <span className="mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full bg-emerald/10 text-emerald">
-              <Check size={11} strokeWidth={3} />
-            </span>
-            {p}
-          </li>
-        ))}
-      </ul>
-
-      <div className="flex-1" />
-
-      <a
-        href={whatsappLink(message)}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-l from-brass to-brass-soft py-3.5 text-[14.5px] font-extrabold text-[#241608] transition hover:brightness-105"
-      >
-        <MessageCircle size={16} /> {t('packages.waCta')}
-      </a>
-      <p className="mt-2.5 text-center text-[11.5px] text-ink-dim">{t('packages.waNote')}</p>
-    </motion.div>
-  );
-}
-
-/** قسم باقات البيزنس والقاعات — بيبان لأي زائر (مش محتاج تسجيل: مفيش سعر بالعملة) */
-function BusinessSection() {
-  const { t } = useTranslation();
-  return (
-    <section className="mx-auto mt-12 max-w-4xl sm:mt-16" aria-labelledby="packages-biz-title">
-      <div className="mx-auto mb-6 max-w-[60ch] text-center sm:mb-8">
-        <div className="mb-1.5 text-[11.5px] font-extrabold uppercase tracking-[0.3em] text-emerald sm:text-[12.5px]">
-          {t('packages.bizEyebrow')}
-        </div>
-        <h2 id="packages-biz-title" className="mb-2 font-serif text-[22px] font-bold text-ink sm:text-[28px]">
-          {t('packages.bizTitle')}
-        </h2>
-        <p className="text-[14px] leading-[1.85] text-ink-dim sm:text-[15px]">{t('packages.bizSubtitle')}</p>
-      </div>
-
-      <div className="grid gap-5 md:grid-cols-2 lg:gap-6">
-        <ContactPackageCard
-          index={0}
-          icon={Briefcase}
-          name={t('packages.bizName')}
-          forText={t('packages.bizFor')}
-          points={[t('packages.bizP1'), t('packages.bizP2'), t('packages.bizP3')]}
-          message={t('packages.bizMsg')}
-        />
-        <ContactPackageCard
-          index={1}
-          icon={Building2}
-          name={t('packages.venueName')}
-          forText={t('packages.venueFor')}
-          points={[t('packages.venueP1'), t('packages.venueP2'), t('packages.venueP3')]}
-          message={t('packages.venueMsg')}
-        />
-      </div>
-    </section>
-  );
-}
-
-/**
  * أسئلة العميل قبل ما يدفع. <details> مش JS: بتشتغل من غير سكريبت وبتتقرا
  * بقارئ الشاشة، وكل الإجابات فى الـDOM فمحرّكات البحث بتشوفها.
  */
@@ -511,7 +421,6 @@ export default function PackagesPage() {
               <Lock size={20} className="text-brass" />
             </div>
             <h2 className="mb-2 font-serif text-xl font-bold text-ink">{t('packages.authTitle')}</h2>
-            <p className="mb-6 text-[13.5px] leading-relaxed text-ink-dim">{t('packages.authBody')}</p>
             <div className="flex flex-col gap-2.5 sm:flex-row sm:justify-center">
               <button
                 type="button"
@@ -576,9 +485,6 @@ export default function PackagesPage() {
             </div>
           </>
         )}
-
-        {/* بيبان لأي زائر — مفيش سعر بالعملة هنا، فمش محتاج تسجيل */}
-        <BusinessSection />
 
         <Faq days={days} />
 
