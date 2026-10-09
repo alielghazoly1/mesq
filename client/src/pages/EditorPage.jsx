@@ -53,7 +53,7 @@ const RUNTIME = 'mithaq-editor';
 // فوق الدعوة بدل ما يزقّها ويغيّر مقاسها — ده اللي كل محرر على الموبايل
 // بيعمله، وبيمنع الدعوة إنها ترقص كل ما تفتح لوحة.
 const SHEET_PEEK_FALLBACK = 118; // لحد ما القياس الحقيقي يحصل
-const SHEET_PANEL = '44vh';      // ارتفاع محتوى الدرج وهو مفتوح
+const SHEET_PANEL = '34vh';      // ارتفاع محتوى الدرج وهو مفتوح
 
 // التبويبات اللي مالهاش feature مش مميزات باقة — دي تعديل العميل في
 // دعوته هو (النص، البيانات)، وأي صاحب دعوة مميزة لازم يقدر يعملها.
@@ -227,6 +227,8 @@ export default function EditorPage() {
   // ارتفاع الجزء الظاهر من الدرج — بيتقاس فعليًا مش بالتخمين، لأنه
   // بيفرق حسب اللغة وحسب وجود زرار الغلاف من عدمه
   const peekRef = useRef(null);
+  const asideRef = useRef(null);
+  const panelScrollRef = useRef(null);
   const [peekH, setPeekH] = useState(SHEET_PEEK_FALLBACK);
   const [selected, setSelected] = useState(null);
   const [pickedImage, setPickedImage] = useState(null);
@@ -526,6 +528,10 @@ export default function EditorPage() {
       if (msg.type === 'pick-rsvp') {
         setTab('inline');
         setRsvpOpen(true);
+        // الجزء اللي كان مختار قبل كده لوحته كانت بتفضل فوق لوحة الفورم
+        // (على الموبايل لوحة الجزء المختار أول حاجة في الدرج) فالعميل
+        // يدوس على الفورم ومايشوفش أي حاجة اتفتحت
+        setSelected(null);
         if (compact) setSheetOpen(true);
         setError('');
       }
@@ -689,6 +695,34 @@ export default function EditorPage() {
     // مرة واحدة بس عند الجاهزية — بعد كده كل تغيير بيتبعت لحظيًا لوحده
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [runtimeReady, !!draft, features]);
+
+  // تبويب جديد (أو لوحة الفورم) بيبدأ من أوله — قبل كده الدرج كان بيفضل
+  // نازل لتحت من التبويب اللي قبله، والعميل يشوف آخر القايمة مش أولها
+  useEffect(() => {
+    if (panelScrollRef.current) panelScrollRef.current.scrollTop = 0;
+  }, [tab, rsvpOpen]);
+
+  // الموبايل: الدرج بيعدّي فوق الدعوة (من غير ما يغيّر مقاسها). بنبلّغ
+  // الدعوة بقد إيه متغطّي منها من تحت — عشان الجزء اللي العميل ضغط عليه
+  // يطلع في الجزء الظاهر فوق الدرج، مش يفضل مدفون تحته وهو بيعدّله
+  useEffect(() => {
+    if (!runtimeReady) return undefined;
+    const send = () => {
+      const ifr = iframeRef.current;
+      const aside = asideRef.current;
+      let bottom = 0;
+      if (compact && !playing && ifr && aside) {
+        const a = ifr.getBoundingClientRect();
+        const b = aside.getBoundingClientRect();
+        bottom = Math.max(0, Math.round(a.bottom - b.top));
+      }
+      post('set-inset', { bottom });
+    };
+    const timer = setTimeout(send, 340); // بعد ما حركة فتح الدرج تخلص
+    window.addEventListener('resize', send);
+    return () => { clearTimeout(timer); window.removeEventListener('resize', send); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [runtimeReady, compact, sheetOpen, peekH, playing]);
 
   // ===== الحفظ التلقائي =====
   useEffect(() => {
@@ -1448,7 +1482,10 @@ export default function EditorPage() {
 
       {/* ===== الشريط العلوي — نسخة الموبايل: سطر واحد، عمره ما يلف ===== */}
       {compact ? (
-        <header className="flex shrink-0 items-center gap-2 border-b border-line bg-card px-3 py-2">
+        // وقت ما درج الأدوات مفتوح الشريط ده بيستخبى — المساحة دي أولى بيها
+        // الدعوة نفسها (من غيرها الظاهر فوق الدرج كان ~160px والعميل مش شايف
+        // اللي بيعدّله). بيرجع أول ما الدرج يتقفل، وزرار النشر في الشريط اللي تحته
+        <header className={`flex shrink-0 items-center gap-2 border-b border-line bg-card px-3 py-2 ${sheetOpen && !playing ? 'hidden' : ''}`}>
           <Link
             to="/dashboard"
             aria-label={t('editor.back')}
@@ -1750,6 +1787,7 @@ export default function EditorPage() {
         {/* على الشاشات الصغيرة الشريط بيتحول لدرج سفلي بدل ما يختفي —
             العميل لازم يقدر يعدّل من الموبايل برضو */}
         <aside
+          ref={asideRef}
           hidden={playing}
           className={`flex flex-col border-line bg-card ${
             compact
@@ -1849,7 +1887,7 @@ export default function EditorPage() {
               : 'flex min-h-0 flex-1 flex-col'}
             style={compact ? { height: sheetOpen ? SHEET_PANEL : 0 } : undefined}
           >
-          <div className={compact ? 'h-full overflow-y-auto p-4' : 'min-h-0 flex-1 overflow-y-auto p-5'}>
+          <div ref={panelScrollRef} className={compact ? 'h-full overflow-y-auto p-4' : 'min-h-0 flex-1 overflow-y-auto p-5'}>
             {error && (
               <div className="mb-4 rounded-xl bg-error/10 px-4 py-3 text-[12.5px] text-error">{error}</div>
             )}
@@ -2021,9 +2059,13 @@ export default function EditorPage() {
                               <span className="text-[12.5px] font-bold text-ink">{t('editor.selectedTitle')}</span>
                             </div>
 
-                            <p className="mb-3 line-clamp-2 rounded-lg bg-card px-3 py-2 text-[12.5px] text-ink-dim">
-                              {selected.text || '—'}
-                            </p>
+                            {/* الصور والخريطة مالهاش كلام — كانت بتطلع خانة فاضية فيها "—"
+                                بتاخد مكان في الدرج الصغير على الموبايل على الفاضي */}
+                            {selected.text && (
+                              <p className="mb-3 line-clamp-2 rounded-lg bg-card px-3 py-2 text-[12.5px] text-ink-dim">
+                                {selected.text}
+                              </p>
+                            )}
 
                             {/* العناصر المركّبة: الكتابة جواها بتدهس تركيبها */}
                             {selected.kind === 'rich' && (

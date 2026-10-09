@@ -109,6 +109,15 @@
     '  transition:opacity .12s ease; touch-action:none;',
     '}',
     '.wda-handle.on{ opacity:1; pointer-events:auto; }',
+    // ===== الموبايل =====
+    // الشارة كانت قاعدة فوق الكلام في أول الدعوة. على الشاشة الضيقة بتبقى
+    // أصغر وبتختفي لوحدها بعد شوية (وبترجع مع أي تلميح)
+    '@media (max-width:519px){',
+    '  .wda-badge{ top:6px; font-size:11px; padding:5px 12px; transition:opacity .45s ease; }',
+    '  .wda-badge.wda-idle{ opacity:0; }',
+    '  .wda-tools button{ width:36px; height:36px; }',
+    '  .wda-tools svg{ width:17px; height:17px; }',
+    '}',
     '.wda-handle.nw{ cursor:nwse-resize; }',
     '.wda-handle.ne{ cursor:nesw-resize; }',
     '.wda-handle.sw{ cursor:nesw-resize; }',
@@ -140,7 +149,18 @@
   badge.textContent = 'وضع التحرير';
   document.body.appendChild(badge);
 
+  // على الموبايل الشارة بتختفي بعد ما تقول اللي عندها (كلاس wda-idle مالوش
+  // تأثير غير على الشاشات الضيقة — راجع الـ CSS فوق)
+  var badgeTimer = null;
+  function idleBadgeSoon(ms) {
+    clearTimeout(badgeTimer);
+    badge.classList.remove('wda-idle');
+    badgeTimer = setTimeout(function () { badge.classList.add('wda-idle'); }, ms);
+  }
+  idleBadgeSoon(2500);
+
   function setBadge(text) {
+    idleBadgeSoon(text === 'وضع التحرير' ? 1800 : 4500);
     badge.textContent = text;
   }
 
@@ -631,6 +651,8 @@
     if (rsvpHost) {
       e.preventDefault();
       e.stopPropagation();
+      // الجزء اللي كان مختار قبل كده (وشريطه) ميفضلش فوق الفورم
+      if (!state.writing) select(null);
       send('pick-rsvp', {});
       return;
     }
@@ -897,7 +919,44 @@
   });
 
   /** بيحط الشريط فوق العنصر ويبدّل أيقوناته حسب نوعه */
-  function showTools(el, mode) {
+  // ===== الموبايل: الجزء الظاهر من الدعوة =====
+  // على الموبايل درج الأدوات بيعدّي فوق الدعوة من تحت. الصفحة الأم بتبلّغنا
+  // بقد إيه متغطّي (set-inset) عشان نعرف الجزء اللي العميل شايفه فعلًا.
+  var insetBottom = 0;
+  function isNarrow() { return window.innerWidth < 520; }
+  function visibleBottom() { return window.innerHeight - insetBottom; }
+
+  /**
+   * لو الجزء المختار مستخبي (تحت الدرج أو برّه الشاشة) بنحركه للجزء الظاهر.
+   * على الموبايل بس — على اللابتوب العميل ضغط عليه وهو قدامه أصلًا، وتحريك
+   * الصفحة تحت إيده كان هيلخبطه. والعناصر الطويلة جدًا (خلفية كاملة)
+   * مبنحركهاش: مستحيل تبان كلها، والتحريك بيبعد العميل عن مكانه.
+   */
+  function revealInView(el) {
+    if (!el || !isNarrow()) return;
+    var r = el.getBoundingClientRect();
+    // من غير درج مفتوح فوق الدعوة: العميل ضغط على الجزء وهو قدامه، فمبنحركش
+    // الصفحة تحت إيده (التحريك وقت ما بيضغط على حاجة تانية كان بيخلي ضغطته
+    // تقع على السطر اللي فوقها) — إلا لو الجزء فعلًا برّه الشاشة
+    if (!insetBottom) return;
+    var top = 58;                        // مكان شريط الأدوات فوق العنصر
+    var bottom = visibleBottom() - 10;
+    var avail = bottom - top;
+    if (avail < 60) return;
+    if (r.height > avail * 0.9) {
+      // عنصر أطول من الجزء الظاهر (خريطة، صورة ألبوم): لو اللي باين منه
+      // حتة صغيرة (الدرج غطّاه)، بنطلّع أوله فوق عشان العميل يشوف هو اختار إيه
+      var shown = Math.min(r.bottom, bottom) - Math.max(r.top, top);
+      if (shown >= Math.min(140, avail * 0.6) || r.height > window.innerHeight * 3) return;
+      window.scrollBy({ top: r.top - top, behavior: 'smooth' });
+      return;
+    }
+    if (r.top >= top && r.bottom <= bottom) return;
+    var targetTop = top + (avail - r.height) * 0.35;
+    window.scrollBy({ top: r.top - targetTop, behavior: 'smooth' });
+  }
+
+  function showTools(el, mode, fromScroll) {
     if (!el) { tools.classList.remove('on'); return; }
     var kind = el.getAttribute('data-wda-kind') || 'text';
 
@@ -966,8 +1025,19 @@
     // Ivory مثلًا وإنت نازل في نصها)، الشريط كان بيطلع برّه الشاشة أو تحت
     // شارة "وضع التحرير" فمحدش يقدر يضغطه — فبننزّله لأول الجزء الظاهر.
     var anchor = r.top - 8;
-    var MIN_ANCHOR = 104; // تحت الشارة (≈ 12 + 34) + طول الشريط نفسه
-    if (anchor < MIN_ANCHOR) anchor = Math.min(MIN_ANCHOR, Math.max(r.bottom - 4, 0));
+    // على الموبايل الشارة صغيرة وبتختفي، فالشريط يقدر يطلع أعلى
+    var MIN_ANCHOR = isNarrow() ? 50 : 104; // تحت الشارة + طول الشريط نفسه
+    if (anchor < MIN_ANCHOR) {
+      // مفيش مكان فوق العنصر: الشريط ينزل تحته بدل ما يقعد على الكلام نفسه
+      // (لو فيه مكان تحته في الجزء الظاهر)
+      // وإنت بتسحب الدعوة والجزء طلع لفوق: الشريط بيستخبى لحد ما يرجع —
+      // لو نزل تحته كان بيقعد على السطر اللي بعده بالظبط، والعميل يدوس على
+      // الشريط وهو قاصد السطر
+      if (fromScroll && isNarrow() && mode !== 'writing') { tools.classList.remove('on'); return; }
+      var below = r.bottom + 8 + (isNarrow() ? 46 : 40);
+      if (below < visibleBottom() - 4) anchor = below;
+      else anchor = Math.min(MIN_ANCHOR, Math.max(r.bottom - 4, 0));
+    }
     tools.style.top = (anchor + window.scrollY) + 'px';
     tools.classList.add('on');
   }
@@ -1072,14 +1142,17 @@
 
   // الشريط والمقابض بيفضلوا ملزوقين بالعنصر مع أي تمرير أو تغيير حجم
   window.addEventListener('scroll', function () {
-    if (state.selected && tools.classList.contains('on')) {
-      showTools(state.selected, state.writing ? 'writing' : 'idle');
+    // على الموبايل الشريط ممكن يكون مستخبي من سحبة قبل كده — بيرجع لوحده
+    // أول ما الجزء يرجع مكان فيه مساحة فوقه
+    if (state.selected && (tools.classList.contains('on') || isNarrow())) {
+      showTools(state.selected, state.writing ? 'writing' : 'idle', true);
     }
     if (state.selected && isResizable(state.selected)) showHandles(state.selected);
   }, { passive: true });
   window.addEventListener('resize', function () {
     if (state.selected) showTools(state.selected, state.writing ? 'writing' : 'idle');
     if (state.selected && isResizable(state.selected)) showHandles(state.selected);
+    if (state.selected) revealInView(state.selected);
   });
 
   // ===== الكتابة جوه العنصر نفسه =====
@@ -1330,6 +1403,7 @@
     if (el) {
       el.classList.add('wda-selected');
       showTools(el, 'idle');
+      revealInView(el);
       // مقابض التكبير بتبان على الصور والفيديو بس
       if (isResizable(el)) showHandles(el); else hideHandles();
       var target = textTarget(el);
@@ -1555,6 +1629,15 @@
     if (msg.source !== 'mithaq-shell') return;
 
     var p = msg.payload || {};
+
+    // الموبايل: الجزء المغطّى من الدعوة تحت درج الأدوات
+    if (msg.type === 'set-inset') {
+      insetBottom = Math.max(0, Math.min(window.innerHeight - 80, Number(p.bottom) || 0));
+      if (state.selected) {
+        revealInView(state.selected);
+        setTimeout(function () { if (state.selected) showTools(state.selected, state.writing ? 'writing' : 'idle'); }, 420);
+      }
+    }
 
     // قايمة المحذوفات كاملة من الشريط الجانبي (بعد حذف أو استرجاع)
     if (msg.type === 'apply-hidden') {
