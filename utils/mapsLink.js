@@ -117,8 +117,17 @@ function isTrustedGoogleMapsHost(host) {
  * @returns {Promise<{embedSrc: string, directLink: string}>}
  */
 async function resolveMapInput({ raw, venueName, venueCity, skipNetwork }) {
-  const trimmed = String(raw || '').trim();
+  let trimmed = String(raw || '').trim();
   const fallbackText = [venueName, venueCity].filter(Boolean).join(', ');
+
+  // لينك جوه كلام: "مشاركة" من تطبيق جوجل ماب على الموبايل بتنسخ اسم المكان
+  // وتحته اللينك، والخانة كمان بتبقى فيها اسم القاعة القديم فالعميل بيلصق
+  // وراه — كان بيتحفظ "Venue, Cityhttps://maps…" والخريطة بتدوّر على
+  // الكلام ده كله. اللينك هو اللي يحدد المكان، والكلام حواليه يتشال
+  if (!isUrl(trimmed)) {
+    const inner = trimmed.match(/https?:\/\/[^\s]+/i);
+    if (inner) trimmed = inner[0];
+  }
 
   if (!trimmed) {
     return textEmbed(fallbackText || 'Google Maps');

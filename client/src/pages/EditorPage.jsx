@@ -145,6 +145,8 @@ function MapField({ value, busy, onSave }) {
       <input
         value={text}
         onChange={(e) => setText(e.target.value)}
+        // بيتحدد كله أول ما يدوس: اللصق يحل محل المكان القديم بدل ما يتلزق وراه
+        onFocus={(e) => e.target.select()}
         onKeyDown={(e) => { if (e.key === 'Enter') onSave(text); }}
         placeholder={t('editor.mapPlaceholder')}
         maxLength={300}
