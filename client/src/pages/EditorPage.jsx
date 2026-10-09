@@ -1375,10 +1375,26 @@ export default function EditorPage() {
     // لينك فيه بصمة الكارت المحفوظ — أي تعديل في الكارت بيطلّع لينك جديد،
     // فواتساب/إنستجرام يقروا الكارت الجديد بدل المحفوظ عندهم (lib/shareLink.js)
     const url = invitationShareUrl(window.location.origin, shortId, data?.customizations?.share);
-    navigator.clipboard.writeText(url).then(
-      () => { setCopied(true); setTimeout(() => setCopied(false), 2000); },
-      () => setError(t('editor.errorSave'))
-    );
+    const done = () => { setCopied(true); setTimeout(() => setCopied(false), 2000); };
+    // متصفحات جوه التطبيقات (إنستجرام/فيسبوك) وبعض الموبايلات بترفض
+    // clipboard — قبل كده العميل كان بيشوف "الحفظ مانفعش" مع إن مفيش أي
+    // حفظ فشل. بنجرّب طريقة النسخ القديمة، ولو فشلت نوريه اللينك ينسخه بإيده
+    const fallback = () => {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = url;
+        ta.setAttribute('readonly', '');
+        ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+        document.body.appendChild(ta);
+        ta.select();
+        const ok = document.execCommand('copy');
+        ta.remove();
+        if (ok) { done(); return; }
+      } catch { /* نكمّل للخطوة اللي بعدها */ }
+      window.prompt(t('editor.copyLinkManual'), url);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done, fallback);
+    else fallback();
   }
 
   // ===== حالات التحميل =====
