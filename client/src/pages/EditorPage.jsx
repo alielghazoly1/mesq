@@ -356,8 +356,12 @@ export default function EditorPage() {
   // على الموبايل: أول ما العميل يضغط على جزء في الدعوة، الأدوات بتاعته
   // لازم تطلعله من غير ما يدوّر — إلا لو الكيبورد مفتوح (بيعدّل نص)، ساعتها
   // بنسيب الأدوات مقفولة عشان الشاشة تفضل مريحة.
+  // باللمس الجزء المختار بيطلعله شريط أدوات فوقه (قلم/تحريك/...)، فالدرج مش
+  // لازم يطلع ويغطي نص الشاشة مع كل لمسة — بيطلع لوحده بس للحاجات اللي
+  // تعديلها في الدرج نفسه (التاريخ والساعة، الخريطة)
   useEffect(() => {
-    if (compact && selected && !keyboardOpenRef.current) setSheetOpen(true);
+    if (!compact || !selected || keyboardOpenRef.current) return;
+    if (selected.kind === 'live' || selected.kind === 'map' || looksLikeDate(selected.text)) setSheetOpen(true);
   }, [compact, selected]);
 
   // وضع التشغيل بياخد الشاشة كلها — الدرج مالوش لازمة وهو شغال
@@ -522,6 +526,11 @@ export default function EditorPage() {
         setTab('inline');
         if (compact) setSheetOpen(true);
         setError('');
+      }
+
+      // وضع التحريك باللمس: الدرج يتقفل عشان العميل يلاقي مساحة يحرّك فيها
+      if (msg.type === 'move-mode' && msg.payload && msg.payload.on && compact) {
+        setSheetOpen(false);
       }
 
       // ضغط على أيقونة تعديل فورم تأكيد الحضور

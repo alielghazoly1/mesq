@@ -55,11 +55,27 @@
     // الحدود بتبان عند المرور بالماوس بس. لو سيبناها ظاهرة على كل عنصر
     // طول الوقت، الدعوة بتبقى مليانة خطوط متقطعة والعميل مبيشوفش تصميمه.
     '.wda-editable{ outline:2px dashed transparent; outline-offset:3px; cursor:grab; transition:outline-color .12s, background .12s; }',
-    '.wda-editable:hover{ outline-color:rgba(201,162,74,.9) !important; background:rgba(201,162,74,.07); }',
+    // الهوفر للماوس بس: على اللمس كان بيفضل "لازق" على آخر حاجة اتلمست
+    '@media (hover:hover){ .wda-editable:hover{ outline-color:rgba(201,162,74,.9) !important; background:rgba(201,162,74,.07); } }',
+    // ===== اللمس (موبايل/تابلت) =====
+    // السكرول بالصباع لازم يشتغل من أي حتة في الدعوة. ولمسة طويلة على كلام أو
+    // صورة ماتفتحش قايمة النسخ/الحفظ بتاعة الموبايل. الضغطتين على الصورة
+    // ماتعملش زووم (manipulation) — بنستخدمهم إحنا لاختيارها.
+    '@media (pointer:coarse){',
+    '  html{ touch-action:manipulation; }',
+    '  .wda-editable:not(.wda-writing), .wda-img-editable{ -webkit-user-select:none; user-select:none; -webkit-touch-callout:none; -webkit-tap-highlight-color:transparent; }',
+    '}',
+    // وضع التحريك: الجزء ده بس بيمسك الصباع ويتحرك (والباقي بيفضل سكرول عادي)
+    '.wda-moving{ touch-action:none !important; outline:2.5px dashed #c9a24a !important; outline-offset:4px; background:rgba(201,162,74,.10) !important; animation:wda-pulse 1.4s ease-in-out infinite; }',
+    '@keyframes wda-pulse{ 0%,100%{ outline-color:#c9a24a; } 50%{ outline-color:rgba(201,162,74,.35); } }',
+    // وضع التحريك: باقي الأجزاء بتسيب اللمس يعدّي — عشان لو الجزء اللي بيتحرك
+    // (صورة خلفية مثلًا) فوقه كلام، الصباع يمسكه هو بدل ما يسكرول من فوق الكلام
+    '.wda-move-mode .wda-editable:not(.wda-moving){ pointer-events:none !important; }',
+    '.wda-tools button.go{ background:#c9a24a; color:#08130f; }',
     '.wda-selected{ outline:2.5px solid #c9a24a !important; outline-offset:3px; background:rgba(201,162,74,.05); }',
     '.wda-dragging{ cursor:grabbing !important; opacity:.85; }',
     '.wda-img-editable{ outline:2px dashed transparent; outline-offset:3px; cursor:pointer; transition:outline-color .12s; }',
-    '.wda-img-editable:hover{ outline-color:rgba(201,120,138,.9) !important; }',
+    '@media (hover:hover){ .wda-img-editable:hover{ outline-color:rgba(201,120,138,.9) !important; } }',
     '.wda-badge{',
     '  position:fixed; inset-inline-start:50%; transform:translateX(-50%); top:12px; z-index:2147483646;',
     '  background:#08130f; color:#e6c684; font-family:system-ui,sans-serif; font-size:12.5px;',
@@ -136,7 +152,8 @@
   var ICON_PIN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>';
   var ICON_PALETTE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>';
   var ICON_RESIZE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" x2="14" y1="3" y2="10"/><line x1="3" x2="10" y1="21" y2="14"/></svg>';
-  var ICON_FORM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 8h10M7 12h10M7 16h6"/></svg>';
+  var ICON_MOVE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="m15 19-3 3-3-3"/><path d="m19 9 3 3-3 3"/><path d="M2 12h20"/><path d="m5 9-3 3 3 3"/><path d="m9 5 3-3 3 3"/></svg>';
+  var ICON_FORM ='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 8h10M7 12h10M7 16h6"/></svg>';
   // أيقونات المحاذاة — بتتغيّر حسب المحاذاة الحالية
   var ICON_ALIGN = {
     left: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="15" x2="3" y1="6" y2="6"/><line x1="17" x2="3" y1="12" y2="12"/><line x1="13" x2="3" y1="18" y2="18"/></svg>',
@@ -628,12 +645,100 @@
     return found[0];
   }
 
+  // ===== اللمس (موبايل/تابلت): نموذج تعامل منفصل عن الماوس =====
+  // المشكلة اللي كانت: كل جملة وصورة كانت قابلة للسحب بالصباع، والدعوة كلها
+  // جمل وصور — فأي سحبة سكرول بتبدأ فوق حاجة كانت بتحرّكها من مكانها بدل ما
+  // الصفحة تنزل، ولمسة على أي كلمة كانت بتفتح الكتابة على طول.
+  //
+  // النموذج الجديد (زي برامج التصميم على الموبايل):
+  //   • السحب بالصباع = سكرول دايمًا
+  //   • لمسة على كلام = اختيار بس + شريط أدوات (قلم / تحريك / ...)
+  //   • القلم (أو لمسة تانية على نفس الكلام) = كتابة
+  //   • أيقونة التحريك = الجزء ده بس بيتحرك بالصباع لحد ✓
+  //   • الصورة: لمسة واحدة مابتختارهاش — لمستين ورا بعض بس
+  // بيتحدد بنوع اللمسة نفسها (صباع ولا ماوس) مش بمقاس الشاشة، فاللابتوب
+  // بالماوس بيفضل زي ما هو بالظبط، وتابلت بالصباع بياخد نموذج اللمس.
+  var touchUI = {
+    lastType: 'mouse',   // نوع آخر لمسة (touch / pen / mouse)
+    moveEl: null,        // الجزء اللي في وضع التحريك
+    lastImgTap: null,    // { el, t } — لكشف الضغطتين على الصورة
+    imgHints: 0,         // عدد مرات تلميح "دوس مرتين" (مايزنّش)
+  };
+  document.addEventListener('pointerdown', function (e) {
+    touchUI.lastType = e.pointerType || 'mouse';
+  }, true);
+  function isTouchInput() { return touchUI.lastType === 'touch' || touchUI.lastType === 'pen'; }
+  function canMove(el) { return !!el && (state.dragEnabled || !!el.getAttribute('data-wda-added')); }
+
+  function startMove(el) {
+    if (!el || !canMove(el)) return;
+    if (state.writing) stopWriting(true);
+    endMove();
+    touchUI.moveEl = el;
+    el.classList.add('wda-moving');
+    document.documentElement.classList.add('wda-move-mode');
+    hideHandles();
+    showTools(el, 'moving');
+    setBadge('حرّك الجزء بصباعك — ودوس ✓ لما تخلص');
+    send('move-mode', { on: true, id: elemId(el) });
+  }
+  function endMove() {
+    var el = touchUI.moveEl;
+    if (!el) return;
+    touchUI.moveEl = null;
+    el.classList.remove('wda-moving');
+    document.documentElement.classList.remove('wda-move-mode');
+    setBadge('وضع التحرير');
+    if (state.selected === el) {
+      showTools(el, 'idle');
+      if (isResizable(el)) showHandles(el);
+    }
+    send('move-mode', { on: false, id: elemId(el) });
+  }
+
+  /** لمسة (مش سكرول) على الدعوة باللمس */
+  function onTouchTap(best, e) {
+    if (touchUI.moveEl && best !== touchUI.moveEl) endMove();
+    if (!best) { if (!state.writing) select(null); return; }
+    if (state.writing && state.writing.host === best) return;
+    e.preventDefault();
+    e.stopPropagation();
+    var kind = elementKind(best);
+    if (kind === 'image' || kind === 'video') {
+      // الصورة بتتختار بلمستين ورا بعض بس — لمسة واحدة كانت بتختار صور
+      // الخلفية والورد في كل حتة والعميل بيلمسها بالغلط
+      var now = Date.now();
+      var last = touchUI.lastImgTap;
+      touchUI.lastImgTap = { el: best, t: now };
+      if (last && last.el === best && now - last.t < 450) {
+        touchUI.lastImgTap = null;
+        select(best);
+        return;
+      }
+      if (state.selected === best) return;
+      if (state.writing) stopWriting(true);
+      if (state.selected) select(null);
+      if (touchUI.imgHints < 3) { touchUI.imgHints++; setBadge('دوس مرتين على الصورة عشان تختارها'); }
+      return;
+    }
+    // لمسة تانية على نفس الكلام المختار = اكتب فيه (زي القلم بالظبط)
+    if (best === state.selected && kind === 'text' && !isRsvpEl(best)) {
+      startWriting(best, e.clientX, e.clientY);
+      return;
+    }
+    select(best);
+  }
+
   // مستمع واحد على الصفحة كلها بدل مستمع على كل عنصر. السبب: في
   // التصاميم فيه صور خلفية كبيرة قاعدة فوق النصوص، فالضغطة كانت بتروح
   // للخلفية والنص اللي تحتها ميتحددش أبدًا.
   document.addEventListener('click', function (e) {
     if (!state.editingOn || !e.isTrusted) return;
     if (e.target.closest && e.target.closest('.wda-tools, .wda-cal-picker')) return;
+    // الضغطة اللي الموبايل بيبعتها بعد لمسة على زرار في الشريط: الزرار ممكن
+    // يكون اتشال من الصفحة (الشريط اتغيّر لـ ✓)، فمش هنلاقيه جوه الشريط —
+    // من غيرها كانت بتتفهم لمسة على فاضي وتقفل وضع التحريك على طول
+    if (Date.now() - toolTouchAt < 700 || (e.target && e.target.isConnected === false)) return;
     if (Date.now() - state.lastDragEnd < 250) return;
 
     // الضغط على أي جزء من فورم تأكيد الحضور (أو زرار RSVP في Royal) بيفتح
@@ -664,6 +769,8 @@
     if (popupLink) { e.preventDefault(); }
 
     var best = editableAtPoint(e.clientX, e.clientY);
+    // اللمس ليه نموذجه (اختيار بس، والكتابة/التحريك من الأيقونات)
+    if (isTouchInput()) { onTouchTap(best, e); return; }
     if (!best) { if (!state.writing) select(null); return; }
 
     if (state.writing && state.writing.host === best) return;
@@ -750,6 +857,9 @@
           }
           var intended = (isFinite(x) && isFinite(y)) ? editableAtPoint(x, y) : null;
           var el = intended || event.target;
+          // باللمس: اللي بيتحرك هو الجزء اللي في وضع التحريك بس (actionChecker
+          // تحت بيمنع أي سحبة تانية من الأساس)
+          if (touchUI.moveEl && isTouchPointerEvent(event)) el = touchUI.moveEl;
 
           // الصلاحية بتتفحص هنا: النص اللي العميل ضافه بنفسه بيتحرك
           // في أي باقة، وعناصر التصميم لازم يكون عنده ميزة السحب.
@@ -792,9 +902,30 @@
           setBadge('وضع التحرير');
           send('offsets', { offsets: state.offsets, before: state.offsetsBeforeDrag });
           state.offsetsBeforeDrag = null;
+          // باللمس: الجزء بيفضل في وضع التحريك لحد ✓ (يقدر يظبطه على كذا سحبة)
+          if (touchUI.moveEl === el) showTools(el, 'moving');
         },
       },
+    }).actionChecker(function (pointer, event, action, interactable, element) {
+      // ===== أهم سطر للموبايل =====
+      // سحبة الصباع على أي جزء مش في وضع التحريك = سكرول. لازم نرفضها هنا
+      // (قبل ما السحب يتجهّز أصلًا) — لو اترفضت بعد ما بدأت، المكتبة كانت
+      // بتكون منعت حركة الصفحة خلاص في السحبة دي
+      if (isTouchPointerEvent(event)) {
+        var m = touchUI.moveEl;
+        if (!m || !(m === element || m.contains(element) || element.contains(m))) return null;
+      }
+      return action;
     });
+  }
+
+  /** الحدث جاي من صباع/قلم (مش ماوس)؟ */
+  function isTouchPointerEvent(ev) {
+    if (!ev) return false;
+    var t = ev.pointerType;
+    if (t) return t === 'touch' || t === 'pen';
+    if (ev.type && ev.type.indexOf('touch') === 0) return true;
+    return isTouchInput();
   }
 
   function disableDragging() {
@@ -814,12 +945,48 @@
 
   // mousedown مش click: الضغط على الزرار وهو النص متفتوح للكتابة كان
   // بيشيل التركيز من العنصر الأول فيتقفل قبل ما الضغطة تتسجّل.
+  //
+  // باللمس بنشتغل على رفعة الصباع (pointerup) نفسها: ضغطة الماوس "المقلّدة"
+  // اللي الموبايل بيبعتها بعد اللمسة مش مضمونة — بتتلغي لو الصفحة لسه
+  // بتتزحلق من سكرول قبلها، أو لو سكربت في التصميم منعها، فالعميل كان يدوس ✓
+  // ومايحصلش حاجة. رفعة الصباع بتوصل دايمًا، وبتعدّ ضغطة مستخدم حقيقية
+  // (لازم عشان اختيار الصورة يفتح ملفات الموبايل).
+  var toolTouchAt = 0;
+  tools.addEventListener('pointerdown', function (e) {
+    if (e.pointerType === 'mouse') return;
+    if (e.target.closest('button')) e.stopPropagation();
+  });
+  tools.addEventListener('pointerup', function (e) {
+    if (e.pointerType === 'mouse') return;
+    var btn = e.target.closest('button');
+    if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    toolTouchAt = Date.now();
+    runToolAct(btn.getAttribute('data-act'));
+  });
+  // الماوس المقلّد اللي الموبايل بيبعته بعد لمسة على زرار: الزرار ساعات بيكون
+  // اتغيّر (الشريط بقى ✓) فالضغطة المقلّدة بتقع على اللي تحته (صورة) وتشيل
+  // التركيز من الكلام اللي لسه بدأنا نكتب فيه. بنبلعها على مستوى الصفحة كلها
+  ['mousedown', 'mouseup', 'click'].forEach(function (type) {
+    document.addEventListener(type, function (e) {
+      // isTrusted بس: الضغطة البرمجية على خانة اختيار الصورة (input.click)
+      // لازم تعدّي، غير كده ملفات الموبايل مكانتش بتفتح
+      if (!e.isTrusted) return;
+      if (Date.now() - toolTouchAt < 700) { e.preventDefault(); e.stopPropagation(); }
+    }, true);
+  });
   tools.addEventListener('mousedown', function (e) {
     var btn = e.target.closest('button');
     if (!btn) return;
     e.preventDefault();
     e.stopPropagation();
-    var act = btn.getAttribute('data-act');
+    // الماوس المقلّد بعد لمسة اتنفّذت خلاص من pointerup
+    if (Date.now() - toolTouchAt < 800) return;
+    runToolAct(btn.getAttribute('data-act'));
+  });
+
+  function runToolAct(act) {
     if (act === 'edit') startWriting(state.selected);
     else if (act === 'done') stopWriting(true);
     else if (act === 'delete') removeElement(state.selected);
@@ -830,7 +997,9 @@
     else if (act === 'resize') send('pick-scale', { id: elemId(state.selected) });
     else if (act === 'rsvp') send('pick-rsvp', {});
     else if (act === 'align') cycleAlign(state.selected);
-  });
+    else if (act === 'move') startMove(state.selected);
+    else if (act === 'done-move') endMove();
+  }
 
   /**
    * زرار الصورة بيفتح اختيار الملف على طول — خطوة واحدة بدل ما العميل يضغط
@@ -958,6 +1127,8 @@
 
   function showTools(el, mode, fromScroll) {
     if (!el) { tools.classList.remove('on'); return; }
+    // وضع التحريك ليه شريطه (✓ بس) — أي تحديث للشريط (سكرول، مقاس) يحافظ عليه
+    if (touchUI.moveEl === el && mode !== 'writing') mode = 'moving';
     var kind = el.getAttribute('data-wda-kind') || 'text';
 
     var first;
@@ -1016,8 +1187,17 @@
       ? '<button type="button" data-act="rsvp" title="عدّل فورم تأكيد الحضور">' + ICON_FORM + '</button>'
       : '';
 
-    tools.innerHTML = first + downloadBtn + resizeBtn + rsvpBtn + alignBtn + colorBtn
-      + '<button type="button" data-act="delete" class="danger" title="احذف">' + ICON_TRASH + '</button>';
+    // باللمس: أيقونة التحريك (السحب المباشر بالصباع مقفول عشان السكرول)
+    var moveBtn = (mode !== 'writing' && isTouchInput() && canMove(el))
+      ? '<button type="button" data-act="move" title="حرّك">' + ICON_MOVE + '</button>'
+      : '';
+
+    if (mode === 'moving') {
+      tools.innerHTML = '<button type="button" data-act="done-move" class="go" title="خلصت تحريك">' + ICON_CHECK + '</button>';
+    } else {
+      tools.innerHTML = first + moveBtn + downloadBtn + resizeBtn + rsvpBtn + alignBtn + colorBtn
+        + '<button type="button" data-act="delete" class="danger" title="احذف">' + ICON_TRASH + '</button>';
+    }
 
     var r = el.getBoundingClientRect();
     tools.style.left = (r.left + window.scrollX + r.width / 2) + 'px';
@@ -1397,6 +1577,7 @@
 
   // ===== الاختيار =====
   function select(el) {
+    if (touchUI.moveEl && touchUI.moveEl !== el) endMove();
     if (state.writing && state.writing.host !== el) stopWriting(true);
     if (state.selected) state.selected.classList.remove('wda-selected');
     state.selected = el;
