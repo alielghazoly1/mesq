@@ -43,6 +43,31 @@ const EDITOR_RUNTIME_TAGS = [
 const VIEWS_DIR = path.join(__dirname, '..', 'views');
 const templateFileCache = {};
 
+/**
+ * لما عنصر في قالب بيتقسم لعنصرين (زي اسم العريس في Lily Garden اللي بقى جواه
+ * الاسم + حرف "و" كعنصر مستقل)، النص المحفوظ على المعرّف القديم بيروح للمعرّف
+ * الجديد اللي شايل الكلام — وقت العرض بس، من غير أي تعديل في الداتا.
+ * من غيره، النص القديم كان بيتكتب على الغلاف كله ويمسح حرف "و".
+ */
+function withTextAliases(customizations, template) {
+  const aliases = template && template.textAliases;
+  const texts = customizations && customizations.texts;
+  if (!aliases || !texts) return customizations;
+  const moved = { ...texts };
+  let changed = false;
+  Object.keys(aliases).forEach((from) => {
+    const to = aliases[from];
+    if (typeof moved[from] === 'string' && moved[to] == null) {
+      moved[to] = moved[from];
+      delete moved[from];
+      changed = true;
+    }
+  });
+  if (!changed) return customizations;
+  const base = typeof customizations.toObject === 'function' ? customizations.toObject() : customizations;
+  return { ...base, texts: moved };
+}
+
 function readTemplateFile(fileName) {
   if (!templateFileCache[fileName]) {
     templateFileCache[fileName] = fs.readFileSync(path.join(VIEWS_DIR, fileName), 'utf8');
@@ -255,7 +280,7 @@ function renderNewPathHtml(data, options) {
   ));
 
   // تخصيصات العميل (خط/صور/موسيقى/إزاحات) بتتحقن كطبقة فوق التصميم
-  html = injectBeforeBodyEnd(html, buildCustomizationTags(data.customizations, options));
+  html = injectBeforeBodyEnd(html, buildCustomizationTags(withTextAliases(data.customizations, template), options));
   if (options && options.editMode) {
     html = injectBeforeBodyEnd(html, EDITOR_RUNTIME_TAGS);
   }

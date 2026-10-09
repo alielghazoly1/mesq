@@ -1307,8 +1307,14 @@
                 /* علامة "&" بخط كلاسيكي — بتاعة Pinyon ليها ذيل طويل بينزل على
                    الاسم اللي تحت ويبان كأنه حرف زيادة. ومش جوه النص: صاحب الدعوة
                    بيعدّل الاسم بس من غير ما يتعامل مع العلامة */
-                #wg-invite-1 .names .amp::after { content: "\00a0&"; font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-weight: 500; font-size: .62em; vertical-align: .18em; color: #c58a9a; }
-                #wg-invite.wg-rtl #wg-invite-1 .names .amp::after { content: "\00a0و"; font-family: 'Aref Ruqaa', 'Amiri', serif; font-style: normal; font-size: .8em; vertical-align: 0; }
+                /* حرف الربط (& / و) عنصر حقيقي جوه غلاف الاسم الأول — العميل يقدر يغيّره أو يشيله.
+                   الاسم وحرف الربط جوه نفس الغلاف (lg2)، فأي تحريك/مقاس قديم على الغلاف
+                   بيحركهم مع بعض زي ما كان (كان ::after جوه نفس العنصر) */
+                #wg-invite-1 .names .amp > span { display: inline; }
+                #wg-invite-1 .names .amp > .conn { padding-inline-start: .28em; font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-weight: 500; font-size: .62em; vertical-align: .18em; color: #c58a9a; }
+                #wg-invite.wg-rtl #wg-invite-1 .names .amp > .conn { font-family: 'Aref Ruqaa', 'Amiri', serif; font-style: normal; font-size: .8em; vertical-align: 0; }
+                /* حركة الكتابة على الغلاف بس — اللي جواه بيظهر معاه */
+                #wg-invite-1 .names .amp > span { opacity: 1 !important; animation: none !important; }
                 #wg-invite-1 .names .second { margin-top: -1cqw; }
                 #wg-invite-1 .wday { top: 37%; font-size: 5.6cqw; letter-spacing: .04em; font-weight: 500; }
                 #wg-invite-1 .arch { position: absolute; left: 22.2%; top: 41.3%; width: 55.6%; height: 56.4%; border-radius: 50% 50% 0 0 / 39% 39% 0 0; overflow: hidden; }
@@ -1509,7 +1515,7 @@
                     <img class="lily l" data-elem-id="lg6" src="/templates/lily-garden/lily-l.webp" alt="" decoding="async" width="300" height="840"/>
                     <img class="lily r" data-elem-id="lg7" src="/templates/lily-garden/lily-r.webp" alt="" decoding="async" width="300" height="840"/>
                     <p class="wg-abs wg-caps date" data-elem-id="lg1" data-wg="date">23.10.2026</p>
-                    <h1 class="wg-abs wg-script names"><span class="amp" data-elem-id="lg2" data-wg="name1">Eslam</span><span class="second" data-elem-id="lg3" data-wg="name2">Amira</span></h1>
+                    <h1 class="wg-abs wg-script names"><span class="amp" data-elem-id="lg2"><span class="nm" data-elem-id="lg79" data-wg="name1">Eslam</span><span class="conn" data-elem-id="lg80" data-wg="conn">&amp;</span></span><span class="second" data-elem-id="lg3" data-wg="name2">Amira</span></h1>
                     <p class="wg-abs wg-caps wday" data-elem-id="lg4" data-wg="wday">Wedding Day</p>
                     <div class="arch"><img data-elem-id="lg5" src="/templates/lily-garden/hands.webp" alt="" decoding="async" fetchpriority="high" width="941" height="1672"/></div>
                 </section>
@@ -1764,6 +1770,8 @@
                     if (!C.brideName && !C.groomName) return; // ملف التصميم لوحده — نسيب القيم المكتوبة
                     setText('[data-wg="date"]', dateStr);
                     if (first) setText('[data-wg="name1"]', first);
+                    // حرف الربط حسب اللغة — تعديل العميل (نص أو حذف) بيتطبّق بعده ويغلبه
+                    setText('[data-wg="conn"]', LANG === 'ar' ? 'و' : '&');
                     if (second) setText('[data-wg="name2"]', second);
                     setText('[data-wg="wday"]', L.wday);
                     // سطور الكارت: كل سطر عنصر لوحده (العربي سطوره أقل — اللي ملوش كلام بيستخبى)
