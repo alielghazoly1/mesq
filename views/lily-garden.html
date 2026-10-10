@@ -1328,6 +1328,9 @@
                 #wg-invite-2 .body { font-size: 4.3cqw; letter-spacing: .05em; line-height: 1.5; margin-top: 7cqw; font-weight: 500; }
                 #wg-invite-2 .big-date { font-size: 12.5cqw; margin-top: 6cqw; }
                 #wg-invite-2 .wg-line { display: block; margin: 0; }
+                /* سطر الميعاد تحت التاريخ (lg81) — فاضي في القالب فمبيظهرش غير لما العميل يكتبه */
+                #wg-invite-2 .end .wg-time { margin-bottom: 2.4cqw; font-weight: 600; }
+                #wg-invite-2 .end .wg-time:empty { display: none; }
                 #wg-invite-2 .end { font-size: 3.6cqw; letter-spacing: .04em; line-height: 1.5; margin-top: 5cqw; font-weight: 500; }
 
                 /* ===== الصفحة 3 ===== */
@@ -1535,6 +1538,7 @@
                         </div>
                         <p class="wg-script big-date" data-elem-id="lg12" data-wg="date" data-wg-reveal>23.10.2026</p>
                         <div class="wg-caps end" data-wg-reveal>
+                            <p class="wg-line wg-time" data-elem-id="lg81"></p>
                             <p class="wg-line" data-elem-id="lg45" data-wg="end1">We will be so happy</p>
                             <p class="wg-line" data-elem-id="lg46" data-wg="end2">to share this unforgettable day</p>
                             <p class="wg-line" data-elem-id="lg47" data-wg="end3">with you!</p>
