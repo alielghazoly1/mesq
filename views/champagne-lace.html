@@ -2768,6 +2768,7 @@
 
             </div>
             <div id="rec2442651163" class="r t-rec" style=" " data-animationappear="off" data-record-type="396">
+                <div class="cl-note-wrap"><p class="cl-note" data-elem-id="cl83"></p></div>
                 <!-- T396 -->
                 <style>
                     #rec2442651163 .t396__artboard {
@@ -3122,10 +3123,24 @@
             /* أرقام الألبوم والأسهم بالترتيب اللاتيني (01 / 04) */
             body.cl-ar .al-nav { direction: ltr; }
 
+            /* ===== الكارت الأول: الكلام يفضل جوه الكارت مهما طال =====
+               الورد بيغطي ركنين الكارت اللي تحت، فسطور الـ Dress code (آخر الكارت)
+               بتتلم في عمود في النص بعيد عن الورد، والكلام كله يطلع لفوق ويصغر لو لزم
+               — كل ده بيحسبه fitHeroCard (في السكريبت) بس لما الكلام فعلًا مش مكفي */
+            #hv-hero .hv-dress { margin-left: auto; margin-right: auto; }
+            #hv-hero .hv-card { transform-origin: 50% 0; }
+
+            /* جملة ختام اختيارية (cl83) فوق "في انتظاركم" — فاضية في القالب فمبتظهرش */
+            .cl-note-wrap { background: #fffdfb; }
+            .cl-note { max-width: 360px; margin: 0 auto; padding: 44px 28px 0; text-align: center; color: #2b1c13;
+                font: 400 18px/2 'Cormorant Garamond', 'Amiri', serif; }
+            body.cl-ar .cl-note { direction: rtl; font-family: 'Amiri', serif; }
+            .cl-note:empty { display: none; }
+
             /* خط الدعوة كلها من المحرر — أقسام التصميم دي مش كلاسات Tilda،
                فبنقرا الخط من متغيّره (‎--serif-ar). بعد قواعد العربي عشان يغلبها،
                وأولوية صفر عشان خط الجملة المعيّنة يغلبه هو */
-            :where(body.cl-gfont) :where(#hv-hero, #cd-countdown, #vn-venue, #al-album, #rsvp)
+            :where(body.cl-gfont) :where(#hv-hero, #cd-countdown, #vn-venue, #al-album, #rsvp, .cl-note-wrap)
                 :where(p, span, label, legend, h1, h2, a, div, input, textarea) { font-family: var(--cl-gfont) !important; }
         </style>
         <script>
@@ -3318,6 +3333,115 @@
                 var dr = document.querySelector('#hv-hero .hv-dress');
                 if (dr) dr.style.display = 'none';
             }
+
+            /* ---------- الكارت الأول: الكلام كله جوه الكارت وبعيد عن الورد ----------
+               الكارت الورق من (44,190) لـ (394,681) بمقاس المشهد (440px — مقاسة من بكسلات الخلفية)، والزنبق
+               (شمال) والورد (يمين) بيغطوا ركنينه اللي تحت. بنقيس كل سطر حقيقي في
+               الكارت؛ لو كله جوه الورق وبعيد عن الورد مبنلمسش حاجة (الدعوات اللي
+               كلامها مكفي متتغيّرش ولا بكسل). لو لأ: بنجرّب عرض أضيق لفقرة الـ
+               Dress code، ونطلّع الكلام لفوق (أول الكارت فاضي لحد 206)، ونصغّره
+               كله بنفس النسبة لو لزم — وبناخد الحل اللي بيسيب الكلام أكبر.
+               ResizeObserver بيعيد الحساب مع أي تعديل في المحرر ومع تحميل الخطوط. */
+            (function fitHeroCard() {
+                var card = document.querySelector('#hv-hero .hv-card');
+                if (!card) return;
+                var dress = card.querySelector('.hv-dress');
+                var TOP = 250, MIN_TOP = 206, MIN_SCALE = 0.7, CX = 176; /* نص عرض الكارت (352) */
+                var PAPER = { x1: 54, y1: 200, x2: 384, y2: 670 }; /* الورق ناقص هامش */
+                /* أماكن الورد الظاهرة (من بكسلات الصور) + هامش — [من y، لحد y، من x، لحد x] */
+                var KEEP = [
+                    [588, 612, -99, 98], [612, 648, -99, 99], [648, 666, -99, 118], [666, 728, -99, 144], [728, 820, -99, 108],
+                    [540, 564, 390, 999], [564, 588, 359, 999], [588, 636, 326, 999], [636, 734, 303, 999], [734, 820, 327, 999]
+                ];
+                var WIDTHS = ['', '250px', '220px', '190px', '160px'];
+                /* كل سطر في الكارت بإحداثيات الكارت نفسه (من غير تكبير/تصغير). بنقيس
+                   السطر نسبةً للفقرة بتاعته — فحركة الدخول (translate) بتلغي نفسها */
+                function lineBoxes() {
+                    var out = [], cr = card.getBoundingClientRect(), s = cr.width / 352;
+                    if (!s) return out;
+                    Array.prototype.forEach.call(card.children, function (c) {
+                        if (!c.offsetParent) return; /* مخفي */
+                        var pr = c.getBoundingClientRect();
+                        var walker = document.createTreeWalker(c, NodeFilter.SHOW_TEXT, null);
+                        var n, range = document.createRange();
+                        while ((n = walker.nextNode())) {
+                            if (!n.nodeValue.trim()) continue;
+                            range.selectNodeContents(n);
+                            Array.prototype.forEach.call(range.getClientRects(), function (r) {
+                                if (r.width < 1 || r.height < 1) return;
+                                out.push({
+                                    x1: c.offsetLeft + (r.left - pr.left) / s, x2: c.offsetLeft + (r.right - pr.left) / s,
+                                    y1: c.offsetTop + (r.top - pr.top) / s, y2: c.offsetTop + (r.bottom - pr.top) / s
+                                });
+                            });
+                        }
+                    });
+                    return out;
+                }
+                function fits(boxes, top, k) {
+                    for (var i = 0; i < boxes.length; i++) {
+                        var b = boxes[i];
+                        var x1 = 220 + k * (b.x1 - CX), x2 = 220 + k * (b.x2 - CX);
+                        /* ارتفاع السطر فيه مسافات فوق وتحت الحروف — بنقيس الجزء اللي فيه الحروف بس */
+                        var pad = (b.y2 - b.y1) * 0.18;
+                        var y1 = top + k * (b.y1 + pad), y2 = top + k * (b.y2 - pad);
+                        if (x1 < PAPER.x1 || x2 > PAPER.x2 || y1 < PAPER.y1 || y2 > PAPER.y2) return false;
+                        for (var j = 0; j < KEEP.length; j++) {
+                            var z = KEEP[j];
+                            if (y2 > z[0] && y1 < z[1] && x2 > z[2] && x1 < z[3]) return false;
+                        }
+                    }
+                    return true;
+                }
+                function best(boxes) {
+                    for (var k = 1; k >= MIN_SCALE - 1e-9; k -= 0.01) {
+                        for (var top = TOP; top >= MIN_TOP; top -= 2) if (fits(boxes, top, k)) return { k: k, top: top };
+                    }
+                    return null;
+                }
+                function apply(w, top, k) {
+                    if (dress) {
+                        dress.style.maxWidth = w;
+                        if (w) dress.style.setProperty('text-wrap', 'balance'); else dress.style.removeProperty('text-wrap');
+                    }
+                    var t = top === TOP ? '' : top + 'px', sc = k >= 0.9999 ? '' : 'scale(' + k.toFixed(3) + ')';
+                    if (card.style.top !== t) card.style.top = t;
+                    if (card.style.transform !== sc) card.style.transform = sc;
+                }
+                var busy = false;
+                function fit() {
+                    if (busy) return;
+                    busy = true;
+                    try {
+                        apply('', TOP, 1);
+                        var boxes = lineBoxes();
+                        if (!boxes.length || fits(boxes, TOP, 1)) return;
+                        var pick = null;
+                        for (var i = 0; i < WIDTHS.length; i++) {
+                            if (i && !(dress && dress.offsetParent)) break;
+                            if (dress) dress.style.maxWidth = WIDTHS[i];
+                            var r = best(lineBoxes());
+                            if (r && (!pick || r.k > pick.k + 0.005)) pick = { w: WIDTHS[i], k: r.k, top: r.top };
+                        }
+                        if (!pick) pick = { w: WIDTHS[WIDTHS.length - 1], k: MIN_SCALE, top: MIN_TOP };
+                        apply(pick.w, pick.top, pick.k);
+                    } finally { busy = false; }
+                }
+                fit();
+                /* إعادة الحساب: لما مقاس الكارت يتغيّر (ResizeObserver)، ولما الكلام
+                   نفسه يتغيّر من غير ما الارتفاع يتغيّر (السطور بيتغيّر عرضها) —
+                   مرة واحدة في الفريم. مش بنراقب style عشان تعديلاتنا متشغّلناش تاني */
+                var queued = false;
+                function later() {
+                    if (queued) return;
+                    queued = true;
+                    (window.requestAnimationFrame || setTimeout)(function () { queued = false; fit(); });
+                }
+                if (window.ResizeObserver) new ResizeObserver(later).observe(card);
+                if (window.MutationObserver) new MutationObserver(later).observe(card, { subtree: true, childList: true, characterData: true });
+                if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+                window.addEventListener('load', fit);
+            })();
             var noRsvp = hideIf('rsvp', 'mithaq-rsvp');
 
             /* ---------- تأكيد الحضور ----------

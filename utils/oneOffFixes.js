@@ -56,6 +56,39 @@ const FIXES = [
       return { 'customizations.texts': { ...(c.texts || {}), lg81: 'سيبدأ الحفل الساعة 18:00' } };
     },
   },
+  {
+    // FjpDW02 (Champagne Lace عربي) — دعوة سمير الكيال وأيه الصاوي بطلب المالك:
+    // الأسامي والميعاد (الجمعة 30/10/2026 الساعة 7 مساءً) والمكان بنفس دالة
+    // حفظ التفاصيل اللي المحرر بيستخدمها، وكلام الـ Dress code في سطرين
+    // الكارت الأول (cl13/cl14)، وجملة الختام فوق "في انتظاركم" (cl83).
+    // بيتعمل بس لو الدعوة لسه بأسامي المسودة الافتراضية ومحدش كتب فيها.
+    name: 'FjpDW02-samir-aya',
+    shortId: 'FjpDW02',
+    select: '-__v',
+    when: (c, inv) => inv.templateId === 'champagne-lace' && inv.groomNameAr === 'العريس'
+      && inv.brideNameAr === 'العروسة' && !((c.texts || {}).cl13),
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: inv.language, occasionType: inv.occasionType,
+        hiddenSections: inv.hiddenSections, timeline: inv.timeline, name: inv.name,
+        groomName: 'سمير الكيال', groomNameAr: 'سمير الكيال',
+        brideName: 'أيه الصاوي', brideNameAr: 'أيه الصاوي',
+        venueName: 'نادي الري بالمظلات', venueCity: 'شبرا مصر', venueAddress: 'قاعة هيلتون',
+        venueMapQuery: 'نادي الري بالمظلات، شبرا مصر',
+        weddingDate: '2026-10-30', weddingTime: '19:00',
+      }, { ownsTemplate: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set['customizations.texts'] = {
+        ...(c.texts || {}),
+        cl13: 'لا يوجد زيّ محدد لحفل الزفاف ولكن نرجو من حضراتكم التكرّم بعدم ارتداء اللون الأبيض أو أي من مشتقاته بما في ذلك الأوف وايت والبيج',
+        cl14: 'احترامًا ليوم العروس المميز ولكم جزيل الشكر والتقدير على تفهّمكم🤍',
+        cl83: 'بكل الحب ندعوكم لمشاركتنا فرحتنا في يومنا المميز فبحضوركم ودعواتكم سوف تكتمل سعادتنا وتزداد فرحتنا🤍',
+      };
+      return set;
+    },
+  },
 ];
 
 let done = false;
@@ -65,13 +98,16 @@ async function runOneOffFixes() {
   done = true;
   for (const fix of FIXES) {
     try {
-      const inv = await Invitation.findOne({ shortId: fix.shortId }).select('customizations').lean();
+      // select: التعديلات اللي محتاجة حقول الدعوة نفسها (مش التخصيصات بس)
+      const inv = await Invitation.findOne({ shortId: fix.shortId }).select(fix.select || 'customizations').lean();
       if (!inv) continue;
       const c = inv.customizations || {};
-      if (!fix.when(c)) continue;
-      const set = fix.apply(c);
+      if (!fix.when(c, inv)) continue;
+      const set = await fix.apply(c, inv);
       const before = {};
-      Object.keys(set).forEach((k) => { before[k] = c[k.replace('customizations.', '')]; });
+      Object.keys(set).forEach((k) => {
+        before[k] = k.startsWith('customizations.') ? c[k.replace('customizations.', '')] : inv[k];
+      });
       console.log(`[oneOffFix] ${fix.name} before: ${JSON.stringify(before)}`);
       await Invitation.updateOne({ _id: inv._id }, { $set: set });
       console.log(`[oneOffFix] ${fix.name} applied`);
