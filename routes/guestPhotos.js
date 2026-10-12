@@ -16,6 +16,7 @@ const mongoose = require('mongoose');
 const Invitation = require('../models/Invitation');
 const GuestPhoto = require('../models/GuestPhoto');
 const { getCloudinary, isCloudinaryReady } = require('../config/cloudinary');
+const { uploadBuffer } = require('../utils/cloudinaryUpload');
 const { validateImage, MAX_IMAGE_BYTES } = require('../utils/uploadSecurity');
 const { sanitizeText } = require('../utils/sanitize');
 const { requireAuth } = require('../middleware/auth');
@@ -35,16 +36,6 @@ const upload = multer({
 });
 
 const PAGE_SIZE_MAX = 60;
-
-function uploadBuffer(buffer, options) {
-  return new Promise((resolve, reject) => {
-    const stream = getCloudinary().uploader.upload_stream(options, (err, result) => {
-      if (err) return reject(err);
-      return resolve(result);
-    });
-    stream.end(buffer);
-  });
-}
 
 /** مسح الملف من Cloudinary — فشله مايوقفش مسح السجل (الصورة اتشالت من الألبوم خلاص) */
 async function destroyRemote(publicId) {
@@ -131,7 +122,7 @@ router.post(
           width: MAX_STORED_SIDE, height: MAX_STORED_SIDE, crop: 'limit', quality: 'auto:best',
         }],
         format: check.mime === 'image/png' ? 'png' : 'jpg',
-      });
+      }, { where: 'upload-guest-photo', path: req.originalUrl });
 
       const photo = await GuestPhoto.create({
         shortId: invitation.shortId,

@@ -5,7 +5,9 @@
 const express = require('express');
 const multer = require('multer');
 
-const { getCloudinary, isCloudinaryReady } = require('../config/cloudinary');
+const { isCloudinaryReady } = require('../config/cloudinary');
+// الرفع نفسه بيعيد لوحده لو الاتصال بـ Cloudinary وقع لحظيًا
+const { uploadBuffer } = require('../utils/cloudinaryUpload');
 const { validateImage, validateAudio, MAX_AUDIO_BYTES } = require('../utils/uploadSecurity');
 const { requireAuth } = require('../middleware/auth');
 const { requireAdminSession } = require('../middleware/adminAuth');
@@ -19,17 +21,6 @@ const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: MAX_AUDIO_BYTES, files: 1 },
 });
-
-/** بيرفع البافر لـ Cloudinary ويرجع الرابط النهائي */
-function uploadBuffer(buffer, options) {
-  return new Promise((resolve, reject) => {
-    const stream = getCloudinary().uploader.upload_stream(options, (err, result) => {
-      if (err) return reject(err);
-      resolve(result);
-    });
-    stream.end(buffer);
-  });
-}
 
 /** رسالة موحدة لو المفاتيح مش متظبطة */
 function ensureReady(res) {
@@ -55,7 +46,7 @@ router.post('/api/uploads/image', requireAuth, upload.single('file'), async (req
       transformation: [{ width: 2000, height: 2000, crop: 'limit', fetch_format: 'auto', quality: 'auto' }],
       // مانسمحش لـ Cloudinary يخمّن النوع من الاسم
       format: check.mime === 'image/png' ? 'png' : 'jpg',
-    });
+    }, { where: 'upload-image', path: req.originalUrl, userId: req.user.id });
 
     return res.status(201).json({ url: result.secure_url, publicId: result.public_id });
   } catch (err) {
@@ -76,7 +67,7 @@ router.post('/api/uploads/audio', requireAuth, upload.single('file'), async (req
     const result = await uploadBuffer(req.file.buffer, {
       folder: `mithaq/users/${req.user.id}/audio`,
       resource_type: 'video', // Cloudinary بيعامل الصوت تحت video
-    });
+    }, { where: 'upload-audio', path: req.originalUrl, userId: req.user.id });
 
     return res.status(201).json({ url: result.secure_url, publicId: result.public_id });
   } catch (err) {
@@ -98,7 +89,7 @@ router.post('/admin/api/tracks/upload', requireAdminSession, upload.single('file
     const result = await uploadBuffer(req.file.buffer, {
       folder: 'mithaq/library/music',
       resource_type: 'video', // Cloudinary بيعامل الصوت تحت video
-    });
+    }, { where: 'upload-track', path: req.originalUrl });
 
     return res.status(201).json({
       url: result.secure_url,
@@ -138,7 +129,7 @@ router.post('/api/uploads/payment-proof', requireAuth, upload.single('file'), as
       resource_type: 'image',
       transformation: [{ width: 2000, height: 2000, crop: 'limit', fetch_format: 'auto', quality: 'auto' }],
       format: check.mime === 'image/png' ? 'png' : 'jpg',
-    });
+    }, { where: 'upload-receipt', path: req.originalUrl, userId: req.user.id });
 
     order.paymentProofUrl = result.secure_url;
     order.paymentProofAt = new Date();
