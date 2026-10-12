@@ -33,7 +33,7 @@ router.get('/api/dashboard', requireAuth, async (req, res) => {
     // عدد ردود الحضور لكل دعوة (استعلام واحد بدل استعلام لكل دعوة)
     const rsvpCounts = await Rsvp.aggregate([
       { $match: { shortId: { $in: shortIds } } },
-      { $group: { _id: { shortId: '$shortId', attending: '$attending' }, count: { $sum: 1 } } },
+      { $group: { _id: { shortId: '$shortId', attending: '$attending', maybe: { $ifNull: ['$maybe', false] } }, count: { $sum: 1 } } },
     ]);
 
     // عدد صور الضيوف لكل دعوة (للقوالب اللي فيها ألبوم بس)
@@ -50,9 +50,10 @@ router.get('/api/dashboard', requireAuth, async (req, res) => {
     const countsByShortId = {};
     rsvpCounts.forEach((row) => {
       const id = row._id.shortId;
-      if (!countsByShortId[id]) countsByShortId[id] = { yes: 0, no: 0 };
-      if (row._id.attending) countsByShortId[id].yes = row.count;
-      else countsByShortId[id].no = row.count;
+      if (!countsByShortId[id]) countsByShortId[id] = { yes: 0, no: 0, maybe: 0 };
+      if (row._id.attending) countsByShortId[id].yes += row.count;
+      else if (row._id.maybe) countsByShortId[id].maybe += row.count;
+      else countsByShortId[id].no += row.count;
     });
 
     const sub = req.user.subscription || {};
@@ -104,7 +105,7 @@ router.get('/api/dashboard', requireAuth, async (req, res) => {
         },
         weddingDate: inv.weddingDateTime,
         views: inv.viewCount || 0,
-        rsvp: countsByShortId[inv.shortId] || { yes: 0, no: 0 },
+        rsvp: countsByShortId[inv.shortId] || { yes: 0, no: 0, maybe: 0 },
         // ألبوم صور الضيوف: القالب بيدعمه؟ وكام صورة اترفعت
         album: templateHasAlbum(inv.templateId)
           ? { photos: photosByShortId[inv.shortId] || 0 }
@@ -133,7 +134,7 @@ router.get('/api/dashboard/rsvps/:shortId', requireAuth, async (req, res) => {
     const rsvps = await Rsvp.find({ shortId: req.params.shortId })
       .sort({ createdAt: -1 })
       .limit(500)
-      .select('guestName attending note createdAt')
+      .select('guestName attending maybe note createdAt')
       .lean();
 
     return res.json({ rsvps });

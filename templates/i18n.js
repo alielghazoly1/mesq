@@ -20,6 +20,10 @@ const TEMPLATE_TEXT = {
     ar: { description: 'ظرف بختم شمع وزنبق وردي ينفتح — عدّاد تنازلي، تأكيد حضور، وألبوم يرفع فيه الضيوف صور الفرح' },
     en: { description: 'A wax-sealed envelope of pink lilies that opens — countdown, RSVP, and an album where guests upload their photos' },
   },
+  'peacock-sun': {
+    ar: { description: 'بوابة قصر مغولي بتتفتح — طاووس وشمس بالعنابي والزيتوني والدهبي، تاريخ في قلب الشمس، مكان الحفل، تأكيد حضور (أيوه/يمكن/لأ)، عدّاد و"للكبار فقط"' },
+    en: { description: 'A Mughal palace gate that opens — peacocks and a sun in burgundy, olive and gold, the date in the heart of the sun, venue, RSVP (yes / maybe / no), countdown and an adults-only note' },
+  },
 };
 
 const SECTION_LABELS = {
@@ -36,6 +40,7 @@ const SECTION_LABELS = {
   story: { ar: 'صوركم وحكايتكم', en: 'Your photos & story' },
   families: { ar: 'الأهل والعائلات', en: 'Families' },
   venue: { ar: 'القاعة والمكان', en: 'Venue' },
+  adultsOnly: { ar: 'للكبار فقط (من غير أطفال)', en: 'Adults only (no kids)' },
 };
 
 const EXTRA_FIELD_LABELS = {

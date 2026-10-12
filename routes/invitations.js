@@ -300,8 +300,10 @@ router.post('/i/:shortId/rsvp', ensureDeviceId, rsvpLimiter, async (req, res) =>
 
     const rawAttending = req.body && req.body.attending;
     let attending;
+    let maybe = false;
     if (rawAttending === true || rawAttending === 'yes' || rawAttending === 'true') attending = true;
     else if (rawAttending === false || rawAttending === 'no' || rawAttending === 'false') attending = false;
+    else if (rawAttending === 'maybe') { attending = false; maybe = true; }
     else return res.status(400).json({ error: 'من فضلك حدد هتحضر ولا لأ.' });
 
     const note = sanitizeText(req.body && req.body.note, 200);
@@ -310,6 +312,7 @@ router.post('/i/:shortId/rsvp', ensureDeviceId, rsvpLimiter, async (req, res) =>
       shortId: req.params.shortId,
       guestName,
       attending,
+      maybe,
       note,
       deviceId: req.deviceId || null,
     });

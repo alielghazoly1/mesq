@@ -15,14 +15,16 @@ const dtShort = new Intl.DateTimeFormat('ar-EG-u-nu-latn', {
 
 /**
  * @param {object} invitation مستند الدعوة
- * @param {{ rsvpYes:number, rsvpNo:number, rsvpList:Array }} stats
+ * @param {{ rsvpYes:number, rsvpNo:number, rsvpMaybe?:number, rsvpList:Array }} stats
  * @returns {string} HTML كامل
  */
 function buildStatsPage(invitation, stats) {
   const rsvpYes = stats.rsvpYes || 0;
   const rsvpNo = stats.rsvpNo || 0;
+  // "يمكن" (القوالب اللي بتسأل أيوه/يمكن/لأ) — بيظهر كخانة لوحده بس لو فيه ردود كده
+  const rsvpMaybe = stats.rsvpMaybe || 0;
   const rsvpList = stats.rsvpList || [];
-  const rsvpTotal = rsvpYes + rsvpNo;
+  const rsvpTotal = rsvpYes + rsvpNo + rsvpMaybe;
 
   const coupleNames = `${invitation.brideNameAr || invitation.brideName || ''} & ${invitation.groomNameAr || invitation.groomName || ''}`.trim();
   const title = (invitation.name && invitation.name.trim()) || coupleNames || 'دعوة';
@@ -37,7 +39,9 @@ function buildStatsPage(invitation, stats) {
         const when = r.createdAt ? dtShort.format(new Date(r.createdAt)) : '';
         const badge = r.attending
           ? '<span class="badge badge--yes">هيحضر</span>'
-          : '<span class="badge badge--no">معتذر</span>';
+          : r.maybe
+            ? '<span class="badge badge--maybe">يمكن يحضر</span>'
+            : '<span class="badge badge--no">معتذر</span>';
         const note = r.note ? `<div class="row-note">${escapeHtml(r.note)}</div>` : '';
         return `<li class="row">
           <div class="row-top">
@@ -120,6 +124,7 @@ function buildStatsPage(invitation, stats) {
   .tile--yes b{ color:var(--good); }
   .tile--no{ background:var(--bad-bg); border-color:rgba(180,105,74,0.22); }
   .tile--no b{ color:var(--bad); }
+  .tile--maybe b{ color:var(--brass); }
 
   .list-title{
     text-align:right; font-size:13px; font-weight:700; color:var(--ink-soft);
@@ -133,6 +138,7 @@ function buildStatsPage(invitation, stats) {
   .badge{ font-size:11px; padding:3px 11px; border-radius:20px; white-space:nowrap; font-weight:600; }
   .badge--yes{ background:var(--good-bg); color:var(--good); }
   .badge--no{ background:var(--bad-bg); color:var(--bad); }
+  .badge--maybe{ background:var(--brass-bg); color:var(--brass); }
   .row-note{ font-size:12.5px; color:var(--ink-soft); margin-top:5px; line-height:1.7; }
   .row-when{ font-size:11px; color:var(--ink-dim); margin-top:5px; }
   .empty{ padding:26px 6px; color:var(--ink-dim); font-size:13.5px; text-align:center; }
@@ -163,6 +169,7 @@ function buildStatsPage(invitation, stats) {
       <div class="tiles">
         <div class="tile tile--total"><b>${rsvpTotal}</b><span>إجمالي الردود</span></div>
         <div class="tile tile--yes"><b>${rsvpYes}</b><span>هيحضروا</span></div>
+        ${rsvpMaybe ? `<div class="tile tile--maybe"><b>${rsvpMaybe}</b><span>يمكن</span></div>` : ''}
         <div class="tile tile--no"><b>${rsvpNo}</b><span>معتذرين</span></div>
       </div>
 
@@ -187,17 +194,19 @@ async function loadStatsData(Rsvp, shortId) {
   const [agg, rsvpList] = await Promise.all([
     Rsvp.aggregate([
       { $match: { shortId } },
-      { $group: { _id: '$attending', count: { $sum: 1 } } },
+      { $group: { _id: { attending: '$attending', maybe: { $ifNull: ['$maybe', false] } }, count: { $sum: 1 } } },
     ]),
     Rsvp.find({ shortId }).sort({ createdAt: -1 }).limit(300).lean(),
   ]);
   let rsvpYes = 0;
   let rsvpNo = 0;
+  let rsvpMaybe = 0;
   for (const row of agg) {
-    if (row._id === true) rsvpYes = row.count;
-    else if (row._id === false) rsvpNo = row.count;
+    if (row._id.attending === true) rsvpYes += row.count;
+    else if (row._id.maybe) rsvpMaybe += row.count;
+    else if (row._id.attending === false) rsvpNo += row.count;
   }
-  return { rsvpYes, rsvpNo, rsvpList };
+  return { rsvpYes, rsvpNo, rsvpMaybe, rsvpList };
 }
 
 /**

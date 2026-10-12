@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import {
   ArrowRight, Eye, Users, Crown, Sparkles, MessageCircle,
   Send, ExternalLink, BarChart3, Check, X as XIcon, Lock, Wand2, FileText,
-  Pencil, Share2, Images,
+  Pencil, Share2, Images, CircleHelp,
 } from 'lucide-react';
 import {
   useGetDashboardQuery,
@@ -53,10 +53,10 @@ function RsvpList({ shortId, onClose }) {
               <span className="text-[13.5px] font-bold text-ink">{r.guestName}</span>
               <span
                 className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${
-                  r.attending ? 'bg-ok/15 text-ok' : 'bg-error/15 text-error'
+                  r.attending ? 'bg-ok/15 text-ok' : r.maybe ? 'bg-brass/15 text-brass' : 'bg-error/15 text-error'
                 }`}
               >
-                {r.attending ? t('dash.attending') : t('dash.notAttending')}
+                {r.attending ? t('dash.attending') : r.maybe ? t('dash.maybeAttending') : t('dash.notAttending')}
               </span>
             </div>
             {r.note && <p className="mt-1 text-[12.5px] text-ink-dim">{r.note}</p>}
@@ -148,6 +148,9 @@ function InvitationCard({ inv, lang, editEnded, openRsvp, setOpenRsvp }) {
           <div className="mt-1 flex flex-wrap gap-3 text-[12.5px] text-ink-dim">
             <span className="inline-flex items-center gap-1"><Eye size={12} /> {inv.views}</span>
             <span className="inline-flex items-center gap-1 text-ok"><Check size={12} /> {inv.rsvp.yes}</span>
+            {inv.rsvp.maybe > 0 && (
+              <span className="inline-flex items-center gap-1 text-brass"><CircleHelp size={12} /> {inv.rsvp.maybe}</span>
+            )}
             <span className="inline-flex items-center gap-1 text-error"><XIcon size={12} /> {inv.rsvp.no}</span>
           </div>
         </div>

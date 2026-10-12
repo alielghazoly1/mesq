@@ -178,6 +178,28 @@ const TEMPLATES = [
     isNew: true,
     isPremium: true,
   },
+  {
+    id: 'peacock-sun',
+    name: 'Peacock & Sun',
+    description: 'بوابة قصر مغولي بتتفتح — طاووس وشمس بالعنابي والزيتوني والدهبي، تاريخ في قلب الشمس، مكان الحفل، تأكيد حضور (أيوه/يمكن/لأ)، عدّاد و"للكبار فقط"',
+    file: 'peacock-sun.html',
+    languages: SUPPORTED_LANGUAGES,
+    occasionTypes: SUPPORTED_OCCASIONS,
+    optionalSections: [
+      { key: 'map', label: 'مكان الحفل (زرار الموقع)' },
+      { key: 'rsvp', label: 'تأكيد الحضور (RSVP)' },
+      { key: 'countdown', label: 'العداد التنازلي' },
+      { key: 'adultsOnly', label: 'للكبار فقط (من غير أطفال)' },
+    ],
+    timelineStages: [],
+    extraFields: [
+      { key: 'venueAddress', label: 'عنوان القاعة (بيظهر تحت اسمها — اختياري)', maxlength: 200 },
+    ],
+    // تصميم إنجليزي بس (الأسماء اللاتيني) — من غير نافذة اختيار لغة
+    designLanguages: ['en'],
+    isNew: true,
+    isPremium: true,
+  },
 ];
 
 function getTemplate(templateId) {
