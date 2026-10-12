@@ -6001,6 +6001,24 @@
                     }
                     .loc-map-labels .name { font-family: 'Amiri', serif; font-weight: 700; font-size: 20px; color: #3f3122; }
                     .loc-map-labels .sub { font-family: 'EB Garamond', serif; font-size: 15px; color: #af9b6a; }
+                    /* زرار "الموقع على الخريطة" تحت الخريطة على طول — بيفتح لينك جوجل ماب
+                       اللي صاحب الدعوة حاطه (C.venueMapDirectLink) */
+                    #loc-section .loc-map-action { display: flex; justify-content: center; padding: 18px 16px 2px; background: #fffaf2; }
+                    #loc-section .loc-map-action[hidden] { display: none; }
+                    #loc-section .loc-map-action + .loc-map-labels { padding-top: 12px; }
+                    #loc-section .loc-map-btn {
+                        display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+                        box-sizing: border-box; min-height: 46px; padding: 10px 28px; border-radius: 999px;
+                        border: 1px solid #c9ad7a; background: linear-gradient(180deg, #fffdf8, #f6eedd);
+                        color: #3f3122; text-decoration: none; -webkit-tap-highlight-color: transparent;
+                        font-family: 'Amiri', serif; font-weight: 700; font-size: 17px; line-height: 1.2;
+                        box-shadow: 0 1px 0 rgba(255,255,255,.9) inset, 0 6px 14px -8px rgba(74,59,40,.45);
+                        transition: background .25s ease, color .25s ease, border-color .25s ease, transform .15s ease;
+                    }
+                    #loc-section .loc-map-btn svg { width: 17px; height: 17px; flex: none; color: #af9b6a; transition: color .25s ease; }
+                    #loc-section .loc-map-btn:hover, #loc-section .loc-map-btn:focus-visible { background: #3f3122; color: #fffaf2; border-color: #3f3122; outline: none; }
+                    #loc-section .loc-map-btn:hover svg, #loc-section .loc-map-btn:focus-visible svg { color: #e2cfa4; }
+                    #loc-section .loc-map-btn:active { transform: scale(.97); }
 
                     @media screen and (max-width: 479px) {
                         .loc-title { font-size: 26px; }
@@ -6031,6 +6049,13 @@
                              إعداد الدعوة (C.venueMapEmbedSrc) وبيتحط فوقها. مفيش أي مكان
                              معيّن ثابت هنا عشان ميتسربش لحد بالغلط. -->
                         <iframe src="https://www.google.com/maps?q=Egypt&output=embed" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+                    </div>
+                    <!-- اللينك بيتحط من بيانات الدعوة؛ من غيره الزرار مبيظهرش -->
+                    <div class="loc-map-action" hidden>
+                        <a class="loc-map-btn" href="#" target="_blank" rel="noopener">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.6"/></svg>
+                            <span data-elem-id="iv41">الموقع على الخريطة</span>
+                        </a>
                     </div>
                     <div class="loc-map-labels">
                         <span class="name" data-elem-id="iv39">قاعة القصر الكبير</span>
@@ -6127,6 +6152,15 @@
     if (C.venueMapEmbedSrc){
       var mapFrame = document.querySelector('.loc-map-frame iframe');
       if (mapFrame) mapFrame.src = C.venueMapEmbedSrc;
+    }
+    // زرار "الموقع على الخريطة": نفس لينك جوجل ماب اللي صاحب الدعوة حاطه
+    var mapBtn = document.querySelector('.loc-map-btn');
+    if (mapBtn && C.venueMapDirectLink){
+      mapBtn.href = C.venueMapDirectLink;
+      // لو صاحب الدعوة شال كلام الزرار من المحرر، الزرار كله يتشال (مش أيقونة لوحدها)
+      var mapBtnText = mapBtn.querySelector('[data-elem-id="iv41"]');
+      var gone = !mapBtnText || !mapBtnText.textContent.trim() || getComputedStyle(mapBtnText).display === 'none';
+      mapBtn.parentNode.hidden = gone;
     }
 
     // نصوص فورم الحضور من الإعداد (بتحترم اللغة وتعديلات المالك)
