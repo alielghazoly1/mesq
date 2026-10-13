@@ -67,10 +67,12 @@ export default function SharePanel({
       <p className="mb-4 text-[12.5px] leading-relaxed text-ink-dim">{t('editor.shareHint')}</p>
 
       {/* المعاينة الحية */}
-      <WhatsAppPreview title={title} description={description} image={share.image} host={host} />
+      <div data-help="share-preview">
+        <WhatsAppPreview title={title} description={description} image={share.image} host={host} />
+      </div>
 
       {/* الصورة */}
-      <div className="mt-4">
+      <div data-help="share-image" className="mt-4">
         <label className="mb-1.5 block text-[12.5px] font-bold text-ink">{t('editor.shareImage')}</label>
         <input
           ref={fileRef}
@@ -93,7 +95,7 @@ export default function SharePanel({
       </div>
 
       {/* العنوان */}
-      <div className="mt-4">
+      <div data-help="share-title" className="mt-4">
         <div className="mb-1.5 flex items-baseline justify-between gap-2">
           <label className="text-[12.5px] font-bold text-ink">{t('editor.shareCardTitle')}</label>
           <span className="text-[11px] text-ink-dim">{(share.title || '').length}/{MAX_TITLE}</span>
@@ -141,7 +143,7 @@ export default function SharePanel({
       {/* لينك المشاركة — بيتغيّر مع كل تعديل محفوظ في الكارت، فواتساب
           وإنستجرام يعرضوا الكارت الجديد مش القديم المحفوظ عندهم */}
       {onCopyLink && (
-        <div className="mt-3 rounded-xl border border-line p-3">
+        <div data-help="share-copy" className="mt-3 rounded-xl border border-line p-3">
           <button
             type="button"
             onClick={onCopyLink}

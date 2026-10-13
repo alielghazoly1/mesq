@@ -41,6 +41,10 @@ import { prepareImage } from '../lib/prepareImage.js';
 import { installSoloAudio, setFramePauser } from '../lib/soloAudio.js';
 import PanelBoundary from '../components/PanelBoundary.jsx';
 import { invitationShareUrl } from '../lib/shareLink.js';
+import EditorHelpPanel from '../components/editor/help/EditorHelpPanel.jsx';
+import GuidedTour from '../components/editor/help/GuidedTour.jsx';
+import { HELP_TOPICS } from '../components/editor/help/helpTopics.js';
+import useMediaQuery from '../hooks/useMediaQuery.js';
 
 const SHELL = 'mithaq-shell';
 const RUNTIME = 'mithaq-editor';
@@ -169,7 +173,7 @@ function MapField({ value, busy, onSave }) {
 function LockedPanel() {
   const { t } = useTranslation();
   return (
-    <div className="rounded-2xl border border-dashed border-line bg-ivory/60 p-6 text-center">
+    <div data-help="locked" className="rounded-2xl border border-dashed border-line bg-ivory/60 p-6 text-center">
       <Lock size={20} className="mx-auto text-ink-dim" />
       <p className="mt-3 text-[13.5px] text-ink-dim">{t('editor.locked')}</p>
       <Link
@@ -224,6 +228,16 @@ export default function EditorPage() {
   const keyboardOpenRef = useRef(false);
   const [rsvpOpen, setRsvpOpen] = useState(false);
   const [showBigScreenHint, setShowBigScreenHint] = useState(false);
+  // ===== لوحة المساعدة + الجولة المرشدة =====
+  // على الشاشات الكبيرة بس: المساحة الفاضية جنب المعاينة بتشيل لوحة الأسئلة.
+  // 1280px = أقل عرض يساع الشريط + المعاينة (موك-أب الموبايل) + اللوحة من غير
+  // ما حاجة تتزنق.
+  const helpRoom = useMediaQuery('(min-width: 1280px)');
+  const [helpCollapsed, setHelpCollapsed] = useState(() => {
+    try { return window.localStorage.getItem('mithaq_help_collapsed') === '1'; } catch { return false; }
+  });
+  const autoCollapsedRef = useRef(false);
+  const [tour, setTour] = useState(null); // { id, steps } | null
   // ارتفاع الجزء الظاهر من الدرج — بيتقاس فعليًا مش بالتخمين، لأنه
   // بيفرق حسب اللغة وحسب وجود زرار الغلاف من عدمه
   const peekRef = useRef(null);
@@ -368,6 +382,13 @@ export default function EditorPage() {
   useEffect(() => {
     if (playing) setSheetOpen(false);
   }, [playing]);
+
+  // اللوحة بتظهر على الشاشة الكبيرة وإحنا بنعدّل بس — ولو اختفت (شاشة صغرت،
+  // أو بدأ تشغيل الدعوة) الجولة بتتقفل معاها عشان مايفضلش غمقان على الشاشة
+  const showHelp = !compact && helpRoom && !playing;
+  useEffect(() => {
+    if (!showHelp) setTour(null);
+  }, [showHelp]);
 
   // ===== صوت واحد بس في نفس الوقت =====
   // في المحرر تلات مصادر صوت: موسيقى الدعوة جوه الـ iframe، معاينة
@@ -1440,6 +1461,49 @@ export default function EditorPage() {
     else fallback();
   }
 
+  // ===== المساعدة =====
+  // العميل بيصغّر/يكبّر اللوحة بنفسه — اختياره بيتفتكر للمرة الجاية
+  function toggleHelpCollapsed() {
+    autoCollapsedRef.current = false;
+    setHelpCollapsed((v) => {
+      const next = !v;
+      try { window.localStorage.setItem('mithaq_help_collapsed', next ? '1' : '0'); } catch { /* */ }
+      return next;
+    });
+  }
+
+  // معاينة الكمبيوتر محتاجة عرض: على شاشة مش عريضة أوي بنصغّر اللوحة لوحدنا
+  // (من غير ما نفتكرها كاختيار العميل)، وبترجع أول ما يرجع لمعاينة الموبايل
+  function chooseDevice(id) {
+    setDevice(id);
+    if (id === 'desktop' && !helpCollapsed && window.innerWidth < 1600) {
+      autoCollapsedRef.current = true;
+      setHelpCollapsed(true);
+    } else if (id === 'mobile' && autoCollapsedRef.current) {
+      autoCollapsedRef.current = false;
+      setHelpCollapsed(false);
+    }
+  }
+
+  /** الحاجة الوحيدة اللي الجولة تقدر تعملها: تفتح تبويب */
+  function tourAction({ tab: nextTab } = {}) {
+    if (nextTab && TABS.some((x) => x.id === nextTab)) setTab(nextTab);
+  }
+
+  /** "وريني": بيبني خطوات الجولة حسب حالة الدعوة دلوقتي (مسودة؟ باقته فيها إيه؟) */
+  function startTour(id) {
+    const topic = HELP_TOPICS.find((x) => x.id === id);
+    if (!topic || !data) return;
+    const steps = topic.tour({
+      has,
+      isDraft: data.status === 'draft',
+      hasCover,
+      hasAudio: !!(draft && draft.audioUrl),
+    }).filter(Boolean);
+    if (!steps.length) return;
+    setTour({ id, steps, key: Date.now() });
+  }
+
   // ===== حالات التحميل =====
   if (isLoading) {
     return (
@@ -1541,7 +1605,7 @@ export default function EditorPage() {
       ) : (
       <header className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-line bg-card px-5 py-3">
         <div className="flex items-center gap-4">
-          <Link to="/dashboard" className="inline-flex items-center gap-1.5 text-[13px] text-ink-dim hover:text-rose">
+          <Link to="/dashboard" data-help="back-link" className="inline-flex items-center gap-1.5 text-[13px] text-ink-dim hover:text-rose">
             <ArrowRight size={15} /> {t('editor.back')}
           </Link>
           <span className="hidden font-serif text-[15px] font-bold text-ink sm:inline">{t('editor.title')}</span>
@@ -1549,7 +1613,7 @@ export default function EditorPage() {
 
         <div className="flex items-center gap-2.5">
           {/* حالة الحفظ */}
-          <span className="min-w-[110px] text-end text-[12.5px]">
+          <span data-help="save-status" className="min-w-[110px] text-end text-[12.5px]">
             {isSaving || textSaving ? (
               <span className="inline-flex items-center gap-1.5 text-ink-dim">
                 <Loader2 size={12} className="animate-spin" /> {t('editor.saving')}
@@ -1566,7 +1630,7 @@ export default function EditorPage() {
           </span>
 
           {/* الجهاز */}
-          <div className="flex rounded-full border border-line p-0.5">
+          <div data-help="device" className="flex rounded-full border border-line p-0.5">
             {[
               { id: 'mobile', icon: Smartphone },
               { id: 'desktop', icon: Monitor },
@@ -1574,7 +1638,7 @@ export default function EditorPage() {
               <button
                 key={id}
                 type="button"
-                onClick={() => setDevice(id)}
+                onClick={() => chooseDevice(id)}
                 title={t(`editor.${id}`)}
                 className={`rounded-full px-3 py-1.5 ${device === id ? 'bg-night text-ivory' : 'text-ink-dim hover:text-ink'}`}
               >
@@ -1585,7 +1649,7 @@ export default function EditorPage() {
 
           {/* رجوع للخلف / إعادة */}
           {!playing && (
-            <div className="flex rounded-full border border-line p-0.5">
+            <div data-help="undo-redo" className="flex rounded-full border border-line p-0.5">
               <button
                 type="button"
                 onClick={undo}
@@ -1611,6 +1675,7 @@ export default function EditorPage() {
           {hasCover && !playing && (
             <button
               type="button"
+              data-help="cover-btn"
               onClick={toggleCover}
               title={t('editor.coverHint')}
               className={`inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-[12.5px] font-bold transition ${
@@ -1644,6 +1709,7 @@ export default function EditorPage() {
           ) : (
             <motion.button
               type="button"
+              data-help="play-btn"
               onClick={play}
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
@@ -1722,7 +1788,7 @@ export default function EditorPage() {
           </div>
         )
       ) : isDraft ? (
-        <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-brass/40 bg-gradient-to-l from-night to-[#16281f] px-5 py-3 text-ivory">
+        <div data-help="publish-bar" className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-brass/40 bg-gradient-to-l from-night to-[#16281f] px-5 py-3 text-ivory">
           <div className="flex items-center gap-2.5">
             <FileText size={16} className="text-brass-soft" />
             <div>
@@ -1735,6 +1801,7 @@ export default function EditorPage() {
           <div className="flex items-center gap-2">
             <button
               type="button"
+              data-help="discard-btn"
               onClick={discardDraft}
               disabled={deleting}
               className="inline-flex items-center gap-1.5 rounded-full border border-ivory/25 px-4 py-2 text-[12.5px] font-bold text-ivory/80 hover:border-error hover:text-error disabled:opacity-50"
@@ -1743,6 +1810,7 @@ export default function EditorPage() {
             </button>
             <button
               type="button"
+              data-help="publish-btn"
               onClick={publish}
               disabled={publishing}
               className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-l from-brass to-brass-soft px-5 py-2.5 text-[12.5px] font-extrabold text-[#241608] hover:brightness-105 disabled:opacity-60"
@@ -1753,15 +1821,16 @@ export default function EditorPage() {
           </div>
         </div>
       ) : (
-        <div className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-line bg-ok/[0.07] px-5 py-2.5">
+        <div data-help="publish-bar" className="flex shrink-0 flex-wrap items-center justify-between gap-3 border-b border-line bg-ok/[0.07] px-5 py-2.5">
           <div className="flex items-center gap-2.5">
             {/* زرار "نشر التعديلات" — العميل بيدوس عليه بعد ما يعدّل عشان
                 يتأكد إن تعديلاته اتطبّقت واتحدّثت المعاينة قدامه */}
             <button
               type="button"
+              data-help="republish-btn"
               onClick={updatePublished}
               disabled={isSaving}
-              className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-l from-brass to-brass-soft px-5 py-2 text-[12.5px] font-extrabold text-[#241608] hover:brightness-105 disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-l from-brass to-brass-soft px-5 py-2text-[12.5px] font-extrabold text-[#241608] hover:brightness-105 disabled:opacity-60"
             >
               {isSaving ? <Loader2 size={13} className="animate-spin" /> : <Rocket size={13} />}
               {t('editor.republish')}
@@ -1773,6 +1842,7 @@ export default function EditorPage() {
           <div className="flex items-center gap-2">
             <button
               type="button"
+              data-help="copy-link"
               onClick={copyLink}
               className="inline-flex items-center gap-1.5 rounded-full border border-line px-4 py-1.5 text-[12.5px] font-bold text-ink hover:bg-ink/5"
             >
@@ -1783,6 +1853,7 @@ export default function EditorPage() {
               href={`/i/${shortId}`}
               target="_blank"
               rel="noopener noreferrer"
+              data-help="open-link"
               className="inline-flex items-center gap-1.5 rounded-full bg-night px-4 py-1.5 text-[12.5px] font-bold text-ivory hover:bg-emerald"
             >
               <ExternalLink size={12} /> {t('dash.open')}
@@ -1860,11 +1931,12 @@ export default function EditorPage() {
             </div>
           )}
 
-          <nav className={`flex shrink-0 border-line ${compact ? 'border-y' : 'border-b'}`}>
+          <nav data-help="tabs" className={`flex shrink-0 border-line ${compact ? 'border-y' : 'border-b'}`}>
             {TABS.map(({ id, icon: Icon, feature, label }) => (
               <button
                 key={id}
                 type="button"
+                data-help={`tab-${id}`}
                 // على الموبايل الضغط على تبويب بيفتح الدرج كمان، والضغط
                 // على التبويب المفتوح بيقفله — أسرع طريق للدعوة ورجوع
                 onClick={() => {
@@ -1896,7 +1968,7 @@ export default function EditorPage() {
               : 'flex min-h-0 flex-1 flex-col'}
             style={compact ? { height: sheetOpen ? SHEET_PANEL : 0 } : undefined}
           >
-          <div ref={panelScrollRef} className={compact ? 'h-full overflow-y-auto p-4' : 'min-h-0 flex-1 overflow-y-auto p-5'}>
+          <div ref={panelScrollRef} data-help="panel" className={compact ? 'h-full overflow-y-auto p-4' : 'min-h-0 flex-1 overflow-y-auto p-5'}>
             {error && (
               <div className="mb-4 rounded-xl bg-error/10 px-4 py-3 text-[12.5px] text-error">{error}</div>
             )}
@@ -2005,7 +2077,7 @@ export default function EditorPage() {
                       <p className="mb-4 text-[12.5px] text-ink-dim">{t('editor.inlineHint')}</p>
 
                       {/* شرح الأيقونتين بنفس شكلهم جوه الدعوة */}
-                      <div className="space-y-2.5 rounded-2xl border border-line bg-ivory/60 p-4">
+                      <div data-help="inline-icons" className="space-y-2.5 rounded-2xl border border-line bg-ivory/60 p-4">
                         <div className="flex items-center gap-3">
                           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-night text-brass-soft">
                             <Check size={14} />
@@ -2031,6 +2103,7 @@ export default function EditorPage() {
                       {/* أضف نص جديد فوق التصميم */}
                       <button
                         type="button"
+                        data-help="add-text"
                         onClick={() => post('add-text', {})}
                         className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full border-2 border-dashed border-rose/50 bg-rose/[0.04] py-3 text-[13px] font-bold text-rose transition hover:border-rose hover:bg-rose/[0.09]"
                       >
@@ -2052,6 +2125,7 @@ export default function EditorPage() {
                         {selected ? (
                           <motion.div
                             key={selected.id}
+                            data-help="selected-panel"
                             initial={{ opacity: 0, y: 8 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0 }}
@@ -2408,14 +2482,14 @@ export default function EditorPage() {
                             )}
                           </motion.div>
                         ) : (
-                          <p className="mt-5 rounded-2xl border border-dashed border-line px-4 py-5 text-center text-[12px] text-ink-dim">
+                          <p data-help="selected-panel" className="mt-5 rounded-2xl border border-dashed border-line px-4 py-5 text-center text-[12px] text-ink-dim">
                             {t('editor.selectedNone')}
                           </p>
                         )}
                       </AnimatePresence>
 
                       {/* المحذوفات — لازم يكون فيه طريق رجوع واضح */}
-                      <div className="mt-5">
+                      <div data-help="hidden-list" className="mt-5">
                         <h3 className="mb-2 text-[12.5px] font-bold text-ink">
                           {t('editor.hiddenTitle')} ({draft.hidden.length})
                         </h3>
@@ -2443,7 +2517,7 @@ export default function EditorPage() {
                       </div>
 
                       {/* رجّع الدعوة لأصلها — يمسح كل التخصيصات ويبدأ من جديد */}
-                      <div className="mt-6 border-t border-line pt-4">
+                      <div data-help="reset-all" className="mt-6 border-t border-line pt-4">
                         <button
                           type="button"
                           onClick={resetAll}
@@ -2507,6 +2581,7 @@ export default function EditorPage() {
                       <input ref={imageInputRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={onImageFile} hidden />
                       <button
                         type="button"
+                        data-help="photo-upload"
                         disabled={!pickedImage || uploadingImage}
                         onClick={() => imageInputRef.current?.click()}
                         className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full bg-night px-5 py-3 text-[13px] font-bold text-ivory hover:bg-emerald disabled:opacity-40"
@@ -2550,7 +2625,7 @@ export default function EditorPage() {
                           8 صور ولا قادر يمسك واحدة. هنا كلهم قدامه
                           مرقّمين — يضغط على رقم يغيّره، أو يشيله. */}
                       {photos.length > 0 && (
-                        <div className="mt-6">
+                        <div data-help="photos-grid" className="mt-6">
                           <h3 className="mb-1 flex items-center gap-1.5 text-[12.5px] font-bold text-ink">
                             <ImageIcon size={13} /> {t('editor.allPhotos', { count: photos.length })}
                           </h3>
@@ -2674,7 +2749,7 @@ export default function EditorPage() {
                       <h2 className="mb-1.5 font-serif text-[16px] font-bold text-ink">{t('editor.layoutTitle')}</h2>
                       <p className="mb-4 text-[12.5px] text-ink-dim">{t('editor.layoutHint')}</p>
 
-                      <div className="rounded-xl border border-line bg-ivory/60 p-4">
+                      <div data-help="layout-arrows" className="rounded-xl border border-line bg-ivory/60 p-4">
                         <p className="mb-3 text-[12.5px] text-ink-dim">
                           {selected ? t('editor.layoutSelected', { text: selected.text }) : t('editor.layoutNone')}
                         </p>
@@ -2705,6 +2780,7 @@ export default function EditorPage() {
 
                       <button
                         type="button"
+                        data-help="layout-reset"
                         onClick={resetOffsets}
                         className="mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-line px-5 py-2.5 text-[12.5px] font-bold text-ink-dim hover:border-error hover:text-error"
                       >
@@ -2728,7 +2804,7 @@ export default function EditorPage() {
                           {t('editor.sectionsEmpty')}
                         </p>
                       ) : (
-                        <div className="space-y-1.5">
+                        <div data-help="sections-list" className="space-y-1.5">
                           {optionalSections.map(({ key, label }) => {
                             const off = hiddenSections.includes(key);
                             return (
@@ -2801,6 +2877,7 @@ export default function EditorPage() {
           )}
           <motion.div
             layout
+            data-help="preview"
             transition={{ type: 'spring', stiffness: 220, damping: 26 }}
             // في وضع الموبايل (وإحنا بنعدّل على شاشة كبيرة) بنلفّ الدعوة في
             // موك-أب موبايل حقيقي: حافة سودا معدنية، زوايا دائرية جدًا، وجزيرة
@@ -2851,7 +2928,37 @@ export default function EditorPage() {
             </div>
           </motion.div>
         </main>
+
+        {/* ===== المساعدة — في المساحة الفاضية جنب المعاينة (شاشات كبيرة بس) ===== */}
+        {showHelp && (
+          <PanelBoundary
+            where="editor-help"
+            resetKey={helpCollapsed ? 'c' : 'o'}
+            context="help-panel"
+            fallbackClassName="m-4 w-[288px] shrink-0 self-start"
+          >
+            <EditorHelpPanel
+              lang={i18n.language === 'en' ? 'en' : 'ar'}
+              ctx={{ has }}
+              collapsed={helpCollapsed}
+              onToggleCollapse={toggleHelpCollapsed}
+              onStartTour={startTour}
+            />
+          </PanelBoundary>
+        )}
       </div>
+
+      {/* الجولة المرشدة ("وريني") — فوق كل حاجة */}
+      {tour && showHelp && (
+        <GuidedTour
+          key={tour.key}
+          tourId={tour.id}
+          steps={tour.steps}
+          lang={i18n.language === 'en' ? 'en' : 'ar'}
+          onAction={tourAction}
+          onClose={() => setTour(null)}
+        />
+      )}
     </div>
   );
 }

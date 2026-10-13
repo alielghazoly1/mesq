@@ -37,7 +37,7 @@ export default class PanelBoundary extends Component {
   render() {
     if (!this.state.error) return this.props.children;
     return (
-      <div className="rounded-2xl border border-line bg-ivory/60 p-4 text-center">
+      <div className={`rounded-2xl border border-line bg-ivory/60 p-4 text-center ${this.props.fallbackClassName || ''}`}>
         <p className="text-[13px] font-bold text-ink">{this.props.title || 'حصل خطأ بسيط في الجزء ده'}</p>
         <p className="mt-1 text-[12px] leading-relaxed text-ink-dim">
           {this.props.hint || 'تعديلاتك محفوظة. اضغط على أي جزء في الدعوة تاني، أو جرّب الزرار ده.'}

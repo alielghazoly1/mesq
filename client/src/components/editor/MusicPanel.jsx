@@ -76,7 +76,7 @@ export default function MusicPanel({
       <p className="mb-4 text-[12.5px] text-ink-dim">{t('editor.musicLibHint')}</p>
 
       {/* البحث في المكتبة */}
-      <div className="mb-3 flex items-center gap-2 rounded-xl border border-line px-3">
+      <div data-help="music-search" className="mb-3 flex items-center gap-2 rounded-xl border border-line px-3">
         <Search size={14} className="shrink-0 text-ink-dim" />
         <input
           value={q}
@@ -87,7 +87,7 @@ export default function MusicPanel({
         {isFetching && <Loader2 size={13} className="shrink-0 animate-spin text-ink-dim" />}
       </div>
 
-      <div className="max-h-64 space-y-1.5 overflow-y-auto">
+      <div data-help="music-list" className="max-h-64 space-y-1.5 overflow-y-auto">
         {data?.tracks?.length === 0 && (
           <p className="py-4 text-center text-[12px] text-ink-dim">{t('editor.musicEmpty')}</p>
         )}
@@ -134,6 +134,7 @@ export default function MusicPanel({
       <input ref={fileRef} type="file" accept="audio/*" onChange={onUpload} hidden />
       <button
         type="button"
+        data-help="music-upload"
         disabled={uploading}
         onClick={() => fileRef.current?.click()}
         className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full border border-line py-2.5 text-[12.5px] font-bold text-ink hover:border-ink/35 disabled:opacity-50"
@@ -146,7 +147,7 @@ export default function MusicPanel({
 
       {/* القص */}
       {audioUrl && (
-        <div className="mt-5 rounded-2xl border border-line bg-ivory/60 p-4">
+        <div data-help="music-trim" className="mt-5 rounded-2xl border border-line bg-ivory/60 p-4">
           <div className="mb-1 flex items-center gap-1.5 text-[12.5px] font-bold text-ink">
             <Scissors size={13} /> {t('editor.trimTitle')}
           </div>
