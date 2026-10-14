@@ -12,7 +12,8 @@ import ClientDrawer from './ClientDrawer.jsx';
 import {
   Panel, StatTile, Spinner, Tabs, Empty, fmtNum, fmtMoney,
 } from '../../components/admin/ui.jsx';
-import { AreaTrend, BarTrend, LineTrend, Donut, COLORS } from '../../components/admin/Charts.jsx';
+import { AreaTrend, BarTrend, LineTrend, COLORS } from '../../components/admin/Charts.jsx';
+import RankedBars from '../../components/admin/RankedBars.jsx';
 import { countryName } from './format.js';
 
 /**
@@ -85,6 +86,8 @@ export default function OverviewPage() {
   if (!data) return <Empty>مفيش بيانات.</Empty>;
 
   const { kpis, revenue, series, breakdown } = data;
+  // "+5 في آخر 30 يوم" — صياغة تتقري جوه جملة (أسماء التابات قصيرة)
+  const periodLabel = { 7: 'آخر 7 أيام', 30: 'آخر 30 يوم', 90: 'آخر 3 شهور', 365: 'آخر سنة' }[period] || 'الفترة دي';
 
   return (
     <div className="space-y-5">
@@ -203,29 +206,29 @@ export default function OverviewPage() {
 
       {/* التوزيعات */}
       <div className="grid gap-5 lg:grid-cols-2">
-        <Panel title="التصاميم الأكثر استخدامًا">
-          {breakdown.templates.length
-            ? <Donut data={breakdown.templates.map((t) => ({ label: t.label, count: t.count }))} />
-            : <Empty>لسه مفيش دعوات.</Empty>}
+        {/* ترتيب بالأرقام بدل الدايرة: كام دعوة اتعملت بكل تصميم، ونسبته،
+            وكام منها في الفترة المختارة. كل التصاميم بتظهر حتى اللي بصفر. */}
+        <Panel title="التصاميم الأكثر استخدامًا" subtitle="عدد الدعوات المنشورة بكل تصميم (كل الوقت)">
+          {breakdown.templates.length ? (
+            <RankedBars rows={breakdown.templates} unit="دعوة" periodLabel={periodLabel} />
+          ) : <Empty>لسه مفيش دعوات.</Empty>}
         </Panel>
 
-        <Panel title="الباقات المباعة">
+        <Panel title="الباقات المباعة" subtitle="عدد الباقات المتفعّلة (المدفوعة) وفلوس كل باقة (كل الوقت)">
           {breakdown.packages.length ? (
-            <>
-              <Donut data={breakdown.packages.map((p) => ({ label: p.label, count: p.count }))} />
-              <div className="mt-3 space-y-1.5">
-                {breakdown.packages.map((p) => (
-                  <div key={p.id} className="flex items-center justify-between text-[12px] text-ivory/60">
-                    <span>{p.label}</span>
-                    <span className="text-ivory/80">
-                      {p.egp > 0 && fmtMoney(p.egp, 'EGP')}
-                      {p.egp > 0 && p.usd > 0 && ' · '}
-                      {p.usd > 0 && fmtMoney(p.usd, 'USD')}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </>
+            <RankedBars
+              rows={breakdown.packages}
+              unit="باقة"
+              periodLabel={periodLabel}
+              emptyLabel="لسه ماتباعتش"
+              renderExtra={(p) => ((p.egp > 0 || p.usd > 0) ? (
+                <span className="font-bold text-brass-soft" data-ranked-money>
+                  {p.egp > 0 && fmtMoney(p.egp, 'EGP')}
+                  {p.egp > 0 && p.usd > 0 && ' · '}
+                  {p.usd > 0 && fmtMoney(p.usd, 'USD')}
+                </span>
+              ) : null)}
+            />
           ) : <Empty>لسه مفيش باقات متفعّلة.</Empty>}
         </Panel>
 

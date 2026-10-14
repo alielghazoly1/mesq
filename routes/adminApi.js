@@ -158,6 +158,7 @@ router.get('/admin/api/overview', requireAdminSession, async (req, res) => {
       revenueAll, revenuePeriod,
       usersSeries, invitationsSeries, ordersSeries, rsvpSeries,
       byTemplate, byPackage, byCountry, totals,
+      byTemplatePeriod, byPackagePeriod,
     ] = await Promise.all([
       User.countDocuments({}),
       User.countDocuments({ 'subscription.packageId': { $ne: null } }),
@@ -225,6 +226,17 @@ router.get('/admin/api/overview', requireAdminSession, async (req, res) => {
         { $sort: { count: -1, _id: 1 } },
       ]),
       SiteTotals.findOne({ key: 'default' }).lean(),
+
+      // نفس التوزيعين بس جوه الفترة المختارة — عشان المالك يشوف جنب كل
+      // تصميم/باقة "كام في آخر 30 يوم" مش الإجمالي بس
+      Invitation.aggregate([
+        { $match: { templateId: { $ne: null }, status: { $ne: 'draft' }, createdAt: { $gte: from } } },
+        { $group: { _id: '$templateId', count: { $sum: 1 } } },
+      ]),
+      Order.aggregate([
+        { $match: { status: 'activated', activatedAt: { $gte: from } } },
+        { $group: { _id: '$packageId', count: { $sum: 1 } } },
+      ]),
     ]);
 
     // الدعوات المجانية المنتهية بتتمسح (utils/cleanupExpired.js) وأرقامها
@@ -245,6 +257,19 @@ router.get('/admin/api/overview', requireAdminSession, async (req, res) => {
     Object.entries(ar.archivedByTemplate || {}).forEach(([id, n]) => {
       if (id !== 'unknown') tplCounts[id] = (tplCounts[id] || 0) + n;
     });
+    // كل التصاميم تظهر في الترتيب — حتى اللي محدش استخدمه لسه (صفر)، عشان
+    // المالك يعرف أنهي تصميم مش ماشي
+    TEMPLATES.forEach((t) => { if (!(t.id in tplCounts)) tplCounts[t.id] = 0; });
+    const tplPeriod = {};
+    byTemplatePeriod.forEach((r) => { tplPeriod[r._id] = r.count; });
+    const pkgPeriod = {};
+    byPackagePeriod.forEach((r) => { pkgPeriod[r._id] = r.count; });
+    // وكل الباقات كمان، حتى اللي ماتباعتش
+    const pkgRows = [...byPackage];
+    PACKAGES.forEach((p) => {
+      if (!pkgRows.some((r) => r._id === p.id)) pkgRows.push({ _id: p.id, count: 0, egp: 0, usd: 0 });
+    });
+    pkgRows.sort((a, b) => b.count - a.count);
     const templatesAll = Object.entries(tplCounts)
       .map(([id, count]) => ({ _id: id, count }))
       .sort((a, b) => b.count - a.count || String(a._id).localeCompare(String(b._id)));
@@ -280,14 +305,20 @@ router.get('/admin/api/overview', requireAdminSession, async (req, res) => {
       breakdown: {
         templates: templatesAll.map((r) => {
           const tpl = TEMPLATES.find((x) => x.id === r._id);
-          return { id: r._id, label: (tpl && (tpl.name.ar || tpl.name.en)) || r._id, count: r.count };
+          return {
+            // اسم التصميم في الريجستري نص عادي (مش {ar,en}) — قبل كده كان بيبان الـ id
+            id: r._id,
+            label: (tpl && (typeof tpl.name === 'string' ? tpl.name : (tpl.name.ar || tpl.name.en))) || r._id,
+            count: r.count, periodCount: tplPeriod[r._id] || 0,
+          };
         }),
-        packages: byPackage.map((r) => {
+        packages: pkgRows.map((r) => {
           const pkg = getPackage(r._id);
           return {
             id: r._id,
             label: pkg ? (pkg.name.ar || pkg.name.en) : r._id,
             count: r.count, egp: r.egp, usd: r.usd,
+            periodCount: pkgPeriod[r._id] || 0,
           };
         }),
         // أول 12 دولة، والباقي مجمّعين في سطر واحد
