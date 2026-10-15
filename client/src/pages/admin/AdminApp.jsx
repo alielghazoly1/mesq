@@ -10,7 +10,7 @@ import { NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { useDispatch } from 'react-redux';
 import {
   LayoutDashboard, Users, Receipt, FileText, MessageSquare,
-  Settings, ScrollText, LogOut, Loader2, Menu, X, Music, BadgePercent, Wallet, Banknote, Megaphone, LayoutTemplate, Tags, Bug, ShieldCheck, Eraser, MessageCircle,
+  Settings, ScrollText, LogOut, Loader2, Menu, X, Music, BadgePercent, Wallet, Banknote, Megaphone, LayoutTemplate, Tags, Bug, ShieldCheck, Eraser, MessageCircle, Target,
 } from 'lucide-react';
 import { adminApi, useGetOrdersAttentionQuery } from '../../store/adminApi.js';
 import AdminLogin from './AdminLogin.jsx';
@@ -32,10 +32,12 @@ import AuditPage from './AuditPage.jsx';
 import SecurityPage from './SecurityPage.jsx';
 import CleanupPage from './CleanupPage.jsx';
 import WhatsAppPage from './WhatsAppPage.jsx';
+import CampaignsPage from './CampaignsPage.jsx';
 
 const NAV = [
   { to: '/admin', end: true, icon: LayoutDashboard, label: 'نظرة عامة' },
   { to: '/admin/earnings', icon: Wallet, label: 'الأرباح' },
+  { to: '/admin/campaigns', icon: Target, label: 'الإعلانات' },
   { to: '/admin/withdrawals', icon: Banknote, label: 'طلبات السحب' },
   { to: '/admin/ugc', icon: Megaphone, label: 'المسوّقين' },
   { to: '/admin/clients', icon: Users, label: 'العملاء' },
@@ -209,6 +211,7 @@ export default function AdminApp() {
           <Routes>
             <Route index element={<OverviewPage />} />
             <Route path="earnings" element={<EarningsPage />} />
+            <Route path="campaigns" element={<CampaignsPage />} />
             <Route path="withdrawals" element={<WithdrawalsPage />} />
             <Route path="ugc" element={<UgcPage />} />
             <Route path="clients" element={<ClientsPage />} />

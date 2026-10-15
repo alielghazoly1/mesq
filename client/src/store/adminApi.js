@@ -23,7 +23,7 @@ const baseQuery = fetchBaseQuery({
 export const adminApi = createApi({
   reducerPath: 'adminApi',
   baseQuery,
-  tagTypes: ['Overview', 'Users', 'User', 'Orders', 'Invitations', 'Support', 'Settings', 'Pricing', 'Thread', 'Audit', 'Tracks', 'Withdrawals', 'Ugc', 'SiteTemplates', 'Security', 'Cleanup', 'WhatsApp'],
+  tagTypes: ['Overview', 'Users', 'User', 'Orders', 'Invitations', 'Support', 'Settings', 'Pricing', 'Thread', 'Audit', 'Tracks', 'Withdrawals', 'Ugc', 'SiteTemplates', 'Security', 'Cleanup', 'WhatsApp', 'Campaigns'],
   endpoints: (builder) => ({
     // ===== الأمان (التحقق بخطوتين) =====
     getSecurity: builder.query({ query: () => '/security', providesTags: ['Security'] }),
@@ -236,6 +236,17 @@ export const adminApi = createApi({
     }),
 
     // ===== السجل =====
+    // ===== لينكات الإعلانات =====
+    getCampaigns: builder.query({ query: () => '/campaigns', providesTags: ['Campaigns'] }),
+    getCampaign: builder.query({ query: (id) => `/campaigns/${id}`, providesTags: ['Campaigns'] }),
+    createCampaign: builder.mutation({
+      query: (body) => ({ url: '/campaigns', method: 'POST', body }),
+      invalidatesTags: ['Campaigns'],
+    }),
+    updateCampaign: builder.mutation({
+      query: ({ id, ...body }) => ({ url: `/campaigns/${id}`, method: 'PATCH', body }),
+      invalidatesTags: ['Campaigns'],
+    }),
     getAudit: builder.query({
       query: (page = 1) => `/audit?page=${page}`,
       providesTags: ['Audit'],
@@ -248,6 +259,7 @@ export const {
   useGetCleanupPreviewQuery, useRunCleanupMutation,
   useGetWhatsAppQuery, useLinkWhatsAppMutation, useUnlinkWhatsAppMutation, useSaveWhatsAppSettingsMutation, useTestWhatsAppMutation,
   useGetOverviewQuery,
+  useGetCampaignsQuery, useGetCampaignQuery, useCreateCampaignMutation, useUpdateCampaignMutation,
   useGetUsersQuery,
   useGetUserQuery,
   useGetUserVisitsQuery,

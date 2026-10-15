@@ -1,0 +1,35 @@
+// models/Campaign.js
+// لينك إعلان (إنستجرام/فيسبوك/تيك توك...). المالك بيعمل لينك لكل إعلان
+// (/go/<code>)، وكل اللي بيدخل منه بيتعدّ، واللي بيسجّل بعدها بيتربط بالإعلان
+// (User.campaign) — فيعرف كل إعلان جاب كام زيارة وكام تسجيل وكام واحد دفع
+// وكام فلوس، ويقارنها باللي صرفه عليه.
+const mongoose = require('mongoose');
+
+const PLATFORMS = ['instagram', 'facebook', 'tiktok', 'google', 'snapchat', 'whatsapp', 'other'];
+// الصفحات اللي ينفع اللينك يودّي عليها (قايمة مقفولة — مفيش توجيه لأي مكان برّه الموقع)
+const LANDINGS = ['/', '/gallery', '/packages'];
+
+const campaignSchema = new mongoose.Schema({
+  // الكود اللي في اللينك — مبيتغيّرش بعد ما يتعمل (اللينك بيكون اتنشر في الإعلان)
+  code: { type: String, required: true, unique: true, lowercase: true, trim: true, maxlength: 40 },
+  name: { type: String, required: true, trim: true, maxlength: 80 },
+  platform: { type: String, enum: PLATFORMS, default: 'instagram' },
+  // السوق/البلد المستهدف — كلام حر للعرض (مصر، السعودية…)
+  market: { type: String, default: '', trim: true, maxlength: 40 },
+  // صرفت قد إيه على الإعلان ده (اختياري) — منه بنحسب المكسب/الخسارة
+  spendAmount: { type: Number, default: 0, min: 0 },
+  spendCurrency: { type: String, enum: ['EGP', 'USD'], default: 'EGP' },
+  landing: { type: String, enum: LANDINGS, default: '/' },
+  notes: { type: String, default: '', maxlength: 300 },
+  // مقفول = بيختفي من القايمة الأساسية، بس اللينك لسه شغال ولسه بيعدّ
+  archived: { type: Boolean, default: false },
+  // كل مرة اللينك اتفتح (من غير البرامج الآلية زي معاينة اللينك)
+  clicks: { type: Number, default: 0 },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
+});
+
+const Campaign = mongoose.model('Campaign', campaignSchema);
+Campaign.PLATFORMS = PLATFORMS;
+Campaign.LANDINGS = LANDINGS;
+module.exports = Campaign;

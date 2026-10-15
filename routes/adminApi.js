@@ -598,6 +598,8 @@ router.get('/admin/api/users/:id', requireAdminSession, async (req, res) => {
         activeSessions: sessions,
         visitCount: user.visitCount || 0,
         firstVisitAt: user.firstVisitAt || null,
+        // جه من لينك إعلان؟ (كود الإعلان — صفحة الإعلانات)
+        campaign: user.campaign || null,
         subscription: {
           packageId: sub.packageId || null,
           packageName: pkg ? (pkg.name.ar || pkg.name.en) : null,

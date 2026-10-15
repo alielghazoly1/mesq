@@ -5,6 +5,7 @@
 const express = require('express');
 
 const User = require('../models/User');
+const Campaign = require('../models/Campaign');
 const { sanitizeText } = require('../utils/sanitize');
 const { isValidEmail, isValidPassword, isValidCountryCode } = require('../utils/validators');
 const { createSession, destroySession } = require('../middleware/auth');
@@ -63,10 +64,23 @@ router.post('/api/auth/register', async (req, res) => {
       if (refExists) referredBy = refCode;
     }
 
+    // جه من لينك إعلان؟ (كوكي بيتحط في /go/<code> ويعيش 30 يوم) — بنربطه
+    // بالإعلان عشان المالك يعرف الإعلان ده جاب مين ودفع مين
+    let campaign = null;
+    const cmpCode = String((req.cookies && req.cookies.mithaq_cmp) || '').toLowerCase().slice(0, 40);
+    if (cmpCode && /^[a-z0-9-]+$/.test(cmpCode)) {
+      try {
+        if (await Campaign.exists({ code: cmpCode })) campaign = cmpCode;
+      } catch (e) { /* الإعلان مش لازم يوقّف التسجيل */ }
+    }
+
     const passwordHash = await hashPassword(password);
     let user;
     try {
-      user = await User.create({ email, passwordHash, name, country, phone, referredBy });
+      user = await User.create({
+        email, passwordHash, name, country, phone, referredBy,
+        campaign, campaignAt: campaign ? new Date() : null,
+      });
     } catch (err) {
       // خطأ "قيمة مكررة" — نعرف الحقل بالظبط ونرجّع رسالته الصح، مش
       // نقول "الإيميل مسجل" على طول (اللي كان بيلخبط لو التعارض في التليفون).
@@ -83,6 +97,7 @@ router.post('/api/auth/register', async (req, res) => {
     await createSession(res, user._id);
     // خلصنا الربط — نمسح كوكي الإحالة عشان مايتربطش بحساب تاني بعدين
     if (referredBy) res.clearCookie('mithaq_ref', { path: '/' });
+    if (campaign) res.clearCookie('mithaq_cmp', { path: '/' });
 
     // رسالة ترحيب تستناه في صندوق رسايله. مش بننتظرها (ولا بنوقف عليها
     // لو فشلت) — الحساب اتعمل خلاص والرد لازم يوصل له فورًا.

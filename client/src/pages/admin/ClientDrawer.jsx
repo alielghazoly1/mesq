@@ -285,6 +285,11 @@ export default function ClientDrawer({ userId, onClose }) {
                   <span className="inline-flex items-center gap-1.5 text-ivory/35"><MessageCircle size={12} /> مفيش رقم</span>
                 )}
                 <span className="inline-flex items-center gap-1.5"><Calendar size={12} /> سجّل {fmtDate(data.user.createdAt)}</span>
+                {data.user.campaign && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-brass/15 px-2 py-0.5 font-bold text-brass-soft" title="سجّل من لينك إعلان">
+                    <Megaphone size={12} /> جه من إعلان: <span dir="ltr">{data.user.campaign}</span>
+                  </span>
+                )}
                 {data.user.subscription.activatedAt && (
                   <span className="inline-flex items-center gap-1.5"><Wallet size={12} /> دفع {fmtDate(data.user.subscription.activatedAt)}</span>
                 )}

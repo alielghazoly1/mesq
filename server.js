@@ -20,6 +20,7 @@ const editorRouter = require('./routes/editor');
 const guestPhotosRouter = require('./routes/guestPhotos');
 const presenceRouter = require('./routes/presence');
 const clientErrorsRouter = require('./routes/clientErrors');
+const campaignsRouter = require('./routes/campaigns');
 const { ensureDeviceId, deviceInvitationLimiter } = require('./middleware/deviceLimiter');
 const { attachUser } = require('./middleware/auth');
 const { requestLogger, installProcessHandlers, write: logLine, LOG_FILE } = require('./utils/requestLogger');
@@ -141,6 +142,8 @@ app.use('/i', attachUser);
 app.use('/s', requireDB);
 // لينك إحالة الـ UGC محتاج قاعدة البيانات (بيعدّ زيارة ويحط كوكي)
 app.use('/r', requireDB);
+// لينكات الإعلانات (/go/<code>)
+app.use('/go', requireDB);
 // صفحة ألبوم صور الضيوف المشاركة (routes/guestPhotos.js)
 app.use('/a', requireDB);
 app.use('/admin', requireDB);
@@ -335,6 +338,7 @@ app.use('/api/client-error', clientErrorLimiter);
 app.use('/', invitationsRouter);
 app.use('/', adminRouter);
 app.use('/', adminApiRouter);
+app.use('/', campaignsRouter);
 app.use('/', authRouter);
 app.use('/', packagesRouter);
 app.use('/', uploadsRouter);

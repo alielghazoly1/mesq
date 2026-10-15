@@ -34,6 +34,12 @@ const userSchema = new mongoose.Schema({
   // مرة واحدة وقت التسجيل ومبيتغيّرش. الحسابات القديمة = null (مش تابعة لحد).
   referredBy: { type: String, default: null, index: true },
 
+  // ===== لينكات الإعلانات =====
+  // كود الإعلان اللي العميل دخل منه قبل ما يسجّل (آخر إعلان فتحه خلال 30 يوم).
+  // بيتحط مرة واحدة وقت التسجيل. الحسابات القديمة = null.
+  campaign: { type: String, default: null, index: true },
+  campaignAt: { type: Date, default: null },
+
   // الاشتراك — بيتفعّل يدويًا من لوحة التحكم بعد ما العميل يدفع
   // (packages/registry.js فيه تعريف الباقات ومميزاتها)
   subscription: {
