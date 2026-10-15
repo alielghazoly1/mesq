@@ -19,7 +19,7 @@ import { reportError } from '../../../lib/reportError.js';
 const PAD = 6;            // المسافة بين الحاجة المنوّرة وحافة النور
 const GAP = 16;           // المسافة بين النور والكارت
 const MARGIN = 12;        // أقل مسافة بين الكارت وحافة الشاشة
-const WAIT_MS = 1500;     // قد إيه نستنى الهدف يظهر (تبويب بيفتح مثلًا)
+const WAIT_MS = 2200;     // قد إيه نستنى الهدف يظهر (تبويب بيفتح، أو الدعوة بتنزل لعنصر)
 const Z = 9000;
 
 const UI = {
@@ -51,6 +51,25 @@ function frameTarget(kind) {
     const vw = win.innerWidth;
 
     let list = [];
+    if (kind === 'help') {
+      const el = doc.querySelector('[data-wda-help-target]');
+      if (!el) return null;
+      const r = el.getBoundingClientRect();
+      // لسه بينزل له (سكرول) — نستنى لحد ما يبان جزء كويس منه
+      const top = Math.max(r.top, 0), bottom = Math.min(r.bottom, vh);
+      if (r.width < 8 || bottom - top < Math.min(60, r.height * 0.9)) return null;
+      const sx = fr.width / (iframe.clientWidth || fr.width);
+      const sy = fr.height / (iframe.clientHeight || fr.height);
+      return {
+        el: null,
+        rect: {
+          left: fr.left + Math.max(r.left, 0) * sx,
+          top: fr.top + top * sy,
+          width: (Math.min(r.right, vw) - Math.max(r.left, 0)) * sx,
+          height: (bottom - top) * sy,
+        },
+      };
+    }
     if (kind === 'text') list = [...doc.querySelectorAll('[data-wda-kind="text"]')];
     else if (kind === 'date') {
       const all = [...doc.querySelectorAll('[data-wda-kind="text"], [data-wda-kind="live"]')];
@@ -203,7 +222,7 @@ function TourInner({ steps, lang, onClose, onAction }) {
   // ===== أول الخطوة: افتح التبويب المطلوب، وابدأ تدوير على الهدف =====
   useEffect(() => {
     if (!step) return undefined;
-    if (step.tab && onAction) onAction({ tab: step.tab });
+    if ((step.tab || step.reveal) && onAction) onAction({ tab: step.tab, reveal: step.reveal });
     setMode('waiting');
     elRef.current = null;
     setTargetEl(null);
@@ -213,7 +232,11 @@ function TourInner({ steps, lang, onClose, onAction }) {
     let raf = 0;
     let lastHole = null;
     const loop = () => {
-      const hit = resolveTarget(step.target);
+      // خطوة بتنزل لعنصر جوه الدعوة: أول ثانية ونص بندوّر على العنصر ده بس
+      // (لسه بينزل له) — عشان النور مايروحش لحاجة تانية ويرجع
+      const targets = Array.isArray(step.target) ? step.target : [step.target];
+      const early = step.reveal && performance.now() - started < 1500;
+      const hit = resolveTarget(early ? targets.slice(0, 1) : targets);
       if (hit) {
         if (hit.el && !scrolled) { scrolled = true; ensureVisible(hit.el); }
         if (hit.el !== elRef.current) { elRef.current = hit.el; setTargetEl(hit.el); }

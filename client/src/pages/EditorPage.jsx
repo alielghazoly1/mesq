@@ -375,7 +375,7 @@ export default function EditorPage() {
   // تعديلها في الدرج نفسه (التاريخ والساعة، الخريطة)
   useEffect(() => {
     if (!compact || !selected || keyboardOpenRef.current) return;
-    if (selected.kind === 'live' || selected.kind === 'map' || looksLikeDate(selected.text)) setSheetOpen(true);
+    if (selected.kind === 'live' || selected.kind === 'map' || looksLikeDate(selected.text) || selected.dateish) setSheetOpen(true);
   }, [compact, selected]);
 
   // وضع التشغيل بياخد الشاشة كلها — الدرج مالوش لازمة وهو شغال
@@ -451,7 +451,7 @@ export default function EditorPage() {
         setSelected(p.id
           ? {
             id: p.id, kind: p.kind || 'text', text: p.text,
-            fontSize: p.fontSize, bgColor: p.bgColor, scale: p.scale || 1,
+            fontSize: p.fontSize, bgColor: p.bgColor, scale: p.scale || 1, dateish: !!p.dateish,
           }
           : null);
       }
@@ -678,6 +678,12 @@ export default function EditorPage() {
       // بنحدّث باقي الأماكن **في مكانها** من غير أي إعادة تحميل.
       if (res.propagatedField) {
         post('propagate-text', { oldText, newText });
+        // الاسم/القاعة اتحفظوا في بيانات الدعوة نفسها — لازم النسخة المحلية
+        // تعرف فورًا. قبل كده كانت بتفضل قديمة، فأول ما العميل يغيّر التاريخ
+        // أو المكان أو يشيل قسم بعدها، الحفظ كان بيبعت الاسم القديم ويرجّعه
+        // ("غيّرت اسم العروسة وبعدين التاريخ، الاسم رجع زي الأول").
+        if (res.details) detailsRef.current = res.details;
+        refetch();
       }
     } catch (err) {
       setError(err?.data?.error || t('editor.errorSave'));
@@ -1077,7 +1083,9 @@ export default function EditorPage() {
     setError('');
     setTextSaving(true);
     try {
-      await saveDetails({ shortId, ...data.details, ...patch }).unwrap();
+      // أحدث نسخة من البيانات (مش اللي اتحمّلت أول ما المحرر فتح) — عشان
+      // تعديل حقل واحد مايرجّعش حقل تاني اتعدّل قبله
+      await saveDetails({ shortId, ...(detailsRef.current || data.details), ...patch }).unwrap();
       await refetch();
       reloadFrame();
     } catch (err) {
@@ -1208,7 +1216,7 @@ export default function EditorPage() {
    */
   async function toggleSection(key) {
     if (!data?.details) return;
-    const current = data.details.hiddenSections || [];
+    const current = (detailsRef.current || data.details).hiddenSections || [];
     const next = current.includes(key)
       ? current.filter((k) => k !== key)
       : [...current, key];
@@ -1216,7 +1224,7 @@ export default function EditorPage() {
     setError('');
     setSectionsBusy(true);
     try {
-      await saveDetails({ shortId, ...data.details, hiddenSections: next }).unwrap();
+      await saveDetails({ shortId, ...(detailsRef.current || data.details), hiddenSections: next }).unwrap();
       await refetch();
       reloadFrame();
     } catch (err) {
@@ -1485,9 +1493,17 @@ export default function EditorPage() {
     }
   }
 
-  /** الحاجة الوحيدة اللي الجولة تقدر تعملها: تفتح تبويب */
-  function tourAction({ tab: nextTab } = {}) {
+  /**
+   * اللي الجولة تقدر تعمله: تفتح تبويب، أو تنزل لعنصر جوه الدعوة وتختاره
+   * (اختيار بس زي ضغطة — من غير كتابة ولا أي تعديل) عشان "وريني التاريخ"
+   * يوديه للتاريخ نفسه وتتفتح خانته في الشريط على طول.
+   */
+  function tourAction({ tab: nextTab, reveal } = {}) {
     if (nextTab && TABS.some((x) => x.id === nextTab)) setTab(nextTab);
+    if (reveal && ['date', 'map', 'image', 'rsvp', 'text'].includes(reveal.kind)) {
+      if (playing) return;
+      post('help-reveal', { kind: reveal.kind, select: !!reveal.select });
+    }
   }
 
   /** "وريني": بيبني خطوات الجولة حسب حالة الدعوة دلوقتي (مسودة؟ باقته فيها إيه؟) */
@@ -2166,7 +2182,7 @@ export default function EditorPage() {
 
                             {/* المكان: لينك خرائط جوجل */}
                             {selected.kind === 'map' && (
-                              <div id="wda-map-field" className="mb-4 rounded-xl border border-emerald/40 bg-emerald/[0.07] p-3">
+                              <div id="wda-map-field" data-help="map-field" className="mb-4 rounded-xl border border-emerald/40 bg-emerald/[0.07] p-3">
                                 <div className="mb-2 flex items-center gap-1.5 text-[12px] font-bold text-emerald">
                                   <MapPin size={12} /> {t('editor.mapTitle')}
                                 </div>
@@ -2180,8 +2196,8 @@ export default function EditorPage() {
                             )}
 
                             {/* التاريخ: نتيجة مش خانة كتابة */}
-                            {(selected.kind === 'live' || looksLikeDate(selected.text)) && data.details?.weddingDate && (
-                              <div className="mb-4 rounded-xl border border-brass/40 bg-brass/[0.07] p-3">
+                            {(selected.kind === 'live' || looksLikeDate(selected.text) || selected.dateish) && data.details?.weddingDate && (
+                              <div data-help="date-field" className="mb-4 rounded-xl border border-brass/40 bg-brass/[0.07] p-3">
                                 <div className="mb-2 flex items-center gap-1.5 text-[12px] font-bold text-[#7a5a1a]">
                                   <CalendarDays size={12} /> {t('editor.dateTitle')}
                                 </div>
@@ -2436,7 +2452,7 @@ export default function EditorPage() {
 
                             {/* مقاس الخط */}
                             {selected.kind !== 'image' && selected.kind !== 'video' && (
-                              <>
+                              <div data-help="size-field">
                                 <div className="mb-2 flex items-center justify-between">
                                   <span className="inline-flex items-center gap-1.5 text-[12px] font-bold text-ink">
                                     <ALargeSmall size={13} /> {t('editor.sizeTitle')}
@@ -2478,7 +2494,7 @@ export default function EditorPage() {
                                     <RotateCcw size={11} /> {t('editor.sizeReset')}
                                   </button>
                                 )}
-                              </>
+                              </div>
                             )}
                           </motion.div>
                         ) : (

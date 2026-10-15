@@ -218,6 +218,92 @@
   }
 
   /** زرار تأكيد الحضور — بيفتح نموذج (بوب-أب). ليه أيقونة تعديل الفورم */
+  /**
+   * العنصر اللي "وريني" بتوديه له (لوحة المساعدة في المحرر).
+   * بيدوّر في الدعوة كلها بترتيبها، ويتجاهل الغلاف والحاجات المخفية.
+   *   date  → التاريخ (عداد/سطر فيه سنة)
+   *   map   → الخريطة
+   *   image → أول صورة حقيقية (مش زخرفة صغيرة)
+   *   rsvp  → زرار تأكيد الحضور
+   *   text  → أكبر جملة في أول الدعوة (غالبًا الأسامي)
+   */
+  function helpTarget(kind) {
+    var all = document.querySelectorAll('.wda-editable[data-wda-kind]');
+    var list = [];
+    for (var i = 0; i < all.length; i++) {
+      var el = all[i];
+      if (el.classList.contains('wda-hidden-el') || el.closest('.wda-hidden-el')) continue;
+      if (el.closest('#coverScreen') || (el.closest('.t-rec') && el.closest('.t-rec').querySelector('.popup-enter'))) continue;
+      var r = el.getBoundingClientRect();
+      if (r.width < 8 || r.height < 8) continue;
+      var cs = getComputedStyle(el);
+      if (cs.visibility === 'hidden' || cs.display === 'none') continue;
+      list.push({ el: el, k: el.getAttribute('data-wda-kind'), top: r.top + window.scrollY, r: r });
+    }
+    var txt = function (x) { return (x.el.innerText || '').trim(); };
+    var pick = null;
+    if (kind === 'date') {
+      var year = /\b20\d{2}\b|[٢][٠][٠-٩]{2}/;
+      pick = list.filter(function (x) { return x.k === 'live' && year.test(txt(x)); })[0]
+        || list.filter(function (x) { return x.k === 'text' && year.test(txt(x)) && txt(x).length < 60; })[0]
+        // التاريخ جوه تركيب جاهز (كارت الخدش في Dolce Vita مثلًا)
+        || list.filter(function (x) { return x.k === 'rich' && year.test(txt(x)) && txt(x).length < 160; })[0]
+        || list.filter(function (x) { return x.k === 'live'; })[0]
+        || list.filter(function (x) { return x.k === 'text' && isDateish(x.el); })[0];
+    } else if (kind === 'map') {
+      pick = list.filter(function (x) { return x.k === 'map'; })[0];
+    } else if (kind === 'image') {
+      pick = list.filter(function (x) { return x.k === 'image' && x.r.width >= 90 && x.r.height >= 90; })[0];
+    } else if (kind === 'rsvp') {
+      pick = list.filter(function (x) { return isRsvpEl(x.el); })[0];
+    } else {
+      // أكبر خط في أول شاشتين من الدعوة — الأسامي عادةً
+      var firstTop = list.length ? list[0].top : 0;
+      var cands = list.filter(function (x) {
+        var t = txt(x);
+        return x.k === 'text' && t.length >= 2 && t.length <= 60 && x.top < firstTop + window.innerHeight * 2;
+      });
+      cands.sort(function (a, b) {
+        return (parseFloat(getComputedStyle(b.el).fontSize) || 0) - (parseFloat(getComputedStyle(a.el).fontSize) || 0)
+          || a.top - b.top;
+      });
+      pick = cands[0] || list.filter(function (x) { return x.k === 'text'; })[0];
+    }
+    return pick ? pick.el : null;
+  }
+
+  /**
+   * الجزء ده حتة من التاريخ؟ (عشان الشريط الجانبي يفتح النتيجة والساعة)
+   * في قوالب كتير التاريخ متقسّم: "يناير" لوحده، "9" لوحده، "2027" لوحده.
+   * قبل كده النتيجة كانت بتفتح بس لو العميل داس على السنة — فلو داس على
+   * الشهر أو اليوم كان يغيّرهم بالكتابة والعداد التنازلي يفضل على القديم.
+   */
+  var MONTHS_RE = new RegExp('(^|[\\s،,.-])(' + [
+    'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december',
+    'jan', 'feb', 'mar', 'apr', 'jun', 'jul', 'aug', 'sep', 'sept', 'oct', 'nov', 'dec',
+    'janvier', 'février', 'fevrier', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'aout', 'septembre', 'octobre', 'novembre', 'décembre',
+    'يناير', 'فبراير', 'مارس', 'أبريل', 'ابريل', 'إبريل', 'مايو', 'يونيو', 'يونيه', 'يوليو', 'يوليه', 'أغسطس', 'اغسطس', 'سبتمبر', 'أكتوبر', 'اكتوبر', 'نوفمبر', 'ديسمبر',
+    'كانون', 'شباط', 'آذار', 'اذار', 'نيسان', 'أيار', 'ايار', 'حزيران', 'تموز', 'آب', 'أيلول', 'ايلول', 'تشرين',
+  ].join('|') + ')($|[\\s،,.-])', 'i');
+  var YEAR_RE = /\b20\d{2}\b|[٢][٠][٠-٩]{2}/;
+  function isDateish(el) {
+    var t = (el.innerText || '').trim();
+    if (!t || t.length > 60) return false;
+    if (YEAR_RE.test(t)) return true;
+    if (t.length <= 14 && MONTHS_RE.test(t)) return true;
+    // رقم يوم لوحده (1-31) جنب سنة في نفس الحتة من الدعوة
+    var dig = t.replace(/[٠-٩]/g, function (d) { return String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)); });
+    if (/^\d{1,2}$/.test(dig) && +dig >= 1 && +dig <= 31) {
+      var up = el.parentElement;
+      for (var i = 0; i < 4 && up; i++, up = up.parentElement) {
+        var ut = (up.innerText || '');
+        if (ut.length > 260) break;
+        if (YEAR_RE.test(ut) || MONTHS_RE.test(ut)) return true;
+      }
+    }
+    return false;
+  }
+
   function isRsvpEl(el) {
     if (!el) return false;
     if (el.querySelector && el.querySelector('a[href^="#popup"], a[href^="#form"]')) return true;
@@ -633,6 +719,11 @@
     // الضغطة وقعت على الجزء الشفاف من صورة، العميل قاصد اللي تحتها مش هي
     var solid = found.filter(function (el) { return !isTransparentAt(el, x, y); });
     if (solid.length) found = solid;
+    // الكلام اللي العميل ضافه بنفسه قاعد فوق التصميم كله (z-index 60): لو
+    // الضغطة جت عليه هو أول حاجة، هو المقصود. قبل كده قاعدة "الأصغر يكسب"
+    // كانت بتختار جملة من التصميم تحته — فالعميل يسحب كلامه الجديد واللي
+    // يتحرك (ويتحفظ مكانه) جملة تانية خالص، أو يمسحه فيتمسح غيره.
+    if (found[0].getAttribute('data-wda-added')) return found[0];
     found.sort(function (a, b) {
       // الفيديو آخر الكل: في Blossom Oud فيه فيديو بيغطي الشاشة كلها فوق
       // الصور، فكانت أي صورة العميل يضغط عليها بيتحدد الفيديو بدالها
@@ -1615,6 +1706,8 @@
         scale: currentScale(el),
         // يوم في نتيجة الشهر؟ الشريط بيقول لصاحب الدعوة إنه اتعلّم
         calDay: Number(el.getAttribute('data-cal-day')) || 0,
+        // حتة من التاريخ (شهر/يوم/سنة)؟ الشريط بيفتح النتيجة والساعة على طول
+        dateish: (el.getAttribute('data-wda-kind') || 'text') === 'text' && !el.getAttribute('data-cal-day') && isDateish(el),
       });
     } else {
       hideTools();
@@ -2017,6 +2110,28 @@
       for (var ai = 0; ai < all.length; ai++) {
         try { if (!all[ai].paused) all[ai].pause(); } catch (e) { /* */ }
       }
+    }
+
+    // ===== "وريني" من لوحة المساعدة =====
+    // بيلاقي العنصر المطلوب في الدعوة كلها (مش في الجزء الظاهر بس)، ينزل له
+    // بهدوء، ويختاره لو اتطلب — الاختيار بس (زي ضغطة واحدة)، من غير كتابة
+    // ولا أي تعديل. كده "وريني التاريخ" بيوديه للتاريخ نفسه وبيفتحله
+    // النتيجة في الشريط الجانبي على طول.
+    if (msg.type === 'help-reveal') {
+      var hel = helpTarget(p.kind);
+      document.querySelectorAll('[data-wda-help-target]').forEach(function (x) {
+        x.removeAttribute('data-wda-help-target');
+      });
+      if (hel) {
+        hel.setAttribute('data-wda-help-target', p.kind || '1');
+        var hr = hel.getBoundingClientRect();
+        var hTop = window.scrollY + hr.top - Math.max(70, (window.innerHeight - hr.height) / 2);
+        window.scrollTo({ top: Math.max(0, hTop), behavior: 'smooth' });
+        if (p.select && state.editingOn) {
+          setTimeout(function () { if (hel.isConnected) select(hel); }, 520);
+        }
+      }
+      send('help-revealed', { kind: p.kind, found: !!hel });
     }
 
     if (msg.type === 'toggle-tools') {

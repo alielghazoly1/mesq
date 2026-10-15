@@ -160,8 +160,9 @@ export const HELP_TOPICS = [
     },
     tour: () => [
       {
-        target: ['frame:text', 'preview'],
+        target: ['frame:help', 'frame:text', 'preview'],
         tab: 'inline',
+        reveal: { kind: 'text', select: true },
         title: { ar: 'اضغط على أي جملة', en: 'Click any sentence' },
         body: {
           ar: 'أي كلام زي ده في الدعوة: اضغط عليه وهيتفتح للكتابة على طول.',
@@ -212,21 +213,22 @@ export const HELP_TOPICS = [
     },
     tour: () => [
       {
-        target: ['frame:date', 'frame:text', 'preview'],
+        target: ['frame:help', 'frame:date', 'preview'],
         tab: 'inline',
-        title: { ar: 'اضغط على التاريخ', en: 'Click the date' },
+        reveal: { kind: 'date', select: true },
+        title: { ar: 'ده التاريخ في دعوتك', en: 'This is the date in your invitation' },
         body: {
-          ar: 'اضغط على التاريخ نفسه في الدعوة.',
-          en: 'Click the date itself in the invitation.',
+          ar: 'نزلنالك عنده واخترناه. أي وقت تحب تغيّره، اضغط عليه هو.',
+          en: 'We scrolled to it and selected it. Whenever you want to change it, click it.',
         },
       },
       {
-        target: 'selected-panel',
+        target: ['date-field', 'selected-panel'],
         tab: 'inline',
-        title: { ar: 'هنا تختار اليوم والساعة', en: 'Pick the day and time here' },
+        title: { ar: 'غيّر اليوم والساعة من هنا', en: 'Change the day and time here' },
         body: {
-          ar: 'أول ما تضغط على التاريخ، هنا هيظهرلك نتيجة تختار منها اليوم، وخانة للساعة. العداد التنازلي بيمشي وراهم.',
-          en: 'Once you click the date, a calendar and a time box show up here. The countdown follows them.',
+          ar: 'اختار اليوم من النتيجة، والساعة من الخانة اللي جنبها — الدعوة والعداد التنازلي بيتظبطوا لوحدهم.',
+          en: 'Pick the day from the calendar and the time next to it — the invitation and countdown update by themselves.',
         },
       },
     ],
@@ -272,7 +274,9 @@ export const HELP_TOPICS = [
           },
         },
         {
-          target: ['frame:image', 'preview'],
+          target: ['frame:help', 'frame:image', 'preview'],
+          tab: 'inline',
+          reveal: { kind: 'image', select: true },
           title: { ar: 'أو من الدعوة نفسها', en: 'Or from the invitation itself' },
           body: {
             ar: 'اضغط على أي صورة هنا، وبعدين أيقونة الصورة اللي هتطلع فوقها.',
@@ -433,7 +437,9 @@ export const HELP_TOPICS = [
       if (!ctx.has('drag')) return [open, lockedStep('layout')];
       return [
         {
-          target: ['frame:text', 'preview'],
+          target: ['frame:help', 'frame:text', 'preview'],
+          tab: 'inline',
+          reveal: { kind: 'text', select: false },
           title: { ar: 'امسك واسحب', en: 'Hold and drag' },
           body: {
             ar: 'امسك أي جملة أو صورة بالماوس، وحرّكها من غير ما تسيب.',
@@ -485,8 +491,9 @@ export const HELP_TOPICS = [
     },
     tour: () => [
       {
-        target: ['frame:text', 'preview'],
+        target: ['frame:help', 'frame:text', 'preview'],
         tab: 'inline',
+        reveal: { kind: 'text', select: true },
         title: { ar: 'اختار الجملة', en: 'Select the text' },
         body: {
           ar: 'اضغط على الجملة اللي عايز تغيّر شكلها.',
@@ -494,7 +501,7 @@ export const HELP_TOPICS = [
         },
       },
       {
-        target: 'selected-panel',
+        target: ['size-field', 'selected-panel'],
         tab: 'inline',
         title: { ar: 'تحكّم الجملة هنا', en: 'Its controls appear here' },
         body: {
@@ -529,8 +536,9 @@ export const HELP_TOPICS = [
     tour: (ctx) => {
       const steps = [
         {
-          target: ['frame:text', 'preview'],
+          target: ['frame:help', 'frame:text', 'preview'],
           tab: 'inline',
+          reveal: { kind: 'text', select: true },
           title: { ar: 'اضغط واختار السلة', en: 'Click, then the bin' },
           body: {
             ar: 'اضغط على أي جزء، وهيطلعلك فوقه أيقونة سلة تشيله بيها.',
@@ -591,16 +599,17 @@ export const HELP_TOPICS = [
     },
     tour: () => [
       {
-        target: ['frame:map', 'preview'],
+        target: ['frame:help', 'frame:map', 'preview'],
         tab: 'inline',
-        title: { ar: 'اضغط على الخريطة', en: 'Click the map' },
+        reveal: { kind: 'map', select: true },
+        title: { ar: 'دي الخريطة في دعوتك', en: 'This is the map in your invitation' },
         body: {
-          ar: 'اضغط على الخريطة جوه الدعوة (لو مش ظاهرة، انزل لتحت شوية)، وبعدين أيقونة الدبوس.',
-          en: 'Click the map in the invitation (scroll down if you can’t see it), then the pin icon.',
+          ar: 'نزلنالك عندها واخترناها. بعد كده: اضغط عليها وبعدين أيقونة الدبوس 📍 اللي فوقها.',
+          en: 'We scrolled to it and selected it. Next time: click it, then the 📍 pin icon above it.',
         },
       },
       {
-        target: 'selected-panel',
+        target: ['map-field', 'selected-panel'],
         tab: 'inline',
         title: { ar: 'حط اللينك هنا', en: 'Paste the link here' },
         body: {
@@ -849,12 +858,13 @@ export const HELP_TOPICS = [
     },
     tour: () => [
       {
-        target: 'preview',
+        target: ['frame:help', 'preview'],
         tab: 'inline',
+        reveal: { kind: 'rsvp', select: true },
         title: { ar: 'زرار تأكيد الحضور', en: 'The RSVP button' },
         body: {
-          ar: 'انزل في الدعوة لحد تأكيد الحضور، واضغط عليه، وبعدين أيقونة الفورم.',
-          en: 'Scroll to the RSVP part, click it, then the form icon.',
+          ar: 'ده زرار تأكيد الحضور — اخترناه لك. دوس أيقونة الفورم اللي فوقه عشان تعدّل كلام الفورم.',
+          en: 'This is the RSVP button — we selected it. Press the form icon above it to edit the form wording.',
         },
       },
       {
