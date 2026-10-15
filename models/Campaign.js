@@ -23,8 +23,11 @@ const campaignSchema = new mongoose.Schema({
   notes: { type: String, default: '', maxlength: 300 },
   // مقفول = بيختفي من القايمة الأساسية، بس اللينك لسه شغال ولسه بيعدّ
   archived: { type: Boolean, default: false },
-  // كل مرة اللينك اتفتح (من غير البرامج الآلية زي معاينة اللينك)
+  // عدّاد قديم (أول نسخة) — الأرقام دلوقتي بتتحسب من CampaignHit/CampaignVisit
   clicks: { type: Number, default: 0 },
+  // من إمتى الأرقام بتتحسب — يوم ما الإعلان اشتغل فعلًا. أي حاجة قبله (مراجعة
+  // إنستجرام للإعلان، تجربة المالك للينك) مابتدخلش في الحساب.
+  startedAt: { type: Date, default: Date.now },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

@@ -7,7 +7,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import {
   Target, Plus, Copy, Check, Link2, Users, Crown, Wallet, Eye, Archive, ArchiveRestore,
   ChevronDown, TrendingUp, TrendingDown, Pencil, X, Camera, ThumbsUp, Music2, Search,
-  MessageCircle, Ghost, Megaphone, Clock, MousePointerClick,
+  MessageCircle, Ghost, Megaphone, Clock, MousePointerClick, ShieldCheck, CalendarDays, Smartphone, Monitor, Tablet,
 } from 'lucide-react';
 import {
   useGetCampaignsQuery, useGetCampaignQuery, useCreateCampaignMutation, useUpdateCampaignMutation,
@@ -102,7 +102,8 @@ function NewCampaign({ onDone }) {
       <Panel title="اللينك جاهز ✓" subtitle="حطه في الإعلان بدل لينك الموقع العادي">
         <CopyLink code={made.code} big />
         <p className="mt-3 text-[12px] leading-relaxed text-ivory/55">
-          أي حد يدخل من اللينك ده بيتحسب على «{made.name}». ولو سجّل في خلال 30 يوم (حتى لو رجع بعدها لوحده)، بيتحسب على الإعلان ده.
+          أي شخص حقيقي يفتح الموقع من اللينك ده بيتحسب على «{made.name}». ولو سجّل في خلال 30 يوم (حتى لو رجع بعدها لوحده)، بيتحسب على الإعلان ده.
+          زياراتك إنت ومراجعة إنستجرام للإعلان مابتتحسبش — ولما الإعلان يشتغل فعلًا، حط يوم بدايته من «الأرقام بتتحسب من يوم».
         </p>
         <div className="mt-4 flex gap-2"><Btn tone="gold" onClick={onDone}>تمام</Btn></div>
       </Panel>
@@ -244,6 +245,98 @@ function CampaignDetail({ id }) {
         )}
         <p className="mt-2 text-[11px] text-ivory/35">بيتحسب اللي سجّل حساب جديد في خلال 30 يوم من ما دخل من اللينك. اللي كان عنده حساب قبل كده مش بيتحسب كتسجيل جديد.</p>
       </div>
+
+      <HitLog hits={data.hits || []} />
+    </div>
+  );
+}
+
+const SRC = { instagram: 'من جوه إنستجرام', facebook: 'من جوه فيسبوك', tiktok: 'من جوه تيك توك', snapchat: 'من جوه سناب', browser: 'متصفح' };
+const HIT = {
+  counted: { label: 'اتحسب ✓ — شخص فتح الصفحة فعلًا', tone: 'ok' },
+  pending: { label: 'ماتحسبش — فتح وقفل على طول', tone: 'muted' },
+  prefetch: { label: 'ماتحسبش — تحميل مسبق / مراجعة إنستجرام', tone: 'warn' },
+  bot: { label: 'ماتحسبش — برنامج آلي أو معاينة لينك', tone: 'danger' },
+  owner: { label: 'ماتحسبش — ده إنت (جهازك)', tone: 'gold' },
+};
+
+/** سجل كل مرة اللينك اتفتح — عشان المالك يشوف الأرقام جت منين */
+function HitLog({ hits }) {
+  const [all, setAll] = useState(false);
+  if (!hits.length) return null;
+  const shown = all ? hits : hits.slice(0, 15);
+  const DevIcon = (d) => (d === 'desktop' ? Monitor : d === 'tablet' ? Tablet : Smartphone);
+  return (
+    <div data-hit-log>
+      <div className="mb-2 text-[12.5px] font-bold text-ivory/70">كل مرة اللينك اتفتح ({fmtNum(hits.length)}{hits.length >= 300 ? '+' : ''})</div>
+      <div className="divide-y divide-line-lite overflow-hidden rounded-xl border border-line-lite">
+        {shown.map((h, i) => {
+          const st = HIT[h.status] || HIT.pending;
+          const D = DevIcon(h.device);
+          return (
+            <div key={i} className={`flex flex-wrap items-center gap-x-3 gap-y-1 px-3.5 py-2 text-[12px] ${h.beforeStart ? 'opacity-45' : ''}`} data-hit={h.status}>
+              <span className="w-[150px] shrink-0 text-ivory/60">{fmtDate(h.at, true)}</span>
+              <span className="inline-flex items-center gap-1 text-ivory/55"><D size={12} /> {SRC[h.src] || 'متصفح'}</span>
+              <Badge tone={st.tone}>{st.label}</Badge>
+              {h.beforeStart && <span className="text-[11px] text-ivory/40">(قبل يوم بداية الإعلان — مش داخل في الحساب)</span>}
+            </div>
+          );
+        })}
+      </div>
+      {hits.length > 15 && (
+        <button type="button" onClick={() => setAll((v) => !v)} className="mt-2 text-[12px] font-bold text-brass-soft hover:text-brass">
+          {all ? 'اعرض أقل' : `اعرض الكل (${fmtNum(hits.length)})`}
+        </button>
+      )}
+    </div>
+  );
+}
+
+/** اللي اتشال من العدّ وليه */
+function Filtered({ f }) {
+  if (!f) return null;
+  const parts = [
+    f.pending ? `${fmtNum(f.pending)} فتحوا وقفلوا على طول` : '',
+    f.prefetch ? `${fmtNum(f.prefetch)} تحميل مسبق / مراجعة إنستجرام` : '',
+    f.bot ? `${fmtNum(f.bot)} برامج آلية ومعاينة لينك` : '',
+    f.owner ? `${fmtNum(f.owner)} مرة إنت فتحته` : '',
+  ].filter(Boolean);
+  if (!parts.length) return null;
+  return (
+    <p className="mt-3 flex items-start gap-1.5 rounded-xl bg-ivory/[0.04] px-3 py-2 text-[11.5px] leading-relaxed text-ivory/55" data-filtered>
+      <ShieldCheck size={13} className="mt-0.5 shrink-0 text-ok" />
+      <span>مااتحسبوش (عشان الرقم يبقى ناس حقيقية بس): {parts.join(' · ')}</span>
+    </p>
+  );
+}
+
+/** من إمتى الأرقام بتتحسب */
+function StartDate({ c }) {
+  const [update, { isLoading }] = useUpdateCampaignMutation();
+  const [edit, setEdit] = useState(false);
+  const toKey = (d) => {
+    const x = new Date(d);
+    const p = new Intl.DateTimeFormat('en-CA', { timeZone: 'Africa/Cairo', year: 'numeric', month: '2-digit', day: '2-digit' }).format(x);
+    return p;
+  };
+  const [val, setVal] = useState(toKey(c.startedAt));
+  return (
+    <div className="mt-3 flex flex-wrap items-center gap-2 text-[12px] text-ivory/60" data-start-date>
+      <CalendarDays size={13} className="text-brass-soft" />
+      <span>الأرقام بتتحسب من يوم <b className="text-ivory">{fmtDate(c.startedAt)}</b></span>
+      {!edit ? (
+        <button type="button" onClick={() => setEdit(true)} className="inline-flex items-center gap-1 text-[11.5px] font-bold text-brass-soft hover:text-brass">
+          <Pencil size={11} /> غيّره ليوم ما الإعلان اشتغل
+        </button>
+      ) : (
+        <>
+          <input type="date" value={val} onChange={(e) => setVal(e.target.value)} data-start-input
+            className="rounded-lg border border-line-lite bg-night/60 px-2 py-1 text-[12.5px] text-ivory focus:border-brass/60 focus:outline-none" />
+          <Btn size="sm" tone="gold" loading={isLoading} onClick={async () => { await update({ id: c.id, startedAt: val }); setEdit(false); }}>احفظ</Btn>
+          <Btn size="sm" onClick={() => setEdit(false)}>إلغاء</Btn>
+          <span className="w-full text-[11px] text-ivory/40">أي حاجة قبل اليوم ده (مراجعة إنستجرام للإعلان، تجربتك للينك) مش بتدخل في الحساب.</span>
+        </>
+      )}
     </div>
   );
 }
@@ -274,7 +367,7 @@ function CampaignCard({ c, rate, open, onToggle }) {
   const P = platformOf(c.platform);
   const max = Math.max(1, s.visitors);
   const steps = [
-    { key: 'visitors', label: 'دخلوا الموقع', n: s.visitors, sub: `${fmtNum(s.clicks)} ضغطة`, icon: Eye },
+    { key: 'visitors', label: 'دخلوا فعلًا', n: s.visitors, sub: `فتحوا اللينك ${fmtNum(s.clicks)} مرة`, icon: Eye },
     { key: 'signups', label: 'سجّلوا', n: s.signups, sub: `${pct(s.signups, s.visitors)}% من اللي دخلوا`, icon: Users },
     { key: 'payers', label: 'دفعوا', n: s.payers, sub: `${pct(s.payers, s.signups)}% من اللي سجّلوا`, icon: Crown },
   ];
@@ -317,6 +410,9 @@ function CampaignCard({ c, rate, open, onToggle }) {
             </div>
           ))}
         </div>
+
+        <Filtered f={s.filtered} />
+        <StartDate c={c} />
 
         {s.pendingReceipts > 0 && (
           <p className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-brass/10 px-3 py-1.5 text-[11.5px] font-bold text-brass-soft">
@@ -407,6 +503,15 @@ export default function CampaignsPage() {
           </p>
         </div>
         {!creating && <Btn tone="gold" icon={Plus} onClick={() => setCreating(true)}>لينك إعلان جديد</Btn>}
+      </div>
+
+      <div className="flex items-start gap-2.5 rounded-2xl border border-ok/25 bg-ok/[0.06] px-4 py-3 text-[12px] leading-relaxed text-ivory/70">
+        <ShieldCheck size={16} className="mt-0.5 shrink-0 text-ok" />
+        <div>
+          <b className="text-ivory">إزاي بنعدّ:</b> الشخص بيتحسب بس لما يفتح الصفحة فعلًا ويفضل عليها (مش مجرد إن اللينك اتفتح).
+          مراجعة إنستجرام وفيسبوك للإعلان، والتحميل المسبق، والبرامج الآلية، وجهازك إنت — بيتسجّلوا في السجل بس ومابيتحسبوش.
+          ومن يوم ما تحدده إن الإعلان اشتغل.
+        </div>
       </div>
 
       <AnimatePresence>

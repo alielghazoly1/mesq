@@ -12,10 +12,11 @@ const express = require('express');
 const crypto = require('crypto');
 const Campaign = require('../models/Campaign');
 const CampaignVisit = require('../models/CampaignVisit');
+const CampaignHit = require('../models/CampaignHit');
 const User = require('../models/User');
 const Order = require('../models/Order');
 const Invitation = require('../models/Invitation');
-const { requireAdminSession } = require('../middleware/adminAuth');
+const { requireAdminSession, ADMIN_COOKIE_NAME } = require('../middleware/adminAuth');
 const { ensureDeviceId } = require('../middleware/deviceLimiter');
 const { logAdminAction } = require('../utils/adminAudit');
 const { sanitizeText } = require('../utils/sanitize');
@@ -41,36 +42,103 @@ const r2 = (n) => Math.round((Number(n || 0) + Number.EPSILON) * 100) / 100;
 // ======================================================================
 // اللينك نفسه
 // ======================================================================
+//
+// الزيارة مابتتحسبش لمجرد إن اللينك اتفتح. إنستجرام وفيسبوك بيفتحوا لينك
+// الإعلان بنفسهم وهما بيراجعوه، وبيحمّلوا الصفحة مسبقًا قبل ما حد يضغط، وده
+// كله بيبان كأنه "متصفح عادي" — وده اللي كان بيخلّي الأرقام تزيد قبل ما الإعلان
+// يشتغل أصلًا. فالحساب على خطوتين:
+//   1) /go بيسجّل الفتحة (pending) ويحط علامة قصيرة العمر على الجهاز
+//   2) الموقع نفسه (lib/campaignBeacon.js) بيأكّد بعد ما الصفحة تتفتح فعلًا
+//      قدام شخص وتفضل ظاهرة شوية مع حركة منه → counted
+// والبرامج الآلية، والتحميل المسبق، وجهاز صاحب الموقع بيتسجّلوا بسببهم وماتحسبوش.
+
+const OWNER_COOKIE = 'mithaq_owner';
+const VERIFY_COOKIE = 'mithaq_cmp_v';
+const VERIFY_WINDOW_MS = 30 * 60 * 1000;
+
+const isPrefetch = (req) => {
+  const h = (n) => String(req.get(n) || '').toLowerCase();
+  return /prefetch|prerender/.test(h('sec-purpose') + ' ' + h('purpose') + ' ' + h('x-moz'))
+    || h('x-purpose') === 'preview' || h('x-fb-purpose') !== '' || h('x-fb-preload') !== '';
+};
+const isOwner = (req) => !!(req.cookies && (req.cookies[ADMIN_COOKIE_NAME] || req.cookies[OWNER_COOKIE]));
+
+function srcOf(ua) {
+  if (/Instagram/i.test(ua)) return 'instagram';
+  if (/FBAN|FBAV|FB_IAB|FBIOS/i.test(ua)) return 'facebook';
+  if (/musical_ly|TikTok|BytedanceWebview|trill/i.test(ua)) return 'tiktok';
+  if (/Snapchat/i.test(ua)) return 'snapchat';
+  return 'browser';
+}
+function deviceOf(ua) {
+  if (/iPad|Tablet/i.test(ua)) return 'tablet';
+  if (/Mobi|Android|iPhone|iPod/i.test(ua)) return 'mobile';
+  return 'desktop';
+}
+
 router.get('/go/:code', ensureDeviceId, async (req, res) => {
   const code = String(req.params.code || '').toLowerCase().slice(0, 40);
   try {
     const campaign = /^[a-z0-9-]+$/.test(code) ? await Campaign.findOne({ code }).select('_id code landing').lean() : null;
     if (!campaign) return res.redirect(302, '/');
-    if (!isBot(req)) {
-      const now = new Date();
-      const visitor = String(req.deviceId || '').slice(0, 64)
-        || crypto.createHash('sha256').update(String(req.ip || '')).digest('hex').slice(0, 32);
-      await Promise.all([
-        Campaign.updateOne({ _id: campaign._id }, { $inc: { clicks: 1 } }),
-        CampaignVisit.updateOne(
-          { campaignId: campaign._id, visitor },
-          { $inc: { hits: 1 }, $set: { lastAt: now }, $setOnInsert: { firstAt: now } },
-          { upsert: true }
-        ).catch(() => {}),
-      ]);
-      // آخر إعلان دخل منه (في خلال 30 يوم) هو اللي ياخد التسجيل
-      res.cookie(COOKIE, campaign.code, {
-        httpOnly: true,
-        sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: COOKIE_DAYS * 24 * 60 * 60 * 1000,
-        path: '/',
+    const landing = Campaign.LANDINGS.includes(campaign.landing) ? campaign.landing : '/';
+    const ua = String(req.get('user-agent') || '');
+    const visitor = String(req.deviceId || '').slice(0, 64)
+      || crypto.createHash('sha256').update(String(req.ip || '')).digest('hex').slice(0, 32);
+    const status = isBot(req) ? 'bot' : isOwner(req) ? 'owner' : isPrefetch(req) ? 'prefetch' : 'pending';
+    const hit = await CampaignHit.create({
+      campaignId: campaign._id, visitor, status, src: srcOf(ua), device: deviceOf(ua),
+    }).catch(() => null);
+
+    // البرامج الآلية وصاحب الموقع: مفيش علامة على الجهاز (فالتسجيل منهم مايتحسبش)
+    if (status === 'bot' || status === 'owner') return res.redirect(302, landing);
+
+    const secure = process.env.NODE_ENV === 'production';
+    res.cookie(COOKIE, campaign.code, {
+      httpOnly: true, sameSite: 'lax', secure, maxAge: COOKIE_DAYS * 24 * 60 * 60 * 1000, path: '/',
+    });
+    // علامة قصيرة العمر يقراها الموقع عشان يأكّد إن الصفحة اتفتحت فعلًا
+    if (hit) {
+      res.cookie(VERIFY_COOKIE, String(hit._id), {
+        httpOnly: false, sameSite: 'lax', secure, maxAge: VERIFY_WINDOW_MS, path: '/',
       });
     }
-    return res.redirect(302, Campaign.LANDINGS.includes(campaign.landing) ? campaign.landing : '/');
+    return res.redirect(302, landing);
   } catch (err) {
     console.error('Campaign link error:', err.message);
     return res.redirect(302, '/');
+  }
+});
+
+// POST /api/campaign-seen — الموقع بيبعته بعد ما الصفحة اتفتحت قدام شخص فعلًا
+// (ظاهرة 3 ثواني على الأقل + حركة منه أو 10 ثواني، ومش متصفح آلي)
+router.post('/api/campaign-seen', ensureDeviceId, async (req, res) => {
+  try {
+    const hitId = String((req.cookies && req.cookies[VERIFY_COOKIE]) || '');
+    res.clearCookie(VERIFY_COOKIE, { path: '/' });
+    if (!/^[a-f0-9]{24}$/i.test(hitId) || isOwner(req) || isBot(req)) return res.status(204).end();
+    const hit = await CampaignHit.findById(hitId);
+    if (!hit || !['pending', 'prefetch'].includes(hit.status)) return res.status(204).end();
+    if (Date.now() - new Date(hit.at).getTime() > VERIFY_WINDOW_MS) return res.status(204).end();
+    if (hit.visitor && req.deviceId && hit.visitor !== req.deviceId) return res.status(204).end();
+    const now = new Date();
+    hit.status = 'counted';
+    hit.verifiedAt = now;
+    await hit.save();
+    await CampaignVisit.updateOne(
+      { campaignId: hit.campaignId, visitor: hit.visitor },
+      { $inc: { hits: 1 }, $set: { lastAt: now }, $setOnInsert: { firstAt: hit.at } },
+      { upsert: true }
+    );
+    // أول مرة الشخص ده يتأكد = زائر حقيقي جديد
+    await CampaignVisit.updateOne(
+      { campaignId: hit.campaignId, visitor: hit.visitor, verifiedAt: null },
+      { $set: { verifiedAt: now } }
+    );
+    return res.status(204).end();
+  } catch (err) {
+    console.error('Campaign seen error:', err.message);
+    return res.status(204).end();
   }
 });
 
@@ -84,27 +152,46 @@ router.get('/go/:code', ensureDeviceId, async (req, res) => {
  */
 async function statsFor(campaigns) {
   const ids = campaigns.map((c) => c._id);
-  const codes = campaigns.map((c) => c.code);
   const out = {};
+  const startOf = {};
   campaigns.forEach((c) => {
+    startOf[c.code] = new Date(c.startedAt || c.createdAt || 0);
     out[c.code] = {
-      clicks: c.clicks || 0, visitors: 0, signups: 0, payers: 0, pendingReceipts: 0,
+      clicks: 0, visitors: 0, signups: 0, payers: 0, pendingReceipts: 0,
       orders: 0, revenue: { EGP: 0, USD: 0 },
+      // اللي اتسجّل ومااتحسبش وليه — عشان الأرقام تبقى مفهومة
+      filtered: { pending: 0, prefetch: 0, bot: 0, owner: 0 },
     };
   });
   if (!ids.length) return out;
-
-  const [visitors, users] = await Promise.all([
-    CampaignVisit.aggregate([{ $match: { campaignId: { $in: ids } } }, { $group: { _id: '$campaignId', n: { $sum: 1 } } }]),
-    User.find({ campaign: { $in: codes } }).select('_id campaign').lean(),
-  ]);
   const codeById = {};
   campaigns.forEach((c) => { codeById[String(c._id)] = c.code; });
-  visitors.forEach((v) => { const code = codeById[String(v._id)]; if (code) out[code].visitors = v.n; });
+  // أقدم بداية — نفلتر بيها في قاعدة البيانات، والباقي لكل إعلان هنا
+  const minStart = new Date(Math.min(...Object.values(startOf).map((d) => d.getTime())));
+
+  const [visitors, hits, users] = await Promise.all([
+    CampaignVisit.find({ campaignId: { $in: ids }, verifiedAt: { $ne: null, $gte: minStart } }).select('campaignId verifiedAt').lean(),
+    CampaignHit.aggregate([
+      { $match: { campaignId: { $in: ids }, at: { $gte: minStart } } },
+      { $project: { campaignId: 1, status: 1, at: 1 } },
+    ]),
+    User.find({ campaign: { $in: Object.keys(out) }, campaignAt: { $gte: minStart } }).select('_id campaign campaignAt').lean(),
+  ]);
+  visitors.forEach((v) => {
+    const code = codeById[String(v.campaignId)];
+    if (code && v.verifiedAt >= startOf[code]) out[code].visitors += 1;
+  });
+  hits.forEach((h) => {
+    const code = codeById[String(h.campaignId)];
+    if (!code || h.at < startOf[code]) return;
+    if (h.status === 'counted' || h.status === 'pending') out[code].clicks += 1;
+    if (h.status !== 'counted') out[code].filtered[h.status] += 1;
+  });
 
   const userCode = {};
-  users.forEach((u) => { userCode[String(u._id)] = u.campaign; out[u.campaign].signups += 1; });
-  const userIds = users.map((u) => u._id);
+  const kept = users.filter((u) => u.campaignAt >= startOf[u.campaign]);
+  kept.forEach((u) => { userCode[String(u._id)] = u.campaign; out[u.campaign].signups += 1; });
+  const userIds = kept.map((u) => u._id);
   if (userIds.length) {
     const [paid, pending] = await Promise.all([
       Order.aggregate([
@@ -147,6 +234,7 @@ function serialize(c, s) {
     notes: c.notes || '',
     archived: !!c.archived,
     createdAt: c.createdAt,
+    startedAt: c.startedAt || c.createdAt,
     stats: s,
   };
 }
@@ -164,6 +252,12 @@ router.get('/admin/api/campaigns', requireAdminSession, async (req, res) => {
   try {
     const campaigns = await Campaign.find({}).sort({ createdAt: -1 }).lean();
     const stats = await statsFor(campaigns);
+    // الجهاز اللي فاتح لوحة التحكم ده جهاز صاحب الموقع — زياراته للينكات
+    // (وهو بيجرّبها) مابتتحسبش حتى بعد ما يخرج من اللوحة
+    res.cookie(OWNER_COOKIE, '1', {
+      httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production',
+      maxAge: 2 * 365 * 24 * 60 * 60 * 1000, path: '/',
+    });
     return res.json({ campaigns: campaigns.map((c) => serialize(c, stats[c.code])) });
   } catch (err) {
     console.error('Error listing campaigns:', err);
@@ -193,6 +287,14 @@ function readBody(body, { creating }) {
   }
   if (b.spendCurrency !== undefined) out.spendCurrency = b.spendCurrency === 'USD' ? 'USD' : 'EGP';
   if (b.archived !== undefined) out.archived = !!b.archived;
+  // يوم ما الإعلان اشتغل (YYYY-MM-DD بتوقيت مصر) — الأرقام بتتحسب منه
+  if (b.startedAt !== undefined) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(b.startedAt || ''));
+    if (!m) return { error: 'تاريخ بداية الإعلان مش مظبوط.' };
+    const d = cairoWallToDate(+m[1], +m[2] - 1, +m[3], 0, 0);
+    if (Number.isNaN(d.getTime()) || +m[1] < 2024) return { error: 'تاريخ بداية الإعلان مش مظبوط.' };
+    out.startedAt = d;
+  }
   return { data: out };
 }
 
@@ -251,7 +353,7 @@ router.get('/admin/api/campaigns/:id', requireAdminSession, async (req, res) => 
     if (!campaign) return res.status(404).json({ error: 'الإعلان مش موجود.' });
     const [stats, users] = await Promise.all([
       statsFor([campaign]),
-      User.find({ campaign: campaign.code })
+      User.find({ campaign: campaign.code, campaignAt: { $gte: new Date(campaign.startedAt || campaign.createdAt || 0) } })
         .select('name email phone country createdAt campaignAt subscription lastSeenAt')
         .sort({ campaignAt: -1 }).limit(1000).lean(),
     ]);
@@ -293,11 +395,15 @@ router.get('/admin/api/campaigns/:id', requireAdminSession, async (req, res) => 
     const days = 30;
     const p = cairoParts(new Date());
     const from = cairoWallToDate(p.year, p.month - 1, p.day - (days - 1), 0, 0);
-    const [visitDays] = await Promise.all([
+    const start = new Date(campaign.startedAt || campaign.createdAt || 0);
+    const [visitDays, hitLog] = await Promise.all([
+      // الزوار الحقيقيين بس (اللي الموقع أكّدهم) من يوم بداية الإعلان
       CampaignVisit.aggregate([
-        { $match: { campaignId: campaign._id, firstAt: { $gte: from } } },
-        { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$firstAt', timezone: 'Africa/Cairo' } }, n: { $sum: 1 } } },
+        { $match: { campaignId: campaign._id, verifiedAt: { $gte: from > start ? from : start } } },
+        { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$verifiedAt', timezone: 'Africa/Cairo' } }, n: { $sum: 1 } } },
       ]),
+      // سجل آخر الفتحات — المتحسوب وغير المتحسوب وسببه
+      CampaignHit.find({ campaignId: campaign._id }).sort({ at: -1 }).limit(300).select('at status src device').lean(),
     ]);
     const byDay = {};
     for (let i = 0; i < days; i++) {
@@ -315,6 +421,7 @@ router.get('/admin/api/campaigns/:id', requireAdminSession, async (req, res) => 
       campaign: serialize(campaign, stats[campaign.code]),
       people,
       daily: Object.values(byDay),
+      hits: hitLog.map((h) => ({ at: h.at, status: h.status, src: h.src, device: h.device, beforeStart: h.at < start })),
     });
   } catch (err) {
     console.error('Error loading campaign:', err);

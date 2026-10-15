@@ -10,6 +10,9 @@ const campaignVisitSchema = new mongoose.Schema({
   hits: { type: Number, default: 1 },
   firstAt: { type: Date, default: Date.now },
   lastAt: { type: Date, default: Date.now },
+  // أول مرة الموقع أكّد إن ده شخص حقيقي فتح الصفحة وفضل عليها — من غيرها
+  // الزائر مابيتحسبش (معاينة إنستجرام للإعلان، برامج، تحميل مسبق...)
+  verifiedAt: { type: Date, default: null },
 });
 
 campaignVisitSchema.index({ campaignId: 1, visitor: 1 }, { unique: true });

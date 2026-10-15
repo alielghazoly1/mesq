@@ -7,6 +7,7 @@ import OrderNoticeGate from './components/OrderNoticeGate.jsx';
 import SupportLauncher from './components/SupportLauncher.jsx';
 import BottomNav from './components/BottomNav.jsx';
 import PresencePing from './components/PresencePing.jsx';
+import { startCampaignBeacon } from './lib/campaignBeacon.js';
 import GalleryPage from './pages/GalleryPage.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 
@@ -64,6 +65,9 @@ function AuthModalGate() {
 
 /** بعد ما الصفحة تخلص تحميل ويبقى المتصفح فاضي، بنجهّز الصفحات اللي
  *  العميل غالبًا هيروحها — فالتنقّل بيفضل فوري زي الأول. */
+// زيارة جاية من لينك إعلان؟ نأكّد إن شخص حقيقي شاف الصفحة (lib/campaignBeacon.js)
+startCampaignBeacon();
+
 function usePrefetchPages() {
   useEffect(() => {
     let cancelled = false;
