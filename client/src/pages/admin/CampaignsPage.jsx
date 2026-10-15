@@ -311,6 +311,31 @@ function Filtered({ f }) {
 }
 
 /** من إمتى الأرقام بتتحسب */
+/** اللينك بيودّي على أنهي صفحة — يتغيّر في أي وقت (اللينك نفسه مبيتغيّرش) */
+function LandingPicker({ c }) {
+  const [update, { isLoading }] = useUpdateCampaignMutation();
+  return (
+    <div className="mt-3 flex flex-wrap items-center gap-2 text-[12px] text-ivory/60" data-landing>
+      <Link2 size={13} className="text-brass-soft" />
+      <span>اللينك بيودّي على:</span>
+      <div className="flex flex-wrap gap-1">
+        {LANDINGS.map((l) => (
+          <button
+            key={l.id}
+            type="button"
+            disabled={isLoading}
+            data-landing-option={l.id}
+            onClick={() => { if (c.landing !== l.id) update({ id: c.id, landing: l.id }); }}
+            className={`rounded-full px-3 py-1 text-[11.5px] font-bold transition disabled:opacity-50 ${c.landing === l.id ? 'bg-brass text-[#241608]' : 'bg-ivory/[0.06] text-ivory/60 hover:text-ivory'}`}
+          >
+            {c.landing === l.id ? '✓ ' : ''}{l.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function StartDate({ c }) {
   const [update, { isLoading }] = useUpdateCampaignMutation();
   const [edit, setEdit] = useState(false);
@@ -412,6 +437,7 @@ function CampaignCard({ c, rate, open, onToggle }) {
         </div>
 
         <Filtered f={s.filtered} />
+        <LandingPicker c={c} />
         <StartDate c={c} />
 
         {s.pendingReceipts > 0 && (
