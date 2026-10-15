@@ -110,9 +110,38 @@ const FIXES = [
 
 let done = false;
 
+// تعديلات لمرة واحدة على لينكات الإعلانات (Campaign) بطلب المالك.
+// بتتعمل بس لو اللينك لسه على الحالة اللي اتشافت وقت الطلب ومااتعدّلش بعدها
+// (updatedAt قبل وقت الطلب) — فلو المالك غيّره بنفسه بعد كده مابنلمسوش.
+const CAMPAIGN_FIXES = [
+  {
+    // ig-4ff2 — المالك عايز لينك الإعلان يفتح الصفحة الرئيسية (التصاميم) مش الباقات
+    name: 'ig-4ff2-landing-home',
+    code: 'ig-4ff2',
+    when: (c) => c.landing === '/packages' && new Date(c.updatedAt || 0) < new Date('2026-10-15T20:30:00Z'),
+    set: { landing: '/' },
+  },
+];
+
+async function runCampaignFixes() {
+  const Campaign = require('../models/Campaign');
+  for (const fix of CAMPAIGN_FIXES) {
+    try {
+      const c = await Campaign.findOne({ code: fix.code }).lean();
+      if (!c || !fix.when(c)) continue;
+      console.log(`[oneOffFix] ${fix.name} before: ${JSON.stringify({ landing: c.landing })}`);
+      await Campaign.updateOne({ _id: c._id }, { $set: { ...fix.set, updatedAt: new Date() } });
+      console.log(`[oneOffFix] ${fix.name} applied`);
+    } catch (err) {
+      console.error(`[oneOffFix] ${fix.name} failed:`, err.message);
+    }
+  }
+}
+
 async function runOneOffFixes() {
   if (done) return;
   done = true;
+  await runCampaignFixes();
   for (const fix of FIXES) {
     try {
       // select: التعديلات اللي محتاجة حقول الدعوة نفسها (مش التخصيصات بس)
