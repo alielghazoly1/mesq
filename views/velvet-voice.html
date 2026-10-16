@@ -6,6 +6,20 @@
 <meta name="theme-color" content="#5b2229">
 <title>دعوة زفاف</title>
 <script>window.WEDDING_CONFIG = __INVITATION_CONFIG_JSON__;</script>
+<script>
+  // النسخة الإنجليزي (العميل اختارها من نافذة اختيار النسخة): اتجاه من الشمال
+  // وخطوط إنجليزي — قبل أول رسم عشان مايبانش العربي لحظة ويتقلب
+  (function () {
+    var C = window.WEDDING_CONFIG || {};
+    if (C.language !== 'en') return;
+    var h = document.documentElement;
+    h.lang = 'en'; h.dir = 'ltr'; h.classList.add('vv-en');
+    var l = document.createElement('link');
+    l.rel = 'stylesheet';
+    l.href = 'https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Pinyon+Script&display=swap';
+    document.head.appendChild(l);
+  })();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Amiri+Quran&family=Aref+Ruqaa:wght@400;700&display=swap" rel="stylesheet">
@@ -408,6 +422,45 @@ body.vv-edit .sec.active{opacity:1}
 body.vv-edit .sec.in .rv{transition-duration:.35s;transition-delay:0s}
 body.vv-edit .sec.leave-up,body.vv-edit .sec.leave-down{transition-duration:.22s}
 
+/* ===== النسخة الإنجليزي ===== */
+html.vv-en{
+  --f-body: var(--serif-ar, 'Cormorant Garamond'), 'Cormorant Garamond', Georgia, serif;
+  --f-disp: var(--serif-ar, 'Pinyon Script'), 'Pinyon Script', 'Cormorant Garamond', serif;
+}
+html.vv-en .pg,html.vv-en .vx,html.vv-en .tap,html.vv-en .scroll-hint,html.vv-en .cd,html.vv-en .vpanel .slide{direction:ltr}
+html.vv-en .fld input,html.vv-en .fld textarea,html.vv-en .vpanel .vname{direction:ltr;text-align:left}
+/* الآية بتفضل عربي بخطها في النسخة الإنجليزي (والترجمة تحتها) */
+html.vv-en .bsm,html.vv-en .ayah{direction:rtl}
+html.vv-en .nm{font-weight:400;font-size:126px;line-height:1.2;padding:10px 18px 18px}
+html.vv-en .amp{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:52px;margin:-26px 0 -16px}
+html.vv-en .ttl{font-weight:400;font-size:54px;line-height:1.3;padding:4px 12px 8px}
+html.vv-en .ttl.sm{font-size:42px}
+html.vv-en .kick{font-size:21px;font-style:italic;letter-spacing:.3px}
+html.vv-en .para{font-size:22px;line-height:1.5}
+html.vv-en .para.sm{font-size:20px;line-height:1.45}
+html.vv-en .sura{font-size:18.5px;font-style:italic;line-height:1.5;max-width:400px}
+html.vv-en .date .dw,html.vv-en .date .dt{font-size:22px;font-weight:600;letter-spacing:.4px}
+html.vv-en .date .dd b{font-size:58px;font-weight:600}
+html.vv-en .date .dd small{font-size:19px;font-weight:600;letter-spacing:.6px}
+html.vv-en .cu .num b{font-weight:600;font-size:33px}
+html.vv-en .cu .lab,html.vv-en .fathers small{font-size:16px;letter-spacing:1.2px;text-transform:uppercase;font-weight:600}
+html.vv-en .when,html.vv-en .addr{font-size:21px;font-weight:600}
+html.vv-en .p-story .ttl{margin-bottom:0}
+html.vv-en .p-story .orn{margin:8px 0}
+html.vv-en .fam{font-size:35px;line-height:1.25;margin:0 0 8px;width:auto;max-width:421px;white-space:normal;flex-wrap:wrap;justify-content:center;gap:0 12px}
+html.vv-en .fam span{white-space:nowrap}
+/* أرقام مستوية (خط Cormorant بيكتبها بالشكل القديم المتدرّج) */
+html.vv-en .cu .num b,html.vv-en .date,html.vv-en .when,html.vv-en .vpanel .t{font-variant-numeric:lining-nums tabular-nums}
+html.vv-en .fam i{font-family:'Cormorant Garamond',serif;font-size:30px}
+html.vv-en .fathers b{font-size:31px;line-height:1.35;font-weight:400}
+html.vv-en .hall{font-size:46px;line-height:1.35;font-weight:400}
+html.vv-en .btn{font-size:21px;font-weight:700;letter-spacing:.4px}
+html.vv-en .seg button{font-size:19.5px}
+html.vv-en .vx .cap b{font-size:30px;font-weight:700;font-style:italic}
+html.vv-en .vx .cap small{font-size:18px;font-style:italic}
+html.vv-en .tap .pill,html.vv-en .scroll-hint .pill{font-weight:600;letter-spacing:.4px}
+html.vv-en .vtoast{font-size:22px;font-weight:600}
+
 @media (prefers-reduced-motion: reduce){.rv{filter:none}.sec.in .rv{transition-duration:.4s}}
 </style>
 </head>
@@ -533,7 +586,7 @@ body.vv-edit .sec.leave-up,body.vv-edit .sec.leave-down{transition-duration:.22s
         <button class="ic play" id="vplay" type="button" aria-label="تشغيل"></button>
         <svg class="rmic" viewBox="0 0 24 24" fill="currentColor"><rect x="9" y="3" width="6" height="11.5" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M12 17.5V21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
         <span class="t" id="vtime">0:00</span>
-        <span class="slide" id="vslide"><i>‹</i>اسحب للإلغاء<i>›</i></span>
+        <span class="slide" id="vslide"><i>‹</i><span id="vslideTxt">اسحب للإلغاء</span><i>›</i></span>
         <canvas id="vwave"></canvas>
         <input class="vname" id="vname" type="text" maxlength="60" autocomplete="name" placeholder="اكتب اسمك ليعرف العروسان صاحب التهنئة" enterkeyhint="send">
         <button class="ic stop" id="vstop" type="button" aria-label="إيقاف"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="7" y="7" width="10" height="10" rx="2"/></svg></button>
@@ -611,9 +664,55 @@ body.vv-edit .sec.leave-up,body.vv-edit .sec.leave-down{transition-duration:.22s
   window.__wdaLocalScale = el => (el && el.closest && el.closest('#cv, #coverScreen') ? K : 1);
 
   /* ---------- بيانات الدعوة ---------- */
+  // النسخة: عربي (التصميم الأصلي) أو إنجليزي — نفس الصفحات والمعرّفات بالظبط،
+  // الكلام الافتراضي بس اللي بيتغيّر (وتعديلات صاحب الدعوة بتغلبه زي أي قالب)
+  const EN = C.language === 'en';
+  const L = (ar, en) => (EN ? en : ar);
   const toAr = n => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
-  const MONTHS = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
-  const DAYS = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+  const num = n => (EN ? String(n) : toAr(n));
+  const MONTHS = EN
+    ? ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+    : ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+  const DAYS = EN
+    ? ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+    : ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+  if (EN) {
+    const ENGAGED = C.occasionType === 'engagement';
+    const COPY = {
+      vv2: '&',
+      vv11: '“And among His signs is that He created for you spouses from among yourselves, that you may find tranquility in them; and He placed between you affection and mercy.” — Ar-Rum 30:21',
+      vv12: 'Counting down to the night of a lifetime',
+      vv13: 'Save the Date',
+      vv18: 'Days', vv19: 'Hours', vv20: 'Minutes', vv21: 'Seconds',
+      vv23: 'Add to calendar',
+      vv24: 'Our Story Begins',
+      vv25: 'This is our night, filled with joy and warmth. Our happiness will only be complete with you there — to celebrate together and witness the start of a new life, wrapped in love and blessed by the prayers of those we hold dear.',
+      vv26: 'With the blessing of their families',
+      vv27: 'The Ibrahim Family', vv28: '&', vv29: 'The Khairy Family',
+      vv30: 'Father of the Groom', vv31: 'Yahya Ibrahim',
+      vv32: 'Father of the Bride', vv33: 'Samir Khairy',
+      vv34: ENGAGED
+        ? 'With hearts full of joy and gratitude, our families request the pleasure of your company as we celebrate our engagement.'
+        : 'With hearts full of joy and gratitude, our families request the pleasure of your company on this blessed night.',
+      vv35: 'We look forward to seeing you at',
+      vv36: 'The Venue',
+      vv40: 'Open in Google Maps',
+      vv41: 'Kindly Reply',
+      vv42: 'We would be delighted to know if you will celebrate with us',
+      vv43: 'Joyfully accept', vv44: 'Regretfully decline',
+      vv45: 'Send', vv46: 'Change my reply',
+      vv47: 'Leave us a voice note', vv48: 'Tap and speak',
+      vv49: 'Scroll down', vv50: 'Tap the seal',
+    };
+    Object.keys(COPY).forEach(id => { const el = document.querySelector(`[data-elem-id="${id}"]`); if (el) el.textContent = COPY[id]; });
+    $('#rsvp input[name="name"]').placeholder = 'Your name';
+    $('#mrsvp-note').placeholder = 'Write your wishes for the couple (optional)';
+    $('#vname').placeholder = 'Your name, so the couple knows who sent it';
+    $('#vslideTxt').textContent = 'Slide to cancel';
+    $('#coverScreen').setAttribute('aria-label', 'Tap the seal to open the invitation');
+    $('#vbtn').setAttribute('aria-label', 'Hold to record a voice greeting');
+    $('#hint').setAttribute('aria-label', 'Next page');
+  }
   const cd0 = C.countdown || {};
   const now0 = new Date();
   const Y = Number.isFinite(cd0.year) ? cd0.year : now0.getFullYear();
@@ -628,7 +727,7 @@ body.vv-edit .sec.leave-up,body.vv-edit .sec.leave-down{transition-duration:.22s
   })();
   const weekday = DAYS[new Date(Date.UTC(Y, M, D)).getUTCDay()];
   const h12 = H % 12 || 12;
-  const timeText = `${toAr(h12)}:${toAr(String(MI).padStart(2, '0'))} ${H < 12 ? 'صباحاً' : 'مساءً'}`;
+  const timeText = `${num(h12)}:${num(String(MI).padStart(2, '0'))} ${H < 12 ? L('صباحاً', 'AM') : L('مساءً', 'PM')}`;
   const groom = C.groomName || '';
   const bride = C.brideName || '';
   const hall = C.venueName || '';
@@ -637,11 +736,13 @@ body.vv-edit .sec.leave-up,body.vv-edit .sec.leave-down{transition-duration:.22s
   const mapEmbed = C.venueMapEmbedSrc || 'https://www.google.com/maps?q=Egypt&output=embed';
   const fields = {
     groom, bride, hall, address, weekday,
-    day: toAr(D), monthYear: `${MONTHS[M]} ${toAr(Y)}`, time: timeText,
-    fullDate: `${weekday} ${toAr(D)} ${MONTHS[M]} ${toAr(Y)}`,
+    day: num(D), monthYear: `${MONTHS[M]} ${num(Y)}`, time: timeText,
+    fullDate: EN ? `${weekday}, ${D} ${MONTHS[M]} ${Y}` : `${weekday} ${toAr(D)} ${MONTHS[M]} ${toAr(Y)}`,
   };
   document.querySelectorAll('[data-k]').forEach(el => { if (fields[el.dataset.k] != null) el.textContent = fields[el.dataset.k]; });
-  if (groom || bride) document.title = `${groom} و ${bride} | ${C.occasionType === 'engagement' ? 'دعوة خطوبة' : 'دعوة زفاف'}`;
+  if (groom || bride) document.title = EN
+    ? `${groom} & ${bride} | ${C.occasionType === 'engagement' ? 'Engagement Invitation' : 'Wedding Invitation'}`
+    : `${groom} و ${bride} | ${C.occasionType === 'engagement' ? 'دعوة خطوبة' : 'دعوة زفاف'}`;
 
   // كلام فورم تأكيد الحضور اللي صاحب الدعوة غيّره من بانل الفورم (تعديله المباشر على الكلمة بيغلب)
   const RO = C.rsvpOverrides || {};
@@ -944,9 +1045,9 @@ body.vv-edit .sec.leave-up,body.vv-edit .sec.leave-down{transition-duration:.22s
       try { await begin(); } finally { starting = false; }
     }
     async function begin() {
-      if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) { hint('المتصفح لا يدعم تسجيل الصوت', 2600); return; }
+      if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder) { hint(L('المتصفح لا يدعم تسجيل الصوت', 'This browser can’t record audio'), 2600); return; }
       try { stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } }); }
-      catch (_) { hint('اسمح باستخدام الميكروفون لتسجيل تهنئتك', 3000); return; }
+      catch (_) { hint(L('اسمح باستخدام الميكروفون لتسجيل تهنئتك', 'Allow the microphone to record your greeting'), 3000); return; }
       if (!held && !wantLock) { stream.getTracks().forEach(t => t.stop()); stream = null; return; }
       musicWasOn = !music.paused; if (musicWasOn) music.pause();
       try {
@@ -980,7 +1081,7 @@ body.vv-edit .sec.leave-up,body.vv-edit .sec.leave-down{transition-duration:.22s
         if (now - lastPush > 60) { levels.push(Math.max(0.1, sm)); lastPush = now; }
         if (locked) drawBars(levels, null, true);
         const el = (now - t0) / 1000; tEl.textContent = fmt(el);
-        if (el >= MAX) { stop(false); hint('أقصى مدة للتهنئة دقيقة', 2200); return; }
+        if (el >= MAX) { stop(false); hint(L('أقصى مدة للتهنئة دقيقة', 'Greetings can be up to one minute'), 2200); return; }
         raf = requestAnimationFrame(loop);
       })(performance.now());
     }
@@ -1002,10 +1103,10 @@ body.vv-edit .sec.leave-up,body.vv-edit .sec.leave-down{transition-duration:.22s
       stream?.getTracks().forEach(t => t.stop()); stream = null; rec = null;
       if (cancelled) {
         setState('cancel'); buzz([10, 40, 10]);
-        setTimeout(() => { setState('idle'); hint('تم إلغاء التسجيل', 1600); }, 380);
+        setTimeout(() => { setState('idle'); hint(L('تم إلغاء التسجيل', 'Recording cancelled'), 1600); }, 380);
         restoreMusic(); return;
       }
-      if (dur < 0.8 || !chunks.length) { setState('idle'); hint('التسجيل قصير جداً'); restoreMusic(); return; }
+      if (dur < 0.8 || !chunks.length) { setState('idle'); hint(L('التسجيل قصير جداً', 'That was too short')); restoreMusic(); return; }
       blob = new Blob(chunks, { type: chunks[0]?.type || 'audio/webm' });
       if (sendAfterStop) { trySend(); return; }
       dropPlayer();
@@ -1047,7 +1148,7 @@ body.vv-edit .sec.leave-up,body.vv-edit .sec.leave-down{transition-duration:.22s
     $('#vsend').addEventListener('click', () => {
       if (state() === 'naming') {
         const nm = nameIn.value.trim().replace(/\s+/g, ' ');
-        if (nm.length < 2) { hint('اكتب اسمك من فضلك', 1800); nameIn.focus(); return; }
+        if (nm.length < 2) { hint(L('اكتب اسمك من فضلك', 'Please write your name'), 1800); nameIn.focus(); return; }
         store.set(NAME_KEY, nm);
         nameIn.blur();
         upload(nm);
@@ -1063,11 +1164,11 @@ body.vv-edit .sec.leave-up,body.vv-edit .sec.leave-down{transition-duration:.22s
         const r = await uploadVoice(blob, name, dur);
         dropPlayer(); blob = null; buzz(20);
         setState('idle');
-        hint(r && r.preview ? 'هذه معاينة — التهنئة لا تُرسل' : 'وصلت تهنئتك للعروسين 🤍', 3200);
+        hint(r && r.preview ? L('هذه معاينة — التهنئة لا تُرسل', 'This is a preview — nothing is sent') : L('وصلت تهنئتك للعروسين 🤍', 'Your greeting reached the couple 🤍'), 3200);
         restoreMusic();
       } catch (e) {
         setState('review'); sizeCanvas(); drawBars(levels, null);
-        hint(e && e.userMessage ? e.userMessage : 'تعذّر الإرسال، حاول مرة أخرى', 3000);
+        hint(e && e.userMessage ? e.userMessage : L('تعذّر الإرسال، حاول مرة أخرى', 'Couldn’t send, please try again'), 3000);
       }
     }
 
@@ -1075,7 +1176,7 @@ body.vv-edit .sec.leave-up,body.vv-edit .sec.leave-down{transition-duration:.22s
     btn.addEventListener('pointerdown', e => {
       e.preventDefault(); e.stopPropagation();
       // صاحب الدعوة في المحرر: الزرار للضيوف (المحرر مالوش ميكروفون)
-      if (EDIT) { hint('التسجيل للضيوف — جرّبه من لينك الدعوة', 2600); return; }
+      if (EDIT) { hint(L('التسجيل للضيوف — جرّبه من لينك الدعوة', 'Recording is for guests — try it from the invitation link'), 2600); return; }
       if (vx.classList.contains('locked')) { sendAfterStop = true; stop(false); return; }
       held = true; wantLock = false; px = e.clientX; py = e.clientY;
       btn.setPointerCapture?.(e.pointerId);
@@ -1224,10 +1325,10 @@ body.vv-edit .sec.leave-up,body.vv-edit .sec.leave-down{transition-duration:.22s
   {
     const z = d => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
     const end = new Date(START.getTime() + 5 * 3600e3);
-    const what = C.occasionType === 'engagement' ? 'حفل خطوبة' : 'حفل زفاف';
+    const what = C.occasionType === 'engagement' ? L('حفل خطوبة', 'Engagement of') : L('حفل زفاف', 'Wedding of');
     const q = new URLSearchParams({
-      action: 'TEMPLATE', text: `${what} ${groom} و${bride}`,
-      dates: `${z(START)}/${z(end)}`, location: [hall, address].filter(Boolean).join('، '), details: mapUrl
+      action: 'TEMPLATE', text: EN ? `${what} ${groom} & ${bride}` : `${what} ${groom} و${bride}`,
+      dates: `${z(START)}/${z(end)}`, location: [hall, address].filter(Boolean).join(L('، ', ', ')), details: mapUrl
     });
     $('#calBtn').href = 'https://calendar.google.com/calendar/render?' + q;
   }
@@ -1241,10 +1342,12 @@ body.vv-edit .sec.leave-up,body.vv-edit .sec.leave-down{transition-duration:.22s
     const oops = msg => { err.textContent = msg; err.classList.add('on'); form.classList.remove('shake'); void form.offsetWidth; form.classList.add('shake'); navigator.vibrate?.(30); };
     const thank = (name, yes) => {
       const first = String(name || '').split(/\s+/)[0];
-      page.querySelector('.done .ttl').textContent = yes ? `شكراً لك يا ${first}` : `نشكرك يا ${first}`;
+      page.querySelector('.done .ttl').textContent = EN
+        ? `Thank you, ${first}`
+        : (yes ? `شكراً لك يا ${first}` : `نشكرك يا ${first}`);
       page.querySelector('.done .para').textContent = yes
-        ? 'تمّ تأكيد حضورك، وننتظر رؤيتك لتكتمل فرحتنا بك 🤍'
-        : 'وصل اعتذارك، وستبقى في قلوبنا ودعواتنا ليلتها 🤍';
+        ? L('تمّ تأكيد حضورك، وننتظر رؤيتك لتكتمل فرحتنا بك 🤍', 'Your reply is in — we can’t wait to celebrate with you 🤍')
+        : L('وصل اعتذارك، وستبقى في قلوبنا ودعواتنا ليلتها 🤍', 'We’ll miss you — you’ll be in our hearts that night 🤍');
     };
     seg.forEach(b => b.addEventListener('click', () => {
       attending = b.dataset.v === 'yes';
@@ -1257,8 +1360,8 @@ body.vv-edit .sec.leave-up,body.vv-edit .sec.leave-down{transition-duration:.22s
       if (EDIT) return;
       document.activeElement?.blur?.();
       const data = { name: nameIn.value.trim().replace(/\s+/g, ' '), attending, message: msgIn.value.trim() };
-      if (data.name.length < 2) { oops('من فضلك اكتب اسمك'); nameIn.focus(); return; }
-      if (attending === null) { oops('من فضلك اختر: سأحضر أو أعتذر'); return; }
+      if (data.name.length < 2) { oops(L('من فضلك اكتب اسمك', 'Please write your name')); nameIn.focus(); return; }
+      if (attending === null) { oops(L('من فضلك اختر: سأحضر أو أعتذر', 'Please choose: accept or decline')); return; }
       form.classList.add('busy');
       try {
         if (C.shortId) {
@@ -1272,7 +1375,7 @@ body.vv-edit .sec.leave-up,body.vv-edit .sec.leave-down{transition-duration:.22s
         store.set(NAME_KEY, data.name);
         thank(data.name, attending);
         page.classList.add('sent');
-      } catch (ex) { oops(ex && ex.message && ex.message !== 'rsvp' ? ex.message : 'تعذّر الإرسال، حاول مرة أخرى'); }
+      } catch (ex) { oops(ex && ex.message && ex.message !== 'rsvp' ? ex.message : L('تعذّر الإرسال، حاول مرة أخرى', 'Couldn’t send, please try again')); }
       form.classList.remove('busy');
     });
     page.querySelector('.again').addEventListener('click', () => page.classList.remove('sent'));
@@ -1325,7 +1428,7 @@ body.vv-edit .sec.leave-up,body.vv-edit .sec.leave-down{transition-duration:.22s
     const d = Math.floor(s / 86400); s %= 86400;
     const h = Math.floor(s / 3600); s %= 3600;
     const m = Math.floor(s / 60); s %= 60;
-    const p2 = n => toAr(String(n).padStart(2, '0'));
+    const p2 = n => num(String(n).padStart(2, '0'));
     const vals = { d: p2(d), h: p2(h), m: p2(m), s: p2(s) };
     const live = secs[cur] === cdSec && !firstTick && !document.hidden;
     for (const k in vals) setUnit(units[k], vals[k], live);

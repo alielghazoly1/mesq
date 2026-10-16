@@ -11,8 +11,8 @@ import { motion } from 'motion/react';
 import { X, Check, Eye, Wand2, Loader2, Languages } from 'lucide-react';
 
 const LABELS = {
-  en: { name: 'langEn', note: 'langEnNote' },
-  ar: { name: 'langAr', note: 'langArNote' },
+  en: { name: 'langEn', note: 'langEnNote', alt: 'langEnAlt' },
+  ar: { name: 'langAr', note: 'langArNote', alt: 'langArNote' },
 };
 
 export default function DesignLanguagePicker({ template, busy, error, onPick, onClose }) {
@@ -89,7 +89,10 @@ export default function DesignLanguagePicker({ template, busy, error, onPick, on
                   <span className={`mt-2.5 text-[15px] font-extrabold ${on ? 'text-ink' : 'text-ink/80'}`}>
                     {t(`gallery.${LABELS[lang].name}`)}
                   </span>
-                  <span className="text-[11.5px] text-ink-dim">{t(`gallery.${LABELS[lang].note}`)}</span>
+                  {/* أول نسخة في السجل هي التصميم الأصلي (Lily: إنجليزي، Velvet Voice: عربي) */}
+                  <span className="text-[11.5px] text-ink-dim">
+                    {t(lang === langs[0] ? 'gallery.langOriginal' : `gallery.${LABELS[lang].alt}`)}
+                  </span>
                   <span className={`absolute end-4 top-4 flex h-7 w-7 items-center justify-center rounded-full border-2 transition ${
                     on ? 'border-brass bg-brass text-[#241608]' : 'border-white/80 bg-night/40 text-transparent'
                   }`}
