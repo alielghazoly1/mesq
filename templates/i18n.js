@@ -16,6 +16,10 @@ const TEMPLATE_TEXT = {
     ar: { description: 'تصميم عصري بألوان باستيل هادية، وفيه ودجت تفاعلي لطيف لكشف تاريخ الفرح بالخدش' },
     en: { description: 'A modern design in soft pastels, with a playful scratch-to-reveal date widget' },
   },
+  'velvet-voice': {
+    ar: { description: 'ظرف دانتيل عنابي بختم دهبي بيتفتح وكارت بيطلع منه — صفحات بتتقلب، عدّاد، خريطة، تأكيد حضور، وتهنئة صوتية من الضيوف' },
+    en: { description: 'A burgundy lace envelope with a gold seal that opens into flip-through pages — countdown, map, RSVP, and voice greetings from guests' },
+  },
   'lily-garden': {
     ar: { description: 'ظرف بختم شمع وزنبق وردي ينفتح — عدّاد تنازلي، تأكيد حضور، وألبوم يرفع فيه الضيوف صور الفرح' },
     en: { description: 'A wax-sealed envelope of pink lilies that opens — countdown, RSVP, and an album where guests upload their photos' },
@@ -36,6 +40,7 @@ const SECTION_LABELS = {
   story: { ar: 'صوركم وحكايتكم', en: 'Your photos & story' },
   families: { ar: 'الأهل والعائلات', en: 'Families' },
   venue: { ar: 'القاعة والمكان', en: 'Venue' },
+  voice: { ar: 'التهاني الصوتية من الضيوف', en: 'Guest voice greetings' },
 };
 
 const EXTRA_FIELD_LABELS = {

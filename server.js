@@ -18,6 +18,7 @@ const uploadsRouter = require('./routes/uploads');
 const dashboardRouter = require('./routes/dashboard');
 const editorRouter = require('./routes/editor');
 const guestPhotosRouter = require('./routes/guestPhotos');
+const guestVoicesRouter = require('./routes/guestVoices');
 const presenceRouter = require('./routes/presence');
 const clientErrorsRouter = require('./routes/clientErrors');
 const campaignsRouter = require('./routes/campaigns');
@@ -80,7 +81,9 @@ app.use(helmet({
       imgSrc: ["'self'", 'data:', 'https://res.cloudinary.com', ...TILDA_CDN_HOSTS],
       // asmaa-mohamed.vercel.app: أغنية Ivory Swans الافتراضية متخزّنة هناك — من
       // غيره الأغنية كانت متمنوعة ومبتشتغلش خالص في القالب ده
-      mediaSrc: ["'self'", 'https://res.cloudinary.com', 'https://pub-4dc8201144ca418fb604349c73e8c724.r2.dev', 'https://asmaa-mohamed.vercel.app'],
+      // blob: — التهنئة الصوتية اللي الضيف لسه مسجّلها بتتسمع من جهازه قبل
+      // ما تتبعت (Velvet Voice). من غيره زرار التشغيل كان مابيعملش حاجة.
+      mediaSrc: ["'self'", 'blob:', 'https://res.cloudinary.com', 'https://pub-4dc8201144ca418fb604349c73e8c724.r2.dev', 'https://asmaa-mohamed.vercel.app'],
       connectSrc: ["'self'", ...TILDA_CDN_HOSTS],
       // 'self' لازم عشان المحرر المباشر بيعرض الدعوة نفسها جوه iframe من
       // نفس الأوريجن؛ google.com للخرايط المضمّنة جوه الدعوة.
@@ -346,6 +349,7 @@ app.use('/', uploadsRouter);
 app.use('/', dashboardRouter);
 app.use('/', editorRouter);
 app.use('/', guestPhotosRouter);
+app.use('/', guestVoicesRouter);
 app.use('/', presenceRouter);
 
 // حالة خدمة الواتساب (من غير أي رقم أو بيانات) — للتشخيص من بره من غير لوحة التحكم

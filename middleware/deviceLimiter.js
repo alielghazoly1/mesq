@@ -164,7 +164,37 @@ async function guestPhotoLimiter(req, res, next) {
   }
 }
 
+// التهاني الصوتية: 15 تهنئة في الساعة لكل جهاز — ضيف بيعيد تسجيله كذا مرة
+// عادي، ومحدش يقدر يغرق صاحب الدعوة بتسجيلات. نفس آلية العدّ بمفتاح "gv:".
+const MAX_GUEST_VOICES_PER_WINDOW = 15;
+
+async function guestVoiceLimiter(req, res, next) {
+  try {
+    const deviceId = `gv:${req.deviceId || req.ip || 'unknown'}`;
+    const now = Date.now();
+    const windowStart = new Date(Math.floor(now / WINDOW_MS) * WINDOW_MS);
+    const expiresAt = new Date(windowStart.getTime() + WINDOW_MS);
+
+    const record = await RateLimit.findOneAndUpdate(
+      { deviceId, windowStart },
+      { $inc: { count: 1 }, $setOnInsert: { expiresAt } },
+      { upsert: true, new: true }
+    );
+
+    if (record.count > MAX_GUEST_VOICES_PER_WINDOW) {
+      return res.status(429).json({
+        error: 'سجّلت تهاني كتير في وقت قصير — استنى شوية وجرّب تاني.',
+      });
+    }
+
+    return next();
+  } catch (err) {
+    console.error('Guest voice limiter check failed:', err);
+    return next();
+  }
+}
+
 module.exports = {
-  ensureDeviceId, deviceInvitationLimiter, rsvpLimiter, guestPhotoLimiter, COOKIE_NAME,
+  ensureDeviceId, deviceInvitationLimiter, rsvpLimiter, guestPhotoLimiter, guestVoiceLimiter, COOKIE_NAME,
   signDeviceId, readDeviceId,
 };

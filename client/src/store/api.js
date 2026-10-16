@@ -130,6 +130,19 @@ export const api = createApi({
     getAlbumLink: builder.mutation({
       query: (shortId) => ({ url: `/dashboard/invitations/${shortId}/album-link`, method: 'POST' }),
     }),
+    // ===== التهاني الصوتية من الضيوف (routes/guestVoices.js) =====
+    getGuestVoices: builder.query({
+      query: ({ shortId, before }) => `/dashboard/invitations/${shortId}/voices${before ? `?before=${encodeURIComponent(before)}` : ''}`,
+    }),
+    deleteGuestVoice: builder.mutation({
+      query: ({ shortId, id }) => ({ url: `/dashboard/invitations/${shortId}/voices/${id}`, method: 'DELETE' }),
+      invalidatesTags: ['Dashboard'],
+    }),
+    markVoiceHeard: builder.mutation({
+      query: ({ shortId, id }) => ({ url: `/dashboard/invitations/${shortId}/voices/${id}/heard`, method: 'POST' }),
+      // عدّاد اللي ماتسمعش على كارت الدعوة ينقص
+      invalidatesTags: ['Dashboard'],
+    }),
     getSupport: builder.query({
       query: () => '/dashboard/support',
       providesTags: ['Support'],
@@ -225,6 +238,9 @@ export const {
   useLazyGetGuestPhotosQuery,
   useDeleteGuestPhotoMutation,
   useGetAlbumLinkMutation,
+  useLazyGetGuestVoicesQuery,
+  useDeleteGuestVoiceMutation,
+  useMarkVoiceHeardMutation,
   useSendSupportMessageMutation,
   useUploadPaymentProofMutation,
   useGetEditorQuery,

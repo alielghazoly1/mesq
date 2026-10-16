@@ -9,6 +9,7 @@ const SupportMessage = require('../models/SupportMessage');
 const User = require('../models/User');
 const Withdrawal = require('../models/Withdrawal');
 const GuestPhoto = require('../models/GuestPhoto');
+const GuestVoice = require('../models/GuestVoice');
 const { requireAuth } = require('../middleware/auth');
 const { sanitizeText } = require('../utils/sanitize');
 const { ensureStatsToken } = require('../utils/statsPage');
@@ -16,6 +17,7 @@ const { computeUgcStats, CURRENCIES } = require('../utils/ugc');
 const { getPackage, EDIT_WINDOW_DAYS } = require('../packages/registry');
 const { editWindowInfo } = require('../utils/editWindow');
 const { templateHasAlbum } = require('../utils/guestPhotos');
+const { templateHasVoice } = require('../utils/guestVoices');
 
 const router = express.Router();
 
@@ -46,6 +48,17 @@ router.get('/api/dashboard', requireAuth, async (req, res) => {
       : [];
     const photosByShortId = {};
     photoCounts.forEach((row) => { photosByShortId[row._id] = row.count; });
+
+    // عدد التهاني الصوتية لكل دعوة (واللي صاحبها لسه ماسمعهاش) — للقوالب اللي بتدعمها بس
+    const voiceIds = invitations.filter((i) => templateHasVoice(i.templateId)).map((i) => i.shortId);
+    const voiceCounts = voiceIds.length
+      ? await GuestVoice.aggregate([
+        { $match: { shortId: { $in: voiceIds } } },
+        { $group: { _id: '$shortId', count: { $sum: 1 }, unheard: { $sum: { $cond: [{ $eq: [{ $ifNull: ['$heardAt', null] }, null] }, 1, 0] } } } },
+      ])
+      : [];
+    const voicesByShortId = {};
+    voiceCounts.forEach((row) => { voicesByShortId[row._id] = { count: row.count, unheard: row.unheard }; });
 
     const countsByShortId = {};
     rsvpCounts.forEach((row) => {
@@ -108,6 +121,10 @@ router.get('/api/dashboard', requireAuth, async (req, res) => {
         // ألبوم صور الضيوف: القالب بيدعمه؟ وكام صورة اترفعت
         album: templateHasAlbum(inv.templateId)
           ? { photos: photosByShortId[inv.shortId] || 0 }
+          : null,
+        // التهاني الصوتية من الضيوف: كام واحدة، وكام واحدة لسه ماتسمعتش
+        voices: templateHasVoice(inv.templateId)
+          ? voicesByShortId[inv.shortId] || { count: 0, unheard: 0 }
           : null,
         isPremium: !!inv.isPremium,
         // 'draft' = لسه متنشرتش (الدعوات القديمة مفيهاش الحقل ده أصلًا،

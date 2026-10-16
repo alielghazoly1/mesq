@@ -237,7 +237,10 @@
       var r = el.getBoundingClientRect();
       if (r.width < 8 || r.height < 8) continue;
       var cs = getComputedStyle(el);
-      if (cs.visibility === 'hidden' || cs.display === 'none') continue;
+      // القوالب اللي صفحاتها بتتقلب (Velvet Voice): العنصر اللي في صفحة تانية
+      // مخفي لحد ما نقلب له — بيتحسب عادي، وبنقلب للصفحة قبل ما نختاره
+      var paged = !!(window.__wdaPages && el.closest('[data-wda-page]'));
+      if ((cs.visibility === 'hidden' && !paged) || cs.display === 'none') continue;
       list.push({ el: el, k: el.getAttribute('data-wda-kind'), top: r.top + window.scrollY, r: r });
     }
     var txt = function (x) { return (x.el.innerText || '').trim(); };
@@ -255,7 +258,9 @@
     } else if (kind === 'image') {
       pick = list.filter(function (x) { return x.k === 'image' && x.r.width >= 90 && x.r.height >= 90; })[0];
     } else if (kind === 'rsvp') {
-      pick = list.filter(function (x) { return isRsvpEl(x.el); })[0];
+      pick = list.filter(function (x) { return isRsvpEl(x.el); })[0]
+        // قالب بصفحات (Velvet Voice): الفورم صفحة لوحده — أول كلمة فيه
+        || (window.__wdaPages ? list.filter(function (x) { return !!x.el.closest('#mithaq-rsvp'); })[0] : null);
     } else {
       // أكبر خط في أول شاشتين من الدعوة — الأسامي عادةً
       var firstTop = list.length ? list[0].top : 0;
@@ -983,8 +988,12 @@
           if (!state.dragEl) return;
           var el = state.dragEl;
           var o = currentOffset(el);
-          var dx = o.dx + event.dx;
-          var dy = o.dy + event.dy;
+          // قوالب مرسومة على لوحة متصغّرة على الشاشة (Velvet Voice): الإزاحة
+          // بوحدات اللوحة، فبنقسم حركة الماوس على تصغيرها — غير كده العنصر
+          // كان بيتحرك نص مسافة الإيد. القوالب التانية مالهاش الدالة دي (1).
+          var ls = localScale(el);
+          var dx = o.dx + event.dx / ls;
+          var dy = o.dy + event.dy / ls;
           state.offsets[elemId(el)] = { dx: dx, dy: dy };
           applyOffset(el, dx, dy);
           setBadge('تحريك: ' + Math.round(dx) + ' × ' + Math.round(dy));
@@ -1018,6 +1027,13 @@
       }
       return action;
     });
+  }
+
+  /** تصغير اللوحة اللي العنصر مرسوم عليها (القالب بيعرّفه) — 1 في باقي القوالب */
+  function localScale(el) {
+    var f = 1;
+    try { if (typeof window.__wdaLocalScale === 'function') f = Number(window.__wdaLocalScale(el)) || 1; } catch (e) { f = 1; }
+    return f > 0.05 && f < 20 ? f : 1;
   }
 
   /** الحدث جاي من صباع/قلم (مش ماوس)؟ */
@@ -1841,6 +1857,9 @@
   // (صور المعارض اللي بتتحمّل متأخر) — عشان تدخل دايرة التحرير على طول
   // بدل ما تفضل ظاهرة والعميل يضغط عليها ومفيش رد فعل.
   window.__wdaRescan = rescan;
+  // القوالب اللي صفحاتها بتتقلب بتنادي دي مع كل قلبة: الجزء المختار بقى في
+  // صفحة مستخبية، فشريطه ومقابضه لازم يتشالوا (والكتابة تتحفظ)
+  window.__wdaDeselect = function () { if (state.selected || state.writing) select(null); };
 
   /**
    * كل صور الدعوة بترتيبها في الصفحة — الشريط الجانبي بيبني منها شبكة
@@ -2124,11 +2143,14 @@
       });
       if (hel) {
         hel.setAttribute('data-wda-help-target', p.kind || '1');
+        // قالب بصفحات: نقلب للصفحة اللي فيها العنصر الأول
+        var pageWait = 0;
+        try { if (window.__wdaPages && window.__wdaPages.reveal) pageWait = Number(window.__wdaPages.reveal(hel)) || 0; } catch (e) { pageWait = 0; }
         var hr = hel.getBoundingClientRect();
         var hTop = window.scrollY + hr.top - Math.max(70, (window.innerHeight - hr.height) / 2);
         window.scrollTo({ top: Math.max(0, hTop), behavior: 'smooth' });
         if (p.select && state.editingOn) {
-          setTimeout(function () { if (hel.isConnected) select(hel); }, 520);
+          setTimeout(function () { if (hel.isConnected) select(hel); }, 520 + pageWait);
         }
       }
       send('help-revealed', { kind: p.kind, found: !!hel });
@@ -2242,7 +2264,9 @@
         var rr = rec.getBoundingClientRect();
         item.anchor = anchorKey;
         // الإزاحة الرأسية جوه القسم = مكان نص الشاشة بالنسبة لأول القسم
-        item.ay = Math.round((cy - rr.top) + stagger);
+        // (بوحدات اللوحة لو القسم مرسوم على لوحة متصغّرة — localScale)
+        var als = localScale(rec);
+        item.ay = Math.round((cy - rr.top) / als + stagger);
       } else {
         // مفيش قسم (نادر) — نرجع للبكسل المطلق زي الأول
         item.y = Math.round(window.scrollY + cy + stagger);

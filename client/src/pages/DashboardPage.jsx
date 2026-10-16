@@ -5,7 +5,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import {
   ArrowRight, Eye, Users, Crown, Sparkles, MessageCircle,
   Send, ExternalLink, BarChart3, Check, X as XIcon, Lock, Wand2, FileText,
-  Pencil, Share2, Images,
+  Pencil, Share2, Images, Mic,
 } from 'lucide-react';
 import {
   useGetDashboardQuery,
@@ -19,6 +19,7 @@ import EditorDemo from '../components/EditorDemo.jsx';
 import Footer from '../components/Footer.jsx';
 import UgcDashboard from './UgcDashboard.jsx';
 import GuestAlbum from '../components/GuestAlbum.jsx';
+import GuestVoices from '../components/GuestVoices.jsx';
 import { whatsappLink } from '../lib/contact.js';
 import { formatDay } from '../lib/editWindow.js';
 
@@ -76,6 +77,7 @@ function InvitationCard({ inv, lang, editEnded, openRsvp, setOpenRsvp }) {
   const [copied, setCopied] = useState(false);
   const [linkErr, setLinkErr] = useState(false);
   const [albumOpen, setAlbumOpen] = useState(false);
+  const [voicesOpen, setVoicesOpen] = useState(false);
   const [renameInvitation, { isLoading: saving }] = useRenameInvitationMutation();
   const [getStatsLink, { isLoading: linking }] = useGetStatsLinkMutation();
 
@@ -180,6 +182,17 @@ function InvitationCard({ inv, lang, editEnded, openRsvp, setOpenRsvp }) {
                   )}
                 </button>
               )}
+              {inv.voices && (
+                <button type="button" onClick={() => setVoicesOpen(true)}
+                  className="inline-flex items-center gap-1 rounded-full border border-[#7a2a37]/30 bg-[#7a2a37]/[0.06] px-3.5 py-2 text-[12.5px] font-bold text-[#7a2a37] hover:bg-[#7a2a37]/12">
+                  <Mic size={12} /> {t('dash.voices')}
+                  {inv.voices.count > 0 && (
+                    <span className={`rounded-full px-1.5 text-[10.5px] leading-[17px] text-white ${inv.voices.unheard > 0 ? 'bg-[#b02f45]' : 'bg-[#7a2a37]/70'}`}>
+                      {inv.voices.unheard > 0 ? inv.voices.unheard : inv.voices.count}
+                    </span>
+                  )}
+                </button>
+              )}
               <button type="button" onClick={shareStats} disabled={linking}
                 className="inline-flex items-center gap-1 rounded-full border border-brass/40 bg-brass/[0.07] px-3.5 py-2 text-[12.5px] font-bold text-brass hover:bg-brass/15 disabled:opacity-60">
                 <Share2 size={12} /> {copied ? t('dash.statsCopied') : linkErr ? t('dash.statsError') : t('dash.shareStats')}
@@ -199,6 +212,9 @@ function InvitationCard({ inv, lang, editEnded, openRsvp, setOpenRsvp }) {
       <AnimatePresence>
         {albumOpen && (
           <GuestAlbum shortId={inv.shortId} title={title} onClose={() => setAlbumOpen(false)} />
+        )}
+        {voicesOpen && (
+          <GuestVoices shortId={inv.shortId} title={title} onClose={() => setVoicesOpen(false)} />
         )}
       </AnimatePresence>
     </div>

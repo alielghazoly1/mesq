@@ -49,7 +49,8 @@ async function setHiddenTemplateIds(ids) {
 /** الترتيب الافتراضي من السجل (من غير قاعدة بيانات): الجديد الأول وعليه "جديد" */
 function defaultTemplateLayout() {
   const all = TEMPLATES.map((t) => t.id);
-  const fresh = TEMPLATES.filter((t) => t.isNew).map((t) => t.id);
+  // الأحدث الأول: آخر قالب اتضاف في السجل هو أول واحد في المعرض
+  const fresh = TEMPLATES.filter((t) => t.isNew).map((t) => t.id).reverse();
   return { order: [...fresh, ...all.filter((id) => !fresh.includes(id))], newIds: fresh };
 }
 
@@ -59,8 +60,13 @@ async function getTemplateLayout() {
   const valid = new Set(all);
   if (!doc.templatesConfigured) return defaultTemplateLayout();
   const saved = (doc.templateOrder || []).filter((id) => valid.has(id));
-  const order = [...new Set(saved), ...all.filter((id) => !saved.includes(id))];
-  const newIds = (doc.newTemplates || []).filter((id) => valid.has(id));
+  // قالب جديد اتضاف بعد ما المالك رتّب المعرض (مش في ترتيبه المحفوظ) وعليه
+  // isNew في السجل: بيظهر في الأول وعليه "جديد" لحد ما المالك يرتّب تاني —
+  // بدل ما يستخبى في آخر المعرض من غير ما حد ياخد باله
+  const unseen = all.filter((id) => !saved.includes(id));
+  const unseenNew = unseen.filter((id) => TEMPLATES.some((t) => t.id === id && t.isNew)).reverse();
+  const order = [...unseenNew, ...new Set(saved), ...unseen.filter((id) => !unseenNew.includes(id))];
+  const newIds = [...new Set([...unseenNew, ...(doc.newTemplates || []).filter((id) => valid.has(id))])];
   return { order, newIds };
 }
 

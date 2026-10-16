@@ -178,6 +178,35 @@ const TEMPLATES = [
     isNew: true,
     isPremium: true,
   },
+  {
+    id: 'velvet-voice',
+    name: 'Velvet Voice',
+    description: 'ظرف دانتيل عنابي بختم دهبي بيتفتح وكارت بيطلع منه — صفحات بتتقلب: الأسماء، الآية، العدّاد، الأهل، المكان، تأكيد الحضور، وتهنئة صوتية من الضيوف',
+    file: 'velvet-voice.html',
+    languages: SUPPORTED_LANGUAGES,
+    occasionTypes: SUPPORTED_OCCASIONS,
+    // كل صفحة صاحب الدعوة يقدر يشيلها (ما عدا صفحة الأسماء). الإخفاء في
+    // views/velvet-voice.html (data-section على كل صفحة).
+    optionalSections: [
+      { key: 'verse', label: 'الآية الكريمة' },
+      { key: 'countdown', label: 'العداد التنازلي' },
+      { key: 'families', label: 'الحكاية والأهل' },
+      { key: 'venue', label: 'مكان الحفل والخريطة' },
+      { key: 'rsvp', label: 'تأكيد الحضور (RSVP)' },
+      { key: 'voice', label: 'التهاني الصوتية من الضيوف' },
+    ],
+    timelineStages: [],
+    extraFields: [
+      { key: 'venueAddress', label: 'عنوان القاعة (بيظهر تحت اسمها — اختياري)', maxlength: 200 },
+    ],
+    // تصميم عربي (خط رقعة وآية) — نسخة واحدة، من غير نافذة اختيار اللغة
+    designLanguages: ['ar'],
+    // الضيوف بيسجّلوا تهنئة صوتية من جوه الدعوة (routes/guestVoices.js) —
+    // صاحب الدعوة بيسمعها في لوحته
+    guestVoice: true,
+    isNew: true,
+    isPremium: true,
+  },
 ];
 
 function getTemplate(templateId) {
