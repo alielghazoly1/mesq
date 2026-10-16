@@ -67,6 +67,8 @@ function albumTag(shortId) {
 /** القالب ده فيه ألبوم صور ضيوف، والقسم مش مشال من الدعوة؟ */
 function albumEnabled(invitation) {
   if (!invitation || !invitation.templateId) return false;
+  // إضافة على الدعوة دي بالذات (guestExtras.photos) — شغالة على أي قالب
+  if (invitation.guestExtras && invitation.guestExtras.photos) return true;
   const template = getTemplate(invitation.templateId);
   if (!template || !template.guestPhotos) return false;
   return !(invitation.hiddenSections || []).includes('guestPhotos');
@@ -76,6 +78,11 @@ function albumEnabled(invitation) {
 function templateHasAlbum(templateId) {
   const template = templateId ? getTemplate(templateId) : null;
   return !!(template && template.guestPhotos);
+}
+
+/** الدعوة دي فيها ألبوم ضيوف (من القالب أو كإضافة عليها) — للوحة العميل */
+function invitationHasAlbum(inv) {
+  return !!inv && (templateHasAlbum(inv.templateId) || !!(inv.guestExtras && inv.guestExtras.photos));
 }
 
 /**
@@ -111,6 +118,6 @@ module.exports = {
   serializePhoto,
   albumTag,
   albumEnabled,
-  templateHasAlbum,
+  templateHasAlbum, invitationHasAlbum,
   ensureAlbumToken,
 };

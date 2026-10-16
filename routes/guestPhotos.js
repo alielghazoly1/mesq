@@ -23,7 +23,7 @@ const { requireAuth } = require('../middleware/auth');
 const { ensureDeviceId, guestPhotoLimiter } = require('../middleware/deviceLimiter');
 const {
   MAX_PER_GUEST, MAX_PER_ALBUM, MAX_STORED_SIDE,
-  isValidGuestKey, hashGuestKey, serializePhoto, albumTag, albumEnabled, templateHasAlbum,
+  isValidGuestKey, hashGuestKey, serializePhoto, albumTag, albumEnabled, invitationHasAlbum,
   ensureAlbumToken,
 } = require('../utils/guestPhotos');
 const { buildAlbumPage, albumNotFoundPage } = require('../utils/albumPage');
@@ -69,7 +69,7 @@ async function loadPage(shortId, { limit, before }) {
 /** الدعوة المنشورة اللي ألبومها شغّال (أو null) */
 async function findAlbumInvitation(shortId) {
   const invitation = await Invitation.findOne({ shortId: String(shortId || ''), status: { $ne: 'draft' } })
-    .select('_id shortId templateId hiddenSections ownerId')
+    .select('_id shortId templateId hiddenSections ownerId guestExtras')
     .lean();
   return invitation && albumEnabled(invitation) ? invitation : null;
 }
@@ -149,7 +149,7 @@ router.post(
 
 async function ownedInvitation(req) {
   return Invitation.findOne({ shortId: String(req.params.shortId || ''), ownerId: req.user.id })
-    .select('_id shortId templateId hiddenSections albumToken')
+    .select('_id shortId templateId hiddenSections albumToken guestExtras')
     .lean();
 }
 
@@ -166,7 +166,7 @@ router.get('/api/dashboard/invitations/:shortId/photos', requireAuth, async (req
       total,
       nextCursor,
       enabled: albumEnabled(invitation),
-      supported: templateHasAlbum(invitation.templateId),
+      supported: invitationHasAlbum(invitation),
       albumPath: invitation.albumToken ? `/a/${invitation.albumToken}` : null,
     });
   } catch (err) {

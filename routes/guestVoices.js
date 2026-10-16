@@ -22,7 +22,7 @@ const { requireAuth } = require('../middleware/auth');
 const { ensureDeviceId, guestVoiceLimiter } = require('../middleware/deviceLimiter');
 const {
   MAX_PER_GUEST, MAX_PER_INVITATION, MAX_SECONDS, MIN_SECONDS, MAX_VOICE_BYTES,
-  sniffAudio, serializeVoice, voiceTag, templateHasVoice, voiceEnabled,
+  sniffAudio, serializeVoice, voiceTag, invitationHasVoice, voiceEnabled,
 } = require('../utils/guestVoices');
 
 const router = express.Router();
@@ -56,7 +56,7 @@ router.post(
     try {
       const invitation = await Invitation.findOne({
         shortId: String(req.params.shortId || ''), status: { $ne: 'draft' },
-      }).select('_id shortId templateId hiddenSections').lean();
+      }).select('_id shortId templateId hiddenSections guestExtras').lean();
       if (!invitation || !voiceEnabled(invitation)) {
         return res.status(404).json({ error: 'التهاني الصوتية مش متاحة في الدعوة دي.' });
       }
@@ -126,7 +126,7 @@ router.post(
 
 async function ownedInvitation(req) {
   return Invitation.findOne({ shortId: String(req.params.shortId || ''), ownerId: req.user.id })
-    .select('_id shortId templateId hiddenSections')
+    .select('_id shortId templateId hiddenSections guestExtras')
     .lean();
 }
 
@@ -153,7 +153,7 @@ router.get('/api/dashboard/invitations/:shortId/voices', requireAuth, async (req
       unheard,
       nextCursor: hasMore ? String(page[page.length - 1]._id) : null,
       enabled: voiceEnabled(invitation),
-      supported: templateHasVoice(invitation.templateId),
+      supported: invitationHasVoice(invitation),
     });
   } catch (err) {
     console.error('Error loading owner voices:', err);

@@ -16,8 +16,8 @@ const { ensureStatsToken } = require('../utils/statsPage');
 const { computeUgcStats, CURRENCIES } = require('../utils/ugc');
 const { getPackage, EDIT_WINDOW_DAYS } = require('../packages/registry');
 const { editWindowInfo } = require('../utils/editWindow');
-const { templateHasAlbum } = require('../utils/guestPhotos');
-const { templateHasVoice } = require('../utils/guestVoices');
+const { invitationHasAlbum } = require('../utils/guestPhotos');
+const { invitationHasVoice } = require('../utils/guestVoices');
 
 const router = express.Router();
 
@@ -27,7 +27,7 @@ router.get('/api/dashboard', requireAuth, async (req, res) => {
     const invitations = await Invitation.find({ ownerId: req.user.id })
       .sort({ createdAt: -1 })
       .limit(100)
-      .select('shortId templateId name statsToken brideNameAr groomNameAr brideName groomName weddingDateTime viewCount isPremium status createdAt')
+      .select('shortId templateId name statsToken brideNameAr groomNameAr brideName groomName weddingDateTime viewCount isPremium status createdAt guestExtras')
       .lean();
 
     const shortIds = invitations.map((i) => i.shortId);
@@ -39,7 +39,7 @@ router.get('/api/dashboard', requireAuth, async (req, res) => {
     ]);
 
     // عدد صور الضيوف لكل دعوة (للقوالب اللي فيها ألبوم بس)
-    const albumIds = invitations.filter((i) => templateHasAlbum(i.templateId)).map((i) => i.shortId);
+    const albumIds = invitations.filter(invitationHasAlbum).map((i) => i.shortId);
     const photoCounts = albumIds.length
       ? await GuestPhoto.aggregate([
         { $match: { shortId: { $in: albumIds } } },
@@ -50,7 +50,7 @@ router.get('/api/dashboard', requireAuth, async (req, res) => {
     photoCounts.forEach((row) => { photosByShortId[row._id] = row.count; });
 
     // عدد التهاني الصوتية لكل دعوة (واللي صاحبها لسه ماسمعهاش) — للقوالب اللي بتدعمها بس
-    const voiceIds = invitations.filter((i) => templateHasVoice(i.templateId)).map((i) => i.shortId);
+    const voiceIds = invitations.filter(invitationHasVoice).map((i) => i.shortId);
     const voiceCounts = voiceIds.length
       ? await GuestVoice.aggregate([
         { $match: { shortId: { $in: voiceIds } } },
@@ -119,11 +119,11 @@ router.get('/api/dashboard', requireAuth, async (req, res) => {
         views: inv.viewCount || 0,
         rsvp: countsByShortId[inv.shortId] || { yes: 0, no: 0 },
         // ألبوم صور الضيوف: القالب بيدعمه؟ وكام صورة اترفعت
-        album: templateHasAlbum(inv.templateId)
+        album: invitationHasAlbum(inv)
           ? { photos: photosByShortId[inv.shortId] || 0 }
           : null,
         // التهاني الصوتية من الضيوف: كام واحدة، وكام واحدة لسه ماتسمعتش
-        voices: templateHasVoice(inv.templateId)
+        voices: invitationHasVoice(inv)
           ? voicesByShortId[inv.shortId] || { count: 0, unheard: 0 }
           : null,
         isPremium: !!inv.isPremium,

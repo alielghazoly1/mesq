@@ -9,6 +9,7 @@ const { generateShortId } = require('../utils/idGenerator');
 const { renderNewPathHtml, renderLegacyHtml } = require('../utils/renderInvitation');
 const { getCustomInvitation, applyCustomData, customInvitationTags } = require('../utils/customInvitations');
 const { injectBeforeBodyEnd } = require('../utils/templateFixes');
+const { guestExtrasTags, hasGuestExtras } = require('../utils/guestExtras');
 const { buildInvitationDataFromRequest, hasActivePackage } = require('../utils/invitationData');
 const { buildStatsPage, loadStatsData, ensureStatsToken } = require('../utils/statsPage');
 const { isEditWindowOpen, editWindowEndedBody } = require('../utils/editWindow');
@@ -264,6 +265,8 @@ router.get('/i/:shortId', async (req, res) => {
       })
       : renderLegacyHtml(invitation, { pageUrl });
     if (custom) html = injectBeforeBodyEnd(html, customInvitationTags(custom));
+    // إضافات للضيوف على الدعوة دي بالذات (تهنئة صوتية / رفع صور) — utils/guestExtras.js
+    if (invitation.templateId && hasGuestExtras(invitation)) html = injectBeforeBodyEnd(html, guestExtrasTags(invitation, { editMode }));
 
     res.set('Content-Type', 'text/html; charset=utf-8');
     // مهم: الصفحة دي لازم تتقدّم طازة كل مرة — لو اتكاشت (في المتصفح أو أي

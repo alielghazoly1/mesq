@@ -74,11 +74,19 @@ function templateHasVoice(templateId) {
 
 /** القالب بيدعمها والقسم مش مشال من الدعوة؟ */
 function voiceEnabled(invitation) {
-  if (!invitation || !templateHasVoice(invitation.templateId)) return false;
+  if (!invitation || !invitation.templateId) return false;
+  // إضافة على الدعوة دي بالذات (guestExtras.voice) — شغالة على أي قالب
+  if (invitation.guestExtras && invitation.guestExtras.voice) return true;
+  if (!templateHasVoice(invitation.templateId)) return false;
   return !(invitation.hiddenSections || []).includes('voice');
+}
+
+/** الدعوة دي فيها تهاني صوتية (من القالب أو كإضافة عليها) — للوحة العميل */
+function invitationHasVoice(inv) {
+  return !!inv && (templateHasVoice(inv.templateId) || !!(inv.guestExtras && inv.guestExtras.voice));
 }
 
 module.exports = {
   MAX_PER_GUEST, MAX_PER_INVITATION, MAX_SECONDS, MIN_SECONDS, MAX_VOICE_BYTES,
-  sniffAudio, serializeVoice, voiceTag, templateHasVoice, voiceEnabled, asMp3,
+  sniffAudio, serializeVoice, voiceTag, templateHasVoice, voiceEnabled, invitationHasVoice, asMp3,
 };

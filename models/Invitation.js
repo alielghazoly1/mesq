@@ -66,6 +66,15 @@ const invitationSchema = new mongoose.Schema({
   // الجديدة اللي بتتعمل من قالب Royal Maroon بعد إضافة الميزة دي بس.
   coverStyle: { type: String, default: '' },
 
+  // إضافات للضيوف على دعوة معيّنة بالذات (مش جزء من القالب): تهنئة صوتية
+  // ورفع صور. القوالب اللي فيها الميزتين أصلًا (Velvet Voice / Lily Garden)
+  // مش محتاجة الحقل ده. الدعوات اللي مالهاش الحقل = زي ما هي بالظبط.
+  // الواجهة بتتحقن وقت العرض (utils/guestExtras.js).
+  guestExtras: {
+    voice: { type: Boolean, default: undefined },
+    photos: { type: Boolean, default: undefined },
+  },
+
   // تخصيصات المحرر — بتتحقن وقت العرض كـ CSS/JS فوق التصميم
   // (utils/customizations.js). ملفات views/*.html مبتتغيّرش أبدًا.
   customizations: {

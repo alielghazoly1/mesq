@@ -106,6 +106,18 @@ const FIXES = [
       return set;
     },
   },
+  {
+    // e20H7Oq (Champagne Lace إنجليزي — Ahmed & Eman) — بطلب المالك: الضيوف
+    // يقدروا يسجّلوا تهنئة صوتية ويرفعوا صور الفرح، تحت فورم تأكيد الحضور
+    // (utils/guestExtras.js). بيتعمل مرة واحدة بس لو الإضافات لسه مش مفعّلة.
+    name: 'e20H7Oq-guest-extras',
+    shortId: 'e20H7Oq',
+    select: 'customizations guestExtras templateId',
+    when: (c, inv) => !(inv.guestExtras && (inv.guestExtras.voice || inv.guestExtras.photos)),
+    apply() {
+      return { 'guestExtras.voice': true, 'guestExtras.photos': true };
+    },
+  },
 ];
 
 let done = false;
