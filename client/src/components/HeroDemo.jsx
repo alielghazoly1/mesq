@@ -16,6 +16,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AnimatePresence, motion } from 'motion/react';
 import { Play, X, Sparkles, ArrowLeft } from 'lucide-react';
+import ReviewsTeaser from './ReviewsTeaser.jsx';
 
 const LOOP_MP4 = '/video/hero-demo-loop.mp4';
 const LOOP_WEBM = '/video/hero-demo-loop.webm';
@@ -93,15 +94,13 @@ export default function HeroDemo() {
         </motion.div>
       </div>
 
-      {/* ===== الرسالة: المجاني جامد… والمدفوع أجمد ===== */}
+      {/* ===== آراء العملاء + الفيديو الكامل ===== */}
       {/* بعرض الشاشة كلها على الموبايل (تحت الكلام والتليفون)، وتحت
           التليفون بس على الشاشة الكبيرة */}
       <div className="col-span-2 rounded-2xl border border-brass-soft/25 bg-ivory/[0.05] px-4 py-3.5 text-center lg:col-span-1 lg:col-start-2 lg:mt-1">
-        <p className="text-[12.5px] leading-[1.85] text-ivory/90 sm:text-[13px]">
-          <span className="font-bold text-brass-soft">{t('heroDemo.pitchStrong')}</span>{' '}
-          {t('heroDemo.pitchRest')}
-        </p>
-        <div className="mt-2.5 flex items-center justify-center gap-3">
+        {/* آراء العملاء الحقيقية — بتفتح رسايلهم */}
+        <ReviewsTeaser />
+        <div className="mt-3 flex items-center justify-center gap-3 border-t border-ivory/10 pt-3">
           <button
             type="button"
             onClick={() => setFull(true)}
