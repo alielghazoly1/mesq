@@ -11,23 +11,20 @@
 // المكوّن بيرجّع حتّتين منفصلين (التليفون، والرسالة اللي تحته) عشان
 // الهيرو يحطّ كل واحدة في مكانها من الشبكة: على الموبايل التليفون
 // جنب الكلام، والرسالة تحتهم بعرض الشاشة كلها.
-import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AnimatePresence, motion } from 'motion/react';
-import { Play, X, Sparkles, ArrowLeft } from 'lucide-react';
+import { motion } from 'motion/react';
+import { Sparkles } from 'lucide-react';
 import ReviewsTeaser from './ReviewsTeaser.jsx';
 
 const LOOP_MP4 = '/video/hero-demo-loop.mp4';
 const LOOP_WEBM = '/video/hero-demo-loop.webm';
-const FULL_MP4 = '/video/hero-demo-full.mp4';
 const POSTER = '/video/hero-demo-poster.jpg';
 
 export default function HeroDemo() {
   const { t } = useTranslation();
   const videoRef = useRef(null);
   const wrapRef = useRef(null);
-  const [full, setFull] = useState(false);
 
   // بيشتغل وهو بايـن بس — مفيش فيديو بيلف في الخلفية وبياكل بطارية
   // وبيانات من غير ما حد شايفه
@@ -44,13 +41,6 @@ export default function HeroDemo() {
     io.observe(el);
     return () => io.disconnect();
   }, []);
-
-  useEffect(() => {
-    if (!full) return undefined;
-    const onKey = (e) => { if (e.key === 'Escape') setFull(false); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [full]);
 
   return (
     <>
@@ -94,67 +84,14 @@ export default function HeroDemo() {
         </motion.div>
       </div>
 
-      {/* ===== آراء العملاء + الفيديو الكامل ===== */}
+      {/* ===== آراء العملاء ===== */}
       {/* بعرض الشاشة كلها على الموبايل (تحت الكلام والتليفون)، وتحت
           التليفون بس على الشاشة الكبيرة */}
       <div className="col-span-2 rounded-2xl border border-brass-soft/25 bg-ivory/[0.05] px-4 py-3.5 text-center lg:col-span-1 lg:col-start-2 lg:mt-1">
         {/* آراء العملاء الحقيقية — بتفتح رسايلهم */}
         <ReviewsTeaser />
-        <div className="mt-3 flex items-center justify-center gap-3 border-t border-ivory/10 pt-3">
-          <button
-            type="button"
-            onClick={() => setFull(true)}
-            className="inline-flex items-center gap-1.5 text-[12.5px] font-bold text-ivory hover:text-rose-bright"
-          >
-            <Play size={12} /> {t('heroDemo.watch')}
-          </button>
-          <span className="h-3 w-px bg-ivory/20" />
-          <Link
-            to="/packages"
-            className="inline-flex items-center gap-1 text-[12.5px] font-bold text-brass-soft hover:text-brass"
-          >
-            {t('heroDemo.seeDiff')} <ArrowLeft size={12} />
-          </Link>
-        </div>
       </div>
 
-      {/* الفيديو الكامل بصوته — مبيتحمّلش غير دلوقتي */}
-      <AnimatePresence>
-        {full && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setFull(false)}
-            className="fixed inset-0 z-[200] flex items-center justify-center bg-night/92 p-4 backdrop-blur-sm"
-          >
-            <motion.div
-              initial={{ scale: 0.94, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.96, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-              className="relative w-full max-w-[340px]"
-            >
-              <button
-                type="button"
-                onClick={() => setFull(false)}
-                aria-label={t('heroDemo.close')}
-                className="absolute -top-11 end-0 flex h-9 w-9 items-center justify-center rounded-full border border-ivory/25 text-ivory hover:bg-ivory/10"
-              >
-                <X size={17} />
-              </button>
-              <video
-                className="block w-full rounded-[24px] border-[6px] border-[#050b08] bg-[#050b08]"
-                src={FULL_MP4}
-                poster={POSTER}
-                controls
-                autoPlay
-                playsInline
-              />
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </>
   );
 }
