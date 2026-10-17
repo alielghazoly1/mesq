@@ -19,7 +19,7 @@ export default function SettingsPage() {
     if (data) {
       reset({
         vodafone: data.vodafone || {},
-        instapay: { enabled: false, link: '', address: '', name: '', note: '', ...(data.instapay || {}) },
+        instapay: { enabled: false, link: '', address: '', phone: '', name: '', note: '', ...(data.instapay || {}) },
         bank: data.bank || {},
         kast: data.kast || { enabled: false, link: '', holderName: '', note: '' },
         usdt: data.usdt || { enabled: false, address: '', note: '' },
@@ -104,13 +104,15 @@ export default function SettingsPage() {
         <div className="grid gap-3.5 sm:grid-cols-2">
           <Field label="لينك الدفع (من التطبيق ← مشاركة)" dir="ltr" placeholder="https://ipn.eg/S/..." {...register('instapay.link')} />
           <Field label="عنوان إنستاباي (IPA)" dir="ltr" placeholder="name@instapay" {...register('instapay.address')} />
-          <Field label="اسم المستلم (اختياري)" {...register('instapay.name')} />
+          <Field label="رقم الموبايل المربوط بإنستاباي (اختياري)" dir="ltr" placeholder="01xxxxxxxxx" {...register('instapay.phone')} />
+          <Field label="اسم صاحب الحساب (اختياري)" {...register('instapay.name')} />
           <Field label="ملاحظة للعميل (اختياري)" placeholder="بعد التحويل صوّر الإيصال وارفعه هنا..." {...register('instapay.note')} />
         </div>
         <p className="mt-4 flex items-start gap-2 rounded-xl bg-ivory/[0.04] p-3 text-[11.5px] leading-relaxed text-ivory/50">
           <Smartphone size={13} className="mt-0.5 shrink-0" />
           <span>
-            العميل على الموبايل بيدوس زرار "ادفع بإنستاباي" فيتفتح التطبيق على عنوانك على طول، وعلى الكمبيوتر بيصوّر الـ QR بموبايله.
+            العميل بيشوف زرار متحرك "اضغط هنا للدفع بإنستاباي مباشرةً" بيفتح التطبيق على حسابك على طول، وعلى الكمبيوتر بيصوّر الـ QR.
+            العنوان والرقم والاسم مخفيين تحت "بيانات إنستاباي" — بيظهروا لو العميل داس عليها.
             اللينك لازم يكون من إنستاباي نفسها (ipn.eg) — السيرفر بيرفض أي لينك تاني.
           </span>
         </p>

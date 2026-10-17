@@ -29,6 +29,8 @@ const paymentSettingsSchema = new mongoose.Schema({
     enabled: { type: Boolean, default: true },
     link: { type: String, default: 'https://ipn.eg/S/alimohamedelghazoly/instapay/3xjXTl', maxlength: 300 },
     address: { type: String, default: 'alimohamedelghazoly@instapay', maxlength: 120 },
+    // رقم الموبايل المربوط بإنستاباي — للي عايز يحوّل بالرقم بدل العنوان
+    phone: { type: String, default: '', maxlength: 40 },
     name: { type: String, default: '', maxlength: 120 },
     note: { type: String, default: '', maxlength: 400 },
   },

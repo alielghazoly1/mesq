@@ -61,6 +61,7 @@ async function updatePaymentSettings(body) {
       enabled: !!(b.instapay && b.instapay.enabled),
       link: String((b.instapay && b.instapay.link) || '').trim().slice(0, 300),
       address: String((b.instapay && b.instapay.address) || '').trim().toLowerCase().slice(0, 120),
+      phone: sanitizeText(b.instapay && b.instapay.phone, 40),
       name: sanitizeText(b.instapay && b.instapay.name, 120),
       note: sanitizeText(b.instapay && b.instapay.note, 400),
     },
@@ -176,6 +177,7 @@ function publicPaymentInfo(doc, countryCode) {
     const instapay = ip.enabled && (ipLink || ipAddr) ? {
       link: ipLink,
       address: ipAddr,
+      phone: ip.phone || '',
       name: ip.name || '',
       note: ip.note || '',
       qr: ipLink ? qrDataUrl(ipLink, { cellSize: 6, margin: 2 }) : '',
