@@ -33,6 +33,15 @@ export const resources = {
         statViews: 'invitation opens',
         statUsers: 'couples used it',
       },
+      heroEdit: {
+        title: 'Change all of it, easily',
+        text: 'Words',
+        font: 'Fonts',
+        photos: 'Photos',
+        music: 'Music',
+        colors: 'Colors',
+        date: 'Date',
+      },
       heroDemo: {
         alt: 'The live editor working on a real invitation',
         chip: 'The live editor',
@@ -708,6 +717,15 @@ export const resources = {
         statInvitations: 'دعوة اتعملت',
         statViews: 'فتحة للدعوات',
         statUsers: 'عريس وعروسة جرّبوه',
+      },
+      heroEdit: {
+        title: 'تقدر تغيّر كل ده بسهولة',
+        text: 'الكلام',
+        font: 'الخط',
+        photos: 'الصور',
+        music: 'الموسيقى',
+        colors: 'الألوان',
+        date: 'الميعاد',
       },
       heroDemo: {
         alt: 'المحرر المباشر وهو شغّال على دعوة حقيقية',

@@ -12,6 +12,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import StatsRow from './StatsRow.jsx';
 import HeroDemo from './HeroDemo.jsx';
+import EditableFeatures from './EditableFeatures.jsx';
 
 export default function Hero() {
   const { t } = useTranslation();
@@ -60,17 +61,20 @@ export default function Hero() {
           <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
             <a
               href="#gallery"
-              className="inline-flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-l from-brass to-brass-soft px-3.5 py-2.5 text-center text-[12px] font-extrabold text-[#241608] shadow-[0_16px_34px_-14px_rgba(201,162,74,0.55)] transition-transform hover:-translate-y-0.5 sm:px-7 sm:py-3.5 sm:text-[14.5px]"
+              className="inline-flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-l from-brass to-brass-soft px-3 py-[7px] text-center text-[11px] font-extrabold text-[#241608] shadow-[0_12px_26px_-12px_rgba(201,162,74,0.55)] transition-transform hover:-translate-y-0.5 sm:px-6 sm:py-2.5 sm:text-[13.5px]"
             >
               {t('hero.ctaGallery')}
             </a>
             <Link
               to="/packages"
-              className="inline-flex items-center justify-center gap-1.5 rounded-full border border-ivory/30 px-3.5 py-2.5 text-center text-[11.5px] font-bold text-ivory hover:border-rose-bright sm:px-6 sm:py-3.5 sm:text-[14px]"
+              className="inline-flex items-center justify-center gap-1.5 rounded-full border border-ivory/30 px-3 py-[7px] text-center text-[10.5px] font-bold text-ivory hover:border-rose-bright sm:px-5 sm:py-2.5 sm:text-[13px]"
             >
               {t('hero.ctaPackages')}
             </Link>
           </div>
+
+          {/* "تقدر تغيّر كل ده بسهولة" — جنب فيديو المحرر */}
+          <EditableFeatures />
 
           {/* الأرقام جوه عمود الكلام على الشاشة الكبيرة بس */}
           <div className="hidden lg:block">
@@ -81,8 +85,9 @@ export default function Hero() {
         {/* ===== الدليل: التليفون + الرسالة تحته ===== */}
         <HeroDemo />
 
-        <div className="col-span-2 lg:hidden">
-          <StatsRow />
+        {/* الأرقام على الموبايل: صغيرة ولازقة في كارت الآراء اللي فوقها */}
+        <div className="col-span-2 -mt-1 lg:hidden">
+          <StatsRow compact />
         </div>
       </div>
     </div>
