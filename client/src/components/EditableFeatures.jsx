@@ -1,69 +1,59 @@
-// "تقدر تغيّر كل ده بسهولة" — أيقونات صغيرة في الهيرو تحت الزرارين، جنب
-// فيديو المحرر. بتوصّل فكرة إن كل حاجة في الدعوة بتتعدّل بنظرة واحدة (زي
-// مواقع التصميم الكبيرة)، من غير فقرة كلام. الأيقونات بتظهر ورا بعض، وبعدها
-// كل واحدة بتنوّر بالدور كإن حد بيعدّل فيها دلوقتي.
+// "تقدر تغيّر كل ده بسهولة" — قايمة بالطول في الهيرو تحت الزرارين، نازلة جنب
+// فيديو المحرر. خط دهبي رفيع على الجنب وعليه نقط، وجنب كل نقطة حاجة بتتعدّل
+// في الدعوة. الحاجات بتظهر ورا بعض، وبعدها كل سطر بينوّر بالدور كإن حد
+// بيعدّل فيه دلوقتي.
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, useReducedMotion } from 'motion/react';
-import { Type, CaseSensitive, ImageIcon, Music, Palette, CalendarHeart } from 'lucide-react';
 
-const ITEMS = [
-  { key: 'text', Icon: Type },
-  { key: 'font', Icon: CaseSensitive },
-  { key: 'photos', Icon: ImageIcon },
-  { key: 'music', Icon: Music },
-  { key: 'colors', Icon: Palette },
-  { key: 'date', Icon: CalendarHeart },
-];
+const ITEMS = ['text', 'font', 'photos', 'music', 'colors', 'date'];
 
 export default function EditableFeatures() {
   const { t } = useTranslation();
   const reduce = useReducedMotion();
   const [lit, setLit] = useState(-1);
 
-  // نبضة بتلف على الأيقونات واحدة واحدة (بتقف لو الجهاز طالب حركة أقل)
+  // نبضة بتلف على السطور واحد واحد (بتقف لو الجهاز طالب حركة أقل)
   useEffect(() => {
     if (reduce) return undefined;
-    let i = 0;
-    const start = setTimeout(() => {
-      setLit(0);
-      i = 0;
-    }, 1400);
-    const iv = setInterval(() => { i = (i + 1) % ITEMS.length; setLit(i); }, 1600);
-    return () => { clearTimeout(start); clearInterval(iv); };
+    let i = -1;
+    const iv = setInterval(() => { i = (i + 1) % ITEMS.length; setLit(i); }, 1500);
+    return () => clearInterval(iv);
   }, [reduce]);
 
   return (
     <div className="mt-4 sm:mt-6">
-      <p className="mb-2 flex items-center gap-1.5 text-[10.5px] font-bold text-brass-soft sm:mb-3 sm:text-[12.5px]">
-        <span className="h-px w-3 bg-gradient-to-l from-brass-soft to-transparent sm:w-5" />
+      <p className="mb-2.5 text-[11px] font-bold text-brass-soft sm:mb-3 sm:text-[13px]">
         {t('heroEdit.title')}
       </p>
-      <ul className="grid grid-cols-3 gap-1.5 sm:max-w-[520px] sm:grid-cols-6 sm:gap-2">
-        {ITEMS.map(({ key, Icon }, i) => {
+      <ul className="relative space-y-[7px] ps-3.5 sm:space-y-2.5 sm:ps-5">
+        {/* الخط الدهبي النازل */}
+        <span
+          aria-hidden="true"
+          className="absolute bottom-[7px] start-[3px] top-[7px] w-px bg-gradient-to-b from-brass-soft/70 via-brass-soft/35 to-transparent sm:start-[5px]"
+        />
+        {ITEMS.map((key, i) => {
           const on = lit === i;
           return (
             <motion.li
               key={key}
-              initial={reduce ? false : { opacity: 0, y: 8 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial={reduce ? false : { opacity: 0, x: 10 }}
+              whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.45, delay: 0.25 + i * 0.07, ease: [0.16, 1, 0.3, 1] }}
-              className={`flex flex-col items-center gap-1 rounded-xl border px-1 py-1.5 transition-colors duration-500 sm:gap-1.5 sm:py-2.5 ${
-                on ? 'border-brass-soft/55 bg-brass/[0.12]' : 'border-ivory/10 bg-ivory/[0.04]'
-              }`}
+              transition={{ duration: 0.45, delay: 0.2 + i * 0.08, ease: [0.16, 1, 0.3, 1] }}
+              className="relative flex items-center"
             >
               <span
-                className={`flex h-6 w-6 items-center justify-center rounded-full transition-all duration-500 sm:h-8 sm:w-8 ${
-                  on
-                    ? 'bg-gradient-to-l from-brass to-brass-soft text-[#241608] shadow-[0_0_16px_-2px_rgba(201,162,74,.7)]'
-                    : 'bg-ivory/[0.07] text-brass-soft'
-                }`}
                 aria-hidden="true"
+                className={`absolute -start-3.5 h-[7px] w-[7px] rotate-45 transition-all duration-500 sm:-start-5 sm:h-[9px] sm:w-[9px] ${
+                  on ? 'scale-125 bg-brass-soft shadow-[0_0_10px_1px_rgba(230,198,132,.75)]' : 'bg-brass-soft/45'
+                }`}
+              />
+              <span
+                className={`text-[12px] font-bold leading-tight transition-colors duration-500 sm:text-[14.5px] ${
+                  on ? 'text-ivory' : 'text-ivory/65'
+                }`}
               >
-                <Icon size={13} strokeWidth={2} className="sm:h-4 sm:w-4" />
-              </span>
-              <span className={`text-[9.5px] font-bold leading-none transition-colors duration-500 sm:text-[11.5px] ${on ? 'text-ivory' : 'text-ivory/70'}`}>
                 {t(`heroEdit.${key}`)}
               </span>
             </motion.li>
