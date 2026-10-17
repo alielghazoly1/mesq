@@ -12,7 +12,6 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import StatsRow from './StatsRow.jsx';
 import HeroDemo from './HeroDemo.jsx';
-import EditableFeatures from './EditableFeatures.jsx';
 
 export default function Hero() {
   const { t } = useTranslation();
@@ -27,7 +26,7 @@ export default function Hero() {
           + 'linear-gradient(175deg, var(--color-night) 0%, var(--color-night-soft) 60%, #0a1712 100%)',
       }}
     >
-      <div className="relative z-10 mx-auto grid max-w-6xl grid-cols-[1.02fr_0.98fr] items-center gap-x-3 gap-y-5 sm:gap-x-6 lg:grid-cols-[1.15fr_0.85fr] lg:gap-x-14 lg:gap-y-6">
+      <div className="relative z-10 mx-auto grid max-w-6xl grid-cols-[0.86fr_1.14fr] items-center gap-x-3 gap-y-5 sm:gap-x-6 lg:grid-cols-[1.15fr_0.85fr] lg:gap-x-14 lg:gap-y-6">
         {/* ===== الكلام ===== */}
         <div className="text-start text-ivory">
           {/* اللوجو فوق سطر "استوديو الدعوات الرقمي" على طول — جوه عمود
@@ -61,20 +60,17 @@ export default function Hero() {
           <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
             <a
               href="#gallery"
-              className="inline-flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-l from-brass to-brass-soft px-3 py-[7px] text-center text-[11px] font-extrabold text-[#241608] shadow-[0_12px_26px_-12px_rgba(201,162,74,0.55)] transition-transform hover:-translate-y-0.5 sm:px-6 sm:py-2.5 sm:text-[13.5px]"
+              className="inline-flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-l from-brass to-brass-soft px-2.5 py-[6px] text-center text-[10.5px] font-extrabold text-[#241608] shadow-[0_12px_26px_-12px_rgba(201,162,74,0.55)] transition-transform hover:-translate-y-0.5 sm:px-6 sm:py-2.5 sm:text-[13.5px]"
             >
               {t('hero.ctaGallery')}
             </a>
             <Link
               to="/packages"
-              className="inline-flex items-center justify-center gap-1.5 rounded-full border border-ivory/30 px-3 py-[7px] text-center text-[10.5px] font-bold text-ivory hover:border-rose-bright sm:px-5 sm:py-2.5 sm:text-[13px]"
+              className="inline-flex items-center justify-center gap-1.5 rounded-full border border-ivory/30 px-2.5 py-[6px] text-center text-[10px] font-bold text-ivory hover:border-rose-bright sm:px-5 sm:py-2.5 sm:text-[13px]"
             >
               {t('hero.ctaPackages')}
             </Link>
           </div>
-
-          {/* "تقدر تغيّر كل ده بسهولة" — جنب فيديو المحرر */}
-          <EditableFeatures />
 
           {/* الأرقام جوه عمود الكلام على الشاشة الكبيرة بس */}
           <div className="hidden lg:block">

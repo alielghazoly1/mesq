@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import { Sparkles } from 'lucide-react';
 import ReviewsTeaser from './ReviewsTeaser.jsx';
+import EditableFeatures from './EditableFeatures.jsx';
 
 const LOOP_MP4 = '/video/hero-demo-loop.mp4';
 const LOOP_WEBM = '/video/hero-demo-loop.webm';
@@ -47,7 +48,10 @@ export default function HeroDemo() {
       {/* ===== التليفون ===== */}
       {/* المقاس على الشاشة الكبيرة متظبط عشان التليفون والرسالة اللي
           تحته يبانوا مع بعض في شاشة واحدة من غير تمرير */}
-      <div ref={wrapRef} className="relative mx-auto w-full max-w-[190px] sm:max-w-[240px] lg:max-w-[264px]">
+      {/* التليفون + شريط "تقدر تغيّر كل ده" جنبه على طول (ناحية الكلام) */}
+      <div className="flex items-stretch justify-center gap-1.5 sm:gap-3 lg:gap-4">
+      <EditableFeatures />
+      <div ref={wrapRef} className="relative min-w-0 flex-1 max-w-[168px] sm:max-w-[240px] lg:max-w-[264px]">
         <div
           className="pointer-events-none absolute -inset-8 blur-[24px]"
           style={{ background: 'radial-gradient(circle at 50% 40%, rgba(201,120,138,0.3), transparent 62%)' }}
@@ -82,6 +86,7 @@ export default function HeroDemo() {
             <Sparkles size={10} /> {t('heroDemo.chip')}
           </span>
         </motion.div>
+      </div>
       </div>
 
       {/* ===== آراء العملاء ===== */}

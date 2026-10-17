@@ -35,12 +35,12 @@ export const resources = {
       },
       heroEdit: {
         title: 'Change all of it, easily',
-        text: 'Every word',
+        text: 'Words',
         font: 'Fonts',
         photos: 'Photos',
         music: 'Music',
         colors: 'Colors',
-        date: 'Date & place',
+        date: 'Date',
       },
       heroDemo: {
         alt: 'The live editor working on a real invitation',
@@ -720,12 +720,12 @@ export const resources = {
       },
       heroEdit: {
         title: 'تقدر تغيّر كل ده بسهولة',
-        text: 'الكلام وكل جملة',
-        font: 'نوع الخط',
+        text: 'الكلام',
+        font: 'الخط',
         photos: 'الصور',
         music: 'الموسيقى',
         colors: 'الألوان',
-        date: 'الميعاد والمكان',
+        date: 'الميعاد',
       },
       heroDemo: {
         alt: 'المحرر المباشر وهو شغّال على دعوة حقيقية',
