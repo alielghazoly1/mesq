@@ -1507,6 +1507,7 @@ router.get('/admin/api/payment-settings', requireAdminSession, async (req, res) 
     const doc = await getPaymentSettings();
     return res.json({
       vodafone: doc.vodafone || {},
+      instapay: doc.instapay || { enabled: false, link: '', address: '', name: '', note: '' },
       bank: doc.bank || {},
       kast: doc.kast || { enabled: false, link: '', holderName: '', note: '' },
       usdt: doc.usdt || { enabled: false, address: '', note: '' },

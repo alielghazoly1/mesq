@@ -21,6 +21,18 @@ const paymentSettingsSchema = new mongoose.Schema({
     note: { type: String, default: '', maxlength: 400 },
   },
 
+  // إنستاباي — طريقة تانية للعملاء في مصر جنب فودافون كاش.
+  // link = لينك الدفع بتاع المالك (ipn.eg/S/...) — بيفتح التطبيق على
+  // عنوانه على طول، والـ QR بيتولّد منه وقت العرض. address = عنوان الدفع
+  // (xxx@instapay) للي عايز يكتبه بإيده. الافتراضي = بيانات المالك.
+  instapay: {
+    enabled: { type: Boolean, default: true },
+    link: { type: String, default: 'https://ipn.eg/S/alimohamedelghazoly/instapay/3xjXTl', maxlength: 300 },
+    address: { type: String, default: 'alimohamedelghazoly@instapay', maxlength: 120 },
+    name: { type: String, default: '', maxlength: 120 },
+    note: { type: String, default: '', maxlength: 400 },
+  },
+
   // لأي عميل بره مصر
   bank: {
     bankName: { type: String, default: '', maxlength: 120 },

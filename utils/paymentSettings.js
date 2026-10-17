@@ -8,6 +8,16 @@ const { qrDataUrl } = require('./qr');
 
 const KEY = 'default';
 
+// إنستاباي: لينك الدفع لازم يبقى https على دومين إنستاباي الرسمي (ipn.eg أو
+// instapay.eg) — عشان محدش يحط لينك غريب يتفتح للعميل. والعنوان xxx@instapay
+const INSTAPAY_ADDRESS_RE = /^[a-z0-9._-]{2,80}@instapay$/i;
+function isInstapayLink(link) {
+  try {
+    const u = new URL(link);
+    return u.protocol === 'https:' && /(^|\.)(ipn\.eg|instapay\.eg)$/i.test(u.hostname);
+  } catch { return false; }
+}
+
 // عنوان محفظة Solana: base58 (من غير 0 وO وI وl) وطوله 32–44 حرف
 const SOLANA_ADDRESS_RE = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
 // الشبكة ثابتة — USDT على Solana بس (أي شبكة تانية الفلوس بتضيع)
@@ -46,6 +56,13 @@ async function updatePaymentSettings(body) {
       number: sanitizeText(v.number, 40),
       holderName: sanitizeText(v.holderName, 120),
       note: sanitizeText(v.note, 400),
+    },
+    instapay: {
+      enabled: !!(b.instapay && b.instapay.enabled),
+      link: String((b.instapay && b.instapay.link) || '').trim().slice(0, 300),
+      address: String((b.instapay && b.instapay.address) || '').trim().toLowerCase().slice(0, 120),
+      name: sanitizeText(b.instapay && b.instapay.name, 120),
+      note: sanitizeText(b.instapay && b.instapay.note, 400),
     },
     bank: {
       bankName: sanitizeText(k.bankName, 120),
@@ -113,6 +130,17 @@ async function updatePaymentSettings(body) {
     throw Object.assign(new Error('برق محتاج رقم فودافون كاش اللي هيستقبل التحويل قبل ما يتفعّل.'), { status: 400 });
   }
 
+  const ip = update.instapay;
+  if (ip.link && !isInstapayLink(ip.link)) {
+    throw Object.assign(new Error('لينك إنستاباي لازم يبقى من إنستاباي نفسها (يبدأ بـ https://ipn.eg/) — انسخه من التطبيق.'), { status: 400 });
+  }
+  if (ip.address && !INSTAPAY_ADDRESS_RE.test(ip.address)) {
+    throw Object.assign(new Error('عنوان إنستاباي لازم يكون بالشكل ده: name@instapay'), { status: 400 });
+  }
+  if (ip.enabled && !ip.link && !ip.address) {
+    throw Object.assign(new Error('إنستاباي محتاج اللينك أو العنوان قبل ما يتفعّل.'), { status: 400 });
+  }
+
   // عنوان غلط = فلوس العميل تضيع، فمبنحفظوش أصلًا
   if (update.usdt.address && !SOLANA_ADDRESS_RE.test(update.usdt.address)) {
     const err = new Error('عنوان محفظة USDT (Solana) مش صحيح — راجعه حرف حرف.');
@@ -141,8 +169,20 @@ async function updatePaymentSettings(body) {
 function publicPaymentInfo(doc, countryCode) {
   const isEgypt = String(countryCode || '').toUpperCase() === 'EG';
   if (isEgypt) {
+    // إنستاباي جنب فودافون كاش — لو المالك مفعّله وفيه لينك أو عنوان سليم
+    const ip = doc.instapay || {};
+    const ipLink = ip.link && isInstapayLink(ip.link) ? ip.link : '';
+    const ipAddr = ip.address && INSTAPAY_ADDRESS_RE.test(ip.address) ? ip.address : '';
+    const instapay = ip.enabled && (ipLink || ipAddr) ? {
+      link: ipLink,
+      address: ipAddr,
+      name: ip.name || '',
+      note: ip.note || '',
+      qr: ipLink ? qrDataUrl(ipLink, { cellSize: 6, margin: 2 }) : '',
+    } : undefined;
     return {
       method: 'vodafone',
+      ...(instapay ? { instapay } : {}),
       whatsapp: doc.whatsapp || '',
       vodafone: {
         number: doc.vodafone?.number || '',

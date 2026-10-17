@@ -19,6 +19,7 @@ export default function SettingsPage() {
     if (data) {
       reset({
         vodafone: data.vodafone || {},
+        instapay: { enabled: false, link: '', address: '', name: '', note: '', ...(data.instapay || {}) },
         bank: data.bank || {},
         kast: data.kast || { enabled: false, link: '', holderName: '', note: '' },
         usdt: data.usdt || { enabled: false, address: '', note: '' },
@@ -92,6 +93,28 @@ export default function SettingsPage() {
           </p>
         </Panel>
       </div>
+
+      {/* ===== إنستاباي — للعملاء المصريين جنب فودافون كاش ===== */}
+      <Panel title="إنستاباي (InstaPay)" subtitle="طريقة تانية للعملاء المصريين جنب فودافون كاش — العميل بيختار">
+        <label className="mb-4 flex cursor-pointer items-center gap-2.5">
+          <input type="checkbox" {...register('instapay.enabled')} className="h-4 w-4 accent-brass" />
+          <img src="/img/instapay-logo.webp" alt="" className="h-7 w-7 rounded-md bg-white" />
+          <span className="text-[13px] font-bold text-ivory">فعّل إنستاباي للعملاء في مصر</span>
+        </label>
+        <div className="grid gap-3.5 sm:grid-cols-2">
+          <Field label="لينك الدفع (من التطبيق ← مشاركة)" dir="ltr" placeholder="https://ipn.eg/S/..." {...register('instapay.link')} />
+          <Field label="عنوان إنستاباي (IPA)" dir="ltr" placeholder="name@instapay" {...register('instapay.address')} />
+          <Field label="اسم المستلم (اختياري)" {...register('instapay.name')} />
+          <Field label="ملاحظة للعميل (اختياري)" placeholder="بعد التحويل صوّر الإيصال وارفعه هنا..." {...register('instapay.note')} />
+        </div>
+        <p className="mt-4 flex items-start gap-2 rounded-xl bg-ivory/[0.04] p-3 text-[11.5px] leading-relaxed text-ivory/50">
+          <Smartphone size={13} className="mt-0.5 shrink-0" />
+          <span>
+            العميل على الموبايل بيدوس زرار "ادفع بإنستاباي" فيتفتح التطبيق على عنوانك على طول، وعلى الكمبيوتر بيصوّر الـ QR بموبايله.
+            اللينك لازم يكون من إنستاباي نفسها (ipn.eg) — السيرفر بيرفض أي لينك تاني.
+          </span>
+        </p>
+      </Panel>
 
       <Panel title="KAST (وسيلة دفع عالمية)" subtitle="بتظهر جنب الحساب البنكي للعملاء برّه مصر — فعّلها أو اقفلها وقت ما تحب">
         <label className="mb-3.5 flex cursor-pointer items-center gap-2.5 rounded-xl border border-ivory/10 bg-ivory/[0.03] p-3">

@@ -27,6 +27,7 @@ import { tooBig, sizeError, uploadError } from '../lib/uploadLimits.js';
 import { whatsappLink } from '../lib/contact.js';
 import Footer from '../components/Footer.jsx';
 import BarqPay from '../components/BarqPay.jsx';
+import InstaPay from '../components/InstaPay.jsx';
 
 /**
  * خانة بيانات جنب بعضها — كل واحدة كارت مستقل فيه العنوان فوق والقيمة
@@ -115,6 +116,8 @@ export default function CheckoutPage() {
   // — عشان مايبقاش الاتنين تحت بعض والشاشة تطول.
   // null = لسه مختارش — بيتفتح أول تبويب متاح (Taptap لو بلده فيها، وإلا البنك)
   const [payTab, setPayTab] = useState(null);
+  // العميل المصري: فودافون كاش (الافتراضي) أو إنستاباي
+  const [egTab, setEgTab] = useState('vodafone');
 
   function copy(value, key) {
     if (!value) return;
@@ -208,12 +211,15 @@ export default function CheckoutPage() {
   const taptap = payInfo?.taptap || null;
   // برق — للعميل اللي في السعودية بس (السيرفر بيبعته ليه بس)، وبييجي الأول
   const barq = payInfo?.barq || null;
+  // إنستاباي — للعميل المصري بس، جنب فودافون كاش
+  const instapay = isVodafone ? (payInfo?.instapay || null) : null;
+  const egActive = !v.number ? 'instapay' : (instapay && egTab === 'instapay' ? 'instapay' : 'vodafone');
   // تبويبات العميل الدولي: Taptap (لو متاحة لبلده — الأسهل، فبتيجي الأول)
   // + البنك دايمًا + KAST و USDT لو المالك مفعّلهم
   const intlTabs = [...(barq ? ['barq'] : []), ...(taptap ? ['taptap'] : []), 'bank', ...(kast ? ['kast'] : []), ...(usdt ? ['usdt'] : [])];
   // التبويب المفتوح: اللي العميل اختاره، وإلا أول واحد متاح
   const activeTab = intlTabs.includes(payTab) ? payTab : intlTabs[0];
-  const hasPayData = isVodafone ? !!v.number
+  const hasPayData = isVodafone ? !!(v.number || instapay)
     : !!(b.accountNumber || b.iban || barq);
   // مدة التعديل بعد التفعيل — من السيرفر، و0 = القاعدة متقفلة
   const days = pkgData?.editWindowDays ?? 30;
@@ -317,6 +323,33 @@ export default function CheckoutPage() {
               </p>
             ) : isVodafone ? (
               <>
+                {/* فودافون كاش أو إنستاباي — زرار لكل واحدة لو الاتنين متاحين */}
+                {instapay && v.number && (
+                  <div className="mb-4 grid grid-cols-2 gap-1.5 rounded-2xl bg-ink/[0.05] p-1">
+                    <button
+                      type="button"
+                      onClick={() => setEgTab('vodafone')}
+                      aria-pressed={egActive === 'vodafone'}
+                      className={`inline-flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-[12.5px] font-extrabold transition ${egActive === 'vodafone' ? 'bg-[#E60000] text-white shadow-sm' : 'text-ink-dim'}`}
+                    >
+                      <VodafoneMark size={18} /> <span className="whitespace-nowrap" dir="ltr">Vodafone Cash</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEgTab('instapay')}
+                      aria-pressed={egActive === 'instapay'}
+                      data-tab-instapay
+                      className={`inline-flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-[12.5px] font-extrabold transition ${egActive === 'instapay' ? 'bg-[#5a2a82] text-white shadow-sm' : 'text-ink-dim'}`}
+                    >
+                      <img src="/img/instapay-logo.webp" alt="" className="h-[18px] w-[18px] rounded-[4px] bg-white" /> <span className="whitespace-nowrap" dir="ltr">InstaPay</span>
+                    </button>
+                  </div>
+                )}
+                {egActive === 'instapay' && instapay && (
+                  <InstaPay info={instapay} CopyTile={CopyTile} amount={`${pkg.price} ${pkg.currencyLabel}`} />
+                )}
+                {egActive === 'vodafone' && (
+                <>
                 {/* ===== كارت فودافون كاش ===== */}
                 <div className="overflow-hidden rounded-2xl border-2 border-[#E60000]/25 bg-[#E60000]/[0.04]">
                   {/* اللوجو لوحده كفاية — العميل بيعرفه على طول، ومش
@@ -379,6 +412,8 @@ export default function CheckoutPage() {
                   <p className="mt-3 rounded-xl bg-brass/[0.09] px-3.5 py-3 text-[12.5px] leading-relaxed text-[#7a5a1a]">
                     {v.note}
                   </p>
+                )}
+                </>
                 )}
               </>
             ) : (

@@ -266,6 +266,14 @@ export const resources = {
         perkLife: 'Unlimited guests, and your invitations stay online for life',
         perkEdit: '{{days}} days of editing from the day we activate your package',
       },
+      instapay: {
+        tagline: 'Instant transfer from any Egyptian bank',
+        open: 'Pay with InstaPay',
+        openHint: 'Opens the InstaPay app with our address ready — enter the amount and confirm.',
+        scan: 'On a computer? Scan with your phone camera',
+        address: 'InstaPay address',
+        name: 'Recipient name',
+      },
       saPay: {
         barq: 'Barq',
         barqTitle: 'Transfer with Barq',
@@ -969,6 +977,14 @@ export const resources = {
         otherMsg: 'السلام عليكم، عايز أطلب {{name}} ({{amount}}) بس عايز أدفع بطريقة تانية غير التحويل البنكي. إيه الطرق المتاحة؟',
         perkLife: 'ضيوف من غير حد أقصى، ودعواتك معاك مدى الحياة',
         perkEdit: 'تعديل {{days}} يوم من يوم ما نفعّل باقتك',
+      },
+      instapay: {
+        tagline: 'تحويل فوري من أي بنك مصري',
+        open: 'ادفع بإنستاباي',
+        openHint: 'بيفتح تطبيق إنستاباي وعنواننا جاهز — اكتب المبلغ وأكّد.',
+        scan: 'على الكمبيوتر؟ صوّر الكود بكاميرا موبايلك',
+        address: 'عنوان إنستاباي',
+        name: 'اسم المستلم',
       },
       saPay: {
         barq: 'برق',
