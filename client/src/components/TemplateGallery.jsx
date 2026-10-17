@@ -8,16 +8,11 @@ export default function TemplateGallery() {
   const { data: templates, isLoading, isError } = useGetTemplatesQuery(i18n.language);
 
   return (
-    <div className="mx-auto max-w-6xl px-3.5 py-[56px] sm:px-6 sm:py-[70px]" id="gallery">
-      <div className="mx-auto mb-11 max-w-[58ch] text-center">
-        <div className="mb-3 text-[12.5px] font-extrabold tracking-[0.3em] text-emerald uppercase">
-          {t('gallery.eyebrow')}
-        </div>
-        <h2 className="mb-3 font-serif text-[clamp(28px,3.8vw,42px)] font-bold italic text-ink">
-          {t('gallery.title')}
-        </h2>
-        <p className="text-[15.5px] text-ink-dim">{t('gallery.subtitle')}</p>
-      </div>
+    <div className="mx-auto max-w-6xl scroll-mt-4 px-3.5 pb-[56px] pt-7 sm:px-6 sm:pb-[70px] sm:pt-10" id="gallery">
+      {/* العنوان بس — من غير كلام زيادة (بطلب المالك) */}
+      <h2 className="mx-auto mb-5 max-w-[58ch] text-center font-serif text-[clamp(26px,3.8vw,42px)] font-bold italic text-ink sm:mb-8">
+        {t('gallery.title')}
+      </h2>
 
       {isLoading && <p className="py-5 text-center text-ink-dim">{t('gallery.loading')}</p>}
       {isError && <p className="py-5 text-center text-ink-dim">{t('gallery.error')}</p>}

@@ -360,6 +360,37 @@ export default function PackagesPage() {
           <ArrowRight size={15} /> {t('packages.back')}
         </Link>
 
+        {/* مش مسجّل؟ "سجّل الأول عشان تشوف الأسعار" أول حاجة في الصفحة خالص —
+            الأسعار بتختلف حسب دولة العميل، فبنستناه يسجّل قبل ما نوريه رقم */}
+        {!isLoading && data?.requiresAuth && (
+            <motion.div
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mx-auto mb-7 max-w-lg rounded-[24px] border border-brass/40 bg-gradient-to-b from-brass/[0.08] to-transparent p-7 text-center sm:p-8"
+            >
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-brass/15">
+                <Lock size={20} className="text-brass" />
+              </div>
+              <h2 className="mb-2 font-serif text-xl font-bold text-ink">{t('packages.authTitle')}</h2>
+              <div className="flex flex-col gap-2.5 sm:flex-row sm:justify-center">
+                <button
+                  type="button"
+                  onClick={() => dispatch(openAuthModal('register'))}
+                  className="rounded-full bg-gradient-to-l from-brass to-brass-soft px-7 py-3.5 font-extrabold text-[#241608] hover:brightness-105"
+                >
+                  {t('packages.authRegister')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => dispatch(openAuthModal('login'))}
+                  className="rounded-full border border-ink px-7 py-3.5 font-bold text-ink hover:bg-ink/5"
+                >
+                  {t('packages.authLogin')}
+                </button>
+              </div>
+            </motion.div>
+        )}
+
         {/* ===== المقدمة ===== */}
         <div className="mx-auto mb-7 max-w-[58ch] text-center sm:mb-12">
           <div className="mb-2 text-[11.5px] font-extrabold uppercase tracking-[0.3em] text-emerald sm:mb-3 sm:text-[12.5px]">
@@ -409,36 +440,7 @@ export default function PackagesPage() {
 
         {isLoading ? (
           <p className="py-10 text-center text-ink-dim">{t('packages.loading')}</p>
-        ) : data?.requiresAuth ? (
-          // الأسعار نفسها بتختلف حسب دولة العميل، ودولته بتتعرف من حسابه.
-          // فبدل ما نوريه سعر يتغيّر قدامه بعد ما يسجّل، بنستناه يسجّل.
-          <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mx-auto max-w-lg rounded-[24px] border border-brass/40 bg-gradient-to-b from-brass/[0.08] to-transparent p-7 text-center sm:p-8"
-          >
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-brass/15">
-              <Lock size={20} className="text-brass" />
-            </div>
-            <h2 className="mb-2 font-serif text-xl font-bold text-ink">{t('packages.authTitle')}</h2>
-            <div className="flex flex-col gap-2.5 sm:flex-row sm:justify-center">
-              <button
-                type="button"
-                onClick={() => dispatch(openAuthModal('register'))}
-                className="rounded-full bg-gradient-to-l from-brass to-brass-soft px-7 py-3.5 font-extrabold text-[#241608] hover:brightness-105"
-              >
-                {t('packages.authRegister')}
-              </button>
-              <button
-                type="button"
-                onClick={() => dispatch(openAuthModal('login'))}
-                className="rounded-full border border-ink px-7 py-3.5 font-bold text-ink hover:bg-ink/5"
-              >
-                {t('packages.authLogin')}
-              </button>
-            </div>
-          </motion.div>
-        ) : (
+        ) : data?.requiresAuth ? null : (
           <>
             {/* الباقات تحت بعض على الموبايل، وجنب بعض على الشاشة الكبيرة.
                 العدد بيختلف حسب بلد العميل (المصري بيشوف باقة الدعوة

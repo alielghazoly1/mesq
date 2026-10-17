@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect, useState } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, useNavigationType } from 'react-router-dom';
 import AuthBar from './components/AuthBar.jsx';
 import { useSelector } from 'react-redux';
 import WelcomeGate from './components/WelcomeGate.jsx';
@@ -96,7 +96,15 @@ function PageFallback() {
 }
 
 export default function App() {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
+  const navType = useNavigationType();
+  // أي انتقال لصفحة جديدة (زي "اشترك للاستخدام" → الباقات) بيبدأ من أول
+  // الصفحة. زرار الرجوع في المتصفح (POP) بيسيب المتصفح يرجّع مكانه، واللينكات
+  // اللي فيها # (زي #gallery) بتروح لمكانها هي.
+  useEffect(() => {
+    if (navType === 'POP' || hash) return;
+    window.scrollTo(0, 0);
+  }, [pathname, hash, navType]);
   // المحرر بياخد الشاشة كلها (شريط أدوات + معاينة بحجمها الحقيقي)،
   // ولوحة التحكم ليها شريطها الخاص — فشريط الحساب العلوي بيتشال منهم.
   const isFullScreen = pathname.startsWith('/editor/') || pathname.startsWith('/admin');
