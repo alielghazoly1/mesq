@@ -60,7 +60,6 @@ export function ReviewsTeaser() {
         <span className="min-w-0 flex-1">
           <span className="flex items-center gap-1.5">
             <Stars />
-            <span className="text-[11px] font-bold text-ivory/60">{t('reviews.real')}</span>
           </span>
           <span className="mt-1 block font-serif text-[15px] font-bold leading-snug text-ivory sm:text-[16px]">
             {t('reviews.title')}
