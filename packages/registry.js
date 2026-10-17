@@ -87,6 +87,15 @@ const ALL_FEATURE_KEYS = ['fonts', 'images', 'music', 'drag', 'videoToImage', 's
  */
 const EDIT_WINDOW_DAYS = 30;
 
+/**
+ * مدة التعديل لكل باقة (بالأيام) — من 2026-10-17 بطلب المالك: الباقة الأكبر
+ * بتدّي مدة تعديل أطول. LIFETIME = تعديل مفتوح من غير حد.
+ * بتنطبق على الباقات اللي بتتفعّل من دلوقتي بس: تاريخ انتهاء التعديل بيتحسب
+ * ويتخزّن وقت التفعيل، فكل عميل اشترى قبل كده بيفضل على المدة اللي اشترى بيها.
+ * باقة من غير editDays = EDIT_WINDOW_DAYS.
+ */
+const LIFETIME = Infinity;
+
 const PACKAGES = [
   {
     // باقة الدعوة الواحدة — للعملاء في مصر بس.
@@ -107,6 +116,7 @@ const PACKAGES = [
     name: { ar: 'باقة الدعوة الواحدة', en: 'Single Invitation' },
     invitations: 1,
     price: { EGP: 150, USD: 0 },
+    editDays: 30,
     // متاحة في مصر بس — بالدولار مفيش سعر ليها أصلاً
     countries: ['EG'],
     // الخصومات مبتنطبقش عليها: هي أصلاً أرخص حاجة في الموقع، وأي خصم
@@ -123,6 +133,7 @@ const PACKAGES = [
     name: { ar: 'الباقة الأساسية', en: 'Essential' },
     invitations: 4,
     price: { EGP: 400, USD: 15 },
+    editDays: 60,
     // "إخفاء الأقسام" في كل الباقات: ده مش رفاهية، ده إن العميل يشيل
     // قسم مالوش لازمة في فرحه. لو قفلناه على الباقة الأعلى، اللي دافع
     // بيبص على دعوته وفيها جزء مش عايزه ومش قادر يشيله — وده إحساس
@@ -138,6 +149,7 @@ const PACKAGES = [
     name: { ar: 'الباقة المتقدمة', en: 'Plus' },
     invitations: 9,
     price: { EGP: 600, USD: 30 },
+    editDays: 90,
     features: ['fonts', 'images', 'music', 'drag', 'videoToImage', 'sections'],
   },
   {
@@ -149,6 +161,7 @@ const PACKAGES = [
     name: { ar: 'الباقة الاحترافية', en: 'Professional' },
     invitations: 50,
     price: { EGP: 1500, USD: 70 },
+    editDays: LIFETIME,
     features: ['fonts', 'images', 'music', 'drag', 'videoToImage', 'sections', 'colors'],
   },
 ];
@@ -163,6 +176,18 @@ function currencyForCountry(countryCode) {
 /** @param {string} id @returns {object|null} */
 function getPackage(id) {
   return PACKAGES.find((p) => p.id === id) || null;
+}
+
+/**
+ * مدة تعديل الباقة دي بالأيام (LIFETIME = من غير حد). لو القاعدة كلها
+ * متقفلة (EDIT_WINDOW_DAYS = 0) مفيش مدد خالص.
+ * @param {object|string|null} pkgOrId
+ */
+function editDaysFor(pkgOrId) {
+  if (!EDIT_WINDOW_DAYS) return 0;
+  const pkg = typeof pkgOrId === 'string' ? getPackage(pkgOrId) : pkgOrId;
+  if (!pkg) return EDIT_WINDOW_DAYS;
+  return pkg.editDays === LIFETIME || (Number(pkg.editDays) > 0) ? pkg.editDays : EDIT_WINDOW_DAYS;
 }
 
 /**
@@ -199,6 +224,8 @@ function packagesForCountry(countryCode, lang) {
     invitations: p.invitations,
     tagline: p.tagline ? (p.tagline[l] || p.tagline.en) : '',
     price: p.price[currency],
+    // مدة التعديل للواجهة: رقم أيام، أو null = مدى الحياة، أو 0 = مفيش قاعدة
+    editDays: editDaysFor(p) === LIFETIME ? null : editDaysFor(p),
     currency,
     currencyLabel: CURRENCY_LABELS[currency],
     features: p.features.map((key) => featureFor(key, l)),
@@ -222,6 +249,8 @@ function packageHasFeature(packageId, featureKey) {
 module.exports = {
   PACKAGES,
   EDIT_WINDOW_DAYS,
+  LIFETIME,
+  editDaysFor,
   FEATURES,
   CURRENCY_LABELS,
   getPackage,

@@ -31,17 +31,18 @@ function deltaFeatures(pkg, prev) {
 }
 
 /** اللي بيجي مع أي باقة — بيتعرض جوه كل كارت عشان كل باقة تشرح نفسها */
-function everyItems(days, t) {
+function everyItems(pkg, t) {
   const items = [
     { icon: Users, text: t('packages.every1') },
     { icon: InfinityIcon, text: t('packages.every2') },
   ];
-  // القاعدة متقفلة (0 يوم) = مفيش مدة نكتبها للعميل
-  if (days > 0) items.push({ icon: Pencil, text: t('packages.every3', { days }) });
+  // مدة التعديل بتاعة الباقة دي (null = مدى الحياة، 0 = القاعدة متقفلة)
+  if (pkg.editDays === null) items.push({ icon: Pencil, text: t('packages.every3Life'), strong: true });
+  else if (pkg.editDays > 0) items.push({ icon: Pencil, text: t('packages.every3', { days: pkg.editDays }), strong: true });
   return items;
 }
 
-function PackageCard({ pkg, prev, index, highlighted, onOrder, currentPackageId, cheapestPerUnit, days }) {
+function PackageCard({ pkg, prev, index, highlighted, onOrder, currentPackageId, cheapestPerUnit }) {
   const { t } = useTranslation();
   const isSubscribed = currentPackageId === pkg.id;
   const hasAnySubscription = !!currentPackageId;
@@ -55,6 +56,8 @@ function PackageCard({ pkg, prev, index, highlighted, onOrder, currentPackageId,
     : 0;
 
   const dark = highlighted && !isSubscribed;
+  // الدعوة الواحدة أصغر شوية من الباقي
+  const small = pkg.id === 'solo';
 
   return (
     <motion.div
@@ -62,11 +65,11 @@ function PackageCard({ pkg, prev, index, highlighted, onOrder, currentPackageId,
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-40px' }}
       transition={{ duration: 0.4, delay: index * 0.06 }}
-      className={`relative flex flex-col overflow-hidden rounded-[24px] border transition ${
+      className={`relative flex flex-col overflow-hidden rounded-[20px] border transition ${
         isSubscribed
           ? 'border-ok bg-ok/[0.05]'
           : dark
-            ? 'border-brass/60 bg-gradient-to-b from-[#0e2119] to-night shadow-[0_24px_60px_-28px_rgba(8,19,15,.75)] lg:-my-3'
+            ? 'border-brass/60 bg-gradient-to-b from-[#0e2119] to-night shadow-[0_24px_60px_-28px_rgba(8,19,15,.75)] lg:-my-2'
             : 'border-line bg-card'
       }`}
     >
@@ -75,28 +78,28 @@ function PackageCard({ pkg, prev, index, highlighted, onOrder, currentPackageId,
         <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-[radial-gradient(120%_90%_at_50%_0%,rgba(230,198,132,.16),transparent)]" />
       )}
 
-      <div className="relative p-6 sm:p-7">
+      <div className={`relative ${small ? 'p-4' : 'p-4 sm:p-5'}`}>
         {/* ===== الشارة ===== */}
-        <div className="mb-4 flex min-h-[26px] items-center gap-2">
+        <div className="mb-2.5 flex flex-wrap items-center gap-1.5 empty:hidden">
           {isSubscribed ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-ok/15 px-3 py-1 text-[11.5px] font-bold text-ok">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-ok/15 px-2.5 py-0.5 text-[10.5px] font-bold text-ok">
               <Check size={12} /> {t('packages.subscribed')}
             </span>
           ) : (
             <>
               {/* شارة الخصم أول حاجة: هي السبب اللي بيخلي العميل يكمل قراية */}
               {pkg.discountPercent > 0 && (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-rose/15 px-3 py-1 text-[11.5px] font-extrabold text-rose">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-rose/15 px-2.5 py-0.5 text-[10.5px] font-extrabold text-rose">
                   <BadgePercent size={12} /> {pkg.discountLabel}
                 </span>
               )}
               {highlighted && (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-brass/20 px-3 py-1 text-[11.5px] font-bold text-brass-soft">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-brass/20 px-2.5 py-0.5 text-[10.5px] font-bold text-brass-soft">
                   <Sparkles size={12} /> {t('packages.popular')}
                 </span>
               )}
               {savePct >= 15 && (
-                <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11.5px] font-bold ${
+                <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10.5px] font-bold ${
                   dark ? 'bg-ok/20 text-ok' : 'bg-emerald/10 text-emerald'
                 }`}
                 >
@@ -104,7 +107,7 @@ function PackageCard({ pkg, prev, index, highlighted, onOrder, currentPackageId,
                 </span>
               )}
               {hasAnySubscription && !highlighted && !savePct && (
-                <span className="inline-flex rounded-full bg-ink/8 px-3 py-1 text-[11.5px] font-bold text-ink-dim">
+                <span className="inline-flex rounded-full bg-ink/8 px-2.5 py-0.5 text-[10.5px] font-bold text-ink-dim">
                   {t('packages.notSubscribed')}
                 </span>
               )}
@@ -113,18 +116,18 @@ function PackageCard({ pkg, prev, index, highlighted, onOrder, currentPackageId,
         </div>
 
         {/* ===== الاسم والسعر ===== */}
-        <h3 className={`font-serif text-[23px] font-bold ${dark ? 'text-ivory' : 'text-ink'}`}>
+        <h3 className={`font-serif font-bold ${small ? 'text-[16.5px]' : 'text-[18.5px]'} ${dark ? 'text-ivory' : 'text-ink'}`}>
           {pkg.name}
         </h3>
         {/* سطر واحد يقول الباقة دي لمين — قبل السعر والمميزات */}
         {pkg.tagline && (
-          <p className={`mt-1.5 text-[13px] leading-[1.75] ${dark ? 'text-ivory/65' : 'text-ink-dim'}`}>
+          <p className={`mt-1 hidden text-[12px] leading-[1.65] sm:block ${dark ? 'text-ivory/65' : 'text-ink-dim'}`}>
             {pkg.tagline}
           </p>
         )}
 
-        <div className="mt-3 flex flex-wrap items-baseline gap-x-2 gap-y-1">
-          <span className={`font-serif text-[42px] font-bold leading-none ${dark ? 'text-brass-soft' : 'text-emerald'}`}>
+        <div className="mt-2.5 flex flex-wrap items-baseline gap-x-2 gap-y-1">
+          <span className={`font-serif font-bold leading-none ${small ? 'text-[28px]' : 'text-[33px]'} ${dark ? 'text-brass-soft' : 'text-emerald'}`}>
             {pkg.price}
           </span>
           <span className={`text-[14px] ${dark ? 'text-ivory/70' : 'text-ink-dim'}`}>{pkg.currencyLabel}</span>
@@ -141,11 +144,11 @@ function PackageCard({ pkg, prev, index, highlighted, onOrder, currentPackageId,
         </div>
 
         {/* عدد الدعوات + سعر الدعوة الواحدة — الرقم اللي بيحسم القرار */}
-        <div className={`mt-4 flex items-center justify-between gap-3 rounded-2xl px-4 py-3 ${
+        <div className={`mt-3 flex items-center justify-between gap-3 rounded-xl px-3 py-2 ${
           dark ? 'bg-ivory/[0.06]' : 'bg-ivory/70'
         }`}
         >
-          <span className={`text-[14px] font-bold ${dark ? 'text-ivory' : 'text-ink'}`}>
+          <span className={`text-[13px] font-bold ${dark ? 'text-ivory' : 'text-ink'}`}>
             {t('packages.invitations', { count: pkg.invitations })}
           </span>
           <span className={`shrink-0 text-[12px] ${dark ? 'text-brass-soft' : 'text-emerald'}`}>
@@ -154,8 +157,8 @@ function PackageCard({ pkg, prev, index, highlighted, onOrder, currentPackageId,
         </div>
 
         {/* ===== المميزات ===== */}
-        <div className={`mt-5 border-t pt-5 ${dark ? 'border-ivory/12' : 'border-line'}`}>
-          <div className={`mb-3.5 flex items-center gap-2 text-[11.5px] font-bold uppercase tracking-[0.12em] ${
+        <div className={`mt-3.5 border-t pt-3.5 ${dark ? 'border-ivory/12' : 'border-line'}`}>
+          <div className={`mb-2.5 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.12em] ${
             dark ? 'text-brass-soft' : 'text-emerald'
           }`}
           >
@@ -169,9 +172,10 @@ function PackageCard({ pkg, prev, index, highlighted, onOrder, currentPackageId,
             )}
           </div>
 
-          <ul className="flex flex-col gap-3.5">
+          {/* عمودين على الموبايل (الكارت أقصر)، وعمود واحد في الكروت الضيقة على الكمبيوتر */}
+          <ul className="grid grid-cols-2 gap-x-2 gap-y-1.5 sm:grid-cols-1 sm:gap-y-2">
             {extras.map((f) => (
-              <li key={f.key} className="flex items-start gap-2.5">
+              <li key={f.key} className="flex items-start gap-1.5 sm:gap-2.5">
                 <span className={`mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-full ${
                   dark ? 'bg-brass/20 text-brass-soft' : 'bg-emerald/10 text-emerald'
                 }`}
@@ -179,14 +183,10 @@ function PackageCard({ pkg, prev, index, highlighted, onOrder, currentPackageId,
                   <Check size={11} strokeWidth={3} />
                 </span>
                 <div className="min-w-0">
-                  <div className={`text-[14px] font-bold leading-snug ${dark ? 'text-ivory' : 'text-ink'}`}>
+                  {/* اسم الميزة بس — الشرح الطويل كان بيطوّل الكارت ويأخّر القرار */}
+                  <div className={`text-[12px] font-bold leading-snug sm:text-[13px] ${dark ? 'text-ivory' : 'text-ink'}`}>
                     {f.label}
                   </div>
-                  {f.desc && (
-                    <p className={`mt-1 text-[12.5px] leading-[1.75] ${dark ? 'text-ivory/60' : 'text-ink-dim'}`}>
-                      {f.desc}
-                    </p>
-                  )}
                 </div>
               </li>
             ))}
@@ -194,30 +194,28 @@ function PackageCard({ pkg, prev, index, highlighted, onOrder, currentPackageId,
         </div>
 
         {/* ===== اللي في كل باقة: ضيوف بلا حد، مدى الحياة، مدة التعديل ===== */}
-        <div className={`mt-5 rounded-2xl px-4 py-3.5 ${dark ? 'bg-ivory/[0.06]' : 'bg-ivory/70'}`}>
-          <div className={`mb-2 text-[11px] font-bold uppercase tracking-[0.12em] ${dark ? 'text-brass-soft' : 'text-emerald'}`}>
-            {t('packages.everyTitle')}
-          </div>
-          <ul className="flex flex-col gap-2">
-            {everyItems(days, t).map(({ icon: Icon, text }) => (
-              <li key={text} className={`flex items-center gap-2.5 text-[12.5px] font-bold ${dark ? 'text-ivory/85' : 'text-ink'}`}>
-                <Icon size={14} className={`shrink-0 ${dark ? 'text-brass-soft' : 'text-emerald'}`} />
-                {text}
-              </li>
-            ))}
-          </ul>
-        </div>
+        <ul className={`mt-3.5 flex flex-col gap-1.5 rounded-xl px-3 py-2.5 ${dark ? 'bg-ivory/[0.06]' : 'bg-ivory/70'}`}>
+          {everyItems(pkg, t).map(({ icon: Icon, text, strong }) => (
+            <li key={text} className={`flex items-center gap-2 text-[12px] font-bold ${
+              strong ? (dark ? 'text-brass-soft' : 'text-emerald') : (dark ? 'text-ivory/85' : 'text-ink')
+            }`}
+            >
+              <Icon size={13} className={`shrink-0 ${dark ? 'text-brass-soft' : 'text-emerald'}`} />
+              {text}
+            </li>
+          ))}
+        </ul>
       </div>
 
       <div className="flex-1" />
 
       {/* ===== الزرار ===== */}
-      <div className="relative px-6 pb-6 sm:px-7 sm:pb-7">
+      <div className={`relative ${small ? 'px-4 pb-4' : 'px-4 pb-4 sm:px-5 sm:pb-5'}`}>
         <button
           type="button"
           onClick={() => onOrder(pkg)}
           disabled={isSubscribed}
-          className={`group flex w-full items-center justify-center gap-2 rounded-full py-4 text-[14.5px] font-extrabold transition disabled:opacity-70 ${
+          className={`group flex w-full items-center justify-center gap-2 rounded-full py-3 text-[13.5px] font-extrabold transition disabled:opacity-70 ${
             isSubscribed
               ? 'bg-ok text-white'
               : dark
@@ -238,7 +236,7 @@ function PackageCard({ pkg, prev, index, highlighted, onOrder, currentPackageId,
           )}
         </button>
         {!isSubscribed && (
-          <p className={`mt-2.5 text-center text-[11.5px] ${dark ? 'text-ivory/45' : 'text-ink-dim'}`}>
+          <p className={`mt-2 text-center text-[10.5px] ${dark ? 'text-ivory/45' : 'text-ink-dim'}`}>
             {t('packages.ctaNote')}
           </p>
         )}
@@ -391,18 +389,10 @@ export default function PackagesPage() {
             </motion.div>
         )}
 
-        {/* ===== المقدمة ===== */}
-        <div className="mx-auto mb-7 max-w-[58ch] text-center sm:mb-12">
-          <div className="mb-2 text-[11.5px] font-extrabold uppercase tracking-[0.3em] text-emerald sm:mb-3 sm:text-[12.5px]">
-            {t('packages.eyebrow')}
-          </div>
-          <h1 className="mb-2.5 font-serif text-[26px] font-bold leading-[1.3] text-ink sm:mb-3 sm:text-[clamp(30px,4vw,42px)]">
-            {t('packages.title')}
-          </h1>
-          <p className="text-[14px] leading-[1.85] text-ink-dim sm:text-[15.5px]">
-            {days > 0 ? t('packages.subtitle', { days }) : t('packages.subtitleNoLimit')}
-          </p>
-        </div>
+        {/* الباقات أول حاجة في الصفحة — العنوان سطر واحد صغير وبعده الكروت على طول */}
+        <h1 className="mb-4 text-center font-serif text-[22px] font-bold leading-[1.3] text-ink sm:mb-6 sm:text-[30px]">
+          {t('packages.pickTitle')}
+        </h1>
 
         {sub?.packageId && sub.invitationsLeft > 0 && (
           <div className="mx-auto mb-4 max-w-lg rounded-2xl border border-emerald/30 bg-emerald/[0.07] px-5 py-3.5 text-center text-[13.5px] text-emerald sm:px-6 sm:py-4 sm:text-[14.5px]">
@@ -427,17 +417,6 @@ export default function PackagesPage() {
             <span>{t('packages.editEndedNotice', { days })}</span>
           </div>
         )}
-        <div className="mb-3 sm:mb-6" />
-
-        <HowItWorks days={days} />
-
-        {/* الفيديو قبل الأسعار: العميل لازم يشوف اللي هيدفع عشانه قبل
-            ما يشوف الرقم — مش بعده */}
-        <div className="mx-auto mb-8 max-w-3xl sm:mb-11">
-          <EditorDemo />
-          <p className="mt-3 text-center text-[12.5px] text-ink-dim">{t('demo.underPrices')}</p>
-        </div>
-
         {isLoading ? (
           <p className="py-10 text-center text-ink-dim">{t('packages.loading')}</p>
         ) : data?.requiresAuth ? null : (
@@ -446,7 +425,7 @@ export default function PackagesPage() {
                 العدد بيختلف حسب بلد العميل (المصري بيشوف باقة الدعوة
                 الواحدة كمان)، فالأعمدة بتتحسب مش مكتوبة برقم ثابت */}
             <div
-              className={`grid items-stretch gap-5 lg:gap-6 ${
+              className={`grid items-stretch gap-3.5 lg:gap-5 ${
                 packages.length >= 4 ? 'sm:grid-cols-2 lg:grid-cols-4' : 'lg:grid-cols-3'
               }`}
             >
@@ -460,7 +439,6 @@ export default function PackagesPage() {
                   onOrder={handleOrder}
                   currentPackageId={sub?.packageId || null}
                   cheapestPerUnit={cheapestPerUnit}
-                  days={days}
                 />
               ))}
             </div>
@@ -468,7 +446,7 @@ export default function PackagesPage() {
             {/* ===== صف الطمأنة ===== */}
             {/* آخر حاجة بيقراها قبل ما يضغط — بيرد على المخاوف التلاتة
                 اللي بتوقف أي حد قبل الدفع */}
-            <div className="mx-auto mt-8 grid max-w-3xl gap-2.5 sm:mt-12 sm:grid-cols-3">
+            <div className="mx-auto mt-5 grid max-w-3xl gap-2 sm:mt-8 sm:grid-cols-3">
               {[
                 { icon: Clock, key: 'packages.trust1' },
                 { icon: InfinityIcon, key: 'packages.trust2' },
@@ -487,6 +465,18 @@ export default function PackagesPage() {
             </div>
           </>
         )}
+
+        {/* الشرح والفيديو بعد الأسعار — اللي عايز يفهم أكتر ينزل لهم */}
+        <div className="mt-10 sm:mt-14" />
+
+        <HowItWorks days={days} />
+
+        {/* الفيديو قبل الأسعار: العميل لازم يشوف اللي هيدفع عشانه قبل
+            ما يشوف الرقم — مش بعده */}
+        <div className="mx-auto mb-8 max-w-3xl sm:mb-11">
+          <EditorDemo />
+          <p className="mt-3 text-center text-[12.5px] text-ink-dim">{t('demo.underPrices')}</p>
+        </div>
 
         <Faq days={days} />
 

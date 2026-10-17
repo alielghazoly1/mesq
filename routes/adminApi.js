@@ -33,7 +33,7 @@ const {
   getHiddenTemplateIds, setHiddenTemplateIds, getTemplateLayout, setTemplateLayout, sortByOrder,
 } = require('../utils/siteConfig');
 const {
-  getPackage, PACKAGES, packageAllowedInCountry, EDIT_WINDOW_DAYS,
+  getPackage, PACKAGES, packageAllowedInCountry, EDIT_WINDOW_DAYS, editDaysFor,
 } = require('../packages/registry');
 const PricingSettings = require('../models/PricingSettings');
 const { getPaymentSettings, updatePaymentSettings, TAPTAP_COUNTRIES } = require('../utils/paymentSettings');
@@ -727,7 +727,7 @@ router.patch('/admin/api/users/:id/subscription', requireAdminSession, async (re
       // مدة التعديل بتتحسب من حالة الاشتراك **قبل** المنح (before) مش بعدها
       const editUntil = editUntilAfterActivation({
         packageId: before.packageId, editUntil: before.editUntil,
-      });
+      }, new Date(), editDaysFor(pkg));
       user.subscription.packageId = pkg.id;
       user.subscription.invitationsLeft = (sub.invitationsLeft || 0) + pkg.invitations;
       user.subscription.activatedAt = new Date();
@@ -989,7 +989,8 @@ router.post('/admin/api/orders/:id/activate', requireAdminSession, async (req, r
     // مدة التعديل الجديدة — بتتحسب من الاشتراك **قبل** ما نستبدله (utils/editWindow.js):
     // عميل جديد ← 30 يوم من دلوقتي، عميل جدّد ← بتتضاف فوق اللي فاضل،
     // عميل قديم (تعديله مفتوح) ← بيفضل مفتوح.
-    const editUntil = editUntilAfterActivation(user.subscription);
+    // مدة الباقة نفسها (30 / 60 / 90 / مدى الحياة) — packages/registry.js
+    const editUntil = editUntilAfterActivation(user.subscription, new Date(), editDaysFor(pkg));
     user.subscription = {
       packageId: pkg.id,
       invitationsLeft: current + pkg.invitations,

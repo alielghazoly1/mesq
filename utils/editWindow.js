@@ -44,10 +44,12 @@ function isEditWindowOpen(sub, now = new Date()) {
  *
  * @param {object|null|undefined} sub الاشتراك الحالي قبل التفعيل
  * @param {Date} [now]
- * @param {number} [days] بيتبعت في الاختبارات بس
+ * @param {number} [days] مدة الباقة اللي بتتفعّل (editDaysFor) — Infinity = مدى الحياة
  * @returns {Date|null} null = من غير حد
  */
 function editUntilAfterActivation(sub, now = new Date(), days = EDIT_WINDOW_DAYS) {
+  // باقة بتعديل مدى الحياة: من غير تاريخ انتهاء (null = مفتوح دايمًا)
+  if (days === Infinity) return null;
   // القاعدة متقفلة من الإعدادات؟ مفيش تاريخ. ولو العميل كان عنده تاريخ
   // قديم، بنسيبه زي ما هو (مش هنقصّر اللي اتوعد بيه).
   if (!days || days < 0) return asDate(sub && sub.editUntil);
