@@ -35,6 +35,8 @@ export const resources = {
       },
       heroEdit: {
         title: 'Change all of it, easily',
+        titleTop: 'Change',
+        titleBottom: 'all of it',
         text: 'Words',
         font: 'Fonts',
         photos: 'Photos',
@@ -720,6 +722,8 @@ export const resources = {
       },
       heroEdit: {
         title: 'تقدر تغيّر كل ده بسهولة',
+        titleTop: 'تقدر تغيّر',
+        titleBottom: 'كل ده',
         text: 'الكلام',
         font: 'الخط',
         photos: 'الصور',

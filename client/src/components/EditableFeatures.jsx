@@ -33,10 +33,19 @@ export default function EditableFeatures() {
       title={t('heroEdit.title')}
       className="relative flex w-[40px] shrink-0 flex-col items-center justify-between py-3 sm:w-[58px] sm:py-5 lg:w-[66px]"
     >
+      {/* العنوان فوق الأيقونات: "تقدر تغيّر كل ده" على سطرين صغيرين */}
+      <li className="relative z-[1] -mb-1 flex flex-col items-center text-center" aria-hidden="true">
+        <span className="whitespace-nowrap text-[9px] font-extrabold leading-[1.35] text-brass-soft sm:text-[11px] lg:text-[12.5px]">
+          {t('heroEdit.titleTop')}
+          <br />
+          {t('heroEdit.titleBottom')}
+        </span>
+        <span className="mt-1 h-px w-5 bg-gradient-to-l from-transparent via-brass-soft/70 to-transparent sm:w-8" />
+      </li>
       {/* خط دهبي رفيع ورا الأيقونات بيربطهم ببعض */}
       <span
         aria-hidden="true"
-        className="absolute inset-y-6 start-1/2 w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-brass-soft/35 to-transparent rtl:translate-x-1/2"
+        className="absolute bottom-6 top-14 start-1/2 w-px -translate-x-1/2 bg-gradient-to-b from-transparent via-brass-soft/35 to-transparent rtl:translate-x-1/2"
       />
       {ITEMS.map(({ key, Icon }, i) => {
         const on = lit === i;
