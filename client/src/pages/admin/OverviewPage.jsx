@@ -141,6 +141,23 @@ export default function OverviewPage() {
           value={fmtMoney(revenue.period.USD.total, 'USD')}
           hint={`${revenue.period.USD.orders} طلب`}
         />
+        {/* العملاء في السعودية بيدفعوا بالريال — بيظهروا لما يبقى فيه طلبات بالريال */}
+        {(revenue.all.SAR?.orders > 0) && (
+          <>
+            <StatTile
+              icon={Wallet} tone="gold" delay={0.16}
+              label="أرباح بالريال (كل الوقت)"
+              value={fmtMoney(revenue.all.SAR.total, 'SAR')}
+              hint={`${revenue.all.SAR.orders} طلب`}
+            />
+            <StatTile
+              icon={Wallet} delay={0.2}
+              label={`أرباح الفترة (ريال)`}
+              value={fmtMoney(revenue.period.SAR?.total || 0, 'SAR')}
+              hint={`${revenue.period.SAR?.orders || 0} طلب`}
+            />
+          </>
+        )}
       </div>
 
       {/* الأرباح شهر بشهر */}
@@ -175,6 +192,7 @@ export default function OverviewPage() {
             keys={[
               { key: 'egp', label: 'جنيه', color: COLORS.GOLD },
               { key: 'usd', label: 'دولار', color: COLORS.EMERALD },
+              { key: 'sar', label: 'ريال', color: COLORS.ROSE },
             ]}
           />
         </Panel>
@@ -221,11 +239,10 @@ export default function OverviewPage() {
               unit="باقة"
               periodLabel={periodLabel}
               emptyLabel="لسه ماتباعتش"
-              renderExtra={(p) => ((p.egp > 0 || p.usd > 0) ? (
+              renderExtra={(p) => ((p.egp > 0 || p.usd > 0 || p.sar > 0) ? (
                 <span className="font-bold text-brass-soft" data-ranked-money>
-                  {p.egp > 0 && fmtMoney(p.egp, 'EGP')}
-                  {p.egp > 0 && p.usd > 0 && ' · '}
-                  {p.usd > 0 && fmtMoney(p.usd, 'USD')}
+                  {[p.egp > 0 && fmtMoney(p.egp, 'EGP'), p.usd > 0 && fmtMoney(p.usd, 'USD'), p.sar > 0 && fmtMoney(p.sar, 'SAR')]
+                    .filter(Boolean).join(' · ')}
                 </span>
               ) : null)}
             />

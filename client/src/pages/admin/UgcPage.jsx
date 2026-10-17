@@ -13,10 +13,11 @@ import { countryName, waLink } from './format.js';
 import ClientDrawer from './ClientDrawer.jsx';
 
 // بيعرض مبلغ بعملتيه (جنيه/دولار) فوق بعض — نعرض اللي فيه رقم بس، وإلا "—"
-function Money({ egp, usd, tone = 'text-ivory' }) {
+function Money({ egp, usd, sar, tone = 'text-ivory' }) {
   const parts = [];
   if (egp) parts.push(<div key="e" className={`whitespace-nowrap font-bold ${tone}`}>{fmtMoney(egp, 'EGP')}</div>);
   if (usd) parts.push(<div key="u" className={`whitespace-nowrap font-bold ${tone}`}>{fmtMoney(usd, 'USD')}</div>);
+  if (sar) parts.push(<div key="s" className={`whitespace-nowrap font-bold ${tone}`}>{fmtMoney(sar, 'SAR')}</div>);
   if (!parts.length) return <span className="text-ivory/30">—</span>;
   return <div className="space-y-0.5">{parts}</div>;
 }
@@ -69,7 +70,7 @@ export default function UgcPage() {
                 <Cell className="whitespace-nowrap"><Badge tone="gold">{a.commissionRate}%</Badge></Cell>
                 <Cell className="text-ivory/70">{fmtNum(a.stats?.registrations || 0)}</Cell>
                 <Cell className="text-ivory/70">{fmtNum(a.stats?.paidCustomers || 0)}</Cell>
-                <Cell><Money egp={a.stats?.available?.EGP} usd={a.stats?.available?.USD} tone="text-brass-soft" /></Cell>
+                <Cell><Money egp={a.stats?.available?.EGP} usd={a.stats?.available?.USD} sar={a.stats?.available?.SAR} tone="text-brass-soft" /></Cell>
                 <Cell>
                   {(a.stats?.pending?.EGP || a.stats?.pending?.USD)
                     ? <span className="inline-flex items-center gap-1 text-amber-300/80"><Clock size={11} /><Money egp={a.stats?.pending?.EGP} usd={a.stats?.pending?.USD} tone="text-amber-300/80" /></span>

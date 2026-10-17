@@ -64,6 +64,35 @@ const paymentSettingsSchema = new mongoose.Schema({
     note: { type: String, default: '', maxlength: 400 },
   },
 
+  // ===== السعودية (العملاء اللي مسجّلين من السعودية — بيدفعوا بالريال) =====
+  // تلات طرق، كل واحدة بتتفعّل لوحدها من "بيانات الدفع" وبتظهر للعميل
+  // السعودي بس لما بياناتها تكون مكتوبة:
+  //   • bank   — تحويل لحساب بنكي سعودي (IBAN SA…)
+  //   • barq   — تحويل من تطبيق برق (رقم الجوال/المحفظة اللي هيستقبل)
+  //   • wallet — تحويل على محفظة فودافون كاش (من أي تطبيق تحويل دولي)
+  saudi: {
+    bank: {
+      enabled: { type: Boolean, default: false },
+      bankName: { type: String, default: '', maxlength: 120 },
+      accountName: { type: String, default: '', maxlength: 120 },
+      iban: { type: String, default: '', maxlength: 60 },
+      accountNumber: { type: String, default: '', maxlength: 60 },
+      note: { type: String, default: '', maxlength: 400 },
+    },
+    barq: {
+      enabled: { type: Boolean, default: false },
+      phone: { type: String, default: '', maxlength: 40 },
+      name: { type: String, default: '', maxlength: 120 },
+      note: { type: String, default: '', maxlength: 400 },
+    },
+    wallet: {
+      enabled: { type: Boolean, default: false },
+      number: { type: String, default: '', maxlength: 40 },
+      name: { type: String, default: '', maxlength: 120 },
+      note: { type: String, default: '', maxlength: 400 },
+    },
+  },
+
   // رقم واتساب التواصل بعد التحويل
   whatsapp: { type: String, default: '', maxlength: 40 },
 

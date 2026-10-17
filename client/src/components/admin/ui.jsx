@@ -189,7 +189,7 @@ export function fmtNum(n) {
 
 /** مبلغ بعملته */
 export function fmtMoney(amount, currency) {
-  const label = currency === 'EGP' ? 'ج.م' : '$';
+  const label = currency === 'EGP' ? 'ج.م' : currency === 'SAR' ? 'ر.س' : '$';
   return `${fmtNum(amount)} ${label}`;
 }
 

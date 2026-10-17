@@ -75,9 +75,51 @@ async function updatePaymentSettings(body) {
       address: String((b.usdt && b.usdt.address) || '').trim().slice(0, 64),
       note: sanitizeText(b.usdt && b.usdt.note, 400),
     },
+    saudi: (() => {
+      const sa = b.saudi || {};
+      const bk = sa.bank || {}; const bq = sa.barq || {}; const w = sa.wallet || {};
+      return {
+        bank: {
+          enabled: !!bk.enabled,
+          bankName: sanitizeText(bk.bankName, 120),
+          accountName: sanitizeText(bk.accountName, 120),
+          // الآيبان بيتخزن من غير مسافات وبحروف كبيرة — أسهل في النسخ
+          iban: String(bk.iban || '').replace(/\s+/g, '').toUpperCase().slice(0, 60),
+          accountNumber: sanitizeText(bk.accountNumber, 60),
+          note: sanitizeText(bk.note, 400),
+        },
+        barq: {
+          enabled: !!bq.enabled,
+          phone: sanitizeText(bq.phone, 40),
+          name: sanitizeText(bq.name, 120),
+          note: sanitizeText(bq.note, 400),
+        },
+        wallet: {
+          enabled: !!w.enabled,
+          number: sanitizeText(w.number, 40),
+          name: sanitizeText(w.name, 120),
+          note: sanitizeText(w.note, 400),
+        },
+      };
+    })(),
     whatsapp: sanitizeText(b.whatsapp, 40),
     updatedAt: new Date(),
   };
+
+  // طريقة سعودية متفعّلة من غير بياناتها = العميل هيشوف خانة فاضية
+  const sa = update.saudi;
+  if (sa.bank.enabled && !sa.bank.iban) {
+    throw Object.assign(new Error('الحساب البنكي السعودي محتاج رقم الآيبان قبل ما يتفعّل.'), { status: 400 });
+  }
+  if (sa.bank.iban && !/^SA\d{22}$/.test(sa.bank.iban)) {
+    throw Object.assign(new Error('رقم الآيبان السعودي لازم يبدأ بـ SA وبعده 22 رقم — راجعه.'), { status: 400 });
+  }
+  if (sa.barq.enabled && !sa.barq.phone) {
+    throw Object.assign(new Error('برق محتاج رقم الجوال اللي هيستقبل التحويل قبل ما يتفعّل.'), { status: 400 });
+  }
+  if (sa.wallet.enabled && !sa.wallet.number) {
+    throw Object.assign(new Error('فودافون كاش محتاج رقم المحفظة قبل ما يتفعّل.'), { status: 400 });
+  }
 
   // عنوان غلط = فلوس العميل تضيع، فمبنحفظوش أصلًا
   if (update.usdt.address && !SOLANA_ADDRESS_RE.test(update.usdt.address)) {
@@ -106,6 +148,24 @@ async function updatePaymentSettings(body) {
  */
 function publicPaymentInfo(doc, countryCode) {
   const isEgypt = String(countryCode || '').toUpperCase() === 'EG';
+  // السعودية: طرقها هي بس (بالريال) — كل طريقة متفعّلة وبياناتها مكتوبة
+  if (String(countryCode || '').toUpperCase() === 'SA') {
+    const sa = doc.saudi || {};
+    const out = { method: 'saudi', whatsapp: doc.whatsapp || '' };
+    if (sa.bank?.enabled && sa.bank?.iban) {
+      out.saBank = {
+        bankName: sa.bank.bankName || '', accountName: sa.bank.accountName || '',
+        iban: sa.bank.iban, accountNumber: sa.bank.accountNumber || '', note: sa.bank.note || '',
+      };
+    }
+    if (sa.barq?.enabled && sa.barq?.phone) {
+      out.barq = { phone: sa.barq.phone, name: sa.barq.name || '', note: sa.barq.note || '' };
+    }
+    if (sa.wallet?.enabled && sa.wallet?.number) {
+      out.wallet = { number: sa.wallet.number, name: sa.wallet.name || '', note: sa.wallet.note || '' };
+    }
+    return out;
+  }
   if (isEgypt) {
     return {
       method: 'vodafone',

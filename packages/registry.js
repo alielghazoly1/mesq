@@ -132,7 +132,7 @@ const PACKAGES = [
     },
     name: { ar: 'الباقة الأساسية', en: 'Essential' },
     invitations: 4,
-    price: { EGP: 400, USD: 15 },
+    price: { EGP: 400, USD: 15, SAR: 50 },
     editDays: 60,
     // "إخفاء الأقسام" في كل الباقات: ده مش رفاهية، ده إن العميل يشيل
     // قسم مالوش لازمة في فرحه. لو قفلناه على الباقة الأعلى، اللي دافع
@@ -148,7 +148,7 @@ const PACKAGES = [
     },
     name: { ar: 'الباقة المتقدمة', en: 'Plus' },
     invitations: 9,
-    price: { EGP: 600, USD: 30 },
+    price: { EGP: 600, USD: 30, SAR: 70 },
     editDays: 90,
     features: ['fonts', 'images', 'music', 'drag', 'videoToImage', 'sections'],
   },
@@ -160,17 +160,23 @@ const PACKAGES = [
     },
     name: { ar: 'الباقة الاحترافية', en: 'Professional' },
     invitations: 50,
-    price: { EGP: 1500, USD: 70 },
+    price: { EGP: 1500, USD: 70, SAR: 120 },
     editDays: LIFETIME,
     features: ['fonts', 'images', 'music', 'drag', 'videoToImage', 'sections', 'colors'],
   },
 ];
 
-const CURRENCY_LABELS = { EGP: 'ج.م', USD: '$' };
+// SAR (من 2026-10-17): العملاء في السعودية بيشوفوا ويدفعوا بالريال، وطرق
+// دفعهم في utils/paymentSettings.js (بنك سعودي / برق / فودافون كاش)
+const CURRENCY_LABELS = { EGP: 'ج.م', USD: '$', SAR: 'ر.س' };
+const CURRENCIES = ['EGP', 'USD', 'SAR'];
 
-/** @param {string} countryCode كود الدولة (ISO alpha-2) @returns {'EGP'|'USD'} */
+/** @param {string} countryCode كود الدولة (ISO alpha-2) @returns {'EGP'|'USD'|'SAR'} */
 function currencyForCountry(countryCode) {
-  return String(countryCode || '').toUpperCase() === 'EG' ? 'EGP' : 'USD';
+  const cc = String(countryCode || '').toUpperCase();
+  if (cc === 'EG') return 'EGP';
+  if (cc === 'SA') return 'SAR';
+  return 'USD';
 }
 
 /** @param {string} id @returns {object|null} */
@@ -248,6 +254,7 @@ function packageHasFeature(packageId, featureKey) {
 
 module.exports = {
   PACKAGES,
+  CURRENCIES,
   EDIT_WINDOW_DAYS,
   LIFETIME,
   editDaysFor,

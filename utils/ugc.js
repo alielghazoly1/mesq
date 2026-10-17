@@ -10,7 +10,7 @@ const Order = require('../models/Order');
 const Withdrawal = require('../models/Withdrawal');
 const { generateShortId } = require('./idGenerator');
 
-const CURRENCIES = ['EGP', 'USD'];
+const CURRENCIES = ['EGP', 'USD', 'SAR'];
 
 function round2(n) {
   return Math.round((Number(n || 0) + Number.EPSILON) * 100) / 100;
@@ -27,7 +27,7 @@ function generateReferralCode() {
  */
 async function computeUgcStats(ugcUser) {
   const rate = ugcUser.commissionRate || 0;
-  const zero = () => ({ EGP: 0, USD: 0 });
+  const zero = () => ({ EGP: 0, USD: 0, SAR: 0 });
   const stats = {
     commissionRate: rate,
     referralCode: ugcUser.referralCode || null,

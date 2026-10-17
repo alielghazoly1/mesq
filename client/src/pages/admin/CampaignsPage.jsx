@@ -40,13 +40,18 @@ const RATE_KEY = 'mithaq_usd_rate';
 const readRate = () => {
   try { const n = Number(localStorage.getItem(RATE_KEY)); return n > 0 ? n : 50; } catch { return 50; }
 };
+// الريال (عملاء السعودية) بيتحوّل لجنيه بالسعر اللي المالك كاتبه (افتراضي 13.3)
+const SAR_RATE_KEY = 'mithaq_sar_rate';
+const readSarRate = () => {
+  try { const n = Number(localStorage.getItem(SAR_RATE_KEY)); return n > 0 ? n : 13.3; } catch { return 13.3; }
+};
 const pct = (a, b) => (b ? Math.round((a / b) * 1000) / 10 : 0);
 const linkOf = (code) => `${window.location.origin}/go/${code}`;
 
 /** كل الأرقام المحسوبة لإعلان واحد (بالجنيه، والدولار بيتحوّل بالسعر اللي المالك كاتبه) */
 function money(c, rate) {
   const s = c.stats;
-  const revenue = (s.revenue.EGP || 0) + (s.revenue.USD || 0) * rate;
+  const revenue = (s.revenue.EGP || 0) + (s.revenue.USD || 0) * rate + (s.revenue.SAR || 0) * readSarRate();
   const spend = c.spend.currency === 'USD' ? c.spend.amount * rate : c.spend.amount;
   return {
     revenue, spend,
@@ -229,7 +234,7 @@ function CampaignDetail({ id }) {
                   <Badge tone={st.tone}>{st.label}</Badge>
                   {u.status === 'paid' && (
                     <span className="font-bold text-brass-soft">
-                      {[u.amount.EGP ? fmtMoney(u.amount.EGP, 'EGP') : '', u.amount.USD ? fmtMoney(u.amount.USD, 'USD') : ''].filter(Boolean).join(' · ')}
+                      {[u.amount.EGP ? fmtMoney(u.amount.EGP, 'EGP') : '', u.amount.USD ? fmtMoney(u.amount.USD, 'USD') : '', u.amount.SAR ? fmtMoney(u.amount.SAR, 'SAR') : ''].filter(Boolean).join(' · ')}
                     </span>
                   )}
                   {u.invitations > 0 && <span className="text-[11px] text-ivory/40">{u.invitations} دعوة</span>}
@@ -451,8 +456,8 @@ function CampaignCard({ c, rate, open, onToggle }) {
           <div className="rounded-xl bg-ivory/[0.04] p-3">
             <div className="text-[11.5px] text-ivory/50">دخل فلوس</div>
             <div className="mt-1 font-bold text-brass-soft" data-campaign-revenue>
-              {s.revenue.EGP || s.revenue.USD
-                ? [s.revenue.EGP ? fmtMoney(s.revenue.EGP, 'EGP') : '', s.revenue.USD ? fmtMoney(s.revenue.USD, 'USD') : ''].filter(Boolean).join(' + ')
+              {s.revenue.EGP || s.revenue.USD || s.revenue.SAR
+                ? [s.revenue.EGP ? fmtMoney(s.revenue.EGP, 'EGP') : '', s.revenue.USD ? fmtMoney(s.revenue.USD, 'USD') : '', s.revenue.SAR ? fmtMoney(s.revenue.SAR, 'SAR') : ''].filter(Boolean).join(' + ')
                 : '—'}
             </div>
             <div className="text-[10.5px] text-ivory/35">{fmtNum(s.orders)} باقة اتباعت</div>
@@ -505,6 +510,7 @@ export default function CampaignsPage() {
   const [openId, setOpenId] = useState(null);
   const [showArchived, setShowArchived] = useState(false);
   const [rate, setRate] = useState(readRate);
+  const [sarRate, setSarRate] = useState(readSarRate);
   const all = data?.campaigns || [];
   const list = all.filter((c) => showArchived || !c.archived);
   const archivedCount = all.filter((c) => c.archived).length;
@@ -580,6 +586,14 @@ export default function CampaignsPage() {
               <input
                 type="number" min="1" step="any" value={rate} data-usd-rate
                 onChange={(e) => { const n = Number(e.target.value) || 0; setRate(n); try { if (n > 0) localStorage.setItem(RATE_KEY, String(n)); } catch { /* */ } }}
+                className="w-20 rounded-lg border border-line-lite bg-night/60 px-2 py-1 text-center text-[12.5px] text-ivory focus:border-brass/60 focus:outline-none"
+              />
+            </label>
+            <label className="flex items-center gap-2 text-[12px] text-ivory/60">
+              سعر الريال بالجنيه:
+              <input
+                type="number" min="0.1" step="any" value={sarRate} data-sar-rate
+                onChange={(e) => { const n = Number(e.target.value) || 0; setSarRate(n); try { if (n > 0) localStorage.setItem(SAR_RATE_KEY, String(n)); } catch { /* */ } }}
                 className="w-20 rounded-lg border border-line-lite bg-night/60 px-2 py-1 text-center text-[12.5px] text-ivory focus:border-brass/60 focus:outline-none"
               />
             </label>

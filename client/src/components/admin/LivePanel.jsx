@@ -147,7 +147,9 @@ export default function LivePanel() {
           <StatTile
             icon={Wallet} label="أرباح النهارده" delay={0.12}
             value={fmtMoney(today?.revenue?.EGP?.total || 0, 'EGP')}
-            hint={today?.revenue?.USD?.total ? `+ ${fmtMoney(today.revenue.USD.total, 'USD')}` : 'الطلبات اللي اتفعّلت النهارده'}
+            hint={(today?.revenue?.USD?.total || today?.revenue?.SAR?.total)
+              ? [today.revenue.USD?.total ? `+ ${fmtMoney(today.revenue.USD.total, 'USD')}` : '', today.revenue.SAR?.total ? `+ ${fmtMoney(today.revenue.SAR.total, 'SAR')}` : ''].filter(Boolean).join(' ')
+              : 'الطلبات اللي اتفعّلت النهارده'}
           />
         </div>
       </div>

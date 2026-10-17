@@ -79,6 +79,7 @@ export default function PackagesPricesPage() {
       next[p.id] = {
         EGP: p.customEGP ? String(p.customEGP) : '',
         USD: p.customUSD ? String(p.customUSD) : '',
+        SAR: p.customSAR ? String(p.customSAR) : '',
         enabled: p.enabled,
       };
     });
@@ -95,7 +96,7 @@ export default function PackagesPricesPage() {
 
   const packages = useMemo(() => data?.packages || [], [data]);
   const hasErrors = packages.some((p) => rows[p.id]
-    && (priceError(rows[p.id].EGP, max) || priceError(rows[p.id].USD, max)));
+    && (priceError(rows[p.id].EGP, max) || priceError(rows[p.id].USD, max) || priceError(rows[p.id].SAR, max)));
   const enabledCount = packages.filter((p) => rows[p.id]?.enabled).length;
 
   async function onSave() {
@@ -109,6 +110,7 @@ export default function PackagesPricesPage() {
       const out = {};
       if (r.EGP !== '') out.EGP = Number(r.EGP);
       if (r.USD !== '') out.USD = Number(r.USD);
+      if (r.SAR !== '' && r.SAR != null) out.SAR = Number(r.SAR);
       if (Object.keys(out).length) prices[p.id] = out;
       if (!r.enabled) disabled.push(p.id);
     });
@@ -157,6 +159,7 @@ export default function PackagesPricesPage() {
           const egyptOnly = p.countries.length === 1 && p.countries[0] === 'EG';
           const effEGP = r.EGP !== '' && !priceError(r.EGP, max) ? Number(r.EGP) : p.defaultEGP;
           const effUSD = r.USD !== '' && !priceError(r.USD, max) ? Number(r.USD) : p.defaultUSD;
+          const effSAR = r.SAR && !priceError(r.SAR, max) ? Number(r.SAR) : p.defaultSAR;
           return (
             <Panel
               key={p.id}
@@ -184,7 +187,7 @@ export default function PackagesPricesPage() {
                 </button>
               )}
             >
-              <div className="flex gap-3">
+              <div className="grid gap-3 sm:flex">
                 <PriceInput label="السعر في مصر" currency="ج.م" value={r.EGP} def={p.defaultEGP} max={max}
                   onChange={(v) => update(p.id, { EGP: v })} />
                 {egyptOnly ? (
@@ -195,8 +198,12 @@ export default function PackagesPricesPage() {
                     </div>
                   </div>
                 ) : (
-                  <PriceInput label="السعر بره مصر" currency="$" value={r.USD} def={p.defaultUSD} max={max}
-                    onChange={(v) => update(p.id, { USD: v })} />
+                  <>
+                    <PriceInput label="السعودية (بالريال)" currency="ر.س" value={r.SAR} def={p.defaultSAR} max={max}
+                      onChange={(v) => update(p.id, { SAR: v })} />
+                    <PriceInput label="باقي الدول" currency="$" value={r.USD} def={p.defaultUSD} max={max}
+                      onChange={(v) => update(p.id, { USD: v })} />
+                  </>
                 )}
               </div>
 
@@ -205,6 +212,7 @@ export default function PackagesPricesPage() {
                   <Globe2 size={13} className="text-brass-soft" /> العميل هيشوف:
                 </span>
                 <span className="font-bold text-ivory">{effEGP} ج.م</span>
+                {!egyptOnly && <span className="font-bold text-ivory">{effSAR} ر.س</span>}
                 {!egyptOnly && <span className="font-bold text-ivory">${effUSD}</span>}
                 {p.discountPercent > 0 && (
                   <span className="inline-flex items-center gap-1 text-brass-soft">

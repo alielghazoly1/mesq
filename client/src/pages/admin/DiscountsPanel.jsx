@@ -41,6 +41,7 @@ function PreviewRow({ pkg, form }) {
   const percent = effectivePercent(pkg, form);
   const egp = finalPrice(pkg.egp.listPrice, percent, 'EGP');
   const usd = finalPrice(pkg.usd.listPrice, percent, 'USD');
+  const sar = finalPrice(pkg.sar?.listPrice || 0, percent, 'SAR');
   const egyptOnly = (pkg.countries || []).length > 0;
 
   return (
@@ -73,7 +74,7 @@ function PreviewRow({ pkg, form }) {
         )}
       </td>
 
-      {[['EGP', pkg.egp.listPrice, egp, 'ج.م'], ['USD', pkg.usd.listPrice, usd, '$']].map(
+      {[['EGP', pkg.egp.listPrice, egp, 'ج.م'], ['USD', pkg.usd.listPrice, usd, '$'], ['SAR', pkg.sar?.listPrice || 0, sar, 'ر.س']].map(
         ([cur, list, now, label]) => (
           <td key={cur} className="whitespace-nowrap px-2.5 py-3">
             {/* الباقة المصرية مالهاش سعر دولار أصلاً */}
@@ -275,7 +276,7 @@ export default function DiscountsPanel() {
           <table className="w-full min-w-[560px] border-collapse text-[12.5px]">
             <thead>
               <tr className="border-b border-line-lite">
-                {['الباقة', 'نسبة خاصة', 'بالجنيه', 'بالدولار'].map((h) => (
+                {['الباقة', 'نسبة خاصة', 'بالجنيه', 'بالدولار', 'بالريال'].map((h) => (
                   <th
                     key={h}
                     className="whitespace-nowrap px-2.5 py-2.5 text-start text-[11px] font-bold uppercase tracking-wider text-ivory/40"

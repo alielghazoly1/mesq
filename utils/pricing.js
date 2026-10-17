@@ -9,7 +9,7 @@
 const PricingSettings = require('../models/PricingSettings');
 const {
   getPackage, packagesAvailableIn, packagesForCountry,
-  currencyForCountry, CURRENCY_LABELS, PACKAGES,
+  currencyForCountry, CURRENCY_LABELS, PACKAGES, CURRENCIES,
 } = require('../packages/registry');
 
 // حدود السعر اللي المالك يقدر يكتبه (حماية من غلطة كتابة زي 0 أو رقم خرافي)
@@ -214,7 +214,7 @@ async function savePackagePrices(input) {
     const row = incoming[p.id];
     if (!row || typeof row !== 'object') return;
     const out = {};
-    ['EGP', 'USD'].forEach((cur) => {
+    CURRENCIES.forEach((cur) => {
       const v = cleanPrice(row[cur]);
       // نفس سعر السجل = مفيش داعي نخزّنه (يفضل "افتراضي" ويتبع السجل)
       if (v && v !== (p.price && p.price[cur])) out[cur] = v;

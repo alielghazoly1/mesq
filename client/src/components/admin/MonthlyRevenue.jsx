@@ -17,7 +17,11 @@ const RANGES = [
 const CURRENCIES = [
   { value: 'egp', label: 'بالجنيه' },
   { value: 'usd', label: 'بالدولار' },
+  { value: 'sar', label: 'بالريال' },
 ];
+// مفتاح العملة في بيانات الشهر ← كودها
+const CODE = { egp: 'EGP', usd: 'USD', sar: 'SAR' };
+const NAME = { egp: 'جنيه', usd: 'دولار', sar: 'ريال' };
 
 const GRID = 'rgba(250,245,236,0.10)';
 const AXIS = 'rgba(250,245,236,0.40)';
@@ -44,8 +48,8 @@ function ChartTip({ active, payload, currency }) {
   return (
     <div className="rounded-xl border border-line-lite bg-night px-3 py-2 text-[12px] shadow-xl">
       <div className="mb-1 font-bold text-ivory/85">{monthName(r.month, true)}</div>
-      <div className="text-ivory/70">الأرباح: <b className="text-ivory">{fmtMoney(r[currency], currency === 'egp' ? 'EGP' : 'USD')}</b></div>
-      <div className="text-ivory/55">{r[currency === 'egp' ? 'egpOrders' : 'usdOrders']} طلب · {r.signups} تسجيل</div>
+      <div className="text-ivory/70">الأرباح: <b className="text-ivory">{fmtMoney(r[currency], CODE[currency])}</b></div>
+      <div className="text-ivory/55">{r[`${currency}Orders`] || 0} طلب · {r.signups} تسجيل</div>
     </div>
   );
 }
@@ -54,7 +58,7 @@ export default function MonthlyRevenue() {
   const [months, setMonths] = useState(12);
   const [currency, setCurrency] = useState('egp');
   const { data, isLoading, isFetching } = useGetRevenueMonthlyQuery(months);
-  const cur = currency === 'egp' ? 'EGP' : 'USD';
+  const cur = CODE[currency];
 
   const rows = useMemo(() => (data?.months || []).map((r, i, arr) => ({
     ...r,
@@ -131,9 +135,10 @@ export default function MonthlyRevenue() {
                   <th className="py-2 text-start font-bold">الشهر</th>
                   <th className="py-2 text-start font-bold">بالجنيه</th>
                   <th className="py-2 text-start font-bold">بالدولار</th>
+                  <th className="py-2 text-start font-bold">بالريال</th>
                   <th className="py-2 text-start font-bold">طلبات</th>
                   <th className="py-2 text-start font-bold">تسجيلات</th>
-                  <th className="py-2 text-start font-bold">النمو ({currency === 'egp' ? 'جنيه' : 'دولار'})</th>
+                  <th className="py-2 text-start font-bold">النمو ({NAME[currency]})</th>
                 </tr>
               </thead>
               <tbody>
@@ -145,6 +150,7 @@ export default function MonthlyRevenue() {
                     </td>
                     <td className={`py-2.5 ${r.egp ? 'text-ivory' : 'text-ivory/30'}`}>{fmtMoney(r.egp, 'EGP')}</td>
                     <td className={`py-2.5 ${r.usd ? 'text-ivory' : 'text-ivory/30'}`}>{fmtMoney(r.usd, 'USD')}</td>
+                    <td className={`py-2.5 ${r.sar ? 'text-ivory' : 'text-ivory/30'}`}>{fmtMoney(r.sar || 0, 'SAR')}</td>
                     <td className="py-2.5 text-ivory/70">{fmtNum(r.orders)}</td>
                     <td className="py-2.5 text-ivory/70">{fmtNum(r.signups)}</td>
                     <td className="py-2.5">

@@ -57,6 +57,9 @@ export default function EarningsPage() {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <StatTile icon={Wallet} tone="ok" label="إجمالي بالجنيه" value={fmtMoney(data?.grand?.EGP || 0, 'EGP')} />
         <StatTile icon={Wallet} tone="ok" label="إجمالي بالدولار" value={fmtMoney(data?.grand?.USD || 0, 'USD')} />
+        {data?.grand?.SAR > 0 && (
+          <StatTile icon={Wallet} tone="ok" label="إجمالي بالريال" value={fmtMoney(data.grand.SAR, 'SAR')} />
+        )}
         <StatTile icon={Crown} tone="gold" label="عملاء دافعين" value={fmtNum(data?.totalPayers || 0)} />
       </div>
 
@@ -65,7 +68,7 @@ export default function EarningsPage() {
           <Empty>لسه مفيش أرباح.</Empty>
         ) : (
           <>
-            <Table head={['العميل', 'الباقة', 'دفع (جنيه)', 'دفع (دولار)', 'طلبات', 'آخر دفعة']}>
+            <Table head={['العميل', 'الباقة', 'دفع (جنيه)', 'دفع (دولار / ريال)', 'طلبات', 'آخر دفعة']}>
               {items.map((c) => (
                 <Row key={c.userId} onClick={() => dispatch(openUser(c.userId))}>
                   <Cell>
@@ -89,7 +92,9 @@ export default function EarningsPage() {
                     {c.egp ? fmtMoney(c.egp, 'EGP') : <span className="text-ivory/25">—</span>}
                   </Cell>
                   <Cell className="whitespace-nowrap font-bold text-brass-soft">
-                    {c.usd ? fmtMoney(c.usd, 'USD') : <span className="text-ivory/25">—</span>}
+                    {c.usd || c.sar
+                      ? [c.usd ? fmtMoney(c.usd, 'USD') : '', c.sar ? fmtMoney(c.sar, 'SAR') : ''].filter(Boolean).join(' · ')
+                      : <span className="text-ivory/25">—</span>}
                   </Cell>
                   <Cell className="text-ivory/55">{fmtNum(c.orders)}</Cell>
                   <Cell className="whitespace-nowrap text-ivory/45">{c.lastPaidAt ? fmtDate(c.lastPaidAt) : 'لسه'}</Cell>

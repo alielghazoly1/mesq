@@ -56,7 +56,7 @@ const router = express.Router();
 
 // كل الأرباح بتتحسب بالعملتين على حدة — مفيش سعر صرف ثابت نعتمد عليه،
 // وجمع جنيه على دولار في رقم واحد بيدي رقم كذّاب.
-const CURRENCIES = ['EGP', 'USD'];
+const CURRENCIES = ['EGP', 'USD', 'SAR'];
 
 /**
  * بيحفظ حقول محددة من حساب العميل — بدل `user.save()`.
@@ -196,6 +196,7 @@ router.get('/admin/api/overview', requireAdminSession, async (req, res) => {
             count: { $sum: 1 },
             egp: { $sum: { $cond: [{ $eq: ['$currency', 'EGP'] }, '$price', 0] } },
             usd: { $sum: { $cond: [{ $eq: ['$currency', 'USD'] }, '$price', 0] } },
+            sar: { $sum: { $cond: [{ $eq: ['$currency', 'SAR'] }, '$price', 0] } },
           },
         },
       ]),
@@ -211,7 +212,7 @@ router.get('/admin/api/overview', requireAdminSession, async (req, res) => {
       ]),
       Order.aggregate([
         { $match: { status: 'activated' } },
-        { $group: { _id: '$packageId', count: { $sum: 1 }, egp: { $sum: { $cond: [{ $eq: ['$currency', 'EGP'] }, '$price', 0] } }, usd: { $sum: { $cond: [{ $eq: ['$currency', 'USD'] }, '$price', 0] } } } },
+        { $group: { _id: '$packageId', count: { $sum: 1 }, egp: { $sum: { $cond: [{ $eq: ['$currency', 'EGP'] }, '$price', 0] } }, usd: { $sum: { $cond: [{ $eq: ['$currency', 'USD'] }, '$price', 0] } }, sar: { $sum: { $cond: [{ $eq: ['$currency', 'SAR'] }, '$price', 0] } } } },
         { $sort: { count: -1 } },
       ]),
       // العملاء حسب الدولة: كام واحد مسجّل، وكام منهم دفع
@@ -267,7 +268,7 @@ router.get('/admin/api/overview', requireAdminSession, async (req, res) => {
     // وكل الباقات كمان، حتى اللي ماتباعتش
     const pkgRows = [...byPackage];
     PACKAGES.forEach((p) => {
-      if (!pkgRows.some((r) => r._id === p.id)) pkgRows.push({ _id: p.id, count: 0, egp: 0, usd: 0 });
+      if (!pkgRows.some((r) => r._id === p.id)) pkgRows.push({ _id: p.id, count: 0, egp: 0, usd: 0, sar: 0 });
     });
     pkgRows.sort((a, b) => b.count - a.count);
     const templatesAll = Object.entries(tplCounts)
@@ -317,7 +318,7 @@ router.get('/admin/api/overview', requireAdminSession, async (req, res) => {
           return {
             id: r._id,
             label: pkg ? (pkg.name.ar || pkg.name.en) : r._id,
-            count: r.count, egp: r.egp, usd: r.usd,
+            count: r.count, egp: r.egp, usd: r.usd, sar: r.sar || 0,
             periodCount: pkgPeriod[r._id] || 0,
           };
         }),
@@ -387,7 +388,7 @@ router.get('/admin/api/live', requireAdminSession, async (req, res) => {
         signups: signupsToday,
         invitations: invitationsToday,
         orders: pendingToday,
-        revenue: { EGP: money('EGP'), USD: money('USD') },
+        revenue: { EGP: money('EGP'), USD: money('USD'), SAR: money('SAR') },
       },
     });
   } catch (err) {
@@ -415,8 +416,10 @@ router.get('/admin/api/revenue-monthly', requireAdminSession, async (req, res) =
             _id: monthKey('$activatedAt'),
             egp: { $sum: { $cond: [{ $eq: ['$currency', 'EGP'] }, '$price', 0] } },
             usd: { $sum: { $cond: [{ $eq: ['$currency', 'USD'] }, '$price', 0] } },
+            sar: { $sum: { $cond: [{ $eq: ['$currency', 'SAR'] }, '$price', 0] } },
             egpOrders: { $sum: { $cond: [{ $eq: ['$currency', 'EGP'] }, 1, 0] } },
             usdOrders: { $sum: { $cond: [{ $eq: ['$currency', 'USD'] }, 1, 0] } },
+            sarOrders: { $sum: { $cond: [{ $eq: ['$currency', 'SAR'] }, 1, 0] } },
           },
         },
       ]),
@@ -439,9 +442,11 @@ router.get('/admin/api/revenue-monthly', requireAdminSession, async (req, res) =
         month: key,
         egp: row.egp || 0,
         usd: row.usd || 0,
+        sar: row.sar || 0,
         egpOrders: row.egpOrders || 0,
         usdOrders: row.usdOrders || 0,
-        orders: (row.egpOrders || 0) + (row.usdOrders || 0),
+        sarOrders: row.sarOrders || 0,
+        orders: (row.egpOrders || 0) + (row.usdOrders || 0) + (row.sarOrders || 0),
         signups: s.get(key) || 0,
         current: i === 0,
       });
@@ -449,7 +454,7 @@ router.get('/admin/api/revenue-monthly', requireAdminSession, async (req, res) =
     const sum = (k) => list.reduce((a, r) => a + r[k], 0);
     return res.json({
       months: list,
-      totals: { egp: sum('egp'), usd: sum('usd'), orders: sum('orders'), signups: sum('signups') },
+      totals: { egp: sum('egp'), usd: sum('usd'), sar: sum('sar'), orders: sum('orders'), signups: sum('signups') },
       firstSale: firstOrder ? firstOrder.activatedAt : null,
     });
   } catch (err) {
@@ -1224,7 +1229,7 @@ router.get('/admin/api/ugc', requireAdminSession, async (req, res) => {
       .sort({ createdAt: -1 })
       .lean();
 
-    const zero = () => ({ EGP: 0, USD: 0 });
+    const zero = () => ({ EGP: 0, USD: 0, SAR: 0 });
     const totals = {
       count: users.length,
       registrations: 0,
@@ -1248,8 +1253,8 @@ router.get('/admin/api/ugc', requireAdminSession, async (req, res) => {
         createdAt: u.createdAt,
         stats,
       });
-      ['EGP', 'USD'].forEach((c) => {
-        totals.earned[c] = round2(totals.earned[c] + stats.earned[c]);
+      CURRENCIES.forEach((c) => {
+        totals.earned[c] = round2(totals.earned[c] + (stats.earned[c] || 0));
         totals.withdrawn[c] = round2(totals.withdrawn[c] + stats.withdrawn[c]);
         totals.pending[c] = round2(totals.pending[c] + stats.pending[c]);
         totals.available[c] = round2(totals.available[c] + stats.available[c]);
@@ -1279,6 +1284,7 @@ router.get('/admin/api/revenue', requireAdminSession, async (req, res) => {
         _id: '$userId',
         egp: { $sum: { $cond: [{ $eq: ['$currency', 'EGP'] }, '$price', 0] } },
         usd: { $sum: { $cond: [{ $eq: ['$currency', 'USD'] }, '$price', 0] } },
+        sar: { $sum: { $cond: [{ $eq: ['$currency', 'SAR'] }, '$price', 0] } },
         orders: { $sum: 1 },
         lastPaidAt: { $max: '$activatedAt' },
       },
@@ -1288,7 +1294,7 @@ router.get('/admin/api/revenue', requireAdminSession, async (req, res) => {
       Order.aggregate([
         { $match: { status: 'activated' } },
         groupStage,
-        { $sort: { egp: -1, usd: -1, lastPaidAt: -1 } },
+        { $sort: { egp: -1, usd: -1, sar: -1, lastPaidAt: -1 } },
         { $skip: (page - 1) * perPage },
         { $limit: perPage },
       ]),
@@ -1336,6 +1342,7 @@ router.get('/admin/api/revenue', requireAdminSession, async (req, res) => {
           phone: u.phone || '',
           egp: r.egp || 0,
           usd: r.usd || 0,
+          sar: r.sar || 0,
           orders: r.orders || 0,
           lastPaidAt: r.lastPaidAt || null,
           packageName: pkg ? (pkg.name.ar || pkg.name.en) : null,
@@ -1506,6 +1513,8 @@ router.get('/admin/api/payment-settings', requireAdminSession, async (req, res) 
       taptap: doc.taptap || { enabled: false, phone: '', recipientName: '', location: '', note: '' },
       // البلاد اللي بتشوف Taptap Send (للعرض في اللوحة)
       taptapCountries: [...TAPTAP_COUNTRIES],
+      // طرق الدفع للعملاء في السعودية (بالريال)
+      saudi: doc.saudi || {},
       whatsapp: doc.whatsapp || '',
       updatedAt: doc.updatedAt,
     });
@@ -1591,10 +1600,13 @@ router.get('/admin/api/packages', requireAdminSession, async (req, res) => {
       packages: PACKAGES.map((p) => {
         const egp = priceFor(p, 'EGP', settings);
         const usd = priceFor(p, 'USD', settings);
+        const sar = priceFor(p, 'SAR', settings);
         return {
           id: p.id,
           name: p.name.ar || p.name.en,
           invitations: p.invitations,
+          priceSAR: listPriceFor(p, 'SAR', settings),
+          finalSAR: sar.price,
           // سعر القايمة (قبل الخصم) — بعد أي سعر حدّده المالك من اللوحة
           priceEGP: listPriceFor(p, 'EGP', settings),
           priceUSD: listPriceFor(p, 'USD', settings),
@@ -1639,10 +1651,15 @@ router.get('/admin/api/package-prices', requireAdminSession, async (req, res) =>
       packages: PACKAGES.map((p) => {
         const egp = priceFor(p, 'EGP', settings);
         const usd = priceFor(p, 'USD', settings);
+        const sar = priceFor(p, 'SAR', settings);
         return {
           id: p.id,
           name: p.name.ar || p.name.en,
           nameEn: p.name.en,
+          defaultSAR: (p.price && p.price.SAR) || 0,
+          customSAR: (own[p.id] && own[p.id].SAR) || null,
+          listSAR: sar.listPrice,
+          finalSAR: sar.price,
           invitations: p.invitations,
           // متاحة في دول معيّنة بس؟ (باقة الدعوة الواحدة = مصر بس)
           countries: p.countries || [],
@@ -1714,6 +1731,7 @@ router.get('/admin/api/pricing-settings', requireAdminSession, async (req, res) 
         countries: p.countries || [],
         egp: priceFor(p, 'EGP', settings),
         usd: priceFor(p, 'USD', settings),
+        sar: priceFor(p, 'SAR', settings),
       })),
     });
   } catch (err) {

@@ -26,6 +26,7 @@ import { openAuthModal } from '../store/uiSlice.js';
 import { tooBig, sizeError, uploadError } from '../lib/uploadLimits.js';
 import { whatsappLink } from '../lib/contact.js';
 import Footer from '../components/Footer.jsx';
+import SaudiPay from '../components/SaudiPay.jsx';
 
 /**
  * خانة بيانات جنب بعضها — كل واحدة كارت مستقل فيه العنوان فوق والقيمة
@@ -199,6 +200,8 @@ export default function CheckoutPage() {
   }
 
   const isVodafone = payInfo?.method === 'vodafone';
+  // السعودية: بنك سعودي / برق / فودافون كاش بالريال (components/SaudiPay.jsx)
+  const isSaudi = payInfo?.method === 'saudi';
   const v = payInfo?.vodafone || {};
   const b = payInfo?.bank || {};
   const kast = payInfo?.kast || null;
@@ -210,7 +213,9 @@ export default function CheckoutPage() {
   const intlTabs = [...(taptap ? ['taptap'] : []), 'bank', ...(kast ? ['kast'] : []), ...(usdt ? ['usdt'] : [])];
   // التبويب المفتوح: اللي العميل اختاره، وإلا أول واحد متاح
   const activeTab = intlTabs.includes(payTab) ? payTab : intlTabs[0];
-  const hasPayData = isVodafone ? !!v.number : !!(b.accountNumber || b.iban);
+  const hasPayData = isVodafone ? !!v.number
+    : isSaudi ? !!(payInfo.saBank || payInfo.barq || payInfo.wallet)
+      : !!(b.accountNumber || b.iban);
   // مدة التعديل بعد التفعيل — من السيرفر، و0 = القاعدة متقفلة
   const days = pkgData?.editWindowDays ?? 30;
 
@@ -311,6 +316,8 @@ export default function CheckoutPage() {
               <p className="rounded-xl bg-brass/10 px-4 py-3 text-[12.5px] text-[#7a5a1a]">
                 {t('checkout.noPayData')}
               </p>
+            ) : isSaudi ? (
+              <SaudiPay info={payInfo} CopyTile={CopyTile} amount={`${pkg.price} ${pkg.currencyLabel}`} />
             ) : isVodafone ? (
               <>
                 {/* ===== كارت فودافون كاش ===== */}
@@ -690,10 +697,13 @@ export default function CheckoutPage() {
                 <InfinityIcon size={14} className="mt-0.5 shrink-0 text-emerald" />
                 <span className="text-[12.5px] text-ink-dim">{t('checkout.perkLife')}</span>
               </div>
-              {days > 0 && (
+              {/* مدة تعديل الباقة دي بالذات (30/60/90/مدى الحياة) */}
+              {days > 0 && pkg.editDays !== 0 && (
                 <div className="flex items-start gap-2.5 rounded-xl bg-ivory/70 px-3.5 py-3">
                   <Pencil size={14} className="mt-0.5 shrink-0 text-emerald" />
-                  <span className="text-[12.5px] text-ink-dim">{t('checkout.perkEdit', { days })}</span>
+                  <span className="text-[12.5px] text-ink-dim">
+                    {pkg.editDays === null ? t('packages.every3Life') : t('checkout.perkEdit', { days: pkg.editDays || days })}
+                  </span>
                 </div>
               )}
             </div>

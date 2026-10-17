@@ -158,7 +158,7 @@ async function statsFor(campaigns) {
     startOf[c.code] = new Date(c.startedAt || c.createdAt || 0);
     out[c.code] = {
       clicks: 0, visitors: 0, signups: 0, payers: 0, pendingReceipts: 0,
-      orders: 0, revenue: { EGP: 0, USD: 0 },
+      orders: 0, revenue: { EGP: 0, USD: 0, SAR: 0 },
       // اللي اتسجّل ومااتحسبش وليه — عشان الأرقام تبقى مفهومة
       filtered: { pending: 0, prefetch: 0, bot: 0, owner: 0 },
     };
@@ -207,7 +207,7 @@ async function statsFor(campaigns) {
     paid.forEach((r) => {
       const code = userCode[String(r._id.u)];
       if (!code) return;
-      const cur = r._id.c === 'USD' ? 'USD' : 'EGP';
+      const cur = r._id.c === 'USD' || r._id.c === 'SAR' ? r._id.c : 'EGP';
       out[code].revenue[cur] = r2(out[code].revenue[cur] + r.total);
       out[code].orders += r.n;
       payers[code] = payers[code] || new Set();
@@ -372,8 +372,8 @@ router.get('/admin/api/campaigns/:id', requireAdminSession, async (req, res) => 
       const paid = os.filter((o) => o.status === 'activated');
       const waiting = os.some((o) => o.status === 'pending' && o.paymentProofUrl);
       const ordered = os.some((o) => o.status === 'pending');
-      const amount = { EGP: 0, USD: 0 };
-      paid.forEach((o) => { amount[o.currency === 'USD' ? 'USD' : 'EGP'] = r2(amount[o.currency === 'USD' ? 'USD' : 'EGP'] + o.price); });
+      const amount = { EGP: 0, USD: 0, SAR: 0 };
+      paid.forEach((o) => { const cu = o.currency === 'USD' || o.currency === 'SAR' ? o.currency : 'EGP'; amount[cu] = r2(amount[cu] + o.price); });
       const last = paid.sort((a, b) => new Date(b.activatedAt || 0) - new Date(a.activatedAt || 0))[0];
       return {
         id: String(u._id),
