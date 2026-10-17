@@ -2,7 +2,7 @@
 // المصريين بيشوفوا فودافون كاش، وغيرهم بيشوفوا الحساب البنكي.
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { Save, Smartphone, Landmark, MessageCircle, Check, Zap, Wallet } from 'lucide-react';
+import { Save, Smartphone, Landmark, MessageCircle, Check } from 'lucide-react';
 import {
   useGetPaymentSettingsQuery, useSavePaymentSettingsMutation,
 } from '../../store/adminApi.js';
@@ -159,56 +159,27 @@ export default function SettingsPage() {
         </p>
       </Panel>
 
-      {/* ===== السعودية — العملاء المسجّلين من السعودية بيشوفوا الطرق دي بس (بالريال) ===== */}
-      <Panel title="العملاء في السعودية (بالريال)" subtitle="الأسعار بتظهر لهم بالريال السعودي، وبيشوفوا الطرق اللي إنت مفعّلها هنا بس">
-        <div className="space-y-4">
-          <div className="rounded-xl border border-ivory/10 bg-ivory/[0.03] p-3.5">
-            <label className="mb-3 flex cursor-pointer items-center gap-2.5">
-              <input type="checkbox" {...register('saudi.bank.enabled')} className="h-4 w-4 accent-brass" />
-              <Landmark size={16} className="text-brass-soft" />
-              <span className="text-[13px] font-bold text-ivory">تحويل بنكي على حساب سعودي</span>
-            </label>
-            <div className="grid gap-3.5 sm:grid-cols-2">
-              <Field label="رقم الآيبان (IBAN)" dir="ltr" className="font-mono" placeholder="SA00 0000 0000 0000 0000 0000" {...register('saudi.bank.iban')} />
-              <Field label="اسم البنك" placeholder="مصرف الراجحي" {...register('saudi.bank.bankName')} />
-              <Field label="اسم صاحب الحساب" {...register('saudi.bank.accountName')} />
-              <Field label="رقم الحساب (اختياري)" dir="ltr" {...register('saudi.bank.accountNumber')} />
-              <Field label="ملاحظة للعميل (اختياري)" placeholder="اكتب اسمك في سبب التحويل..." {...register('saudi.bank.note')} />
-            </div>
+      {/* ===== السعودية — العميل السعودي بيشوف برق أول حاجة، وبعده البنك المصري (تحويل دولي) و KAST و USDT ===== */}
+      <Panel title="العملاء في السعودية (بالريال)" subtitle="الأسعار بتظهر لهم بالريال، وأول طريقة قدامهم برق — وبعدها حسابك البنكي (تحويل دولي) و USDT">
+        <div className="rounded-xl border border-ivory/10 bg-ivory/[0.03] p-3.5">
+          <label className="mb-3 flex cursor-pointer items-center gap-2.5">
+            <input type="checkbox" {...register('saudi.barq.enabled')} className="h-4 w-4 accent-brass" />
+            <img src="/img/barq-logo.svg" alt="" className="h-5 w-5 rounded-[5px]" />
+            <span className="text-[13px] font-bold text-ivory">تطبيق برق ← محفظة ميزة ← فودافون كاش</span>
+          </label>
+          <div className="grid gap-3.5 sm:grid-cols-2">
+            <Field label="رقم فودافون كاش اللي هيستقبل (فاضي = رقم فودافون كاش اللي فوق)" dir="ltr" placeholder="01xxxxxxxxx" {...register('saudi.barq.phone')} />
+            <Field label="اسم المستلم (فاضي = اسم صاحب فودافون كاش)" {...register('saudi.barq.name')} />
+            <Field label="ملاحظة للعميل (اختياري)" placeholder="بعد التحويل صوّر الإيصال وارفعه هنا..." {...register('saudi.barq.note')} />
           </div>
-          <div className="rounded-xl border border-ivory/10 bg-ivory/[0.03] p-3.5">
-            <label className="mb-3 flex cursor-pointer items-center gap-2.5">
-              <input type="checkbox" {...register('saudi.barq.enabled')} className="h-4 w-4 accent-brass" />
-              <Zap size={16} className="text-[#8b7bff]" />
-              <span className="text-[13px] font-bold text-ivory">تطبيق برق</span>
-            </label>
-            <div className="grid gap-3.5 sm:grid-cols-2">
-              <Field label="رقم الجوال / المحفظة اللي هيستقبل" dir="ltr" placeholder="05xxxxxxxx" {...register('saudi.barq.phone')} />
-              <Field label="اسم المستلم" {...register('saudi.barq.name')} />
-              <Field label="ملاحظة للعميل (اختياري)" placeholder="حوّل من برق وابعت صورة التحويل..." {...register('saudi.barq.note')} />
-            </div>
-          </div>
-          <div className="rounded-xl border border-ivory/10 bg-ivory/[0.03] p-3.5">
-            <label className="mb-3 flex cursor-pointer items-center gap-2.5">
-              <input type="checkbox" {...register('saudi.wallet.enabled')} className="h-4 w-4 accent-brass" />
-              <Wallet size={16} className="text-[#ff5a5a]" />
-              <span className="text-[13px] font-bold text-ivory">محفظة فودافون كاش (تحويل دولي)</span>
-            </label>
-            <div className="grid gap-3.5 sm:grid-cols-2">
-              <Field label="رقم فودافون كاش" dir="ltr" placeholder="01xxxxxxxxx" {...register('saudi.wallet.number')} />
-              <Field label="اسم صاحب المحفظة" {...register('saudi.wallet.name')} />
-              <Field label="ملاحظة للعميل (اختياري)" placeholder="حوّل من أي تطبيق بيبعت لمحافظ مصر..." {...register('saudi.wallet.note')} />
-            </div>
-          </div>
-          <p className="flex items-start gap-2 rounded-xl bg-ivory/[0.04] p-3 text-[11.5px] leading-relaxed text-ivory/50">
-            <Landmark size={13} className="mt-0.5 shrink-0" />
-            <span>
-              كل طريقة بتظهر للعميل السعودي بس لما تتعلّم عليها ✓ وبياناتها مكتوبة — وكل رقم بينتسخ بضغطة، ومعاه المبلغ بالريال.
-              السيرفر بيتأكد إن الآيبان بصيغة سعودية صح (SA + 22 رقم) عشان التحويل مايروحش غلط.
-              أسعار الريال بتتغيّر من صفحة "الباقات والأسعار".
-            </span>
-          </p>
         </div>
+        <p className="mt-4 flex items-start gap-2 rounded-xl bg-ivory/[0.04] p-3 text-[11.5px] leading-relaxed text-ivory/50">
+          <Landmark size={13} className="mt-0.5 shrink-0" />
+          <span>
+            العميل بيشوف لوجو برق والخطوات بالترتيب: تحويل دولي ← تحويل إلى مستفيد ← مصر ← محفظة الجوال ← ميزة، وبعدها الرقم والاسم والمبلغ بالريال.
+            التبويبات اللي بعده هي نفس بيانات حسابك البنكي و KAST و USDT اللي فوق. أسعار الريال بتتغيّر من "الباقات والأسعار".
+          </span>
+        </p>
       </Panel>
 
       <Panel title="واتساب الدعم" subtitle="لو حطيته، بيظهر للعميل كطريقة تواصل سريعة">

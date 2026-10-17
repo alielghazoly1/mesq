@@ -106,19 +106,11 @@ async function updatePaymentSettings(body) {
     updatedAt: new Date(),
   };
 
-  // طريقة سعودية متفعّلة من غير بياناتها = العميل هيشوف خانة فاضية
+  // برق بيوصل على فودافون كاش — لو رقمه فاضي بناخد رقم فودافون كاش الأساسي،
+  // ولو الاتنين فاضيين مينفعش يتفعّل (العميل هيشوف خانة فاضية)
   const sa = update.saudi;
-  if (sa.bank.enabled && !sa.bank.iban) {
-    throw Object.assign(new Error('الحساب البنكي السعودي محتاج رقم الآيبان قبل ما يتفعّل.'), { status: 400 });
-  }
-  if (sa.bank.iban && !/^SA\d{22}$/.test(sa.bank.iban)) {
-    throw Object.assign(new Error('رقم الآيبان السعودي لازم يبدأ بـ SA وبعده 22 رقم — راجعه.'), { status: 400 });
-  }
-  if (sa.barq.enabled && !sa.barq.phone) {
-    throw Object.assign(new Error('برق محتاج رقم الجوال اللي هيستقبل التحويل قبل ما يتفعّل.'), { status: 400 });
-  }
-  if (sa.wallet.enabled && !sa.wallet.number) {
-    throw Object.assign(new Error('فودافون كاش محتاج رقم المحفظة قبل ما يتفعّل.'), { status: 400 });
+  if (sa.barq.enabled && !sa.barq.phone && !update.vodafone.number) {
+    throw Object.assign(new Error('برق محتاج رقم فودافون كاش اللي هيستقبل التحويل قبل ما يتفعّل.'), { status: 400 });
   }
 
   // عنوان غلط = فلوس العميل تضيع، فمبنحفظوش أصلًا
@@ -148,24 +140,6 @@ async function updatePaymentSettings(body) {
  */
 function publicPaymentInfo(doc, countryCode) {
   const isEgypt = String(countryCode || '').toUpperCase() === 'EG';
-  // السعودية: طرقها هي بس (بالريال) — كل طريقة متفعّلة وبياناتها مكتوبة
-  if (String(countryCode || '').toUpperCase() === 'SA') {
-    const sa = doc.saudi || {};
-    const out = { method: 'saudi', whatsapp: doc.whatsapp || '' };
-    if (sa.bank?.enabled && sa.bank?.iban) {
-      out.saBank = {
-        bankName: sa.bank.bankName || '', accountName: sa.bank.accountName || '',
-        iban: sa.bank.iban, accountNumber: sa.bank.accountNumber || '', note: sa.bank.note || '',
-      };
-    }
-    if (sa.barq?.enabled && sa.barq?.phone) {
-      out.barq = { phone: sa.barq.phone, name: sa.barq.name || '', note: sa.barq.note || '' };
-    }
-    if (sa.wallet?.enabled && sa.wallet?.number) {
-      out.wallet = { number: sa.wallet.number, name: sa.wallet.name || '', note: sa.wallet.note || '' };
-    }
-    return out;
-  }
   if (isEgypt) {
     return {
       method: 'vodafone',
@@ -221,6 +195,19 @@ function publicPaymentInfo(doc, countryCode) {
       network: USDT_NETWORK,
       note: doc.usdt.note || '',
       qr: qrDataUrl(doc.usdt.address, { cellSize: 6, margin: 2 }),
+    };
+  }
+
+  // السعودية (بالريال): برق أول طريقة — تحويل دولي لمصر على محفظة الجوال
+  // (ميزة) بيوصل فودافون كاش. وبعده نفس طرق العميل الدولي (البنك المصري
+  // تحويل دولي، KAST، USDT). الرقم الافتراضي = رقم فودافون كاش الأساسي.
+  const barq = doc.saudi?.barq;
+  const barqPhone = (barq?.phone || doc.vodafone?.number || '').trim();
+  if (cc === 'SA' && barq?.enabled && barqPhone) {
+    info.barq = {
+      phone: barqPhone,
+      name: barq.name || doc.vodafone?.holderName || '',
+      note: barq.note || '',
     };
   }
   return info;

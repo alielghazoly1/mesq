@@ -26,7 +26,7 @@ import { openAuthModal } from '../store/uiSlice.js';
 import { tooBig, sizeError, uploadError } from '../lib/uploadLimits.js';
 import { whatsappLink } from '../lib/contact.js';
 import Footer from '../components/Footer.jsx';
-import SaudiPay from '../components/SaudiPay.jsx';
+import BarqPay from '../components/BarqPay.jsx';
 
 /**
  * خانة بيانات جنب بعضها — كل واحدة كارت مستقل فيه العنوان فوق والقيمة
@@ -200,22 +200,21 @@ export default function CheckoutPage() {
   }
 
   const isVodafone = payInfo?.method === 'vodafone';
-  // السعودية: بنك سعودي / برق / فودافون كاش بالريال (components/SaudiPay.jsx)
-  const isSaudi = payInfo?.method === 'saudi';
   const v = payInfo?.vodafone || {};
   const b = payInfo?.bank || {};
   const kast = payInfo?.kast || null;
   const usdt = payInfo?.usdt || null;
   // Taptap Send — السيرفر بيبعتها بس لو بلد العميل من البلاد اللي التطبيق شغال فيها
   const taptap = payInfo?.taptap || null;
+  // برق — للعميل اللي في السعودية بس (السيرفر بيبعته ليه بس)، وبييجي الأول
+  const barq = payInfo?.barq || null;
   // تبويبات العميل الدولي: Taptap (لو متاحة لبلده — الأسهل، فبتيجي الأول)
   // + البنك دايمًا + KAST و USDT لو المالك مفعّلهم
-  const intlTabs = [...(taptap ? ['taptap'] : []), 'bank', ...(kast ? ['kast'] : []), ...(usdt ? ['usdt'] : [])];
+  const intlTabs = [...(barq ? ['barq'] : []), ...(taptap ? ['taptap'] : []), 'bank', ...(kast ? ['kast'] : []), ...(usdt ? ['usdt'] : [])];
   // التبويب المفتوح: اللي العميل اختاره، وإلا أول واحد متاح
   const activeTab = intlTabs.includes(payTab) ? payTab : intlTabs[0];
   const hasPayData = isVodafone ? !!v.number
-    : isSaudi ? !!(payInfo.saBank || payInfo.barq || payInfo.wallet)
-      : !!(b.accountNumber || b.iban);
+    : !!(b.accountNumber || b.iban || barq);
   // مدة التعديل بعد التفعيل — من السيرفر، و0 = القاعدة متقفلة
   const days = pkgData?.editWindowDays ?? 30;
 
@@ -223,7 +222,7 @@ export default function CheckoutPage() {
   // كاش وده كفاية، فمفيش سبب نزحم صفحته. الفحص على عملة الباقة (USD) مش
   // على وصول بيانات الدفع، عشان الزرار يبان حتى لو بيانات التحويل لسه
   // ماتحملتش أو مش متظبطة.
-  const showOtherMethods = pkg.currency === 'USD';
+  const showOtherMethods = pkg.currency === 'USD' || pkg.currency === 'SAR';
 
   return (
     <div className="min-h-screen bg-ivory">
@@ -316,8 +315,6 @@ export default function CheckoutPage() {
               <p className="rounded-xl bg-brass/10 px-4 py-3 text-[12.5px] text-[#7a5a1a]">
                 {t('checkout.noPayData')}
               </p>
-            ) : isSaudi ? (
-              <SaudiPay info={payInfo} CopyTile={CopyTile} amount={`${pkg.price} ${pkg.currencyLabel}`} />
             ) : isVodafone ? (
               <>
                 {/* ===== كارت فودافون كاش ===== */}
@@ -389,7 +386,16 @@ export default function CheckoutPage() {
                 {intlTabs.length > 1 ? (
                   /* زرار لكل وسيلة: البنك (الافتراضي) و KAST و USDT — كل
                      واحدة بتعرض تفاصيلها لوحدها، عشان الشاشة ماتطولش */
-                  <div className={`mb-4 grid gap-1.5 rounded-2xl bg-ink/[0.05] p-1 ${intlTabs.length === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
+                  <div className={`mb-4 grid gap-1.5 rounded-2xl bg-ink/[0.05] p-1 ${intlTabs.length === 4 ? 'grid-cols-2 sm:grid-cols-4' : intlTabs.length === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
+                    {barq && (
+                      <button
+                        type="button"
+                        onClick={() => setPayTab('barq')}
+                        className={`inline-flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-[12.5px] font-extrabold transition ${activeTab === 'barq' ? 'bg-black text-white shadow-sm' : 'text-ink-dim'}`}
+                      >
+                        <img src="/img/barq-logo.svg" alt="" className="h-[18px] w-[18px] rounded-[5px]" /> {t('saPay.barq')}
+                      </button>
+                    )}
                     {taptap && (
                       <button
                         type="button"
@@ -538,6 +544,11 @@ export default function CheckoutPage() {
                       <p className="mt-3 text-[12.5px] leading-relaxed text-ink-dim">{kast.note}</p>
                     )}
                   </div>
+                )}
+
+                {/* ===== برق — للعميل اللي في السعودية ===== */}
+                {barq && activeTab === 'barq' && (
+                  <BarqPay barq={barq} CopyTile={CopyTile} amount={`${pkg.price} ${pkg.currencyLabel}`} />
                 )}
 
                 {/* ===== Taptap Send — للبلاد اللي التطبيق شغال فيها بس ===== */}
