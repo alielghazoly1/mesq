@@ -116,8 +116,8 @@ export default function CheckoutPage() {
   // — عشان مايبقاش الاتنين تحت بعض والشاشة تطول.
   // null = لسه مختارش — بيتفتح أول تبويب متاح (Taptap لو بلده فيها، وإلا البنك)
   const [payTab, setPayTab] = useState(null);
-  // العميل المصري: فودافون كاش (الافتراضي) أو إنستاباي
-  const [egTab, setEgTab] = useState('vodafone');
+  // العميل المصري: إنستاباي (الافتراضي — بطلب المالك) أو فودافون كاش
+  const [egTab, setEgTab] = useState('instapay');
 
   function copy(value, key) {
     if (!value) return;
@@ -323,17 +323,9 @@ export default function CheckoutPage() {
               </p>
             ) : isVodafone ? (
               <>
-                {/* فودافون كاش أو إنستاباي — زرار لكل واحدة لو الاتنين متاحين */}
+                {/* إنستاباي (أول واحد = على اليمين، والافتراضي) أو فودافون كاش */}
                 {instapay && v.number && (
                   <div className="mb-4 grid grid-cols-2 gap-1.5 rounded-2xl bg-ink/[0.05] p-1">
-                    <button
-                      type="button"
-                      onClick={() => setEgTab('vodafone')}
-                      aria-pressed={egActive === 'vodafone'}
-                      className={`inline-flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-[12.5px] font-extrabold transition ${egActive === 'vodafone' ? 'bg-[#E60000] text-white shadow-sm' : 'text-ink-dim'}`}
-                    >
-                      <VodafoneMark size={18} /> <span className="whitespace-nowrap" dir="ltr">Vodafone Cash</span>
-                    </button>
                     <button
                       type="button"
                       onClick={() => setEgTab('instapay')}
@@ -342,6 +334,14 @@ export default function CheckoutPage() {
                       className={`inline-flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-[12.5px] font-extrabold transition ${egActive === 'instapay' ? 'bg-[#5a2a82] text-white shadow-sm' : 'text-ink-dim'}`}
                     >
                       <img src="/img/instapay-logo.webp" alt="" className="h-[18px] w-[18px] rounded-[4px] bg-white" /> <span className="whitespace-nowrap" dir="ltr">InstaPay</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEgTab('vodafone')}
+                      aria-pressed={egActive === 'vodafone'}
+                      className={`inline-flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-[12.5px] font-extrabold transition ${egActive === 'vodafone' ? 'bg-[#E60000] text-white shadow-sm' : 'text-ink-dim'}`}
+                    >
+                      <VodafoneMark size={18} /> <span className="whitespace-nowrap" dir="ltr">Vodafone Cash</span>
                     </button>
                   </div>
                 )}
