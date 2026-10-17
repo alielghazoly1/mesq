@@ -123,6 +123,9 @@ export default function SupportLauncher() {
   // على الموبايل والشريط السفلي ظاهر: الزرار العايم بيستخبى (الشريط فيه
   // أيقونة الدعم)، واللوحة بتطلع فوق الشريط بدل ما تقعد عليه
   const withNav = hasBottomNav(pathname);
+  // صفحة الدفع على الموبايل فيها شريط ثابت تحت (السعر + رفع الإيصال) —
+  // الزرار العايم كان قاعد على السعر، فبيطلع فوق الشريط
+  const overBar = pathname.startsWith('/checkout/');
 
   // كل فتحة بتبدأ من القايمة، مهما كان آخر مكان وقف فيه
   useEffect(() => { if (open) setView('menu'); }, [open]);
@@ -178,7 +181,7 @@ export default function SupportLauncher() {
         type="button"
         onClick={() => dispatch(toggleSupport())}
         aria-label={t('support.launcher')}
-        className={`fixed bottom-4 start-4 z-[120] ${withNav ? 'hidden md:flex' : 'flex'} h-13 items-center gap-2 rounded-full bg-night px-4 py-3.5
+        className={`fixed ${overBar ? 'bottom-[calc(88px+env(safe-area-inset-bottom))] sm:bottom-4' : 'bottom-4'} start-4 z-[120] ${withNav ? 'hidden md:flex' : 'flex'} h-13 items-center gap-2 rounded-full bg-night px-4 py-3.5
           text-ivory shadow-[0_12px_30px_-10px_rgba(8,19,15,.7)] transition hover:bg-emerald active:scale-95`}
       >
         {open ? <X size={19} /> : <MessageCircle size={19} />}
@@ -213,7 +216,9 @@ export default function SupportLauncher() {
                 rounded-[22px] border border-line bg-card shadow-[0_28px_70px_-24px_rgba(8,19,15,.6)]
                 sm:end-auto sm:w-[360px] ${withNav
                   ? 'bottom-[calc(96px+env(safe-area-inset-bottom))] max-h-[calc(100dvh-180px)] md:bottom-20 md:max-h-[72vh]'
-                  : 'bottom-20 max-h-[72vh]'}`}
+                  : overBar
+                    ? 'bottom-[calc(160px+env(safe-area-inset-bottom))] max-h-[calc(100dvh-240px)] sm:bottom-20 sm:max-h-[72vh]'
+                    : 'bottom-20 max-h-[72vh]'}`}
             >
               {/* العنوان */}
               <div className="flex shrink-0 items-center gap-2.5 border-b border-line bg-gradient-to-l from-[#0d1f18] to-night px-4 py-3.5 text-ivory">
