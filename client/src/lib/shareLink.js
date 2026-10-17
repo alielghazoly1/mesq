@@ -9,6 +9,8 @@
 // السيرفر بيتجاهل البصمة في عرض الدعوة نفسها، فاللينك القديم والجديد
 // بيفتحوا نفس الدعوة بالظبط.
 
+const CARD_VERSION = 'v2';
+
 /** بصمة قصيرة ثابتة لنفس المحتوى (djb2 → base36) */
 function fingerprint(text) {
   let h = 5381;
@@ -25,5 +27,8 @@ export function invitationShareUrl(origin, shortId, share) {
   const base = `${origin}/i/${shortId}`;
   const s = share || {};
   if (!s.title && !s.description && !s.image) return base;
-  return `${base}?c=${fingerprint([s.title || '', s.description || '', s.image || ''].join('\u0001'))}`;
+  // CARD_VERSION بيتغيّر لما طريقة قراءة الكارت نفسها تتغيّر: كل اللينكات بتطلع
+  // جديدة فإنستجرام/فيسبوك يقروا الكارت من الأول. v2 (2026-10-17): مقاس الصورة
+  // بقى مكتوب في الكارت — اللينكات القديمة كانت متحفوظة عندهم من غير صورة.
+  return `${base}?c=${fingerprint([CARD_VERSION, s.title || '', s.description || '', s.image || ''].join('\u0001'))}`;
 }

@@ -276,7 +276,8 @@ function renderNewPathHtml(data, options) {
   html = injectShareTags(html, buildShareTags(
     data,
     (options && options.pageUrl) || '',
-    (options && options.shareFallbackImage) || (template && template.preview) || ''
+    (options && options.shareFallbackImage) || (template && template.preview) || '',
+    (options && options.shareImageSize) || null
   ));
 
   // تخصيصات العميل (خط/صور/موسيقى/إزاحات) بتتحقن كطبقة فوق التصميم

@@ -10,6 +10,8 @@ const { renderNewPathHtml, renderLegacyHtml } = require('../utils/renderInvitati
 const { getCustomInvitation, applyCustomData, customInvitationTags } = require('../utils/customInvitations');
 const { injectBeforeBodyEnd } = require('../utils/templateFixes');
 const { guestExtrasTags, hasGuestExtras } = require('../utils/guestExtras');
+const { shareImageSize: shareImageSize_ } = require('../utils/shareImageSize');
+const { cloudinaryShareImageOf } = require('../utils/shareTags');
 const { buildInvitationDataFromRequest, hasActivePackage } = require('../utils/invitationData');
 const { buildStatsPage, loadStatsData, ensureStatsToken } = require('../utils/statsPage');
 const { isEditWindowOpen, editWindowEndedBody } = require('../utils/editWindow');
@@ -257,10 +259,15 @@ router.get('/i/:shortId', async (req, res) => {
 
     // دعوة "كاستم" معمولة لعميل معيّن (custom-invitations/) — محتواها فوق المحفوظ
     const custom = invitation.templateId ? getCustomInvitation(invitation.shortId) : null;
+    const renderData = invitation.templateId ? (custom ? applyCustomData(invitation, custom) : invitation) : null;
+    // مقاس صورة كارت المشاركة الحقيقي — إنستجرام/فيسبوك محتاجينه عشان يعرضوا
+    // الصورة من أول مرة (utils/shareImageSize.js). متخزّن في الذاكرة بعد أول مرة.
+    const shareImageSize = renderData && !editMode ? await shareImageSize_(cloudinaryShareImageOf(renderData)) : null;
     let html = invitation.templateId
-      ? renderNewPathHtml(custom ? applyCustomData(invitation, custom) : invitation, {
+      ? renderNewPathHtml(renderData, {
         editMode,
         pageUrl,
+        shareImageSize,
         ...(custom ? { shareFallbackImage: `${req.protocol}://${req.get('host')}${custom.share.image}` } : {}),
       })
       : renderLegacyHtml(invitation, { pageUrl });

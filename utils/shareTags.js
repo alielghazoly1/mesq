@@ -91,12 +91,23 @@ function defaultShare(data) {
 }
 
 /**
+ * رابط صورة المشاركة النهائي لو العميل رافع صورة على Cloudinary ('' غير كده) —
+ * نفس اللي بيتحط في og:image بالظبط، عشان نقيس مقاسه قبل العرض.
+ */
+function cloudinaryShareImageOf(data) {
+  const share = ((data && data.customizations) || {}).share || {};
+  if (!share.image || !isAllowedMediaUrl(share.image)) return '';
+  return /^https:\/\/res\.cloudinary\.com\//.test(share.image) ? cloudinaryShareImage(share.image) : '';
+}
+
+/**
  * بيبني وسوم المشاركة النهائية.
  * @param {object} data بيانات الدعوة
  * @param {string} pageUrl لينك الدعوة الكامل
  * @param {string} [fallbackImage] صورة التصميم لو العميل مارفعش صورة
+ * @param {{width:number,height:number}|null} [imageSize] مقاس الصورة الحقيقي (utils/shareImageSize.js)
  */
-function buildShareTags(data, pageUrl, fallbackImage) {
+function buildShareTags(data, pageUrl, fallbackImage, imageSize) {
   const c = (data && data.customizations) || {};
   const share = c.share || {};
   const base = defaultShare(data || {});
@@ -139,6 +150,12 @@ function buildShareTags(data, pageUrl, fallbackImage) {
     // الكارت الكبير — من غيرهم ساعات بيبعت اللينك كنص عادي
     image && image.startsWith('https://') ? `<meta property="og:image:secure_url" content="${attr(image)}">` : '',
     image ? '<meta property="og:image:type" content="image/jpeg">' : '',
+    // المقاس الحقيقي (من Cloudinary) — من غيره إنستجرام/فيسبوك بيبعتوا اللينك
+    // أول مرة من غير صورة. بنكتبه بس لو اتقاس فعلًا لنفس الصورة دي.
+    image && imageSize && imageSize.width && image === cloudinaryShareImageOf(data)
+      ? `<meta property="og:image:width" content="${Number(imageSize.width)}">` : '',
+    image && imageSize && imageSize.height && image === cloudinaryShareImageOf(data)
+      ? `<meta property="og:image:height" content="${Number(imageSize.height)}">` : '',
     // مبنعلنش عن مقاس ثابت: صورة العميل بأي نسبة (طويلة/عريضة)، ولو
     // كتبنا مقاس غلط ميتا بتعرضها مضغوطة أو مقصوصة. هي بتقيس الصورة لوحدها.
     image ? `<meta property="og:image:alt" content="${attr(title)}">` : '',
@@ -204,6 +221,7 @@ function sanitizeShare(input) {
 module.exports = {
   buildShareTags,
   cloudinaryShareImage,
+  cloudinaryShareImageOf,
   injectShareTags,
   stripTemplateShareTags,
   sanitizeShare,
