@@ -229,6 +229,97 @@ all();document.addEventListener('DOMContentLoaded',all);window.addEventListener(
 var n=0,t=setInterval(function(){all();if(++n>20)clearInterval(t)},300);
 })();`;
 
+
+// ===== كارت الـ Dress Code / "No casual" في آخر الدعوة (بطلب المالك) =====
+// بين فورم تأكيد الحضور وجملة الختام. أيقونات خط رفيع دهبي: فيونكة فوق، بدلة
+// للرجالة وفستان للستات، وتيشيرت عليه علامة منع بتترسم لما الكارت يبان.
+const NOTE_ICONS = {
+  bow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"><path d="M3 7.5 10.4 11v2L3 16.5z"/><path d="M21 7.5 13.6 11v2l7.4 3.5z"/><rect x="10.4" y="10.3" width="3.2" height="3.4" rx=".8"/></svg>',
+  suit: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"><path d="M15 6 6 10.5 4 43h18.5L24 15l1.5 28H44l-2-32.5L33 6"/><path d="M15 6l5.5 15L24 15l3.5 6L33 6"/><path d="M15 6c3 3 6 5 9 9 3-4 6-6 9-9"/><path d="M20.5 11.5 24 13.2l-3.5 1.7zM27.5 11.5 24 13.2l3.5 1.7z"/><circle cx="24" cy="28" r=".9"/><circle cx="24" cy="34" r=".9"/><path d="M10 28h5"/></svg>',
+  gown: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"><path d="M19 4l1.5 4M29 4l-1.5 4"/><path d="M20.5 8c2.2 1.6 4.8 1.6 7 0l-.8 9.2c-1.9.9-3.5.9-5.4 0z"/><path d="M21.3 17.2C17 26 11 35 7 44h34c-4-9-10-18-14.3-26.8"/><path d="M14 33c3 1.5 6 1 8.5-.5M26 36c3 1 6 .5 8.5-1"/></svg>',
+  shirt: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z" transform="translate(4.8 4.8) scale(.6)"/><circle class="gd-no-ring" cx="12" cy="12" r="10.4"/><path class="gd-no-slash" d="M4.7 4.7 19.3 19.3"/></svg>',
+};
+
+const NOTE_HTML = `<div class="gd-note-card">
+<span class="gd-note-bow">${NOTE_ICONS.bow}</span>
+<p class="gd-note-eb">DRESS CODE</p>
+<h3 class="gd-note-title">Formal Attire</h3>
+<div class="gd-note-rule"><i></i><b></b><i></i></div>
+<div class="gd-note-cols">
+<div class="gd-note-col"><span class="gd-note-ic">${NOTE_ICONS.suit}</span><p class="gd-note-who">GENTLEMEN</p><p class="gd-note-what">Formal suits only</p></div>
+<span class="gd-note-sep"></span>
+<div class="gd-note-col"><span class="gd-note-ic">${NOTE_ICONS.gown}</span><p class="gd-note-who">LADIES</p><p class="gd-note-what">Soirée dresses only</p></div>
+</div>
+<div class="gd-note-no"><span class="gd-note-noic">${NOTE_ICONS.shirt}</span><span class="gd-note-notxt">NO CASUAL</span></div>
+<p class="gd-note-thanks">Thank you for dressing for the occasion</p>
+</div>`;
+
+const NOTE_CSS = `
+#gd-notice{position:relative;background:#fffdfb;padding:34px 22px 46px;text-align:center;color:#2b1c13;-webkit-font-smoothing:antialiased}
+#gd-notice *{box-sizing:border-box;margin:0;padding:0}
+#gd-notice .gd-note-card{position:relative;max-width:340px;margin:0 auto;padding:30px 22px 28px;background:#fbf8f2;border-radius:2px;
+  box-shadow:0 1px 1px rgba(60,44,28,.14),0 6px 14px rgba(60,44,28,.07),4px 26px 40px -20px rgba(60,44,28,.5)}
+#gd-notice .gd-note-card::before{content:"";position:absolute;inset:6px;border:1px solid rgba(164,140,105,.5);pointer-events:none}
+#gd-notice svg{display:block;width:100%;height:100%}
+#gd-notice .gd-note-bow{display:block;width:30px;height:30px;margin:0 auto 10px;color:#a48c69}
+#gd-notice .gd-note-eb{font:500 10px/1 'Cinzel','Times New Roman',serif;letter-spacing:.32em;padding-left:.32em;color:#6f5d4c}
+#gd-notice .gd-note-title{margin-top:8px;font:400 40px/1.15 'Pinyon Script','Cormorant Garamond',cursive;-webkit-text-stroke:.3px currentColor;font-weight:400}
+#gd-notice .gd-note-rule{display:flex;align-items:center;justify-content:center;gap:10px;margin:14px 0 20px}
+#gd-notice .gd-note-rule i{width:56px;height:1px;background:linear-gradient(90deg,transparent,#a48c69)}
+#gd-notice .gd-note-rule i:last-child{transform:scaleX(-1)}
+#gd-notice .gd-note-rule b{width:6px;height:6px;border:1px solid #a48c69;transform:rotate(45deg)}
+#gd-notice .gd-note-cols{display:flex;align-items:stretch;justify-content:center;gap:14px}
+#gd-notice .gd-note-col{flex:1;min-width:0}
+#gd-notice .gd-note-sep{width:1px;background:linear-gradient(180deg,transparent,rgba(164,140,105,.6),transparent)}
+#gd-notice .gd-note-ic{display:block;width:46px;height:46px;margin:0 auto 10px;color:#8a6f4a}
+#gd-notice .gd-note-who{font:500 10.5px/1 'Cinzel','Times New Roman',serif;letter-spacing:.24em;padding-left:.24em;color:#6f5d4c}
+#gd-notice .gd-note-what{margin-top:7px;font:italic 400 18px/1.25 'Cormorant Garamond','Times New Roman',serif;color:#2b1c13}
+#gd-notice .gd-note-no{display:inline-flex;align-items:center;gap:10px;margin-top:24px;padding:9px 18px 9px 10px;border:1px solid rgba(43,28,19,.55);border-radius:999px;background:#fffdfa}
+#gd-notice .gd-note-noic{display:block;width:30px;height:30px;color:#7a2e22}
+#gd-notice .gd-note-noic .gd-no-ring,#gd-notice .gd-note-noic .gd-no-slash{stroke:#9b3a2b;stroke-width:1.4}
+#gd-notice .gd-note-notxt{font:600 12.5px/1 'Cinzel','Times New Roman',serif;letter-spacing:.28em;padding-left:.28em;color:#2b1c13}
+#gd-notice .gd-note-thanks{margin-top:16px;font:italic 400 15px/1.4 'Cormorant Garamond','Times New Roman',serif;color:#6f5d4c}
+/* الدخول لما الكارت يبان */
+#gd-notice.armed .gd-note-card{opacity:0;transform:translateY(26px)}
+#gd-notice.armed .gd-note-card>*{opacity:0;transform:translateY(10px)}
+#gd-notice.armed .gd-no-ring{stroke-dasharray:66;stroke-dashoffset:66}
+#gd-notice.armed .gd-no-slash{stroke-dasharray:21;stroke-dashoffset:21}
+#gd-notice.in .gd-note-card{animation:gdNoteUp 1.1s cubic-bezier(.2,.75,.2,1) forwards}
+#gd-notice.in .gd-note-card>*{animation:gdNoteUp .9s cubic-bezier(.2,.75,.2,1) forwards}
+#gd-notice.in .gd-note-card>:nth-child(2){animation-delay:.15s}#gd-notice.in .gd-note-card>:nth-child(3){animation-delay:.25s}
+#gd-notice.in .gd-note-card>:nth-child(4){animation-delay:.35s}#gd-notice.in .gd-note-card>:nth-child(5){animation-delay:.5s}
+#gd-notice.in .gd-note-card>:nth-child(6){animation-delay:.75s}#gd-notice.in .gd-note-card>:nth-child(7){animation-delay:.9s}
+#gd-notice.in .gd-no-ring{animation:gdDraw .7s ease-out 1.15s forwards}
+#gd-notice.in .gd-no-slash{animation:gdDraw .45s ease-out 1.7s forwards}
+@keyframes gdNoteUp{to{opacity:1;transform:none}}
+@keyframes gdDraw{to{stroke-dashoffset:0}}
+@media (prefers-reduced-motion:reduce){#gd-notice.armed .gd-note-card,#gd-notice.armed .gd-note-card>*{opacity:1;transform:none;animation:none}#gd-notice.armed .gd-no-ring,#gd-notice.armed .gd-no-slash{stroke-dashoffset:0;animation:none}}
+`;
+
+// بيتحط قبل قسم الختام (أو آخر الصفحة لو الختام مقفول من المحرر)
+const NOTE_SCRIPT = `(function(){
+var HTML=${JSON.stringify(NOTE_HTML).replace(/</g, '\\u003c')};
+function put(){
+  if(document.getElementById('gd-notice'))return true;
+  var closing=document.getElementById('rec2442651163');
+  var rsvp=document.getElementById('mithaq-rsvp');
+  var anchor=closing&&getComputedStyle(closing).display!=='none'?closing:null;
+  if(!anchor&&!rsvp)return false;
+  var n=document.createElement('section');n.id='gd-notice';n.setAttribute('aria-label','Dress code');n.innerHTML=HTML;
+  if(anchor)anchor.parentNode.insertBefore(n,anchor);else{var r=rsvp.closest('.t-rec')||rsvp;r.parentNode.insertBefore(n,r.nextSibling);}
+  var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(!reduce&&'IntersectionObserver' in window&&!(window.WEDDING_CONFIG||{}).autoOpen){
+    n.classList.add('armed');
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){n.classList.add('in');io.disconnect();}});},{threshold:.2});
+    io.observe(n);
+  }
+  return true;
+}
+function tick(){try{put()}catch(e){}}
+tick();document.addEventListener('DOMContentLoaded',tick);window.addEventListener('load',tick);
+var k=0,t=setInterval(function(){tick();if(++k>20)clearInterval(t)},300);
+})();`;
+
 module.exports = {
   shortId: 'GrpUVQq',
 
@@ -248,7 +339,7 @@ module.exports = {
 
   /** الباب بيظهر للضيوف بس — في المحرر الدعوة بتتعرض من غيره، بس الفيديو والأغنية موجودين في الاتنين */
   render({ editMode }) {
-    const film = { css: `<style id="gd-film-style">${FILM_CSS}</style>`, js: `<script id="gd-film-script">${FILM_SCRIPT}</script>` };
+    const film = { css: `<style id="gd-film-style">${FILM_CSS}${NOTE_CSS}</style>`, js: `<script id="gd-film-script">${FILM_SCRIPT}</script><script id="gd-note-script">${NOTE_SCRIPT}</script>` };
     if (editMode) return { head: film.css, bodyEnd: film.js };
     return {
       head: `<link rel="preload" as="image" href="${BASE}/gate-left.webp"><link rel="preload" as="image" href="${BASE}/gate-right.webp"><link rel="preload" as="image" href="${BASE}/gate-frame.webp"><style id="gd-style">${CSS}</style>${film.css}`,
