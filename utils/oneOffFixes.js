@@ -139,13 +139,13 @@ const FIXES = [
     },
   },
   {
-    // GrpUVQq — المالك صحّح اسم العريس: Shirif (مش Shrief). بيتعمل بس لو الاسم
-    // لسه زي ما حطيناه، فلو العميل غيّره من المحرر مابنلمسوش.
-    name: 'GrpUVQq-name-shirif',
+    // GrpUVQq — المالك صحّح اسم العريس: Sherif (بالظبط كده). بيتعمل بس لو الاسم
+    // لسه واحد من اللي احنا حطيناهم قبل كده، فلو العميل غيّره من المحرر مابنلمسوش.
+    name: 'GrpUVQq-name-sherif',
     shortId: 'GrpUVQq',
     select: 'customizations groomName groomNameAr',
-    when: (c, inv) => inv.groomName === 'Shrief',
-    apply: (c, inv) => ({ groomName: 'Shirif', ...(inv.groomNameAr === 'Shrief' ? { groomNameAr: 'Shirif' } : {}) }),
+    when: (c, inv) => inv.groomName === 'Shrief' || inv.groomName === 'Shirif',
+    apply: (c, inv) => ({ groomName: 'Sherif', ...(['Shrief', 'Shirif'].includes(inv.groomNameAr) ? { groomNameAr: 'Sherif' } : {}) }),
   },
   {
     // e20H7Oq (Champagne Lace إنجليزي — Ahmed & Eman) — بطلب المالك: الضيوف

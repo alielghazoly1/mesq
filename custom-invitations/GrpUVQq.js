@@ -1,5 +1,5 @@
 // custom-invitations/GrpUVQq.js
-// دعوة مخصوصة لعميل (Yara & Shirif — قالب Champagne Lace إنجليزي) بطلب المالك:
+// دعوة مخصوصة لعميل (Yara & Sherif — قالب Champagne Lace إنجليزي) بطلب المالك:
 // بدل الظرف والختم في أول الدعوة، بوابة بيضا مشغولة عليها فيونكة ستان وبروش
 // لولي وورد (صورة العميل — النسخة التانية بعد الباب الخشب) بتتقسم من النص
 // وبتتفتح، ومكتوب عليها "Open the Door".
@@ -129,7 +129,7 @@ const HTML = `<div id="gd-door" role="button" tabindex="0" aria-label="Open the 
 <span class="gd-flash"></span>
 ${SPARKS.map(([x, y], i) => `<i class="gd-spark" style="--x:${x};--y:${y};--d:${(0.08 + (i % 5) * 0.05).toFixed(2)}s"></i>`).join('')}
 <div class="gd-text">
-<div class="gd-top"><div class="gd-names" id="gd-names">Yara &amp; Shirif</div><div class="gd-orn"><i></i><b></b><i></i></div></div>
+<div class="gd-top"><div class="gd-names" id="gd-names">Yara &amp; Sherif</div><div class="gd-orn"><i></i><b></b><i></i></div></div>
 <div class="gd-bottom"><div class="gd-open">OPEN THE DOOR</div><div class="gd-hint">tap to step inside</div></div>
 </div>
 </div></div>
@@ -216,7 +216,7 @@ function film(){
   var w=document.createElement('div');w.id='gd-film';w.className='gd-film';
   w.innerHTML='<span class="gd-film-corner tl"></span><span class="gd-film-corner tr"></span><span class="gd-film-corner bl"></span><span class="gd-film-corner br"></span>'
    +'<div class="gd-film-card"><div class="gd-film-win"><img src="${BASE}/memories-poster.webp" alt="" decoding="async">'
-   +'<video muted loop playsinline preload="none" aria-label="Yara and Shirif"><source src="${BASE}/memories-v2.mp4" type="video/mp4"></video>'
+   +'<video muted loop playsinline preload="none" aria-label="Yara and Sherif"><source src="${BASE}/memories-v2.mp4" type="video/mp4"></video>'
    +'<div class="gd-film-curtain"></div><div class="gd-film-sheen"></div></div></div>';
   st.appendChild(w);
   var v=w.querySelector('video');v.muted=true;v.defaultMuted=true;v.setAttribute('muted','');
@@ -275,6 +275,8 @@ const NOTE_HTML = `<div class="gd-note-card">
 const NOTE_CSS = `
 /* التاريخ مفاجأة: بيظهر في الخربشة بس — مش في الكارت الأول */
 #hv-hero .hv-date{display:none!important}
+/* الـ Dress code مش في الكارت الأول — موجود في كارته تحت (بطلب المالك) */
+#hv-hero .hv-dress{display:none!important}
 /* الخربشة: الجملة أوضح + إيد بتخربش على الكروت لحد ما الضيف يبدأ */
 #hv-hero .hv-reveal__hint{font-weight:600!important;color:#5a3f20!important;letter-spacing:.06em}
 #hv-hero .hv-tiles{position:relative}
@@ -375,14 +377,14 @@ module.exports = {
   shortId: 'GrpUVQq',
 
   // كارت المشاركة (واتساب/إنستجرام/فيسبوك): لقطة من فيديو الدعوة (الطرحة
-  // مفرودة) في إطار ورق + الأسامي والمكان (من غير تاريخ — مفاجأة) — share-v2.jpg (1200×630،
+  // مفرودة) في إطار ورق + الأسامي والمكان (من غير تاريخ — مفاجأة) — share-v3.jpg (1200×630،
   // اتعمل في scratch door/share/card.js). بيكسب على أي صورة مشاركة في المحرر
   // (overrideImage) لأن المالك هو اللي طالبه. لو اتغيّر: اسم ملف جديد (v2)
   // عشان واتساب مايفضلش عارض القديم من الكاش.
   share: {
-    title: 'Yara & Shirif — Wedding Invitation',
-    description: 'Together with their families, Yara & Shirif invite you to celebrate their wedding · Casa Maria Venue, Obour — open the door to discover the date ✨',
-    image: `${BASE}/share-v2.jpg`,
+    title: 'Yara & Sherif — Wedding Invitation',
+    description: 'Together with their families, Yara & Sherif invite you to celebrate their wedding · Casa Maria Venue, Obour — open the door to discover the date ✨',
+    image: `${BASE}/share-v3.jpg`,
     width: 1200,
     height: 630,
     overrideImage: true,
