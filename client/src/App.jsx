@@ -49,6 +49,8 @@ const PackagesPage = lazyWithReload(importPackages, 'packages');
 const CheckoutPage = lazyWithReload(importCheckout, 'checkout');
 const DashboardPage = lazyWithReload(importDashboard, 'dashboard');
 const EditorPage = lazyWithReload(importEditor, 'editor');
+// سياسة الخصوصية والشروط (جوجل بتطلب لينك الخصوصية للدخول بجوجل)
+const LegalPage = lazyWithReload(() => import('./pages/LegalPage.jsx'), 'legal');
 
 // نافذة الدخول/التسجيل فيها مكتبة الفورم وقايمة الدول — تقيلة ومش
 // محتاجينها غير لما الزائر يدوس "دخول". بتتحمّل أول مرة تتفتح (أو في
@@ -118,6 +120,8 @@ export default function App() {
         <Route path="/create/:templateId" element={<Suspense fallback={<PageFallback />}><CreateInvitationPage /></Suspense>} />
         <Route path="/packages" element={<Suspense fallback={<PageFallback />}><PackagesPage /></Suspense>} />
         <Route path="/checkout/:packageId" element={<Suspense fallback={<PageFallback />}><CheckoutPage /></Suspense>} />
+        <Route path="/privacy" element={<Suspense fallback={<PageFallback />}><LegalPage kind="privacy" /></Suspense>} />
+        <Route path="/terms" element={<Suspense fallback={<PageFallback />}><LegalPage kind="terms" /></Suspense>} />
         <Route path="/dashboard" element={<Suspense fallback={<PageFallback />}><DashboardPage /></Suspense>} />
         <Route path="/editor/:shortId" element={<Suspense fallback={<div className="min-h-screen bg-ivory" />}><EditorPage /></Suspense>} />
         <Route

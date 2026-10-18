@@ -5,7 +5,7 @@ import { MessageCircle, Palette } from 'lucide-react';
 import { whatsappLink, WHATSAPP_MESSAGES, phoneDisplay } from '../lib/contact.js';
 
 export default function Footer() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   // نفس منطق الهيدر: لو اللوجو مش متحط لسه، نعرض الاسم مكتوب بس
   const [logoFailed, setLogoFailed] = useState(false);
 
@@ -76,6 +76,10 @@ export default function Footer() {
           <a href="mailto:mithaq@mithaq-invitation.com" className="hover:text-rose">
             {t('footer.email')}
           </a>
+          <span className="h-3 w-px bg-line" />
+          <Link to="/privacy" className="hover:text-rose">{i18n.language === 'ar' ? 'سياسة الخصوصية' : 'Privacy'}</Link>
+          <span className="h-3 w-px bg-line" />
+          <Link to="/terms" className="hover:text-rose">{i18n.language === 'ar' ? 'الشروط' : 'Terms'}</Link>
         </div>
 
         {/* سطر أعمال/إعلانات — هادي تحت خالص، للتواصل الاحترافي مش
