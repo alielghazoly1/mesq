@@ -140,16 +140,81 @@ door.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.p
 try{door.focus({preventScroll:true})}catch(e){}
 })();`;
 
+
+// ===== فيديو "Our Memories" مكان الصور الأربعة (بطلب المالك) + أغنية العميل =====
+// الفيديو (6 ثواني، بالطول، من غير صوت) بيتعرض في إطار ورق زي كروت الألبوم:
+// لما القسم يبان، الإطار بيطلع لفوق ويتعدل، وستارة ورق بتتسحب لفوق وتكشف
+// الفيديو، ولمعة دهب بتعدّي مرة على الإطار، وبعدها بيفضل "يتنفّس" بهدوء.
+// الفيديو بيشتغل بس وهو ظاهر على الشاشة (بيوفّر بطارية/نت) ومتكرر.
+// الأغنية: song.mp3 مكان أغنية القالب — إلا لو العميل حط أغنية بنفسه من المحرر.
+const FILM_CSS = `
+#al-album .al-track,#al-album .al-nav,#al-album .al-dots{display:none!important}
+#al-album .al-stage{height:690px}
+#al-album .gd-film{position:absolute;left:50%;top:184px;width:236px;margin-left:-118px;perspective:900px}
+#al-album .gd-film-card{position:relative;padding:8px;background:#fbf8f2;border-radius:2px;
+  box-shadow:0 1px 1px rgba(60,44,28,.16),0 6px 14px rgba(60,44,28,.1),6px 30px 46px -18px rgba(60,44,28,.62);
+  transform-origin:50% 100%;opacity:0;transform:translateY(46px) rotate(-3deg) scale(.92);filter:blur(6px)}
+#al-album .gd-film-card::after{content:"";position:absolute;inset:4px;border:1px solid rgba(164,140,105,.55);pointer-events:none}
+#al-album .gd-film-win{position:relative;overflow:hidden;aspect-ratio:576/1056;background:#e9dfcf}
+#al-album .gd-film-win video,#al-album .gd-film-win img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+#al-album .gd-film-curtain{position:absolute;inset:0;background:linear-gradient(180deg,#f4ede1,#e8dcc7);transform-origin:50% 0}
+#al-album .gd-film-curtain::after{content:"";position:absolute;left:0;right:0;bottom:0;height:22px;background:linear-gradient(180deg,rgba(0,0,0,0),rgba(60,44,28,.18))}
+#al-album .gd-film-sheen{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+#al-album .gd-film-sheen::before{content:"";position:absolute;top:-20%;bottom:-20%;left:-60%;width:45%;transform:skewX(-18deg);
+  background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,246,222,.55),rgba(255,255,255,0))}
+#al-album .gd-film-corner{position:absolute;width:18px;height:18px;border:1px solid #a48c69;opacity:0}
+#al-album .gd-film-corner.tl{left:-10px;top:-10px;border-right:0;border-bottom:0}#al-album .gd-film-corner.tr{right:-10px;top:-10px;border-left:0;border-bottom:0}
+#al-album .gd-film-corner.bl{left:-10px;bottom:-10px;border-right:0;border-top:0}#al-album .gd-film-corner.br{right:-10px;bottom:-10px;border-left:0;border-top:0}
+#al-album .gd-film.in .gd-film-card{animation:gdFilmIn 1.5s cubic-bezier(.2,.75,.2,1) .25s forwards,gdFilmFloat 7s ease-in-out 2.2s infinite}
+#al-album .gd-film.in .gd-film-curtain{animation:gdCurtain 1.25s cubic-bezier(.7,0,.25,1) 1s forwards}
+#al-album .gd-film.in .gd-film-sheen::before{animation:gdSheen 1.6s ease-in-out 2.1s 1 forwards}
+#al-album .gd-film.in .gd-film-corner{animation:gdCorner .9s ease 1.7s forwards}
+@keyframes gdFilmIn{to{opacity:1;transform:none;filter:none}}
+@keyframes gdFilmFloat{0%,100%{opacity:1;filter:none;transform:translateY(0)}50%{opacity:1;filter:none;transform:translateY(-5px)}}
+@keyframes gdCurtain{to{transform:scaleY(0)}}
+@keyframes gdSheen{to{left:130%}}
+@keyframes gdCorner{to{opacity:.9}}
+@media (prefers-reduced-motion:reduce){#al-album .gd-film-card{opacity:1;transform:none;filter:none}#al-album .gd-film-curtain{display:none}#al-album .gd-film.in .gd-film-card{animation:none}#al-album .gd-film-corner{opacity:.9}}
+`;
+
+const FILM_SCRIPT = `(function(){
+var SONG='${BASE}/song.mp3',DEF='/templates/champagne-lace/song.mp3';
+function song(){var a=document.getElementById('invitation-audio');if(!a)return;var s=a.querySelector('source');
+  var cur=a.getAttribute('src')||(s&&s.getAttribute('src'))||'';
+  if(cur.indexOf(DEF)===-1)return;
+  if(s)s.setAttribute('src',SONG);a.setAttribute('src',SONG);try{a.load()}catch(e){}}
+function film(){
+  var st=document.querySelector('#al-album .al-stage');if(!st||document.getElementById('gd-film'))return;
+  var w=document.createElement('div');w.id='gd-film';w.className='gd-film';
+  w.innerHTML='<span class="gd-film-corner tl"></span><span class="gd-film-corner tr"></span><span class="gd-film-corner bl"></span><span class="gd-film-corner br"></span>'
+   +'<div class="gd-film-card"><div class="gd-film-win"><img src="${BASE}/memories-poster.webp" alt="" loading="lazy">'
+   +'<video muted loop playsinline preload="metadata" poster="${BASE}/memories-poster.webp" aria-label="Yara and Shrief"><source src="${BASE}/memories.mp4" type="video/mp4"></video>'
+   +'<div class="gd-film-curtain"></div><div class="gd-film-sheen"></div></div></div>';
+  st.appendChild(w);
+  var v=w.querySelector('video');v.muted=true;v.defaultMuted=true;v.setAttribute('muted','');
+  function play(){var p=v.play();if(p&&p.catch)p.catch(function(){});}
+  if('IntersectionObserver' in window){
+    new IntersectionObserver(function(es){es.forEach(function(e){
+      if(e.isIntersecting){w.classList.add('in');play();}else{try{v.pause()}catch(x){}}
+    });},{threshold:.25}).observe(w);
+  }else{w.classList.add('in');play();}
+}
+function all(){try{song();film();}catch(e){}}
+all();document.addEventListener('DOMContentLoaded',all);window.addEventListener('load',all);
+var n=0,t=setInterval(function(){all();if(++n>20)clearInterval(t)},300);
+})();`;
+
 module.exports = {
   shortId: 'GrpUVQq',
 
-  /** الباب بيظهر للضيوف بس — في المحرر الدعوة بتتعرض زي ما هي */
+  /** الباب بيظهر للضيوف بس — في المحرر الدعوة بتتعرض من غيره، بس الفيديو والأغنية موجودين في الاتنين */
   render({ editMode }) {
-    if (editMode) return {};
+    const film = { css: `<style id="gd-film-style">${FILM_CSS}</style>`, js: `<script id="gd-film-script">${FILM_SCRIPT}</script>` };
+    if (editMode) return { head: film.css, bodyEnd: film.js };
     return {
-      head: `<link rel="preload" as="image" href="${BASE}/leaf-left.webp"><link rel="preload" as="image" href="${BASE}/leaf-right.webp"><link rel="preload" as="image" href="${BASE}/frame.webp"><style id="gd-style">${CSS}</style>`,
+      head: `<link rel="preload" as="image" href="${BASE}/leaf-left.webp"><link rel="preload" as="image" href="${BASE}/leaf-right.webp"><link rel="preload" as="image" href="${BASE}/frame.webp"><style id="gd-style">${CSS}</style>${film.css}`,
       bodyStart: HTML,
-      bodyEnd: `<script id="gd-script">${SCRIPT}</script>`,
+      bodyEnd: `<script id="gd-script">${SCRIPT}</script>${film.js}`,
     };
   },
 };
