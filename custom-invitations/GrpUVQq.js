@@ -1,5 +1,5 @@
 // custom-invitations/GrpUVQq.js
-// دعوة مخصوصة لعميل (Yara & Shrief — قالب Champagne Lace إنجليزي) بطلب المالك:
+// دعوة مخصوصة لعميل (Yara & Shirif — قالب Champagne Lace إنجليزي) بطلب المالك:
 // بدل الظرف والختم في أول الدعوة، بوابة بيضا مشغولة عليها فيونكة ستان وبروش
 // لولي وورد (صورة العميل — النسخة التانية بعد الباب الخشب) بتتقسم من النص
 // وبتتفتح، ومكتوب عليها "Open the Door".
@@ -70,9 +70,11 @@ html.gd-lock,html.gd-lock body{overflow:hidden!important;height:100%}
 #gd-door .gd-top::after{content:"";position:absolute;left:14%;right:14%;bottom:calc(100% + 1px);height:7cqw;pointer-events:none;border-left:1px solid rgba(176,138,74,.9);border-right:1px solid rgba(176,138,74,.9)}
 #gd-door .gd-names{font:400 10.4cqw/1.05 'Pinyon Script','Cormorant Garamond',cursive;letter-spacing:0;white-space:nowrap;
   background:linear-gradient(180deg,#a47a3a,#5b3c1a 60%,#3a2511);-webkit-background-clip:text;background-clip:text;color:transparent}
-#gd-door .gd-date{display:flex;align-items:center;justify-content:center;gap:2cqw;margin-top:1.8cqw;font:500 3.1cqw/1 'Cinzel','Cormorant Garamond',serif;letter-spacing:.42em;text-indent:.42em;color:#5a3f20}
-#gd-door .gd-date::before,#gd-door .gd-date::after{content:"";width:4.5cqw;height:1px;background:linear-gradient(90deg,transparent,#a77f3f)}
-#gd-door .gd-date::after{transform:scaleX(-1)}
+/* زخرفة صغيرة تحت الأسامي مكان التاريخ (التاريخ مفاجأة في الخربشة) */
+#gd-door .gd-orn{display:flex;align-items:center;justify-content:center;gap:1.8cqw;margin-top:1.6cqw}
+#gd-door .gd-orn i{width:9cqw;height:1px;background:linear-gradient(90deg,transparent,#a77f3f)}
+#gd-door .gd-orn i:last-child{transform:scaleX(-1)}
+#gd-door .gd-orn b{width:1.4cqw;height:1.4cqw;border:1px solid #a77f3f;transform:rotate(45deg)}
 #gd-door .gd-bottom{position:absolute;left:50%;transform:translateX(-50%);top:min(86%,calc(100vh - 18cqw - env(safe-area-inset-bottom,0px)));padding:2.3cqw 5cqw 2.1cqw;white-space:nowrap;
   background:linear-gradient(180deg,rgba(255,252,246,.9),rgba(249,242,228,.86));-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);
   border-top:1px solid rgba(170,132,72,.7);border-bottom:1px solid rgba(170,132,72,.7);box-shadow:0 1.6cqw 4cqw -1.6cqw rgba(70,45,15,.5)}
@@ -127,7 +129,7 @@ const HTML = `<div id="gd-door" role="button" tabindex="0" aria-label="Open the 
 <span class="gd-flash"></span>
 ${SPARKS.map(([x, y], i) => `<i class="gd-spark" style="--x:${x};--y:${y};--d:${(0.08 + (i % 5) * 0.05).toFixed(2)}s"></i>`).join('')}
 <div class="gd-text">
-<div class="gd-top"><div class="gd-names" id="gd-names">Yara &amp; Shrief</div><div class="gd-date" id="gd-date">09 · 11 · 2026</div></div>
+<div class="gd-top"><div class="gd-names" id="gd-names">Yara &amp; Shirif</div><div class="gd-orn"><i></i><b></b><i></i></div></div>
 <div class="gd-bottom"><div class="gd-open">OPEN THE DOOR</div><div class="gd-hint">tap to step inside</div></div>
 </div>
 </div></div>
@@ -142,7 +144,6 @@ try{
   var C=window.WEDDING_CONFIG||{};
   var b=(C.brideName||'').trim(),g=(C.groomName||'').trim();
   if(b&&g&&b!=='Bride'&&g!=='Groom')document.getElementById('gd-names').textContent=b+' & '+g;
-  var cd=C.countdown;if(cd&&cd.year){var p=function(n){return(n<10?'0':'')+n};document.getElementById('gd-date').textContent=p(cd.day)+' · '+p(cd.monthIndex+1)+' · '+cd.year;}
 }catch(e){}
 // الكلام بيبان بعد ما خط الأسامي يحمّل (من غير ما يظهر بخط تاني الأول) — بحد أقصى ثانية ونص
 var shown=false;function ready(){if(!shown){shown=true;door.classList.add('gd-ready');}}
@@ -215,7 +216,7 @@ function film(){
   var w=document.createElement('div');w.id='gd-film';w.className='gd-film';
   w.innerHTML='<span class="gd-film-corner tl"></span><span class="gd-film-corner tr"></span><span class="gd-film-corner bl"></span><span class="gd-film-corner br"></span>'
    +'<div class="gd-film-card"><div class="gd-film-win"><img src="${BASE}/memories-poster.webp" alt="" decoding="async">'
-   +'<video muted loop playsinline preload="none" aria-label="Yara and Shrief"><source src="${BASE}/memories-v2.mp4" type="video/mp4"></video>'
+   +'<video muted loop playsinline preload="none" aria-label="Yara and Shirif"><source src="${BASE}/memories-v2.mp4" type="video/mp4"></video>'
    +'<div class="gd-film-curtain"></div><div class="gd-film-sheen"></div></div></div>';
   st.appendChild(w);
   var v=w.querySelector('video');v.muted=true;v.defaultMuted=true;v.setAttribute('muted','');
@@ -252,6 +253,7 @@ const NOTE_ICONS = {
   bow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"><path d="M3 7.5 10.4 11v2L3 16.5z"/><path d="M21 7.5 13.6 11v2l7.4 3.5z"/><rect x="10.4" y="10.3" width="3.2" height="3.4" rx=".8"/></svg>',
   suit: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"><path d="M15 6 6 10.5 4 43h18.5L24 15l1.5 28H44l-2-32.5L33 6"/><path d="M15 6l5.5 15L24 15l3.5 6L33 6"/><path d="M15 6c3 3 6 5 9 9 3-4 6-6 9-9"/><path d="M20.5 11.5 24 13.2l-3.5 1.7zM27.5 11.5 24 13.2l3.5 1.7z"/><circle cx="24" cy="28" r=".9"/><circle cx="24" cy="34" r=".9"/><path d="M10 28h5"/></svg>',
   gown: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"><path d="M19 4l1.5 4M29 4l-1.5 4"/><path d="M20.5 8c2.2 1.6 4.8 1.6 7 0l-.8 9.2c-1.9.9-3.5.9-5.4 0z"/><path d="M21.3 17.2C17 26 11 35 7 44h34c-4-9-10-18-14.3-26.8"/><path d="M14 33c3 1.5 6 1 8.5-.5M26 36c3 1 6 .5 8.5-1"/></svg>',
+  moon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/><path d="M16.5 3.5v2M15.5 4.5h2M20 7.5v1.6M19.2 8.3h1.6"/></svg>',
   kid: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><g transform="translate(4.8 4.8) scale(.6)"><path d="M9 12h.01M15 12h.01"/><path d="M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5"/><path d="M19 6.3a9 9 0 0 1 1.8 3.9 2 2 0 0 1 0 3.6 9 9 0 0 1-17.6 0 2 2 0 0 1 0-3.6A9 9 0 0 1 12 3c2 0 3.5 1.1 3.5 2.5s-.9 2.5-2 2.5c-.8 0-1.5-.4-1.5-1"/></g><circle class="gd-no-ring" cx="12" cy="12" r="10.4"/><path class="gd-no-slash" d="M4.7 4.7 19.3 19.3"/></svg>',
   shirt: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z" transform="translate(4.8 4.8) scale(.6)"/><circle class="gd-no-ring" cx="12" cy="12" r="10.4"/><path class="gd-no-slash" d="M4.7 4.7 19.3 19.3"/></svg>',
 };
@@ -267,10 +269,26 @@ const NOTE_HTML = `<div class="gd-note-card">
 <div class="gd-note-col"><span class="gd-note-ic">${NOTE_ICONS.gown}</span><p class="gd-note-who">LADIES</p><p class="gd-note-what">Soirée dresses only</p></div>
 </div>
 <div class="gd-note-nos"><div class="gd-note-no"><span class="gd-note-noic">${NOTE_ICONS.shirt}</span><span class="gd-note-notxt">NO CASUAL</span></div><div class="gd-note-no"><span class="gd-note-noic">${NOTE_ICONS.kid}</span><span class="gd-note-notxt">ADULTS ONLY</span></div></div>
-<p class="gd-note-thanks">We kindly ask that our celebration be adults only.<br>Thank you for your understanding</p>
+<div class="gd-note-kids" dir="rtl" lang="ar"><span class="gd-note-moon">${NOTE_ICONS.moon}</span><p>أطفالنا الصغار…<br>حان وقت النوم</p><p class="gd-note-kids2">فقد حان وقت السهر والاحتفال<br><b>للكبار فقط</b></p></div>
 </div>`;
 
 const NOTE_CSS = `
+/* التاريخ مفاجأة: بيظهر في الخربشة بس — مش في الكارت الأول */
+#hv-hero .hv-date{display:none!important}
+/* الخربشة: الجملة أوضح + إيد بتخربش على الكروت لحد ما الضيف يبدأ */
+#hv-hero .hv-reveal__hint{font-weight:600!important;color:#5a3f20!important;letter-spacing:.06em}
+#hv-hero .hv-tiles{position:relative}
+#hv-hero .gd-scratch-hand{position:absolute;left:50%;top:50%;width:46px;height:46px;margin:4px 0 0 -10px;z-index:6;pointer-events:none;color:#3a2716;
+  filter:drop-shadow(0 3px 6px rgba(0,0,0,.25));animation:gdHand 2.2s ease-in-out infinite;transition:opacity .4s ease}
+#hv-hero .gd-scratch-hand svg{width:100%;height:100%;display:block}
+#hv-hero .gd-scratch-hand.off{opacity:0;animation:none}
+#hv-hero .gd-scratch-tag{box-sizing:border-box;position:absolute;left:50%;top:14%;transform:translateX(-50%);z-index:6;pointer-events:none;white-space:nowrap;
+  padding:6px 14px;border-radius:999px;background:#3a2716;color:#fbf3e3;font:600 11px/1 'Cinzel','Times New Roman',serif;letter-spacing:.22em;
+  box-shadow:0 6px 16px -6px rgba(58,39,22,.6);animation:gdTag 1.6s ease-in-out infinite;transition:opacity .4s ease}
+#hv-hero .gd-scratch-tag.off{opacity:0;animation:none}
+@keyframes gdHand{0%{transform:translate(-60px,6px) rotate(-12deg)}25%{transform:translate(-10px,-4px) rotate(4deg)}50%{transform:translate(45px,8px) rotate(-6deg)}75%{transform:translate(-5px,-2px) rotate(6deg)}100%{transform:translate(-60px,6px) rotate(-12deg)}}
+@keyframes gdTag{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-4px)}}
+@media (prefers-reduced-motion:reduce){#hv-hero .gd-scratch-hand,#hv-hero .gd-scratch-tag{animation:none}}
 #gd-notice{position:relative;background:#fffdfb;padding:34px 22px 46px;text-align:center;color:#2b1c13;-webkit-font-smoothing:antialiased}
 #gd-notice *{box-sizing:border-box;margin:0;padding:0}
 #gd-notice .gd-note-card{position:relative;max-width:340px;margin:0 auto;padding:30px 22px 28px;background:#fbf8f2;border-radius:2px;
@@ -295,7 +313,11 @@ const NOTE_CSS = `
 #gd-notice .gd-note-noic{display:block;width:28px;height:28px;color:#7a2e22}
 #gd-notice .gd-note-noic .gd-no-ring,#gd-notice .gd-note-noic .gd-no-slash{stroke:#9b3a2b;stroke-width:1.4}
 #gd-notice .gd-note-notxt{font:600 11px/1 'Cinzel','Times New Roman',serif;letter-spacing:.2em;padding-left:.2em;color:#2b1c13;white-space:nowrap}
-#gd-notice .gd-note-thanks{margin-top:16px;font:italic 400 15.5px/1.45 'Cormorant Garamond','Times New Roman',serif;color:#6f5d4c}
+#gd-notice .gd-note-kids{margin-top:20px;padding-top:16px;border-top:1px solid rgba(164,140,105,.35);text-align:center;color:#3a2716}
+#gd-notice .gd-note-moon{display:block;width:26px;height:26px;margin:0 auto 6px;color:#a48c69}
+#gd-notice .gd-note-kids p{font:400 19px/1.6 'Amiri','Traditional Arabic',serif;letter-spacing:0;direction:rtl}
+#gd-notice .gd-note-kids .gd-note-kids2{margin-top:4px;font-size:17px;color:#5d4a37}
+#gd-notice .gd-note-kids b{font:700 21px/1.6 'Aref Ruqaa','Amiri',serif;color:#8a6430}
 /* الدخول لما الكارت يبان */
 #gd-notice.armed .gd-note-card{opacity:0;transform:translateY(26px)}
 #gd-notice.armed .gd-note-card>*{opacity:0;transform:translateY(10px)}
@@ -333,7 +355,18 @@ function put(){
   }
   return true;
 }
-function tick(){try{put()}catch(e){}}
+// إيد بتخربش + "SCRATCH HERE" فوق كروت التاريخ — بيختفوا أول ما الضيف يلمس الكروت
+function hand(){
+  var tiles=document.querySelector('#hv-hero .hv-tiles');
+  if(!tiles||tiles.querySelector('.gd-scratch-hand')||(window.WEDDING_CONFIG||{}).autoOpen)return;
+  var h=document.createElement('span');h.className='gd-scratch-hand';h.setAttribute('aria-hidden','true');
+  h.innerHTML='<svg viewBox="0 0 24 24" fill="#fffaf0" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-4 0v1"/><path d="M14 10V4a2 2 0 0 0-4 0v2"/><path d="M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>';
+  var t=document.createElement('span');t.className='gd-scratch-tag';t.textContent='SCRATCH HERE';
+  tiles.appendChild(h);tiles.appendChild(t);
+  function off(){h.classList.add('off');t.classList.add('off');}
+  ['pointerdown','touchstart','mousedown'].forEach(function(ev){tiles.addEventListener(ev,off,{once:true,passive:true});});
+}
+function tick(){try{put()}catch(e){}try{hand()}catch(e){}}
 tick();document.addEventListener('DOMContentLoaded',tick);window.addEventListener('load',tick);
 var k=0,t=setInterval(function(){tick();if(++k>20)clearInterval(t)},300);
 })();`;
@@ -342,14 +375,14 @@ module.exports = {
   shortId: 'GrpUVQq',
 
   // كارت المشاركة (واتساب/إنستجرام/فيسبوك): لقطة من فيديو الدعوة (الطرحة
-  // مفرودة) في إطار ورق + الأسامي والتاريخ والمكان — share-v1.jpg (1200×630،
+  // مفرودة) في إطار ورق + الأسامي والمكان (من غير تاريخ — مفاجأة) — share-v2.jpg (1200×630،
   // اتعمل في scratch door/share/card.js). بيكسب على أي صورة مشاركة في المحرر
   // (overrideImage) لأن المالك هو اللي طالبه. لو اتغيّر: اسم ملف جديد (v2)
   // عشان واتساب مايفضلش عارض القديم من الكاش.
   share: {
-    title: 'Yara & Shrief — Wedding Invitation',
-    description: 'Together with their families, Yara & Shrief invite you to celebrate their wedding · Monday, 9 November 2026 · 5:00 PM · Casa Maria Venue, Obour',
-    image: `${BASE}/share-v1.jpg`,
+    title: 'Yara & Shirif — Wedding Invitation',
+    description: 'Together with their families, Yara & Shirif invite you to celebrate their wedding · Casa Maria Venue, Obour — open the door to discover the date ✨',
+    image: `${BASE}/share-v2.jpg`,
     width: 1200,
     height: 630,
     overrideImage: true,

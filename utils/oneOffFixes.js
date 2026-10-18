@@ -139,6 +139,15 @@ const FIXES = [
     },
   },
   {
+    // GrpUVQq — المالك صحّح اسم العريس: Shirif (مش Shrief). بيتعمل بس لو الاسم
+    // لسه زي ما حطيناه، فلو العميل غيّره من المحرر مابنلمسوش.
+    name: 'GrpUVQq-name-shirif',
+    shortId: 'GrpUVQq',
+    select: 'customizations groomName groomNameAr',
+    when: (c, inv) => inv.groomName === 'Shrief',
+    apply: (c, inv) => ({ groomName: 'Shirif', ...(inv.groomNameAr === 'Shrief' ? { groomNameAr: 'Shirif' } : {}) }),
+  },
+  {
     // e20H7Oq (Champagne Lace إنجليزي — Ahmed & Eman) — بطلب المالك: الضيوف
     // يقدروا يسجّلوا تهنئة صوتية ويرفعوا صور الفرح، تحت فورم تأكيد الحضور
     // (utils/guestExtras.js). بيتعمل مرة واحدة بس لو الإضافات لسه مش مفعّلة.
