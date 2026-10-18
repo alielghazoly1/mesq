@@ -7,7 +7,7 @@ const User = require('../models/User');
 const { sanitizeText } = require('../utils/sanitize');
 const { generateShortId } = require('../utils/idGenerator');
 const { renderNewPathHtml, renderLegacyHtml } = require('../utils/renderInvitation');
-const { getCustomInvitation, applyCustomData, customInvitationTags } = require('../utils/customInvitations');
+const { getCustomInvitation, applyCustomData, injectCustomInvitation } = require('../utils/customInvitations');
 const { injectBeforeBodyEnd } = require('../utils/templateFixes');
 const { guestExtrasTags, hasGuestExtras } = require('../utils/guestExtras');
 const { shareImageSize: shareImageSize_ } = require('../utils/shareImageSize');
@@ -268,10 +268,10 @@ router.get('/i/:shortId', async (req, res) => {
         editMode,
         pageUrl,
         shareImageSize,
-        ...(custom ? { shareFallbackImage: `${req.protocol}://${req.get('host')}${custom.share.image}` } : {}),
+        ...(custom && custom.share && custom.share.image ? { shareFallbackImage: `${req.protocol}://${req.get('host')}${custom.share.image}` } : {}),
       })
       : renderLegacyHtml(invitation, { pageUrl });
-    if (custom) html = injectBeforeBodyEnd(html, customInvitationTags(custom));
+    if (custom) html = injectCustomInvitation(html, custom, { editMode });
     // إضافات للضيوف على الدعوة دي بالذات (تهنئة صوتية / رفع صور) — utils/guestExtras.js
     if (invitation.templateId && hasGuestExtras(invitation)) html = injectBeforeBodyEnd(html, guestExtrasTags(invitation, { editMode }));
 

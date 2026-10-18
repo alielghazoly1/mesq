@@ -6,8 +6,9 @@
 // مالوش فيها (صور من الموقع نفسه، أقسام جديدة بنفس شكل القالب، لغة النتيجة).
 // أي دعوة مش في القايمة دي بتتعرض زي ما هي بالظبط.
 const QICmvQj = require('../custom-invitations/QICmvQj');
+const GrpUVQq = require('../custom-invitations/GrpUVQq');
 
-const CUSTOM = { [QICmvQj.shortId]: QICmvQj };
+const CUSTOM = { [QICmvQj.shortId]: QICmvQj, [GrpUVQq.shortId]: GrpUVQq };
 
 function getCustomInvitation(shortId) {
   return Object.prototype.hasOwnProperty.call(CUSTOM, shortId) ? CUSTOM[shortId] : null;
@@ -17,15 +18,21 @@ function getCustomInvitation(shortId) {
 function applyCustomData(invitation, custom) {
   const base = typeof invitation.toObject === 'function' ? invitation.toObject() : { ...invitation };
   const c = base.customizations || {};
+  const fields = custom.fields || {};
+  // دعوة كاستم ممكن تبقى "شكل بس" (زي باب GrpUVQq): مفيش نصوص ولا كارت
+  // مشاركة خاص — الحاجات دي بتفضل زي ما صاحب الدعوة كاتبها في المحرر
+  const dateTexts = custom.dateTexts ? custom.dateTexts(fields.weddingDateTime || base.weddingDateTime) : {};
   return {
     ...base,
-    ...custom.fields,
+    ...fields,
     customizations: {
       ...c,
-      texts: { ...(c.texts || {}), ...custom.texts, ...custom.dateTexts(custom.fields.weddingDateTime || base.weddingDateTime) },
+      texts: { ...(c.texts || {}), ...(custom.texts || {}), ...dateTexts },
       hidden: [...new Set([...(c.hidden || []), ...(custom.hidden || [])])],
       rsvp: { ...(c.rsvp || {}), ...(custom.rsvp || {}) },
-      share: { ...(c.share || {}), title: custom.share.title, description: custom.share.description },
+      share: custom.share && custom.share.title
+        ? { ...(c.share || {}), title: custom.share.title, description: custom.share.description }
+        : (c.share || {}),
     },
   };
 }
@@ -104,4 +111,26 @@ if(window.MutationObserver){var q=false;new MutationObserver(function(){if(q)ret
   return `<style id="qic-style">${STYLE}</style><script id="qic-script">${script}</script>`;
 }
 
-module.exports = { getCustomInvitation, applyCustomData, customInvitationTags };
+/**
+ * بيحط إضافات الدعوة الكاستم في الصفحة. الدعوة اللي عندها render() بتحدد هي
+ * بتحط إيه في الـ head وأول الـ body وآخره (زي الباب اللي لازم يبان من أول
+ * لحظة قبل ما الصفحة تترسم). غير كده: CSS + سكريبت آخر الصفحة (QICmvQj).
+ */
+function injectCustomInvitation(html, custom, { editMode = false } = {}) {
+  if (typeof custom.render !== 'function') {
+    const tags = customInvitationTags(custom);
+    const end = html.lastIndexOf('</body>');
+    return end === -1 ? html + tags : html.slice(0, end) + tags + html.slice(end);
+  }
+  const r = custom.render({ editMode }) || {};
+  let out = html;
+  if (r.head) out = out.replace(/<\/head>/i, () => `${r.head}</head>`);
+  if (r.bodyStart) out = out.replace(/<body[^>]*>/i, (m) => m + r.bodyStart);
+  if (r.bodyEnd) {
+    const end = out.lastIndexOf('</body>');
+    out = end === -1 ? out + r.bodyEnd : out.slice(0, end) + r.bodyEnd + out.slice(end);
+  }
+  return out;
+}
+
+module.exports = { getCustomInvitation, applyCustomData, customInvitationTags, injectCustomInvitation };

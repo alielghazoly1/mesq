@@ -107,6 +107,38 @@ const FIXES = [
     },
   },
   {
+    // GrpUVQq (Champagne Lace إنجليزي) — دعوة Yara & Shrief بطلب المالك:
+    // الأسامي والميعاد (الاتنين 9/11/2026 الساعة 5 مساءً) والمكان (Casa Maria —
+    // فيلات عرابي، العبور) بلينك الخريطة اللي بعته، والـ Dress code في سطرين
+    // الكارت الأول (cl13/cl14). الباب اللي بيتفتح في custom-invitations/GrpUVQq.js.
+    // بيتعمل بس لو الدعوة لسه بأسامي المسودة ومحدش كتب فيها.
+    name: 'GrpUVQq-yara-shrief',
+    shortId: 'GrpUVQq',
+    select: '-__v',
+    when: (c, inv) => inv.templateId === 'champagne-lace' && inv.brideName === 'Bride'
+      && inv.groomName === 'Groom' && !((c.texts || {}).cl13),
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: inv.language, occasionType: inv.occasionType,
+        hiddenSections: inv.hiddenSections, timeline: inv.timeline, name: inv.name,
+        groomName: 'Shrief', groomNameAr: 'Shrief',
+        brideName: 'Yara', brideNameAr: 'Yara',
+        venueName: 'Casa Maria Venue', venueCity: 'Orabi Villas, Obour City',
+        venueMapQuery: 'https://maps.app.goo.gl/HLdcbw6VA3KBBizw7',
+        weddingDate: '2026-11-09', weddingTime: '17:00',
+      }, { ownsTemplate: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set['customizations.texts'] = {
+        ...(c.texts || {}),
+        cl13: 'Dress code · Men: formal suits only',
+        cl14: 'Ladies: soirée dresses only · No casual',
+      };
+      return set;
+    },
+  },
+  {
     // e20H7Oq (Champagne Lace إنجليزي — Ahmed & Eman) — بطلب المالك: الضيوف
     // يقدروا يسجّلوا تهنئة صوتية ويرفعوا صور الفرح، تحت فورم تأكيد الحضور
     // (utils/guestExtras.js). بيتعمل مرة واحدة بس لو الإضافات لسه مش مفعّلة.
