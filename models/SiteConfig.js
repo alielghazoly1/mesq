@@ -18,6 +18,10 @@ const siteConfigSchema = new mongoose.Schema({
   // false = المالك لسه مرتّبش بنفسه → بنستخدم الافتراضي من السجل (isNew
   // بييجي الأول وعليه "جديد"). أول ما يحفظ من اللوحة بتبقى true واختياره هو اللي بيمشي.
   templatesConfigured: { type: Boolean, default: false },
+  // "الدخول بجوجل": الـ Client ID من Google Cloud (مش سر — بيتبعت للمتصفح).
+  // فاضي = الزرار مش بيظهر خالص. googleLoginEnabled = المالك يقدر يقفله مؤقتًا.
+  googleClientId: { type: String, default: '', maxlength: 200 },
+  googleLoginEnabled: { type: Boolean, default: true },
   updatedAt: { type: Date, default: Date.now },
 });
 

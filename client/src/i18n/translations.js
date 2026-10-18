@@ -156,6 +156,16 @@ export const resources = {
         submitLogin: 'Log in',
         submitRegister: 'Create account',
         close: 'Close',
+        google: {
+          or: 'or with your email',
+          hello: 'Welcome, {{name}}!',
+          lastStep: 'One last step — confirm your country (it sets your currency) and add a WhatsApp number if you like.',
+          finish: 'Start now',
+          back: 'Back',
+          inAppTitle: 'Google sign-in doesn’t work inside Instagram/Facebook — open this page in your browser, or continue with email below.',
+          openChrome: 'Open in Chrome',
+          inAppIos: 'Tap ••• at the top, then “Open in Safari”.',
+        },
       },
       packages: {
         back: 'Back to home',
@@ -871,6 +881,16 @@ export const resources = {
         submitLogin: 'دخول',
         submitRegister: 'إنشاء الحساب',
         close: 'قفل',
+        google: {
+          or: 'أو بالإيميل',
+          hello: 'أهلًا {{name}}!',
+          lastStep: 'خطوة أخيرة — أكّد دولتك (عشان الأسعار تظهر بعملتك) وضيف رقم واتساب لو تحب.',
+          finish: 'يلا نبدأ',
+          back: 'رجوع',
+          inAppTitle: 'الدخول بجوجل مش بيشتغل جوه إنستجرام/فيسبوك — افتح الصفحة في المتصفح، أو كمّل بالإيميل تحت.',
+          openChrome: 'افتح في Chrome',
+          inAppIos: 'دوس على ••• فوق واختار «فتح في Safari».',
+        },
       },
       packages: {
         back: 'رجوع للرئيسية',

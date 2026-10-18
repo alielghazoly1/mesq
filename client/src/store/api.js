@@ -32,6 +32,16 @@ export const api = createApi({
       query: (body) => ({ url: '/auth/register', method: 'POST', body }),
       invalidatesTags: ['Me'],
     }),
+    // الدخول بجوجل: الإعداد (الزرار يظهر ولا لأ) + التوكن + خطوة العميل الجديد
+    getGoogleConfig: builder.query({ query: () => '/auth/google/config' }),
+    googleLogin: builder.mutation({
+      query: (body) => ({ url: '/auth/google', method: 'POST', body }),
+      invalidatesTags: (r) => (r && r.user ? ['Me'] : []),
+    }),
+    googleComplete: builder.mutation({
+      query: (body) => ({ url: '/auth/google/complete', method: 'POST', body }),
+      invalidatesTags: ['Me'],
+    }),
     logout: builder.mutation({
       query: () => ({ url: '/auth/logout', method: 'POST' }),
       invalidatesTags: ['Me'],
@@ -219,6 +229,9 @@ export const {
   useGetMeQuery,
   useLoginMutation,
   useRegisterMutation,
+  useGetGoogleConfigQuery,
+  useGoogleLoginMutation,
+  useGoogleCompleteMutation,
   useLogoutMutation,
   usePreviewMutation,
   useCreateInvitationMutation,

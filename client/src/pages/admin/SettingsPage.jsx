@@ -9,6 +9,7 @@ import {
 import { Panel, Btn, Field, Spinner, fmtDate } from '../../components/admin/ui.jsx';
 import { countryName } from './format.js';
 import { VodafoneMark } from '../../components/PayBrand.jsx';
+import GoogleLoginPanel from '../../components/admin/GoogleLoginPanel.jsx';
 
 export default function SettingsPage() {
   const { data, isLoading } = useGetPaymentSettingsQuery();
@@ -37,6 +38,7 @@ export default function SettingsPage() {
   if (isLoading) return <Spinner />;
 
   return (
+    <>
     <form onSubmit={handleSubmit((v) => save(v))} className="space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
@@ -215,5 +217,8 @@ export default function SettingsPage() {
         </p>
       </Panel>
     </form>
+    {/* الدخول بجوجل — فورم لوحده (مش جوه فورم بيانات الدفع) */}
+    <div className="mt-5"><GoogleLoginPanel /></div>
+    </>
   );
 }

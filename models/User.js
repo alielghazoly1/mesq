@@ -1,6 +1,7 @@
 // models/User.js
-// حساب مستخدم مسجل — التسجيل بإيميل + باسورد. الباسورد بيتخزن كـ hash بس
-// (bcrypt)، مفيش نص صريح أبدًا (routes/auth.js).
+// حساب مستخدم مسجل — التسجيل بإيميل + باسورد، أو بجوجل (googleId). الباسورد
+// بيتخزن كـ hash بس (bcrypt)، مفيش نص صريح أبدًا (routes/auth.js). حساب جوجل
+// ممكن يبقى من غير باسورد (passwordHash فاضي) — الدخول بالباسورد بيترفض له.
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
@@ -8,7 +9,10 @@ const userSchema = new mongoose.Schema({
     type: String, required: true, unique: true, index: true,
     lowercase: true, trim: true, maxlength: 200,
   },
-  passwordHash: { type: String, required: true },
+  passwordHash: { type: String, default: '' },
+  // رقم حساب جوجل الثابت (sub) — بيتحط أول مرة يدخل بجوجل (جديد أو حساب
+  // قديم بنفس الإيميل). sparse: الحسابات اللي مدخلتش بجوجل مالهاش الحقل.
+  googleId: { type: String, index: { unique: true, sparse: true } },
   name: { type: String, required: true, maxlength: 80 },
   // كود الدولة (ISO 3166-1 alpha-2, زي "EG"، "SA") — مبعوت من الفرونت إند
   // (client/src/components/form/CountrySelect.jsx، مكتبة world-countries)

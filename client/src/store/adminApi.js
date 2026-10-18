@@ -23,7 +23,7 @@ const baseQuery = fetchBaseQuery({
 export const adminApi = createApi({
   reducerPath: 'adminApi',
   baseQuery,
-  tagTypes: ['Overview', 'Users', 'User', 'Orders', 'Invitations', 'Support', 'Settings', 'Pricing', 'Thread', 'Audit', 'Tracks', 'Withdrawals', 'Ugc', 'SiteTemplates', 'Security', 'Cleanup', 'WhatsApp', 'Campaigns'],
+  tagTypes: ['Overview', 'Users', 'User', 'Orders', 'Invitations', 'Support', 'Settings', 'Pricing', 'Thread', 'Audit', 'Tracks', 'Withdrawals', 'Ugc', 'SiteTemplates', 'Security', 'Cleanup', 'WhatsApp', 'Campaigns', 'GoogleLogin'],
   endpoints: (builder) => ({
     // ===== الأمان (التحقق بخطوتين) =====
     getSecurity: builder.query({ query: () => '/security', providesTags: ['Security'] }),
@@ -182,6 +182,12 @@ export const adminApi = createApi({
       invalidatesTags: (r, e) => (e ? [] : ['Settings', 'Audit']),
     }),
     getAdminPackages: builder.query({ query: () => '/packages', providesTags: ['Pricing'] }),
+    // الدخول بجوجل (Client ID + تشغيل/قفل)
+    getGoogleLogin: builder.query({ query: () => '/google-login', providesTags: ['GoogleLogin'] }),
+    saveGoogleLogin: builder.mutation({
+      query: (body) => ({ url: '/google-login', method: 'PUT', body }),
+      invalidatesTags: (r, e) => (e ? [] : ['GoogleLogin', 'Audit']),
+    }),
 
     // ===== أعطال الواجهة عند العملاء =====
     getClientErrors: builder.query({ query: () => '/client-errors' }),
@@ -255,6 +261,7 @@ export const adminApi = createApi({
 });
 
 export const {
+  useGetGoogleLoginQuery, useSaveGoogleLoginMutation,
   useGetSecurityQuery, useStart2faMutation, useEnable2faMutation, useDisable2faMutation, useNewBackupCodesMutation,
   useGetCleanupPreviewQuery, useRunCleanupMutation,
   useGetWhatsAppQuery, useLinkWhatsAppMutation, useUnlinkWhatsAppMutation, useSaveWhatsAppSettingsMutation, useTestWhatsAppMutation,

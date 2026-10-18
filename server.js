@@ -70,13 +70,14 @@ app.use(helmet({
       // 'unsafe-inline' لازم للسكريبتات المضمّنة جوه صفحات الدعوة نفسها
       // (إعداد اللغة/البيانات لكل دعوة) — تصعيبها لصفر يحتاج إعادة بناء
       // كامل لنظام القوالب بـ nonce/hash لكل سكريبت
-      scriptSrc: ["'self'", "'unsafe-inline'", ...TILDA_CDN_HOSTS],
+      // accounts.google.com/gsi: زرار "المتابعة بجوجل" الرسمي (سكريبت + iframe + ستايل)
+      scriptSrc: ["'self'", "'unsafe-inline'", 'https://accounts.google.com/gsi/client', ...TILDA_CDN_HOSTS],
       // helmet بيحط script-src-attr 'none' افتراضيًا، وده بيمنع الـ
       // onload/onerror المكتوبين جوه وسوم الصور في تصاميم Tilda (بيعتمد
       // عليهم التحميل الكسول للصور). بنسمح بيهم هنا — نفس مستوى الخطورة
       // بتاع 'unsafe-inline' اللي مسموح أصلًا فوق، مش تنازل إضافي.
       scriptSrcAttr: ["'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', ...TILDA_CDN_HOSTS],
+      styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://accounts.google.com/gsi/style', ...TILDA_CDN_HOSTS],
       fontSrc: ["'self'", 'https://fonts.gstatic.com', ...TILDA_CDN_HOSTS, 'data:'],
       imgSrc: ["'self'", 'data:', 'https://res.cloudinary.com', ...TILDA_CDN_HOSTS],
       // asmaa-mohamed.vercel.app: أغنية Ivory Swans الافتراضية متخزّنة هناك — من
@@ -84,10 +85,10 @@ app.use(helmet({
       // blob: — التهنئة الصوتية اللي الضيف لسه مسجّلها بتتسمع من جهازه قبل
       // ما تتبعت (Velvet Voice). من غيره زرار التشغيل كان مابيعملش حاجة.
       mediaSrc: ["'self'", 'blob:', 'https://res.cloudinary.com', 'https://pub-4dc8201144ca418fb604349c73e8c724.r2.dev', 'https://asmaa-mohamed.vercel.app'],
-      connectSrc: ["'self'", ...TILDA_CDN_HOSTS],
+      connectSrc: ["'self'", 'https://accounts.google.com/gsi/', ...TILDA_CDN_HOSTS],
       // 'self' لازم عشان المحرر المباشر بيعرض الدعوة نفسها جوه iframe من
       // نفس الأوريجن؛ google.com للخرايط المضمّنة جوه الدعوة.
-      frameSrc: ["'self'", 'https://www.google.com'],
+      frameSrc: ["'self'", 'https://www.google.com', 'https://accounts.google.com/gsi/'],
       objectSrc: ["'none'"],
       baseUri: ["'self'"],
       formAction: ["'self'"],
@@ -102,6 +103,9 @@ app.use(helmet({
       upgradeInsecureRequests: process.env.NODE_ENV === 'production' ? [] : null,
     },
   },
+  // نافذة "المتابعة بجوجل" لازم تقدر ترجّع النتيجة للصفحة اللي فتحتها —
+  // الافتراضي (same-origin) بيقطع الاتصال ده. ده اللي جوجل بتوصي بيه.
+  crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
 }));
 
 // CORS: مقفول افتراضيًا لأي دومين خارجي — الموقع بتاعنا (الصفحة الرئيسية،
@@ -283,6 +287,8 @@ const credentialsLimiter = rateLimit({
 });
 app.use('/api/auth/login', credentialsLimiter);
 app.use('/api/auth/register', credentialsLimiter);
+// الدخول بجوجل نفس الحد (التحقق من التوكن + إنشاء الحساب)
+app.use('/api/auth/google', (req, res, next) => (req.method === 'POST' ? credentialsLimiter(req, res, next) : next()));
 
 // قراءة حالة الدخول والخروج: حد واسع — دول مش بيتخمّن فيهم أي سر،
 // و/me بتتنادى مع كل صفحة. الحد هنا لمنع الإغراق بس.

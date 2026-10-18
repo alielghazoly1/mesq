@@ -1538,6 +1538,52 @@ router.put('/admin/api/payment-settings', requireAdminSession, async (req, res) 
 });
 
 // ==========================================================================
+// الدخول بجوجل — الـ Client ID من Google Cloud + تشغيل/قفل + كام حساب بيدخل بجوجل
+// ==========================================================================
+router.get('/admin/api/google-login', requireAdminSession, async (req, res) => {
+  try {
+    const SiteConfig = require('../models/SiteConfig');
+    const doc = await SiteConfig.findOne({ key: 'default' }).select('googleClientId googleLoginEnabled').lean();
+    const [googleUsers, googleNew] = await Promise.all([
+      User.countDocuments({ googleId: { $exists: true } }),
+      User.countDocuments({ googleId: { $exists: true }, passwordHash: '' }),
+    ]);
+    return res.json({
+      clientId: (doc && doc.googleClientId) || '',
+      enabled: !(doc && doc.googleLoginEnabled === false),
+      envClientId: !!process.env.GOOGLE_CLIENT_ID,
+      origin: `${req.protocol}://${req.get('host')}`,
+      googleUsers, googleNew,
+    });
+  } catch (err) {
+    console.error('Error loading google login settings:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+router.put('/admin/api/google-login', requireAdminSession, async (req, res) => {
+  try {
+    const { CLIENT_ID_RE } = require('../utils/googleAuth');
+    const SiteConfig = require('../models/SiteConfig');
+    const clientId = String((req.body && req.body.clientId) || '').trim();
+    if (clientId && !CLIENT_ID_RE.test(clientId)) {
+      return res.status(400).json({ error: 'الـ Client ID شكله مش مظبوط — لازم يخلص بـ .apps.googleusercontent.com (انسخه من Google Cloud زي ما هو).' });
+    }
+    const enabled = !!(req.body && req.body.enabled);
+    await SiteConfig.findOneAndUpdate(
+      { key: 'default' },
+      { $set: { googleClientId: clientId, googleLoginEnabled: enabled, updatedAt: new Date() } },
+      { upsert: true }
+    );
+    logAdminAction(req, 'settings.google', { type: 'settings', id: 'default' });
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error('Error saving google login settings:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+// ==========================================================================
 // التحكم في القوالب — إخفاء/إظهار، الترتيب في المعرض، وشارة "جديد"
 // ==========================================================================
 router.get('/admin/api/site-templates', requireAdminSession, async (req, res) => {

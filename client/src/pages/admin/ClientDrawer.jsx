@@ -270,6 +270,7 @@ export default function ClientDrawer({ userId, onClose }) {
 
               <div className="grid gap-2 text-[12.5px] text-ivory/60 sm:grid-cols-2">
                 <span className="inline-flex items-center gap-1.5"><Mail size={12} /> {data.user.email}</span>
+                {data.user.googleId && <span className="rounded-full bg-ivory/10 px-2 py-0.5 text-[10.5px] font-bold text-ivory/75" title="بيدخل بحساب جوجل">Google</span>}
                 <span className="inline-flex items-center gap-1.5"><Globe size={12} /> {countryName(data.user.country)}</span>
                 {data.user.phone ? (
                   <a
