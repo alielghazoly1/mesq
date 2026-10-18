@@ -182,10 +182,31 @@ async function runCampaignFixes() {
   }
 }
 
+// الدخول بجوجل — الـ Client ID اللي المالك بعته (مشروع Google Cloud: tota-490915).
+// بيتحط بس لو الخانة لسه فاضية، فأي تغيير بعدين من لوحة التحكم هو اللي بيمشي.
+async function runSiteConfigFixes() {
+  const SiteConfig = require('../models/SiteConfig');
+  const GOOGLE_CLIENT_ID = '426024477984-5qdbvcc0pu5cq5ptvs2h7amv6iosrjbm.apps.googleusercontent.com';
+  try {
+    const r = await SiteConfig.updateOne(
+      { key: 'default', $or: [{ googleClientId: { $exists: false } }, { googleClientId: '' }] },
+      { $set: { googleClientId: GOOGLE_CLIENT_ID, googleLoginEnabled: true, updatedAt: new Date() } },
+    );
+    if (r.modifiedCount) console.log('[oneOffFix] google-client-id applied');
+    else if (!(await SiteConfig.exists({ key: 'default' }))) {
+      await SiteConfig.create({ key: 'default', googleClientId: GOOGLE_CLIENT_ID, googleLoginEnabled: true });
+      console.log('[oneOffFix] google-client-id applied (new config)');
+    }
+  } catch (err) {
+    console.error('[oneOffFix] google-client-id failed:', err.message);
+  }
+}
+
 async function runOneOffFixes() {
   if (done) return;
   done = true;
   await runCampaignFixes();
+  await runSiteConfigFixes();
   for (const fix of FIXES) {
     try {
       // select: التعديلات اللي محتاجة حقول الدعوة نفسها (مش التخصيصات بس)
