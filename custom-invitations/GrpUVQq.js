@@ -237,6 +237,7 @@ const NOTE_ICONS = {
   bow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"><path d="M3 7.5 10.4 11v2L3 16.5z"/><path d="M21 7.5 13.6 11v2l7.4 3.5z"/><rect x="10.4" y="10.3" width="3.2" height="3.4" rx=".8"/></svg>',
   suit: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"><path d="M15 6 6 10.5 4 43h18.5L24 15l1.5 28H44l-2-32.5L33 6"/><path d="M15 6l5.5 15L24 15l3.5 6L33 6"/><path d="M15 6c3 3 6 5 9 9 3-4 6-6 9-9"/><path d="M20.5 11.5 24 13.2l-3.5 1.7zM27.5 11.5 24 13.2l3.5 1.7z"/><circle cx="24" cy="28" r=".9"/><circle cx="24" cy="34" r=".9"/><path d="M10 28h5"/></svg>',
   gown: '<svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"><path d="M19 4l1.5 4M29 4l-1.5 4"/><path d="M20.5 8c2.2 1.6 4.8 1.6 7 0l-.8 9.2c-1.9.9-3.5.9-5.4 0z"/><path d="M21.3 17.2C17 26 11 35 7 44h34c-4-9-10-18-14.3-26.8"/><path d="M14 33c3 1.5 6 1 8.5-.5M26 36c3 1 6 .5 8.5-1"/></svg>',
+  kid: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><g transform="translate(4.8 4.8) scale(.6)"><path d="M9 12h.01M15 12h.01"/><path d="M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5"/><path d="M19 6.3a9 9 0 0 1 1.8 3.9 2 2 0 0 1 0 3.6 9 9 0 0 1-17.6 0 2 2 0 0 1 0-3.6A9 9 0 0 1 12 3c2 0 3.5 1.1 3.5 2.5s-.9 2.5-2 2.5c-.8 0-1.5-.4-1.5-1"/></g><circle class="gd-no-ring" cx="12" cy="12" r="10.4"/><path class="gd-no-slash" d="M4.7 4.7 19.3 19.3"/></svg>',
   shirt: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"><path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z" transform="translate(4.8 4.8) scale(.6)"/><circle class="gd-no-ring" cx="12" cy="12" r="10.4"/><path class="gd-no-slash" d="M4.7 4.7 19.3 19.3"/></svg>',
 };
 
@@ -250,8 +251,8 @@ const NOTE_HTML = `<div class="gd-note-card">
 <span class="gd-note-sep"></span>
 <div class="gd-note-col"><span class="gd-note-ic">${NOTE_ICONS.gown}</span><p class="gd-note-who">LADIES</p><p class="gd-note-what">Soirée dresses only</p></div>
 </div>
-<div class="gd-note-no"><span class="gd-note-noic">${NOTE_ICONS.shirt}</span><span class="gd-note-notxt">NO CASUAL</span></div>
-<p class="gd-note-thanks">Thank you for dressing for the occasion</p>
+<div class="gd-note-nos"><div class="gd-note-no"><span class="gd-note-noic">${NOTE_ICONS.shirt}</span><span class="gd-note-notxt">NO CASUAL</span></div><div class="gd-note-no"><span class="gd-note-noic">${NOTE_ICONS.kid}</span><span class="gd-note-notxt">ADULTS ONLY</span></div></div>
+<p class="gd-note-thanks">We kindly ask that our celebration be adults only.<br>Thank you for your understanding</p>
 </div>`;
 
 const NOTE_CSS = `
@@ -274,11 +275,12 @@ const NOTE_CSS = `
 #gd-notice .gd-note-ic{display:block;width:46px;height:46px;margin:0 auto 10px;color:#8a6f4a}
 #gd-notice .gd-note-who{font:500 10.5px/1 'Cinzel','Times New Roman',serif;letter-spacing:.24em;padding-left:.24em;color:#6f5d4c}
 #gd-notice .gd-note-what{margin-top:7px;font:italic 400 18px/1.25 'Cormorant Garamond','Times New Roman',serif;color:#2b1c13}
-#gd-notice .gd-note-no{display:inline-flex;align-items:center;gap:10px;margin-top:24px;padding:9px 18px 9px 10px;border:1px solid rgba(43,28,19,.55);border-radius:999px;background:#fffdfa}
-#gd-notice .gd-note-noic{display:block;width:30px;height:30px;color:#7a2e22}
+#gd-notice .gd-note-nos{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:24px}
+#gd-notice .gd-note-no{display:inline-flex;align-items:center;gap:8px;padding:7px 14px 7px 8px;border:1px solid rgba(43,28,19,.55);border-radius:999px;background:#fffdfa}
+#gd-notice .gd-note-noic{display:block;width:28px;height:28px;color:#7a2e22}
 #gd-notice .gd-note-noic .gd-no-ring,#gd-notice .gd-note-noic .gd-no-slash{stroke:#9b3a2b;stroke-width:1.4}
-#gd-notice .gd-note-notxt{font:600 12.5px/1 'Cinzel','Times New Roman',serif;letter-spacing:.28em;padding-left:.28em;color:#2b1c13}
-#gd-notice .gd-note-thanks{margin-top:16px;font:italic 400 15px/1.4 'Cormorant Garamond','Times New Roman',serif;color:#6f5d4c}
+#gd-notice .gd-note-notxt{font:600 11px/1 'Cinzel','Times New Roman',serif;letter-spacing:.2em;padding-left:.2em;color:#2b1c13;white-space:nowrap}
+#gd-notice .gd-note-thanks{margin-top:16px;font:italic 400 15.5px/1.45 'Cormorant Garamond','Times New Roman',serif;color:#6f5d4c}
 /* الدخول لما الكارت يبان */
 #gd-notice.armed .gd-note-card{opacity:0;transform:translateY(26px)}
 #gd-notice.armed .gd-note-card>*{opacity:0;transform:translateY(10px)}
