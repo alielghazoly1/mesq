@@ -182,6 +182,8 @@ const FILM_CSS = `
 #al-album .gd-film-card::after{content:"";position:absolute;inset:4px;border:1px solid rgba(164,140,105,.55);pointer-events:none}
 #al-album .gd-film-win{position:relative;overflow:hidden;aspect-ratio:576/1056;background:#e9dfcf}
 #al-album .gd-film-win video,#al-album .gd-film-win img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+#al-album .gd-film-win video{opacity:0;transition:opacity .6s ease}
+#al-album .gd-film.live .gd-film-win video{opacity:1}
 #al-album .gd-film-curtain{position:absolute;inset:0;background:linear-gradient(180deg,#f4ede1,#e8dcc7);transform-origin:50% 0}
 #al-album .gd-film-curtain::after{content:"";position:absolute;left:0;right:0;bottom:0;height:22px;background:linear-gradient(180deg,rgba(0,0,0,0),rgba(60,44,28,.18))}
 #al-album .gd-film-sheen{position:absolute;inset:0;pointer-events:none;overflow:hidden}
@@ -212,17 +214,30 @@ function film(){
   var st=document.querySelector('#al-album .al-stage');if(!st||document.getElementById('gd-film'))return;
   var w=document.createElement('div');w.id='gd-film';w.className='gd-film';
   w.innerHTML='<span class="gd-film-corner tl"></span><span class="gd-film-corner tr"></span><span class="gd-film-corner bl"></span><span class="gd-film-corner br"></span>'
-   +'<div class="gd-film-card"><div class="gd-film-win"><img src="${BASE}/memories-poster.webp" alt="" loading="lazy">'
-   +'<video muted loop playsinline preload="metadata" poster="${BASE}/memories-poster.webp" aria-label="Yara and Shrief"><source src="${BASE}/memories.mp4" type="video/mp4"></video>'
+   +'<div class="gd-film-card"><div class="gd-film-win"><img src="${BASE}/memories-poster.webp" alt="" decoding="async">'
+   +'<video muted loop playsinline preload="none" aria-label="Yara and Shrief"><source src="${BASE}/memories-v2.mp4" type="video/mp4"></video>'
    +'<div class="gd-film-curtain"></div><div class="gd-film-sheen"></div></div></div>';
   st.appendChild(w);
   var v=w.querySelector('video');v.muted=true;v.defaultMuted=true;v.setAttribute('muted','');
-  function play(){var p=v.play();if(p&&p.catch)p.catch(function(){});}
+  // التحميل بدري في الخلفية (مش لما الضيف يوصل): لما يقرب منه بشاشتين، أو بعد
+  // ما يفتح البوابة ويهدى النت شوية — فلما يوصل يلاقيه جاهز ويشتغل على طول.
+  // صورة أول لقطة فاضلة تحته لحد ما الفيديو يشتغل فعلًا، وبعدين بيظهر بنعومة.
+  var warmed=false;function warm(){if(warmed)return;warmed=true;v.preload='auto';try{v.load()}catch(x){}}
+  v.addEventListener('playing',function(){w.classList.add('live')});
+  var visible=false;
+  function play(){warm();var p=v.play();if(p&&p.catch)p.catch(function(){});}
   if('IntersectionObserver' in window){
+    new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)warm();});},{rootMargin:'0px 0px 1600px 0px'}).observe(w);
     new IntersectionObserver(function(es){es.forEach(function(e){
-      if(e.isIntersecting){w.classList.add('in');play();}else{try{v.pause()}catch(x){}}
+      visible=e.isIntersecting;
+      if(visible){w.classList.add('in');play();}else{try{v.pause()}catch(x){}}
     });},{threshold:.25}).observe(w);
   }else{w.classList.add('in');play();}
+  // بعد فتح البوابة بـ 4 ثواني (أو بعد تحميل الصفحة لو مفيش بوابة) بنسخّنه برضه
+  function idle(f){(window.requestIdleCallback||function(c){setTimeout(c,200)})(f)}
+  var door=document.getElementById('gd-door');
+  if(door){door.addEventListener('click',function(){setTimeout(function(){idle(warm)},4000)},{once:true});}
+  else window.addEventListener('load',function(){setTimeout(function(){idle(warm)},2500)});
 }
 function all(){try{song();film();}catch(e){}}
 all();document.addEventListener('DOMContentLoaded',all);window.addEventListener('load',all);
