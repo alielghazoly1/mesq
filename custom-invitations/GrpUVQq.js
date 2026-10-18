@@ -1,94 +1,117 @@
 // custom-invitations/GrpUVQq.js
 // دعوة مخصوصة لعميل (Yara & Shrief — قالب Champagne Lace إنجليزي) بطلب المالك:
-// بدل الظرف والختم في أول الدعوة، باب خشب (صورة العميل) بيتقسم نصين
-// وبيتفتح لبره، ومكتوب عليه "Open the Door".
+// بدل الظرف والختم في أول الدعوة، بوابة بيضا مشغولة عليها فيونكة ستان وبروش
+// لولي وورد (صورة العميل — النسخة التانية بعد الباب الخشب) بتتقسم من النص
+// وبتتفتح، ومكتوب عليها "Open the Door".
 //
 // الشكل بس اللي هنا — الأسامي والميعاد والمكان والـ dress code متخزّنين في
 // الدعوة نفسها (utils/oneOffFixes.js: GrpUVQq-yara-shrief)، فالعميل يقدر
-// يعدّلهم من المحرر عادي. الباب مش بيظهر في المحرر.
+// يعدّلهم من المحرر عادي. البوابة مش بتظهر في المحرر.
 //
-// الصورة اتقسمت (scratchpad door/mask*.js): الحيطة والقوس ثابتين (frame.webp
-// بفتحة شفافة مكان الباب)، والضلفتين صورتين لوحدهم (leaf-left/right.webp).
-// المقاسات بوحدات الصورة الأصلية 576×1024:
-//   الضلفة الشمال من x=21 لحد الفاصل x=281، واليمين من 281 لحد 542.
-//   الحلقتين (المقابض) عند (226,572) و (337,572).
+// الصورة اتقسمت (scratchpad door/g2/mask.js + assets.js): الحيطة والأعمدة
+// وتاج الورد اللي فوق ثابتين (gate-frame.webp بفتحة شفافة على شكل القوس)،
+// والضلفتين صورتين لوحدهم (gate-left/right.webp) — الويستيريا المتعلقة على
+// البوابة بتتحرك معاها زي الديكور الحقيقي. المقاسات بوحدات الصورة 718×1280:
+//   الضلفة الشمال من x=52 لحد الفاصل x=363، واليمين من 363 لحد 674.
+//   البروش اللولي (نص الفيونكة) عند (363,800).
 //
-// الفتح: ضغطة على الباب ← الكلام بيختفي، الضلفتين بيلفّوا لبره (ناحية اللي
-// بيتفرّج) والنور بيدخل من الباب، والكاميرا بتدخل من الباب لحد ما الدعوة
-// تبان. وفي نفس الضغطة بنضغط الختم الأصلي (مستخبي) عشان المزيكا وحركة
-// الكارت الأول يشتغلوا بنفس توقيتهم بالظبط.
+// الفتح: ضغطة ← الكلام بيختفي، لمعة وبريق بيطلعوا من البروش (الفيونكة بتتفك
+// من النص)، الضلفتين بيتفتحوا لجوه ناحية النور، والكاميرا بتدخل من البوابة
+// لحد ما الدعوة تبان. وفي نفس الضغطة بنضغط الختم الأصلي (مستخبي) عشان
+// المزيكا تشتغل، والكارت الأول بيبدأ يظهر والكاميرا داخلة.
 
 const BASE = '/custom/GrpUVQq';
 const COVER_REC = 'rec2442650973'; // غلاف الظرف في القالب (views/champagne-lace.html)
 
+// بريق بيطلع من البروش لما الفيونكة تتفك — اتجاهات ثابتة (بنسبة عرض البوابة)
+const SPARKS = [[-26, -18], [24, -22], [-34, 4], [33, 6], [-18, 26], [20, 28], [-6, -30], [8, 32], [-40, -6], [41, -10], [-12, 14], [14, -12], [-28, 30], [30, -30]];
+
 const CSS = `
 #${COVER_REC} .t396__artboard,#${COVER_REC} .t396__artboard *{visibility:hidden!important;pointer-events:none!important;opacity:0!important}
 html.gd-lock,html.gd-lock body{overflow:hidden!important;height:100%}
-#gd-door{position:fixed;inset:0;z-index:2147483000;overflow:hidden;cursor:pointer;-webkit-tap-highlight-color:transparent;outline:none;background:#140b08;transition:background-color .5s ease}
-#gd-door .gd-bg{position:absolute;inset:-40px;background:url(${BASE}/bg.jpg) center/cover;filter:blur(26px) brightness(.55) saturate(1.1)}
-/* على الشاشات العريضة الخلفية على الجنبين بس — مكان الباب نفسه فاضي عشان الدعوة تبان من الفتحة */
-@media (min-aspect-ratio:5/8){#gd-door .gd-bg{inset:0;filter:none;background:none}#gd-door .gd-bg::before,#gd-door .gd-bg::after{content:"";position:absolute;top:-40px;bottom:-40px;width:calc(50% - 28.125vh + 40px);background:url(${BASE}/bg.jpg) center/cover;filter:blur(26px) brightness(.55) saturate(1.1)}#gd-door .gd-bg::before{left:-40px}#gd-door .gd-bg::after{right:-40px}}
-#gd-door .gd-stage{position:absolute;left:50%;top:0;width:max(100vw,56.25vh);aspect-ratio:576/1024;transform:translateX(-50%);perspective:115cqw;perspective:760px;container-type:inline-size}
-@supports (height:100dvh){#gd-door .gd-stage{width:max(100vw,56.25dvh)}}
-@media (min-aspect-ratio:5/8){#gd-door .gd-stage{width:56.25vh}@supports (height:100dvh){#gd-door .gd-stage{width:56.25dvh}}}
-#gd-door .gd-cam{position:absolute;inset:0;transform-origin:50% 56%;transform-style:preserve-3d}
+#gd-door{position:fixed;inset:0;z-index:2147483000;overflow:hidden;cursor:pointer;-webkit-tap-highlight-color:transparent;outline:none;background:#efe6d6;transition:background-color .5s ease}
+#gd-door .gd-bg{position:absolute;inset:-40px;background:url(${BASE}/gate-bg.jpg) center/cover;filter:blur(26px) brightness(.82) saturate(1.05)}
+/* على الشاشات العريضة الخلفية على الجنبين بس — مكان البوابة نفسها فاضي عشان الدعوة تبان من الفتحة */
+@media (min-aspect-ratio:5/8){#gd-door .gd-bg{inset:0;filter:none;background:none}#gd-door .gd-bg::before,#gd-door .gd-bg::after{content:"";position:absolute;top:-40px;bottom:-40px;width:calc(50% - 28.05vh + 40px);background:url(${BASE}/gate-bg.jpg) center/cover;filter:blur(26px) brightness(.82) saturate(1.05)}#gd-door .gd-bg::before{left:-40px}#gd-door .gd-bg::after{right:-40px}}
+#gd-door .gd-stage{position:absolute;left:50%;top:0;width:max(100vw,56.09vh);aspect-ratio:718/1280;transform:translateX(-50%);perspective:760px;container-type:inline-size}
+@supports (height:100dvh){#gd-door .gd-stage{width:max(100vw,56.09dvh)}}
+@media (min-aspect-ratio:5/8){#gd-door .gd-stage{width:56.09vh}@supports (height:100dvh){#gd-door .gd-stage{width:56.09dvh}}}
+#gd-door .gd-cam{position:absolute;inset:0;transform-origin:50% 60%;transform-style:preserve-3d}
 #gd-door img{position:absolute;display:block;user-select:none;-webkit-user-drag:none;pointer-events:none}
-#gd-door .gd-light{position:absolute;left:3.6%;width:90.6%;top:0;height:100%;opacity:0;
-  background:radial-gradient(ellipse 55% 45% at 50% 58%,rgba(255,246,228,.95),rgba(255,226,182,.55) 45%,rgba(255,214,160,0) 75%)}
-#gd-door .gd-frame{left:0;top:0;width:100%;height:100%;z-index:2}
-#gd-door .gd-leaf{position:absolute;top:0;height:100%;z-index:3;transform-style:preserve-3d;backface-visibility:hidden;-webkit-backface-visibility:hidden;will-change:transform}
+#gd-door .gd-light{position:absolute;left:7.2%;width:86.7%;top:16%;height:84%;opacity:0;
+  background:radial-gradient(ellipse 58% 48% at 50% 55%,rgba(255,250,236,.98),rgba(255,232,188,.6) 45%,rgba(255,220,170,0) 78%)}
+#gd-door .gd-leaf{position:absolute;top:0;height:100%;z-index:2;transform-style:preserve-3d;backface-visibility:hidden;-webkit-backface-visibility:hidden;will-change:transform}
 #gd-door .gd-leaf img{inset:0;width:100%;height:100%}
-#gd-door .gd-l{left:3.6458%;width:45.1389%;transform-origin:0 50%}
-#gd-door .gd-r{left:48.7847%;width:45.3125%;transform-origin:100% 50%}
+#gd-door .gd-l{left:7.2423%;width:43.3148%;transform-origin:0 50%}
+#gd-door .gd-r{left:50.5571%;width:43.3148%;transform-origin:100% 50%}
+#gd-door .gd-frame{left:0;top:0;width:100%;height:100%;z-index:3}
 #gd-door .gd-shade{position:absolute;inset:0;opacity:0;pointer-events:none}
-#gd-door .gd-l .gd-shade{background:linear-gradient(90deg,rgba(0,0,0,.05),rgba(0,0,0,.55))}
-#gd-door .gd-r .gd-shade{background:linear-gradient(270deg,rgba(0,0,0,.05),rgba(0,0,0,.55))}
-#gd-door .gd-l::after,#gd-door .gd-r::after{content:"";position:absolute;top:0;bottom:0;width:2px;opacity:0;background:linear-gradient(180deg,transparent,rgba(255,232,190,.9) 30%,rgba(255,232,190,.9) 70%,transparent)}
+#gd-door .gd-l .gd-shade{background:linear-gradient(90deg,rgba(60,40,20,.05),rgba(60,40,20,.5))}
+#gd-door .gd-r .gd-shade{background:linear-gradient(270deg,rgba(60,40,20,.05),rgba(60,40,20,.5))}
+#gd-door .gd-l::after,#gd-door .gd-r::after{content:"";position:absolute;top:22%;bottom:2%;width:2px;opacity:0;background:linear-gradient(180deg,transparent,rgba(255,244,214,1) 30%,rgba(255,244,214,1) 70%,transparent);box-shadow:0 0 12px rgba(255,236,190,.9)}
 #gd-door .gd-l::after{right:0}#gd-door .gd-r::after{left:0}
-#gd-door .gd-ring{position:absolute;z-index:4;width:6.4%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);top:55.9%;
-  border:1px solid rgba(240,206,140,.55);animation:gdRing 2.6s ease-out infinite}
-#gd-door .gd-ring.l{left:39.2%}#gd-door .gd-ring.r{left:58.5%;animation-delay:.25s}
-@keyframes gdRing{0%{transform:translate(-50%,-50%) scale(.9);opacity:0;box-shadow:0 0 6px rgba(255,214,140,.5)}20%{opacity:1}100%{transform:translate(-50%,-50%) scale(2.1);opacity:0;box-shadow:0 0 14px rgba(255,214,140,0)}}
-#gd-door .gd-text{position:absolute;inset:0;z-index:5;pointer-events:none;color:#f3dfb4;text-align:center;opacity:0;transition:opacity .45s ease,filter .45s ease,transform .6s ease}
+/* نبض دهبي حوالين البروش — بيقول للضيف يدوس */
+#gd-door .gd-ring{position:absolute;z-index:4;left:50.56%;top:62.5%;width:9%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%);
+  border:1px solid rgba(214,176,108,.7);animation:gdRing 2.6s ease-out infinite}
+#gd-door .gd-ring.b{animation-delay:1.3s}
+@keyframes gdRing{0%{transform:translate(-50%,-50%) scale(.8);opacity:0;box-shadow:0 0 8px rgba(255,222,150,.6)}20%{opacity:1}100%{transform:translate(-50%,-50%) scale(2.4);opacity:0;box-shadow:0 0 16px rgba(255,222,150,0)}}
+#gd-door .gd-flash{position:absolute;z-index:5;left:50.56%;top:62.5%;width:60%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%) scale(.1);opacity:0;pointer-events:none;
+  background:radial-gradient(circle,rgba(255,255,250,1),rgba(255,240,205,.75) 22%,rgba(255,228,170,0) 62%)}
+#gd-door .gd-spark{position:absolute;z-index:5;left:50.56%;top:62.5%;width:1.6%;aspect-ratio:1;border-radius:50%;opacity:0;pointer-events:none;
+  background:radial-gradient(circle,#fff,rgba(255,236,190,.9) 40%,rgba(255,220,150,0) 70%);transform:translate(-50%,-50%)}
+#gd-door .gd-text{position:absolute;inset:0;z-index:6;pointer-events:none;color:#3a2716;text-align:center;opacity:0;transition:opacity .45s ease,filter .45s ease,transform .6s ease}
 #gd-door.gd-ready .gd-text{opacity:1}
-#gd-door .gd-top{position:absolute;left:8%;right:8%;top:19%;padding:3.2cqw 0 3.6cqw;
-  background:radial-gradient(ellipse 60% 62% at 50% 50%,rgba(20,8,4,.62),rgba(20,8,4,0) 75%)}
-#gd-door .gd-names{font:400 12.2cqw/1.08 'Pinyon Script','Cormorant Garamond',cursive;letter-spacing:0;
-  background:linear-gradient(180deg,#fff1cf,#e3bd76 55%,#b8893f);-webkit-background-clip:text;background-clip:text;color:transparent;
-  filter:drop-shadow(0 .5cqw 1.2cqw rgba(0,0,0,.6))}
-#gd-door .gd-date{margin-top:2.2cqw;font:500 3.3cqw/1 'Cinzel','Cormorant Garamond',serif;letter-spacing:.55em;text-indent:.55em;color:#ead1a0;text-shadow:0 1px 6px rgba(0,0,0,.8)}
-#gd-door .gd-bottom{position:absolute;left:10%;right:10%;top:66.5%;padding:3.6cqw 0;
-  background:radial-gradient(ellipse 62% 70% at 50% 50%,rgba(20,8,4,.66),rgba(20,8,4,0) 76%)}
-#gd-door .gd-open{display:inline-flex;align-items:center;gap:2.6cqw;white-space:nowrap;font:500 4.4cqw/1 'Cinzel','Cormorant Garamond',serif;letter-spacing:.34em;text-indent:.34em;color:#f6e3b8;text-shadow:0 1px 8px rgba(0,0,0,.85);
+#gd-door .gd-top{position:absolute;left:19%;right:19%;top:41%;padding:3.4cqw 2cqw 3.2cqw;
+  background:linear-gradient(180deg,rgba(255,252,246,.93),rgba(249,242,228,.9));-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);
+  border:1px solid rgba(170,132,72,.75);border-radius:2px;
+  box-shadow:0 2cqw 5cqw -1.6cqw rgba(70,45,15,.55)}
+#gd-door .gd-top::before{content:"";position:absolute;inset:.9cqw;border:1px solid rgba(170,132,72,.45);pointer-events:none}
+/* الحبلين الدهب اللي اليافطة متعلقة بيهم في البوابة */
+#gd-door .gd-top::after{content:"";position:absolute;left:14%;right:14%;bottom:calc(100% + 1px);height:7cqw;pointer-events:none;border-left:1px solid rgba(176,138,74,.9);border-right:1px solid rgba(176,138,74,.9)}
+#gd-door .gd-names{font:400 10.4cqw/1.05 'Pinyon Script','Cormorant Garamond',cursive;letter-spacing:0;white-space:nowrap;
+  background:linear-gradient(180deg,#a47a3a,#5b3c1a 60%,#3a2511);-webkit-background-clip:text;background-clip:text;color:transparent}
+#gd-door .gd-date{display:flex;align-items:center;justify-content:center;gap:2cqw;margin-top:1.8cqw;font:500 3.1cqw/1 'Cinzel','Cormorant Garamond',serif;letter-spacing:.42em;text-indent:.42em;color:#5a3f20}
+#gd-door .gd-date::before,#gd-door .gd-date::after{content:"";width:4.5cqw;height:1px;background:linear-gradient(90deg,transparent,#a77f3f)}
+#gd-door .gd-date::after{transform:scaleX(-1)}
+#gd-door .gd-bottom{position:absolute;left:50%;transform:translateX(-50%);top:min(86%,calc(100vh - 18cqw - env(safe-area-inset-bottom,0px)));padding:2.3cqw 5cqw 2.1cqw;white-space:nowrap;
+  background:linear-gradient(180deg,rgba(255,252,246,.9),rgba(249,242,228,.86));-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);
+  border-top:1px solid rgba(170,132,72,.7);border-bottom:1px solid rgba(170,132,72,.7);box-shadow:0 1.6cqw 4cqw -1.6cqw rgba(70,45,15,.5)}
+@supports (height:100dvh){#gd-door .gd-bottom{top:min(86%,calc(100dvh - 18cqw - env(safe-area-inset-bottom,0px)))}}
+#gd-door .gd-open{display:inline-flex;align-items:center;gap:2.4cqw;white-space:nowrap;font:500 4cqw/1 'Cinzel','Cormorant Garamond',serif;letter-spacing:.32em;text-indent:.32em;color:#3f2a14;
   animation:gdBreath 2.4s ease-in-out infinite}
-#gd-door .gd-open::before,#gd-door .gd-open::after{content:"";width:6cqw;height:1px;background:linear-gradient(90deg,transparent,#e3bd76)}
+#gd-door .gd-open::before,#gd-door .gd-open::after{content:"";width:4cqw;height:1px;background:linear-gradient(90deg,transparent,#a77f3f)}
 #gd-door .gd-open::after{transform:scaleX(-1)}
-#gd-door .gd-hint{margin-top:2.6cqw;font:italic 400 3.6cqw/1 'Cormorant Garamond',serif;letter-spacing:.06em;color:rgba(240,220,180,.82);text-shadow:0 1px 6px rgba(0,0,0,.8)}
-@keyframes gdBreath{0%,100%{opacity:.82;transform:translateY(0)}50%{opacity:1;transform:translateY(-.5cqw)}}
+#gd-door .gd-hint{margin-top:1.5cqw;font:italic 500 3.4cqw/1 'Cormorant Garamond',serif;letter-spacing:.06em;color:#6a4c28}
+@keyframes gdBreath{0%,100%{opacity:.78}50%{opacity:1}}
 /* ===== الفتح ===== */
 #gd-door.go{cursor:default;background-color:transparent}
 #gd-door.go .gd-text,#gd-door.go.gd-ready .gd-text{opacity:0;filter:blur(6px);transform:scale(1.04)}
 #gd-door.go .gd-ring{animation:none;opacity:0;transition:opacity .3s}
-#gd-door.go .gd-l{animation:gdOpenL 2.3s cubic-bezier(.42,.04,.26,1) .25s forwards}
-#gd-door.go .gd-r{animation:gdOpenR 2.3s cubic-bezier(.42,.04,.26,1) .25s forwards}
-#gd-door.go .gd-shade{animation:gdShade 2.3s ease-in .25s forwards}
-#gd-door.go .gd-l::after,#gd-door.go .gd-r::after{animation:gdEdge 1.1s ease-out .3s forwards}
-#gd-door.go .gd-light{animation:gdLight 2.1s ease-in-out .35s forwards}
-#gd-door.go .gd-cam{animation:gdCam 2.1s cubic-bezier(.5,0,.3,1) 1s forwards}
-#gd-door.go .gd-frame{animation:gdFade 1s ease-in 1.9s forwards}
-#gd-door.go .gd-bg{animation:gdFade 1s ease-in 1.9s forwards}
+#gd-door.go .gd-flash{animation:gdFlash 1.1s ease-out .05s forwards}
+#gd-door.go .gd-spark{animation:gdSpark 1.3s cubic-bezier(.2,.7,.3,1) var(--d,.1s) forwards}
+#gd-door.go .gd-l{animation:gdOpenL 2.3s cubic-bezier(.45,.05,.25,1) .5s forwards}
+#gd-door.go .gd-r{animation:gdOpenR 2.3s cubic-bezier(.45,.05,.25,1) .5s forwards}
+#gd-door.go .gd-shade{animation:gdShade 2.3s ease-in .5s forwards}
+#gd-door.go .gd-l::after,#gd-door.go .gd-r::after{animation:gdEdge 1.2s ease-out .55s forwards}
+#gd-door.go .gd-light{animation:gdLight 2.2s ease-in-out .55s forwards}
+#gd-door.go .gd-cam{animation:gdCam 2.1s cubic-bezier(.5,0,.3,1) 1.15s forwards}
+#gd-door.go .gd-frame{animation:gdFade 1s ease-in 2s forwards}
+#gd-door.go .gd-bg{opacity:0;transition:opacity .35s ease}
+@media (min-aspect-ratio:5/8){#gd-door.go .gd-bg{opacity:1;animation:gdFade 1s ease-in 2s forwards}}
 #gd-door.go.gd-out{opacity:0;transition:opacity .5s ease}
 #gd-door.gd-done{display:none}
-@keyframes gdOpenL{0%{transform:rotateY(0)}14%{transform:rotateY(-7deg)}100%{transform:rotateY(-98deg)}}
-@keyframes gdOpenR{0%{transform:rotateY(0)}14%{transform:rotateY(7deg)}100%{transform:rotateY(98deg)}}
+@keyframes gdFlash{0%{opacity:0;transform:translate(-50%,-50%) scale(.1)}25%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1.4)}}
+@keyframes gdSpark{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}15%{opacity:1}100%{opacity:0;transform:translate(calc(-50% + var(--x) * 1cqw),calc(-50% + var(--y) * 1cqw)) scale(1.3)}}
+@keyframes gdOpenL{0%{transform:rotateY(0)}100%{transform:rotateY(86deg)}}
+@keyframes gdOpenR{0%{transform:rotateY(0)}100%{transform:rotateY(-86deg)}}
 @keyframes gdShade{0%{opacity:0}100%{opacity:1}}
 @keyframes gdEdge{0%{opacity:0}35%{opacity:1}100%{opacity:0}}
-@keyframes gdLight{0%{opacity:0}35%{opacity:1}100%{opacity:0}}
-@keyframes gdCam{0%{transform:scale(1)}100%{transform:scale(1.75)}}
+@keyframes gdLight{0%{opacity:0}40%{opacity:1}100%{opacity:0}}
+@keyframes gdCam{0%{transform:scale(1)}100%{transform:scale(1.7)}}
 @keyframes gdFade{to{opacity:0}}
 @media (prefers-reduced-motion:reduce){
   #gd-door .gd-ring,#gd-door .gd-open{animation:none}
-  #gd-door.go .gd-l,#gd-door.go .gd-r,#gd-door.go .gd-cam,#gd-door.go .gd-light,#gd-door.go .gd-shade,#gd-door.go .gd-frame{animation:none}
+  #gd-door.go .gd-l,#gd-door.go .gd-r,#gd-door.go .gd-cam,#gd-door.go .gd-light,#gd-door.go .gd-shade,#gd-door.go .gd-frame,#gd-door.go .gd-flash,#gd-door.go .gd-spark{animation:none}
   #gd-door.go{opacity:0;transition:opacity .6s ease}
 }
 `;
@@ -97,10 +120,12 @@ const HTML = `<div id="gd-door" role="button" tabindex="0" aria-label="Open the 
 <div class="gd-bg"></div>
 <div class="gd-stage"><div class="gd-cam">
 <div class="gd-light"></div>
-<img class="gd-frame" src="${BASE}/frame.webp" alt="" fetchpriority="high">
-<div class="gd-leaf gd-l"><img src="${BASE}/leaf-left.webp" alt="" fetchpriority="high"><i class="gd-shade"></i></div>
-<div class="gd-leaf gd-r"><img src="${BASE}/leaf-right.webp" alt="" fetchpriority="high"><i class="gd-shade"></i></div>
-<span class="gd-ring l"></span><span class="gd-ring r"></span>
+<div class="gd-leaf gd-l"><img src="${BASE}/gate-left.webp" alt="" fetchpriority="high"><i class="gd-shade"></i></div>
+<div class="gd-leaf gd-r"><img src="${BASE}/gate-right.webp" alt="" fetchpriority="high"><i class="gd-shade"></i></div>
+<img class="gd-frame" src="${BASE}/gate-frame.webp" alt="" fetchpriority="high">
+<span class="gd-ring"></span><span class="gd-ring b"></span>
+<span class="gd-flash"></span>
+${SPARKS.map(([x, y], i) => `<i class="gd-spark" style="--x:${x};--y:${y};--d:${(0.08 + (i % 5) * 0.05).toFixed(2)}s"></i>`).join('')}
 <div class="gd-text">
 <div class="gd-top"><div class="gd-names" id="gd-names">Yara &amp; Shrief</div><div class="gd-date" id="gd-date">09 · 11 · 2026</div></div>
 <div class="gd-bottom"><div class="gd-open">OPEN THE DOOR</div><div class="gd-hint">tap to step inside</div></div>
@@ -130,10 +155,10 @@ function open(){
   try{var seal=document.querySelector('.popup-enter');if(seal)seal.click();}catch(e){}
   door.classList.add('go');
   // الكارت الأول يبدأ يظهر والكاميرا داخلة من الباب (بدل ما يستنى 2.3 ثانية بتاعة الظرف)
-  setTimeout(function(){var h=document.getElementById('hv-hero');if(h)h.classList.add('hv--play');},1350);
+  setTimeout(function(){var h=document.getElementById('hv-hero');if(h)h.classList.add('hv--play');},1600);
   var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
-  setTimeout(function(){door.classList.add('gd-out')},reduce?0:2650);
-  setTimeout(finish,reduce?650:3150);
+  setTimeout(function(){door.classList.add('gd-out')},reduce?0:2900);
+  setTimeout(finish,reduce?650:3400);
 }
 door.addEventListener('click',open);
 door.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();open();}});
@@ -226,7 +251,7 @@ module.exports = {
     const film = { css: `<style id="gd-film-style">${FILM_CSS}</style>`, js: `<script id="gd-film-script">${FILM_SCRIPT}</script>` };
     if (editMode) return { head: film.css, bodyEnd: film.js };
     return {
-      head: `<link rel="preload" as="image" href="${BASE}/leaf-left.webp"><link rel="preload" as="image" href="${BASE}/leaf-right.webp"><link rel="preload" as="image" href="${BASE}/frame.webp"><style id="gd-style">${CSS}</style>${film.css}`,
+      head: `<link rel="preload" as="image" href="${BASE}/gate-left.webp"><link rel="preload" as="image" href="${BASE}/gate-right.webp"><link rel="preload" as="image" href="${BASE}/gate-frame.webp"><style id="gd-style">${CSS}</style>${film.css}`,
       bodyStart: HTML,
       bodyEnd: `<script id="gd-script">${SCRIPT}</script>${film.js}`,
     };
