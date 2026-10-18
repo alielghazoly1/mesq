@@ -152,9 +152,9 @@ function buildShareTags(data, pageUrl, fallbackImage, imageSize) {
     image ? '<meta property="og:image:type" content="image/jpeg">' : '',
     // المقاس الحقيقي (من Cloudinary) — من غيره إنستجرام/فيسبوك بيبعتوا اللينك
     // أول مرة من غير صورة. بنكتبه بس لو اتقاس فعلًا لنفس الصورة دي.
-    image && imageSize && imageSize.width && image === cloudinaryShareImageOf(data)
+    image && imageSize && imageSize.width && (imageSize.fixed || image === cloudinaryShareImageOf(data))
       ? `<meta property="og:image:width" content="${Number(imageSize.width)}">` : '',
-    image && imageSize && imageSize.height && image === cloudinaryShareImageOf(data)
+    image && imageSize && imageSize.height && (imageSize.fixed || image === cloudinaryShareImageOf(data))
       ? `<meta property="og:image:height" content="${Number(imageSize.height)}">` : '',
     // مبنعلنش عن مقاس ثابت: صورة العميل بأي نسبة (طويلة/عريضة)، ولو
     // كتبنا مقاس غلط ميتا بتعرضها مضغوطة أو مقصوصة. هي بتقيس الصورة لوحدها.

@@ -207,6 +207,20 @@ var n=0,t=setInterval(function(){all();if(++n>20)clearInterval(t)},300);
 module.exports = {
   shortId: 'GrpUVQq',
 
+  // كارت المشاركة (واتساب/إنستجرام/فيسبوك): لقطة من فيديو الدعوة (الطرحة
+  // مفرودة) في إطار ورق + الأسامي والتاريخ والمكان — share-v1.jpg (1200×630،
+  // اتعمل في scratch door/share/card.js). بيكسب على أي صورة مشاركة في المحرر
+  // (overrideImage) لأن المالك هو اللي طالبه. لو اتغيّر: اسم ملف جديد (v2)
+  // عشان واتساب مايفضلش عارض القديم من الكاش.
+  share: {
+    title: 'Yara & Shrief — Wedding Invitation',
+    description: 'Together with their families, Yara & Shrief invite you to celebrate their wedding · Monday, 9 November 2026 · 5:00 PM · Casa Maria Venue, Obour',
+    image: `${BASE}/share-v1.jpg`,
+    width: 1200,
+    height: 630,
+    overrideImage: true,
+  },
+
   /** الباب بيظهر للضيوف بس — في المحرر الدعوة بتتعرض من غيره، بس الفيديو والأغنية موجودين في الاتنين */
   render({ editMode }) {
     const film = { css: `<style id="gd-film-style">${FILM_CSS}</style>`, js: `<script id="gd-film-script">${FILM_SCRIPT}</script>` };

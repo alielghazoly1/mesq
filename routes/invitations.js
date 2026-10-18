@@ -262,7 +262,10 @@ router.get('/i/:shortId', async (req, res) => {
     const renderData = invitation.templateId ? (custom ? applyCustomData(invitation, custom) : invitation) : null;
     // مقاس صورة كارت المشاركة الحقيقي — إنستجرام/فيسبوك محتاجينه عشان يعرضوا
     // الصورة من أول مرة (utils/shareImageSize.js). متخزّن في الذاكرة بعد أول مرة.
-    const shareImageSize = renderData && !editMode ? await shareImageSize_(cloudinaryShareImageOf(renderData)) : null;
+    const shareImageSize = custom && custom.share && custom.share.overrideImage && custom.share.width
+      // كارت كاستم مقاسه معروف — بنكتبه على طول (إنستجرام محتاجه من أول مشاركة)
+      ? { width: custom.share.width, height: custom.share.height, fixed: true }
+      : (renderData && !editMode ? await shareImageSize_(cloudinaryShareImageOf(renderData)) : null);
     let html = invitation.templateId
       ? renderNewPathHtml(renderData, {
         editMode,

@@ -31,7 +31,13 @@ function applyCustomData(invitation, custom) {
       hidden: [...new Set([...(c.hidden || []), ...(custom.hidden || [])])],
       rsvp: { ...(c.rsvp || {}), ...(custom.rsvp || {}) },
       share: custom.share && custom.share.title
-        ? { ...(c.share || {}), title: custom.share.title, description: custom.share.description }
+        ? {
+          ...(c.share || {}),
+          title: custom.share.title,
+          description: custom.share.description,
+          // صورة الكارت الكاستم تكسب على صورة المحرر (بتيجي من shareFallbackImage)
+          ...(custom.share.overrideImage ? { image: '' } : {}),
+        }
         : (c.share || {}),
     },
   };
