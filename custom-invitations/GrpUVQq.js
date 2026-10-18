@@ -246,7 +246,7 @@ var n=0,t=setInterval(function(){all();if(++n>20)clearInterval(t)},300);
 
 
 // ===== كارت الـ Dress Code / "No casual" في آخر الدعوة (بطلب المالك) =====
-// بين فورم تأكيد الحضور وجملة الختام. أيقونات خط رفيع دهبي: فيونكة فوق، بدلة
+// قبل فورم تأكيد الحضور مباشرة. أيقونات خط رفيع دهبي: فيونكة فوق، بدلة
 // للرجالة وفستان للستات، وتيشيرت عليه علامة منع بتترسم لما الكارت يبان.
 const NOTE_ICONS = {
   bow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"><path d="M3 7.5 10.4 11v2L3 16.5z"/><path d="M21 7.5 13.6 11v2l7.4 3.5z"/><rect x="10.4" y="10.3" width="3.2" height="3.4" rx=".8"/></svg>',
@@ -313,17 +313,18 @@ const NOTE_CSS = `
 @media (prefers-reduced-motion:reduce){#gd-notice.armed .gd-note-card,#gd-notice.armed .gd-note-card>*{opacity:1;transform:none;animation:none}#gd-notice.armed .gd-no-ring,#gd-notice.armed .gd-no-slash{stroke-dashoffset:0;animation:none}}
 `;
 
-// بيتحط قبل قسم الختام (أو آخر الصفحة لو الختام مقفول من المحرر)
+// بيتحط قبل قسم تأكيد الحضور (ولو مقفول: قبل الختام)
 const NOTE_SCRIPT = `(function(){
 var HTML=${JSON.stringify(NOTE_HTML).replace(/</g, '\\u003c')};
 function put(){
   if(document.getElementById('gd-notice'))return true;
+  // قبل قسم تأكيد الحضور (بطلب المالك) — ولو الفورم مقفول من المحرر: قبل الختام
+  var wrap=document.getElementById('rsvp-wrap');
   var closing=document.getElementById('rec2442651163');
-  var rsvp=document.getElementById('mithaq-rsvp');
-  var anchor=closing&&getComputedStyle(closing).display!=='none'?closing:null;
-  if(!anchor&&!rsvp)return false;
+  var anchor=wrap&&getComputedStyle(wrap).display!=='none'?wrap:(closing&&getComputedStyle(closing).display!=='none'?closing:null);
+  if(!anchor)return false;
   var n=document.createElement('section');n.id='gd-notice';n.setAttribute('aria-label','Dress code');n.innerHTML=HTML;
-  if(anchor)anchor.parentNode.insertBefore(n,anchor);else{var r=rsvp.closest('.t-rec')||rsvp;r.parentNode.insertBefore(n,r.nextSibling);}
+  anchor.parentNode.insertBefore(n,anchor);
   var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
   if(!reduce&&'IntersectionObserver' in window&&!(window.WEDDING_CONFIG||{}).autoOpen){
     n.classList.add('armed');
