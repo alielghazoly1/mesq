@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Yassin &amp; Shimaa — Wedding Invitation</title>
+  <meta name="description" content="A new chapter begins with love, laughter and happily ever after. Join us on our special day.">
+  <meta property="og:title" content="Yassin &amp; Shimaa — Wedding Invitation">
+  <meta property="og:description" content="Kempinski | 7:00PM | 8/8/26.">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#3a1714">
+  <meta name="format-detection" content="telephone=no">
+
+  <!--
+    الخطوط من Google Fonts (نفس خطوط الصورة بالظبط):
+      - Meddon          → أسماء العروسين (Yassin & Shimaa)
+      - Old Standard TT → باقي الكلام كله
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Meddon&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&display=swap">
+
+  <link rel="preload" as="image" href="img/flower-top.webp" fetchpriority="high">
+  <link rel="preload" as="image" href="img/flower-bottom.webp" fetchpriority="high">
+
+  <script>
+    // بنشيل no-js بدري عشان حركات الدخول متشتغلش غير والسكريبت شغال
+    document.documentElement.classList.replace('no-js', 'js');
+  </script>
+
+  <style>
+    /* =========================================================
+       لوحة التحكم — أي لون أو خط أو سرعة حركة تتغيّر من هنا بس
+       ========================================================= */
+    :root {
+      /* الألوان (متاخدة من الصورة الأصلية) */
+      --c-paper: #d0c4b1;          /* الخلفية البيج */
+      --c-velvet: #3a1714;         /* القوس العنابي */
+      --c-names: #fbe3d8;          /* لون الأسماء */
+      --c-text: #f3d8cf;           /* لون الكلام */
+      --c-meta: #ead0c9;           /* المكان | الساعة | التاريخ */
+      --c-pin: #c2a481;            /* أيقونة المكان */
+      --c-clock: #a3836f;          /* أيقونة الساعة */
+      --c-calendar: #e0c8ac;       /* أيقونة التاريخ */
+      --c-calendar-cell: #fffaf2;  /* مربعات التقويم */
+
+      /* الخطوط */
+      --f-script: 'Meddon', 'Snell Roundhand', cursive;
+      --f-serif: 'Old Standard TT', 'Times New Roman', Times, serif;
+
+      /* المقاسات — بوحدة التصميم (1 = بكسل واحد من الصورة الأصلية 675×1200) */
+      --fs-names: 31;
+      --fs-text: 26;
+      --fs-meta: 19.6;
+      --fs-tagline: 26;
+
+      /* الحركة */
+      --sway-top: 9s;              /* مدة تمايل الوردة اللي فوق */
+      --sway-bottom: 11s;          /* مدة تمايل الوردة اللي تحت */
+      --ease-out: cubic-bezier(.2, .75, .2, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html, body { margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: var(--c-paper) url("img/paper.webp") repeat;
+      background-size: 300px;
+      color: var(--c-text);
+      font-family: var(--f-serif);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .sr-only {
+      position: absolute !important;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0 0 0 0);
+      white-space: nowrap; border: 0;
+    }
+
+    /* =========================================================
+       السكشن — على الموبايل بياخد الشاشة كلها، وعلى الشاشات
+       الكبيرة بيبقى كارت في النص بنفس نسبة الصورة (9:16)
+       ========================================================= */
+    .invite {
+      position: relative;
+      display: grid;
+      place-items: center;
+      min-height: 100vh;
+      min-height: 100svh;
+    }
+
+    .invite__stage {
+      /* --u = بكسل واحد من التصميم الأصلي، بيكبر ويصغر مع عرض الكارت */
+      --u: calc(100cqw / 675);
+      position: relative;
+      width: 100%;
+      /* أقل حاجة نسبة الصورة (9:16)، ولو الشاشة أطول بياخد طولها كله */
+      min-height: max(100vh, calc(100vw * 1200 / 675));
+      min-height: max(100svh, calc(100vw * 1200 / 675));
+      container-type: inline-size;
+      background: var(--c-paper) url("img/paper.webp") repeat;
+      background-size: calc(var(--u) * 340);
+      overflow: hidden;
+      overflow: clip;
+      isolation: isolate;
+    }
+
+    @supports not (width: 1cqw) {
+      .invite__stage { --u: calc(100vw / 675); }
+    }
+
+    @media (min-width: 600px) {
+      body {
+        background-color: #bfb19c;
+        background-blend-mode: multiply;
+      }
+
+      .invite {
+        --gap: clamp(16px, 4vh, 48px);
+        padding: var(--gap) 16px;
+        background: radial-gradient(ellipse at 50% 40%, rgba(255, 250, 240, .35), rgba(60, 30, 20, .18) 75%);
+      }
+
+      .invite__stage {
+        --card-h: min(clamp(560px, calc(100svh - 2 * var(--gap)), 1100px), calc((100vw - 32px) * 1200 / 675));
+        --u: calc(var(--card-h) / 1200);
+        width: calc(var(--card-h) * 675 / 1200);
+        height: var(--card-h);
+        min-height: 0;
+        border-radius: 18px;
+        box-shadow:
+          0 1px 2px rgba(40, 18, 10, .12),
+          0 18px 40px -12px rgba(40, 18, 10, .35),
+          0 40px 90px -30px rgba(40, 18, 10, .45);
+      }
+    }
+
+    /* =========================================================
+       القوس العنابي (قطيفة)
+       ========================================================= */
+    .invite__arch {
+      position: absolute;
+      z-index: 1;
+      left: calc(var(--u) * 48);
+      width: calc(var(--u) * 580);
+      top: calc(var(--u) * 66);
+      bottom: calc(var(--u) * 67);
+      border-radius: calc(var(--u) * 290) calc(var(--u) * 290) 0 0 / calc(var(--u) * 298) calc(var(--u) * 298) 0 0;
+      background: var(--c-velvet) url("img/velvet.webp") center / cover no-repeat;
+    }
+
+    /* =========================================================
+       الكلام — كله نص حقيقي يتعدّل من الـ HTML تحت
+       ========================================================= */
+    .invite__content {
+      position: absolute;
+      z-index: 2;
+      top: calc(var(--u) * 435);
+      bottom: calc(var(--u) * 387);
+      left: calc(var(--u) * 60);
+      right: calc(var(--u) * 60);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .invite__names {
+      margin: 0;
+      font-family: var(--f-script);
+      font-weight: 400;
+      /* --fit بيتظبط لوحده من السكريبت لو الأسماء طويلة ومش هتكفي في القوس */
+      font-size: calc(var(--u) * var(--fs-names) * var(--fit, 1));
+      line-height: 1.55;
+      letter-spacing: 0;
+      color: var(--c-names);
+      white-space: nowrap;
+    }
+
+    .invite__lead {
+      margin: calc(var(--u) * 37) 0 0;
+      max-width: calc(var(--u) * 540);
+      font-size: calc(var(--u) * var(--fs-text));
+      line-height: calc(var(--u) * 26.5);
+      color: var(--c-text);
+    }
+
+    .invite__lead p { margin: 0; }
+
+    .invite__details {
+      display: flex;
+      justify-content: center;
+      margin: calc(var(--u) * 17) 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .invite__detail {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: calc(var(--u) * 104);
+      padding: 0 calc(var(--u) * 6);
+    }
+
+    /* الفاصل | قبل الساعة والتاريخ (لازق في الكلمة زي الصورة) */
+    .invite__detail + .invite__detail .invite__detail-text { position: relative; }
+    .invite__detail + .invite__detail .invite__detail-text::before {
+      content: "|";
+      position: absolute;
+      right: 100%;
+      margin-right: calc(var(--u) * 8);
+    }
+
+    .invite__icon-box {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      height: calc(var(--u) * 50);
+    }
+
+    .invite__icon { display: block; overflow: visible; }
+    .invite__icon--pin { width: calc(var(--u) * 28); height: calc(var(--u) * 43); color: var(--c-pin); }
+    .invite__icon--clock { width: calc(var(--u) * 52); height: calc(var(--u) * 52); margin-left: calc(var(--u) * 8); color: var(--c-clock); }
+    .invite__icon--calendar { width: calc(var(--u) * 36); height: calc(var(--u) * 41); color: var(--c-calendar); }
+
+    .invite__detail-text {
+      display: block;
+      margin-top: calc(var(--u) * 26);
+      font-size: calc(var(--u) * var(--fs-meta));
+      line-height: calc(var(--u) * 22);
+      color: var(--c-meta);
+      /* لو اسم المكان طويل بينزل سطرين بدل ما يطلع برّه القوس */
+      max-width: calc(var(--u) * 190);
+      text-wrap: balance;
+    }
+
+    .invite__tagline {
+      margin: calc(var(--u) * 48) 0 0;
+      font-size: calc(var(--u) * var(--fs-tagline));
+      line-height: 1.2;
+      color: var(--c-text);
+    }
+
+    /* =========================================================
+       الورد — مقصوص من الصورة (PNG شفاف بجودة 2x)
+       3 طبقات: المكان ← حركة الدخول ← التمايل المستمر
+       الوردة مكبّرة سنة صغيرة عشان حافة القص تفضل برّه الكادر
+       وهي بتتحرك
+       ========================================================= */
+    .invite__flower {
+      position: absolute;
+      z-index: 3;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .invite__flower img {
+      display: block;
+      width: 100%;
+      height: auto;
+      -webkit-user-drag: none;
+    }
+
+    .invite__flower-in,
+    .invite__flower img { will-change: transform; }
+
+    .invite__flower--top {
+      top: 0;
+      left: 0;
+      width: calc(var(--u) * 508.5);
+      transform: scale(1.045);
+      transform-origin: 100% 100%;
+    }
+
+    .invite__flower--top .invite__flower-in,
+    .invite__flower--top img { transform-origin: 0 0; }
+
+    .invite__flower--bottom {
+      right: 0;
+      bottom: 0;
+      width: calc(var(--u) * 396.5);
+      transform: scale(1.05);
+      transform-origin: 0 0;
+    }
+
+    .invite__flower--bottom .invite__flower-in,
+    .invite__flower--bottom img { transform-origin: 100% 100%; }
+
+    /* التمايل المستمر (شغال حتى من غير JavaScript) */
+    .invite__flower--top img { animation: sway-top var(--sway-top) ease-in-out infinite; }
+    .invite__flower--bottom img { animation: sway-bottom var(--sway-bottom) ease-in-out infinite; }
+
+    @keyframes sway-top {
+      0%, 100% { transform: rotate(0deg) scale(1); }
+      30%      { transform: rotate(1.5deg) translate(.35%, .25%) scale(1.018); }
+      65%      { transform: rotate(-.9deg) translate(-.2%, .35%) scale(1.008); }
+    }
+
+    @keyframes sway-bottom {
+      0%, 100% { transform: rotate(0deg) scale(1); }
+      35%      { transform: rotate(-1.4deg) translate(-.3%, -.3%) scale(1.02); }
+      70%      { transform: rotate(1deg) translate(.25%, -.15%) scale(1.006); }
+    }
+
+    /* =========================================================
+       حركة الدخول — بتبدأ بعد ما الخطوط تحمّل (.is-ready)
+       ========================================================= */
+    .js .invite [data-reveal] { opacity: 0; }
+    .js .invite .invite__flower-in { opacity: 0; }
+
+    .js .invite.is-ready .invite__flower--top .invite__flower-in {
+      animation: bloom-top 2s var(--ease-out) .1s both;
+    }
+
+    .js .invite.is-ready .invite__flower--bottom .invite__flower-in {
+      animation: bloom-bottom 2s var(--ease-out) .3s both;
+    }
+
+    .js .invite.is-ready [data-reveal] {
+      animation: rise 1.2s var(--ease-out) both;
+      animation-delay: calc(.9s + var(--i, 0) * .16s);
+    }
+
+    .js .invite.is-ready .invite__names[data-reveal] {
+      animation: write 2s cubic-bezier(.45, .05, .25, 1) .7s both;
+    }
+
+    @keyframes bloom-top {
+      from { opacity: 0; transform: translate(-14%, -14%) rotate(-10deg) scale(.9); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    @keyframes bloom-bottom {
+      from { opacity: 0; transform: translate(14%, 14%) rotate(-10deg) scale(.9); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(calc(var(--u) * 14)); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    /* الأسماء بتتكتب من الشمال لليمين */
+    @keyframes write {
+      from { opacity: 0; clip-path: inset(-40% 100% -40% -8%); }
+      12%  { opacity: 1; }
+      to   { opacity: 1; clip-path: inset(-40% -8% -40% -8%); }
+    }
+
+    /* لما السكشن يبقى برّه الشاشة الحركة بتقف عشان البطارية */
+    .invite.is-offscreen *,
+    .invite.is-offscreen img { animation-play-state: paused !important; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .invite *, .invite *::before { animation: none !important; }
+      .js .invite [data-reveal],
+      .js .invite .invite__flower-in { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- =========================================================
+       سكشن الدعوة — كل كلمة هنا تتغيّر عادي وهتفضل بنفس الستايل
+       ========================================================= -->
+  <section class="invite" id="invite" aria-labelledby="invite-names">
+    <div class="invite__stage">
+
+      <div class="invite__arch" aria-hidden="true"></div>
+
+      <div class="invite__content">
+
+        <!-- أسماء العروسين -->
+        <h1 class="invite__names" id="invite-names" data-reveal>Yassin &amp; Shimaa</h1>
+
+        <!-- الجملة الرئيسية -->
+        <div class="invite__lead">
+          <p data-reveal style="--i:1">A new chapter begins with love, laughter and happily ever after</p>
+          <p data-reveal style="--i:2">Join us on our special day</p>
+        </div>
+
+        <!-- المكان | الساعة | التاريخ -->
+        <ul class="invite__details" data-reveal style="--i:3">
+          <li class="invite__detail">
+            <span class="invite__icon-box" aria-hidden="true">
+              <svg class="invite__icon invite__icon--pin" viewBox="0 0 28 43" focusable="false">
+                <path fill="currentColor" fill-rule="evenodd" d="M14 0C21.73 0 28 6.2 28 13.86c0 9.5-10.3 22.1-14 29.14C10.3 35.96 0 23.36 0 13.86 0 6.2 6.27 0 14 0Zm0 10.1a3.85 3.85 0 1 0 0 7.7 3.85 3.85 0 0 0 0-7.7Z"/>
+              </svg>
+            </span>
+            <span class="sr-only">Venue:</span>
+            <span class="invite__detail-text">Kempinski</span>
+          </li>
+          <li class="invite__detail">
+            <span class="invite__icon-box" aria-hidden="true">
+              <svg class="invite__icon invite__icon--clock" viewBox="0 0 50 50" focusable="false">
+                <g fill="none" stroke="currentColor" stroke-linecap="round">
+                  <circle cx="25" cy="25" r="22.6" stroke-width="4.4"/>
+                  <path d="M24.4 11.2 24.9 25.2 36.2 33.6" stroke-width="3.2" stroke-linejoin="round"/>
+                </g>
+              </svg>
+            </span>
+            <span class="sr-only">Time:</span>
+            <time class="invite__detail-text" datetime="19:00">7:00PM</time>
+          </li>
+          <li class="invite__detail">
+            <span class="invite__icon-box" aria-hidden="true">
+              <svg class="invite__icon invite__icon--calendar" viewBox="0 0 36 41" focusable="false">
+                <rect x="7.6" y="0" width="4.6" height="9" rx="2" fill="currentColor"/>
+                <rect x="23.8" y="0" width="4.6" height="9" rx="2" fill="currentColor"/>
+                <rect x="0" y="4.2" width="36" height="36.8" rx="4.2" fill="currentColor"/>
+                <g fill="var(--c-calendar-cell)">
+                  <rect x="5" y="14.2" width="7.4" height="6.4" rx=".8"/>
+                  <rect x="14.3" y="14.2" width="7.4" height="6.4" rx=".8"/>
+                  <rect x="23.6" y="14.2" width="7.4" height="6.4" rx=".8"/>
+                  <rect x="5" y="22.8" width="7.4" height="6.4" rx=".8"/>
+                  <rect x="14.3" y="22.8" width="7.4" height="6.4" rx=".8"/>
+                  <rect x="23.6" y="22.8" width="7.4" height="6.4" rx=".8"/>
+                  <rect x="5" y="31.4" width="7.4" height="6.4" rx=".8"/>
+                  <rect x="14.3" y="31.4" width="7.4" height="6.4" rx=".8"/>
+                  <rect x="23.6" y="31.4" width="7.4" height="6.4" rx=".8"/>
+                </g>
+              </svg>
+            </span>
+            <span class="sr-only">Date:</span>
+            <time class="invite__detail-text" datetime="2026-08-08">8/8/26.</time>
+          </li>
+        </ul>
+
+        <!-- الجملة الأخيرة -->
+        <p class="invite__tagline" data-reveal style="--i:4">Together is a beautiful place to be</p>
+
+      </div>
+
+      <!-- الورد (اللي فوق على الشمال واللي تحت على اليمين) -->
+      <div class="invite__flower invite__flower--top" aria-hidden="true">
+        <div class="invite__flower-in">
+          <img src="img/flower-top.webp" width="1017" height="860" alt="" decoding="async" fetchpriority="high">
+        </div>
+      </div>
+      <div class="invite__flower invite__flower--bottom" aria-hidden="true">
+        <div class="invite__flower-in">
+          <img src="img/flower-bottom.webp" width="793" height="778" alt="" decoding="async" fetchpriority="high">
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <script>
+    (function () {
+      var invite = document.getElementById('invite');
+      if (!invite) return;
+
+      // حركة الدخول بتستنى الخطوط والورد يحمّلوا (وبحد أقصى ثانيتين ونص)
+      var started = false;
+      function start() {
+        if (started) return;
+        started = true;
+        invite.classList.add('is-ready');
+      }
+      var imgs = Array.prototype.slice.call(invite.querySelectorAll('.invite__flower img'));
+      var waits = imgs.map(function (img) {
+        return img.decode ? img.decode().catch(function () {}) : Promise.resolve();
+      });
+      if (document.fonts && document.fonts.ready) waits.push(document.fonts.ready);
+      Promise.all(waits).then(start, start);
+      setTimeout(start, 2500);
+
+      // لو الأسماء اتغيّرت لأسماء أطول، الخط بيصغر لوحده عشان يفضلوا في سطر واحد جوه القوس
+      var names = invite.querySelector('.invite__names');
+      function fitNames() {
+        names.style.removeProperty('--fit');
+        var room = names.parentNode.clientWidth;
+        var need = names.getBoundingClientRect().width;
+        if (need > room) names.style.setProperty('--fit', Math.max(room / need, 0.55).toFixed(3));
+      }
+      if (names) {
+        fitNames();
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitNames);
+        window.addEventListener('resize', fitNames);
+      }
+
+      // نوقف الحركة لما السكشن يبقى برّه الشاشة
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver(function (entries) {
+          invite.classList.toggle('is-offscreen', !entries[0].isIntersecting);
+        }).observe(invite);
+      }
+    })();
+  </script>
+</body>
+</html>
