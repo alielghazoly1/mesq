@@ -159,6 +159,18 @@ const FIXES = [
       return { 'guestExtras.voice': true, 'guestExtras.photos': true };
     },
   },
+  {
+    // vYsx7Gn (الغزالى ومها — قصر ليالي نمار) — بطلب المالك: "الموقع يظهر عند
+    // ناس صح وعند ناس غلط". الخريطة المضمّنة كانت على مكان "الكاميرا" في لينك
+    // جوجل (46.5907552) مش الدبوس نفسه (46.591414). بنحطها على الدبوس، واللينك
+    // اللي المالك بيشاركه زي ما هو. بس لو لسه نفس اللينك ونفس الخريطة القديمة.
+    name: 'vYsx7Gn-map-pin',
+    shortId: 'vYsx7Gn',
+    select: 'customizations venueMapEmbedSrc venueMapDirectLink',
+    when: (c, inv) => /TZMx3AJSQJfe3YK7A/.test(inv.venueMapDirectLink || '')
+      && inv.venueMapEmbedSrc === 'https://www.google.com/maps?q=24.5669705,46.5907552&output=embed',
+    apply: () => ({ venueMapEmbedSrc: 'https://www.google.com/maps?q=24.5669705,46.591414&z=17&output=embed' }),
+  },
 ];
 
 let done = false;

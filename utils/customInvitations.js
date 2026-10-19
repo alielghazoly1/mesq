@@ -7,8 +7,9 @@
 // أي دعوة مش في القايمة دي بتتعرض زي ما هي بالظبط.
 const QICmvQj = require('../custom-invitations/QICmvQj');
 const GrpUVQq = require('../custom-invitations/GrpUVQq');
+const vYsx7Gn = require('../custom-invitations/vYsx7Gn');
 
-const CUSTOM = { [QICmvQj.shortId]: QICmvQj, [GrpUVQq.shortId]: GrpUVQq };
+const CUSTOM = { [QICmvQj.shortId]: QICmvQj, [GrpUVQq.shortId]: GrpUVQq, [vYsx7Gn.shortId]: vYsx7Gn };
 
 function getCustomInvitation(shortId) {
   return Object.prototype.hasOwnProperty.call(CUSTOM, shortId) ? CUSTOM[shortId] : null;

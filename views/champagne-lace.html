@@ -3284,8 +3284,15 @@
 
                 var fr = document.querySelector('.vn-map iframe');
                 if (fr && C.venueMapEmbedSrc) {
-                    if (fr.hasAttribute('data-wda-map-src')) fr.setAttribute('data-wda-map-src', C.venueMapEmbedSrc);
-                    else fr.src = C.venueMapEmbedSrc;
+                    // الخريطة بتتأجّل (deferMaps) لحد ما الضيف يقرب منها — ولو التأجيل
+                    // سبقنا وحمّل خريطة القالب الافتراضية (Kempinski) قبل ما نوصل هنا،
+                    // كان الضيف بيشوف مكان غلط. دلوقتي: نحدّث المحفوظ، ولو الإطار
+                    // اتحمّل خلاص بمكان تاني نبدّله على طول.
+                    if (fr.hasAttribute('data-wda-map-src')) {
+                        fr.setAttribute('data-wda-map-src', C.venueMapEmbedSrc);
+                        var cur = fr.getAttribute('src');
+                        if (cur && cur !== C.venueMapEmbedSrc) fr.setAttribute('src', C.venueMapEmbedSrc);
+                    } else if (fr.getAttribute('src') !== C.venueMapEmbedSrc) fr.src = C.venueMapEmbedSrc;
                     fr.title = C.venueName || fr.title;
                 }
                 var dir = document.querySelector('.vn-dir');
