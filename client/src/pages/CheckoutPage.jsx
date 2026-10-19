@@ -78,6 +78,12 @@ function formatEgPhone(v) {
   return /^01\d{9}$/.test(d) ? `${d.slice(0, 3)} ${d.slice(3, 7)} ${d.slice(7)}` : v;
 }
 
+/** https://app.kast.xyz/kasttag/name ← "name" (للعرض على الموبايل) */
+function kastTag(link) {
+  const m = String(link || '').match(/kasttag\/([A-Za-z0-9_.-]+)/);
+  return m ? m[1] : '';
+}
+
 /** خانة نسخ Taptap — كبيرة وواضحة، و"اتنسخ ✓" مكان زرار النسخ */
 function TaptapCopy({ label, value, display, big, field }) {
   const { t } = useTranslation();
@@ -92,7 +98,7 @@ function TaptapCopy({ label, value, display, big, field }) {
         () => {}
       )}
       className={`flex w-full items-center justify-between gap-3 rounded-2xl border-[1.5px] px-4 py-3 text-start transition ${
-        copied ? 'border-ok bg-ok/[0.06]' : 'border-[#2c6e49]/20 bg-[#f6fbf7] hover:border-[#02681f]/50 active:scale-[.99]'
+        copied ? 'border-ok bg-ok/[0.06]' : field === 'kast' ? 'border-line bg-ivory/60 hover:border-ink/30 active:scale-[.99]' : 'border-[#2c6e49]/20 bg-[#f6fbf7] hover:border-[#02681f]/50 active:scale-[.99]'
       }`}
     >
       <span className="flex min-w-0 flex-col gap-0.5">
@@ -106,7 +112,7 @@ function TaptapCopy({ label, value, display, big, field }) {
         </span>
       </span>
       <span className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1.5 min-[360px]:px-3 text-[11.5px] font-extrabold ${
-        copied ? 'bg-ok text-white' : 'bg-[#02681f] text-white'
+        copied ? 'bg-ok text-white' : field === 'kast' ? 'bg-[#0a0a0a] text-white' : 'bg-[#02681f] text-white'
       }`}
       >
         {copied ? <Check size={13} /> : <Copy size={13} />}
@@ -587,8 +593,10 @@ export default function CheckoutPage() {
                       </span>
                       <span className="text-[11.5px] font-bold text-ink-dim">{t('checkout.kastTagline')}</span>
                     </div>
+                    {/* الـ QR على اللابتوب بس (العميل بيمسحه بموبايله). على الموبايل
+                        مالوش لازمة — بيظهر التاج ينتسخ + زرار يفتح KAST على طول */}
                     {kast.qr && (
-                      <div className="flex flex-col items-center">
+                      <div className="hidden flex-col items-center md:flex" data-kast-qr>
                         <img
                           src={kast.qr}
                           alt="KAST QR"
@@ -598,6 +606,12 @@ export default function CheckoutPage() {
                           style={{ imageRendering: 'pixelated' }}
                         />
                         <p className="mt-2 text-center text-[11.5px] text-ink-dim">{t('checkout.kastScan')}</p>
+                      </div>
+                    )}
+                    {kastTag(kast.link) && (
+                      <div className="md:hidden" data-kast-tag>
+                        <p className="mb-2.5 text-[12.5px] font-bold leading-relaxed text-ink-dim">{t('checkout.kastMobile')}</p>
+                        <TaptapCopy label={t('checkout.kastTag')} value={'@' + kastTag(kast.link)} field="kast" />
                       </div>
                     )}
                     {kast.holderName && (
@@ -616,7 +630,8 @@ export default function CheckoutPage() {
                       href={kast.link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#0a0a0a] py-3 text-[13px] font-bold text-white transition hover:brightness-150"
+                      className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#0a0a0a] py-3.5 text-[14px] font-bold text-white transition hover:brightness-150 md:py-3 md:text-[13px]"
+                      data-kast-pay
                     >
                       <img src="/img/kast-logo.svg" alt="" className="h-3.5 w-auto" /> {t('checkout.kastPay')}
                     </a>

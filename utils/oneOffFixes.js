@@ -223,11 +223,31 @@ async function runSiteConfigFixes() {
   }
 }
 
+// KAST — لينك الدفع اللي المالك بعته (2026-10-20). اللينك القديم كان بيقول "منتهي".
+// مرة واحدة بس (علامة fixes.kastLink20261020 في المستند) — فأي تغيير بعد كده من اللوحة هو اللي بيمشي.
+async function runPaymentFixes() {
+  const PaymentSettings = require('../models/PaymentSettings');
+  const LINK = 'https://app.kast.xyz/kasttag/alielghazoly';
+  const MARK = 'fixes.kastLink20261020';
+  try {
+    const col = PaymentSettings.collection;
+    let doc = await col.findOne({ key: 'default' });
+    if (!doc) { await PaymentSettings.create({ key: 'default' }); doc = await col.findOne({ key: 'default' }); }
+    if (doc.fixes && doc.fixes.kastLink20261020) return;
+    console.log(`[oneOffFix] kast-link before: ${JSON.stringify({ kast: doc.kast || null })}`);
+    await col.updateOne({ _id: doc._id }, { $set: { 'kast.link': LINK, 'kast.enabled': true, [MARK]: new Date(), updatedAt: new Date() } });
+    console.log('[oneOffFix] kast-link applied');
+  } catch (err) {
+    console.error('[oneOffFix] kast-link failed:', err.message);
+  }
+}
+
 async function runOneOffFixes() {
   if (done) return;
   done = true;
   await runCampaignFixes();
   await runSiteConfigFixes();
+  await runPaymentFixes();
   for (const fix of FIXES) {
     try {
       // select: التعديلات اللي محتاجة حقول الدعوة نفسها (مش التخصيصات بس)
