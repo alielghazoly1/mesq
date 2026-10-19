@@ -107,6 +107,13 @@ function cloudinaryShareImageOf(data) {
  * @param {string} [fallbackImage] صورة التصميم لو العميل مارفعش صورة
  * @param {{width:number,height:number}|null} [imageSize] مقاس الصورة الحقيقي (utils/shareImageSize.js)
  */
+// دعوات بعينها المالك طالب لينكها يظهر على واتساب/فيسبوك من غير صورة —
+// العنوان والوصف بس. صورة المشاركة اللي العميل حاططها بتفضل متخزّنة زي ما هي
+// (لو اتشالت من هنا ترجع على طول)، ومش بتتأثر بأي تعديل من المحرر.
+const NO_SHARE_IMAGE = new Set([
+  'rt8aOHR', // Lotfy & Mariam — بطلب المالك 2026-10-19
+]);
+
 function buildShareTags(data, pageUrl, fallbackImage, imageSize) {
   const c = (data && data.customizations) || {};
   const share = c.share || {};
@@ -129,6 +136,8 @@ function buildShareTags(data, pageUrl, fallbackImage, imageSize) {
   }
   // ميتا محتاجة رابط مطلق — أي حاجة غير كده مالهاش لازمة نعلن عنها
   if (!/^https?:\/\//.test(image)) image = '';
+  // دعوات المالك طالب إن لينكها يتبعت من غير صورة (العنوان والكلام بس)
+  if (data && NO_SHARE_IMAGE.has(data.shortId)) image = '';
 
   const isAr = String(data.language || 'ar').toLowerCase() === 'ar';
   // og:url بيشيل بصمة الكارت (?c=) لو موجودة — عشان فيسبوك/إنستجرام يعتبروا
