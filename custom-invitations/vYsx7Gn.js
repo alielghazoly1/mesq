@@ -17,7 +17,7 @@ const CSS = `
 #hv-hero .vy{direction:rtl;color:#2b1c13;text-align:center;font-family:'Amiri',serif}
 #hv-hero .vy *{letter-spacing:0!important}
 #hv-hero .vy-pre{font:400 15px/1.4 'Amiri',serif;color:#6f5d4c}
-#hv-hero .vy-fam{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:0;font:700 23px/1.4 'Amiri',serif;color:#2b1c13}
+#hv-hero .vy-fam{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:0;font:700 22px/1.32 'Amiri',serif;color:#2b1c13}
 #hv-hero .vy-fam i{font:italic 400 19px/1 'Amiri',serif;color:#a48c69}
 #hv-hero .vy-invite{margin-top:2px;font:400 16px/1.5 'Amiri',serif;color:#3d2c1f}
 #hv-hero .vy-orn{display:flex;align-items:center;justify-content:center;gap:9px;margin:8px auto 3px}
@@ -26,7 +26,7 @@ const CSS = `
 #hv-hero .vy-orn b{width:6px;height:6px;border:1px solid #b79f78;transform:rotate(45deg)}
 #hv-hero .vy-person{margin-top:2px}
 #hv-hero .vy-role{font:400 13px/1.3 'Amiri',serif;color:#8a7458}
-#hv-hero .vy-name{font:700 40px/1.2 'Aref Ruqaa','Amiri',serif;color:#2b1c13}
+#hv-hero .vy-name{font:700 38px/1.15 'Aref Ruqaa','Amiri',serif;color:#2b1c13}
 #hv-hero .vy-person+.vy-and+.vy-person .vy-name{padding-bottom:8px}
 #hv-hero .vy-full{font:700 16px/1.35 'Amiri',serif;color:#4a3626}
 #hv-hero .vy-and{margin:4px 0 2px;font:400 24px/1 'Aref Ruqaa','Amiri',serif;color:#a48c69}
@@ -57,6 +57,7 @@ ${Array.from({ length: 16 }, (_, i) => `#hv-hero.hv--play .vy>:nth-child(${i + 1
 const HTML = `<div class="vy" data-vy>
   <p class="vy-pre">يتشرف</p>
   <p class="vy-fam"><span>آل عبدالرحمن</span><i>و</i><span>آل باني</span></p>
+  <p class="vy-fam vy-fam2"><span>آل مصطفى الصديق</span></p>
   <p class="vy-invite">بدعوتكم لحضور حفل زفاف</p>
   <div class="vy-orn" aria-hidden="true"><i></i><b></b><i></i></div>
   <div class="vy-person"><p class="vy-role">نجلهم الدكتور</p><p class="vy-name">الغزالى</p><p class="vy-full">محمد المختار عبدالرحمن</p></div>
@@ -90,14 +91,46 @@ tick();document.addEventListener('DOMContentLoaded',tick);window.addEventListene
 var k=0,t=setInterval(function(){tick();if(++k>12)clearInterval(t)},300);
 })();`;
 
+// "انزل لأسفل" تحت أول شاشة: بيظهر بعد ما الكارت يكتمل، ويختفي أول ما الضيف ينزل
+const HINT_CSS = `
+#vy-down{position:fixed;left:50%;bottom:calc(10px + env(safe-area-inset-bottom));z-index:60;transform:translate(-50%,12px);
+  display:flex;align-items:center;gap:6px;padding:6px 14px 6px 12px;border-radius:999px;
+  background:rgba(255,253,248,.82);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  border:1px solid rgba(183,159,120,.55);box-shadow:0 10px 26px -12px rgba(60,44,28,.45);
+  color:#5a4734;font:700 13px/1.2 'Amiri',serif;direction:rtl;letter-spacing:0;
+  opacity:0;pointer-events:none;transition:opacity .7s ease,transform .7s cubic-bezier(.2,.7,.2,1)}
+#vy-down.on{opacity:1;transform:translate(-50%,0);pointer-events:auto;cursor:pointer}
+#vy-down svg{width:15px;height:15px;color:#a48c69;animation:vyBob 1.6s ease-in-out infinite}
+#vy-down svg path:last-child{opacity:.45}
+@keyframes vyBob{0%,100%{transform:translateY(-2px)}50%{transform:translateY(4px)}}
+@media (prefers-reduced-motion:reduce){#vy-down svg{animation:none}}
+`;
+const HINT_SCRIPT = `(function(){
+if((window.WEDDING_CONFIG||{}).autoOpen)return;
+var el=document.createElement('button');el.type='button';el.id='vy-down';el.setAttribute('aria-label','انزل لأسفل');
+el.innerHTML='<span>انزل لأسفل</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8l6 6 6-6"/><path d="M6 13l6 6 6-6"/></svg>';
+var done=false;
+function hide(){if(done)return;done=true;el.classList.remove('on');setTimeout(function(){el.remove()},800);}
+function show(){if(!done&&(window.scrollY||0)<40)el.classList.add('on');}
+function start(){
+  document.body.appendChild(el);
+  el.addEventListener('click',function(){var t=document.querySelector('#hv-hero .hv-reveal')||document.getElementById('hv-hero');window.scrollTo({top:Math.max(0,(t.getBoundingClientRect().top+window.scrollY)-60),behavior:'smooth'});hide();});
+  window.addEventListener('scroll',function(){if((window.scrollY||0)>60)hide();},{passive:true});
+  // بعد ما الظرف يتفتح والكارت يكتمل
+  var k=0,t=setInterval(function(){var h=document.getElementById('hv-hero');if(h&&(h.classList.contains('hv--play')||!h.classList.contains('hv--armed'))){clearInterval(t);setTimeout(show,3400);}else if(++k>600)clearInterval(t);},200);
+}
+if(document.body)start();else document.addEventListener('DOMContentLoaded',start);
+})();`;
+
 module.exports = {
   shortId: 'vYsx7Gn',
 
   /** نفس الشكل للضيوف وفي المحرر (عشان صاحب الدعوة يشوف اللي الضيوف هيشوفوه) */
-  render() {
+  render({ editMode } = {}) {
+    // "انزل لأسفل" للضيوف بس — مش في المحرر
     return {
-      head: `<style id="vy-style">${CSS}</style>`,
-      bodyEnd: `<script id="vy-script">${SCRIPT}</script>`,
+      head: `<style id="vy-style">${CSS}${editMode ? '' : HINT_CSS}</style>`,
+      bodyEnd: `<script id="vy-script">${SCRIPT}</script>${editMode ? '' : `<script id="vy-down-script">${HINT_SCRIPT}</script>`}`,
     };
   },
 };
