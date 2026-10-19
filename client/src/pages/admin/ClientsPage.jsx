@@ -10,6 +10,7 @@ import {
 } from '../../components/admin/ui.jsx';
 import { countryName, waLink } from './format.js';
 import ClientDrawer from './ClientDrawer.jsx';
+import SignupBadge from './SignupBadge.jsx';
 
 const FILTERS = [
   { value: 'all', label: 'الكل' },
@@ -17,6 +18,8 @@ const FILTERS = [
   { value: 'visits', label: 'الأكثر زيارة' },
   { value: 'premium', label: 'مدفوعين' },
   { value: 'free', label: 'مجانيين' },
+  { value: 'google', label: 'بجوجل' },
+  { value: 'email', label: 'بالإيميل' },
   { value: 'suspended', label: 'موقوفين' },
   { value: 'blocked', label: 'محظورين' },
 ];
@@ -44,7 +47,7 @@ export default function ClientsPage() {
 
       <Panel
         title={data ? `${fmtNum(data.total)} عميل` : 'العملاء'}
-        subtitle={isFetching ? 'بيحدّث...' : undefined}
+        subtitle={isFetching ? 'بيحدّث...' : data && data.googleTotal != null ? `${fmtNum(data.googleTotal)} منهم سجّلوا بجوجل` : undefined}
         action={<Tabs value={usersStatus} onChange={(v) => dispatch(setUsersStatus(v))} options={FILTERS} />}
       >
         <div className="mb-4 flex items-center gap-2">
@@ -68,6 +71,7 @@ export default function ClientsPage() {
                     <div className="flex flex-wrap items-center gap-1.5">
                       {u.online && <LiveDot size={8} />}
                       <span className="font-bold text-ivory">{u.name}</span>
+                      <SignupBadge signup={u.signup} />
                       {u.online && <span className="text-[10.5px] font-bold text-[#8fcbff]">متصل</span>}
                       {u.isSuspended && <Badge tone="danger" icon={PauseCircle}>موقوف</Badge>}
                       {u.isBlocked && <Badge tone="danger" icon={Ban}>محظور</Badge>}

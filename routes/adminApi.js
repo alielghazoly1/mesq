@@ -484,19 +484,23 @@ router.get('/admin/api/users', requireAdminSession, async (req, res) => {
     if (status === 'blocked') filter.isBlocked = true;
     // المتصلين دلوقتي بس (فاتحين الموقع في آخر دقيقة ونص)
     if (status === 'online') filter.lastSeenAt = { $gte: onlineSince() };
+    // طريقة التسجيل: بجوجل (فيه googleId) ولا بالإيميل والباسورد
+    if (status === 'google') filter.googleId = { $exists: true, $ne: null };
+    if (status === 'email') filter.$and = [{ $or: [{ googleId: { $exists: false } }, { googleId: null }] }];
 
     // "الأكثر زيارة": الترتيب بعدد مرات فتح الموقع بدل الأحدث تسجيلًا
     const sort = status === 'visits' ? { visitCount: -1, createdAt: -1 } : { createdAt: -1 };
     if (status === 'visits') filter.visitCount = { $gt: 0 };
 
-    const [users, total] = await Promise.all([
+    const [users, total, googleTotal] = await Promise.all([
       User.find(filter)
         .sort(sort)
         .skip((page - 1) * perPage)
         .limit(perPage)
-        .select('name email country phone subscription isBlocked createdAt lastSeenAt visitCount')
+        .select('name email country phone subscription isBlocked createdAt lastSeenAt visitCount googleId passwordHash')
         .lean(),
       User.countDocuments(filter),
+      User.countDocuments({ googleId: { $exists: true, $ne: null } }),
     ]);
 
     const ids = users.map((u) => u._id);
@@ -518,6 +522,7 @@ router.get('/admin/api/users', requireAdminSession, async (req, res) => {
       perPage,
       total,
       pages: Math.max(1, Math.ceil(total / perPage)),
+      googleTotal,
       users: users.map((u) => {
         const sub = u.subscription || {};
         const pkg = sub.packageId ? getPackage(sub.packageId) : null;
@@ -544,6 +549,8 @@ router.get('/admin/api/users', requireAdminSession, async (req, res) => {
           online: isOnline(u.lastSeenAt),
           lastSeenAt: u.lastSeenAt || null,
           visitCount: u.visitCount || 0,
+          // 'google' = بيدخل بجوجل بس، 'both' = عنده باسورد كمان وربط جوجل، 'email' = إيميل وباسورد
+          signup: u.googleId ? (u.passwordHash ? 'both' : 'google') : 'email',
         };
       }),
     });
@@ -588,6 +595,9 @@ router.get('/admin/api/users/:id', requireAdminSession, async (req, res) => {
         .reduce((sum, o) => sum + (o.price || 0), 0);
     });
 
+    // طريقة التسجيل (الباسورد نفسه مش بيطلع — بس هل فيه باسورد ولا لأ)
+    const hasPassword = !!(await User.exists({ _id: user._id, passwordHash: { $nin: ['', null] } }));
+
     return res.json({
       user: {
         id: String(user._id),
@@ -596,6 +606,7 @@ router.get('/admin/api/users/:id', requireAdminSession, async (req, res) => {
         country: user.country,
         phone: user.phone || '',
         createdAt: user.createdAt,
+        signup: user.googleId ? (hasPassword ? 'both' : 'google') : 'email',
         online: isOnline(user.lastSeenAt),
         lastSeenAt: user.lastSeenAt || null,
         isBlocked: !!user.isBlocked,

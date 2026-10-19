@@ -140,7 +140,7 @@ export default function GoogleSignIn({ onNeedsProfile }) {
         </div>
       )}
       {error?.data?.error && <p className="mt-2 text-center text-[12.5px] text-error">{error.data.error}</p>}
-      <div className="my-4 flex items-center gap-3 text-[12px] text-ink-dim">
+      <div className="my-3.5 flex items-center gap-3 text-[12px] text-ink-dim">
         <span className="h-px flex-1 bg-line" />
         {t('auth.google.or')}
         <span className="h-px flex-1 bg-line" />

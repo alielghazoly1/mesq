@@ -15,6 +15,8 @@ const uiSlice = createSlice({
     // لوحة التواصل (SupportLauncher): بتتفتح من زرارها العايم على الكمبيوتر،
     // ومن أيقونة "الدعم" في الشريط السفلي على الموبايل — فحالتها هنا.
     supportOpen: false,
+    // رسالة صغيرة بتظهر تحت وتختفي لوحدها (زي "تم تسجيل الخروج")
+    flash: null,
   },
   reducers: {
     openAuthModal(state, action) {
@@ -36,10 +38,17 @@ const uiSlice = createSlice({
     toggleSupport(state) {
       state.supportOpen = !state.supportOpen;
     },
+    showFlash(state, action) {
+      state.flash = { text: String(action.payload || ''), at: Date.now() };
+    },
+    hideFlash(state) {
+      state.flash = null;
+    },
   },
 });
 
 export const {
   openAuthModal, closeAuthModal, showWelcome, hideWelcome, setSupportOpen, toggleSupport,
+  showFlash, hideFlash,
 } = uiSlice.actions;
 export default uiSlice.reducer;

@@ -14,7 +14,7 @@ function isValidEmail(str) {
  * @param {*} str @returns {boolean}
  */
 function isValidPassword(str) {
-  return typeof str === 'string' && str.length >= 8 && str.length <= 200;
+  return typeof str === 'string' && str.length >= 6 && str.length <= 200;
 }
 
 /**

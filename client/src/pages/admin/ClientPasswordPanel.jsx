@@ -61,8 +61,8 @@ export default function ClientPasswordPanel({ userId, userName }) {
   // نتيجة آخر تغيير ناجح — بتفضل معروضة عشان تنسخ الباسورد وتبعته
   const [done, setDone] = useState(null);
 
-  const tooShort = value.length > 0 && value.length < 8;
-  const canSubmit = value.length >= 8 && value.length <= 200;
+  const tooShort = value.length > 0 && value.length < 6;
+  const canSubmit = value.length >= 6 && value.length <= 200;
 
   async function copy(text) {
     try {
@@ -186,7 +186,7 @@ export default function ClientPasswordPanel({ userId, userName }) {
                 label="الباسورد الجديد"
                 type={shown ? 'text' : 'password'}
                 autoComplete="new-password"
-                placeholder="8 حروف على الأقل"
+                placeholder="6 حروف على الأقل"
                 maxLength={200}
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
@@ -209,7 +209,7 @@ export default function ClientPasswordPanel({ userId, userName }) {
             )}
           </div>
           {tooShort && (
-            <p className="mt-1.5 text-[11.5px] text-error">الباسورد لازم يكون 8 حروف على الأقل.</p>
+            <p className="mt-1.5 text-[11.5px] text-error">الباسورد لازم يكون 6 حروف على الأقل.</p>
           )}
         </div>
 

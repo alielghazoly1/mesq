@@ -5,7 +5,7 @@
 // ويتلخبط. دلوقتي على الشاشة الصغيرة فيه حاجتين بس ظاهرين (الاسم +
 // زرار القايمة)، وكل الباقي جوه القايمة بمساحة مريحة.
 import { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { AnimatePresence, motion } from 'motion/react';
@@ -14,7 +14,7 @@ import {
   LayoutTemplate, MessageCircle, UserPlus, LogIn,
 } from 'lucide-react';
 import { api, useGetMeQuery, useLogoutMutation } from '../store/api.js';
-import { openAuthModal } from '../store/uiSlice.js';
+import { openAuthModal, showFlash } from '../store/uiSlice.js';
 import { setLanguage } from '../i18n/index.js';
 import { readAuthHint, writeAuthHint } from '../lib/authHint.js';
 import { whatsappLink, WHATSAPP_MESSAGES } from '../lib/contact.js';
@@ -22,6 +22,7 @@ import { whatsappLink, WHATSAPP_MESSAGES } from '../lib/contact.js';
 export default function AuthBar() {
   const dispatch = useDispatch();
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const { data, isLoading, isFetching } = useGetMeQuery();
   const [logout, { isLoading: loggingOut }] = useLogoutMutation();
@@ -56,12 +57,18 @@ export default function AuthBar() {
   }, [menuOpen]);
 
   async function onLogout() {
+    if (loggingOut) return;
     writeAuthHint(null);
     setMenuOpen(false);
-    await logout();
-    // بنمسح كل كاش الـ API عشان مايفضلش أي بيانات من الحساب القديم (دعواته،
-    // اشتراكه، ردوده) لما ندخل بحساب تاني — كل حساب بيبدأ من الأول نضيف.
+    try { await logout().unwrap(); } catch { /* حتى لو النت فصل: نمسح الحساب من الجهاز */ }
+    // جوجل ماتختارش الحساب ده لوحدها المرة الجاية
+    try { window.google?.accounts?.id?.disableAutoSelect(); } catch { /* مش متحمّلة */ }
+    // للصفحة الرئيسية الأول، وبعدين نمسح كل كاش الـ API عشان مايفضلش أي
+    // بيانات من الحساب القديم (دعواته، اشتراكه، ردوده) — كل حساب بيبدأ نضيف.
+    navigate('/', { replace: true });
     dispatch(api.util.resetApiState());
+    window.scrollTo({ top: 0 });
+    dispatch(showFlash(t('auth.loggedOut')));
   }
 
   const firstName = String(user?.name || '').trim().split(/\s+/)[0] || '';

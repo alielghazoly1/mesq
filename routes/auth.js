@@ -65,7 +65,7 @@ router.post('/api/auth/register', async (req, res) => {
       return res.status(400).json({ error: 'من فضلك اكتب إيميل صحيح.' });
     }
     if (!isValidPassword(password)) {
-      return res.status(400).json({ error: 'الباسورد لازم يكون 8 حروف على الأقل.' });
+      return res.status(400).json({ error: 'الباسورد لازم يكون 6 حروف أو أرقام على الأقل.' });
     }
     if (!name) {
       return res.status(400).json({ error: 'من فضلك اكتب اسمك.' });

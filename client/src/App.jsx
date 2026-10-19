@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import WelcomeGate from './components/WelcomeGate.jsx';
 import OrderNoticeGate from './components/OrderNoticeGate.jsx';
 import SupportLauncher from './components/SupportLauncher.jsx';
+import FlashToast from './components/FlashToast.jsx';
 import BottomNav from './components/BottomNav.jsx';
 import PresencePing from './components/PresencePing.jsx';
 import { startCampaignBeacon } from './lib/campaignBeacon.js';
@@ -147,6 +148,7 @@ export default function App() {
       {!isFullScreen && <SupportLauncher />}
       {/* شريط التنقّل السفلي — موبايل بس، وبيقرر لوحده هو يظهر فين */}
       <BottomNav />
+      <FlashToast />
       {/* "أنا فاتح الموقع" للوحة التحكم (مبيشتغلش في صفحات اللوحة نفسها) */}
       <PresencePing />
     </ErrorBoundary>
