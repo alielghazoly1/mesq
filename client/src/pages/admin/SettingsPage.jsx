@@ -149,20 +149,19 @@ export default function SettingsPage() {
       >
         <label className="mb-3.5 flex cursor-pointer items-center gap-2.5 rounded-xl border border-ivory/10 bg-ivory/[0.03] p-3">
           <input type="checkbox" {...register('taptap.enabled')} className="h-4 w-4 accent-brass" />
-          <img src="/img/taptap-logo.svg" alt="" className="h-5 w-5 rounded-full" />
+          <img src="/img/taptap-icon.webp" alt="" className="h-6 w-6" />
           <span className="text-[13px] font-bold text-ivory">اعرض Taptap Send للعملاء</span>
           <span className="text-[11.5px] text-ivory/40">— لو اتقفلت، مش هتظهر خالص</span>
         </label>
         <div className="grid gap-3.5 sm:grid-cols-2">
           <Field label="رقم فودافون كاش" dir="ltr" placeholder="01xxxxxxxxx" {...register('taptap.phone')} />
           <Field label="اسم المستلم (زي ما هيكتبه العميل في التطبيق)" {...register('taptap.recipientName')} />
-          <Field label="مكان المستلم (المدينة/المحافظة)" placeholder="القاهرة، مصر" {...register('taptap.location')} />
           <Field label="ملاحظة للعميل (اختياري)" placeholder="ابعت صورة التحويل بعد ما تحوّل..." {...register('taptap.note')} />
         </div>
         <p className="mt-4 flex items-start gap-2 rounded-xl bg-ivory/[0.04] p-3 text-[11.5px] leading-relaxed text-ivory/50">
           <Landmark size={13} className="mt-0.5 shrink-0" />
           <span>
-            العميل بيشوف لوجو Taptap Send + الرقم والاسم والمكان (كل واحد بينتسخ بضغطة) + المبلغ + زرار يفتح التطبيق.
+            العميل بيشوف لوجو Taptap Send + رقم فودافون كاش واسم المستلم بس (كل واحد بينتسخ بضغطة) + خطوات التحويل + المبلغ + زرار يفتح التطبيق.
             بتظهر لعملاء {data?.taptapCountries?.length || 33} دولة بس: {(data?.taptapCountries || []).map((c) => countryName(c)).join('، ')}.
           </span>
         </p>

@@ -218,13 +218,12 @@ function publicPaymentInfo(doc, countryCode) {
     };
   }
   // Taptap Send — للعميل اللي بلده من البلاد اللي التطبيق بيبعت منها بس.
-  // بيحوّل من التطبيق على فودافون كاش (رقم الموبايل) باسم المستلم ومكانه.
+  // بيحوّل من التطبيق على فودافون كاش برقم الموبايل واسم المستلم بس (المكان مش لازم).
   const cc = String(countryCode || '').toUpperCase();
   if (doc.taptap?.enabled && doc.taptap?.phone && doc.taptap?.recipientName && TAPTAP_COUNTRIES.has(cc)) {
     info.taptap = {
       phone: doc.taptap.phone,
       recipientName: doc.taptap.recipientName,
-      location: doc.taptap.location || '',
       note: doc.taptap.note || '',
     };
   }

@@ -16,6 +16,7 @@ import { motion } from 'motion/react';
 import {
   ArrowRight, Check, Copy, Upload, Loader2, ChevronDown, ChevronUp,
   Clock, AlertCircle, AlertTriangle, Sparkles, MessageCircle, Infinity as InfinityIcon, Pencil,
+  Zap, ShieldCheck, ExternalLink,
 } from 'lucide-react';
 import { VodafoneCashLogo, VodafoneMark, BankMark } from '../components/PayBrand.jsx';
 import {
@@ -66,6 +67,50 @@ function CopyTile({ label, value, wide }) {
       </span>
       <span className="break-all font-mono text-[14.5px] font-bold leading-snug text-ink" dir="auto">
         {value}
+      </span>
+    </button>
+  );
+}
+
+/** 01012345678 ← "010 1234 5678" للعرض بس (النسخ بيبقى الرقم زي ما هو) */
+function formatEgPhone(v) {
+  const d = String(v || '').replace(/\s+/g, '');
+  return /^01\d{9}$/.test(d) ? `${d.slice(0, 3)} ${d.slice(3, 7)} ${d.slice(7)}` : v;
+}
+
+/** خانة نسخ Taptap — كبيرة وواضحة، و"اتنسخ ✓" مكان زرار النسخ */
+function TaptapCopy({ label, value, display, big, field }) {
+  const { t } = useTranslation();
+  const [copied, setCopied] = useState(false);
+  if (!value) return null;
+  return (
+    <button
+      type="button"
+      data-taptap-copy={field}
+      onClick={() => navigator.clipboard.writeText(String(value).replace(/\s+/g, field === 'phone' ? '' : ' ')).then(
+        () => { setCopied(true); setTimeout(() => setCopied(false), 1800); },
+        () => {}
+      )}
+      className={`flex w-full items-center justify-between gap-3 rounded-2xl border-[1.5px] px-4 py-3 text-start transition ${
+        copied ? 'border-ok bg-ok/[0.06]' : 'border-[#2c6e49]/20 bg-[#f6fbf7] hover:border-[#02681f]/50 active:scale-[.99]'
+      }`}
+    >
+      <span className="flex min-w-0 flex-col gap-0.5">
+        <span className="text-[11.5px] font-bold text-ink-dim">{label}</span>
+        <span
+          className={`font-extrabold text-ink ${big ? 'whitespace-nowrap font-mono text-[clamp(17px,5.6vw,21px)] min-[360px]:tracking-wide' : 'break-words text-[16.5px] leading-snug'}`}
+          dir={big ? 'ltr' : 'auto'}
+          style={big ? { textAlign: 'start' } : undefined}
+        >
+          {display || value}
+        </span>
+      </span>
+      <span className={`inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1.5 min-[360px]:px-3 text-[11.5px] font-extrabold ${
+        copied ? 'bg-ok text-white' : 'bg-[#02681f] text-white'
+      }`}
+      >
+        {copied ? <Check size={13} /> : <Copy size={13} />}
+        <span className="max-[359px]:hidden">{copied ? t('checkout.taptapCopied') : t('checkout.taptapCopy')}</span>
       </span>
     </button>
   );
@@ -435,9 +480,9 @@ export default function CheckoutPage() {
                       <button
                         type="button"
                         onClick={() => setPayTab('taptap')}
-                        className={`inline-flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-[12.5px] font-extrabold transition ${activeTab === 'taptap' ? 'bg-[#1a7f3c] text-white shadow-sm' : 'text-ink-dim'}`}
+                        className={`inline-flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-[12.5px] font-extrabold transition ${activeTab === 'taptap' ? 'bg-[#02681f] text-white shadow-sm' : 'text-ink-dim'}`}
                       >
-                        <img src="/img/taptap-logo.svg" alt="" className="h-[18px] w-[18px] rounded-full" />
+                        <img src="/img/taptap-icon.webp" alt="" className="h-5 w-5" />
                         <span className="whitespace-nowrap" dir="ltr">{intlTabs.length === 3 ? 'Taptap' : 'Taptap Send'}</span>
                       </button>
                     )}
@@ -586,56 +631,66 @@ export default function CheckoutPage() {
                   <BarqPay barq={barq} CopyTile={CopyTile} amount={`${pkg.price} ${pkg.currencyLabel}`} />
                 )}
 
-                {/* ===== Taptap Send — للبلاد اللي التطبيق شغال فيها بس ===== */}
+                {/* ===== Taptap Send — للبلاد اللي التطبيق شغال فيها بس =====
+                    باللوجو الرسمي بتاعهم وألوانهم، والعميل بيشوف رقم فودافون كاش
+                    واسم المستلم بس (المكان اتشال بطلب المالك) */}
                 {taptap && activeTab === 'taptap' && (
-                  <div className="mt-4 rounded-2xl border border-line bg-ink/[0.02] p-4">
-                    <div className="mb-3 flex items-center justify-between gap-2">
-                      <span className="inline-flex items-center gap-2">
-                        <img src="/img/taptap-logo.svg" alt="Taptap Send" className="h-10 w-10 rounded-full shadow-sm ring-1 ring-[#1a7f3c]/15" />
-                        <span className="flex flex-col leading-tight">
-                          <span className="whitespace-nowrap text-[15px] font-extrabold text-[#1a7f3c]" dir="ltr">Taptap Send</span>
-                          <span className="text-[11px] font-bold text-ink-dim">{t('checkout.taptapTagline')}</span>
+                  <div className="mt-4 overflow-hidden rounded-[22px] border border-[#2c6e49]/15 bg-white shadow-[0_18px_40px_-30px_rgba(2,104,31,.55)]" data-taptap>
+                    <div className="relative flex items-center justify-between gap-2 overflow-hidden bg-[#dbf1e2] px-3.5 py-3 min-[360px]:px-4">
+                      <span aria-hidden="true" className="pointer-events-none absolute -bottom-10 -end-8 h-28 w-28 rounded-full bg-[#b6e4c5]" />
+                      <img src="/img/taptap-send-logo.webp" alt="Taptap Send" width="116" height="55" className="relative h-[44px] w-auto min-[360px]:h-[52px]" data-taptap-logo />
+                      <span className="relative flex flex-col items-end gap-1">
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-white py-1 pe-2.5 ps-1 shadow-sm" dir="ltr">
+                          <VodafoneMark size={18} />
+                          <span className="whitespace-nowrap text-[11px] font-extrabold tracking-tight text-[#E60000]">Vodafone Cash</span>
                         </span>
-                      </span>
-                      {/* المستلم بيستلم على فودافون كاش — اللوجو بيقول للعميل يختار إيه في التطبيق */}
-                      <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[#E60000]/20 bg-white py-1 pe-3 ps-1 shadow-sm" dir="ltr">
-                        <VodafoneMark size={20} />
-                        <span className="text-[11.5px] font-extrabold tracking-tight text-[#E60000]">Vodafone Cash</span>
+                        <span className="whitespace-nowrap text-[10px] font-bold text-[#02681f] min-[360px]:text-[10.5px]">{t('checkout.taptapTagline')}</span>
                       </span>
                     </div>
 
-                    <p className="mb-3 rounded-xl bg-[#1a7f3c]/[0.07] px-3.5 py-2.5 text-[12.5px] font-bold leading-relaxed text-[#14612e]">
-                      {t('checkout.taptapHow')}
-                    </p>
+                    <div className="p-4">
+                      <div className="mb-3.5 flex flex-wrap gap-1.5">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-[#02681f]/[0.07] px-2.5 py-1 text-[11px] font-bold text-[#02681f]"><Zap size={12} /> {t('checkout.taptapFast')}</span>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-[#02681f]/[0.07] px-2.5 py-1 text-[11px] font-bold text-[#02681f]"><ShieldCheck size={12} /> {t('checkout.taptapNoFee')}</span>
+                      </div>
 
-                    <div className="grid grid-cols-2 gap-2.5">
-                      <CopyTile label={t('checkout.taptapPhone')} value={taptap.phone} wide />
-                      <CopyTile label={t('checkout.taptapName')} value={taptap.recipientName} wide />
-                      <CopyTile label={t('checkout.taptapLocation')} value={taptap.location} wide />
-                    </div>
-                    <p className="mt-2.5 text-center text-[11.5px] text-ink-dim">{t('checkout.tapToCopy')}</p>
+                      <ol className="mb-4 space-y-2" data-taptap-steps>
+                        {['taptapStep1', 'taptapStep2', 'taptapStep3'].map((k, i) => (
+                          <li key={k} className="flex items-start gap-2.5 text-[12.5px] font-bold leading-relaxed text-ink">
+                            <span className="mt-px grid h-[22px] w-[22px] shrink-0 place-items-center rounded-full bg-[#02681f] text-[11px] font-extrabold text-white">{i + 1}</span>
+                            <span>{t(`checkout.${k}`)}</span>
+                          </li>
+                        ))}
+                      </ol>
 
-                    <div className="mt-3 rounded-xl bg-emerald/[0.07] px-4 py-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[12.5px] font-bold text-emerald">{t('checkout.amountToSend')}</span>
-                        <span className="font-serif text-[18px] font-bold text-emerald">
-                          {pkg.price} {pkg.currencyLabel}
+                      <div className="space-y-2.5">
+                        <TaptapCopy label={t('checkout.taptapPhone')} value={taptap.phone} display={formatEgPhone(taptap.phone)} big field="phone" />
+                        <TaptapCopy label={t('checkout.taptapName')} value={taptap.recipientName} field="name" />
+                      </div>
+
+                      <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl bg-[#02681f] px-4 py-3 text-white">
+                        <span className="flex flex-col">
+                          <span className="text-[12px] font-bold text-white/80">{t('checkout.amountToSend')}</span>
+                          <span className="text-[10.5px] leading-snug text-white/65">{t('checkout.taptapAmountHint')}</span>
+                        </span>
+                        <span className="shrink-0 font-serif text-[22px] font-bold leading-none">
+                          {pkg.price} <span className="text-[13px]">{pkg.currencyLabel}</span>
                         </span>
                       </div>
-                      <p className="mt-1 text-[11.5px] leading-relaxed text-emerald/80">{t('checkout.taptapAmountHint')}</p>
-                    </div>
 
-                    <a
-                      href="https://www.taptapsend.com/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full bg-[#1a7f3c] py-3 text-[13px] font-bold text-white transition hover:brightness-110"
-                    >
-                      <img src="/img/taptap-logo.svg" alt="" className="h-5 w-5 rounded-full" /> {t('checkout.taptapOpen')}
-                    </a>
-                    {taptap.note && (
-                      <p className="mt-3 text-[12.5px] leading-relaxed text-ink-dim">{taptap.note}</p>
-                    )}
+                      <a
+                        href="https://www.taptapsend.com/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full border-2 border-[#02681f] bg-white py-2.5 text-[13px] font-extrabold text-[#02681f] transition hover:bg-[#dbf1e2]"
+                      >
+                        <img src="/img/taptap-icon.webp" alt="" className="h-6 w-6" /> {t('checkout.taptapOpen')}
+                        <ExternalLink size={13} className="opacity-60" />
+                      </a>
+                      {taptap.note && (
+                        <p className="mt-3 rounded-xl bg-ink/[0.03] px-3.5 py-2.5 text-[12.5px] leading-relaxed text-ink-dim">{taptap.note}</p>
+                      )}
+                    </div>
                   </div>
                 )}
 
