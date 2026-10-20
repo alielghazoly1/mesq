@@ -6,6 +6,9 @@ const express = require('express');
 const Invitation = require('../models/Invitation');
 const Rsvp = require('../models/Rsvp');
 const SupportMessage = require('../models/SupportMessage');
+const {
+  voiceUpload, serializeMessage, previewOf, storeVoice, userVoiceFlood, adminOnline,
+} = require('../utils/support');
 const User = require('../models/User');
 const Withdrawal = require('../models/Withdrawal');
 const GuestPhoto = require('../models/GuestPhoto');
@@ -264,29 +267,46 @@ router.post('/api/dashboard/ugc/withdraw', requireAuth, async (req, res) => {
 });
 
 // ===== الدعم =====
+// الرسايل كلام أو فويس. "اتشافت" (✓✓) بتتعلّم لما الطرف التاني يفتح المحادثة.
 
-// GET /api/dashboard/support — محادثة العميل
+// GET /api/dashboard/support/status — خفيف، الويدجت بيسأله كل شوية:
+// كام رسالة من الدعم لسه ماشافهاش + الدعم متصل دلوقتي ولا لأ
+router.get('/api/dashboard/support/status', requireAuth, async (req, res) => {
+  try {
+    const [unread, last] = await Promise.all([
+      SupportMessage.countDocuments({ userId: req.user.id, from: 'admin', readByUser: false }),
+      SupportMessage.findOne({ userId: req.user.id, from: 'admin', readByUser: false })
+        .sort({ createdAt: -1 }).select('kind body createdAt').lean(),
+    ]);
+    return res.json({
+      unread,
+      adminOnline: adminOnline(),
+      // معاينة آخر رسالة مش مقروءة (للفقاعة اللي بتطلع جنب الزرار)
+      latest: last ? { id: String(last._id), preview: previewOf(last).slice(0, 140), createdAt: last.createdAt } : null,
+    });
+  } catch (err) {
+    console.error('Error loading support status:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر.' });
+  }
+});
+
+// GET /api/dashboard/support — المحادثة. بتتعلّم مقروءة إلا لو ?peek=1
 router.get('/api/dashboard/support', requireAuth, async (req, res) => {
   try {
     const messages = await SupportMessage.find({ userId: req.user.id })
-      .sort({ createdAt: 1 })
+      .sort({ createdAt: -1 })
       .limit(200)
       .lean();
+    messages.reverse();
 
-    // أي رسالة من الأدمن بيتعلّم عليها مقروءة بمجرد ما يفتح المحادثة
-    await SupportMessage.updateMany(
-      { userId: req.user.id, from: 'admin', readByUser: false },
-      { $set: { readByUser: true } }
-    );
+    if (req.query.peek !== '1') {
+      await SupportMessage.updateMany(
+        { userId: req.user.id, from: 'admin', readByUser: false },
+        { $set: { readByUser: true, readAt: new Date() } }
+      );
+    }
 
-    return res.json({
-      messages: messages.map((m) => ({
-        id: String(m._id),
-        from: m.from,
-        body: m.body,
-        createdAt: m.createdAt,
-      })),
-    });
+    return res.json({ messages: messages.map(serializeMessage), adminOnline: adminOnline() });
   } catch (err) {
     console.error('Error loading support thread:', err);
     return res.status(500).json({ error: 'حصل خطأ في السيرفر.' });
@@ -298,20 +318,46 @@ router.post('/api/dashboard/support', requireAuth, async (req, res) => {
   try {
     const body = sanitizeText(req.body && req.body.body, 2000);
     if (!body) return res.status(400).json({ error: 'اكتب رسالتك الأول.' });
+    const recent = await SupportMessage.countDocuments({
+      userId: req.user.id, from: 'user', createdAt: { $gte: new Date(Date.now() - 3600 * 1000) },
+    });
+    if (recent >= 80) return res.status(429).json({ error: 'بعت رسايل كتير — استنى شوية وهنرد عليك.' });
 
     const msg = await SupportMessage.create({
-      userId: req.user.id,
-      from: 'user',
-      body,
-      readByUser: true,
+      userId: req.user.id, from: 'user', kind: 'text', body, readByUser: true,
     });
-
-    return res.status(201).json({
-      message: { id: String(msg._id), from: 'user', body: msg.body, createdAt: msg.createdAt },
-    });
+    return res.status(201).json({ message: serializeMessage(msg) });
   } catch (err) {
     console.error('Error sending support message:', err);
     return res.status(500).json({ error: 'حصل خطأ في السيرفر.' });
+  }
+});
+
+// POST /api/dashboard/support/voice — العميل يبعت فويس
+router.post('/api/dashboard/support/voice', requireAuth, (req, res, next) => {
+  voiceUpload.single('file')(req, res, (err) => {
+    if (err) return res.status(400).json({ error: err.code === 'LIMIT_FILE_SIZE' ? 'الفويس كبير — سجّل أقصر.' : 'الفويس ماوصلش، جرّب تاني.' });
+    return next();
+  });
+}, async (req, res) => {
+  try {
+    if (await userVoiceFlood(req.user.id)) {
+      return res.status(429).json({ error: 'بعت فويسات كتير — استنى شوية وهنرد عليك.' });
+    }
+    const v = await storeVoice(req.file, {
+      folder: `mithaq/support-voices/${req.user.id}`,
+      claimed: req.body && req.body.duration,
+      where: 'upload-support-voice', path: req.originalUrl,
+    });
+    if (v.error) return res.status(v.status).json({ error: v.error });
+    const msg = await SupportMessage.create({
+      userId: req.user.id, from: 'user', kind: 'voice', body: '',
+      voice: { url: v.url, publicId: v.publicId, duration: v.duration }, readByUser: true,
+    });
+    return res.status(201).json({ message: serializeMessage(msg) });
+  } catch (err) {
+    console.error('Error sending support voice:', err);
+    return res.status(500).json({ error: 'الفويس مابعتش، جرّب تاني.' });
   }
 });
 

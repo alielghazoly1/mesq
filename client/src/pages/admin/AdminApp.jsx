@@ -5,14 +5,14 @@
 //
 // اللوحة دايمًا عربي RTL بغض النظر عن لغة الموقع — واحد بيستخدمها، وهي
 // إنت.
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import {
   LayoutDashboard, Users, Receipt, FileText, MessageSquare,
   Settings, ScrollText, LogOut, Loader2, Menu, X, Music, BadgePercent, Wallet, Banknote, Megaphone, LayoutTemplate, Tags, Bug, ShieldCheck, Eraser, MessageCircle, Target,
 } from 'lucide-react';
-import { adminApi, useGetOrdersAttentionQuery } from '../../store/adminApi.js';
+import { adminApi, useGetOrdersAttentionQuery, useGetSupportUnreadQuery } from '../../store/adminApi.js';
 import AdminLogin from './AdminLogin.jsx';
 import OverviewPage from './OverviewPage.jsx';
 import ClientsPage from './ClientsPage.jsx';
@@ -45,7 +45,7 @@ const NAV = [
   { to: '/admin/invitations', icon: FileText, label: 'الدعوات' },
   { to: '/admin/templates', icon: LayoutTemplate, label: 'القوالب' },
   { to: '/admin/music', icon: Music, label: 'الموسيقى' },
-  { to: '/admin/support', icon: MessageSquare, label: 'الدعم' },
+  { to: '/admin/support', icon: MessageSquare, label: 'الدعم', badge: 'support' },
   { to: '/admin/packages', icon: Tags, label: 'الباقات والأسعار' },
   { to: '/admin/discounts', icon: BadgePercent, label: 'الخصومات' },
   { to: '/admin/settings', icon: Settings, label: 'بيانات الدفع' },
@@ -71,6 +71,57 @@ function OrdersBadge() {
       title={`${n} إيصال مستني تفعيل`}
     >
       {n > 99 ? '99+' : n}
+    </span>
+  );
+}
+
+// رسايل الدعم الجديدة جنب "الدعم" — من أي صفحة في اللوحة، كل 15 ثانية.
+// والعدد بيتكتب في عنوان التاب "(3)"، ولما توصل رسالة جديدة بيرن صوت خفيف.
+function ding() {
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    const ac = new AC();
+    const now = ac.currentTime;
+    [[880, 0], [1320, 0.12]].forEach(([hz, at]) => {
+      const o = ac.createOscillator();
+      const g = ac.createGain();
+      o.type = 'sine';
+      o.frequency.value = hz;
+      g.gain.setValueAtTime(0.0001, now + at);
+      g.gain.exponentialRampToValueAtTime(0.12, now + at + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + at + 0.35);
+      o.connect(g).connect(ac.destination);
+      o.start(now + at);
+      o.stop(now + at + 0.4);
+    });
+    setTimeout(() => ac.close().catch(() => {}), 900);
+  } catch { /* الصوت إضافة — مش مهم لو مااشتغلش */ }
+}
+
+// "(3) " في أول عنوان التاب
+const TITLE_COUNT = /^\(\d+\+?\)\s*/;
+
+function SupportBadge() {
+  const { data } = useGetSupportUnreadQuery(undefined, { pollingInterval: 15000 });
+  const n = data?.unread || 0;
+  const prev = useRef(null);
+  useEffect(() => {
+    if (prev.current != null && n > prev.current) ding();
+    prev.current = n;
+    const base = document.title.replace(TITLE_COUNT, '');
+    document.title = n > 0 ? `(${n > 99 ? '99+' : n}) ${base}` : base;
+  }, [n]);
+  useEffect(() => () => { document.title = document.title.replace(TITLE_COUNT, ''); }, []);
+  if (!n) return null;
+  return (
+    <span
+      className="relative ms-auto min-w-[20px] rounded-full bg-error px-1.5 py-0.5 text-center text-[10.5px] font-bold leading-none text-white"
+      title={`${n} رسالة جديدة من ${data.people} عميل`}
+      data-support-badge
+    >
+      <span className="absolute inset-0 animate-ping rounded-full bg-error/50 [animation-duration:2s]" />
+      <span className="relative">{n > 99 ? '99+' : n}</span>
     </span>
   );
 }
@@ -173,6 +224,7 @@ export default function AdminApp() {
                 >
                   <Icon size={15} /> {label}
                   {badge === 'orders' && <OrdersBadge />}
+                  {badge === 'support' && <SupportBadge />}
                 </NavLink>
               ))}
             </nav>

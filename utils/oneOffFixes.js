@@ -242,12 +242,38 @@ async function runPaymentFixes() {
   }
 }
 
+// رسالة الترحيب الطويلة القديمة → السطرين الجداد (بطلب المالك 2026-10-20:
+// "رسائل الدعم مجعلصة"). أول سطر (أهلًا بيك يا فلان في ميثاق 🤍) بيفضل زي ما هو.
+// بتلمس بس الرسالة اللي فيها نص الترحيب القديم بالظبط — فبتتنفّذ مرة واحدة.
+async function runSupportFixes() {
+  const SupportMessage = require('../models/SupportMessage');
+  try {
+    const r = await SupportMessage.updateMany(
+      { from: 'admin', body: { $regex: 'حسابك جاهز\\. تقدر تتفرّج على كل التصاميم' } },
+      [{
+        $set: {
+          body: {
+            $concat: [
+              { $arrayElemAt: [{ $split: ['$body', '\n'] }, 0] },
+              '\nمحتاج أي مساعدة؟ اكتبلي هنا أو ابعت فويس، وأنا معاك.',
+            ],
+          },
+        },
+      }],
+    );
+    if (r.modifiedCount) console.log(`[oneOffFix] short-welcome applied to ${r.modifiedCount} messages`);
+  } catch (err) {
+    console.error('[oneOffFix] short-welcome failed:', err.message);
+  }
+}
+
 async function runOneOffFixes() {
   if (done) return;
   done = true;
   await runCampaignFixes();
   await runSiteConfigFixes();
   await runPaymentFixes();
+  await runSupportFixes();
   for (const fix of FIXES) {
     try {
       // select: التعديلات اللي محتاجة حقول الدعوة نفسها (مش التخصيصات بس)

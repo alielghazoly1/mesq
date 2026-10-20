@@ -3,6 +3,7 @@ import { api } from './api';
 import { adminApi } from './adminApi';
 import uiReducer from './uiSlice';
 import adminReducer from './adminSlice';
+import supportReducer from './supportSlice';
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     [adminApi.reducerPath]: adminApi.reducer,
     ui: uiReducer,
     admin: adminReducer,
+    support: supportReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(api.middleware, adminApi.middleware),

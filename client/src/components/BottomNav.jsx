@@ -23,7 +23,7 @@ import { AnimatePresence, MotionConfig, motion } from 'motion/react';
 import {
   House, LayoutTemplate, Crown, MessageCircleMore, UserRound, UserRoundPlus, LogIn, X,
 } from 'lucide-react';
-import { useGetMeQuery, useGetDashboardQuery } from '../store/api.js';
+import { useGetMeQuery } from '../store/api.js';
 import { openAuthModal, setSupportOpen, toggleSupport } from '../store/uiSlice.js';
 import { readAuthHint } from '../lib/authHint.js';
 import { hasBottomNav } from '../lib/bottomNav.js';
@@ -251,8 +251,9 @@ export default function BottomNav() {
   const userKey = serverUser ? String(serverUser._id || serverUser.email || '') : '';
   const vip = answered ? isVipUser(serverUser) : (hint ? readKey('local', VIP_KEY + 'last') === '1' : false);
 
-  const { data: dash } = useGetDashboardQuery(undefined, { skip: !serverUser });
-  const unread = (serverUser && dash?.unreadSupport) || 0;
+  // العدد من supportSlice (نافذة الدعم بتحدّثه كل شوية) — نفس الرقم اللي على الزرار العايم
+  const supportUnread = useSelector((s) => s.support.unread);
+  const unread = (serverUser && supportUnread) || 0;
 
   const enabled = hasBottomNav(pathname);
 

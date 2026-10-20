@@ -23,7 +23,7 @@ const baseQuery = fetchBaseQuery({
 export const adminApi = createApi({
   reducerPath: 'adminApi',
   baseQuery,
-  tagTypes: ['Overview', 'Users', 'User', 'Orders', 'Invitations', 'Support', 'Settings', 'Pricing', 'Thread', 'Audit', 'Tracks', 'Withdrawals', 'Ugc', 'SiteTemplates', 'Security', 'Cleanup', 'WhatsApp', 'Campaigns', 'GoogleLogin'],
+  tagTypes: ['Overview', 'Users', 'User', 'Orders', 'Invitations', 'Support', 'SupportUnread', 'Settings', 'Pricing', 'Thread', 'Audit', 'Tracks', 'Withdrawals', 'Ugc', 'SiteTemplates', 'Security', 'Cleanup', 'WhatsApp', 'Campaigns', 'GoogleLogin'],
   endpoints: (builder) => ({
     // ===== الأمان (التحقق بخطوتين) =====
     getSecurity: builder.query({ query: () => '/security', providesTags: ['Security'] }),
@@ -157,9 +157,15 @@ export const adminApi = createApi({
     }),
 
     // ===== الدعم =====
+    // القايمة: { filter: all|unread|waiting, q }
     getSupportThreads: builder.query({
-      query: () => '/support',
+      query: ({ filter = 'all', q = '' } = {}) => `/support?filter=${encodeURIComponent(filter)}&q=${encodeURIComponent(q)}`,
       providesTags: ['Support'],
+    }),
+    // العدد جنب "الدعم" في القايمة الجانبية
+    getSupportUnread: builder.query({
+      query: () => '/support/unread',
+      providesTags: ['SupportUnread'],
     }),
     getSupportThread: builder.query({
       query: (userId) => `/support/${userId}`,
@@ -167,6 +173,11 @@ export const adminApi = createApi({
     }),
     replySupport: builder.mutation({
       query: ({ userId, body }) => ({ url: `/support/${userId}`, method: 'POST', body: { body } }),
+      invalidatesTags: (r, e, { userId }) => [{ type: 'Thread', id: userId }, 'Support'],
+    }),
+    // رد بفويس: FormData (file + duration)
+    replySupportVoice: builder.mutation({
+      query: ({ userId, form }) => ({ url: `/support/${userId}/voice`, method: 'POST', body: form }),
       invalidatesTags: (r, e, { userId }) => [{ type: 'Thread', id: userId }, 'Support'],
     }),
 
@@ -288,6 +299,8 @@ export const {
   useGetSupportThreadsQuery,
   useGetSupportThreadQuery,
   useReplySupportMutation,
+  useReplySupportVoiceMutation,
+  useGetSupportUnreadQuery,
   useGetPaymentSettingsQuery,
   useSavePaymentSettingsMutation,
   useGetAdminPackagesQuery,

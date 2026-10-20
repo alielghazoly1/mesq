@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { setSupportOpen } from '../store/uiSlice.js';
+import { setView as setSupportView } from '../store/supportSlice.js';
 import { useTranslation } from 'react-i18next';
 import { AnimatePresence, motion } from 'motion/react';
 import {
   ArrowRight, Eye, Users, Crown, Sparkles, MessageCircle,
-  Send, ExternalLink, BarChart3, Check, X as XIcon, Lock, Wand2, FileText,
+  ExternalLink, BarChart3, Check, X as XIcon, Lock, Wand2, FileText,
   Pencil, Share2, Images, Mic,
 } from 'lucide-react';
 import {
@@ -220,60 +223,40 @@ function InvitationCard({ inv, lang, editEnded, openRsvp, setOpenRsvp }) {
     </div>
   );
 }
+// كارت الدعم في اللوحة: العدد والمعاينة بس — المحادثة نفسها بتتفتح في
+// نافذة الدعم (عشان الرسايل ماتتعلّمش "اتشافت" غير لما يفتحها فعلًا)
 function SupportBox() {
   const { t } = useTranslation();
-  const { data } = useGetSupportQuery();
-  const [send, { isLoading }] = useSendSupportMessageMutation();
-  const [text, setText] = useState('');
-
-  async function submit(e) {
-    e.preventDefault();
-    if (!text.trim()) return;
-    try {
-      await send({ body: text }).unwrap();
-      setText('');
-    } catch {
-      /* الزرار بيرجع لحالته لوحده */
-    }
-  }
+  const dispatch = useDispatch();
+  const unread = useSelector((s) => s.support.unread);
+  const latest = useSelector((s) => s.support.latest);
+  const adminOnline = useSelector((s) => s.support.adminOnline);
+  const open = () => { dispatch(setSupportOpen(true)); dispatch(setSupportView('chat')); };
 
   return (
-    <div className="rounded-[22px] border border-line bg-card p-6">
-      <div className="mb-4 flex items-center gap-2">
-        <MessageCircle size={18} className="text-rose" />
-        <h2 className="font-serif text-lg font-bold text-ink">{t('dash.supportTitle')}</h2>
-      </div>
-
-      <div className="mb-4 max-h-72 space-y-2.5 overflow-y-auto">
-        {data?.messages?.length === 0 && <p className="text-[13.5px] text-ink-dim">{t('dash.supportEmpty')}</p>}
-        {data?.messages?.map((m) => (
-          <div
-            key={m.id}
-            className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-[13.5px] ${
-              m.from === 'user' ? 'ms-auto bg-night text-ivory' : 'me-auto bg-ivory text-ink'
-            }`}
-          >
-            {m.body}
-          </div>
-        ))}
-      </div>
-
-      <form onSubmit={submit} className="flex gap-2">
-        <input
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          maxLength={2000}
-          placeholder={t('dash.supportPlaceholder')}
-          className="flex-1 rounded-full border border-line px-4 py-2.5 text-[14px] focus:border-rose focus:outline-none"
-        />
+    <div className="rounded-[22px] border border-line bg-card p-5 sm:p-6" data-dash-support>
+      <div className="flex items-center gap-3">
+        <span className="relative grid h-11 w-11 shrink-0 place-items-center rounded-full bg-night text-brass-soft">
+          <MessageCircle size={19} />
+          {adminOnline && <span className="absolute -bottom-0.5 -end-0.5 h-3 w-3 rounded-full bg-[#22c55e] ring-2 ring-card" />}
+        </span>
+        <div className="min-w-0 flex-1">
+          <h2 className="flex items-center gap-2 font-serif text-lg font-bold text-ink">
+            {t('dash.supportTitle')}
+            {unread > 0 && <span className="rounded-full bg-rose px-2 py-0.5 font-sans text-[11px] font-bold text-white">{unread}</span>}
+          </h2>
+          <p className="truncate text-[13px] text-ink-dim">
+            {unread > 0 && latest ? latest.preview : t('support.needHelp')}
+          </p>
+        </div>
         <button
-          type="submit"
-          disabled={isLoading}
-          className="flex items-center gap-1.5 rounded-full bg-night px-5 py-2.5 text-sm font-bold text-ivory hover:bg-emerald disabled:opacity-60"
+          type="button"
+          onClick={open}
+          className="flex shrink-0 items-center gap-1.5 rounded-full bg-night px-4 py-2.5 text-[13px] font-bold text-ivory transition hover:bg-emerald"
         >
-          <Send size={14} /> {t('dash.send')}
+          {unread > 0 ? t('dash.supportRead') : t('support.chatCta')}
         </button>
-      </form>
+      </div>
     </div>
   );
 }

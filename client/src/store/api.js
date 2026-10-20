@@ -11,7 +11,7 @@ const baseQuery = fetchBaseQuery({ baseUrl: '/api', credentials: 'include' });
 export const api = createApi({
   reducerPath: 'api',
   baseQuery,
-  tagTypes: ['Me', 'Packages', 'Dashboard', 'Support', 'Editor', 'Quota', 'Ugc', 'GuestPhotos', 'OrderStatus'],
+  tagTypes: ['Me', 'Packages', 'Dashboard', 'Support', 'SupportStatus', 'Editor', 'Quota', 'Ugc', 'GuestPhotos', 'OrderStatus'],
   endpoints: (builder) => ({
     // بنبعت اللغة عشان أسماء التصاميم وأوصافها وأسماء الأقسام ترجع مترجمة
     getTemplates: builder.query({
@@ -153,13 +153,24 @@ export const api = createApi({
       // عدّاد اللي ماتسمعش على كارت الدعوة ينقص
       invalidatesTags: ['Dashboard'],
     }),
+    // المحادثة — ?peek=1 بيجيبها من غير ما يعلّمها مقروءة
     getSupport: builder.query({
-      query: () => '/dashboard/support',
+      query: (arg) => (arg && arg.peek ? '/dashboard/support?peek=1' : '/dashboard/support'),
       providesTags: ['Support'],
+    }),
+    // خفيف: العدد + الدعم متصل ولا لأ + معاينة آخر رسالة (الويدجت بيسأله كل شوية)
+    getSupportStatus: builder.query({
+      query: () => '/dashboard/support/status',
+      providesTags: ['SupportStatus'],
     }),
     sendSupportMessage: builder.mutation({
       query: (body) => ({ url: '/dashboard/support', method: 'POST', body }),
-      invalidatesTags: ['Support', 'Dashboard'],
+      invalidatesTags: ['Support', 'SupportStatus', 'Dashboard'],
+    }),
+    // فويس: FormData (file + duration)
+    sendSupportVoice: builder.mutation({
+      query: (form) => ({ url: '/dashboard/support/voice', method: 'POST', body: form }),
+      invalidatesTags: ['Support', 'SupportStatus', 'Dashboard'],
     }),
     uploadPaymentProof: builder.mutation({
       query: (formData) => ({ url: '/uploads/payment-proof', method: 'POST', body: formData }),
@@ -255,6 +266,8 @@ export const {
   useDeleteGuestVoiceMutation,
   useMarkVoiceHeardMutation,
   useSendSupportMessageMutation,
+  useGetSupportStatusQuery,
+  useSendSupportVoiceMutation,
   useUploadPaymentProofMutation,
   useGetEditorQuery,
   useSaveCustomizationsMutation,

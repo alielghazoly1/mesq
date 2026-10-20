@@ -13,6 +13,9 @@ const Order = require('../models/Order');
 const Rsvp = require('../models/Rsvp');
 const Session = require('../models/Session');
 const SupportMessage = require('../models/SupportMessage');
+const {
+  voiceUpload, serializeMessage, previewOf, storeVoice, touchAdmin,
+} = require('../utils/support');
 const AdminAudit = require('../models/AdminAudit');
 const Track = require('../models/Track');
 const SiteTotals = require('../models/SiteTotals');
@@ -1427,40 +1430,98 @@ router.get('/admin/api/invitations', requireAdminSession, async (req, res) => {
 // ==========================================================================
 // الدعم
 // ==========================================================================
+// عدد الرسايل اللي مستنياك (جنب "الدعم" في القايمة) — بيتسأل كل شوية من أي صفحة
+router.get('/admin/api/support/unread', requireAdminSession, async (req, res) => {
+  try {
+    touchAdmin();
+    const [unread, people] = await Promise.all([
+      SupportMessage.countDocuments({ from: 'user', readByAdmin: false }),
+      SupportMessage.distinct('userId', { from: 'user', readByAdmin: false }),
+    ]);
+    return res.json({ unread, people: people.length });
+  } catch (err) {
+    console.error('Error counting support unread:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+/** حروف البحث تتعامل كنص عادي مش regex */
+function escapeRegex(str) {
+  return String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// قايمة المحادثات: ?filter=unread|waiting|all  &q=اسم/إيميل/موبايل
 router.get('/admin/api/support', requireAdminSession, async (req, res) => {
   try {
+    touchAdmin();
+    const filter = String(req.query.filter || 'all');
+    const q = sanitizeText(req.query.q, 80);
+    const pre = [];
+    if (q) {
+      const rx = new RegExp(escapeRegex(q), 'i');
+      const ids = await User.find({ $or: [{ name: rx }, { email: rx }, { phone: rx }] }).select('_id').limit(300).lean();
+      pre.push({ $match: { userId: { $in: ids.map((u) => u._id) } } });
+    }
     const threads = await SupportMessage.aggregate([
+      ...pre,
       { $sort: { createdAt: -1 } },
       {
         $group: {
           _id: '$userId',
-          lastMessage: { $first: '$body' },
+          lastBody: { $first: '$body' },
+          lastKind: { $first: '$kind' },
           lastFrom: { $first: '$from' },
           lastAt: { $first: '$createdAt' },
+          lastSeenByUser: { $first: '$readByUser' },
+          total: { $sum: 1 },
+          fromUser: { $sum: { $cond: [{ $eq: ['$from', 'user'] }, 1, 0] } },
           unread: { $sum: { $cond: [{ $and: [{ $eq: ['$from', 'user'] }, { $eq: ['$readByAdmin', false] }] }, 1, 0] } },
         },
       },
+      // محادثات فيها رسايل منك بس (ترحيب/إشعار) والعميل عمره ما كتب — مالهاش لازمة هنا
+      { $match: { fromUser: { $gt: 0 } } },
+      ...(filter === 'unread' ? [{ $match: { unread: { $gt: 0 } } }] : []),
+      // "مستني ردك": آخر رسالة في المحادثة من العميل
+      ...(filter === 'waiting' ? [{ $match: { lastFrom: 'user' } }] : []),
       { $sort: { lastAt: -1 } },
-      { $limit: 100 },
+      { $limit: 150 },
     ]);
 
     const users = await User.find({ _id: { $in: threads.map((t) => t._id) } })
-      .select('name email subscription isBlocked')
+      .select('name email phone country subscription isBlocked lastSeenAt')
       .lean();
     const byId = users.reduce((acc, u) => { acc[String(u._id)] = u; return acc; }, {});
 
+    const [unreadTotal, waitingTotal] = await Promise.all([
+      SupportMessage.countDocuments({ from: 'user', readByAdmin: false }),
+      SupportMessage.aggregate([
+        { $sort: { createdAt: -1 } },
+        { $group: { _id: '$userId', lastFrom: { $first: '$from' } } },
+        { $match: { lastFrom: 'user' } },
+        { $count: 'n' },
+      ]).then((r) => (r[0] ? r[0].n : 0)),
+    ]);
+
     return res.json({
+      unreadTotal,
+      waitingTotal,
       threads: threads.map((t) => {
         const u = byId[String(t._id)] || {};
         return {
           userId: String(t._id),
           name: u.name || 'عميل محذوف',
           email: u.email || '',
+          country: u.country || '',
           isPremium: !!(u.subscription && u.subscription.packageId),
           isBlocked: !!u.isBlocked,
-          lastMessage: t.lastMessage,
+          online: isOnline(u.lastSeenAt),
+          lastMessage: previewOf({ kind: t.lastKind, body: t.lastBody }).slice(0, 160),
+          lastKind: t.lastKind || 'text',
           lastFrom: t.lastFrom,
           lastAt: t.lastAt,
+          // آخر رسالة منك اتشافت؟ (null لو آخر رسالة من العميل)
+          lastSeen: t.lastFrom === 'admin' ? !!t.lastSeenByUser : null,
+          total: t.total,
           unread: t.unread,
         };
       }),
@@ -1473,18 +1534,34 @@ router.get('/admin/api/support', requireAdminSession, async (req, res) => {
 
 router.get('/admin/api/support/:userId', requireAdminSession, async (req, res) => {
   try {
-    const messages = await SupportMessage.find({ userId: req.params.userId })
-      .sort({ createdAt: 1 }).limit(200).lean();
+    touchAdmin();
+    if (!mongoose.isValidObjectId(req.params.userId)) return res.status(404).json({ error: 'المحادثة مش موجودة' });
+    const [messages, user] = await Promise.all([
+      SupportMessage.find({ userId: req.params.userId }).sort({ createdAt: -1 }).limit(300).lean(),
+      User.findById(req.params.userId).select('name email phone country subscription isBlocked lastSeenAt createdAt googleId').lean(),
+    ]);
+    messages.reverse();
 
     await SupportMessage.updateMany(
       { userId: req.params.userId, from: 'user', readByAdmin: false },
-      { $set: { readByAdmin: true } }
+      { $set: { readByAdmin: true, readAt: new Date() } }
     );
 
     return res.json({
-      messages: messages.map((m) => ({
-        id: String(m._id), from: m.from, body: m.body, createdAt: m.createdAt,
-      })),
+      user: user ? {
+        id: String(user._id),
+        name: user.name || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        country: user.country || '',
+        packageId: (user.subscription && user.subscription.packageId) || null,
+        isBlocked: !!user.isBlocked,
+        online: isOnline(user.lastSeenAt),
+        lastSeenAt: user.lastSeenAt || null,
+        createdAt: user.createdAt,
+        google: !!user.googleId,
+      } : null,
+      messages: messages.map(serializeMessage),
     });
   } catch (err) {
     console.error('Error loading support thread:', err);
@@ -1494,19 +1571,45 @@ router.get('/admin/api/support/:userId', requireAdminSession, async (req, res) =
 
 router.post('/admin/api/support/:userId', requireAdminSession, async (req, res) => {
   try {
+    touchAdmin();
+    if (!mongoose.isValidObjectId(req.params.userId)) return res.status(404).json({ error: 'المحادثة مش موجودة' });
     const body = sanitizeText(req.body && req.body.body, 2000);
     if (!body) return res.status(400).json({ error: 'اكتب الرد الأول.' });
 
     const msg = await SupportMessage.create({
-      userId: req.params.userId, from: 'admin', body, readByAdmin: true,
+      userId: req.params.userId, from: 'admin', kind: 'text', body, readByAdmin: true,
     });
-
-    return res.status(201).json({
-      message: { id: String(msg._id), from: 'admin', body: msg.body, createdAt: msg.createdAt },
-    });
+    return res.status(201).json({ message: serializeMessage(msg) });
   } catch (err) {
     console.error('Error replying to support thread:', err);
     return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+// رد بفويس
+router.post('/admin/api/support/:userId/voice', requireAdminSession, (req, res, next) => {
+  voiceUpload.single('file')(req, res, (err) => {
+    if (err) return res.status(400).json({ error: err.code === 'LIMIT_FILE_SIZE' ? 'الفويس كبير — سجّل أقصر.' : 'الفويس ماوصلش، جرّب تاني.' });
+    return next();
+  });
+}, async (req, res) => {
+  try {
+    touchAdmin();
+    if (!mongoose.isValidObjectId(req.params.userId)) return res.status(404).json({ error: 'المحادثة مش موجودة' });
+    const v = await storeVoice(req.file, {
+      folder: `mithaq/support-voices/${req.params.userId}`,
+      claimed: req.body && req.body.duration,
+      where: 'upload-support-voice-admin', path: req.originalUrl,
+    });
+    if (v.error) return res.status(v.status).json({ error: v.error });
+    const msg = await SupportMessage.create({
+      userId: req.params.userId, from: 'admin', kind: 'voice', body: '',
+      voice: { url: v.url, publicId: v.publicId, duration: v.duration }, readByAdmin: true,
+    });
+    return res.status(201).json({ message: serializeMessage(msg) });
+  } catch (err) {
+    console.error('Error sending admin support voice:', err);
+    return res.status(500).json({ error: 'الفويس مابعتش، جرّب تاني.' });
   }
 });
 
