@@ -8,8 +8,11 @@
 const QICmvQj = require('../custom-invitations/QICmvQj');
 const GrpUVQq = require('../custom-invitations/GrpUVQq');
 const vYsx7Gn = require('../custom-invitations/vYsx7Gn');
+const ab1yJIK9C = require('../custom-invitations/1yJIK9C');
 
-const CUSTOM = { [QICmvQj.shortId]: QICmvQj, [GrpUVQq.shortId]: GrpUVQq, [vYsx7Gn.shortId]: vYsx7Gn };
+const CUSTOM = { [QICmvQj.shortId]: QICmvQj, [GrpUVQq.shortId]: GrpUVQq, [vYsx7Gn.shortId]: vYsx7Gn,
+  [ab1yJIK9C.shortId]: ab1yJIK9C,
+};
 
 function getCustomInvitation(shortId) {
   return Object.prototype.hasOwnProperty.call(CUSTOM, shortId) ? CUSTOM[shortId] : null;

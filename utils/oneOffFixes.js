@@ -171,6 +171,65 @@ const FIXES = [
       && inv.venueMapEmbedSrc === 'https://www.google.com/maps?q=24.5669705,46.5907552&output=embed',
     apply: () => ({ venueMapEmbedSrc: 'https://www.google.com/maps?q=24.5669705,46.591414&z=17&output=embed' }),
   },
+  {
+    // 1yJIK9C (Ivory Swans) — دعوة م. عمرو أبوبكر التيجاني الصديق وم. نور محمد
+    // حسن أحمد أبو علامة، بطلب المالك:
+    //  • الدعوة بالعربي، والزفاف السبت 28/11/2026 الساعة 8 مساءً — قاعة أوسيل
+    //    (Ociel Hall) بمنتجع عين الحياة، الفسطاط — بلينك الخريطة اللي بعته.
+    //  • "اشيل الصور": صور قسم الحكاية (iv2–iv4 وكلامها iv14–iv16) اتشالت،
+    //    وكلام القسم نفسه بقى لعقد القران (الجمعة 27/11 الساعة 2 ظهرًا —
+    //    مسجد الحامدية الشاذلية).
+    //  • الأسامي على الغلاف، والآباء في قسم العائلات.
+    // بيتعمل بس لو الدعوة لسه بأسامي المسودة ومحدش كتب في قسم العائلات.
+    name: '1yJIK9C-amr-nour',
+    shortId: '1yJIK9C',
+    select: '-__v',
+    when: (c, inv) => inv.templateId === 'ivory-swans' && inv.groomName === 'Groom'
+      && inv.brideName === 'Bride' && !((c.texts || {}).iv24),
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: 'ar', occasionType: inv.occasionType,
+        hiddenSections: inv.hiddenSections, timeline: inv.timeline, name: inv.name,
+        groomName: 'عمرو', groomNameAr: 'عمرو',
+        brideName: 'نور', brideNameAr: 'نور',
+        venueName: 'قاعة أوسيل', venueCity: 'منتجع عين الحياة — الفسطاط',
+        venueMapQuery: 'https://maps.app.goo.gl/mG5zojKnT9UvrsXq7',
+        weddingDate: '2026-11-28', weddingTime: '20:00',
+      }, { ownsTemplate: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.language = 'ar';
+      set['customizations.texts'] = {
+        ...(c.texts || {}),
+        // الغلاف
+        '1779566247730000001__1': 'عمرو',
+        '1779566247730000001__2': 'نور',
+        '1779566247730000003': '28.11.2026',
+        // احفظ الموعد — التاريخ ومعاه الساعة
+        iv40: 'السبت ٢٨ / ١١ / ٢٠٢٦ — الساعة ٨ مساءً',
+        // قسم الحكاية من غير صور → عقد القران
+        iv17: 'عقد القران',
+        iv18: 'الجمعة ٢٧ / ١١ / ٢٠٢٦',
+        iv19: 'يتشرف الأهل بدعوتكم لحضور عقد القران الساعة ٢ ظهرًا',
+        iv20: 'بمسجد الحامدية الشاذلية',
+        // العائلات
+        iv21: 'بمباركة أهلهما الكرام',
+        iv22: 'عائلة التيجاني الصديق وعائلة أبو علامة',
+        iv23: 'العريس',
+        iv24: 'المهندس عمرو أبوبكر التيجاني الصديق',
+        iv25: 'العروسة',
+        iv26: 'المهندسة نور محمد حسن أحمد أبو علامة',
+        iv27: 'بقلوب مفعمة بالفرح، يتشرف الأهل بدعوتكم لحضور حفل الزفاف يوم السبت ٢٨ / ١١ الساعة ٨ مساءً',
+        // المكان
+        iv30: 'منتجع عين الحياة — الفسطاط',
+      };
+      const hidden = new Set(c.hidden || []);
+      ['iv2', 'iv3', 'iv4', 'iv14', 'iv15', 'iv16', 'iv5'].forEach((id) => hidden.add(id));
+      set['customizations.hidden'] = [...hidden];
+      return set;
+    },
+  },
 ];
 
 let done = false;
