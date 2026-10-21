@@ -279,7 +279,7 @@ export default function CheckoutPage() {
   // كاش وده كفاية، فمفيش سبب نزحم صفحته. الفحص على عملة الباقة (USD) مش
   // على وصول بيانات الدفع، عشان الزرار يبان حتى لو بيانات التحويل لسه
   // ماتحملتش أو مش متظبطة.
-  const showOtherMethods = pkg.currency === 'USD' || pkg.currency === 'SAR';
+  const showOtherMethods = pkg.currency === 'USD' || pkg.currency === 'SAR' || pkg.currency === 'EUR';
 
   return (
     <div className="min-h-screen bg-ivory">

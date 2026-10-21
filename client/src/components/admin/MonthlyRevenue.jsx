@@ -18,10 +18,11 @@ const CURRENCIES = [
   { value: 'egp', label: 'بالجنيه' },
   { value: 'usd', label: 'بالدولار' },
   { value: 'sar', label: 'بالريال' },
+  { value: 'eur', label: 'باليورو' },
 ];
 // مفتاح العملة في بيانات الشهر ← كودها
-const CODE = { egp: 'EGP', usd: 'USD', sar: 'SAR' };
-const NAME = { egp: 'جنيه', usd: 'دولار', sar: 'ريال' };
+const CODE = { egp: 'EGP', usd: 'USD', sar: 'SAR', eur: 'EUR' };
+const NAME = { egp: 'جنيه', usd: 'دولار', sar: 'ريال', eur: 'يورو' };
 
 const GRID = 'rgba(250,245,236,0.10)';
 const AXIS = 'rgba(250,245,236,0.40)';
@@ -129,13 +130,14 @@ export default function MonthlyRevenue() {
 
           {/* الجدول — الأحدث فوق */}
           <div className="-mx-5 mt-4 overflow-x-auto px-5">
-            <table className="w-full min-w-[560px] border-collapse text-[12.5px]">
+            <table className="w-full min-w-[640px] border-collapse text-[12.5px]">
               <thead>
                 <tr className="border-b border-line-lite text-start text-[11.5px] text-ivory/45">
                   <th className="py-2 text-start font-bold">الشهر</th>
                   <th className="py-2 text-start font-bold">بالجنيه</th>
                   <th className="py-2 text-start font-bold">بالدولار</th>
                   <th className="py-2 text-start font-bold">بالريال</th>
+                  <th className="py-2 text-start font-bold">باليورو</th>
                   <th className="py-2 text-start font-bold">طلبات</th>
                   <th className="py-2 text-start font-bold">تسجيلات</th>
                   <th className="py-2 text-start font-bold">النمو ({NAME[currency]})</th>
@@ -151,6 +153,7 @@ export default function MonthlyRevenue() {
                     <td className={`py-2.5 ${r.egp ? 'text-ivory' : 'text-ivory/30'}`}>{fmtMoney(r.egp, 'EGP')}</td>
                     <td className={`py-2.5 ${r.usd ? 'text-ivory' : 'text-ivory/30'}`}>{fmtMoney(r.usd, 'USD')}</td>
                     <td className={`py-2.5 ${r.sar ? 'text-ivory' : 'text-ivory/30'}`}>{fmtMoney(r.sar || 0, 'SAR')}</td>
+                    <td className={`py-2.5 ${r.eur ? 'text-ivory' : 'text-ivory/30'}`}>{fmtMoney(r.eur || 0, 'EUR')}</td>
                     <td className="py-2.5 text-ivory/70">{fmtNum(r.orders)}</td>
                     <td className="py-2.5 text-ivory/70">{fmtNum(r.signups)}</td>
                     <td className="py-2.5">

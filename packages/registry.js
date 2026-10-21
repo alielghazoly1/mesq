@@ -132,7 +132,7 @@ const PACKAGES = [
     },
     name: { ar: 'الباقة الأساسية', en: 'Essential' },
     invitations: 4,
-    price: { EGP: 400, USD: 15, SAR: 50 },
+    price: { EGP: 400, USD: 15, SAR: 50, EUR: 14 },
     editDays: 60,
     // "إخفاء الأقسام" في كل الباقات: ده مش رفاهية، ده إن العميل يشيل
     // قسم مالوش لازمة في فرحه. لو قفلناه على الباقة الأعلى، اللي دافع
@@ -148,7 +148,7 @@ const PACKAGES = [
     },
     name: { ar: 'الباقة المتقدمة', en: 'Plus' },
     invitations: 9,
-    price: { EGP: 600, USD: 30, SAR: 70 },
+    price: { EGP: 600, USD: 30, SAR: 70, EUR: 27 },
     editDays: 90,
     features: ['fonts', 'images', 'music', 'drag', 'videoToImage', 'sections'],
   },
@@ -160,7 +160,7 @@ const PACKAGES = [
     },
     name: { ar: 'الباقة الاحترافية', en: 'Professional' },
     invitations: 50,
-    price: { EGP: 1500, USD: 70, SAR: 120 },
+    price: { EGP: 1500, USD: 70, SAR: 120, EUR: 60 },
     editDays: LIFETIME,
     features: ['fonts', 'images', 'music', 'drag', 'videoToImage', 'sections', 'colors'],
   },
@@ -168,14 +168,30 @@ const PACKAGES = [
 
 // SAR (من 2026-10-17): العملاء في السعودية بيشوفوا ويدفعوا بالريال، وطرق
 // دفعهم في utils/paymentSettings.js (بنك سعودي / برق / فودافون كاش)
-const CURRENCY_LABELS = { EGP: 'ج.م', USD: '$', SAR: 'ر.س' };
-const CURRENCIES = ['EGP', 'USD', 'SAR'];
+// EUR (من 2026-10-21): أي حد من دولة عملتها اليورو بيشوف ويدفع باليورو.
+const CURRENCY_LABELS = { EGP: 'ج.م', USD: '$', SAR: 'ر.س', EUR: '€' };
+const CURRENCIES = ['EGP', 'USD', 'SAR', 'EUR'];
 
-/** @param {string} countryCode كود الدولة (ISO alpha-2) @returns {'EGP'|'USD'|'SAR'} */
+// الدول والأقاليم اللي عملتها الرسمية اليورو (أكتوبر 2026):
+//  • منطقة اليورو — 21 دولة (بلغاريا دخلت 1 يناير 2026)
+//  • دول بتستخدم اليورو باتفاق مع الاتحاد الأوروبي: أندورا، موناكو، سان مارينو، الفاتيكان
+//  • دول بتستخدمه من نفسها: الجبل الأسود، كوسوفو
+//  • أقاليم فرنسية وفنلندية ليها كود دولة لوحدها: ريونيون، مايوت، جوادلوب،
+//    مارتينيك، جويانا الفرنسية، سان بارتيلمي، سان مارتن، سان بيير وميكلون، جزر أولاند
+const EURO_COUNTRIES = new Set([
+  'AT', 'BE', 'BG', 'HR', 'CY', 'EE', 'FI', 'FR', 'DE', 'GR', 'IE', 'IT', 'LV', 'LT',
+  'LU', 'MT', 'NL', 'PT', 'SK', 'SI', 'ES',
+  'AD', 'MC', 'SM', 'VA',
+  'ME', 'XK',
+  'RE', 'YT', 'GP', 'MQ', 'GF', 'BL', 'MF', 'PM', 'AX',
+]);
+
+/** @param {string} countryCode كود الدولة (ISO alpha-2) @returns {'EGP'|'USD'|'SAR'|'EUR'} */
 function currencyForCountry(countryCode) {
   const cc = String(countryCode || '').toUpperCase();
   if (cc === 'EG') return 'EGP';
   if (cc === 'SA') return 'SAR';
+  if (EURO_COUNTRIES.has(cc)) return 'EUR';
   return 'USD';
 }
 
@@ -255,6 +271,7 @@ function packageHasFeature(packageId, featureKey) {
 module.exports = {
   PACKAGES,
   CURRENCIES,
+  EURO_COUNTRIES,
   EDIT_WINDOW_DAYS,
   LIFETIME,
   editDaysFor,

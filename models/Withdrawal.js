@@ -8,7 +8,7 @@ const mongoose = require('mongoose');
 const withdrawalSchema = new mongoose.Schema({
   ugcUserId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
   // العملة اللي بيسحب بيها (نفس تقسيم الأرباح: جنيه لوحده / دولار لوحده)
-  currency: { type: String, enum: ['EGP', 'USD', 'SAR'], required: true },
+  currency: { type: String, enum: ['EGP', 'USD', 'SAR', 'EUR'], required: true },
   amount: { type: Number, required: true, min: 0 },
   // رقم فودافون كاش وقت الطلب (بيتسجّل مع الطلب حتى لو غيّره بعدين)
   phone: { type: String, default: '', maxlength: 30 },

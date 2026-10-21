@@ -158,6 +158,23 @@ export default function OverviewPage() {
             />
           </>
         )}
+        {/* العملاء في دول اليورو بيدفعوا باليورو — بيظهروا لما يبقى فيه طلبات باليورو */}
+        {(revenue.all.EUR?.orders > 0) && (
+          <>
+            <StatTile
+              icon={Wallet} tone="gold" delay={0.22}
+              label="أرباح باليورو (كل الوقت)"
+              value={fmtMoney(revenue.all.EUR.total, 'EUR')}
+              hint={`${revenue.all.EUR.orders} طلب`}
+            />
+            <StatTile
+              icon={Wallet} delay={0.26}
+              label={`أرباح الفترة (يورو)`}
+              value={fmtMoney(revenue.period.EUR?.total || 0, 'EUR')}
+              hint={`${revenue.period.EUR?.orders || 0} طلب`}
+            />
+          </>
+        )}
       </div>
 
       {/* الأرباح شهر بشهر */}
@@ -239,9 +256,9 @@ export default function OverviewPage() {
               unit="باقة"
               periodLabel={periodLabel}
               emptyLabel="لسه ماتباعتش"
-              renderExtra={(p) => ((p.egp > 0 || p.usd > 0 || p.sar > 0) ? (
+              renderExtra={(p) => ((p.egp > 0 || p.usd > 0 || p.sar > 0 || p.eur > 0) ? (
                 <span className="font-bold text-brass-soft" data-ranked-money>
-                  {[p.egp > 0 && fmtMoney(p.egp, 'EGP'), p.usd > 0 && fmtMoney(p.usd, 'USD'), p.sar > 0 && fmtMoney(p.sar, 'SAR')]
+                  {[p.egp > 0 && fmtMoney(p.egp, 'EGP'), p.usd > 0 && fmtMoney(p.usd, 'USD'), p.sar > 0 && fmtMoney(p.sar, 'SAR'), p.eur > 0 && fmtMoney(p.eur, 'EUR')]
                     .filter(Boolean).join(' · ')}
                 </span>
               ) : null)}

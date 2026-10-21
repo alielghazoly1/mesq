@@ -310,6 +310,9 @@ export default function ClientDrawer({ userId, onClose }) {
               {data.totals.paid.SAR > 0 && (
                 <StatTile icon={Wallet} tone="ok" label="دفع بالريال" value={fmtMoney(data.totals.paid.SAR, 'SAR')} />
               )}
+              {data.totals.paid.EUR > 0 && (
+                <StatTile icon={Wallet} tone="ok" label="دفع باليورو" value={fmtMoney(data.totals.paid.EUR, 'EUR')} />
+              )}
               <StatTile
                 icon={Activity} label="فتح الموقع" value={`${fmtNum(data.user.visitCount)} مرة`}
                 hint={data.user.firstVisitAt ? `من ${fmtDate(data.user.firstVisitAt)}` : 'العدّ لسه بادئ'}
