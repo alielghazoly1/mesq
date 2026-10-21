@@ -44,11 +44,13 @@ const importCreate = () => import('./pages/CreateInvitationPage.jsx');
 const importPackages = () => import('./pages/PackagesPage.jsx');
 const importCheckout = () => import('./pages/CheckoutPage.jsx');
 const importDashboard = () => import('./pages/DashboardPage.jsx');
+const importAccount = () => import('./pages/AccountPage.jsx');
 const importEditor = () => import('./pages/EditorPage.jsx');
 const CreateInvitationPage = lazyWithReload(importCreate, 'create');
 const PackagesPage = lazyWithReload(importPackages, 'packages');
 const CheckoutPage = lazyWithReload(importCheckout, 'checkout');
 const DashboardPage = lazyWithReload(importDashboard, 'dashboard');
+const AccountPage = lazyWithReload(importAccount, 'account');
 const EditorPage = lazyWithReload(importEditor, 'editor');
 // سياسة الخصوصية والشروط (جوجل بتطلب لينك الخصوصية للدخول بجوجل)
 const LegalPage = lazyWithReload(() => import('./pages/LegalPage.jsx'), 'legal');
@@ -124,6 +126,7 @@ export default function App() {
         <Route path="/privacy" element={<Suspense fallback={<PageFallback />}><LegalPage kind="privacy" /></Suspense>} />
         <Route path="/terms" element={<Suspense fallback={<PageFallback />}><LegalPage kind="terms" /></Suspense>} />
         <Route path="/dashboard" element={<Suspense fallback={<PageFallback />}><DashboardPage /></Suspense>} />
+        <Route path="/account" element={<Suspense fallback={<PageFallback />}><AccountPage /></Suspense>} />
         <Route path="/editor/:shortId" element={<Suspense fallback={<div className="min-h-screen bg-ivory" />}><EditorPage /></Suspense>} />
         <Route
           path="/admin/*"

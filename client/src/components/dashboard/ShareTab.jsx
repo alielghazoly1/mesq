@@ -7,8 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { AnimatePresence, motion } from 'motion/react';
 import QRCode from 'qrcode';
 import {
-  Copy, Check, ExternalLink, QrCode, Download, X as XIcon, Loader2, Mail, BarChart3, Images, Mic, Camera,
-  AlertTriangle,
+  Copy, Check, ExternalLink, QrCode, Download, X as XIcon, Loader2, Mail, BarChart3, AlertTriangle,
 } from 'lucide-react';
 import { useGetShareLinksQuery } from '../../store/api.js';
 import { absUrl, copyText, waShareUrl, withFrom } from './dashUtils.js';
@@ -41,7 +40,6 @@ function QrModal({ url, title, onClose }) {
         <div className="mx-auto aspect-square w-full max-w-[260px] overflow-hidden rounded-2xl border border-line bg-white p-2">
           {src ? <img src={src} alt="QR" className="h-full w-full" data-qr-img /> : <div className="grid h-full place-items-center"><Loader2 className="animate-spin text-ink-dim" /></div>}
         </div>
-        <p className="mt-3 text-[11.5px] leading-relaxed text-ink-dim">{t('dash2.qrNote')}</p>
         <a href={src || undefined} download="mithaq-qr.png"
           className={`mt-3 inline-flex w-full items-center justify-center gap-2 rounded-full bg-night py-3 text-[13px] font-bold text-ivory transition hover:bg-emerald ${src ? '' : 'pointer-events-none opacity-50'}`}>
           <Download size={15} /> {t('dash2.qrDownload')}
@@ -51,7 +49,7 @@ function QrModal({ url, title, onClose }) {
   );
 }
 
-function LinkCard({ icon: Icon, tone, title, desc, url, waText, qr, extra, testId }) {
+function LinkCard({ icon: Icon, tone, title, url, waText, qr, extra, testId }) {
   const { t } = useTranslation();
   const [copied, setCopied] = useState('');
   const [qrOpen, setQrOpen] = useState(false);
@@ -59,12 +57,9 @@ function LinkCard({ icon: Icon, tone, title, desc, url, waText, qr, extra, testI
   const btn = 'inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-[12px] font-bold transition';
   return (
     <div className="rounded-2xl border border-line bg-card p-4" data-share-card={testId}>
-      <div className="flex items-start gap-3">
+      <div className="flex items-center gap-3">
         <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl" style={{ background: `${tone}18`, color: tone }}><Icon size={18} /></span>
-        <div className="min-w-0 flex-1">
-          <div className="text-[14px] font-extrabold text-ink">{title}</div>
-          <p className="mt-0.5 text-[12px] leading-relaxed text-ink-dim">{desc}</p>
-        </div>
+        <div className="min-w-0 flex-1 text-[15px] font-extrabold text-ink">{title}</div>
       </div>
       <button type="button" onClick={() => copy(url, 'main')} data-share-url
         className="mt-3 flex w-full items-center gap-2 rounded-xl border border-dashed border-line bg-ivory/60 px-3 py-2.5 text-start transition hover:border-brass/60">
@@ -117,19 +112,10 @@ export default function ShareTab({ shortId, title }) {
           <AlertTriangle size={15} className="mt-0.5 shrink-0 text-brass" /> {t('dash2.draftShareNote')}
         </div>
       )}
-      <LinkCard testId="invite" icon={Mail} tone="#b08d57" title={t('dash2.shInvite')} desc={t('dash2.shInviteDesc')}
-        url={invite} waText={`${t('dash2.waInvite', { title })}\n${withFrom(invite, 'wa')}`} qr={withFrom(invite, 'qr')}
-        extra={[{ k: 'ig', label: t('dash2.forInstagram'), icon: Camera, url: withFrom(invite, 'ig') }]} />
-      <LinkCard testId="stats" icon={BarChart3} tone="#0f1d18" title={t('dash2.shStats')} desc={t('dash2.shStatsDesc')}
+      <LinkCard testId="invite" icon={Mail} tone="#b08d57" title={t('dash2.shInvite')}
+        url={invite} waText={`${t('dash2.waInvite', { title })}\n${withFrom(invite, 'wa')}`} qr={withFrom(invite, 'qr')} />
+      <LinkCard testId="stats" icon={BarChart3} tone="#0f1d18" title={t('dash2.shStats')}
         url={absUrl(data.stats)} waText={`${t('dash2.waStats', { title })}\n${absUrl(data.stats)}`} />
-      {data.album && (
-        <LinkCard testId="album" icon={Images} tone="#a2465e" title={t('dash2.shAlbum')} desc={t('dash2.shAlbumDesc')}
-          url={absUrl(data.album)} waText={`${t('dash2.waAlbum', { title })}\n${absUrl(data.album)}`} qr={absUrl(data.album)} />
-      )}
-      {data.voices && (
-        <LinkCard testId="voices" icon={Mic} tone="#7a2a37" title={t('dash2.shVoices')} desc={t('dash2.shVoicesDesc')}
-          url={absUrl(data.voices)} waText={`${t('dash2.waVoices', { title })}\n${absUrl(data.voices)}`} />
-      )}
     </div>
   );
 }

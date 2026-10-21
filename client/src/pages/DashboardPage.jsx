@@ -3,7 +3,7 @@
 //   شريط الدعوات: كارت لكل دعوة بصورة تصميمها وفاضل كام يوم على الفرح
 //   لوحة الدعوة: نظرة عامة (رسم + مصادر + أجهزة + ساعات) / الضيوف / التهاني /
 //                الصور / المشاركة (لينكات + واتساب + QR)
-//   حسابك: الاسم والموبايل والباسورد والأجهزة
+//   حسابك: أيقونة جنب التحية بتفتح صفحة /account (الاسم، الباسورد، الأجهزة)
 // الحالة (الدعوة المختارة، التبويب، الفترة، فلاتر الضيوف) في Redux: store/dashboardSlice.js
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
@@ -23,7 +23,6 @@ import UgcDashboard from './UgcDashboard.jsx';
 import DashHero from '../components/dashboard/DashHero.jsx';
 import InvitationRail from '../components/dashboard/InvitationRail.jsx';
 import InvitationPanel from '../components/dashboard/InvitationPanel.jsx';
-import AccountPanel from '../components/dashboard/AccountPanel.jsx';
 import { whatsappLink } from '../lib/contact.js';
 
 function Skeleton() {
@@ -174,8 +173,7 @@ export default function DashboardPage() {
           </div>
         )}
 
-        <div className="mb-6"><SupportBox /></div>
-        <AccountPanel />
+        <SupportBox />
       </div>
       <Footer />
     </div>

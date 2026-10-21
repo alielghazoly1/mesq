@@ -1,9 +1,10 @@
 // رأس اللوحة: تحية باسم العميل + باقته ومدة التعديل + 4 كروت أرقام بخط اتجاه
 import { Link } from 'react-router-dom';
+import { initials } from './dashUtils.js';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import {
-  Crown, Eye, Users, UserX, Sparkles, Plus, Wand2, ArrowUpRight, ArrowDownRight, Lock,
+  Crown, Eye, Users, UserX, Sparkles, Plus, Wand2, ArrowUpRight, ArrowDownRight, Lock, Settings,
 } from 'lucide-react';
 import Sparkline from './Sparkline.jsx';
 import { fmtNum, greetingKey, pctDelta } from './dashUtils.js';
@@ -69,6 +70,12 @@ export default function DashHero({ data, lang }) {
         <span aria-hidden="true" className="pointer-events-none absolute -bottom-28 start-10 h-60 w-60 rounded-full bg-emerald/25 blur-3xl" />
 
         <div className="relative flex flex-wrap items-start justify-between gap-5">
+          <div className="flex min-w-0 items-start gap-3">
+          <Link to="/account" aria-label={t('dash2.myAccount')} title={t('dash2.myAccount')} data-account-link
+            className="group relative mt-1 grid h-12 w-12 shrink-0 place-items-center rounded-full border border-brass/40 bg-brass/15 font-serif text-[18px] font-bold text-brass-soft transition hover:bg-brass/25 sm:h-14 sm:w-14">
+            {initials(data.user?.name)}
+            <span className="absolute -bottom-0.5 -end-0.5 grid h-5 w-5 place-items-center rounded-full bg-ivory text-night shadow ring-2 ring-night transition group-hover:rotate-45"><Settings size={11} /></span>
+          </Link>
           <div className="min-w-0">
             <p className="text-[13px] font-bold text-brass-soft/90">{t(greetingKey())}</p>
             <h1 className="mt-1 font-serif text-[26px] font-bold leading-tight sm:text-[32px]" data-hero-name>
@@ -90,6 +97,7 @@ export default function DashHero({ data, lang }) {
                 </span>
               )}
             </div>
+          </div>
           </div>
 
           <div className="flex flex-wrap gap-2">

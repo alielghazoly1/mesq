@@ -199,7 +199,6 @@ export default function OverviewTab({ shortId }) {
       <div className="grid gap-4 md:grid-cols-2">
         <Card title={t('dash2.sourcesTitle')}>
           {sources.length ? <Bars rows={sources} lang={lang} /> : <p className="text-[12.5px] text-ink-dim">{t('dash2.noDataYet')}</p>}
-          <p className="mt-3 text-[11px] leading-relaxed text-ink-dim">{t('dash2.sourcesNote')}</p>
         </Card>
         <Card title={t('dash2.rsvpTitle')}>
           {data.rsvp.total ? (

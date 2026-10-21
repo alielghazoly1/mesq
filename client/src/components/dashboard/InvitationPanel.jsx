@@ -33,13 +33,13 @@ export default function InvitationPanel({ inv, lang, editEnded }) {
   const total = inv.rsvp.yes + inv.rsvp.no;
 
   const tabs = [
+    { k: 'share', label: t('dash2.tShare'), icon: Share2 },
     { k: 'overview', label: t('dash2.tOverview'), icon: LayoutDashboard },
     { k: 'guests', label: t('dash2.tGuests'), icon: Users, n: total },
     ...(inv.voices ? [{ k: 'voices', label: t('dash2.tVoices'), icon: Mic, n: inv.voices.unheard || inv.voices.count, hot: inv.voices.unheard > 0 }] : []),
     ...(inv.album ? [{ k: 'photos', label: t('dash2.tPhotos'), icon: Images, n: inv.album.photos }] : []),
-    { k: 'share', label: t('dash2.tShare'), icon: Share2 },
   ];
-  const tab = tabs.some((x) => x.k === storedTab) ? storedTab : 'overview';
+  const tab = tabs.some((x) => x.k === storedTab) ? storedTab : 'share';
 
   async function saveName() {
     try {

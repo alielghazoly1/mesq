@@ -4,25 +4,25 @@
 // وبتتحفظ في المتصفح فلما يرجع يلاقي نفس الدعوة ونفس التبويب.
 //
 //   selected   الدعوة المفتوحة (shortId)
-//   tab        overview | guests | voices | photos | share
+//   tab        share (الأول) | overview | guests | voices | photos
 //   range      أيام الإحصائيات: 7 | 30 | 90 | 0 (من الأول)
 //   guestFilter / guestQuery   فلترة وبحث قايمة الضيوف
 //   accountOpen  لوحة الحساب (الاسم، الباسورد…) مفتوحة
 import { createSlice } from '@reduxjs/toolkit';
 
 const KEY = 'mithaq_dash';
-const TABS = ['overview', 'guests', 'voices', 'photos', 'share'];
+const TABS = ['share', 'overview', 'guests', 'voices', 'photos'];
 
 function load() {
   try {
     const v = JSON.parse(localStorage.getItem(KEY) || '{}');
     return {
       selected: typeof v.selected === 'string' ? v.selected : null,
-      tab: TABS.includes(v.tab) ? v.tab : 'overview',
+      tab: TABS.includes(v.tab) ? v.tab : 'share',
       range: [7, 30, 90, 0].includes(v.range) ? v.range : 30,
     };
   } catch {
-    return { selected: null, tab: 'overview', range: 30 };
+    return { selected: null, tab: 'share', range: 30 };
   }
 }
 

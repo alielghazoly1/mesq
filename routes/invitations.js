@@ -1,6 +1,12 @@
 // routes/invitations.js
 const express = require('express');
-const { recordInvitationView } = require('../utils/inviteAnalytics');
+const { recordInvitationView, invitationInsights } = require('../utils/inviteAnalytics');
+const InvitationDay = require('../models/InvitationDay');
+const GuestVoice = require('../models/GuestVoice');
+const GuestPhoto = require('../models/GuestPhoto');
+const { serializeVoice, invitationHasVoice } = require('../utils/guestVoices');
+const { serializePhoto, invitationHasAlbum, ensureAlbumToken } = require('../utils/guestPhotos');
+const { ensureVoicesToken } = require('../utils/voicesPage');
 
 const Invitation = require('../models/Invitation');
 const Rsvp = require('../models/Rsvp');
@@ -356,7 +362,34 @@ router.get('/s/:token', async (req, res) => {
         );
     }
     const stats = await loadStatsData(Rsvp, invitation.shortId);
+    // كل حاجة عن الدعوة في الصفحة دي: المشاهدات يوم بيوم والمصادر، والتهاني
+    // تتسمع، وصور الضيوف — ولينكات صفحة التهاني والألبوم كاملين
+    const sid = invitation.shortId;
+    const [ins, voiceCount, voiceList, photoCount, photoList] = await Promise.all([
+      invitationInsights(sid, 30),
+      invitationHasVoice(invitation) ? GuestVoice.countDocuments({ shortId: sid }) : null,
+      invitationHasVoice(invitation) ? GuestVoice.find({ shortId: sid }).sort({ _id: -1 }).limit(10).lean() : [],
+      invitationHasAlbum(invitation) ? GuestPhoto.countDocuments({ shortId: sid }) : null,
+      invitationHasAlbum(invitation) ? GuestPhoto.find({ shortId: sid }).sort({ _id: -1 }).limit(12).lean() : [],
+    ]);
+    stats.totalViews = invitation.viewCount || 0;
+    if (ins.since) {
+      stats.uniques = (await InvitationDay.aggregate([
+        { $match: { shortId: sid } }, { $group: { _id: null, u: { $sum: '$uniques' } } },
+      ]))[0]?.u || 0;
+      stats.series = ins.series;
+      stats.sources = ins.sources;
+    }
+    if (voiceCount != null) {
+      const vt = voiceCount ? (invitation.voicesToken || await ensureVoicesToken(Invitation, invitation._id)) : null;
+      stats.voices = { count: voiceCount, list: voiceList.map(serializeVoice), link: vt ? `/v/${vt}` : null };
+    }
+    if (photoCount != null) {
+      const at = photoCount ? (invitation.albumToken || await ensureAlbumToken(invitation._id)) : null;
+      stats.photos = { count: photoCount, list: photoList.map((p) => serializePhoto(p, null)), link: at ? `/a/${at}` : null };
+    }
     res.set('Content-Type', 'text/html; charset=utf-8');
+    res.set('Cache-Control', 'no-store');
     return res.send(buildStatsPage(invitation, stats));
   } catch (err) {
     console.error('Error rendering stats page:', err);
