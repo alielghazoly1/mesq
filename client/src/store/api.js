@@ -11,7 +11,7 @@ const baseQuery = fetchBaseQuery({ baseUrl: '/api', credentials: 'include' });
 export const api = createApi({
   reducerPath: 'api',
   baseQuery,
-  tagTypes: ['Me', 'Packages', 'Dashboard', 'Support', 'SupportStatus', 'Editor', 'Quota', 'Ugc', 'GuestPhotos', 'OrderStatus'],
+  tagTypes: ['Me', 'Packages', 'Dashboard', 'Support', 'SupportStatus', 'Insights', 'ShareLinks', 'Account', 'Editor', 'Quota', 'Ugc', 'GuestPhotos', 'OrderStatus'],
   endpoints: (builder) => ({
     // بنبعت اللغة عشان أسماء التصاميم وأوصافها وأسماء الأقسام ترجع مترجمة
     getTemplates: builder.query({
@@ -120,6 +120,30 @@ export const api = createApi({
       invalidatesTags: ['Dashboard'],
     }),
     // بيرجّع رابط صفحة الإحصائيات السري (وبيولّده أول مرة للدعوات القديمة).
+    // إحصائيات دعوة بالتفصيل (range: 7 | 30 | 90 | 0 = من الأول)
+    getInsights: builder.query({
+      query: ({ shortId, range }) => `/dashboard/invitations/${shortId}/insights?range=${range}`,
+      providesTags: (r, e, { shortId }) => [{ type: 'Insights', id: shortId }],
+    }),
+    // كل لينكات المشاركة (الدعوة، الإحصائيات، الألبوم، التهاني)
+    getShareLinks: builder.query({
+      query: (shortId) => ({ url: `/dashboard/invitations/${shortId}/share-links`, method: 'POST' }),
+      providesTags: (r, e, shortId) => [{ type: 'ShareLinks', id: shortId }],
+    }),
+    // ===== الحساب =====
+    getAccount: builder.query({ query: () => '/account', providesTags: ['Account'] }),
+    updateAccount: builder.mutation({
+      query: (body) => ({ url: '/account', method: 'PATCH', body }),
+      invalidatesTags: ['Account', 'Me', 'Dashboard'],
+    }),
+    changePassword: builder.mutation({
+      query: (body) => ({ url: '/account/password', method: 'POST', body }),
+      invalidatesTags: ['Account'],
+    }),
+    logoutOthers: builder.mutation({
+      query: () => ({ url: '/account/logout-others', method: 'POST' }),
+      invalidatesTags: ['Account'],
+    }),
     getStatsLink: builder.mutation({
       query: (shortId) => ({
         url: `/dashboard/invitations/${shortId}/stats-link`, method: 'POST',
@@ -235,6 +259,12 @@ export const api = createApi({
 });
 
 export const {
+  useGetInsightsQuery,
+  useGetShareLinksQuery,
+  useGetAccountQuery,
+  useUpdateAccountMutation,
+  useChangePasswordMutation,
+  useLogoutOthersMutation,
   useGetTemplatesQuery,
   useGetPublicStatsQuery,
   useGetMeQuery,

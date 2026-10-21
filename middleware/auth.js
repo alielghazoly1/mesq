@@ -183,6 +183,9 @@ async function attachUser(req, res, next) {
       payoutPhone: user.payoutPhone || '',
       referralClicks: user.referralClicks || 0,
     };
+    // الجلسة الحالية — "اخرج من كل الأجهزة التانية" بيسيبها هي بس
+    req.sessionFamilyId = session.familyId || null;
+    req.sessionDocId = session._id;
 
     // ===== تجديد الصلاحية والتدوير =====
     // بيحصلوا بعد ما نحط req.user: لو فشلت الكتابة لأي سبب، العميل

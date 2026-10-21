@@ -16,6 +16,7 @@ const authRouter = require('./routes/auth');
 const packagesRouter = require('./routes/packages');
 const uploadsRouter = require('./routes/uploads');
 const dashboardRouter = require('./routes/dashboard');
+const accountRouter = require('./routes/account');
 const editorRouter = require('./routes/editor');
 const guestPhotosRouter = require('./routes/guestPhotos');
 const guestVoicesRouter = require('./routes/guestVoices');
@@ -154,11 +155,14 @@ app.use('/go', requireDB);
 app.use('/api/campaign-seen', requireDB);
 // صفحة ألبوم صور الضيوف المشاركة (routes/guestPhotos.js)
 app.use('/a', requireDB);
+// صفحة التهاني الصوتية المشاركة (لينك سري)
+app.use('/v', requireDB);
 app.use('/admin', requireDB);
 app.use('/api/auth', requireDB);
 app.use('/api/packages', requireDB);
 app.use('/api/uploads', requireDB);
 app.use('/api/dashboard', requireDB);
+app.use('/api/account', requireDB);
 app.use('/api/editor', requireDB);
 app.use('/api/presence', requireDB);
 app.use('/api/client-error', requireDB);
@@ -168,7 +172,7 @@ app.use('/api/client-error', requireDB);
 // بالمسارات اللي فعلاً محتاجة تعرف حالة الدخول — مش عالميًا على كل الموقع
 // (زي الملفات الثابتة أو صفحة الدعوة نفسها)، عشان نفس فلسفة الأداء
 // والمرونة اللي requireDB بتتبعها.
-app.use(['/api/preview', '/preview-sample', '/api/invitations', '/api/auth', '/api/packages', '/api/uploads', '/api/dashboard', '/api/editor', '/api/presence', '/api/client-error'], attachUser);
+app.use(['/api/preview', '/preview-sample', '/api/invitations', '/api/auth', '/api/packages', '/api/uploads', '/api/dashboard', '/api/account', '/api/editor', '/api/presence', '/api/client-error'], attachUser);
 
 // الموقع التسويقي/فورم الإنشاء بقى React (client/) مبني بـ Vite — الملفات
 // الثابتة الناتجة (client/dist) هي اللي بتتقدم هنا بدل public/ القديم.
@@ -286,6 +290,8 @@ const credentialsLimiter = rateLimit({
   message: { error: 'عدد كبير جدًا من المحاولات، حاول تاني بعد شوية.' },
 });
 app.use('/api/auth/login', credentialsLimiter);
+// تغيير الباسورد بيتحقق من الباسورد الحالي — نفس حد المحاولات
+app.use('/api/account/password', credentialsLimiter);
 app.use('/api/auth/register', credentialsLimiter);
 // الدخول بجوجل نفس الحد (التحقق من التوكن + إنشاء الحساب)
 app.use('/api/auth/google', (req, res, next) => (req.method === 'POST' ? credentialsLimiter(req, res, next) : next()));
@@ -353,6 +359,7 @@ app.use('/', authRouter);
 app.use('/', packagesRouter);
 app.use('/', uploadsRouter);
 app.use('/', dashboardRouter);
+app.use('/', accountRouter);
 app.use('/', editorRouter);
 app.use('/', guestPhotosRouter);
 app.use('/', guestVoicesRouter);

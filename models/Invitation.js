@@ -21,6 +21,9 @@ const invitationSchema = new mongoose.Schema({
   // لأي حد يشوف الصور وينزّلها. بيتولّد أول مرة يطلبه (الدعوات القديمة
   // مالهاش الحقل خالص).
   albumToken: { type: String, index: { unique: true, sparse: true } },
+  // رابط سري لصفحة التهاني الصوتية (/v/:token) — صاحب الدعوة بيبعته لأي حد
+  // يسمع التهاني وينزّلها. بيتولّد أول مرة يطلبه.
+  voicesToken: { type: String, index: { unique: true, sparse: true } },
 
   // لو الحقل ده مش موجود (null/undefined) بيبقى معناه: دعوة قديمة اتعملت
   // قبل نظام القوالب، وبالتالي بتتعرض بالتصميم الأصلي بالظبط من غير أي تغيير.

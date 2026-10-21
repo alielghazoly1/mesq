@@ -1,228 +1,45 @@
-import { useState } from 'react';
+// لوحة العميل — كل حاجة عن دعواته في مكان واحد:
+//   الرأس: تحية + باقته + مدة التعديل + أرقام بخط اتجاه (components/dashboard/DashHero)
+//   شريط الدعوات: كارت لكل دعوة بصورة تصميمها وفاضل كام يوم على الفرح
+//   لوحة الدعوة: نظرة عامة (رسم + مصادر + أجهزة + ساعات) / الضيوف / التهاني /
+//                الصور / المشاركة (لينكات + واتساب + QR)
+//   حسابك: الاسم والموبايل والباسورد والأجهزة
+// الحالة (الدعوة المختارة، التبويب، الفترة، فلاتر الضيوف) في Redux: store/dashboardSlice.js
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
+import { motion } from 'motion/react';
+import {
+  ArrowRight, MessageCircle, Crown, Lock, Sparkles, LayoutGrid,
+} from 'lucide-react';
 import { setSupportOpen } from '../store/uiSlice.js';
 import { setView as setSupportView } from '../store/supportSlice.js';
-import { useTranslation } from 'react-i18next';
-import { AnimatePresence, motion } from 'motion/react';
-import {
-  ArrowRight, Eye, Users, Crown, Sparkles, MessageCircle,
-  ExternalLink, BarChart3, Check, X as XIcon, Lock, Wand2, FileText,
-  Pencil, Share2, Images, Mic,
-} from 'lucide-react';
-import {
-  useGetDashboardQuery,
-  useGetRsvpsQuery,
-  useGetSupportQuery,
-  useSendSupportMessageMutation,
-  useRenameInvitationMutation,
-  useGetStatsLinkMutation,
-} from '../store/api.js';
+import { selectInvitation } from '../store/dashboardSlice.js';
+import { useGetDashboardQuery } from '../store/api.js';
 import EditorDemo from '../components/EditorDemo.jsx';
 import Footer from '../components/Footer.jsx';
 import UgcDashboard from './UgcDashboard.jsx';
-import GuestAlbum from '../components/GuestAlbum.jsx';
-import GuestVoices from '../components/GuestVoices.jsx';
+import DashHero from '../components/dashboard/DashHero.jsx';
+import InvitationRail from '../components/dashboard/InvitationRail.jsx';
+import InvitationPanel from '../components/dashboard/InvitationPanel.jsx';
+import AccountPanel from '../components/dashboard/AccountPanel.jsx';
 import { whatsappLink } from '../lib/contact.js';
-import { formatDay } from '../lib/editWindow.js';
 
-function StatCard({ icon: Icon, value, label, gold }) {
+function Skeleton() {
   return (
-    <div className={`rounded-2xl border p-5 ${gold ? 'border-brass/40 bg-brass/[0.06]' : 'border-line bg-card'}`}>
-      <Icon size={18} className={gold ? 'text-brass' : 'text-emerald'} />
-      <div className="mt-3 font-serif text-[32px] font-bold leading-none text-ink">{value}</div>
-      <div className="mt-1.5 text-[13px] text-ink-dim">{label}</div>
-    </div>
-  );
-}
-
-function RsvpList({ shortId, onClose }) {
-  const { t } = useTranslation();
-  const { data, isLoading } = useGetRsvpsQuery(shortId);
-
-  return (
-    <div className="mt-4 rounded-xl border border-line bg-ivory/60 p-4">
-      <div className="mb-3 flex items-center justify-between">
-        <span className="text-[13px] font-bold text-ink">{t('dash.rsvpTitle')}</span>
-        <button type="button" onClick={onClose} className="text-ink-dim hover:text-ink">
-          <XIcon size={15} />
-        </button>
-      </div>
-      {isLoading && <p className="text-[13px] text-ink-dim">...</p>}
-      {data?.rsvps?.length === 0 && <p className="text-[13px] text-ink-dim">{t('dash.rsvpEmpty')}</p>}
-      <div className="max-h-64 space-y-2 overflow-y-auto">
-        {data?.rsvps?.map((r) => (
-          <div key={r.createdAt + r.guestName} className="rounded-lg bg-card px-3 py-2">
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-[13.5px] font-bold text-ink">{r.guestName}</span>
-              <span
-                className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${
-                  r.attending ? 'bg-ok/15 text-ok' : 'bg-error/15 text-error'
-                }`}
-              >
-                {r.attending ? t('dash.attending') : t('dash.notAttending')}
-              </span>
-            </div>
-            {r.note && <p className="mt-1 text-[12.5px] text-ink-dim">{r.note}</p>}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// كارت دعوة واحدة في اللوحة: اسمها (اللي حطه صاحبها) مع إمكانية تغييره،
-// إحصائياتها السريعة، وزراير التعديل/الردود/الفتح + مشاركة رابط الإحصائيات.
-function InvitationCard({ inv, lang, editEnded, openRsvp, setOpenRsvp }) {
-  const { t } = useTranslation();
-  const [renaming, setRenaming] = useState(false);
-  const [nameDraft, setNameDraft] = useState(inv.name || '');
-  const [copied, setCopied] = useState(false);
-  const [linkErr, setLinkErr] = useState(false);
-  const [albumOpen, setAlbumOpen] = useState(false);
-  const [voicesOpen, setVoicesOpen] = useState(false);
-  const [renameInvitation, { isLoading: saving }] = useRenameInvitationMutation();
-  const [getStatsLink, { isLoading: linking }] = useGetStatsLinkMutation();
-
-  const coupleNames = inv.names[lang] || inv.names.ar;
-  const title = (inv.name && inv.name.trim()) || coupleNames || t('dash.untitled');
-  const showSub = !!(inv.name && inv.name.trim() && coupleNames && coupleNames !== '&');
-
-  async function saveName() {
-    try {
-      await renameInvitation({ shortId: inv.shortId, name: nameDraft.trim() }).unwrap();
-      setRenaming(false);
-    } catch { /* بيفضل مفتوح عشان يجرّب تاني */ }
-  }
-
-  async function shareStats() {
-    setLinkErr(false);
-    try {
-      let path = inv.statsPath;
-      if (!path) { const r = await getStatsLink(inv.shortId).unwrap(); path = r.statsPath; }
-      await navigator.clipboard.writeText(window.location.origin + path);
-      setCopied(true); setTimeout(() => setCopied(false), 2500);
-    } catch { setLinkErr(true); setTimeout(() => setLinkErr(false), 3000); }
-  }
-
-  return (
-    <div className="rounded-xl border border-line p-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="min-w-0">
-          {renaming ? (
-            <div className="flex items-center gap-2">
-              <input
-                autoFocus
-                value={nameDraft}
-                maxLength={80}
-                onChange={(e) => setNameDraft(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') saveName(); if (e.key === 'Escape') setRenaming(false); }}
-                placeholder={t('dash.renamePlaceholder')}
-                className="w-44 rounded-lg border border-line bg-card px-2.5 py-1.5 text-[14px] focus:border-brass focus:outline-none"
-              />
-              <button type="button" onClick={saveName} disabled={saving}
-                className="rounded-full bg-night px-3 py-1.5 text-[12px] font-bold text-ivory hover:bg-emerald disabled:opacity-60">
-                {t('dash.saveName')}
-              </button>
-              <button type="button" onClick={() => { setRenaming(false); setNameDraft(inv.name || ''); }}
-                className="text-[12px] text-ink-dim hover:text-ink">{t('dash.cancel')}</button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              <span className="truncate font-bold text-ink">{title}</span>
-              <button type="button" onClick={() => { setNameDraft(inv.name || ''); setRenaming(true); }}
-                title={t('dash.rename')} aria-label={t('dash.rename')}
-                className="shrink-0 text-ink-dim hover:text-brass">
-                <Pencil size={13} />
-              </button>
-              {inv.isDraft && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-ink/10 px-2 py-0.5 text-[10.5px] font-bold text-ink-dim">
-                  <FileText size={10} /> {t('dash.draftBadge')}
-                </span>
-              )}
-              {inv.isPremium && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-brass/15 px-2 py-0.5 text-[10.5px] font-bold text-brass">
-                  <Crown size={10} /> {t('dash.premiumBadge')}
-                </span>
-              )}
-            </div>
-          )}
-          {showSub && !renaming && (
-            <div className="mt-0.5 truncate text-[12px] text-ink-dim">{coupleNames}</div>
-          )}
-          <div className="mt-1 flex flex-wrap gap-3 text-[12.5px] text-ink-dim">
-            <span className="inline-flex items-center gap-1"><Eye size={12} /> {inv.views}</span>
-            <span className="inline-flex items-center gap-1 text-ok"><Check size={12} /> {inv.rsvp.yes}</span>
-            <span className="inline-flex items-center gap-1 text-error"><XIcon size={12} /> {inv.rsvp.no}</span>
-          </div>
+    <div className="min-h-screen bg-ivory" data-dash-skeleton>
+      <div className="mx-auto max-w-6xl space-y-4 px-4 pb-16 pt-8 sm:px-6">
+        <div className="h-44 animate-pulse rounded-[26px] bg-night/80" />
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {[0, 1, 2, 3].map((i) => <div key={i} className="h-32 animate-pulse rounded-[20px] bg-ink/[0.06]" />)}
         </div>
-
-        <div className="flex flex-wrap gap-2">
-          {inv.isPremium && (editEnded ? (
-            <span title={t('dash.editEndedTitle')}
-              className="inline-flex items-center gap-1 rounded-full border border-line px-3.5 py-2 text-[12.5px] font-bold text-ink-dim">
-              <Lock size={12} /> {t('dash.editLocked')}
-            </span>
-          ) : (
-            <Link to={`/editor/${inv.shortId}`}
-              className="inline-flex items-center gap-1 rounded-full bg-gradient-to-l from-brass to-brass-soft px-3.5 py-2 text-[12.5px] font-extrabold text-[#241608] hover:brightness-105">
-              <Wand2 size={12} /> {inv.isDraft ? t('dash.continueDraft') : t('dash.edit')}
-            </Link>
-          ))}
-          {!inv.isDraft && (
-            <>
-              <button type="button"
-                onClick={() => setOpenRsvp(openRsvp === inv.shortId ? null : inv.shortId)}
-                className="rounded-full border border-line px-3.5 py-2 text-[12.5px] font-bold text-ink hover:bg-ink/5">
-                {t('dash.viewRsvps')}
-              </button>
-              {inv.album && (
-                <button type="button" onClick={() => setAlbumOpen(true)}
-                  className="inline-flex items-center gap-1 rounded-full border border-rose/35 bg-rose/[0.07] px-3.5 py-2 text-[12.5px] font-bold text-[#a2465e] hover:bg-rose/15">
-                  <Images size={12} /> {t('dash.album')}
-                  {inv.album.photos > 0 && (
-                    <span className="rounded-full bg-[#a2465e] px-1.5 text-[10.5px] leading-[17px] text-white">{inv.album.photos}</span>
-                  )}
-                </button>
-              )}
-              {inv.voices && (
-                <button type="button" onClick={() => setVoicesOpen(true)}
-                  className="inline-flex items-center gap-1 rounded-full border border-[#7a2a37]/30 bg-[#7a2a37]/[0.06] px-3.5 py-2 text-[12.5px] font-bold text-[#7a2a37] hover:bg-[#7a2a37]/12">
-                  <Mic size={12} /> {t('dash.voices')}
-                  {inv.voices.count > 0 && (
-                    <span className={`rounded-full px-1.5 text-[10.5px] leading-[17px] text-white ${inv.voices.unheard > 0 ? 'bg-[#b02f45]' : 'bg-[#7a2a37]/70'}`}>
-                      {inv.voices.unheard > 0 ? inv.voices.unheard : inv.voices.count}
-                    </span>
-                  )}
-                </button>
-              )}
-              <button type="button" onClick={shareStats} disabled={linking}
-                className="inline-flex items-center gap-1 rounded-full border border-brass/40 bg-brass/[0.07] px-3.5 py-2 text-[12.5px] font-bold text-brass hover:bg-brass/15 disabled:opacity-60">
-                <Share2 size={12} /> {copied ? t('dash.statsCopied') : linkErr ? t('dash.statsError') : t('dash.shareStats')}
-              </button>
-              <a href={inv.url} target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 rounded-full bg-night px-3.5 py-2 text-[12.5px] font-bold text-ivory hover:bg-emerald">
-                <ExternalLink size={12} /> {t('dash.open')}
-              </a>
-            </>
-          )}
-        </div>
+        <div className="h-72 animate-pulse rounded-[26px] bg-ink/[0.05]" />
       </div>
-
-      {openRsvp === inv.shortId && (
-        <RsvpList shortId={inv.shortId} onClose={() => setOpenRsvp(null)} />
-      )}
-      <AnimatePresence>
-        {albumOpen && (
-          <GuestAlbum shortId={inv.shortId} title={title} onClose={() => setAlbumOpen(false)} />
-        )}
-        {voicesOpen && (
-          <GuestVoices shortId={inv.shortId} title={title} onClose={() => setVoicesOpen(false)} />
-        )}
-      </AnimatePresence>
     </div>
   );
 }
+
 // كارت الدعم في اللوحة: العدد والمعاينة بس — المحادثة نفسها بتتفتح في
 // نافذة الدعم (عشان الرسايل ماتتعلّمش "اتشافت" غير لما يفتحها فعلًا)
 function SupportBox() {
@@ -263,11 +80,18 @@ function SupportBox() {
 
 export default function DashboardPage() {
   const { t, i18n } = useTranslation();
-  const { data, isLoading } = useGetDashboardQuery();
-  const [openRsvp, setOpenRsvp] = useState(null);
+  const dispatch = useDispatch();
+  const { data, isLoading } = useGetDashboardQuery(undefined, { pollingInterval: 120000, skipPollingIfUnfocused: true });
+  const selectedId = useSelector((s) => s.dashboard.selected);
   const lang = i18n.language === 'ar' ? 'ar' : 'en';
 
-  if (isLoading) return <div className="p-16 text-center text-ink-dim">...</div>;
+  const invitations = data?.invitations || [];
+  const selected = invitations.find((i) => i.shortId === selectedId) || invitations[0] || null;
+  useEffect(() => {
+    if (selected && selected.shortId !== selectedId) dispatch(selectInvitation(selected.shortId));
+  }, [selected, selectedId, dispatch]);
+
+  if (isLoading) return <Skeleton />;
   if (!data) {
     return (
       <div className="p-16 text-center text-ink-dim">
@@ -282,107 +106,43 @@ export default function DashboardPage() {
   const isPremium = !!data.subscription.packageId;
   // مدة التعديل: null = من غير حد (كل اللي اشترى قبل القاعدة دي)
   const editEnded = isPremium && data.subscription.editOpen === false;
-  const editRunning = isPremium && data.subscription.editOpen !== false
-    && !!data.subscription.editUntil && data.subscription.editWindowDays > 0;
-  // آخر 5 أيام بنلوّن التنبيه — عشان يلحق يخلّص تعديله
-  const editLastDays = editRunning && (data.subscription.editDaysLeft || 0) <= 5;
 
   return (
-    <div className="min-h-screen bg-ivory">
-      <div className="mx-auto max-w-6xl px-6 pb-16 pt-10">
-        <Link to="/" className="mb-7 inline-flex items-center gap-1.5 text-sm text-ink-dim hover:text-rose">
+    <div className="min-h-screen bg-ivory" data-dashboard>
+      <div className="mx-auto max-w-6xl px-4 pb-16 pt-6 sm:px-6 sm:pt-8">
+        <Link to="/" className="mb-5 inline-flex items-center gap-1.5 text-sm text-ink-dim hover:text-rose">
           <ArrowRight size={15} /> {t('packages.back')}
         </Link>
 
-        {/* شريط الحالة — الفرق بين المجاني والمميز بيبان من أول نظرة */}
-        <motion.div
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          className={`mb-8 flex flex-wrap items-center justify-between gap-4 rounded-[22px] p-6 ${
-            isPremium
-              ? 'border border-brass/50 bg-gradient-to-l from-night to-[#16281f] text-ivory'
-              : 'border border-line bg-card text-ink'
-          }`}
-        >
-          <div>
-            <div className="mb-1.5 flex items-center gap-2">
-              {isPremium ? <Crown size={18} className="text-brass-soft" /> : <Lock size={16} className="text-ink-dim" />}
-              <span className={`font-serif text-xl font-bold ${isPremium ? 'text-ivory' : 'text-ink'}`}>
-                {isPremium
-                  ? t('dash.premiumTitle', { name: data.subscription.packageName?.[lang] || '' })
-                  : t('dash.freeTitle')}
-              </span>
-            </div>
-            <p className={`text-[13.5px] ${isPremium ? 'text-ivory/70' : 'text-ink-dim'}`}>
-              {isPremium
-                ? t(editEnded ? 'dash.premiumSubtitleClosed' : 'dash.premiumSubtitle', { count: data.subscription.invitationsLeft })
-                : t('dash.freeSubtitle')}
-            </p>
-          </div>
-          {!isPremium && (
-            <Link
-              to="/packages"
-              className="rounded-full bg-gradient-to-l from-brass to-brass-soft px-6 py-3 font-extrabold text-[#241608] hover:brightness-105"
-            >
-              {t('dash.upgrade')}
-            </Link>
-          )}
-        </motion.div>
+        <DashHero data={data} lang={lang} />
 
-        {/* مدة التعديل: باقي كام يوم، أو خلصت وإيه الحل. الدعوات نفسها شغالة في
-            الحالتين — ده أهم كلام في الرسالة اللي تحت */}
-        {editRunning && (
-          <div className={`mb-8 flex items-start gap-2.5 rounded-2xl border px-5 py-3.5 text-[13.5px] ${
-            editLastDays ? 'border-brass/50 bg-brass/[0.09] text-ink' : 'border-emerald/30 bg-emerald/[0.06] text-emerald'
-          }`}
-          >
-            <Wand2 size={15} className="mt-0.5 shrink-0" />
-            <span>
-              {t('dash.editOpenUntil', {
-                date: formatDay(data.subscription.editUntil, lang),
-                days: data.subscription.editDaysLeft,
-              })}
-            </span>
-          </div>
-        )}
         {editEnded && (
-          <div className="mb-8 rounded-[22px] border border-brass/50 bg-brass/[0.09] p-5">
+          <div className="mb-6 rounded-[22px] border border-brass/50 bg-brass/[0.09] p-5">
             <div className="mb-1.5 flex items-center gap-2 font-serif text-[16px] font-bold text-ink">
               <Lock size={15} className="text-brass" /> {t('dash.editEndedTitle')}
             </div>
             <p className="mb-4 max-w-[70ch] text-[13.5px] leading-[1.9] text-ink-dim">{t('dash.editEndedBody')}</p>
             <div className="flex flex-wrap gap-2.5">
-              <a
-                href={whatsappLink(t('dash.editWaMsg'))}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-l from-brass to-brass-soft px-5 py-2.5 text-[13px] font-extrabold text-[#241608] hover:brightness-105"
-              >
+              <a href={whatsappLink(t('dash.editWaMsg'))} target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-full bg-gradient-to-l from-brass to-brass-soft px-5 py-2.5 text-[13px] font-extrabold text-[#241608] hover:brightness-105">
                 <MessageCircle size={15} /> {t('dash.editWa')}
               </a>
-              <Link
-                to="/packages"
-                className="inline-flex items-center gap-2 rounded-full border border-ink px-5 py-2.5 text-[13px] font-bold text-ink hover:bg-ink/5"
-              >
+              <Link to="/packages" className="inline-flex items-center gap-2 rounded-full border border-ink px-5 py-2.5 text-[13px] font-bold text-ink hover:bg-ink/5">
                 <Crown size={14} /> {t('dash.editPackages')}
               </Link>
             </div>
           </div>
         )}
 
-        {/* العميل المجاني بيدخل لوحته كل شوية يتابع دعوته — فده أكتر
-            مكان بيشوفه. الفيديو هنا بيوريه اللي فايته من غير ما نقاطعه */}
+        {/* العميل المجاني بيدخل لوحته كل شوية يتابع دعوته — الفيديو هنا بيوريه اللي فايته */}
         {!isPremium && (
-          <div className="mb-8 overflow-hidden rounded-[22px] border border-brass/35 bg-gradient-to-b from-[#0d1f18] to-night p-5 sm:p-6">
+          <div className="mb-6 overflow-hidden rounded-[22px] border border-brass/35 bg-gradient-to-b from-[#0d1f18] to-night p-5 sm:p-6">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <div className="min-w-0">
                 <h2 className="font-serif text-[17px] font-bold text-brass-soft">{t('demo.title')}</h2>
                 <p className="mt-1 text-[12.5px] text-ivory/60">{t('demo.dashNote')}</p>
               </div>
-              <Link
-                to="/packages"
-                className="shrink-0 rounded-full bg-gradient-to-l from-brass to-brass-soft px-5 py-2.5 text-[12.5px] font-extrabold text-[#241608] hover:brightness-105"
-              >
+              <Link to="/packages" className="shrink-0 rounded-full bg-gradient-to-l from-brass to-brass-soft px-5 py-2.5 text-[12.5px] font-extrabold text-[#241608] hover:brightness-105">
                 {t('demo.cta')}
               </Link>
             </div>
@@ -390,39 +150,32 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* الإحصائيات */}
-        <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard icon={BarChart3} value={data.totals.invitations} label={t('dash.statInvitations')} />
-          <StatCard icon={Eye} value={data.totals.views} label={t('dash.statViews')} />
-          <StatCard icon={Users} value={data.totals.rsvpYes} label={t('dash.statAttending')} />
-          <StatCard icon={Sparkles} value={data.subscription.invitationsLeft} label={t('dash.statLeft')} gold={isPremium} />
+        <div className="mb-3 flex items-end justify-between gap-3">
+          <h2 className="flex items-center gap-2 font-serif text-[21px] font-bold text-ink">
+            <LayoutGrid size={18} className="text-brass" /> {t('dash.myInvitations')}
+            <span className="rounded-full bg-ink/[0.07] px-2 py-0.5 font-sans text-[12px] font-bold text-ink-dim">{invitations.length}</span>
+          </h2>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
-          {/* الدعوات */}
-          <div className="rounded-[22px] border border-line bg-card p-6">
-            <h2 className="mb-4 font-serif text-lg font-bold text-ink">{t('dash.myInvitations')}</h2>
-
-            {data.invitations.length === 0 ? (
-              <p className="text-[13.5px] text-ink-dim">{t('dash.noInvitations')}</p>
-            ) : (
-              <div className="space-y-3">
-                {data.invitations.map((inv) => (
-                  <InvitationCard
-                    key={inv.shortId}
-                    inv={inv}
-                    lang={lang}
-                    editEnded={editEnded}
-                    openRsvp={openRsvp}
-                    setOpenRsvp={setOpenRsvp}
-                  />
-                ))}
-              </div>
-            )}
+        {invitations.length === 0 ? (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+            className="mb-8 flex flex-col items-center gap-3 rounded-[26px] border border-dashed border-brass/40 bg-card px-6 py-14 text-center" data-dash-empty>
+            <span className="grid h-14 w-14 place-items-center rounded-2xl bg-brass/15 text-brass"><Sparkles size={24} /></span>
+            <p className="font-serif text-[19px] font-bold text-ink">{t('dash2.emptyTitle')}</p>
+            <p className="max-w-[46ch] text-[13px] leading-relaxed text-ink-dim">{t('dash2.emptyBody')}</p>
+            <Link to="/" className="mt-1 rounded-full bg-gradient-to-l from-brass to-brass-soft px-6 py-3 text-[13.5px] font-extrabold text-[#241608] hover:brightness-105">
+              {t('dash2.pickDesign')}
+            </Link>
+          </motion.div>
+        ) : (
+          <div className="mb-8">
+            <InvitationRail invitations={invitations} lang={lang} selected={selected?.shortId} />
+            {selected && <InvitationPanel key={selected.shortId} inv={selected} lang={lang} editEnded={editEnded} />}
           </div>
+        )}
 
-          <SupportBox />
-        </div>
+        <div className="mb-6"><SupportBox /></div>
+        <AccountPanel />
       </div>
       <Footer />
     </div>

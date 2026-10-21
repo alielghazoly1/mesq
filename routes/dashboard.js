@@ -19,8 +19,11 @@ const { ensureStatsToken } = require('../utils/statsPage');
 const { computeUgcStats, CURRENCIES } = require('../utils/ugc');
 const { getPackage, EDIT_WINDOW_DAYS } = require('../packages/registry');
 const { editWindowInfo } = require('../utils/editWindow');
-const { invitationHasAlbum } = require('../utils/guestPhotos');
+const { invitationHasAlbum, ensureAlbumToken } = require('../utils/guestPhotos');
 const { invitationHasVoice } = require('../utils/guestVoices');
+const { invitationInsights, cairoDay, lastDays } = require('../utils/inviteAnalytics');
+const InvitationDay = require('../models/InvitationDay');
+const { ensureVoicesToken } = require('../utils/voicesPage');
 
 const router = express.Router();
 
@@ -30,7 +33,7 @@ router.get('/api/dashboard', requireAuth, async (req, res) => {
     const invitations = await Invitation.find({ ownerId: req.user.id })
       .sort({ createdAt: -1 })
       .limit(100)
-      .select('shortId templateId name statsToken brideNameAr groomNameAr brideName groomName weddingDateTime viewCount isPremium status createdAt guestExtras')
+      .select('shortId templateId language name statsToken brideNameAr groomNameAr brideName groomName weddingDateTime viewCount isPremium status createdAt guestExtras')
       .lean();
 
     const shortIds = invitations.map((i) => i.shortId);
@@ -85,6 +88,19 @@ router.get('/api/dashboard', requireAuth, async (req, res) => {
       { views: 0, rsvpYes: 0, rsvpNo: 0 }
     );
 
+    // المشاهدات آخر 14 يوم لكل الدعوات مع بعض (الخط الصغير في كروت اللوحة)
+    const trendDays = lastDays(14);
+    const trendRows = shortIds.length
+      ? await InvitationDay.aggregate([
+        { $match: { shortId: { $in: shortIds }, day: { $gte: trendDays[0] } } },
+        { $group: { _id: '$day', views: { $sum: '$views' }, uniques: { $sum: '$uniques' } } },
+      ])
+      : [];
+    const trendMap = Object.fromEntries(trendRows.map((r) => [r._id, r]));
+    const trend = trendDays.map((day) => ({ day, views: (trendMap[day] || {}).views || 0, uniques: (trendMap[day] || {}).uniques || 0 }));
+    const weekViews = trend.slice(7).reduce((a, p) => a + p.views, 0);
+    const prevWeekViews = trend.slice(0, 7).reduce((a, p) => a + p.views, 0);
+
     const unreadSupport = await SupportMessage.countDocuments({
       userId: req.user.id,
       from: 'admin',
@@ -104,12 +120,18 @@ router.get('/api/dashboard', requireAuth, async (req, res) => {
         // مدة التعديل: مفتوحة لحد إمتى، ولسه مفتوحة ولا خلصت
         ...editWindowInfo(sub),
         editWindowDays: EDIT_WINDOW_DAYS,
+        // مدة التعديل الكاملة للباقة (عشان شريط "فاضل كام يوم") — null = مدى الحياة
+        editDays: pkg ? (Number.isFinite(pkg.editDays) ? pkg.editDays : (pkg.editDays === undefined ? EDIT_WINDOW_DAYS : null)) : null,
       },
       totals: { invitations: invitations.length, ...totals },
+      trend,
+      weekViews,
+      prevWeekViews,
       unreadSupport,
       invitations: invitations.map((inv) => ({
         shortId: inv.shortId,
         templateId: inv.templateId,
+        language: inv.language || 'ar',
         // اسم الدعوة اللي حطه صاحبها (فاضي في الدعوات القديمة)
         name: inv.name || '',
         // رابط صفحة الإحصائيات السري لو اتولّد قبل كده (null لو لسه)
@@ -139,6 +161,80 @@ router.get('/api/dashboard', requireAuth, async (req, res) => {
     });
   } catch (err) {
     console.error('Error loading dashboard:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر.' });
+  }
+});
+
+// GET /api/dashboard/invitations/:shortId/insights?range=7|30|90|0 — إحصائيات
+// الدعوة بالتفصيل: يوم بيوم، مصادر الزيارات، الأجهزة، أكتر ساعة، وردود الحضور.
+router.get('/api/dashboard/invitations/:shortId/insights', requireAuth, async (req, res) => {
+  try {
+    const inv = await Invitation.findOne({ shortId: req.params.shortId, ownerId: req.user.id })
+      .select('shortId templateId hiddenSections guestExtras viewCount weddingDateTime createdAt')
+      .lean();
+    if (!inv) return res.status(404).json({ error: 'الدعوة دي مش موجودة.' });
+    const range = [7, 30, 90, 0].includes(Number(req.query.range)) ? Number(req.query.range) : 30;
+    const [ins, rsvps, photos, voices] = await Promise.all([
+      invitationInsights(inv.shortId, range),
+      Rsvp.find({ shortId: inv.shortId }).select('attending createdAt').lean(),
+      invitationHasAlbum(inv) ? GuestPhoto.countDocuments({ shortId: inv.shortId }) : null,
+      invitationHasVoice(inv) ? GuestVoice.countDocuments({ shortId: inv.shortId }) : null,
+    ]);
+    // ردود الحضور يوم بيوم على نفس أيام الرسم
+    const rsvpByDay = {};
+    rsvps.forEach((r) => {
+      const d = cairoDay(new Date(r.createdAt));
+      rsvpByDay[d] = rsvpByDay[d] || { yes: 0, no: 0 };
+      if (r.attending) rsvpByDay[d].yes += 1; else rsvpByDay[d].no += 1;
+    });
+    const yes = rsvps.filter((r) => r.attending).length;
+    return res.json({
+      range,
+      since: ins.since,
+      totalViews: inv.viewCount || 0,
+      views: ins.views,
+      uniques: ins.uniques,
+      prevViews: ins.prevViews,
+      prevUniques: ins.prevUniques,
+      series: ins.series.map((p) => ({
+        ...p,
+        yes: (rsvpByDay[p.day] || {}).yes || 0,
+        no: (rsvpByDay[p.day] || {}).no || 0,
+      })),
+      sources: ins.sources,
+      devices: ins.devices,
+      hours: ins.hours,
+      rsvp: { yes, no: rsvps.length - yes, total: rsvps.length },
+      photos,
+      voices,
+      weddingDate: inv.weddingDateTime,
+    });
+  } catch (err) {
+    console.error('Error loading insights:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر.' });
+  }
+});
+
+// POST /api/dashboard/invitations/:shortId/share-links — كل لينكات المشاركة
+// مرة واحدة: الدعوة، الإحصائيات، الألبوم، التهاني (بيولّد التوكنات اللي ناقصة).
+router.post('/api/dashboard/invitations/:shortId/share-links', requireAuth, async (req, res) => {
+  try {
+    const inv = await Invitation.findOne({ shortId: req.params.shortId, ownerId: req.user.id })
+      .select('_id shortId templateId hiddenSections guestExtras statsToken albumToken voicesToken status')
+      .lean();
+    if (!inv) return res.status(404).json({ error: 'الدعوة دي مش موجودة.' });
+    const stats = inv.statsToken || await ensureStatsToken(await Invitation.findById(inv._id));
+    const album = invitationHasAlbum(inv) ? (inv.albumToken || await ensureAlbumToken(inv._id)) : null;
+    const voices = invitationHasVoice(inv) ? (inv.voicesToken || await ensureVoicesToken(Invitation, inv._id)) : null;
+    return res.json({
+      invite: `/i/${inv.shortId}`,
+      stats: `/s/${stats}`,
+      album: album ? `/a/${album}` : null,
+      voices: voices ? `/v/${voices}` : null,
+      isDraft: inv.status === 'draft',
+    });
+  } catch (err) {
+    console.error('Error building share links:', err);
     return res.status(500).json({ error: 'حصل خطأ في السيرفر.' });
   }
 });

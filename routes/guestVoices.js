@@ -20,6 +20,7 @@ const { uploadBuffer } = require('../utils/cloudinaryUpload');
 const { sanitizeText } = require('../utils/sanitize');
 const { requireAuth } = require('../middleware/auth');
 const { ensureDeviceId, guestVoiceLimiter } = require('../middleware/deviceLimiter');
+const { buildVoicesPage, voicesNotFoundPage, ensureVoicesToken } = require('../utils/voicesPage');
 const {
   MAX_PER_GUEST, MAX_PER_INVITATION, MAX_SECONDS, MIN_SECONDS, MAX_VOICE_BYTES,
   sniffAudio, serializeVoice, voiceTag, invitationHasVoice, voiceEnabled,
@@ -126,7 +127,7 @@ router.post(
 
 async function ownedInvitation(req) {
   return Invitation.findOne({ shortId: String(req.params.shortId || ''), ownerId: req.user.id })
-    .select('_id shortId templateId hiddenSections guestExtras')
+    .select('_id shortId templateId hiddenSections guestExtras voicesToken')
     .lean();
 }
 
@@ -213,6 +214,65 @@ router.get('/api/dashboard/invitations/:shortId/voices/zip', requireAuth, async 
     return res.redirect(302, url);
   } catch (err) {
     console.error('Voices zip failed:', err);
+    return res.status(500).send('حصل خطأ في السيرفر');
+  }
+});
+
+// POST /api/dashboard/invitations/:shortId/voices-link — رابط صفحة التهاني السري
+router.post('/api/dashboard/invitations/:shortId/voices-link', requireAuth, async (req, res) => {
+  try {
+    const invitation = await ownedInvitation(req);
+    if (!invitation || !invitationHasVoice(invitation)) return res.status(404).json({ error: 'الدعوة دي مش موجودة.' });
+    const token = invitation.voicesToken || await ensureVoicesToken(Invitation, invitation._id);
+    return res.json({ voicesPath: `/v/${token}` });
+  } catch (err) {
+    console.error('Voices link failed:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر.' });
+  }
+});
+
+// ================= صفحة التهاني المشاركة =================
+
+async function voicesByToken(token) {
+  const t = String(token || '');
+  if (!/^[a-zA-Z0-9]{10,40}$/.test(t)) return null;
+  return Invitation.findOne({ voicesToken: t })
+    .select('shortId name brideName groomName brideNameAr groomNameAr language')
+    .lean();
+}
+
+// GET /v/:token — صفحة التهاني (عامة لأي حد معاه اللينك السري)
+router.get('/v/:token', async (req, res) => {
+  try {
+    const invitation = await voicesByToken(req.params.token);
+    res.set('Content-Type', 'text/html; charset=utf-8');
+    res.set('Cache-Control', 'no-store');
+    if (!invitation) return res.status(404).send(voicesNotFoundPage());
+    const voices = await GuestVoice.find({ shortId: invitation.shortId }).sort({ _id: -1 }).limit(300).lean();
+    return res.send(buildVoicesPage(invitation, voices.map(serializeVoice), {
+      zipPath: voices.length && isCloudinaryReady() ? `/v/${encodeURIComponent(req.params.token)}/zip` : null,
+    }));
+  } catch (err) {
+    console.error('Voices page failed:', err);
+    return res.status(500).send('حصل خطأ في السيرفر');
+  }
+});
+
+// GET /v/:token/zip — نزّل كل التهاني (رابط Cloudinary موقّع ومؤقت)
+router.get('/v/:token/zip', async (req, res) => {
+  try {
+    const invitation = await voicesByToken(req.params.token);
+    if (!invitation || !isCloudinaryReady()) return res.status(404).send('Not found');
+    const url = getCloudinary().utils.download_zip_url({
+      tags: [voiceTag(invitation.shortId)],
+      resource_type: 'video',
+      flatten_folders: true,
+      target_public_id: `mithaq-voices-${invitation.shortId}`,
+      expires_at: Math.floor(Date.now() / 1000) + 60 * 60,
+    });
+    return res.redirect(302, url);
+  } catch (err) {
+    console.error('Voices page zip failed:', err);
     return res.status(500).send('حصل خطأ في السيرفر');
   }
 });

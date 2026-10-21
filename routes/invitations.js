@@ -1,5 +1,6 @@
 // routes/invitations.js
 const express = require('express');
+const { recordInvitationView } = require('../utils/inviteAnalytics');
 
 const Invitation = require('../models/Invitation');
 const Rsvp = require('../models/Rsvp');
@@ -248,6 +249,8 @@ router.get('/i/:shortId', async (req, res) => {
     if (!editMode) {
       Invitation.updateOne({ _id: invitation._id }, { $inc: { viewCount: 1 } }).catch(() => {});
     }
+    // إحصائيات اليوم (لوحة العميل): ضيوف حقيقيين بس — من غير البوتات وصاحب الدعوة
+    if (!editMode && !isOwner) recordInvitationView(req, res, invitation.shortId);
 
     // اللينك الكامل — بيتحط في كارت المشاركة عشان واتساب يعرف يرجّع
     // للصفحة نفسها لما حد يضغط على الكارت
