@@ -230,6 +230,34 @@ const FIXES = [
       return set;
     },
   },
+  {
+    // jUckAdv (Champagne Lace — عمر ولچين) — بطلب المالك: الفرح الجمعة 1/1/2027
+    // الساعة 7:30 مساءً في فندق توليب أوليمبيك (طريق العين السخنة) بلينك الخريطة
+    // اللي بعته، والخريطة المضمّنة على الدبوس نفسه. الوقت (cl9/cl10) بيرجع يظهر
+    // تحت التاريخ في أول كارت لأنه مش مكتوب في أي حتة تانية.
+    // بيتعمل بس لو الدعوة لسه بمكان المسودة ("Venue").
+    name: 'jUckAdv-tolip-2027',
+    shortId: 'jUckAdv',
+    select: '-__v',
+    when: (c, inv) => inv.templateId === 'champagne-lace' && inv.venueName === 'Venue',
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: inv.language, occasionType: inv.occasionType,
+        hiddenSections: inv.hiddenSections, timeline: inv.timeline, name: inv.name,
+        groomName: inv.groomName, groomNameAr: inv.groomNameAr,
+        brideName: inv.brideName, brideNameAr: inv.brideNameAr,
+        venueName: 'Tolip Hotel Olympic', venueCity: 'International City, Ain El Sokhna Road',
+        venueMapQuery: 'https://maps.app.goo.gl/5WUVz85yhBDZYFua8?g_st=iw',
+        weddingDate: '2027-01-01', weddingTime: '19:30',
+      }, { ownsTemplate: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.venueMapEmbedSrc = 'https://www.google.com/maps?q=29.9005582,31.6820039&z=16&output=embed';
+      set['customizations.hidden'] = (c.hidden || []).filter((id) => id !== 'cl9' && id !== 'cl10');
+      return set;
+    },
+  },
 ];
 
 let done = false;

@@ -1,0 +1,83 @@
+// دعوة مخصوصة لعميل (لچين وعمر — Champagne Lace) — بطلب المالك:
+//
+// 1) الختم اللي الضيف بيدوس عليه على الظرف: الفرع اللي كان جوّه اتشال، ومكانه
+//    مونوجرام "ع ل" بنفس ستايل الصورة اللي بعتها (مقصوص منها) — seal-v1.webp.
+// 2) أول كارت بعد الفتح: الأسامي اتشالت ومكانها "لجين & عمر" بالخط الذهبي
+//    المحفور من صورته (names-v1.webp)، وبتظهر بالحبر من اليمين للشمال.
+// 3) التاريخ أرقام بس — من غير اسم الشهر (أول كارت + كروت الخربشة + العدّاد).
+//    بيتقري من بيانات الدعوة، فلو التاريخ اتغيّر من المحرر يتغيّر هنا.
+// 4) كارت المشاركة (واتساب): الأسامي بالخط الذهبي على ورق — share-v1.jpg.
+//
+// البيانات (التاريخ/الوقت/المكان/الخريطة): oneOffFix jUckAdv-tolip-2027.
+const BASE = '/custom/jUckAdv';
+
+const CSS = `
+/* الأسامي بالخط الذهبي مكان الأسامي المكتوبة */
+#hv-hero .hv-names.ju-on>span{display:none!important}
+#hv-hero .hv-names.ju-on{margin-top:6px;-webkit-text-stroke:0;white-space:normal;line-height:0}
+#hv-hero .ju-names{display:block;width:auto;height:292px;margin:0 auto;pointer-events:none;
+  filter:drop-shadow(0 1px 0 rgba(255,255,255,.35))}
+/* الحبر بيمشي من اليمين للشمال (عربي) */
+@keyframes ju-ink{from{clip-path:inset(-8% -8% -8% 100%);opacity:.2}12%{opacity:1}to{clip-path:inset(-8% -8% -8% -8%);opacity:1}}
+#hv-hero.hv--play .hv-card>.hv-names.ju-on{animation:ju-ink 2.4s cubic-bezier(.45,.05,.35,1) .9s both}
+/* التاريخ أرقام: الشهر بنفس مقاس السنة */
+#hv-hero .hv-date.ju-num .hv-date__m{font-size:14.97px;letter-spacing:.2489em;text-transform:none}
+#hv-hero .hv-tile__val--word.ju-num{font-size:inherit}
+`;
+
+const SCRIPT = `(function(){
+var BASE=${JSON.stringify(BASE)};
+function pad(n){return (n<10?'0':'')+n}
+function txt(el,v){if(el&&el.textContent!==v)el.textContent=v;}
+function seal(){
+  var img=document.querySelector('.popup-enter img');
+  // بس لو لسه ختم القالب (لو اتغيّر من المحرر نسيبه)
+  if(img&&/\\/templates\\/champagne-lace\\/seal\\.webp$/.test(img.getAttribute('src')||'')){img.removeAttribute('srcset');img.src=BASE+'/seal-v1.webp';}
+}
+function names(){
+  var h=document.querySelector('#hv-hero .hv-names');
+  if(!h||h.querySelector('.ju-names'))return;
+  var i=new Image();i.className='ju-names';i.alt='لجين & عمر';i.src=BASE+'/names-v1.webp';i.decoding='async';
+  i.width=580;i.height=796;
+  h.appendChild(i);h.classList.add('ju-on');
+}
+function dates(){
+  var cd=(window.WEDDING_CONFIG||{}).countdown||{};
+  if(cd.year==null||cd.monthIndex==null)return;
+  var d=pad(cd.day),m=pad(cd.monthIndex+1),y=String(cd.year);
+  var hd=document.querySelector('#hv-hero .hv-date');if(hd)hd.classList.add('ju-num');
+  txt(document.querySelector('[data-elem-id="cl6"]'),m);
+  txt(document.querySelector('[data-elem-id="cl7"]'),d);
+  txt(document.querySelector('[data-elem-id="cl8"]'),y);
+  txt(document.querySelector('[data-elem-id="cl22"]'),d);
+  var tm=document.querySelector('[data-elem-id="cl23"]');if(tm){tm.classList.add('ju-num');txt(tm,m);}
+  txt(document.querySelector('[data-elem-id="cl24"]'),y);
+  txt(document.querySelector('[data-elem-id="cl32"]'),d+' . '+m+' . '+y);
+}
+function all(){try{seal();names();dates();}catch(e){}}
+all();document.addEventListener('DOMContentLoaded',all);window.addEventListener('load',all);
+var k=0,t=setInterval(function(){all();if(++k>20)clearInterval(t)},300);
+})();`;
+
+module.exports = {
+  shortId: 'jUckAdv',
+
+  // كارت المشاركة: "لجين & عمر" بالخط الذهبي على ورق (1200×630). لو اتغيّر:
+  // اسم ملف جديد (v2) عشان واتساب مايفضلش عارض القديم من الكاش.
+  share: {
+    title: 'لچين & عمر — Wedding Invitation',
+    description: 'You are invited to the wedding of لچين & عمر · 01 . 01 . 2027 · Tolip Hotel Olympic',
+    image: `${BASE}/share-v1.jpg`,
+    width: 1200,
+    height: 630,
+    overrideImage: true,
+  },
+
+  /** نفس الشكل للضيوف وفي المحرر */
+  render() {
+    return {
+      head: `<link rel="preload" as="image" href="${BASE}/seal-v1.webp"><style id="ju-style">${CSS}</style>`,
+      bodyEnd: `<script id="ju-script">${SCRIPT}</script>`,
+    };
+  },
+};
