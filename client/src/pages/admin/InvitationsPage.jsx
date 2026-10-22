@@ -1,17 +1,25 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { Search, ExternalLink, BarChart3 } from 'lucide-react';
 import { useGetInvitationsQuery } from '../../store/adminApi.js';
-import { setInvitationsQuery, setInvitationsPage, openUser } from '../../store/adminSlice.js';
 import {
-  Panel, Badge, Table, Row, Cell, Spinner, Empty, Pager, Field, fmtDate, fmtNum,
+  setInvitationsQuery, setInvitationsPage, setInvitationsFilter, openUser,
+} from '../../store/adminSlice.js';
+import {
+  Panel, Badge, Table, Row, Cell, Spinner, Empty, Pager, Field, Tabs, fmtDate, fmtNum,
 } from '../../components/admin/ui.jsx';
+
+const FILTERS = [
+  { value: 'all', label: 'كل الدعوات' },
+  { value: 'today', label: 'اتنشرت النهارده' },
+];
 
 export default function InvitationsPage() {
   const dispatch = useDispatch();
-  const { invitationsQuery, invitationsPage } = useSelector((s) => s.admin);
+  const { invitationsQuery, invitationsPage, invitationsFilter } = useSelector((s) => s.admin);
+  const today = invitationsFilter === 'today';
   const { data, isLoading, isFetching } = useGetInvitationsQuery({
-    q: invitationsQuery, page: invitationsPage,
-  });
+    q: invitationsQuery, page: invitationsPage, filter: invitationsFilter,
+  }, { pollingInterval: today ? 30000 : 0, skipPollingIfUnfocused: true });
 
   return (
     <div className="space-y-5">
@@ -23,8 +31,9 @@ export default function InvitationsPage() {
       </div>
 
       <Panel
-        title={data ? `${fmtNum(data.total)} دعوة` : 'الدعوات'}
-        subtitle={isFetching ? 'بيحدّث...' : undefined}
+        title={data ? (today ? `${fmtNum(data.total)} دعوة اتنشرت النهارده` : `${fmtNum(data.total)} دعوة`) : 'الدعوات'}
+        subtitle={isFetching ? 'بيحدّث...' : today ? 'بتوقيت مصر — الأحدث نشرًا فوق' : undefined}
+        action={<Tabs value={invitationsFilter} onChange={(v) => dispatch(setInvitationsFilter(v))} options={FILTERS} />}
       >
         <div className="mb-4 flex items-center gap-2">
           <Search size={15} className="text-ivory/35" />
@@ -37,10 +46,10 @@ export default function InvitationsPage() {
         </div>
 
         {isLoading ? <Spinner /> : !data || data.invitations.length === 0 ? (
-          <Empty>مفيش دعوات بالبحث ده.</Empty>
+          <Empty>{today ? 'لسه محدش نشر دعوة النهارده.' : 'مفيش دعوات بالبحث ده.'}</Empty>
         ) : (
           <>
-            <Table head={['الدعوة', 'التصميم', 'صاحبها', 'مشاهدات', 'الفرح', 'اتعملت', '']}>
+            <Table head={['الدعوة', 'التصميم', 'صاحبها', 'مشاهدات', 'الفرح', today ? 'اتنشرت' : 'اتعملت', '']}>
               {data.invitations.map((inv) => (
                 <Row key={inv.shortId}>
                   <Cell>
@@ -53,7 +62,10 @@ export default function InvitationsPage() {
                     </div>
                     <div className="text-[11px] text-ivory/35">{inv.shortId} · {inv.venueName}</div>
                   </Cell>
-                  <Cell className="text-ivory/60">{inv.templateName}</Cell>
+                  <Cell className="text-ivory/60">
+                    {inv.templateName}
+                    {inv.language && <span className="ms-1 text-[10.5px] text-ivory/35">{inv.language === 'ar' ? 'عربي' : inv.language === 'en' ? 'English' : inv.language}</span>}
+                  </Cell>
                   <Cell>
                     {inv.owner ? (
                       <button
@@ -67,7 +79,7 @@ export default function InvitationsPage() {
                   </Cell>
                   <Cell>{fmtNum(inv.views)}</Cell>
                   <Cell className="whitespace-nowrap text-ivory/55">{fmtDate(inv.weddingDate)}</Cell>
-                  <Cell className="whitespace-nowrap text-ivory/45">{fmtDate(inv.createdAt)}</Cell>
+                  <Cell className="whitespace-nowrap text-ivory/45">{today ? fmtDate(inv.publishedAt, true) : fmtDate(inv.createdAt)}</Cell>
                   <Cell>
                     <div className="flex gap-2">
                       <a

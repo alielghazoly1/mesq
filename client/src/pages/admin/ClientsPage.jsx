@@ -11,10 +11,13 @@ import {
 import { countryName, waLink } from './format.js';
 import ClientDrawer from './ClientDrawer.jsx';
 import SignupBadge from './SignupBadge.jsx';
+import SourceBadge from './SourceBadge.jsx';
 
 const FILTERS = [
   { value: 'all', label: 'الكل' },
   { value: 'online', label: 'متصلين دلوقتي' },
+  { value: 'today', label: 'سجّلوا النهارده' },
+  { value: 'activeToday', label: 'فتحوا الموقع النهارده' },
   { value: 'visits', label: 'الأكثر زيارة' },
   { value: 'premium', label: 'مدفوعين' },
   { value: 'free', label: 'مجانيين' },
@@ -36,6 +39,24 @@ export default function ClientsPage() {
     skipPollingIfUnfocused: true,
   });
 
+  // عنوان القايمة حسب الفلتر — "النهارده" بيقول الرقم بوضوح
+  const titleOf = () => {
+    if (!data) return 'العملاء';
+    if (usersStatus === 'today') return `${fmtNum(data.total)} سجّلوا النهارده`;
+    if (usersStatus === 'activeToday') return `${fmtNum(data.total)} فتحوا الموقع النهارده`;
+    return `${fmtNum(data.total)} عميل`;
+  };
+  const subtitleOf = () => {
+    if (isFetching) return 'بيحدّث...';
+    if (!data) return undefined;
+    if (usersStatus === 'activeToday') {
+      const back = data.returningCount || 0;
+      return `${fmtNum(data.total - back)} جداد سجّلوا النهارده · ${fmtNum(back)} مسجّلين من قبل ورجعوا النهارده`;
+    }
+    if (usersStatus === 'today') return 'كل اللي عمل حساب النهارده (بتوقيت مصر) — الأحدث فوق';
+    return data.googleTotal != null ? `${fmtNum(data.googleTotal)} منهم سجّلوا بجوجل` : undefined;
+  };
+
   return (
     <div className="space-y-5">
       <div>
@@ -46,8 +67,8 @@ export default function ClientsPage() {
       </div>
 
       <Panel
-        title={data ? `${fmtNum(data.total)} عميل` : 'العملاء'}
-        subtitle={isFetching ? 'بيحدّث...' : data && data.googleTotal != null ? `${fmtNum(data.googleTotal)} منهم سجّلوا بجوجل` : undefined}
+        title={titleOf()}
+        subtitle={subtitleOf()}
         action={<Tabs value={usersStatus} onChange={(v) => dispatch(setUsersStatus(v))} options={FILTERS} />}
       >
         <div className="mb-4 flex items-center gap-2">
@@ -72,6 +93,10 @@ export default function ClientsPage() {
                       {u.online && <LiveDot size={8} />}
                       <span className="font-bold text-ivory">{u.name}</span>
                       <SignupBadge signup={u.signup} />
+                      <SourceBadge source={u.source} />
+                      {usersStatus === 'activeToday' && (u.newToday
+                        ? <span className="rounded-full bg-ok/15 px-2 py-0.5 text-[10.5px] font-extrabold text-ok">جديد النهارده</span>
+                        : <span className="rounded-full bg-[#38a8ff]/15 px-2 py-0.5 text-[10.5px] font-extrabold text-[#8fcbff]">رجع النهارده</span>)}
                       {u.online && <span className="text-[10.5px] font-bold text-[#8fcbff]">متصل</span>}
                       {u.isSuspended && <Badge tone="danger" icon={PauseCircle}>موقوف</Badge>}
                       {u.isBlocked && <Badge tone="danger" icon={Ban}>محظور</Badge>}
@@ -114,7 +139,7 @@ export default function ClientsPage() {
                     )}
                   </Cell>
                   <Cell className="text-ivory/55">{countryName(u.country)}</Cell>
-                  <Cell className="whitespace-nowrap text-ivory/45">{fmtDate(u.createdAt)}</Cell>
+                  <Cell className="whitespace-nowrap text-ivory/45">{fmtDate(u.createdAt, usersStatus === 'today')}</Cell>
                   <Cell className="whitespace-nowrap text-ivory/45">
                     {u.activatedAt ? fmtDate(u.activatedAt) : <span className="text-ivory/25">لسه</span>}
                   </Cell>

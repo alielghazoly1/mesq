@@ -22,6 +22,13 @@ const siteConfigSchema = new mongoose.Schema({
   // فاضي = الزرار مش بيظهر خالص. googleLoginEnabled = المالك يقدر يقفله مؤقتًا.
   googleClientId: { type: String, default: '', maxlength: 200 },
   googleLoginEnabled: { type: Boolean, default: true },
+  // أسعار الصرف لصفحة الأرباح (كام جنيه في الوحدة) — بيها بنجمع كل العملات
+  // في رقم واحد بالجنيه للمكسب الصافي. المالك بيعدّلها من الصفحة نفسها.
+  fxRates: {
+    USD: { type: Number, default: 50 },
+    SAR: { type: Number, default: 13.3 },
+    EUR: { type: Number, default: 58 },
+  },
   updatedAt: { type: Date, default: Date.now },
 });
 

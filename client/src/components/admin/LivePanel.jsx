@@ -5,12 +5,14 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'motion/react';
 import {
-  UserPlus, FileText, Receipt, Wallet, Users, Globe, Crown, ArrowLeft,
+  UserPlus, FileText, Receipt, Wallet, Users, Globe, Crown, ArrowLeft, MousePointerClick,
 } from 'lucide-react';
 import { useGetLiveQuery } from '../../store/adminApi.js';
-import { openUser, setUsersStatus } from '../../store/adminSlice.js';
+import { openUser, setUsersStatus, setInvitationsFilter, setOrdersStatus } from '../../store/adminSlice.js';
 import { LiveDot, StatTile, fmtNum, fmtMoney, fmtLastSeen } from './ui.jsx';
 import { countryName } from '../../pages/admin/format.js';
+import SignupBadge from '../../pages/admin/SignupBadge.jsx';
+import SourceBadge from '../../pages/admin/SourceBadge.jsx';
 
 /** العميل فين في الموقع — بالعربي بدل المسار الخام */
 function placeLabel(path) {
@@ -60,6 +62,10 @@ export default function LivePanel() {
     dispatch(setUsersStatus('online'));
     navigate('/admin/clients');
   }
+  // كروت "النهارده" بتوديك للقايمة اللي ورا الرقم
+  const goClients = (status) => { dispatch(setUsersStatus(status)); navigate('/admin/clients'); };
+  const goInvitations = () => { dispatch(setInvitationsFilter('today')); navigate('/admin/invitations'); };
+  const goOrders = () => { dispatch(setOrdersStatus('all')); navigate('/admin/orders'); };
 
   return (
     <div className="space-y-4">
@@ -125,6 +131,12 @@ export default function LivePanel() {
                           <span className="block truncate text-[11px] text-ivory/45">
                             {placeLabel(u.path)} · {countryName(u.country)}
                           </span>
+                          {/* سجّل بجوجل ولا لأ، وجه من إعلان ولا لأ */}
+                          <span className="mt-1 flex flex-wrap items-center gap-1">
+                            <SignupBadge signup={u.signup} />
+                            <SourceBadge source={u.source} />
+                            {u.newToday && <span className="rounded-full bg-ok/15 px-2 py-0.5 text-[10.5px] font-extrabold text-ok">جديد النهارده</span>}
+                          </span>
                         </span>
                         <span className="shrink-0 text-[10.5px] text-ivory/35">{fmtLastSeen(u.lastSeen, false)}</span>
                       </button>
@@ -140,12 +152,20 @@ export default function LivePanel() {
       {/* النهارده (بتوقيت مصر) */}
       <div>
         <h2 className="mb-2.5 font-serif text-[15px] font-bold text-ivory/80">النهارده</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatTile icon={UserPlus} tone="gold" label="سجّلوا النهارده" value={fmtNum(today?.signups || 0)} delay={0} />
-          <StatTile icon={FileText} label="دعوات اتنشرت النهارده" value={fmtNum(today?.invitations || 0)} delay={0.04} />
-          <StatTile icon={Receipt} label="طلبات باقات النهارده" value={fmtNum(today?.orders || 0)} delay={0.08} />
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
+          <StatTile icon={UserPlus} tone="gold" label="سجّلوا النهارده" value={fmtNum(today?.signups || 0)} delay={0}
+            onClick={() => goClients('today')} />
           <StatTile
-            icon={Wallet} label="أرباح النهارده" delay={0.12}
+            icon={MousePointerClick} label="فتحوا الموقع النهارده" value={fmtNum(today?.activeUsers || 0)} delay={0.03}
+            hint={today?.returning ? `منهم ${fmtNum(today.returning)} مسجّلين قبل كده` : 'عملاء مسجّلين'}
+            onClick={() => goClients('activeToday')}
+          />
+          <StatTile icon={FileText} label="دعوات اتنشرت النهارده" value={fmtNum(today?.invitations || 0)} delay={0.06}
+            onClick={goInvitations} />
+          <StatTile icon={Receipt} label="طلبات باقات النهارده" value={fmtNum(today?.orders || 0)} delay={0.09}
+            onClick={goOrders} cta="الطلبات" />
+          <StatTile
+            icon={Wallet} label="أرباح النهارده" delay={0.12} onClick={() => navigate('/admin/earnings')} cta="الأرباح"
             value={fmtMoney(today?.revenue?.EGP?.total || 0, 'EGP')}
             hint={(today?.revenue?.USD?.total || today?.revenue?.SAR?.total || today?.revenue?.EUR?.total)
               ? [today.revenue.USD?.total ? `+ ${fmtMoney(today.revenue.USD.total, 'USD')}` : '', today.revenue.SAR?.total ? `+ ${fmtMoney(today.revenue.SAR.total, 'SAR')}` : '', today.revenue.EUR?.total ? `+ ${fmtMoney(today.revenue.EUR.total, 'EUR')}` : ''].filter(Boolean).join(' ')

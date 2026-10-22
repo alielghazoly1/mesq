@@ -8,7 +8,7 @@ const initialState = {
   period: 30,
   // فلاتر قايمة العملاء
   usersQuery: '',
-  usersStatus: 'all', // all | online | visits | premium | free | suspended | blocked
+  usersStatus: 'all', // all | online | today | activeToday | visits | premium | free | suspended | blocked
   usersPage: 1,
   // العميل المفتوح ملفه
   openUserId: null,
@@ -17,6 +17,7 @@ const initialState = {
   // بحث الدعوات
   invitationsQuery: '',
   invitationsPage: 1,
+  invitationsFilter: 'all', // all | today (اتنشرت النهارده)
   // محادثة الدعم المفتوحة
   openThreadId: null,
 };
@@ -34,6 +35,7 @@ const adminSlice = createSlice({
     setOrdersStatus: (s, a) => { s.ordersStatus = a.payload; },
     setInvitationsQuery: (s, a) => { s.invitationsQuery = a.payload; s.invitationsPage = 1; },
     setInvitationsPage: (s, a) => { s.invitationsPage = a.payload; },
+    setInvitationsFilter: (s, a) => { s.invitationsFilter = a.payload; s.invitationsPage = 1; },
     openThread: (s, a) => { s.openThreadId = a.payload; },
   },
 });
@@ -41,7 +43,7 @@ const adminSlice = createSlice({
 export const {
   setPeriod, setUsersQuery, setUsersStatus, setUsersPage,
   openUser, closeUser, setOrdersStatus,
-  setInvitationsQuery, setInvitationsPage, openThread,
+  setInvitationsQuery, setInvitationsPage, setInvitationsFilter, openThread,
 } = adminSlice.actions;
 
 export default adminSlice.reducer;

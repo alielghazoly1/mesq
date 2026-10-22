@@ -25,6 +25,8 @@ const waOutbox = require('../utils/whatsapp/outbox');
 const Withdrawal = require('../models/Withdrawal');
 const Presence = require('../models/Presence');
 const Visit = require('../models/Visit');
+const Campaign = require('../models/Campaign');
+const { activatedRangeFilter } = require('../utils/finance');
 const { cairoParts, cairoWallToDate } = require('../utils/cairoTime');
 const {
   isOnline, onlineSince, liveCounts, cairoTodayStart, cairoMonthStart, ONLINE_WINDOW_MS,
@@ -108,6 +110,23 @@ function cairoDayKey(date) {
   const p = cairoParts(date);
   return `${p.year}-${String(p.month).padStart(2, '0')}-${String(p.day).padStart(2, '0')}`;
 }
+
+/** الدعوات اللي اتنشرت من لحظة معيّنة (publishedAt، والقديمة من غيره بتاريخ إنشائها) */
+function publishedSince(from) {
+  return { status: 'published', $or: [{ publishedAt: { $gte: from } }, { publishedAt: null, createdAt: { $gte: from } }] };
+}
+
+/** جاي منين: إعلان (اسم الحملة) / مسوّق / مباشر — للشارة جنب اسم العميل */
+async function sourcesFor(users) {
+  const codes = [...new Set(users.map((u) => u.campaign).filter(Boolean))];
+  const cmps = codes.length ? await Campaign.find({ code: { $in: codes } }).select('code name').lean() : [];
+  const names = new Map(cmps.map((c) => [c.code, c.name]));
+  return (u) => (u.campaign
+    ? { type: 'ad', code: u.campaign, name: names.get(u.campaign) || u.campaign }
+    : u.referredBy ? { type: 'ugc', code: u.referredBy } : { type: 'direct' });
+}
+
+const signupOf = (u) => (u.googleId ? (u.passwordHash ? 'both' : 'google') : 'email');
 
 function periodOf(req) {
   const days = parseInt(req.query.period, 10);
@@ -346,7 +365,7 @@ router.get('/admin/api/overview', requireAdminSession, async (req, res) => {
 router.get('/admin/api/live', requireAdminSession, async (req, res) => {
   try {
     const todayStart = cairoTodayStart();
-    const [online, onlineRows, signupsToday, ordersToday, invitationsToday, pendingToday] = await Promise.all([
+    const [online, onlineRows, signupsToday, ordersToday, invitationsToday, pendingToday, activeToday, returningToday] = await Promise.all([
       liveCounts(),
       Presence.find({ lastSeen: { $gte: onlineSince() }, userId: { $ne: null } })
         .sort({ lastSeen: -1 }).limit(30).lean(),
@@ -355,15 +374,19 @@ router.get('/admin/api/live', requireAdminSession, async (req, res) => {
         { $match: { status: 'activated', activatedAt: { $gte: todayStart } } },
         { $group: { _id: '$currency', total: { $sum: '$price' }, count: { $sum: 1 } } },
       ]),
-      Invitation.countDocuments({ createdAt: { $gte: todayStart }, status: { $ne: 'draft' } }),
+      Invitation.countDocuments(publishedSince(todayStart)),
       Order.countDocuments({ createdAt: { $gte: todayStart } }),
+      // فتحوا الموقع النهارده (أي حد مسجّل) — ومنهم اللي مسجّل من قبل النهارده
+      User.countDocuments({ lastSeenAt: { $gte: todayStart } }),
+      User.countDocuments({ lastSeenAt: { $gte: todayStart }, createdAt: { $lt: todayStart } }),
     ]);
 
     const users = onlineRows.length
       ? await User.find({ _id: { $in: onlineRows.map((r) => r.userId) } })
-        .select('name email country subscription').lean()
+        .select('name email country subscription googleId passwordHash campaign referredBy createdAt').lean()
       : [];
     const byId = new Map(users.map((u) => [String(u._id), u]));
+    const sourceOf = await sourcesFor(users);
 
     const money = (c) => {
       const row = ordersToday.find((r) => r._id === c);
@@ -385,10 +408,15 @@ router.get('/admin/api/live', requireAdminSession, async (req, res) => {
           isPremium: !!(u.subscription && u.subscription.packageId),
           path: r.path || '/',
           lastSeen: r.lastSeen,
+          signup: signupOf(u),
+          source: sourceOf(u),
+          newToday: u.createdAt >= todayStart,
         };
       }).filter(Boolean),
       today: {
         signups: signupsToday,
+        activeUsers: activeToday,
+        returning: returningToday,
         invitations: invitationsToday,
         orders: pendingToday,
         revenue: { EGP: money('EGP'), USD: money('USD'), SAR: money('SAR'), EUR: money('EUR') },
@@ -493,9 +521,14 @@ router.get('/admin/api/users', requireAdminSession, async (req, res) => {
     // طريقة التسجيل: بجوجل (فيه googleId) ولا بالإيميل والباسورد
     if (status === 'google') filter.googleId = { $exists: true, $ne: null };
     if (status === 'email') filter.$and = [{ $or: [{ googleId: { $exists: false } }, { googleId: null }] }];
+    // النهارده (بتوقيت مصر): سجّلوا النهارده / فتحوا الموقع النهارده (أي حد مسجّل)
+    const todayStart = cairoTodayStart();
+    if (status === 'today') filter.createdAt = { $gte: todayStart };
+    if (status === 'activeToday') filter.lastSeenAt = { $gte: todayStart };
 
     // "الأكثر زيارة": الترتيب بعدد مرات فتح الموقع بدل الأحدث تسجيلًا
-    const sort = status === 'visits' ? { visitCount: -1, createdAt: -1 } : { createdAt: -1 };
+    const sort = status === 'visits' ? { visitCount: -1, createdAt: -1 }
+      : status === 'activeToday' ? { lastSeenAt: -1 } : { createdAt: -1 };
     if (status === 'visits') filter.visitCount = { $gt: 0 };
 
     const [users, total, googleTotal] = await Promise.all([
@@ -503,7 +536,7 @@ router.get('/admin/api/users', requireAdminSession, async (req, res) => {
         .sort(sort)
         .skip((page - 1) * perPage)
         .limit(perPage)
-        .select('name email country phone subscription isBlocked createdAt lastSeenAt visitCount googleId passwordHash')
+        .select('name email country phone subscription isBlocked createdAt lastSeenAt visitCount googleId passwordHash campaign referredBy')
         .lean(),
       User.countDocuments(filter),
       User.countDocuments({ googleId: { $exists: true, $ne: null } }),
@@ -522,11 +555,16 @@ router.get('/admin/api/users', requireAdminSession, async (req, res) => {
       },
     ]);
     const byUser = invCounts.reduce((acc, r) => { acc[String(r._id)] = r; return acc; }, {});
+    const sourceOf = await sourcesFor(users);
+    // في "فتحوا الموقع النهارده": كام واحد منهم رجع (مسجّل من قبل النهارده)
+    const returningCount = status === 'activeToday'
+      ? await User.countDocuments({ ...filter, createdAt: { $lt: todayStart } }) : undefined;
 
     return res.json({
       page,
       perPage,
       total,
+      returningCount,
       pages: Math.max(1, Math.ceil(total / perPage)),
       googleTotal,
       users: users.map((u) => {
@@ -556,7 +594,9 @@ router.get('/admin/api/users', requireAdminSession, async (req, res) => {
           lastSeenAt: u.lastSeenAt || null,
           visitCount: u.visitCount || 0,
           // 'google' = بيدخل بجوجل بس، 'both' = عنده باسورد كمان وربط جوجل، 'email' = إيميل وباسورد
-          signup: u.googleId ? (u.passwordHash ? 'both' : 'google') : 'email',
+          signup: signupOf(u),
+          source: sourceOf(u),
+          newToday: u.createdAt >= todayStart,
         };
       }),
     });
@@ -1294,6 +1334,9 @@ router.get('/admin/api/revenue', requireAdminSession, async (req, res) => {
   try {
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);
     const perPage = 25;
+    // شهر معيّن (YYYY-MM بتوقيت مصر) أو كل الوقت
+    const range = activatedRangeFilter(req.query.month);
+    const match = range ? { status: 'activated', activatedAt: range } : { status: 'activated' };
 
     // كل عميل: مجموع اللي دفعه فعلًا (الطلبات المفعّلة بس)، وعدد طلباته، وآخر دفعة
     const groupStage = {
@@ -1309,7 +1352,7 @@ router.get('/admin/api/revenue', requireAdminSession, async (req, res) => {
 
     const [rows, totalsAgg, grandAgg] = await Promise.all([
       Order.aggregate([
-        { $match: { status: 'activated' } },
+        { $match: match },
         groupStage,
         { $sort: { egp: -1, usd: -1, sar: -1, eur: -1, lastPaidAt: -1 } },
         { $skip: (page - 1) * perPage },
@@ -1317,13 +1360,13 @@ router.get('/admin/api/revenue', requireAdminSession, async (req, res) => {
       ]),
       // عدد العملاء الدافعين (للترقيم)
       Order.aggregate([
-        { $match: { status: 'activated' } },
+        { $match: match },
         { $group: { _id: '$userId' } },
         { $count: 'n' },
       ]),
       // الإجمالي الكلي
       Order.aggregate([
-        { $match: { status: 'activated' } },
+        { $match: match },
         { $group: { _id: '$currency', total: { $sum: '$price' } } },
       ]),
     ]);
@@ -1382,21 +1425,25 @@ router.get('/admin/api/invitations', requireAdminSession, async (req, res) => {
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);
     const perPage = 25;
 
-    const filter = {};
+    const which = String(req.query.filter || 'all');
+    const parts = [];
     if (q) {
       const re = new RegExp(escapeRegex(q), 'i');
-      filter.$or = [
+      parts.push({ $or: [
         { shortId: re }, { brideName: re }, { groomName: re },
         { brideNameAr: re }, { groomNameAr: re }, { venueName: re },
-      ];
+      ] });
     }
+    // "اتنشرت النهارده" (بتوقيت مصر) — نفس الرقم اللي في النظرة العامة
+    if (which === 'today') parts.push(publishedSince(cairoTodayStart()));
+    const filter = parts.length ? { $and: parts } : {};
 
     const [invitations, total] = await Promise.all([
       Invitation.find(filter)
-        .sort({ createdAt: -1 })
+        .sort(which === 'today' ? { publishedAt: -1, createdAt: -1 } : { createdAt: -1 })
         .skip((page - 1) * perPage)
         .limit(perPage)
-        .select('shortId templateId brideNameAr groomNameAr brideName groomName venueName weddingDateTime viewCount isPremium status ownerId createdAt')
+        .select('shortId templateId brideNameAr groomNameAr brideName groomName venueName weddingDateTime viewCount isPremium status ownerId createdAt publishedAt language')
         .lean(),
       Invitation.countDocuments(filter),
     ]);
@@ -1412,7 +1459,10 @@ router.get('/admin/api/invitations', requireAdminSession, async (req, res) => {
         const owner = i.ownerId ? byOwner[String(i.ownerId)] : null;
         return {
           shortId: i.shortId,
-          templateName: tpl ? (tpl.name.ar || tpl.name.en) : (i.templateId || 'تصميم قديم'),
+          // اسم التصميم في الريجستري نص عادي — قبل كده كان بيطلع فاضي هنا
+          templateName: tpl ? (typeof tpl.name === 'string' ? tpl.name : (tpl.name.ar || tpl.name.en)) : (i.templateId || 'تصميم قديم'),
+          language: i.language || '',
+          publishedAt: i.status === 'draft' ? null : (i.publishedAt || i.createdAt),
           namesAr: `${i.brideNameAr || ''} & ${i.groomNameAr || ''}`.trim(),
           namesEn: `${i.brideName || ''} & ${i.groomName || ''}`.trim(),
           venueName: i.venueName,

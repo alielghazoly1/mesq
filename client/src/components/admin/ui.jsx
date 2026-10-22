@@ -25,27 +25,34 @@ export function Panel({ title, subtitle, action, children, className = '' }) {
 }
 
 /** رقم كبير مع عنوانه */
-export function StatTile({ icon: Icon, label, value, hint, tone = 'default', delay = 0 }) {
+export function StatTile({ icon: Icon, label, value, hint, tone = 'default', delay = 0, onClick, cta }) {
   const tones = {
     default: 'border-line-lite bg-panel text-ivory',
     gold: 'border-brass/40 bg-brass/[0.08] text-brass-soft',
     danger: 'border-error/40 bg-error/[0.08] text-error',
     ok: 'border-ok/40 bg-ok/[0.08] text-ok',
   };
+  // onClick = الكارت بيتضغط ويوديك للتفاصيل (القايمة ورا الرقم)
+  const Tag = onClick ? motion.button : motion.div;
   return (
-    <motion.div
+    <Tag
+      type={onClick ? 'button' : undefined}
+      onClick={onClick}
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay }}
-      className={`rounded-2xl border p-4 ${tones[tone] || tones.default}`}
+      className={`rounded-2xl border p-4 text-start ${tones[tone] || tones.default} ${onClick ? 'group w-full cursor-pointer transition hover:-translate-y-0.5 hover:border-ivory/35 hover:shadow-[0_10px_30px_-18px_rgba(0,0,0,0.8)]' : ''}`}
     >
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2">
         {Icon && <Icon size={16} className="opacity-70" />}
-        {hint && <span className="text-[11px] opacity-55">{hint}</span>}
+        {hint && <span className="truncate text-[11px] opacity-55">{hint}</span>}
       </div>
       <div className="mt-2.5 font-serif text-[27px] font-bold leading-none">{value}</div>
-      <div className="mt-1.5 text-[12px] opacity-60">{label}</div>
-    </motion.div>
+      <div className="mt-1.5 flex items-center justify-between gap-2 text-[12px]">
+        <span className="opacity-60">{label}</span>
+        {onClick && <span className="shrink-0 text-[11px] font-bold opacity-45 transition group-hover:opacity-90">{cta || 'شوفهم'} ←</span>}
+      </div>
+    </Tag>
   );
 }
 

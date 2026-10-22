@@ -23,7 +23,7 @@ const baseQuery = fetchBaseQuery({
 export const adminApi = createApi({
   reducerPath: 'adminApi',
   baseQuery,
-  tagTypes: ['Overview', 'Users', 'User', 'Orders', 'Invitations', 'Support', 'SupportUnread', 'Settings', 'Pricing', 'Thread', 'Audit', 'Tracks', 'Withdrawals', 'Ugc', 'SiteTemplates', 'Security', 'Cleanup', 'WhatsApp', 'Campaigns', 'GoogleLogin'],
+  tagTypes: ['Overview', 'Users', 'User', 'Orders', 'Invitations', 'Support', 'SupportUnread', 'Settings', 'Pricing', 'Thread', 'Audit', 'Tracks', 'Withdrawals', 'Ugc', 'SiteTemplates', 'Security', 'Cleanup', 'WhatsApp', 'Campaigns', 'GoogleLogin', 'Finance'],
   endpoints: (builder) => ({
     // ===== الأمان (التحقق بخطوتين) =====
     getSecurity: builder.query({ query: () => '/security', providesTags: ['Security'] }),
@@ -138,8 +138,31 @@ export const adminApi = createApi({
     // الأرباح — الفلوس جت من مين (كل عميل دافع). بتتحدّث مع أي تفعيل/إلغاء طلب
     // (نفس تاج Overview اللي بيتلغّى في الحالتين).
     getRevenue: builder.query({
-      query: ({ page = 1 } = {}) => `/revenue?page=${page}`,
+      query: ({ page = 1, month = 'all' } = {}) => `/revenue?page=${page}&month=${encodeURIComponent(month)}`,
       providesTags: ['Overview'],
+    }),
+    // ===== صفحة الأرباح: الإيرادات − المصاريف = صافي الربح =====
+    // بتتحدّث مع أي تفعيل طلب (Overview) أو تعديل ميزانية حملة (Campaigns)
+    // أو سحب مسوّق (Withdrawals) — كلهم بيأثروا على الأرقام
+    getFinance: builder.query({
+      query: (month = '') => `/finance?month=${encodeURIComponent(month)}`,
+      providesTags: ['Finance', 'Overview', 'Campaigns', 'Withdrawals'],
+    }),
+    saveFxRates: builder.mutation({
+      query: (body) => ({ url: '/finance/rates', method: 'PUT', body }),
+      invalidatesTags: (r, e) => (e ? [] : ['Finance', 'Audit']),
+    }),
+    createExpense: builder.mutation({
+      query: (body) => ({ url: '/expenses', method: 'POST', body }),
+      invalidatesTags: (r, e) => (e ? [] : ['Finance', 'Audit']),
+    }),
+    updateExpense: builder.mutation({
+      query: ({ id, ...body }) => ({ url: `/expenses/${id}`, method: 'PATCH', body }),
+      invalidatesTags: (r, e) => (e ? [] : ['Finance', 'Audit']),
+    }),
+    deleteExpense: builder.mutation({
+      query: (id) => ({ url: `/expenses/${id}`, method: 'DELETE' }),
+      invalidatesTags: (r, e) => (e ? [] : ['Finance', 'Audit']),
     }),
     activateOrder: builder.mutation({
       query: (id) => ({ url: `/orders/${id}/activate`, method: 'POST' }),
@@ -152,7 +175,7 @@ export const adminApi = createApi({
 
     // ===== الدعوات =====
     getInvitations: builder.query({
-      query: ({ q = '', page = 1 } = {}) => `/invitations?q=${encodeURIComponent(q)}&page=${page}`,
+      query: ({ q = '', page = 1, filter = 'all' } = {}) => `/invitations?q=${encodeURIComponent(q)}&page=${page}&filter=${filter}`,
       providesTags: ['Invitations'],
     }),
 
@@ -293,6 +316,11 @@ export const {
   useGetOrdersQuery,
   useGetOrdersAttentionQuery,
   useGetRevenueQuery,
+  useGetFinanceQuery,
+  useSaveFxRatesMutation,
+  useCreateExpenseMutation,
+  useUpdateExpenseMutation,
+  useDeleteExpenseMutation,
   useActivateOrderMutation,
   useCancelOrderMutation,
   useGetInvitationsQuery,
