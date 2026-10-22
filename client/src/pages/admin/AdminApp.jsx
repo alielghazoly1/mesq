@@ -10,7 +10,7 @@ import { NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { useDispatch } from 'react-redux';
 import {
   LayoutDashboard, Users, Receipt, FileText, MessageSquare,
-  Settings, ScrollText, LogOut, Loader2, Menu, X, Music, BadgePercent, Wallet, Banknote, Megaphone, LayoutTemplate, Tags, Bug, ShieldCheck, Eraser, MessageCircle, Target, ReceiptText, Activity,
+  Settings, ScrollText, LogOut, Loader2, Menu, X, Music, BadgePercent, Wallet, Banknote, Megaphone, LayoutTemplate, Tags, Bug, ShieldCheck, Eraser, MessageCircle, Target, ReceiptText, Activity, CalendarCheck,
 } from 'lucide-react';
 import { adminApi, useGetOrdersAttentionQuery, useGetSupportUnreadQuery } from '../../store/adminApi.js';
 import AdminLogin from './AdminLogin.jsx';
@@ -19,6 +19,7 @@ import ClientsPage from './ClientsPage.jsx';
 import OrdersPage from './OrdersPage.jsx';
 import EarningsPage from './EarningsPage.jsx';
 import AnalyticsPage from './AnalyticsPage.jsx';
+import OrdersDayPage from './OrdersDayPage.jsx';
 import ExpensesPage from './ExpensesPage.jsx';
 import WithdrawalsPage from './WithdrawalsPage.jsx';
 import UgcPage from './UgcPage.jsx';
@@ -46,6 +47,7 @@ const NAV = [
   { to: '/admin/ugc', icon: Megaphone, label: 'المسوّقين' },
   { to: '/admin/clients', icon: Users, label: 'العملاء' },
   { to: '/admin/orders', icon: Receipt, label: 'الطلبات', badge: 'orders' },
+  { to: '/admin/orders-day', icon: CalendarCheck, label: 'طلبات اليوم' },
   { to: '/admin/invitations', icon: FileText, label: 'الدعوات' },
   { to: '/admin/templates', icon: LayoutTemplate, label: 'القوالب' },
   { to: '/admin/music', icon: Music, label: 'الموسيقى' },
@@ -274,6 +276,7 @@ export default function AdminApp() {
             <Route path="ugc" element={<UgcPage />} />
             <Route path="clients" element={<ClientsPage />} />
             <Route path="orders" element={<OrdersPage />} />
+            <Route path="orders-day" element={<OrdersDayPage />} />
             <Route path="invitations" element={<InvitationsPage />} />
             <Route path="templates" element={<TemplatesPage />} />
             <Route path="music" element={<MusicPage />} />

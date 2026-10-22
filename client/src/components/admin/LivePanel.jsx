@@ -8,7 +8,7 @@ import {
   UserPlus, FileText, Receipt, Wallet, Users, Globe, Crown, ArrowLeft, MousePointerClick,
 } from 'lucide-react';
 import { useGetLiveQuery } from '../../store/adminApi.js';
-import { openUser, setUsersStatus, setInvitationsFilter, setOrdersStatus } from '../../store/adminSlice.js';
+import { openUser, setUsersStatus, setInvitationsFilter } from '../../store/adminSlice.js';
 import { LiveDot, StatTile, fmtNum, fmtMoney, fmtLastSeen } from './ui.jsx';
 import { countryName } from '../../pages/admin/format.js';
 import SignupBadge from '../../pages/admin/SignupBadge.jsx';
@@ -65,7 +65,8 @@ export default function LivePanel() {
   // كروت "النهارده" بتوديك للقايمة اللي ورا الرقم
   const goClients = (status) => { dispatch(setUsersStatus(status)); navigate('/admin/clients'); };
   const goInvitations = () => { dispatch(setInvitationsFilter('today')); navigate('/admin/invitations'); };
-  const goOrders = () => { dispatch(setOrdersStatus('all')); navigate('/admin/orders'); };
+  // الطلبات اللي اتعملت النهارده / اللي اتفعّلت النهارده → صفحة طلبات اليوم بالتفاصيل
+  const goOrders = () => navigate('/admin/orders-day?kind=created');
 
   return (
     <div className="space-y-4">
@@ -175,9 +176,9 @@ export default function LivePanel() {
           <StatTile icon={FileText} label="دعوات اتنشرت النهارده" value={fmtNum(today?.invitations || 0)} delay={0.06}
             onClick={goInvitations} />
           <StatTile icon={Receipt} label="طلبات باقات النهارده" value={fmtNum(today?.orders || 0)} delay={0.09}
-            onClick={goOrders} cta="الطلبات" />
+            onClick={goOrders} cta="شوفهم" />
           <StatTile
-            icon={Wallet} label="أرباح النهارده" delay={0.12} onClick={() => navigate('/admin/earnings')} cta="الأرباح"
+            icon={Wallet} label="أرباح النهارده" delay={0.12} onClick={() => navigate('/admin/orders-day')} cta="الطلبات"
             value={fmtMoney(today?.revenue?.EGP?.total || 0, 'EGP')}
             hint={(today?.revenue?.USD?.total || today?.revenue?.SAR?.total || today?.revenue?.EUR?.total)
               ? [today.revenue.USD?.total ? `+ ${fmtMoney(today.revenue.USD.total, 'USD')}` : '', today.revenue.SAR?.total ? `+ ${fmtMoney(today.revenue.SAR.total, 'SAR')}` : '', today.revenue.EUR?.total ? `+ ${fmtMoney(today.revenue.EUR.total, 'EUR')}` : ''].filter(Boolean).join(' ')

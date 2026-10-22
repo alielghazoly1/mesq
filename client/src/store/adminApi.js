@@ -145,6 +145,11 @@ export const adminApi = createApi({
     // بتتحدّث مع أي تفعيل طلب (Overview) أو تعديل ميزانية حملة (Campaigns)
     // أو سحب مسوّق (Withdrawals) — كلهم بيأثروا على الأرقام
     // ===== تحليلات الموقع (أجهزة / ساعات / مدة / مصادر) =====
+    // طلبات يوم معيّن (اتفعّلت / اتطلبت) بالتفاصيل
+    getOrdersDay: builder.query({
+      query: ({ day = '', kind = 'activated' } = {}) => `/orders-day?day=${encodeURIComponent(day)}&kind=${kind}`,
+      providesTags: ['Orders'],
+    }),
     getAnalytics: builder.query({
       query: (range = 'today') => `/analytics?range=${encodeURIComponent(range)}`,
     }),
@@ -322,6 +327,7 @@ export const {
   useGetRevenueQuery,
   useGetFinanceQuery,
   useGetAnalyticsQuery,
+  useGetOrdersDayQuery,
   useSaveFxRatesMutation,
   useCreateExpenseMutation,
   useUpdateExpenseMutation,
