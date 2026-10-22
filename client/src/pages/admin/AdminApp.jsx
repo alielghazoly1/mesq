@@ -10,7 +10,7 @@ import { NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { useDispatch } from 'react-redux';
 import {
   LayoutDashboard, Users, Receipt, FileText, MessageSquare,
-  Settings, ScrollText, LogOut, Loader2, Menu, X, Music, BadgePercent, Wallet, Banknote, Megaphone, LayoutTemplate, Tags, Bug, ShieldCheck, Eraser, MessageCircle, Target,
+  Settings, ScrollText, LogOut, Loader2, Menu, X, Music, BadgePercent, Wallet, Banknote, Megaphone, LayoutTemplate, Tags, Bug, ShieldCheck, Eraser, MessageCircle, Target, ReceiptText,
 } from 'lucide-react';
 import { adminApi, useGetOrdersAttentionQuery, useGetSupportUnreadQuery } from '../../store/adminApi.js';
 import AdminLogin from './AdminLogin.jsx';
@@ -18,6 +18,7 @@ import OverviewPage from './OverviewPage.jsx';
 import ClientsPage from './ClientsPage.jsx';
 import OrdersPage from './OrdersPage.jsx';
 import EarningsPage from './EarningsPage.jsx';
+import ExpensesPage from './ExpensesPage.jsx';
 import WithdrawalsPage from './WithdrawalsPage.jsx';
 import UgcPage from './UgcPage.jsx';
 import TemplatesPage from './TemplatesPage.jsx';
@@ -37,6 +38,7 @@ import CampaignsPage from './CampaignsPage.jsx';
 const NAV = [
   { to: '/admin', end: true, icon: LayoutDashboard, label: 'نظرة عامة' },
   { to: '/admin/earnings', icon: Wallet, label: 'الأرباح' },
+  { to: '/admin/expenses', icon: ReceiptText, label: 'المصاريف' },
   { to: '/admin/campaigns', icon: Target, label: 'الإعلانات' },
   { to: '/admin/withdrawals', icon: Banknote, label: 'طلبات السحب' },
   { to: '/admin/ugc', icon: Megaphone, label: 'المسوّقين' },
@@ -263,6 +265,7 @@ export default function AdminApp() {
           <Routes>
             <Route index element={<OverviewPage />} />
             <Route path="earnings" element={<EarningsPage />} />
+            <Route path="expenses" element={<ExpensesPage />} />
             <Route path="campaigns" element={<CampaignsPage />} />
             <Route path="withdrawals" element={<WithdrawalsPage />} />
             <Route path="ugc" element={<UgcPage />} />

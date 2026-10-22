@@ -1629,6 +1629,8 @@ router.post('/admin/api/support/:userId', requireAdminSession, async (req, res) 
     if (!mongoose.isValidObjectId(req.params.userId)) return res.status(404).json({ error: 'المحادثة مش موجودة' });
     const body = sanitizeText(req.body && req.body.body, 2000);
     if (!body) return res.status(400).json({ error: 'اكتب الرد الأول.' });
+    // رسالة لعميل من ملفه (حتى لو مفيش محادثة قبل كده) — لازم يكون حساب موجود
+    if (!(await User.exists({ _id: req.params.userId }))) return res.status(404).json({ error: 'العميل ده مش موجود' });
 
     const msg = await SupportMessage.create({
       userId: req.params.userId, from: 'admin', kind: 'text', body, readByAdmin: true,

@@ -259,6 +259,21 @@ async function buildFinance(monthParam) {
 
   const pct = (a, b) => (b > 0 ? round2(((a - b) / b) * 100) : null);
 
+  // ===== الالتزامات الشهرية الثابتة: اللي هتدفعه كل شهر (المصاريف الشهرية الشغالة) =====
+  const activeRecurring = expenses.filter((e) => e.recurring && !e.endedAt && monthKey(e.date) <= nowKey);
+  const commitByCurrency = {};
+  activeRecurring.forEach((e) => { commitByCurrency[e.currency] = round2((commitByCurrency[e.currency] || 0) + e.amount); });
+  const commitEq = round2(activeRecurring.reduce((a, e) => a + eq(e.amount, e.currency), 0));
+  const commitments = {
+    eq: commitEq, yearly: round2(commitEq * 12), count: activeRecurring.length, byCurrency: commitByCurrency,
+    byCategory: Object.keys(CATEGORY_LABELS).map((k) => ({
+      id: k, label: CATEGORY_LABELS[k],
+      eq: round2(activeRecurring.filter((e) => e.category === k).reduce((a, e) => a + eq(e.amount, e.currency), 0)),
+    })).filter((r) => r.eq > 0).sort((x, y) => y.eq - x.eq),
+    // الإيرادات اللازمة كل شهر عشان تغطي الثابت + متوسط الطلب ده = كام طلب
+    ordersToCover: pOrders.length && revenueEq ? Math.ceil(commitEq / (revenueEq / pOrders.length)) : null,
+  };
+
   return {
     month: mode, nowMonth: nowKey, months, rates,
     revenue: {
@@ -291,8 +306,10 @@ async function buildFinance(monthParam) {
       id: String(e._id), title: e.title, amount: e.amount, currency: e.currency, category: e.category,
       categoryLabel: CATEGORY_LABELS[e.category] || e.category, date: e.date, recurring: !!e.recurring,
       endedAt: e.endedAt || null, active: !!e.recurring && !e.endedAt, note: e.note || '',
+      eq: eq(e.amount, e.currency),
     })),
     categories: Object.keys(CATEGORY_LABELS).map((k) => ({ id: k, label: CATEGORY_LABELS[k] })),
+    commitments,
   };
 }
 
