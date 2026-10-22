@@ -26,6 +26,7 @@ const Withdrawal = require('../models/Withdrawal');
 const Presence = require('../models/Presence');
 const Visit = require('../models/Visit');
 const Campaign = require('../models/Campaign');
+const SiteDeviceDay = require('../models/SiteDeviceDay');
 const { activatedRangeFilter } = require('../utils/finance');
 const { cairoParts, cairoWallToDate } = require('../utils/cairoTime');
 const {
@@ -365,7 +366,8 @@ router.get('/admin/api/overview', requireAdminSession, async (req, res) => {
 router.get('/admin/api/live', requireAdminSession, async (req, res) => {
   try {
     const todayStart = cairoTodayStart();
-    const [online, onlineRows, signupsToday, ordersToday, invitationsToday, pendingToday, activeToday, returningToday] = await Promise.all([
+    const todayKey = (() => { const q = cairoParts(new Date()); return `${q.year}-${String(q.month).padStart(2, '0')}-${String(q.day).padStart(2, '0')}`; })();
+    const [online, onlineRows, signupsToday, ordersToday, invitationsToday, pendingToday, activeToday, returningToday, devicesToday, newDevicesToday] = await Promise.all([
       liveCounts(),
       Presence.find({ lastSeen: { $gte: onlineSince() }, userId: { $ne: null } })
         .sort({ lastSeen: -1 }).limit(30).lean(),
@@ -379,6 +381,9 @@ router.get('/admin/api/live', requireAdminSession, async (req, res) => {
       // فتحوا الموقع النهارده (أي حد مسجّل) — ومنهم اللي مسجّل من قبل النهارده
       User.countDocuments({ lastSeenAt: { $gte: todayStart } }),
       User.countDocuments({ lastSeenAt: { $gte: todayStart }, createdAt: { $lt: todayStart } }),
+      // كام جهاز شاف الموقع النهارده (زوار + عملاء) — صفحة التحليلات
+      SiteDeviceDay.countDocuments({ day: todayKey }),
+      SiteDeviceDay.countDocuments({ day: todayKey, newDevice: true }),
     ]);
 
     const users = onlineRows.length
@@ -416,6 +421,8 @@ router.get('/admin/api/live', requireAdminSession, async (req, res) => {
       today: {
         signups: signupsToday,
         activeUsers: activeToday,
+        devices: devicesToday,
+        newDevices: newDevicesToday,
         returning: returningToday,
         invitations: invitationsToday,
         orders: pendingToday,

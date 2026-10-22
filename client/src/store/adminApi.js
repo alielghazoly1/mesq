@@ -144,6 +144,10 @@ export const adminApi = createApi({
     // ===== صفحة الأرباح: الإيرادات − المصاريف = صافي الربح =====
     // بتتحدّث مع أي تفعيل طلب (Overview) أو تعديل ميزانية حملة (Campaigns)
     // أو سحب مسوّق (Withdrawals) — كلهم بيأثروا على الأرقام
+    // ===== تحليلات الموقع (أجهزة / ساعات / مدة / مصادر) =====
+    getAnalytics: builder.query({
+      query: (range = 'today') => `/analytics?range=${encodeURIComponent(range)}`,
+    }),
     getFinance: builder.query({
       query: (month = '') => `/finance?month=${encodeURIComponent(month)}`,
       providesTags: ['Finance', 'Overview', 'Campaigns', 'Withdrawals'],
@@ -317,6 +321,7 @@ export const {
   useGetOrdersAttentionQuery,
   useGetRevenueQuery,
   useGetFinanceQuery,
+  useGetAnalyticsQuery,
   useSaveFxRatesMutation,
   useCreateExpenseMutation,
   useUpdateExpenseMutation,

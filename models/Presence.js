@@ -14,6 +14,9 @@ const presenceSchema = new mongoose.Schema({
   lastSeen: { type: Date, default: Date.now },
   // الزيارة الحالية للعميل المسجّل (models/Visit.js)
   visitId: { type: mongoose.Schema.Types.ObjectId, default: null },
+  // آخر مرة اتكتب فيها سطر التحليلات للجهاز ده (utils/siteAnalytics.js) —
+  // عشان نكتب كل دقيقتين بس مش مع كل إشارة
+  anaAt: { type: Date, default: null },
 });
 
 // السجل بيتمسح تلقائيًا بعد 15 دقيقة من آخر ظهور

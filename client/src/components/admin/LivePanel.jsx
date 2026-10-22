@@ -80,7 +80,19 @@ export default function LivePanel() {
               <Ticker value={online.total} className="font-serif text-[54px] font-bold leading-none text-ivory" />
               <span className="mb-1.5 text-[13px] text-ivory/45">{online.total === 1 ? 'شخص' : 'شخص فاتح الموقع'}</span>
             </div>
-            <div className="mt-4 flex flex-wrap gap-2">
+            {/* كام جهاز شاف الموقع النهارده → صفحة التحليلات */}
+            <button type="button" onClick={() => navigate('/admin/analytics')} data-devices-today
+              className="mt-4 flex w-full items-center justify-between gap-3 rounded-xl border border-[#38a8ff]/30 bg-[#38a8ff]/[0.08] px-3.5 py-2.5 text-start transition hover:border-[#38a8ff]/60">
+              <span>
+                <span className="block text-[11.5px] font-bold text-[#8fcbff]">أجهزة شافت الموقع النهارده</span>
+                <span className="mt-0.5 flex items-baseline gap-2">
+                  <Ticker value={today?.devices || 0} className="font-serif text-[26px] font-bold leading-none text-ivory" />
+                  {today?.newDevices ? <span className="text-[11.5px] font-bold text-emerald-bright">{fmtNum(today.newDevices)} جديد</span> : null}
+                </span>
+              </span>
+              <span className="shrink-0 text-[11.5px] font-bold text-[#8fcbff]">التحليلات ←</span>
+            </button>
+            <div className="mt-3 flex flex-wrap gap-2">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-[#38a8ff]/12 px-3 py-1.5 text-[12px] font-bold text-[#8fcbff]">
                 <Users size={13} /> <Ticker value={online.users} /> عميل مسجّل
               </span>

@@ -13,6 +13,9 @@ const Presence = require('../models/Presence');
 const User = require('../models/User');
 const Visit = require('../models/Visit');
 const { LAST_SEEN_WRITE_MS, VISIT_GAP_MS, deviceFromUA } = require('../utils/presence');
+const {
+  recordDeviceDay, shouldWrite, anaAtUpdate, cairoClock, deviceKeyOf,
+} = require('../utils/siteAnalytics');
 
 const router = express.Router();
 
@@ -23,6 +26,15 @@ router.post('/api/presence', async (req, res) => {
     // المسار بس (من غير query/hash) — كفاية تعرف العميل في أنهي صفحة
     const path = String((req.body && req.body.path) || '').split(/[?#]/)[0].slice(0, 120);
     const now = new Date();
+    // تحليلات الموقع (أجهزة/ساعات/مدة): جه منين — بيتبعت مع أول إشارة في الزيارة
+    const ref = String((req.body && req.body.ref) || '').slice(0, 300);
+    const utm = String((req.body && req.body.utm) || '').slice(0, 40);
+    const clock = cairoClock(now);
+    const analytics = (prev, userId) => {
+      if (shouldWrite(prev && prev.anaAt, now, clock.hourStart)) {
+        recordDeviceDay(req, { vid: validVid ? vid : '', userId, path, ref, utm, prevAnaAt: prev && prev.anaAt, now, clock });
+      }
+    };
 
     if (req.user) {
       const key = `u:${req.user.id}`;
@@ -30,9 +42,11 @@ router.post('/api/presence', async (req, res) => {
       // ده كمّل زيارة ولا بدأ واحدة جديدة
       const prev = await Presence.findOneAndUpdate(
         { key },
-        { $set: { userId: req.user._id, path, lastSeen: now } },
-        { upsert: true, new: false, projection: { lastSeen: 1, visitId: 1 } }
+        // anaAt بيتحدّث في نفس الكتابة (لو جه وقت سطر تحليلات جديد)
+        [{ $set: { userId: req.user._id, path: { $literal: path }, lastSeen: now, anaAt: anaAtUpdate(now, clock.hourStart) } }],
+        { upsert: true, new: false, projection: { lastSeen: 1, visitId: 1, anaAt: 1 } }
       ).lean();
+      analytics(prev, req.user._id);
       // نفس الجهاز كان متسجّل كزائر قبل ما يدخل — منعدّوش مرتين
       if (validVid) Presence.deleteOne({ key: `v:${vid}` }).catch(() => {});
 
@@ -72,12 +86,16 @@ router.post('/api/presence', async (req, res) => {
         if (r.modifiedCount && prevVisit) return Visit.updateOne({ _id: prevVisit }, { $set: { lastSeenAt: now } });
         return null;
       }).catch(() => {});
-    } else if (validVid) {
-      await Presence.updateOne(
-        { key: `v:${vid}` },
-        { $set: { userId: null, path, lastSeen: now } },
-        { upsert: true }
-      );
+    } else {
+      // زائر: برقمه العشوائي — ولو المتصفح مانع التخزين (تصفح خاص) ببصمة
+      // (IP + المتصفح)، عشان يتعدّ كزائر متصل وكجهاز في التحليلات برضو
+      const vkey = validVid ? `v:${vid}` : `f:${deviceKeyOf(req, '').slice(2)}`;
+      const prev = await Presence.findOneAndUpdate(
+        { key: vkey },
+        [{ $set: { userId: null, path: { $literal: path }, lastSeen: now, anaAt: anaAtUpdate(now, clock.hourStart) } }],
+        { upsert: true, new: false, projection: { anaAt: 1 } }
+      ).lean();
+      analytics(prev, null);
     }
     return res.status(204).end();
   } catch (err) {
