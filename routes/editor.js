@@ -9,7 +9,7 @@ const Invitation = require('../models/Invitation');
 const User = require('../models/User');
 const Track = require('../models/Track');
 const { requireAuth } = require('../middleware/auth');
-const { packageHasFeature } = require('../packages/registry');
+const { packageHasFeature, packageAllowsDressColors } = require('../packages/registry');
 const { getTemplate } = require('../templates/registry');
 const { generateShortId } = require('../utils/idGenerator');
 const { buildInvitationDataFromRequest } = require('../utils/invitationData');
@@ -68,9 +68,21 @@ function featuresFor(user) {
   if (isSuspended(user)) return [];
   // ومدة التعديل الخالصة زيها: مفيش ميزات لحد ما يجدّد
   if (!isEditWindowOpen(user.subscription)) return [];
-  return ['fonts', 'images', 'music', 'drag', 'videoToImage', 'sections', 'colors'].filter((f) =>
+  const list = ['fonts', 'images', 'music', 'drag', 'videoToImage', 'sections', 'colors'].filter((f) =>
     packageHasFeature(packageId, f)
   );
+  // ألوان الزي (لوحة الألوان في Sage Garden) — المتقدمة والاحترافية بس
+  if (packageAllowsDressColors(packageId)) list.push('dressColors');
+  return list;
+}
+
+/** ألوان الزي: لستة hex نضيفة (8 بحد أقصى) — أي حاجة تانية بتتشال */
+function sanitizePalette(list) {
+  if (!Array.isArray(list)) return [];
+  return list
+    .map((c) => String(c || '').trim().toLowerCase())
+    .filter((c) => /^#[0-9a-f]{6}$/.test(c))
+    .slice(0, 8);
 }
 
 /** البيانات الأساسية بالشكل اللي فورم المحرر بيتوقعه */
@@ -287,7 +299,7 @@ router.patch('/api/editor/:shortId/details', requireAuth, async (req, res) => {
  * — غير كده تخصيصه بيتمسح أول ما العميل يعدّل أي كلمة.
  */
 function cloneCustomizations(c = {}) {
-  return {
+  const out = {
     fontFamily: c.fontFamily || '',
     audioUrl: c.audioUrl || '',
     audioStart: c.audioStart || 0,
@@ -308,6 +320,10 @@ function cloneCustomizations(c = {}) {
     hidden: [...(c.hidden || [])],
     share: { ...(c.share || {}) },
   };
+  // ألوان الزي (Sage Garden): موجودة بس لو صاحب الدعوة غيّرها — من غيرها
+  // القالب بيعرض ألوانه الأصلية
+  if (Array.isArray(c.palette)) out.palette = sanitizePalette(c.palette);
+  return out;
 }
 
 // الحقول اللي لو العميل عدّل نص بيساويها، بنعدّل الحقل نفسه بدل ما
@@ -373,27 +389,11 @@ router.patch('/api/editor/:shortId/text', requireAuth, async (req, res) => {
       }
     } else {
       const c = invitation.customizations || {};
-      // كل الحقول بتتنسخ بالاسم — أي حقل يتنسي هنا معناه إن التخصيص
-      // بتاعه بيتمسح من غير ما حد يلاحظ أول ما العميل يعدّل أي كلمة.
-      invitation.customizations = {
-        fontFamily: c.fontFamily || '',
-        audioUrl: c.audioUrl || '',
-        audioStart: c.audioStart || 0,
-        audioEnd: c.audioEnd || 0,
-        offsets: { ...(c.offsets || {}) },
-        images: { ...(c.images || {}) },
-        sizes: { ...(c.sizes || {}) },
-        colors: { ...(c.colors || {}) },
-        rotations: { ...(c.rotations || {}) },
-        scales: { ...(c.scales || {}) },
-        aligns: { ...(c.aligns || {}) },
-        rsvp: { ...(c.rsvp || {}) },
-        calDay: c.calDay || 0,
-        added: [...(c.added || [])],
-        texts: { ...(c.texts || {}), [id]: newText },
-        hidden: [...(c.hidden || [])],
-        share: { ...(c.share || {}) },
-      };
+      // كل الحقول بتتنسخ بالاسم (cloneCustomizations) — قبل كده النسخة هنا
+      // كانت ناسية elemFonts وcalLang، فأول تعديل نص كان بيمسح خطوط الجمل
+      // ولغة النتيجة من غير ما حد ياخد باله.
+      const base = cloneCustomizations(c);
+      invitation.customizations = { ...base, texts: { ...base.texts, [id]: newText } };
       invitation.markModified('customizations');
     }
 
@@ -527,6 +527,7 @@ router.patch('/api/editor/:shortId', requireAuth, async (req, res) => {
       hidden: [...(current.hidden || [])],
       share: { ...(current.share || {}) },
     };
+    if (Array.isArray(current.palette)) next.palette = sanitizePalette(current.palette);
 
     // كارت المشاركة (اللي بيظهر على واتساب)
     if (body.share !== undefined) {
@@ -632,6 +633,16 @@ router.patch('/api/editor/:shortId', requireAuth, async (req, res) => {
         if (!isSafeElemId(id) || !isSafeColor(body.colors[id])) return;
         next.colors[id] = String(body.colors[id]).toLowerCase();
       });
+    }
+
+    // ألوان الزي (لوحة الألوان في Sage Garden) — المتقدمة والاحترافية بس.
+    // null = رجّع ألوان القالب الأصلية.
+    if (body.palette !== undefined) {
+      if (!allowed.includes('dressColors')) {
+        return res.status(403).json({ error: 'تغيير ألوان الزي متاح في الباقة المتقدمة والاحترافية بس.' });
+      }
+      if (body.palette === null) delete next.palette;
+      else next.palette = sanitizePalette(body.palette);
     }
 
     // زوايا الميل — زي المقاس: تنسيق العميل في دعوته، مش ميزة باقة.

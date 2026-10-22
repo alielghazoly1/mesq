@@ -222,6 +222,10 @@ function renderNewPathHtml(data, options) {
     brideNameLatin: data.brideName || '',
     groomNameLatin: data.groomName || '',
     rsvpOverrides: rsvpOv,
+    // ألوان الزي اللي صاحب الدعوة اختارها (Sage Garden) — null = ألوان القالب
+    dressPalette: (data.customizations && Array.isArray(data.customizations.palette))
+      ? data.customizations.palette.filter((c) => /^#[0-9a-f]{6}$/i.test(String(c))).slice(0, 8)
+      : null,
     hiddenSections: data.hiddenSections || [],
     // بيخلي شاشة "اضغط للفتح" تتخطى نفسها تلقائيًا — مستخدم بس في صفحات
     // المعاينة (زي كروت المعرض) اللي محدش هيضغط عليها فعليًا

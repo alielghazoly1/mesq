@@ -20,6 +20,10 @@ const TEMPLATE_TEXT = {
     ar: { description: 'ظرف دانتيل عنابي بختم دهبي بيتفتح وكارت بيطلع منه — صفحات بتتقلب، عدّاد، خريطة، تأكيد حضور، وتهنئة صوتية من الضيوف' },
     en: { description: 'A burgundy lace envelope with a gold seal that opens into flip-through pages — countdown, map, RSVP, and voice greetings from guests' },
   },
+  'sage-garden': {
+    ar: { description: 'ظرف بختم قلب دهبي بيتفتح على كولاج كامل بيتركّب قدامك — دانتيل وورد أبيض وصور العرسان وطبق الدبل — عدّاد، برنامج اليوم، خريطة، ألوان الزي، تأكيد حضور، تهنئة صوتية وصور الضيوف' },
+    en: { description: 'A gold heart-sealed envelope that opens onto a collage assembling itself — lace, white flowers, your photos and a ring tray — with countdown, schedule, map, dress-code colours, RSVP, voice wishes and guest photos' },
+  },
   'lily-garden': {
     ar: { description: 'ظرف بختم شمع وزنبق وردي ينفتح — عدّاد تنازلي، تأكيد حضور، وألبوم يرفع فيه الضيوف صور الفرح' },
     en: { description: 'A wax-sealed envelope of pink lilies that opens — countdown, RSVP, and an album where guests upload their photos' },

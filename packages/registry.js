@@ -268,6 +268,16 @@ function packageHasFeature(packageId, featureKey) {
   return !!pkg && pkg.features.includes(featureKey);
 }
 
+/**
+ * تغيير ألوان الزي المقترح في القوالب اللي فيها لوحة ألوان (Sage Garden):
+ * تغيير لون، إضافة، وشيل — بطلب المالك (2026-10-22) للباقة المتقدمة
+ * والاحترافية بس. ميزة لوحدها مش من FEATURES عشان صفحة الباقات تفضل زي ما هي.
+ */
+const DRESS_COLOR_PACKAGES = ['plus', 'pro'];
+function packageAllowsDressColors(packageId) {
+  return DRESS_COLOR_PACKAGES.includes(packageId);
+}
+
 module.exports = {
   PACKAGES,
   CURRENCIES,
@@ -283,4 +293,5 @@ module.exports = {
   packageAllowedInCountry,
   currencyForCountry,
   packageHasFeature,
+  packageAllowsDressColors,
 };

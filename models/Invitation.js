@@ -135,6 +135,11 @@ const invitationSchema = new mongoose.Schema({
     //   foodLabel } — المدخلات نفسها بتفضل موصّلة بالباك زي ما هي.
     rsvp: { type: mongoose.Schema.Types.Mixed, default: {} },
 
+    // ألوان الزي المقترح (لوحة الألوان في Sage Garden): ['#7c8a6a', ...] —
+    // 8 بحد أقصى. مش موجودة = ألوان القالب الأصلية. بتتغيّر من الباقة
+    // المتقدمة والاحترافية بس (routes/editor.js).
+    palette: { type: [String], default: undefined },
+
     // كارت المشاركة — اللي بيظهر لما اللينك يتبعت على واتساب أو فيسبوك.
     // لو فاضي، بيتبني تلقائيًا من أسماء العروسين والتاريخ والمكان
     // (utils/shareTags.js). الصورة لازم تعدي نفس فحص الروابط المسموحة.

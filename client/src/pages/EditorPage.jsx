@@ -331,6 +331,8 @@ export default function EditorPage() {
         calLang: c.calLang || '',
         added: c.added || [],
         hidden: c.hidden || [],
+        // ألوان الزي (Sage Garden) — null = ألوان القالب الأصلية
+        palette: Array.isArray(c.palette) ? c.palette : null,
         share: {
           title: (c.share && c.share.title) || '',
           description: (c.share && c.share.description) || '',
@@ -623,6 +625,14 @@ export default function EditorPage() {
         setDirty(true);
       }
 
+      // ألوان الزي اتغيّرت من لوحة الألوان جوه الدعوة (Sage Garden) — اتطبّقت
+      // هناك خلاص، وإحنا بنحفظ. كل تغيير = خطوة رجوع واحدة.
+      if (msg.type === 'palette-change' && Array.isArray(p.palette)) {
+        rememberRef.current();
+        setDraft((d) => (d ? { ...d, palette: p.palette.slice(0, 8) } : d));
+        setDirty(true);
+      }
+
       // العميل ضغط على أيقونة الحذف
       if (msg.type === 'hide' && p.id) {
         rememberRef.current();
@@ -781,6 +791,7 @@ export default function EditorPage() {
         body.offsets = draft.offsets;
         if (has('images')) body.images = draft.images;
         if (has('colors')) body.colors = draft.colors;
+        if (has('dressColors') && Array.isArray(draft.palette)) body.palette = draft.palette;
         // الإخفاء والمقاس والميل مش مميزات باقة — دول تنسيق العميل في
         // دعوته هو
         body.hidden = draft.hidden;
@@ -969,6 +980,10 @@ export default function EditorPage() {
       }
       body.offsets = snap.customizations.offsets;
       if (has('images')) body.images = snap.customizations.images;
+      // ألوان الزي: null = رجّعها لألوان القالب (اللقطة كانت قبل أي تغيير)
+      if (has('dressColors')) {
+        body.palette = Array.isArray(snap.customizations.palette) ? snap.customizations.palette : null;
+      }
       await saveCustomizations(body).unwrap();
 
       if (detailsChanged) {
@@ -1355,6 +1370,7 @@ export default function EditorPage() {
       body.offsets = draft.offsets;
       if (has('images')) body.images = draft.images;
       if (has('colors')) body.colors = draft.colors;
+      if (has('dressColors') && Array.isArray(draft.palette)) body.palette = draft.palette;
       body.hidden = draft.hidden;
       body.sizes = draft.sizes;
       body.rotations = draft.rotations;

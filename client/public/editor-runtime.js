@@ -840,7 +840,9 @@
   // للخلفية والنص اللي تحتها ميتحددش أبدًا.
   document.addEventListener('click', function (e) {
     if (!state.editingOn || !e.isTrusted) return;
-    if (e.target.closest && e.target.closest('.wda-tools, .wda-cal-picker')) return;
+    // [data-wda-ui] = أداة القالب نفسه في وضع التحرير (لوحة ألوان الزي في
+    // Sage Garden) — الضغط عليها مايختارش الكلام اللي تحتها
+    if (e.target.closest && e.target.closest('.wda-tools, .wda-cal-picker, [data-wda-ui]')) return;
     // الضغطة اللي الموبايل بيبعتها بعد لمسة على زرار في الشريط: الزرار ممكن
     // يكون اتشال من الصفحة (الشريط اتغيّر لـ ✓)، فمش هنلاقيه جوه الشريط —
     // من غيرها كانت بتتفهم لمسة على فاضي وتقفل وضع التحريك على طول

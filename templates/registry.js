@@ -208,6 +208,38 @@ const TEMPLATES = [
     isNew: true,
     isPremium: true,
   },
+  {
+    id: 'sage-garden',
+    name: 'Sage Garden',
+    description: 'ظرف بختم قلب دهبي بيتفتح على كولاج كامل بيتركّب قدامك — دانتيل وورد أبيض وصور العرسان وطبق الدبل — عدّاد، برنامج اليوم، خريطة، ألوان الزي، تأكيد حضور، تهنئة صوتية وصور الضيوف',
+    file: 'sage-garden.html',
+    languages: SUPPORTED_LANGUAGES,
+    occasionTypes: SUPPORTED_OCCASIONS,
+    // الإخفاء في views/sage-garden.html (data-section على كل قسم). الكولاج
+    // (أول شاشة) ثابت مبيتشالش.
+    optionalSections: [
+      { key: 'countdown', label: 'العداد التنازلي' },
+      { key: 'timeline', label: 'برنامج اليوم' },
+      { key: 'venue', label: 'مكان الحفل والخريطة' },
+      { key: 'dressCode', label: 'الزي المقترح (Dress Code)' },
+      { key: 'rsvp', label: 'تأكيد الحضور (RSVP)' },
+      { key: 'voice', label: 'التهاني الصوتية من الضيوف' },
+      { key: 'guestPhotos', label: 'صور الضيوف' },
+      { key: 'closing', label: 'الختام (طبق الدبل والأسماء)' },
+    ],
+    // البرنامج نصوص قابلة للتعديل جوه التصميم (مش مراحل الفورم)
+    timelineStages: [],
+    extraFields: [
+      { key: 'venueAddress', label: 'عنوان القاعة (بيظهر تحت اسمها — اختياري)', maxlength: 200 },
+    ],
+    // نسختين منفصلتين: إنجليزي (التصميم الأصلي — المعاينة للزوار) وعربي.
+    // العميل بيختار واحدة وهو بيبدأ الدعوة — مفيش زرار لغة جوه الدعوة.
+    designLanguages: ['en', 'ar'],
+    guestVoice: true,
+    guestPhotos: true,
+    isNew: true,
+    isPremium: true,
+  },
 ];
 
 function getTemplate(templateId) {

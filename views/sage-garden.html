@@ -1,0 +1,1132 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#6f7d5f">
+<title>Sage Garden</title>
+<script>window.WEDDING_CONFIG = __INVITATION_CONFIG_JSON__;</script>
+<script>
+  // النسخة العربي بتتظبط قبل أول رسمة (اتجاه + خطوط) — مفيش ومضة إنجليزي
+  (function () {
+    var C = window.WEDDING_CONFIG || {};
+    if (C.language === 'ar') { document.documentElement.lang = 'ar'; document.documentElement.dir = 'rtl'; }
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Pinyon+Script&family=Montserrat:wght@400;500;600&family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@400;700&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+<!--
+  SAGE GARDEN — قالب Mithaq (views/sage-garden.html)
+  ───────────────────────────────────────────────
+  • نسختين: إنجليزي (الأصل) وعربي — C.language بتختار الكلام والاتجاه. مفيش زرار لغة جوه الدعوة.
+  • كل جملة عليها data-elem-id (sg1…sg86) → المحرر بيعدّلها. الأسماء/التاريخ/القاعة من بيانات الدعوة
+    وتعديل صاحب الدعوة بيغلب. التاريخ والعدّاد data-wda-live (الضغط يفتح التاريخ والساعة).
+  • الصور اللي تتغيّر: صور العرسان الأربعة (sg23 sg24 sg25 sg26) وصورة المكان (sg19) بس — باقي الصور زخرفة.
+  • ألوان الزي: C.dressPalette (customizations.palette). في المحرر لوحة ألوان صغيرة —
+    الباقة المتقدمة والاحترافية بس (ميزة dressColors، والسيرفر بيرفض غيرهم).
+  • الأقسام (data-section): countdown timeline venue dressCode rsvp voice guestPhotos closing
+-->
+<style>
+:root{
+  --sage:#7c8a6a; --sage-d:#5f6c4f; --sage-dd:#454f39; --sage-l:#c9d0bb; --sage-ll:#e7eadf;
+  --ivory:#f8f4ec; --paper:#fbf8f2; --ink:#3b3a2f; --ink-2:#5c5a4b; --dim:#8e8a78; --brown:#5b4b45;
+  --gold:#b49a6a; --gold-l:#d8c39a;
+  --serif:'Cormorant Garamond',serif; --script:'Pinyon Script',cursive; --sans:'Montserrat',sans-serif;
+}
+html[lang="ar"]{ --serif:'Amiri',serif; --script:'Aref Ruqaa',serif; --sans:'Cairo',sans-serif; }
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html,body{min-height:100%}
+body{background:#d9dccf;color:var(--ink);font-family:var(--serif);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body.locked{overflow:hidden}
+img{display:block;max-width:100%}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+a{color:inherit;text-decoration:none}
+.off{display:none!important}
+
+.stage{position:relative;max-width:460px;margin:0 auto;min-height:100vh;overflow:hidden;box-shadow:0 0 80px rgba(40,48,30,.25)}
+@media(min-width:600px){
+  body{background:radial-gradient(1200px 600px at 50% -10%,rgba(255,255,255,.18),transparent 60%),linear-gradient(180deg,#7c8a6a,#66734f);background-attachment:fixed}
+}
+.paper-bg{background-color:var(--paper);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .42 0 0 0 0 .35 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23p)'/%3E%3C/svg%3E")}
+
+/* ============ الغلاف: الظرف بختم القلب ============ */
+.cover{position:fixed;inset:0;z-index:50;display:grid;place-items:center;overflow:hidden}
+.cover .paper{position:absolute;inset:0}
+.cover-inner{position:relative;width:min(92vw,420px);text-align:center}
+.cover-eyebrow{font-family:var(--sans);font-size:11px;letter-spacing:.42em;text-transform:uppercase;color:var(--dim);margin-bottom:10px}
+.cover-names{font-family:var(--script);font-size:46px;line-height:1.15;color:var(--sage-dd);margin-bottom:26px;white-space:nowrap}
+.cover-names span{display:inline-block;font-size:calc(1em * var(--fit,1))}
+.cover-names .amp{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.6em;color:var(--gold);margin:0 .2em}
+.env-wrap{position:relative;filter:drop-shadow(0 26px 34px rgba(60,55,40,.28))}
+.env{width:100%;border-radius:4px}
+.seal{position:absolute;left:50.2%;top:62.6%;width:23%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;filter:drop-shadow(0 5px 7px rgba(80,55,20,.45));cursor:pointer;z-index:2}
+.seal::after{content:"";position:absolute;inset:-14px;border-radius:50%;border:1.5px solid rgba(201,163,98,.55);animation:ring 2.2s ease-out infinite}
+@keyframes ring{0%{transform:scale(.85);opacity:.9}100%{transform:scale(1.35);opacity:0}}
+.seal img{width:100%;height:100%;animation:breathe 2.2s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+.cover-hint{margin-top:26px;font-family:var(--sans);font-size:12px;letter-spacing:.25em;text-transform:uppercase;color:var(--ink-2);display:inline-flex;align-items:center;gap:10px}
+.cover-hint i{width:28px;height:1px;background:var(--gold)}
+.cover.opening .seal{animation:sealPop .7s cubic-bezier(.3,1.6,.5,1) forwards}
+.cover.opening .seal::after{display:none}
+@keyframes sealPop{30%{transform:translate(-50%,-50%) scale(1.25) rotate(-8deg)}100%{transform:translate(-50%,-50%) scale(.2) rotate(40deg);opacity:0}}
+.cover.opening .env-wrap{animation:envOut 1.3s .45s cubic-bezier(.6,0,.3,1) forwards}
+@keyframes envOut{40%{transform:translateY(-14px) scale(1.03)}100%{transform:translateY(70vh) scale(.9) rotate(4deg);opacity:0}}
+.cover.opening .cover-names,.cover.opening .cover-eyebrow,.cover.opening .cover-hint{transition:opacity .6s,transform .8s;opacity:0;transform:translateY(-20px)}
+.cover.gone{transition:opacity .5s ease;opacity:0;pointer-events:none}
+.cover.sg-cover-edit .seal::after,.cover.sg-cover-edit .seal img{animation:none}
+.burst{position:absolute;left:50%;top:50%;width:0;height:0;pointer-events:none}
+.burst span{position:absolute;width:10px;height:14px;border-radius:60% 0 60% 0;opacity:0}
+.cover.opening .burst span{animation:leaf 1.4s ease-out forwards}
+@keyframes leaf{0%{opacity:1;transform:translate(0,0) rotate(0)}100%{opacity:0;transform:translate(var(--x),var(--y)) rotate(var(--r))}}
+html[lang="ar"] .cover-eyebrow{letter-spacing:0;font-size:14px}
+html[lang="ar"] .cover-names{font-size:40px;line-height:1.6}
+html[lang="ar"] .cover-names .amp{font-family:var(--script);font-style:normal;margin:0 .35em}
+html[lang="ar"] .cover-hint{letter-spacing:0;font-size:14px}
+
+/* ============ عام ============ */
+section{position:relative;padding:72px 26px}
+.reveal{opacity:0;transform:translateY(26px);transition:opacity 1.1s cubic-bezier(.2,.7,.2,1),transform 1.1s cubic-bezier(.2,.7,.2,1)}
+.reveal.in{opacity:1;transform:none}
+.d1{transition-delay:.12s}.d2{transition-delay:.24s}.d3{transition-delay:.36s}
+.eyebrow{font-family:var(--sans);font-size:10.5px;letter-spacing:.45em;text-transform:uppercase;color:var(--gold);text-align:center}
+.h-script{font-family:var(--script);font-weight:400;font-size:42px;line-height:1.15;color:var(--sage-dd);text-align:center;margin:6px 0 4px}
+.lead{font-size:18px;line-height:1.65;color:var(--ink-2);text-align:center;font-style:italic;max-width:330px;margin:0 auto}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:14px 26px;border-radius:999px;font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;transition:transform .2s,box-shadow .3s,background .3s,opacity .3s}
+.btn:active{transform:scale(.97)}
+.btn-sage{background:var(--sage-d);color:#fbf8f2;box-shadow:0 14px 28px -14px rgba(69,79,57,.8)}
+.btn-ghost{border:1px solid var(--sage);color:var(--sage-dd);background:rgba(255,255,255,.5)}
+.btn svg{width:16px;height:16px;flex:none}
+.btn.busy{opacity:.55;pointer-events:none}
+html[lang="ar"] .eyebrow{letter-spacing:0;font-size:13.5px;font-weight:600}
+html[lang="ar"] .h-script{font-size:38px;line-height:1.6}
+html[lang="ar"] .lead{font-style:normal;line-height:1.9}
+html[lang="ar"] .btn{letter-spacing:0;font-size:14.5px}
+.sprig{position:absolute;pointer-events:none;color:var(--sage)}
+.sprig path.stem{fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-dasharray:var(--len);stroke-dashoffset:var(--len);transition:stroke-dashoffset 2.4s ease}
+.sprig .leaf{fill:currentColor;opacity:0;transform:scale(.2);transform-box:fill-box;transform-origin:0% 50%;transition:opacity .6s,transform .9s cubic-bezier(.3,1.4,.5,1)}
+.sprig.in path.stem{stroke-dashoffset:0}
+.sprig.in .leaf{opacity:var(--o,.85);transform:scale(1)}
+
+/* ============ الكولاج ============ */
+.collage-sec{padding:0}
+.collage{position:relative;width:100%;aspect-ratio:736/1308;overflow:hidden;container-type:inline-size;background:#e2e5de}
+.pc{--u:calc(100cqw / 736);position:absolute;left:calc(var(--x)*var(--u));top:calc(var(--y)*var(--u));width:calc(var(--w)*var(--u));height:calc(var(--h)*var(--u));rotate:var(--r,0deg);translate:0 0;scale:1;opacity:1;margin:0}
+.collage:not(.play) .pc{opacity:0;translate:var(--fx,0) var(--fy,0);rotate:calc(var(--r,0deg) + var(--fr,0deg));scale:var(--fs,1)}
+.collage.play .pc{transition:translate 1.25s cubic-bezier(.16,1,.3,1) var(--d),rotate 1.25s cubic-bezier(.16,1,.3,1) var(--d),scale 1.25s cubic-bezier(.16,1,.3,1) var(--d),opacity .7s ease var(--d)}
+.collage.static .pc{transition:none!important}
+.pc.bg{width:100%;height:100%;left:0;top:0}
+img.pc{object-fit:contain;pointer-events:none;filter:drop-shadow(0 calc(6*var(--u)) calc(8*var(--u)) rgba(30,35,20,.22))}
+.env-top{filter:drop-shadow(0 calc(8*var(--u)) calc(12*var(--u)) rgba(40,40,30,.2))}
+.collage.play:not(.static) .sway{animation:sway 5.5s ease-in-out calc(var(--d) + 1.3s) infinite;transform-origin:var(--o,50% 100%)}
+@keyframes sway{0%,100%{transform:rotate(0)}50%{transform:rotate(2.2deg)}}
+.collage.play:not(.static) .rings{animation:ringsF 6s ease-in-out calc(var(--d) + 1.4s) infinite}
+@keyframes ringsF{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(calc(-5*var(--u))) rotate(4deg)}}
+.tap{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.collage.play:not(.static) .envelope{animation:nudge 4.5s ease-in-out 3.6s infinite}
+@keyframes nudge{0%,88%,100%{transform:none}91%{transform:rotate(-1.4deg)}94%{transform:rotate(1.2deg)}97%{transform:rotate(-.6deg)}}
+.fit1{white-space:nowrap;display:inline-block;font-size:calc(var(--fs0) * var(--fit,1))}
+/* Cormorant أرقامه القديمة (1 شبه I) — أرقام مستقيمة في التاريخ والأوقات */
+.dc-in,.tl .t,.closing .foot,.rsvp-card,.cd .cn{font-variant-numeric:lining-nums}
+
+.strip{background:#fbfaf6;padding:calc(12*var(--u)) calc(11*var(--u));display:flex;flex-direction:column;gap:calc(11*var(--u));box-shadow:0 calc(10*var(--u)) calc(18*var(--u)) rgba(40,40,30,.28)}
+.strip img{width:100%;height:calc(84*var(--u));object-fit:cover;flex:none}
+
+.date-card{background:#f8f5ef;box-shadow:0 calc(14*var(--u)) calc(26*var(--u)) rgba(40,40,30,.25);color:var(--brown)}
+.date-card::after{content:"";position:absolute;inset:0;opacity:.5;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 .4 0 0 0 0 .38 0 0 0 0 .32 0 0 0 .08 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.date-card .frame{position:absolute;left:calc(22*var(--u));top:calc(22*var(--u));width:calc(236*var(--u));height:calc(316*var(--u));pointer-events:none}
+.dc-in{position:absolute;inset:calc(30*var(--u));display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-family:'Cormorant Garamond',serif;line-height:.92;z-index:1}
+.dc-in .dd,.dc-in .yy{font-weight:500;--fs0:calc(96*var(--u))}
+.dc-in .mm{font-weight:500;--fs0:calc(37*var(--u));letter-spacing:.01em;margin:calc(6*var(--u)) 0 calc(8*var(--u))}
+html[lang="ar"] .dc-in .mm{font-family:'Amiri',serif;font-weight:700;--fs0:calc(50*var(--u));letter-spacing:0;line-height:1.3}
+
+.lace svg{width:100%;height:100%;overflow:visible;filter:drop-shadow(0 calc(8*var(--u)) calc(12*var(--u)) rgba(40,40,30,.2))}
+.lace-in{position:absolute;left:calc(70*var(--u));right:calc(70*var(--u));top:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--brown)}
+.lace-in .li-top{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:calc(17*var(--u));letter-spacing:.06em;text-transform:uppercase;line-height:1.2;margin-bottom:calc(18*var(--u))}
+.lace-in .ln{font-family:'Pinyon Script',cursive;line-height:1.12;display:flex;flex-direction:column;align-items:center;width:100%}
+.lace-in .nm{--fs0:calc(50*var(--u))}
+.lace-in .amp{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:calc(31*var(--u));line-height:1.1;color:#8a7a6e}
+html[lang="ar"] .lace-in .li-top{font-family:'Amiri',serif;letter-spacing:0;font-size:calc(21*var(--u))}
+html[lang="ar"] .lace-in .ln{font-family:'Aref Ruqaa',serif;line-height:1.45}
+html[lang="ar"] .lace-in .nm{--fs0:calc(48*var(--u))}
+html[lang="ar"] .lace-in .amp{font-family:'Aref Ruqaa',serif;font-style:normal;font-size:calc(30*var(--u))}
+
+.clover svg{position:absolute;inset:0;width:100%;height:100%;filter:drop-shadow(0 calc(8*var(--u)) calc(12*var(--u)) rgba(40,40,30,.25))}
+.clv-in{position:absolute;inset:0;padding:calc(6*var(--u)) calc(30*var(--u)) 0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#f4f0e2}
+.clv-in .c-sm{font-family:'Cormorant Garamond',serif;font-size:calc(15*var(--u));letter-spacing:.06em;text-transform:uppercase;font-weight:500;max-width:100%}
+.clv-in .c-hall{font-family:'Pinyon Script',cursive;font-weight:400;font-size:calc(25*var(--u) * var(--fit,1));line-height:1.12;max-width:calc(170*var(--u));margin:calc(2*var(--u)) 0 calc(6*var(--u));overflow-wrap:anywhere}
+html[lang="ar"] .clv-in .c-sm{font-family:'Amiri',serif;letter-spacing:0;font-size:calc(19*var(--u))}
+html[lang="ar"] .clv-in .c-hall{font-family:'Aref Ruqaa',serif;font-size:calc(28*var(--u) * var(--fit,1));line-height:1.5}
+
+.details{background:#8e9670;border-radius:calc(4*var(--u));box-shadow:0 calc(14*var(--u)) calc(26*var(--u)) rgba(30,35,20,.3)}
+.details .torn{position:absolute;left:calc(12*var(--u));top:calc(22*var(--u));width:calc(230*var(--u));height:calc(350*var(--u));rotate:2deg;filter:drop-shadow(0 2px 3px rgba(0,0,0,.12))}
+.det-in{position:absolute;left:calc(22*var(--u));top:calc(22*var(--u));width:calc(210*var(--u));height:calc(300*var(--u));rotate:2deg;display:flex;flex-direction:column;align-items:center;text-align:center;color:var(--brown);padding-top:calc(46*var(--u))}
+.det-in .d-sm{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:calc(15*var(--u));letter-spacing:.06em;text-transform:uppercase;max-width:calc(150*var(--u));line-height:1.15}
+.det-in .d-big{font-family:'Cormorant Garamond',serif;font-weight:500;--fs0:calc(40*var(--u));letter-spacing:.02em;text-transform:uppercase;margin-top:calc(64*var(--u));line-height:1}
+.det-in .d-scr{font-family:'Pinyon Script',cursive;--fs0:calc(46*var(--u));line-height:1.1}
+html[lang="ar"] .det-in .d-sm{font-family:'Amiri',serif;letter-spacing:0;font-size:calc(19*var(--u))}
+html[lang="ar"] .det-in .d-big{font-family:'Amiri',serif;font-weight:700;--fs0:calc(46*var(--u));line-height:1.3}
+html[lang="ar"] .det-in .d-scr{font-family:'Aref Ruqaa',serif;--fs0:calc(40*var(--u));line-height:1.5}
+.collage.play:not(.static) .det-in .d-sm,.collage.play:not(.static) .rsvp-tap{animation:hint 2.4s ease-in-out 3s infinite}
+@keyframes hint{0%,100%{opacity:1}50%{opacity:.45}}
+
+.pola-c{background:#fbfaf6;padding:calc(13*var(--u)) calc(12*var(--u)) 0;box-shadow:0 calc(14*var(--u)) calc(24*var(--u)) rgba(30,35,20,.3)}
+.pola-c img{width:100%;height:calc(182*var(--u));object-fit:cover;display:block}
+.pola-c figcaption{text-align:center;color:var(--brown);font-family:'Cormorant Garamond',serif;font-weight:500;font-size:calc(30*var(--u));letter-spacing:.03em;text-transform:uppercase;line-height:calc(60*var(--u));white-space:nowrap;overflow:hidden}
+.story-pola img{height:calc(168*var(--u))}
+.story-pola figcaption{line-height:calc(54*var(--u))}
+.story-pola figcaption .scr{font-family:'Pinyon Script',cursive;text-transform:none;font-size:1.05em;letter-spacing:0}
+html[lang="ar"] .pola-c figcaption{font-family:'Amiri',serif;font-weight:700;letter-spacing:0;font-size:calc(28*var(--u))}
+html[lang="ar"] .story-pola figcaption .scr{font-family:'Aref Ruqaa',serif}
+
+.envelope svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 calc(12*var(--u)) calc(14*var(--u)) rgba(30,30,20,.32))}
+.env-seal{position:absolute;left:calc(126*var(--u));top:calc(100*var(--u));width:calc(48*var(--u));height:calc(48*var(--u));pointer-events:none;filter:drop-shadow(0 2px 3px rgba(80,55,20,.4))}
+.rsvp-s{position:absolute;left:calc(40*var(--u));right:calc(40*var(--u));top:calc(14*var(--u));text-align:center;font-family:'Pinyon Script',cursive;font-weight:400;font-size:calc(56*var(--u));color:var(--brown);line-height:1.2;white-space:nowrap}
+.rsvp-tap{position:absolute;left:calc(40*var(--u));right:calc(40*var(--u));top:calc(170*var(--u));text-align:center;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:calc(14*var(--u));letter-spacing:.06em;text-transform:uppercase;color:var(--brown)}
+html[lang="ar"] .rsvp-s{font-family:'Aref Ruqaa',serif;font-size:calc(34*var(--u));top:calc(22*var(--u))}
+html[lang="ar"] .rsvp-tap{font-family:'Amiri',serif;letter-spacing:0;font-size:calc(18*var(--u))}
+
+/* ============ العد التنازلي ============ */
+.count-sec{padding:22px 18px 40px;background:linear-gradient(180deg,#4a5339 0%,#6f7a5b 38%,#c9cfbd 78%,var(--paper) 100%)}
+.countdown{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:0 auto;max-width:360px}
+.cd{background:rgba(251,248,242,.92);border:1px solid rgba(255,255,255,.5);border-radius:14px;padding:14px 4px 10px;text-align:center;box-shadow:0 10px 22px -14px rgba(20,25,10,.6)}
+.cd .cn{display:block;font-family:'Cormorant Garamond',serif;font-weight:500;font-size:34px;line-height:1;color:var(--sage-dd);font-variant-numeric:lining-nums tabular-nums;direction:ltr}
+.cd .cl{display:block;margin-top:6px;font-family:var(--sans);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+html[lang="ar"] .cd .cl{letter-spacing:0;font-size:12.5px}
+.cal-add{margin-top:20px;text-align:center}
+
+/* ============ البرنامج ============ */
+.timeline{position:relative;max-width:340px;margin:34px auto 0}
+.timeline::before{content:"";position:absolute;left:50%;top:10px;bottom:10px;width:1px;background:linear-gradient(var(--gold-l),var(--sage-l));transform:translateX(-50%)}
+.tl{position:relative;display:grid;grid-template-columns:1fr 54px 1fr;align-items:center;margin-bottom:26px}
+.tl .ic{width:46px;height:46px;margin:0 auto;border-radius:50%;background:var(--paper);border:1px solid var(--gold-l);display:grid;place-items:center;color:var(--sage-d);box-shadow:0 8px 16px -10px rgba(60,60,40,.5);z-index:1}
+.tl .ic svg{width:22px;height:22px}
+.tl .t{font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--sage-dd);text-align:end;padding-inline-end:6px;direction:ltr;unicode-bidi:plaintext}
+.tl .n{font-family:var(--sans);font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim);text-align:start;padding-inline-start:6px}
+html[lang="ar"] .tl .n{letter-spacing:0;font-size:14px}
+
+/* ============ المكان ============ */
+.venue-sec{background:var(--paper)}
+.venue-name{font-family:var(--serif);font-size:30px;text-align:center;color:var(--sage-dd);margin-top:22px}
+.venue-addr{font-family:var(--sans);font-size:12.5px;text-align:center;color:var(--dim);margin-top:4px;letter-spacing:.04em}
+html[lang="ar"] .venue-addr{font-size:14px;letter-spacing:0}
+.map-card{margin:22px auto 0;border-radius:18px;overflow:hidden;border:6px solid #fffdf8;box-shadow:0 20px 40px -24px rgba(40,50,30,.6);background:#e7e9e1}
+.map-card iframe{display:block;width:100%;height:240px;border:0;filter:saturate(.75) sepia(.12)}
+.venue-btns{display:flex;justify-content:center;margin-top:20px}
+
+/* ============ الزي ============ */
+.dress{background:linear-gradient(180deg,var(--paper),var(--ivory))}
+.pal-wrap{position:relative;margin-top:22px}
+.swatches{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;min-height:46px}
+.sw{width:46px;height:46px;border-radius:50%;box-shadow:0 8px 16px -8px rgba(40,40,30,.5),0 0 0 4px #fffdf8}
+.dress .lead{margin-top:18px}
+
+/* ============ RSVP ============ */
+.rsvp{background:linear-gradient(170deg,#87957a,#6c7a5a 60%,#5c6a4c);color:#f3efe3;overflow:hidden}
+.rsvp .eyebrow{color:#efe3c6}.rsvp .h-script{color:#fbf6ea}
+.rsvp-card{position:relative;margin:28px auto 0;max-width:380px;background:#fffdf8;color:var(--ink);padding:38px 24px 30px;border-radius:4px;
+  -webkit-mask:radial-gradient(circle 8px at 50% 0,#0000 97%,#000) top/18px 51% repeat-x,radial-gradient(circle 8px at 50% 100%,#0000 97%,#000) bottom/18px 51% repeat-x;
+          mask:radial-gradient(circle 8px at 50% 0,#0000 97%,#000) top/18px 51% repeat-x,radial-gradient(circle 8px at 50% 100%,#0000 97%,#000) bottom/18px 51% repeat-x}
+.rsvp-card h3{font-family:var(--script);font-weight:400;font-size:40px;text-align:center;color:var(--sage-dd);line-height:1.3}
+.rsvp-card .by{font-family:var(--sans);font-size:11px;letter-spacing:.14em;text-transform:uppercase;text-align:center;color:var(--dim);margin:4px 0 20px;line-height:1.6}
+.field{margin-bottom:14px}
+.field .lab{display:block;font-family:var(--sans);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:7px}
+.field input,.field textarea{width:100%;border:0;border-bottom:1px solid var(--sage-l);background:transparent;padding:9px 2px;font-family:'Cormorant Garamond',serif;font-size:19px;color:var(--ink);outline:none;border-radius:0}
+.field input:focus,.field textarea:focus{border-bottom-color:var(--sage-d)}
+.field textarea{resize:none;min-height:70px}
+.choice{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.choice [role=radio]{padding:13px 8px;border-radius:12px;border:1px solid var(--sage-l);font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--ink-2);text-align:center;cursor:pointer;transition:all .25s;user-select:none}
+.choice [aria-checked=true]{background:var(--sage-d);border-color:var(--sage-d);color:#fff;box-shadow:0 10px 20px -12px rgba(69,79,57,.9)}
+.rsvp-card .btn{width:100%;margin-top:10px}
+.r-err{min-height:18px;margin-top:8px;text-align:center;font-family:var(--sans);font-size:12.5px;color:#a2493d}
+.rsvp-done{text-align:center;padding:20px 0 6px}
+.rsvp-done img{width:84px;margin:0 auto 14px}
+.sent .rsvp-done img{animation:stamp .7s cubic-bezier(.3,1.6,.5,1)}
+@keyframes stamp{0%{transform:scale(2.2) rotate(-20deg);opacity:0}100%{transform:none;opacity:1}}
+.rsvp-done p{font-size:20px;color:var(--ink-2);font-style:italic;line-height:1.5}
+.rsvp-done .again{margin-top:14px;font-family:var(--sans);font-size:12px;color:var(--sage-d);text-decoration:underline;cursor:pointer;display:inline-block}
+#mithaq-rsvp:not(.sent) .rsvp-done{display:none}
+#mithaq-rsvp.sent form{display:none}
+html[lang="ar"] .rsvp-card h3{font-size:34px}
+html[lang="ar"] .rsvp-card .by{letter-spacing:0;font-size:13.5px}
+html[lang="ar"] .field .lab{letter-spacing:0;font-size:13.5px}
+html[lang="ar"] .field input,html[lang="ar"] .field textarea{font-family:'Cairo',sans-serif;font-size:16px}
+html[lang="ar"] .choice [role=radio]{font-family:'Cairo',sans-serif;font-size:14.5px}
+html[lang="ar"] .rsvp-done p{font-style:normal;font-size:18px}
+html[lang="ar"] .rsvp-done .again{font-size:14px}
+
+/* ============ فويس + صور ============ */
+.extras{background:var(--ivory)}
+.ex-card{position:relative;margin:24px auto 0;max-width:380px;background:#fffdf8;border-radius:24px;padding:26px 22px;box-shadow:0 22px 40px -28px rgba(40,50,30,.6);border:1px solid rgba(124,138,106,.18)}
+.ex-head{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.ex-ic{width:44px;height:44px;border-radius:14px;background:var(--sage-ll);color:var(--sage-d);display:grid;place-items:center;flex:none}
+.ex-ic svg{width:22px;height:22px}
+.ex-head h4{font-family:var(--serif);font-size:23px;font-weight:500;color:var(--sage-dd);line-height:1.25}
+.ex-head p{font-family:var(--sans);font-size:11.5px;color:var(--dim);line-height:1.5}
+html[lang="ar"] .ex-head p{font-size:13px}
+.rec{display:flex;flex-direction:column;align-items:center;gap:12px}
+.rec-btn{position:relative;width:86px;height:86px;border-radius:50%;background:radial-gradient(circle at 30% 30%,#94a37f,var(--sage-d));color:#fff;display:grid;place-items:center;box-shadow:0 16px 30px -14px rgba(69,79,57,.9);cursor:pointer}
+.rec-btn svg{width:34px;height:34px}
+.rec.on .rec-btn{background:radial-gradient(circle at 30% 30%,#d47a6a,#b24f45)}
+.rec.on .rec-btn::before,.rec.on .rec-btn::after{content:"";position:absolute;inset:-10px;border-radius:50%;border:2px solid rgba(178,79,69,.4);animation:ring 1.4s ease-out infinite}
+.rec.on .rec-btn::after{animation-delay:.7s}
+.rec-time{font-family:var(--sans);font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums;min-height:18px;text-align:center}
+html[lang="ar"] .rec-time{font-size:14px}
+.wave{display:flex;align-items:center;gap:3px;height:34px}
+.wave i{width:3px;border-radius:3px;background:var(--sage);height:6px;transition:height .1s}
+.rec-out{width:100%;margin-top:6px}
+.rec-out audio{width:100%;margin-bottom:10px}
+.rec-actions{display:flex;gap:10px}
+.rec-actions .btn{flex:1;padding:12px 10px}
+.rec:not(.review) .rec-out{display:none}
+.rec.review .rec-btn,.rec.review .wave{display:none}
+.drop{display:block;border:1.5px dashed var(--sage-l);border-radius:18px;padding:22px;text-align:center;background:var(--sage-ll);cursor:pointer;transition:all .25s}
+.drop:hover,.drop.over{border-color:var(--sage-d);background:#dfe4d4}
+.drop svg{width:30px;height:30px;color:var(--sage-d);margin:0 auto 8px;display:block}
+.drop .d-t{display:block;font-family:var(--serif);font-size:19px;font-weight:500;color:var(--sage-dd)}
+.drop .d-h{display:block;font-family:var(--sans);font-size:11.5px;color:var(--dim);margin-top:2px}
+html[lang="ar"] .drop .d-h{font-size:12.5px}
+.prog{height:6px;border-radius:6px;background:var(--sage-ll);overflow:hidden;margin-top:14px}
+.prog span{display:block;height:100%;width:0;background:var(--sage-d);transition:width .3s ease}
+.p-msg{margin-top:12px;text-align:center;font-family:var(--sans);font-size:12.5px;color:var(--sage-dd);line-height:1.6}
+.p-msg.err{color:#a2493d}
+.p-note{margin-top:12px;text-align:center;font-family:var(--sans);font-size:11px;color:var(--dim);line-height:1.6}
+html[lang="ar"] .p-msg{font-size:14px}html[lang="ar"] .p-note{font-size:12.5px}
+.toast{position:fixed;left:50%;bottom:84px;transform:translate(-50%,30px);background:var(--sage-dd);color:#fbf8f2;font-family:var(--sans);font-size:13px;padding:12px 18px;border-radius:999px;opacity:0;transition:all .4s;z-index:80;max-width:min(92vw,420px);text-align:center;pointer-events:none}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+html[lang="ar"] .toast{font-size:14px}
+
+/* ============ الختام ============ */
+.closing{background:linear-gradient(180deg,var(--ivory),var(--sage-ll));text-align:center;padding-top:30px;padding-bottom:110px}
+.plate{width:190px;margin:10px auto 6px;filter:drop-shadow(0 18px 24px rgba(40,40,30,.35));animation:float 6s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-8px) rotate(3deg)}}
+.closing .c-names{font-family:var(--script);line-height:1.15;color:var(--sage-dd);margin-top:14px;display:flex;flex-direction:column;align-items:center;width:100%}
+.closing .c-names .nm{--fs0:46px}
+.closing .c-names .amp{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:28px;color:var(--gold)}
+.closing .foot{font-family:var(--sans);font-size:10.5px;letter-spacing:.3em;text-transform:uppercase;color:var(--dim);margin-top:26px}
+html[lang="ar"] .closing .c-names{line-height:1.6}
+html[lang="ar"] .closing .c-names .nm{--fs0:42px}
+html[lang="ar"] .closing .c-names .amp{font-family:var(--script);font-style:normal}
+html[lang="ar"] .closing .foot{letter-spacing:0;font-size:13px}
+
+/* ============ أزرار عايمة + أوراق ============ */
+.fab{position:fixed;z-index:60;bottom:18px;right:max(16px,calc(50vw - 214px));width:48px;height:48px;border-radius:50%;background:rgba(251,248,242,.9);backdrop-filter:blur(8px);color:var(--sage-dd);display:grid;place-items:center;box-shadow:0 12px 26px -12px rgba(40,50,30,.6);border:1px solid rgba(124,138,106,.25);opacity:0;pointer-events:none;transition:opacity .6s}
+html[dir="rtl"] .fab{right:auto;left:max(16px,calc(50vw - 214px))}
+.fab.on{opacity:1;pointer-events:auto}
+.bars{display:flex;align-items:flex-end;gap:2px;height:16px}
+.bars i{width:3px;height:6px;background:currentColor;border-radius:2px}
+.fab.playing .bars i{animation:bar 1s ease-in-out infinite}
+.bars i:nth-child(2){animation-delay:.2s!important}.bars i:nth-child(3){animation-delay:.4s!important}
+@keyframes bar{0%,100%{height:5px}50%{height:16px}}
+.petal{position:fixed;top:-20px;z-index:40;width:10px;height:14px;border-radius:60% 0 60% 0;opacity:.7;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translate(var(--dx),110vh) rotate(var(--rot))}}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none}.petal{display:none}}
+
+/* ============ المحرر: لوحة ألوان الزي (بتظهر في وضع التحرير بس) ============ */
+.pal-chip{display:none}
+body.sg-edit .pal-chip{display:flex;width:max-content;align-items:center;gap:7px;margin:14px auto 0;padding:8px 14px;border-radius:999px;background:#fff;border:1px solid #d5d9cb;box-shadow:0 6px 16px -10px rgba(40,50,30,.6);font-family:'Cairo',sans-serif;font-size:13px;font-weight:600;color:var(--sage-dd);cursor:pointer;direction:rtl}
+.pal-chip svg{width:16px;height:16px}
+.pal-chip .lock{width:13px;height:13px;color:#a09a86}
+.pal-pop{position:absolute;left:50%;top:calc(100% + 10px);transform:translateX(-50%);z-index:30;width:min(320px,88vw);background:#fff;border-radius:18px;padding:16px;box-shadow:0 24px 50px -18px rgba(30,40,20,.5),0 0 0 1px rgba(0,0,0,.06);direction:rtl;text-align:right;font-family:'Cairo',sans-serif;color:#2e3326}
+.pal-pop h5{font-size:14px;font-weight:700;margin-bottom:4px}
+.pal-pop p{font-size:12.5px;color:#6b6f62;line-height:1.7}
+.pal-list{display:flex;flex-wrap:wrap;gap:12px;margin:12px 0 4px}
+.pal-it{position:relative;width:44px;height:44px;border-radius:50%;box-shadow:0 0 0 3px #fff,0 0 0 4px #d5d9cb;cursor:pointer}
+.pal-it button{position:absolute;top:-7px;left:-7px;width:22px;height:22px;border-radius:50%;background:#2e3326;color:#fff;font-size:14px;line-height:22px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.pal-add{width:44px;height:44px;border-radius:50%;border:1.5px dashed #aab296;color:var(--sage-d);font-size:24px;line-height:40px;text-align:center;cursor:pointer}
+.pal-foot{display:flex;justify-content:space-between;align-items:center;margin-top:12px;gap:8px}
+.pal-foot .done{background:var(--sage-d);color:#fff;border-radius:999px;padding:8px 18px;font-size:13px;font-weight:700}
+.pal-foot .reset{font-size:12px;color:#6b6f62;text-decoration:underline}
+.pal-pop a.up{display:inline-block;margin-top:10px;background:var(--sage-d);color:#fff;border-radius:999px;padding:8px 16px;font-size:13px;font-weight:700}
+.pal-input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;border:0;padding:0}
+</style>
+</head>
+<body class="locked" data-wda-decor>
+
+<!-- ============ الغلاف ============ -->
+<div class="cover" id="coverScreen">
+  <div class="paper paper-bg"></div>
+  <div class="cover-inner">
+    <div class="cover-eyebrow" data-elem-id="sg1">You are invited</div>
+    <div class="cover-names"><span class="nm" data-k="groom" data-elem-id="sg2"></span><span class="amp" data-k="conn" data-elem-id="sg3">&amp;</span><span class="nm" data-k="bride" data-elem-id="sg4"></span></div>
+    <div class="env-wrap">
+      <img class="env" src="/templates/sage-garden/envelope-cream.webp" alt="" fetchpriority="high">
+      <div class="seal" id="seal" role="button" tabindex="0" aria-label="Open"><img src="/templates/sage-garden/seal-heart.webp" alt=""></div>
+      <div class="burst" id="burst"></div>
+    </div>
+    <div class="cover-hint"><i></i><span data-elem-id="sg5">Tap the seal to open</span><i></i></div>
+  </div>
+</div>
+
+<main class="stage paper-bg" id="stage">
+
+  <!-- ============ الكولاج — كل قطعة لوحدها ============ -->
+  <section class="collage-sec">
+    <div class="collage" id="collage">
+      <svg class="pc bg" style="--x:0;--y:0;--w:736;--h:1308;--d:0s;--fs:1.08" viewBox="0 0 736 1308" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="sgSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f1f2ee"/><stop offset=".55" stop-color="#e2e5de"/><stop offset="1" stop-color="#d2d7cc"/></linearGradient>
+          <linearGradient id="sgMist" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+          <filter id="sgSoft"><feGaussianBlur stdDeviation="6"/></filter>
+          <filter id="sgGrain"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .3 0 0 0 0 .3 0 0 0 0 .25 0 0 0 .12 0"/></filter>
+        </defs>
+        <rect width="736" height="1308" fill="url(#sgSky)"/>
+        <path filter="url(#sgSoft)" fill="#d6dad2" d="M0 420 L70 330 L130 370 L220 250 L300 330 L380 280 L470 210 L560 300 L640 240 L736 310 V860 H0Z"/>
+        <path filter="url(#sgSoft)" fill="#c9cec3" opacity=".85" d="M0 560 L110 470 L200 520 L320 430 L430 500 L540 440 L640 500 L736 450 V900 H0Z"/>
+        <rect y="380" width="736" height="300" fill="url(#sgMist)"/>
+        <path fill="#aab296" d="M0 770 C140 720 270 760 400 735 S620 700 736 725 V1308 H0Z"/>
+        <path fill="#8b9576" d="M0 860 C120 820 250 858 380 836 S600 792 736 820 V1308 H0Z"/>
+        <path fill="#6f7a5b" d="M0 990 C160 950 300 1000 460 972 S650 925 736 952 V1308 H0Z"/>
+        <path fill="#5a6447" d="M0 1130 C200 1092 380 1150 560 1112 S700 1094 736 1102 V1308 H0Z"/>
+        <path fill="#4a5339" d="M0 1240 C180 1215 400 1262 736 1222 V1308 H0Z"/>
+        <rect width="736" height="1308" filter="url(#sgGrain)"/>
+      </svg>
+
+      <svg class="pc env-top" style="--x:92;--y:-30;--w:330;--h:250;--r:-14deg;--fx:-60px;--fy:-90px;--fr:-12deg;--d:.15s" viewBox="0 0 330 250" aria-hidden="true">
+        <polygon points="10,112 165,8 320,112" fill="#e3dccd" stroke="#cfc7b6" stroke-width="1"/>
+        <rect x="10" y="112" width="310" height="134" fill="#d8d0bf"/>
+        <polygon points="10,112 150,190 10,246" fill="#cfc6b3"/>
+        <polygon points="320,112 180,190 320,246" fill="#d2c9b7"/>
+        <polygon points="10,246 165,160 320,246" fill="#e0d8c8"/>
+      </svg>
+
+      <div class="pc strip" style="--x:205;--y:22;--w:134;--h:330;--r:-17deg;--fx:-40px;--fy:-160px;--fr:-14deg;--d:.32s">
+        <img data-elem-id="sg23" src="/templates/sage-garden/p-strip-1.webp" alt="">
+        <img data-elem-id="sg24" src="/templates/sage-garden/p-strip-2.webp" alt="">
+        <img data-elem-id="sg25" src="/templates/sage-garden/p-strip-3.webp" alt="">
+      </div>
+
+      <img class="pc sway" src="/templates/sage-garden/c-anthurium-left.webp" alt="" aria-hidden="true" style="--x:318;--y:-34;--w:160;--h:104;--r:166deg;--fy:-90px;--fr:30deg;--d:1.2s;--o:85% 70%">
+
+      <div class="pc date-card tap" data-go="countdown" style="--x:400;--y:85;--w:280;--h:360;--r:3.5deg;--fx:120px;--fy:-80px;--fr:14deg;--d:.25s">
+        <svg class="frame" viewBox="0 0 236 316" preserveAspectRatio="none" aria-hidden="true"><path d="M14 0H222A14 14 0 0 0 236 14V302A14 14 0 0 0 222 316H14A14 14 0 0 0 0 302V14A14 14 0 0 0 14 0Z" fill="none" stroke="#6a5a52" stroke-width="1.3" vector-effect="non-scaling-stroke"/></svg>
+        <div class="dc-in"><span class="dd fit1" data-k="day" data-elem-id="sg6" data-wda-live></span><span class="mm fit1" data-k="monthUp" data-elem-id="sg7" data-wda-live></span><span class="yy fit1" data-k="year" data-elem-id="sg8" data-wda-live></span></div>
+      </div>
+
+      <div class="pc lace" style="--x:58;--y:358;--w:360;--h:440;--r:-2deg;--fs:.55;--fr:-10deg;--d:.05s">
+        <svg id="laceSvg" viewBox="-180 -220 360 440" aria-hidden="true"></svg>
+        <div class="lace-in">
+          <div class="li-top" data-elem-id="sg9">Wedding<br>invitation</div>
+          <div class="ln"><span class="nm fit1" data-k="groom" data-elem-id="sg10"></span><span class="amp" data-k="conn" data-elem-id="sg11">&amp;</span><span class="nm fit1" data-k="bride" data-elem-id="sg12"></span></div>
+        </div>
+      </div>
+
+      <img class="pc sway" src="/templates/sage-garden/c-bouquet-left.webp" alt="" aria-hidden="true" style="--x:18;--y:232;--w:194;--h:288;--fx:-120px;--fr:-14deg;--fs:.8;--d:1s;--o:60% 95%">
+
+      <div class="pc clover tap" data-go="venue" style="--x:342;--y:392;--w:230;--h:220;--r:8deg;--fs:.3;--fr:-40deg;--d:.55s">
+        <svg viewBox="0 0 230 220" aria-hidden="true">
+          <g fill="#8e9670"><circle cx="74" cy="70" r="64"/><circle cx="156" cy="66" r="64"/><circle cx="158" cy="150" r="64"/><circle cx="74" cy="154" r="64"/><rect x="60" y="56" width="112" height="108"/></g>
+          <g fill="none" stroke="#e9e4d2" stroke-width="1.3"><circle cx="74" cy="70" r="55"/><circle cx="156" cy="66" r="55"/><circle cx="158" cy="150" r="55"/><circle cx="74" cy="154" r="55"/></g>
+          <g fill="#8e9670"><circle cx="74" cy="70" r="54.3"/><circle cx="156" cy="66" r="54.3"/><circle cx="158" cy="150" r="54.3"/><circle cx="74" cy="154" r="54.3"/><rect x="70" y="66" width="92" height="92"/></g>
+        </svg>
+        <div class="clv-in"><span class="c-sm" data-elem-id="sg13">Banquet hall</span><span class="c-hall" data-k="hall" data-elem-id="sg14"></span><span class="c-sm" data-k="city" data-elem-id="sg15"></span></div>
+      </div>
+
+      <div class="pc details tap" data-go="schedule" style="--x:392;--y:826;--w:258;--h:428;--r:-2deg;--fx:140px;--fy:60px;--fr:10deg;--d:.6s">
+        <svg class="torn" viewBox="0 0 230 350" preserveAspectRatio="none" aria-hidden="true">
+          <defs><filter id="sgTear" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency=".09" numOctaves="3" seed="4"/><feDisplacementMap in="SourceGraphic" scale="7"/></filter></defs>
+          <rect x="6" y="6" width="218" height="338" fill="#f7f3ea" filter="url(#sgTear)"/>
+        </svg>
+        <div class="det-in"><span class="d-sm" data-elem-id="sg16">Tap to view</span><span class="d-big fit1" data-elem-id="sg17">Wedding</span><span class="d-scr fit1" data-elem-id="sg18">details</span></div>
+      </div>
+
+      <figure class="pc pola-c tap" data-go="venue" style="--x:400;--y:575;--w:210;--h:262;--r:6deg;--fx:160px;--fr:18deg;--d:.72s">
+        <img data-elem-id="sg19" src="/templates/sage-garden/p-venue.webp" alt=""><figcaption data-elem-id="sg20">Location</figcaption>
+      </figure>
+
+      <img class="pc sway" src="/templates/sage-garden/c-bouquet-right.webp" alt="" aria-hidden="true" style="--x:525;--y:420;--w:197;--h:302;--fx:120px;--fr:12deg;--fs:.8;--d:1.1s;--o:45% 30%">
+
+      <img class="pc" src="/templates/sage-garden/c-tray.webp" alt="" aria-hidden="true" style="--x:38;--y:745;--w:358;--h:353;--r:28deg;--fx:-160px;--fy:40px;--fr:-40deg;--d:.38s">
+
+      <div class="pc envelope tap" data-go="rsvp" style="--x:89;--y:812;--w:300;--h:206;--r:-6deg;--fx:-120px;--fy:-60px;--fr:-18deg;--d:.62s">
+        <svg viewBox="0 0 300 206" aria-hidden="true">
+          <defs>
+            <filter id="sgEnvGrain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".85" numOctaves="3" seed="7" result="n"/><feColorMatrix in="n" values="0 0 0 0 .45 0 0 0 0 .4 0 0 0 0 .32 0 0 0 .16 0"/><feComposite in2="SourceGraphic" operator="in"/></filter>
+            <filter id="sgFlapShadow" x="-10%" y="-10%" width="120%" height="140%"><feDropShadow dx="0" dy="2.5" stdDeviation="2.2" flood-color="#5a4c38" flood-opacity=".22"/></filter>
+            <linearGradient id="sgEnvBody" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ece5d7"/><stop offset="1" stop-color="#e2d9c7"/></linearGradient>
+            <linearGradient id="sgEnvFlap" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3eee4"/><stop offset="1" stop-color="#e9e1d2"/></linearGradient>
+            <clipPath id="sgEnvClip"><rect width="300" height="206" rx="4"/></clipPath>
+          </defs>
+          <g clip-path="url(#sgEnvClip)">
+            <rect width="300" height="206" fill="url(#sgEnvBody)"/>
+            <path d="M0 0 L136 114 Q150 124 164 114 L300 0 V206 H0Z" fill="#ddd3c0"/>
+            <path d="M0 206 L128 104 Q150 88 172 104 L300 206Z" fill="#e8e0d0"/>
+            <path d="M0 0 L120 108 L0 206Z" fill="#e3dac8"/>
+            <path d="M300 0 L180 108 L300 206Z" fill="#e0d7c4"/>
+            <path d="M0 206 L128 104 Q150 88 172 104 L300 206" fill="none" stroke="#cfc4ae" stroke-width=".8"/>
+            <path d="M0 0 H300 L166 122 Q150 135 134 122 Z" fill="url(#sgEnvFlap)" filter="url(#sgFlapShadow)"/>
+            <path d="M0 .6 H300" stroke="#fffaf0" stroke-width="1.2"/>
+            <rect width="300" height="206" fill="#fff" filter="url(#sgEnvGrain)"/>
+          </g>
+          <rect x=".5" y=".5" width="299" height="205" rx="4" fill="none" stroke="#d3c8b3" stroke-width="1"/>
+        </svg>
+        <img class="env-seal" src="/templates/sage-garden/seal-heart.webp" alt="">
+        <span class="rsvp-s" data-elem-id="sg21">Rsvp</span>
+        <span class="rsvp-tap" data-elem-id="sg22">Tap to open</span>
+      </div>
+
+      <img class="pc sway" src="/templates/sage-garden/c-anthurium-left.webp" alt="" aria-hidden="true" style="--x:28;--y:738;--w:160;--h:104;--fx:-90px;--fr:-30deg;--d:1.15s;--o:90% 40%">
+
+      <figure class="pc pola-c story-pola tap" data-go="extras" style="--x:96;--y:1018;--w:206;--h:240;--r:-10deg;--fx:-80px;--fy:160px;--fr:-14deg;--d:.85s">
+        <img data-elem-id="sg26" src="/templates/sage-garden/p-story.webp" alt=""><figcaption><span class="scr" data-elem-id="sg27">Our</span> <span data-elem-id="sg28">story</span></figcaption>
+      </figure>
+
+      <img class="pc sway" src="/templates/sage-garden/c-flowers-bottom.webp" alt="" aria-hidden="true" style="--x:272;--y:1025;--w:138;--h:230;--fy:120px;--fs:.7;--d:1.05s;--o:50% 100%">
+      <img class="pc rings" src="/templates/sage-garden/c-rings-plate.webp" alt="" aria-hidden="true" style="--x:470;--y:1108;--w:167;--h:164;--fx:200px;--fr:220deg;--d:1.25s">
+    </div>
+  </section>
+
+  <!-- ============ العد التنازلي ============ -->
+  <section class="count-sec" id="countdownSec" data-section="countdown">
+    <div class="countdown">
+      <div class="cd"><span class="cn" data-cd="d" data-elem-id="sg29" data-wda-live>00</span><span class="cl" data-elem-id="sg33">Days</span></div>
+      <div class="cd"><span class="cn" data-cd="h" data-elem-id="sg30" data-wda-live>00</span><span class="cl" data-elem-id="sg34">Hours</span></div>
+      <div class="cd"><span class="cn" data-cd="m" data-elem-id="sg31" data-wda-live>00</span><span class="cl" data-elem-id="sg35">Minutes</span></div>
+      <div class="cd"><span class="cn" data-cd="s" data-elem-id="sg32" data-wda-live>00</span><span class="cl" data-elem-id="sg36">Seconds</span></div>
+    </div>
+    <div class="cal-add"><a class="btn btn-ghost" id="addCal" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg><span data-elem-id="sg37">Add to calendar</span></a></div>
+  </section>
+
+  <!-- ============ برنامج اليوم ============ -->
+  <section id="schedule" class="paper-bg" data-section="timeline">
+    <div class="eyebrow reveal" data-elem-id="sg38">The day</div>
+    <div class="h-script reveal d1" data-elem-id="sg39">Order of the day</div>
+    <div class="timeline">
+      <div class="tl reveal"><span class="t" data-k="t0" data-elem-id="sg40"></span><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="14" r="5"/><circle cx="15" cy="14" r="5"/><path d="M10 5l2-2 2 2"/></svg></span><span class="n" data-elem-id="sg41">Ceremony</span></div>
+      <div class="tl reveal d1"><span class="t" data-k="t1" data-elem-id="sg42"></span><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l-1 6a5 5 0 0 1-10 0L6 3zM12 14v6M8 21h8"/></svg></span><span class="n" data-elem-id="sg43">Cocktails</span></div>
+      <div class="tl reveal d2"><span class="t" data-k="t2" data-elem-id="sg44"></span><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 3v7a2 2 0 0 0 4 0V3M6 10v11M16 3c-2 2-2 6 0 8v10"/></svg></span><span class="n" data-elem-id="sg45">Dinner</span></div>
+      <div class="tl reveal d3"><span class="t" data-k="t3" data-elem-id="sg46"></span><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg></span><span class="n" data-elem-id="sg47">First dance &amp; party</span></div>
+    </div>
+  </section>
+
+  <!-- ============ المكان ============ -->
+  <section class="venue-sec" id="venue" data-section="venue">
+    <div class="eyebrow reveal" data-elem-id="sg48">Where</div>
+    <div class="h-script reveal d1" data-elem-id="sg49">The venue</div>
+    <div class="venue-name reveal" data-k="hall" data-elem-id="sg50"></div>
+    <div class="venue-addr reveal d1" data-k="address" data-elem-id="sg51"></div>
+    <div class="map-card reveal d2" data-elem-id="sg52"><iframe id="sgMap" src="https://www.google.com/maps?q=Egypt&amp;output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="map"></iframe></div>
+    <div class="venue-btns reveal d3"><a class="btn btn-sage" id="mapBtn" href="https://www.google.com/maps" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 21s-7-6.3-7-11.5A7 7 0 0 1 19 9.5C19 14.7 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg><span data-elem-id="sg53">Get directions</span></a></div>
+  </section>
+
+  <!-- ============ الزي ============ -->
+  <section class="dress" id="dress" data-section="dressCode">
+    <div class="eyebrow reveal" data-elem-id="sg54">Dress code</div>
+    <div class="h-script reveal d1" data-elem-id="sg55">Garden formal</div>
+    <div class="pal-wrap reveal d2" data-wda-ui>
+      <div class="swatches" id="swatches"></div>
+      <div class="pal-chip" id="palChip" role="button" tabindex="0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg><span>غيّر ألوان الزي</span><svg class="lock" id="palLock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
+      <div class="pal-pop" id="palPop" hidden></div>
+      <input type="color" class="pal-input" id="palInput" aria-hidden="true" tabindex="-1">
+    </div>
+    <p class="lead reveal d3" data-elem-id="sg56">Soft sage, ivory and champagne tones — and comfortable shoes for dancing on the grass.</p>
+  </section>
+
+  <!-- ============ تأكيد الحضور ============ -->
+  <section class="rsvp" id="rsvp" data-section="rsvp">
+    <svg class="sprig" data-sprig="1" style="width:140px;left:-26px;bottom:20px;color:#c7d0b4;transform:rotate(20deg)"></svg>
+    <div class="eyebrow reveal" data-elem-id="sg57">Kindly reply</div>
+    <div class="h-script reveal d1" data-elem-id="sg58">Will you join us?</div>
+    <div class="rsvp-card reveal d2" id="mithaq-rsvp">
+      <form id="rsvpForm" novalidate>
+        <h3 data-elem-id="sg59">RSVP</h3>
+        <div class="by" data-elem-id="sg60">Please reply at your earliest convenience</div>
+        <div class="field"><span class="lab" data-elem-id="sg61">Your name</span><input id="rName" name="name" autocomplete="name" maxlength="80"></div>
+        <div class="field"><span class="lab" data-elem-id="sg62">Will you attend?</span>
+          <div class="choice" role="radiogroup"><div role="radio" tabindex="0" aria-checked="false" data-a="yes" data-elem-id="sg63">Joyfully accept</div><div role="radio" tabindex="0" aria-checked="false" data-a="no" data-elem-id="sg64">Regretfully decline</div></div>
+        </div>
+        <div class="field" id="noteField"><span class="lab" data-elem-id="sg65">A message for the couple</span><textarea id="rNote" rows="2" maxlength="200"></textarea></div>
+        <div class="btn btn-sage" role="button" tabindex="0" id="rSend"><span data-elem-id="sg66">Send reply</span></div>
+        <div class="r-err" id="rErr" aria-live="polite"></div>
+      </form>
+      <div class="rsvp-done"><img src="/templates/sage-garden/seal-sprig.webp" alt=""><p id="rThanks" data-elem-id="sg67">Thank you — your reply has been received.</p><div class="again" role="button" tabindex="0" id="rAgain"><span data-elem-id="sg68">Change my reply</span></div></div>
+    </div>
+  </section>
+
+  <!-- ============ تهنئة صوتية + صور الضيوف ============ -->
+  <section class="extras" id="extras">
+    <div class="eyebrow reveal" data-elem-id="sg69">Leave us a little love</div>
+    <div class="h-script reveal d1" data-elem-id="sg70">Wishes &amp; memories</div>
+
+    <div class="ex-card reveal d2" id="voiceCard" data-section="voice">
+      <div class="ex-head">
+        <span class="ex-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></span>
+        <div><h4 data-elem-id="sg71">Record a voice wish</h4><p data-elem-id="sg72">Up to one minute — the couple will treasure it</p></div>
+      </div>
+      <div class="rec" id="rec">
+        <div class="rec-btn" id="recBtn" role="button" tabindex="0" aria-label="record"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+        <div class="wave" id="wave"></div>
+        <div class="rec-time"><span id="recHint" data-elem-id="sg73">Tap to start recording</span><span id="recClock"></span></div>
+        <div class="rec-out">
+          <audio id="recAudio" controls playsinline></audio>
+          <div class="field"><input id="vName" maxlength="60" autocomplete="name"></div>
+          <div class="rec-actions"><div class="btn btn-ghost" role="button" tabindex="0" id="recAgain"><span data-elem-id="sg74">Record again</span></div><div class="btn btn-sage" role="button" tabindex="0" id="recSend"><span data-elem-id="sg75">Send</span></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ex-card reveal d3" id="photosCard" data-section="guestPhotos">
+      <div class="ex-head">
+        <span class="ex-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="15" rx="3"/><circle cx="12" cy="12.5" r="3.5"/><path d="M8 5l1.5-2h5L16 5"/></svg></span>
+        <div><h4 data-elem-id="sg76">Share your photos</h4><p data-elem-id="sg77">Upload the moments you capture on the day</p></div>
+      </div>
+      <div class="field"><input id="pName" maxlength="60" autocomplete="name"></div>
+      <div class="drop" id="drop" role="button" tabindex="0">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+        <span class="d-t" data-elem-id="sg78">Choose photos</span><span class="d-h" data-elem-id="sg79">JPG · PNG — as many as you like</span>
+      </div>
+      <input type="file" id="photoIn" accept="image/*" multiple hidden>
+      <div class="prog" id="pProg" hidden><span></span></div>
+      <div class="p-msg" id="pMsg" aria-live="polite"></div>
+      <div class="p-note" data-elem-id="sg80">Your photos go privately to the couple — only they can see them.</div>
+    </div>
+  </section>
+
+  <!-- ============ الختام ============ -->
+  <section class="closing" data-section="closing">
+    <img class="plate reveal" src="/templates/sage-garden/c-rings-plate.webp" alt="">
+    <div class="h-script reveal d1" data-elem-id="sg82">We can’t wait to celebrate with you</div>
+    <div class="c-names reveal d2"><span class="nm fit1" data-k="groom" data-elem-id="sg83"></span><span class="amp" data-k="conn" data-elem-id="sg84">&amp;</span><span class="nm fit1" data-k="bride" data-elem-id="sg85"></span></div>
+    <div class="foot reveal d3"><span data-k="dateShort" data-elem-id="sg86" data-wda-live></span></div>
+  </section>
+</main>
+
+<div class="fab" id="audioBtn" role="button" tabindex="0" aria-label="music"><span class="bars"><i></i><i></i><i></i></span></div>
+<div class="toast" id="toast"></div>
+<audio id="invitation-audio" src="/templates/champagne-lace/song.mp3" loop preload="none" playsinline></audio>
+
+<script>
+(() => {
+  const C = window.WEDDING_CONFIG || {};
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const byId = (id) => document.querySelector(`[data-elem-id="${id}"]`);
+
+  // وضع المحرر/المعاينة الثابتة: مفيش غلاف ولا حركة دخول — المحتوى ظاهر على طول
+  const STATIC = !!C.autoOpen;
+  const EDIT = STATIC && /[?&]edit=1(&|$)/.test(location.search);
+  if (EDIT) document.body.classList.add('sg-edit');
+
+  const AR = C.language === 'ar';
+  const ENGAGED = C.occasionType === 'engagement';
+  const L = (en, ar) => (AR ? ar : en);
+
+  /* ---------- الأقسام اللي صاحب الدعوة شالها ---------- */
+  const HIDDEN = new Set(Array.isArray(C.hiddenSections) ? C.hiddenSections : []);
+  $$('[data-section]').forEach((s) => { if (HIDDEN.has(s.dataset.section)) s.classList.add('off'); });
+  if (HIDDEN.has('voice') && HIDDEN.has('guestPhotos')) $('#extras').classList.add('off');
+
+  /* ---------- الكلام الافتراضي (نسخة إنجليزي / عربي) ---------- */
+  const COPY = AR ? {
+    sg1: ENGAGED ? 'دعوة خطوبة' : 'دعوة زفاف', sg5: 'اضغط على الختم للفتح',
+    sg9: ENGAGED ? 'دعوة<br>خطوبة' : 'دعوة<br>زفاف',
+    sg13: 'قاعة', sg16: 'اضغط للتفاصيل', sg17: 'تفاصيل', sg18: ENGAGED ? 'الخطوبة' : 'الفرح',
+    sg20: 'المكان', sg21: 'أكّد حضورك', sg22: 'اضغط للفتح', sg27: 'حكايتنا', sg28: '',
+    sg33: 'يوم', sg34: 'ساعة', sg35: 'دقيقة', sg36: 'ثانية', sg37: 'أضف للتقويم',
+    sg38: ENGAGED ? 'يوم الخطوبة' : 'يوم الفرح', sg39: 'برنامج اليوم',
+    sg41: ENGAGED ? 'الاستقبال' : 'كتب الكتاب', sg43: ENGAGED ? 'لبس الدبل' : 'الاستقبال', sg45: 'العشاء', sg47: 'الحفلة والرقصة الأولى',
+    sg48: 'المكان', sg49: 'مكان الحفل', sg53: 'افتح الخريطة',
+    sg54: 'الزي', sg55: 'ألوان الحديقة', sg56: 'درجات الأخضر الهادي والأوف وايت والشامبين — وجزمة مريحة للرقص على النجيلة.',
+    sg57: 'نتشرف بردكم', sg58: 'هتكونوا معانا؟', sg59: 'تأكيد الحضور', sg60: 'نرجو الرد في أقرب وقت',
+    sg61: 'الاسم', sg62: 'هتحضر؟', sg63: 'أكيد حاضر', sg64: 'معتذر للأسف', sg65: 'رسالة للعروسين', sg66: 'ابعت الرد',
+    sg67: 'شكرًا — ردّك وصل 🤍', sg68: 'غيّر ردّي',
+    sg69: 'سيبولنا ذكرى حلوة', sg70: 'تهاني وذكريات',
+    sg71: 'سجّل تهنئة بصوتك', sg72: 'لحد دقيقة — العروسين هيحتفظوا بيها', sg73: 'اضغط عشان تبدأ التسجيل', sg74: 'سجّل تاني', sg75: 'ابعت',
+    sg76: 'شاركونا صوركم', sg77: 'ارفعوا اللحظات اللي صوّرتوها يوم الفرح', sg78: 'اختار الصور', sg79: 'JPG · PNG — براحتك في العدد',
+    sg80: 'صوركم بتوصل للعروسين بس — محدش غيرهم يقدر يشوفها.',
+    sg82: 'مستنيينكم تحتفلوا معانا',
+  } : {
+    sg1: ENGAGED ? 'Engagement invitation' : 'You are invited', sg5: 'Tap the seal to open',
+    sg9: ENGAGED ? 'Engagement<br>invitation' : 'Wedding<br>invitation',
+    sg13: 'Banquet hall', sg16: 'Tap to view', sg17: ENGAGED ? 'Engagement' : 'Wedding', sg18: 'details',
+    sg20: 'Location', sg21: 'Rsvp', sg22: 'Tap to open', sg27: 'Our', sg28: 'story',
+    sg33: 'Days', sg34: 'Hours', sg35: 'Minutes', sg36: 'Seconds', sg37: 'Add to calendar',
+    sg38: 'The day', sg39: 'Order of the day',
+    sg41: ENGAGED ? 'Welcome' : 'Ceremony', sg43: ENGAGED ? 'Ring exchange' : 'Cocktails', sg45: 'Dinner', sg47: 'First dance & party',
+    sg48: 'Where', sg49: 'The venue', sg53: 'Get directions',
+    sg54: 'Dress code', sg55: 'Garden formal', sg56: 'Soft sage, ivory and champagne tones — and comfortable shoes for dancing on the grass.',
+    sg57: 'Kindly reply', sg58: 'Will you join us?', sg59: 'RSVP', sg60: 'Please reply at your earliest convenience',
+    sg61: 'Your name', sg62: 'Will you attend?', sg63: 'Joyfully accept', sg64: 'Regretfully decline', sg65: 'A message for the couple', sg66: 'Send reply',
+    sg67: 'Thank you — your reply has been received.', sg68: 'Change my reply',
+    sg69: 'Leave us a little love', sg70: 'Wishes & memories',
+    sg71: 'Record a voice wish', sg72: 'Up to one minute — the couple will treasure it', sg73: 'Tap to start recording', sg74: 'Record again', sg75: 'Send',
+    sg76: 'Share your photos', sg77: 'Upload the moments you capture on the day', sg78: 'Choose photos', sg79: 'JPG · PNG — as many as you like',
+    sg80: 'Your photos go privately to the couple — only they can see them.',
+    sg82: 'We can’t wait to celebrate with you',
+  };
+  Object.keys(COPY).forEach((id) => {
+    const el = byId(id); if (!el) return;
+    if (id === 'sg9') el.innerHTML = COPY[id]; else el.textContent = COPY[id];
+  });
+  if (AR && !byId('sg28').textContent) byId('sg28').style.display = 'none';
+
+  /* ---------- تعديلات فورم الحضور من البانل (rsvpOverrides) ---------- */
+  const RO = C.rsvpOverrides || {};
+  const RO_MAP = { title: 'sg58', intro: 'sg60', nameLabel: 'sg61', comeLabel: 'sg62', yesLabel: 'sg63', noLabel: 'sg64', foodLabel: 'sg65', submit: 'sg66', button: 'sg21' };
+  Object.keys(RO_MAP).forEach((k) => { if (RO[k]) byId(RO_MAP[k]).textContent = RO[k]; });
+  if (RO.hideFood) $('#noteField').classList.add('off');
+
+  /* ---------- بيانات الدعوة: الأسماء والتاريخ والمكان ---------- */
+  const MONTHS = AR
+    ? ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر']
+    : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const cd0 = C.countdown || {};
+  const now0 = new Date();
+  const Y = Number.isFinite(cd0.year) ? cd0.year : now0.getFullYear();
+  const M = Number.isFinite(cd0.monthIndex) ? cd0.monthIndex : now0.getMonth();
+  const D = Number.isFinite(cd0.day) ? cd0.day : now0.getDate();
+  const H = Number.isFinite(cd0.hour) ? cd0.hour : 19;
+  const MI = Number.isFinite(cd0.minute) ? cd0.minute : 0;
+  // لحظة الفرح الحقيقية (السيرفر حاسبها بتوقيت مصر) — العدّاد والتقويم عليها
+  const START = (() => { const d = C.weddingDateTimeISO ? new Date(C.weddingDateTimeISO) : null; return d && !isNaN(d) ? d : new Date(Y, M, D, H, MI); })();
+  const clock = (mins) => {
+    const t = ((mins % 1440) + 1440) % 1440; const h = Math.floor(t / 60); const m = t % 60;
+    return `${h % 12 || 12}:${String(m).padStart(2, '0')} ${h < 12 ? L('AM', 'ص') : L('PM', 'م')}`;
+  };
+  const base = H * 60 + MI;
+  const groom = C.groomName || '';
+  const bride = C.brideName || '';
+  const fields = {
+    groom, bride, conn: AR ? 'و' : '&',
+    day: String(D).padStart(2, '0'), monthUp: AR ? MONTHS[M] : MONTHS[M].toUpperCase(), year: String(Y),
+    hall: C.venueName || '', city: C.venueCity || '', address: C.venueAddress || C.venueCity || '',
+    t0: clock(base), t1: clock(base + 60), t2: clock(base + 120), t3: clock(base + 210),
+    dateShort: `${D} ${MONTHS[M]} ${Y}`,
+  };
+  $$('[data-k]').forEach((el) => { const v = fields[el.dataset.k]; if (v != null) el.textContent = v; });
+  if (groom || bride) {
+    document.title = AR
+      ? `${groom} و ${bride} | ${ENGAGED ? 'دعوة خطوبة' : 'دعوة زفاف'}`
+      : `${groom} & ${bride} | ${ENGAGED ? 'Engagement Invitation' : 'Wedding Invitation'}`;
+  }
+
+  /* ---------- الخريطة + التقويم ---------- */
+  const mapEmbed = C.venueMapEmbedSrc || 'https://www.google.com/maps?q=Egypt&output=embed';
+  const mapFrame = $('#sgMap');
+  if (mapFrame.hasAttribute('data-wda-map-deferred')) mapFrame.setAttribute('data-wda-map-src', mapEmbed);
+  else mapFrame.setAttribute('src', mapEmbed);
+  $('#mapBtn').href = C.venueMapDirectLink || 'https://www.google.com/maps';
+  (() => {
+    const z = (d) => d.toISOString().replace(/[-:]|\.\d{3}/g, '');
+    const end = new Date(START.getTime() + 5 * 3600e3);
+    const title = AR ? `${ENGAGED ? 'خطوبة' : 'فرح'} ${groom} و ${bride}` : `${groom} & ${bride} — ${ENGAGED ? 'Engagement' : 'Wedding'}`;
+    const where = [C.venueName, C.venueAddress || C.venueCity].filter(Boolean).join(', ');
+    $('#addCal').href = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${z(START)}/${z(end)}&location=${encodeURIComponent(where)}`;
+  })();
+
+  /* ---------- العدّاد ---------- */
+  const cdEls = { d: $('[data-cd="d"]'), h: $('[data-cd="h"]'), m: $('[data-cd="m"]'), s: $('[data-cd="s"]') };
+  function tick() {
+    const diff = Math.max(0, START - Date.now());
+    const v = { d: Math.floor(diff / 864e5), h: Math.floor(diff / 36e5) % 24, m: Math.floor(diff / 6e4) % 60, s: Math.floor(diff / 1e3) % 60 };
+    Object.keys(v).forEach((k) => { const t = String(v[k]).padStart(2, '0'); if (cdEls[k].textContent !== t) cdEls[k].textContent = t; });
+  }
+  tick(); setInterval(tick, 1000);
+
+  /* ---------- الأسماء الطويلة: بتصغر لحد ما تدخل مكانها ---------- */
+  function fitAll() {
+    $$('.fit1').forEach((el) => {
+      el.style.setProperty('--fit', 1);
+      const host = el.closest('.dc-in, .lace-in, .det-in, .c-names') || el.parentElement;
+      const cs = getComputedStyle(host);
+      const avail = host.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      const w = el.scrollWidth;
+      if (avail > 0 && w > avail) el.style.setProperty('--fit', Math.max(0.4, (avail / w) * 0.98).toFixed(3));
+    });
+    const hall = byId('sg14');
+    hall.style.setProperty('--fit', 1);
+    for (let f = 1; f >= 0.5 && hall.scrollHeight > hall.parentElement.clientHeight * 0.62; f -= 0.06) hall.style.setProperty('--fit', f.toFixed(2));
+    const cover = $('.cover-names');
+    if (cover) {
+      cover.style.fontSize = '';
+      const avail = cover.parentElement.clientWidth;
+      if (cover.scrollWidth > avail) cover.style.fontSize = `${Math.max(22, parseFloat(getComputedStyle(cover).fontSize) * avail / cover.scrollWidth * 0.97)}px`;
+    }
+  }
+  let fitT = 0;
+  const fitSoon = () => { clearTimeout(fitT); fitT = setTimeout(fitAll, 60); };
+  fitAll();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitAll);
+  addEventListener('resize', fitSoon);
+  // تعديل صاحب الدعوة على اسم (من المحرر أو التخصيصات) → نعيد الحساب
+  new MutationObserver(fitSoon).observe($('#collage'), { subtree: true, characterData: true, childList: true });
+
+  /* ---------- مفرش الدانتيل (SVG مرسوم) ---------- */
+  (function drawLace() {
+    const rx = 168; const ry = 208; const R = (v) => v.toFixed(1);
+    let holes = ''; let relief = ''; let scallops = '';
+    const ring = (k, n, off, f) => { for (let i = 0; i < n; i += 1) { const t = ((i + off) / n) * Math.PI * 2; const x = rx * k * Math.cos(t); const y = ry * k * Math.sin(t); const a = (Math.atan2(ry * Math.cos(t), -rx * Math.sin(t)) * 180) / Math.PI; f(x, y, a); } };
+    ring(1, 70, 0, (x, y) => { scallops += `<circle cx="${R(x)}" cy="${R(y)}" r="9.5"/>`; });
+    ring(0.985, 70, 0.5, (x, y) => { holes += `<circle cx="${R(x)}" cy="${R(y)}" r="2.6"/>`; });
+    ring(0.9, 48, 0, (x, y, a) => {
+      holes += `<ellipse cx="${R(x)}" cy="${R(y)}" rx="9" ry="5" transform="rotate(${R(a + 90)} ${R(x)} ${R(y)})"/>`;
+      relief += `<ellipse cx="${R(x)}" cy="${R(y)}" rx="12" ry="7.5" transform="rotate(${R(a + 90)} ${R(x)} ${R(y)})"/>`;
+    });
+    ring(0.9, 48, 0.5, (x, y) => { holes += `<circle cx="${R(x)}" cy="${R(y)}" r="3"/>`; });
+    ring(0.815, 40, 0.25, (x, y, a) => { holes += `<path d="M0 -7 L5 0 L0 7 L-5 0Z" transform="translate(${R(x)} ${R(y)}) rotate(${R(a)})"/>`; });
+    ring(0.755, 64, 0, (x, y) => { holes += `<circle cx="${R(x)}" cy="${R(y)}" r="2.4"/>`; });
+    ring(0.715, 110, 0, (x, y) => { holes += `<circle cx="${R(x)}" cy="${R(y)}" r="1.1"/>`; });
+    $('#laceSvg').innerHTML = `<defs><mask id="sgLaceMask" maskUnits="userSpaceOnUse" x="-200" y="-240" width="400" height="480"><ellipse rx="${rx}" ry="${ry}" fill="#fff"/><g fill="#fff">${scallops}</g><g fill="#000">${holes}</g></mask></defs>`
+      + '<rect x="-200" y="-240" width="400" height="480" fill="#fdfcf8" mask="url(#sgLaceMask)"/>'
+      + `<g fill="none" stroke="#e7e2d6" stroke-width="1">${relief}</g>`
+      + `<ellipse rx="${R(rx * 0.69)}" ry="${R(ry * 0.69)}" fill="none" stroke="#e4ded1" stroke-width="1.4"/><ellipse rx="${R(rx * 0.665)}" ry="${R(ry * 0.665)}" fill="#fefdfb"/>`;
+  })();
+
+  /* ---------- غصن نباتي مرسوم ---------- */
+  $$('.sprig').forEach((svg, idx) => {
+    svg.setAttribute('viewBox', '0 0 160 220');
+    const stem = 'M20 210 C 50 160, 70 120, 90 80 S 120 25, 138 8';
+    svg.innerHTML = `<path class="stem" d="${stem}" style="--len:320"/>`;
+    const p = svg.querySelector('.stem'); const len = p.getTotalLength();
+    let out = svg.innerHTML;
+    for (let i = 1; i <= 11; i += 1) {
+      const pt = p.getPointAtLength((len * i) / 12); const side = i % 2 ? 1 : -1;
+      const ang = ((i * 13 + idx * 7) % 30) - 15 + (side > 0 ? -50 : 50); const rx = 12 + ((i * 7 + idx) % 6);
+      out += `<ellipse class="leaf" cx="${pt.x + rx * 0.9 * side}" cy="${pt.y}" rx="${rx}" ry="${rx * 0.48}" transform="rotate(${ang} ${pt.x} ${pt.y})" style="transition-delay:${0.35 + i * 0.13}s;--o:${0.55 + (i % 3) * 0.15}"/>`;
+    }
+    svg.innerHTML = out;
+  });
+
+  /* ---------- الظهور مع النزول ---------- */
+  if (STATIC || !('IntersectionObserver' in window)) {
+    $$('.reveal, .sprig').forEach((el) => el.classList.add('in'));
+  } else {
+    const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: 0.15 });
+    $$('.reveal, .sprig').forEach((el) => io.observe(el));
+  }
+
+  /* ---------- الضغط على قطع الكولاج = ينزل للقسم بتاعها ---------- */
+  const GO = { countdown: '#countdownSec', venue: '#venue', schedule: '#schedule', rsvp: '#rsvp', extras: '#extras' };
+  $$('[data-go]').forEach((el) => el.addEventListener('click', () => {
+    if (EDIT) return;
+    const t = $(GO[el.dataset.go]);
+    if (t && !t.classList.contains('off')) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }));
+
+  /* ---------- الموسيقى ---------- */
+  const music = $('#invitation-audio'); const audioBtn = $('#audioBtn');
+  function playMusic() { const p = music.play(); if (p && p.then) p.then(() => audioBtn.classList.add('playing')).catch(() => {}); }
+  audioBtn.addEventListener('click', () => { if (music.paused) playMusic(); else { music.pause(); audioBtn.classList.remove('playing'); } });
+  music.addEventListener('pause', () => audioBtn.classList.remove('playing'));
+  music.addEventListener('play', () => audioBtn.classList.add('playing'));
+
+  /* ---------- رسالة صغيرة ---------- */
+  function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('on'), 3200); }
+
+  /* ---------- فتح الظرف ---------- */
+  const cover = $('#coverScreen'); const collage = $('#collage');
+  function petals() {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    let n = 0;
+    const id = setInterval(() => {
+      if (++n > 26) { clearInterval(id); return; }
+      const el = document.createElement('i'); el.className = 'petal';
+      const r = $('#stage').getBoundingClientRect();
+      el.style.left = `${r.left + Math.random() * r.width}px`;
+      el.style.setProperty('--dx', `${(Math.random() - 0.5) * 160}px`);
+      el.style.setProperty('--rot', `${Math.random() * 720}deg`);
+      el.style.animationDuration = `${7 + Math.random() * 6}s`;
+      el.style.background = Math.random() > 0.7 ? '#d8c39a' : '#c9d0bb';
+      document.body.appendChild(el); setTimeout(() => el.remove(), 14000);
+    }, 650);
+  }
+  function openInvite() {
+    if (cover.classList.contains('opening')) return;
+    $('#burst').innerHTML = Array.from({ length: 16 }, (_, i) => {
+      const a = (i / 16) * Math.PI * 2; const r = 90 + Math.random() * 90;
+      return `<span style="--x:${Math.cos(a) * r}px;--y:${Math.sin(a) * r}px;--r:${Math.random() * 360}deg;background:${i % 3 ? '#c9d0bb' : '#d8c39a'}"></span>`;
+    }).join('');
+    cover.classList.add('opening');
+    playMusic();
+    // القطع بتدخل بعد ما الظرف يمشي — وبعد ما صورها تخلص تحميل (بحد أقصى 2.5 ثانية)
+    const ready = Promise.race([
+      Promise.all($$('#collage img').map((i) => (i.complete && i.naturalWidth ? null : (i.decode ? i.decode().catch(() => null) : null)))),
+      new Promise((r) => setTimeout(r, 2500)),
+    ]);
+    const t0 = Date.now();
+    ready.then(() => setTimeout(() => { collage.classList.add('play'); fitAll(); }, Math.max(0, 1350 - (Date.now() - t0))));
+    setTimeout(() => { cover.classList.add('gone'); document.body.classList.remove('locked'); audioBtn.classList.add('on'); petals(); }, 1300);
+    setTimeout(() => cover.remove(), 2000);
+  }
+  if (STATIC) {
+    // المحرر: الغلاف بيفضل موجود (مخفي) — زرار "الغلاف" في المحرر بيظهره عشان
+    // صاحب الدعوة يعدّل كلامه. المعاينة الثابتة (كروت المعرض) من غير غلاف.
+    if (EDIT) cover.classList.add('sg-cover-edit'); else cover.remove();
+    collage.classList.add('play', 'static');
+    document.body.classList.remove('locked');
+    if (!EDIT) audioBtn.classList.add('on');
+  } else {
+    $('#seal').addEventListener('click', openInvite);
+    $('#seal').addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openInvite(); } });
+    cover.addEventListener('click', (e) => { if (e.target.closest('.env-wrap')) openInvite(); });
+  }
+
+  /* ---------- أزرار من غير <button> (عشان الكلام اللي جواها يتعدّل) ---------- */
+  function onPress(el, fn) {
+    el.addEventListener('click', (e) => { if (EDIT) return; fn(e); });
+    el.addEventListener('keydown', (e) => { if (EDIT) return; if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fn(e); } });
+  }
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch (_) { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch (_) {} },
+  };
+  const NAME_KEY = 'mithaq_guest_name';
+  const sid = C.shortId ? encodeURIComponent(C.shortId) : '';
+
+  /* ---------- تأكيد الحضور ---------- */
+  (() => {
+    const page = $('#mithaq-rsvp'); const form = $('#rsvpForm'); const err = $('#rErr');
+    const nameIn = $('#rName'); const noteIn = $('#rNote'); const sendBtn = $('#rSend');
+    const radios = $$('.choice [role=radio]');
+    const SENT_KEY = `mithaq_rsvp_${C.shortId || 'preview'}`;
+    let attending = null;
+    nameIn.placeholder = L('Your full name', 'اسمك بالكامل');
+    noteIn.placeholder = L('Optional', 'اختياري');
+    const thank = (name, yes) => {
+      const first = String(name || '').trim().split(/\s+/)[0] || '';
+      const t = yes
+        ? L(`Thank you, ${first} — we can’t wait to celebrate with you 🤍`, `شكرًا يا ${first} — مستنيينك تنوّر فرحتنا 🤍`)
+        : L(`Thank you, ${first} — you’ll be in our hearts that day 🤍`, `شكرًا يا ${first} — هتوحشنا، وهتكون في قلوبنا يومها 🤍`);
+      byId('sg67').textContent = t;
+    };
+    radios.forEach((b) => onPress(b, () => {
+      attending = b.dataset.a === 'yes';
+      radios.forEach((x) => x.setAttribute('aria-checked', String(x === b)));
+      err.textContent = '';
+    }));
+    nameIn.addEventListener('input', () => { err.textContent = ''; });
+    async function submit() {
+      const name = nameIn.value.trim().replace(/\s+/g, ' ');
+      if (name.length < 2) { err.textContent = L('Please write your name', 'اكتب اسمك الأول'); nameIn.focus(); return; }
+      if (attending === null) { err.textContent = L('Please choose: accept or decline', 'اختار: حاضر ولا معتذر'); return; }
+      sendBtn.classList.add('busy'); err.textContent = '';
+      try {
+        if (sid) {
+          const res = await fetch(`/i/${sid}/rsvp`, {
+            method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin',
+            body: JSON.stringify({ guestName: name, attending: attending ? 'yes' : 'no', note: noteIn.value.trim() }),
+          });
+          if (!res.ok) { let b = {}; try { b = await res.json(); } catch (_) {} throw new Error(b.error || ''); }
+        }
+        if (!STATIC) store.set(SENT_KEY, JSON.stringify({ name, attending, at: Date.now() }));
+        store.set(NAME_KEY, name);
+        thank(name, attending);
+        page.classList.add('sent');
+        prefillNames();
+      } catch (ex) {
+        err.textContent = (ex && ex.message) || L('Couldn’t send — please try again', 'معرفناش نبعت — جرّب تاني');
+      }
+      sendBtn.classList.remove('busy');
+    }
+    onPress(sendBtn, submit);
+    form.addEventListener('submit', (e) => { e.preventDefault(); if (!EDIT) submit(); });
+    onPress($('#rAgain'), () => page.classList.remove('sent'));
+    if (!STATIC) {
+      try { const prev = JSON.parse(store.get(SENT_KEY) || 'null'); if (prev && prev.name) { thank(prev.name, !!prev.attending); page.classList.add('sent'); } } catch (_) {}
+    }
+  })();
+
+  function prefillNames() {
+    const n = store.get(NAME_KEY) || '';
+    ['#vName', '#pName'].forEach((s) => { const el = $(s); if (el && !el.value) el.value = n; });
+  }
+  $('#vName').placeholder = L('Your name, so the couple knows who sent it', 'اسمك عشان العروسين يعرفوا مين بعتها');
+  $('#pName').placeholder = L('Your name', 'اسمك');
+  prefillNames();
+
+  /* ---------- تهنئة صوتية ---------- */
+  (() => {
+    const rec = $('#rec'); const wave = $('#wave'); const hint = $('#recHint'); const clockEl = $('#recClock');
+    wave.innerHTML = '<i></i>'.repeat(26);
+    const bars = $$('i', wave);
+    const MAX = 60;
+    let mr = null; let chunks = []; let t0 = 0; let timer = 0; let raf = 0; let ac = null; let stream = null; let blob = null; let secs = 0;
+    const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+    function reset() {
+      rec.classList.remove('on', 'review'); clockEl.textContent = ''; hint.style.display = '';
+      bars.forEach((b) => { b.style.height = '6px'; }); blob = null;
+    }
+    async function start() {
+      if (!navigator.mediaDevices || !window.MediaRecorder) { toast(L('Voice recording isn’t supported on this browser', 'المتصفح ده مش بيدعم التسجيل')); return; }
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      } catch (_) { toast(L('Microphone is blocked — allow it to record', 'المايك مقفول — اسمح بيه عشان تسجّل')); return; }
+      chunks = []; mr = new MediaRecorder(stream);
+      mr.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
+      mr.onstop = () => {
+        stream.getTracks().forEach((t) => t.stop()); cancelAnimationFrame(raf); if (ac) { ac.close().catch(() => {}); ac = null; }
+        secs = (Date.now() - t0) / 1000;
+        blob = new Blob(chunks, { type: mr.mimeType || 'audio/webm' });
+        if (secs < 1 || !blob.size) { reset(); toast(L('That was too short — try again', 'التسجيل قصير أوي — جرّب تاني')); return; }
+        $('#recAudio').src = URL.createObjectURL(blob);
+        rec.classList.remove('on'); rec.classList.add('review'); hint.style.display = 'none'; clockEl.textContent = fmt(secs);
+      };
+      mr.start(); t0 = Date.now(); rec.classList.add('on'); hint.style.display = 'none';
+      music.pause();
+      timer = setInterval(() => { const s = (Date.now() - t0) / 1000; clockEl.textContent = `${L('Recording', 'بيسجّل')} · ${fmt(s)}`; if (s >= MAX) stop(); }, 200);
+      try {
+        ac = new (window.AudioContext || window.webkitAudioContext)(); const an = ac.createAnalyser(); an.fftSize = 64;
+        ac.createMediaStreamSource(stream).connect(an); const data = new Uint8Array(an.frequencyBinCount);
+        (function loop() { an.getByteFrequencyData(data); bars.forEach((b, i) => { b.style.height = `${4 + (data[i] / 255) * 30}px`; }); raf = requestAnimationFrame(loop); })();
+      } catch (_) { /* الموجة زينة بس */ }
+    }
+    function stop() { clearInterval(timer); if (mr && mr.state !== 'inactive') mr.stop(); }
+    onPress($('#recBtn'), () => (mr && mr.state === 'recording' ? stop() : start()));
+    $('#recBtn').addEventListener('click', () => { if (EDIT) toast('التسجيل بيشتغل عند الضيوف — مش في المحرر'); });
+    onPress($('#recAgain'), reset);
+    onPress($('#recSend'), async () => {
+      if (!blob) return;
+      const name = $('#vName').value.trim();
+      if (!name) { toast(L('Please write your name first', 'اكتب اسمك الأول')); $('#vName').focus(); return; }
+      store.set(NAME_KEY, name);
+      if (!sid) { toast(L('Voice wishes work once the invitation is published', 'التهاني الصوتية بتشتغل بعد نشر الدعوة')); return; }
+      const btn = $('#recSend'); btn.classList.add('busy');
+      try {
+        const type = (blob.type || '').split(';')[0];
+        const ext = /mp4|aac|m4a/.test(type) ? 'm4a' : /ogg/.test(type) ? 'ogg' : 'webm';
+        const fd = new FormData();
+        fd.append('guestName', name); fd.append('duration', String(Math.round(secs * 10) / 10)); fd.append('file', blob, `voice.${ext}`);
+        const res = await fetch(`/i/${sid}/voice`, { method: 'POST', body: fd, credentials: 'same-origin' });
+        let b = {}; try { b = await res.json(); } catch (_) {}
+        if (!res.ok) throw new Error(b.error || '');
+        toast(L('Your voice wish was sent to the couple 🤍', 'تهنئتك وصلت للعروسين 🤍'));
+        reset();
+      } catch (ex) { toast((ex && ex.message) || L('Couldn’t send — please try again', 'معرفناش نبعت — جرّب تاني')); }
+      btn.classList.remove('busy');
+    });
+  })();
+
+  /* ---------- صور الضيوف (بتروح للعروسين بس) ---------- */
+  (() => {
+    const drop = $('#drop'); const fileIn = $('#photoIn'); const nameIn = $('#pName');
+    const prog = $('#pProg'); const fill = prog.querySelector('span'); const msg = $('#pMsg');
+    const KEY = `mithaq_gp_key_${C.shortId || 'preview'}`;
+    let total = 0;
+    function guestKey() {
+      let k = store.get(KEY);
+      if (!k) { const a = new Uint8Array(16); (window.crypto || window.msCrypto).getRandomValues(a); k = Array.from(a, (b) => (`0${b.toString(16)}`).slice(-2)).join(''); store.set(KEY, k); }
+      return k;
+    }
+    function shrink(file) {
+      return new Promise((resolve) => {
+        if (!window.createImageBitmap) { resolve(file); return; }
+        createImageBitmap(file, { imageOrientation: 'from-image' }).then((bmp) => {
+          const scale = Math.min(1, 2560 / Math.max(bmp.width, bmp.height));
+          if (scale === 1 && file.size < 3.2 * 1024 * 1024 && /^image\/(jpeg|webp|png)$/i.test(file.type)) { if (bmp.close) bmp.close(); resolve(file); return; }
+          const cv = document.createElement('canvas'); cv.width = Math.round(bmp.width * scale); cv.height = Math.round(bmp.height * scale);
+          cv.getContext('2d').drawImage(bmp, 0, 0, cv.width, cv.height); if (bmp.close) bmp.close();
+          let q = 0.9;
+          (function go() { cv.toBlob((b) => { if (!b) { resolve(file); return; } if (b.size > 3.6 * 1024 * 1024 && q > 0.6) { q -= 0.1; go(); return; } resolve(new File([b], 'photo.jpg', { type: 'image/jpeg' })); }, 'image/jpeg', q); })();
+        }).catch(() => resolve(file));
+      });
+    }
+    function upload(file, onPart) {
+      return new Promise((resolve) => {
+        const fd = new FormData(); fd.append('file', file); fd.append('guestName', nameIn.value.trim());
+        const xhr = new XMLHttpRequest(); xhr.open('POST', `/i/${sid}/photos`); xhr.setRequestHeader('X-Guest-Key', guestKey());
+        xhr.upload.onprogress = (e) => { if (e.lengthComputable) onPart(e.loaded / e.total); };
+        xhr.onload = () => { let j = null; try { j = JSON.parse(xhr.responseText); } catch (_) {} resolve(xhr.status === 201 ? true : ((j && j.error) || false)); };
+        xhr.onerror = () => resolve(L('Network problem — check your connection', 'مشكلة في النت — اتأكد من الاتصال'));
+        xhr.send(fd);
+      });
+    }
+    const say = (t, bad) => { msg.textContent = t; msg.classList.toggle('err', !!bad); };
+    onPress(drop, () => {
+      say('');
+      if (!sid) { say(L('Photo upload works once the invitation is published', 'رفع الصور بيشتغل بعد نشر الدعوة'), true); return; }
+      if (!nameIn.value.trim()) { say(L('Please write your name first', 'اكتب اسمك الأول'), true); nameIn.focus(); return; }
+      store.set(NAME_KEY, nameIn.value.trim());
+      fileIn.click();
+    });
+    drop.addEventListener('click', () => { if (EDIT) toast('رفع الصور بيشتغل عند الضيوف — مش في المحرر'); });
+    fileIn.addEventListener('change', async () => {
+      const files = [...(fileIn.files || [])].slice(0, 20).filter((f) => !f.type || /^image\//i.test(f.type));
+      fileIn.value = '';
+      if (!files.length) return;
+      drop.classList.add('busy'); prog.hidden = false; fill.style.width = '0%';
+      let ok = 0; let lastErr = '';
+      for (let i = 0; i < files.length; i += 1) {
+        say(L(`Uploading ${i + 1} of ${files.length}…`, `بيرفع ${i + 1} من ${files.length}…`));
+        // eslint-disable-next-line no-await-in-loop
+        const r = await upload(await shrink(files[i]), (p) => { fill.style.width = `${((i + p) / files.length) * 100}%`; });
+        if (r === true) ok += 1; else lastErr = typeof r === 'string' ? r : L('Upload failed — try again', 'الرفع فشل — جرّب تاني');
+      }
+      fill.style.width = '100%'; total += ok; drop.classList.remove('busy');
+      setTimeout(() => { prog.hidden = true; }, 900);
+      if (ok) say(L(`Thank you! ${total} photo${total > 1 ? 's' : ''} sent to the couple 🤍`, `شكرًا! وصل للعروسين ${total} ${total > 1 && total < 11 ? 'صور' : 'صورة'} 🤍`) + (lastErr ? ` — ${lastErr}` : ''), false);
+      else say(lastErr, true);
+    });
+  })();
+
+  /* ---------- ألوان الزي ---------- */
+  const DEFAULT_PALETTE = ['#7c8a6a', '#c9d0bb', '#efe6d6', '#d8c39a', '#fbf8f2'];
+  const cleanPalette = (p) => (Array.isArray(p) ? p.filter((c) => /^#[0-9a-f]{6}$/i.test(c)).slice(0, 8) : null);
+  let palette = cleanPalette(C.dressPalette) || DEFAULT_PALETTE.slice();
+  function renderPalette() {
+    $('#swatches').innerHTML = palette.map((c) => `<span class="sw" style="background:${c}"></span>`).join('');
+    $('#swatches').classList.toggle('off', !palette.length && !EDIT);
+  }
+  renderPalette();
+
+  if (EDIT) {
+    // لوحة صغيرة جوه الدعوة (المحرر). الصلاحية من رسالة init بتاعة المحرر،
+    // والسيرفر بيرفض أي حفظ من باقة مش مسموح لها (dressColors).
+    let allowed = false; let editIdx = -1;
+    const pop = $('#palPop'); const input = $('#palInput');
+    const send = () => parent.postMessage({ source: 'mithaq-editor', type: 'palette-change', payload: { palette: palette.slice() } }, location.origin);
+    function renderPop() {
+      if (!allowed) {
+        pop.innerHTML = '<h5>ألوان الزي</h5><p>تغيير ألوان الزي (تغيير أي لون، إضافة ألوان، أو شيلها) متاح في <b>الباقة المتقدمة</b> و<b>الباقة الاحترافية</b>.</p><a class="up" href="/packages" target="_blank" rel="noopener">شوف الباقات</a>';
+        return;
+      }
+      pop.innerHTML = '<h5>ألوان الزي</h5><p>دوس على أي لون تغيّره، أو × تشيله، أو + تضيف لون.</p>'
+        + `<div class="pal-list">${palette.map((c, i) => `<div class="pal-it" data-i="${i}" style="background:${c}" title="${c}"><button type="button" data-x="${i}" aria-label="شيل">×</button></div>`).join('')}${palette.length < 8 ? '<div class="pal-add" role="button" tabindex="0" aria-label="ضيف لون">+</div>' : ''}</div>`
+        + '<div class="pal-foot"><button type="button" class="reset">رجّع الألوان الأصلية</button><button type="button" class="done">تمام</button></div>';
+    }
+    function openPick(i) {
+      editIdx = i; input.value = palette[i] || '#c9b28f';
+      try { if (input.showPicker) input.showPicker(); else input.click(); } catch (_) { input.click(); }
+    }
+    $('#palChip').addEventListener('click', (e) => { e.stopPropagation(); renderPop(); pop.hidden = !pop.hidden; });
+    pop.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const x = e.target.closest('[data-x]');
+      if (x) { palette.splice(Number(x.dataset.x), 1); renderPalette(); renderPop(); send(); return; }
+      const it = e.target.closest('.pal-it');
+      if (it) { openPick(Number(it.dataset.i)); return; }
+      if (e.target.closest('.pal-add')) { palette.push('#c9b28f'); renderPalette(); renderPop(); send(); openPick(palette.length - 1); return; }
+      if (e.target.closest('.reset')) { palette = DEFAULT_PALETTE.slice(); renderPalette(); renderPop(); send(); return; }
+      if (e.target.closest('.done')) pop.hidden = true;
+    });
+    // معاينة لحظية وانت بتسحب في المنتقي — والحفظ لما تختار (خطوة رجوع واحدة)
+    input.addEventListener('input', () => { if (editIdx < 0) return; palette[editIdx] = input.value.toLowerCase(); renderPalette(); renderPop(); });
+    input.addEventListener('change', () => { if (editIdx < 0) return; palette[editIdx] = input.value.toLowerCase(); renderPalette(); renderPop(); send(); });
+    document.addEventListener('click', (e) => { if (!pop.hidden && !e.target.closest('.pal-wrap')) pop.hidden = true; });
+    window.addEventListener('message', (e) => {
+      if (e.origin !== location.origin) return;
+      const d = e.data || {};
+      if (d.source !== 'mithaq-shell') return;
+      if (d.type === 'init') {
+        allowed = !!(d.payload && Array.isArray(d.payload.features) && d.payload.features.indexOf('dressColors') !== -1);
+        $('#palLock').style.display = allowed ? 'none' : '';
+        if (!pop.hidden) renderPop();
+      }
+      // اسم/قاعة اتعدّلوا من المحرر: نحدّث كل مكان بيعرضهم — حتى الغلاف المخفي
+      // (المحرر بيحدّث العناصر الظاهرة بس)
+      if (d.type === 'propagate-text' && d.payload && d.payload.oldText && d.payload.newText) {
+        const o = String(d.payload.oldText).trim();
+        $$('[data-k]').forEach((el) => { if (el.textContent.trim() === o) el.textContent = d.payload.newText; });
+        fitSoon();
+      }
+      // رجوع/إعادة من المحرر: الألوان ترجع زي اللقطة
+      if (d.type === 'restore' && d.payload && d.payload.customizations) {
+        palette = cleanPalette(d.payload.customizations.palette) || DEFAULT_PALETTE.slice();
+        renderPalette(); if (!pop.hidden) renderPop();
+      }
+    });
+  }
+})();
+</script>
+</body>
+</html>
