@@ -150,6 +150,10 @@ export const adminApi = createApi({
       query: ({ day = '', kind = 'activated' } = {}) => `/orders-day?day=${encodeURIComponent(day)}&kind=${kind}`,
       providesTags: ['Orders'],
     }),
+    // ===== مباشر: رحلة الزوار خطوة بخطوة =====
+    getLiveJourneys: builder.query({ query: () => '/journeys/live' }),
+    getJourney: builder.query({ query: (id) => `/journeys/${id}` }),
+    getUserJourneys: builder.query({ query: ({ id, page = 1 }) => `/users/${id}/journeys?page=${page}` }),
     getAnalytics: builder.query({
       query: (range = 'today') => `/analytics?range=${encodeURIComponent(range)}`,
     }),
@@ -328,6 +332,9 @@ export const {
   useGetFinanceQuery,
   useGetAnalyticsQuery,
   useGetOrdersDayQuery,
+  useGetLiveJourneysQuery,
+  useGetJourneyQuery,
+  useGetUserJourneysQuery,
   useSaveFxRatesMutation,
   useCreateExpenseMutation,
   useUpdateExpenseMutation,

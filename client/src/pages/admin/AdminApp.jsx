@@ -10,7 +10,7 @@ import { NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { useDispatch } from 'react-redux';
 import {
   LayoutDashboard, Users, Receipt, FileText, MessageSquare,
-  Settings, ScrollText, LogOut, Loader2, Menu, X, Music, BadgePercent, Wallet, Banknote, Megaphone, LayoutTemplate, Tags, Bug, ShieldCheck, Eraser, MessageCircle, Target, ReceiptText, Activity, CalendarCheck,
+  Settings, ScrollText, LogOut, Loader2, Menu, X, Music, BadgePercent, Wallet, Banknote, Megaphone, LayoutTemplate, Tags, Bug, ShieldCheck, Eraser, MessageCircle, Target, ReceiptText, Activity, CalendarCheck, Radio,
 } from 'lucide-react';
 import { adminApi, useGetOrdersAttentionQuery, useGetSupportUnreadQuery } from '../../store/adminApi.js';
 import AdminLogin from './AdminLogin.jsx';
@@ -20,6 +20,7 @@ import OrdersPage from './OrdersPage.jsx';
 import EarningsPage from './EarningsPage.jsx';
 import AnalyticsPage from './AnalyticsPage.jsx';
 import OrdersDayPage from './OrdersDayPage.jsx';
+import LiveJourneysPage from './LiveJourneysPage.jsx';
 import ExpensesPage from './ExpensesPage.jsx';
 import WithdrawalsPage from './WithdrawalsPage.jsx';
 import UgcPage from './UgcPage.jsx';
@@ -39,6 +40,7 @@ import CampaignsPage from './CampaignsPage.jsx';
 
 const NAV = [
   { to: '/admin', end: true, icon: LayoutDashboard, label: 'نظرة عامة' },
+  { to: '/admin/live', icon: Radio, label: 'مباشر' },
   { to: '/admin/analytics', icon: Activity, label: 'التحليلات' },
   { to: '/admin/earnings', icon: Wallet, label: 'الأرباح' },
   { to: '/admin/expenses', icon: ReceiptText, label: 'المصاريف' },
@@ -268,6 +270,7 @@ export default function AdminApp() {
 
           <Routes>
             <Route index element={<OverviewPage />} />
+            <Route path="live" element={<LiveJourneysPage />} />
             <Route path="analytics" element={<AnalyticsPage />} />
             <Route path="earnings" element={<EarningsPage />} />
             <Route path="expenses" element={<ExpensesPage />} />

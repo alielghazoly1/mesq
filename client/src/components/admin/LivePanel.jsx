@@ -111,12 +111,18 @@ export default function LivePanel() {
           <div className="min-w-0 p-5">
             <div className="mb-3 flex items-center justify-between gap-3">
               <h2 className="font-serif text-[15px] font-bold text-ivory">العملاء المتصلين</h2>
+              <span className="flex items-center gap-3">
+              <button type="button" onClick={() => navigate('/admin/live')} data-go-live
+                className="inline-flex items-center gap-1 rounded-full bg-[#38a8ff]/15 px-3 py-1 text-[12px] font-bold text-[#8fcbff] hover:bg-[#38a8ff]/25">
+                شوفهم بيعملوا إيه لايف <ArrowLeft size={13} />
+              </button>
               {online.users > 0 && (
                 <button type="button" onClick={showAllOnline}
                   className="inline-flex items-center gap-1 text-[12px] font-bold text-[#8fcbff] hover:text-white">
                   شوف الكل <ArrowLeft size={13} />
                 </button>
               )}
+              </span>
             </div>
             {list.length === 0 ? (
               <p className="py-6 text-center text-[12.5px] text-ivory/35">

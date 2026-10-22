@@ -8,6 +8,7 @@ import SupportLauncher from './components/SupportLauncher.jsx';
 import FlashToast from './components/FlashToast.jsx';
 import BottomNav from './components/BottomNav.jsx';
 import PresencePing from './components/PresencePing.jsx';
+import JourneyTracker from './components/JourneyTracker.jsx';
 import { startCampaignBeacon } from './lib/campaignBeacon.js';
 import GalleryPage from './pages/GalleryPage.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
@@ -154,6 +155,7 @@ export default function App() {
       <FlashToast />
       {/* "أنا فاتح الموقع" للوحة التحكم (مبيشتغلش في صفحات اللوحة نفسها) */}
       <PresencePing />
+      <JourneyTracker />
     </ErrorBoundary>
   );
 }

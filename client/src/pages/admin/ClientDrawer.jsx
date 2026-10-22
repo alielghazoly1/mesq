@@ -21,6 +21,7 @@ import { countryName, waLink } from './format.js';
 import SignupBadge from './SignupBadge.jsx';
 import ClientPasswordPanel from './ClientPasswordPanel.jsx';
 import ClientMessagePanel from './ClientMessagePanel.jsx';
+import ClientJourneysPanel from './ClientJourneysPanel.jsx';
 
 /** مدة الزيارة بشكل مقروء (الدقة دقيقتين — آخر نشاط بيتكتب كل دقيقتين) */
 function fmtDuration(from, to) {
@@ -322,6 +323,8 @@ export default function ClientDrawer({ userId, onClose }) {
 
             {/* التحكم */}
             <ClientMessagePanel userId={userId} userName={data.user.name} />
+
+            <ClientJourneysPanel userId={userId} />
 
             <Panel title="التحكم في الاشتراك" subtitle="كل إجراء هنا بيتسجّل في سجل الإجراءات">
               {confirm ? (

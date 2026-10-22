@@ -21,6 +21,8 @@ const editorRouter = require('./routes/editor');
 const guestPhotosRouter = require('./routes/guestPhotos');
 const guestVoicesRouter = require('./routes/guestVoices');
 const presenceRouter = require('./routes/presence');
+const trackRouter = require('./routes/track');
+const adminJourneysRouter = require('./routes/adminJourneys');
 const clientErrorsRouter = require('./routes/clientErrors');
 const campaignsRouter = require('./routes/campaigns');
 const adminFinanceRouter = require('./routes/adminFinance');
@@ -175,7 +177,7 @@ app.use('/api/client-error', requireDB);
 // بالمسارات اللي فعلاً محتاجة تعرف حالة الدخول — مش عالميًا على كل الموقع
 // (زي الملفات الثابتة أو صفحة الدعوة نفسها)، عشان نفس فلسفة الأداء
 // والمرونة اللي requireDB بتتبعها.
-app.use(['/api/preview', '/preview-sample', '/api/invitations', '/api/auth', '/api/packages', '/api/uploads', '/api/dashboard', '/api/account', '/api/editor', '/api/presence', '/api/client-error'], attachUser);
+app.use(['/api/preview', '/preview-sample', '/api/invitations', '/api/auth', '/api/packages', '/api/uploads', '/api/dashboard', '/api/account', '/api/editor', '/api/presence', '/api/track', '/api/client-error'], attachUser);
 
 // الموقع التسويقي/فورم الإنشاء بقى React (client/) مبني بـ Vite — الملفات
 // الثابتة الناتجة (client/dist) هي اللي بتتقدم هنا بدل public/ القديم.
@@ -344,6 +346,17 @@ const presenceLimiter = rateLimit({
 });
 app.use('/api/presence', presenceLimiter);
 
+// رحلة الزائر (دفعات خطوات) — دفعة كل كام ثانية بس لما يحصل حاجة، فالحد واسع.
+// لمنع الإغراق بس.
+const trackLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 600,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'عدد كبير جدًا من الطلبات.' },
+});
+app.use('/api/track', trackLimiter);
+
 // تبليغ أعطال الواجهة — حد صغير (الانهيار نادر، ومنعًا للإغراق)
 const clientErrorLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -370,6 +383,8 @@ app.use('/', editorRouter);
 app.use('/', guestPhotosRouter);
 app.use('/', guestVoicesRouter);
 app.use('/', presenceRouter);
+app.use('/', trackRouter);
+app.use('/', adminJourneysRouter);
 
 // حالة خدمة الواتساب (من غير أي رقم أو بيانات) — للتشخيص من بره من غير لوحة التحكم
 app.get('/api/health/whatsapp', async (req, res) => {
