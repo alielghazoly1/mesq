@@ -155,7 +155,7 @@ html[lang="ar"] .lace-in .amp{font-family:'Aref Ruqaa',serif;font-style:normal;f
 .clover svg{position:absolute;inset:0;width:100%;height:100%;filter:drop-shadow(0 calc(8*var(--u)) calc(12*var(--u)) rgba(40,40,30,.25))}
 .clv-in{position:absolute;inset:0;padding:calc(6*var(--u)) calc(30*var(--u)) 0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#f4f0e2}
 .clv-in .c-sm{font-family:'Cormorant Garamond',serif;font-size:calc(15*var(--u));letter-spacing:.06em;text-transform:uppercase;font-weight:500;max-width:100%}
-.clv-in .c-hall{font-family:'Pinyon Script',cursive;font-weight:400;font-size:calc(25*var(--u) * var(--fit,1));line-height:1.12;max-width:calc(170*var(--u));margin:calc(2*var(--u)) 0 calc(6*var(--u));overflow-wrap:anywhere}
+.clv-in .c-hall{font-family:'Pinyon Script',cursive;font-weight:400;font-size:calc(25*var(--u) * var(--fit,1));line-height:1.12;max-width:calc(140*var(--u));padding:0 calc(6*var(--u));margin:calc(2*var(--u)) 0 calc(6*var(--u));overflow-wrap:anywhere}
 html[lang="ar"] .clv-in .c-sm{font-family:'Amiri',serif;letter-spacing:0;font-size:calc(19*var(--u))}
 html[lang="ar"] .clv-in .c-hall{font-family:'Aref Ruqaa',serif;font-size:calc(28*var(--u) * var(--fit,1));line-height:1.5}
 
@@ -736,7 +736,9 @@ body.sg-edit .pal-chip{display:flex;width:max-content;align-items:center;gap:7px
     });
     const hall = byId('sg14');
     hall.style.setProperty('--fit', 1);
-    for (let f = 1; f >= 0.5 && hall.scrollHeight > hall.parentElement.clientHeight * 0.62; f -= 0.06) hall.style.setProperty('--fit', f.toFixed(2));
+    // الطول (سطرين بالكتير) والعرض (حروف Pinyon بتطلع برّه صندوقها) — الاتنين لازم يدخلوا الكارت
+    const tooBig = () => { const lh = parseFloat(getComputedStyle(hall).lineHeight) || 20; return hall.offsetHeight > lh * 2.3 || hall.scrollWidth > hall.clientWidth + 1; };
+    for (let f = 1; f >= 0.42 && tooBig(); f -= 0.05) hall.style.setProperty('--fit', f.toFixed(2));
     const cover = $('.cover-names');
     if (cover) {
       cover.style.fontSize = '';
