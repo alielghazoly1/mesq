@@ -34,9 +34,9 @@ export default function ClientsPage() {
   const { data, isLoading, isFetching } = useGetUsersQuery({
     q: usersQuery, status: usersStatus, page: usersPage,
   }, {
-    // النقطة الزرقا (متصل دلوقتي) بتتحدّث لوحدها — كل 30 ثانية، وكل 15 لو
+    // النقطة الزرقا (متصل دلوقتي) بتتحدّث لوحدها — كل 30 ثانية، وكل 5 لو
     // إنت فاتح فلتر "متصلين دلوقتي"
-    pollingInterval: usersStatus === 'online' ? 15000 : 30000,
+    pollingInterval: usersStatus === 'online' ? 5000 : 30000,
     skipPollingIfUnfocused: true,
   });
 

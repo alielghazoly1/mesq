@@ -1,6 +1,7 @@
 // "دلوقتي على الموقع" + أرقام النهارده — أول حاجة في النظرة العامة.
-// بيتحدّث لوحده كل 15 ثانية (RTK Query pollingInterval) ومن غير ما الصفحة
+// بيتحدّث لوحده كل 4 ثواني (RTK Query pollingInterval) ومن غير ما الصفحة
 // كلها ترمش: الأرقام بس اللي بتتغيّر بحركة خفيفة.
+import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'motion/react';
@@ -45,13 +46,27 @@ export function Ticker({ value, className }) {
   );
 }
 
+/** التاب ده ظاهر؟ (مابنسألش السيرفر والتاب في الخلفية) */
+export function usePageVisible() {
+  const [v, setV] = useState(() => typeof document === 'undefined' || document.visibilityState !== 'hidden');
+  useEffect(() => {
+    const on = () => setV(document.visibilityState !== 'hidden');
+    document.addEventListener('visibilitychange', on);
+    return () => document.removeEventListener('visibilitychange', on);
+  }, []);
+  return v;
+}
+
 export default function LivePanel() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const visible = usePageVisible();
+  // كل 4 ثواني (حتى لو اللوحة مفتوحة على شاشة تانية مش عليها الماوس) —
+  // واللي يقفل التاب بيختفي في نفس اللحظة من السيرفر، فاللوحة بتلحقه على طول
   const { data, isError } = useGetLiveQuery(undefined, {
-    pollingInterval: 15000,
+    pollingInterval: visible ? 4000 : 0,
     refetchOnFocus: true,
-    skipPollingIfUnfocused: true,
+    skipPollingIfUnfocused: false,
   });
 
   const online = data?.online || { total: 0, users: 0, visitors: 0 };
@@ -103,7 +118,7 @@ export default function LivePanel() {
             </div>
             <p className="mt-3 text-[11px] leading-relaxed text-ivory/35">
               {isError ? 'معرفناش نحدّث دلوقتي — هنجرّب تاني لوحدنا.'
-                : 'بيتحدّث لوحده كل 15 ثانية. "متصل" = فاتح الموقع في آخر دقيقة ونص.'}
+                : 'بيتحدّث لوحده كل 4 ثواني. "متصل" = فاتح الموقع قدامه دلوقتي — أول ما يقفل التاب أو يروح تاب تاني بيختفي.'}
             </p>
           </div>
 

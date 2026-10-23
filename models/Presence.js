@@ -17,6 +17,9 @@ const presenceSchema = new mongoose.Schema({
   // آخر مرة اتكتب فيها سطر التحليلات للجهاز ده (utils/siteAnalytics.js) —
   // عشان نكتب كل دقيقتين بس مش مع كل إشارة
   anaAt: { type: Date, default: null },
+  // التابات المفتوحة على الجهاز/الحساب ده — عشان لو قفل تاب واحد وفاتح
+  // غيره مايختفيش من اللوحة غلط
+  tabs: { type: [{ _id: false, id: String, at: Date }], default: undefined },
 });
 
 // السجل بيتمسح تلقائيًا بعد 15 دقيقة من آخر ظهور

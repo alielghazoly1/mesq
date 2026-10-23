@@ -5,7 +5,7 @@
 //
 // بتسحبه من أي حتة فيه وتسيبه: بيلزق في أقرب جنب (يمين أو شمال) على نفس
 // الارتفاع اللي سبته عنده. مكانه وهل هو مصغّر بيتحفظوا على الجهاز ده.
-// بيتحدّث كل 15 ثانية طول ما تاب اللوحة ظاهر — حتى لو الشباك نفسه مش
+// بيتحدّث كل 5 ثواني طول ما تاب اللوحة ظاهر — حتى لو الشباك نفسه مش
 // متفعّل (شاشة جنبية / تلفزيون)، وبيقف لوحده لو التاب اتخبّى.
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { useGetLiveQuery } from '../../store/adminApi.js';
 import { LiveDot, fmtNum, fmtMoney } from './ui.jsx';
-import { Ticker, placeLabel } from './LivePanel.jsx';
+import { Ticker, placeLabel, usePageVisible } from './LivePanel.jsx';
 
 const STORE_KEY = 'mithaq-admin-livefloat';
 const MARGIN = 16;
@@ -45,15 +45,6 @@ function useMedia(query) {
   return m;
 }
 
-function usePageVisible() {
-  const [v, setV] = useState(() => typeof document === 'undefined' || document.visibilityState !== 'hidden');
-  useEffect(() => {
-    const on = () => setV(document.visibilityState !== 'hidden');
-    document.addEventListener('visibilitychange', on);
-    return () => document.removeEventListener('visibilitychange', on);
-  }, []);
-  return v;
-}
 
 /** خط صغير بيوري عدد المتصلين في آخر دقايق */
 function Spark({ points }) {
@@ -100,7 +91,7 @@ function LiveFloatInner() {
   const visible = usePageVisible();
   const tv = useMedia('(min-width: 1800px)');
   const { data, isError, fulfilledTimeStamp } = useGetLiveQuery(undefined, {
-    pollingInterval: visible ? 15000 : 0,
+    pollingInterval: visible ? 5000 : 0,
     skipPollingIfUnfocused: false,
     refetchOnFocus: true,
   });

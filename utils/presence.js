@@ -3,10 +3,12 @@
 const Presence = require('../models/Presence');
 const { cairoParts, cairoWallToDate } = require('./cairoTime');
 
-// كل تاب بيبعت كل 40 ثانية (client/src/components/PresencePing.jsx).
-// لو مفيش إشارة من 100 ثانية = قفل الموقع (سماحية لتأخير النت أو تاب في الخلفية).
-const PING_EVERY_MS = 40 * 1000;
-const ONLINE_WINDOW_MS = 100 * 1000;
+// كل تاب ظاهر بيبعت كل 20 ثانية (client/src/components/PresencePing.jsx)،
+// ولما يتقفل أو يروح الخلفية بيبعت "خرجت" على طول (bye) فبيختفي من اللوحة
+// في نفس اللحظة. الـ 50 ثانية دي احتياطي بس لو "خرجت" ماوصلتش (النت قطع
+// فجأة / الموبايل قفل الصفحة غصب).
+const PING_EVERY_MS = 20 * 1000;
+const ONLINE_WINDOW_MS = 50 * 1000;
 // آخر ظهور على حساب العميل بيتكتب كل دقيقتين على الأكتر (مش مع كل إشارة)
 const LAST_SEEN_WRITE_MS = 2 * 60 * 1000;
 // زيارة جديدة لو العميل رجع بعد الفترة دي من غير أي نشاط (نفس عمر سجل
@@ -38,6 +40,21 @@ function isOnline(lastSeen, now = Date.now()) {
   if (!lastSeen) return false;
   const t = new Date(lastSeen).getTime();
   return Number.isFinite(t) && t >= now - ONLINE_WINDOW_MS;
+}
+
+/** مين من العملاء دول متصل دلوقتي — من سجل الحضور نفسه (مش من
+ *  User.lastSeenAt اللي بيتكتب كل دقيقتين بس، فكان بيطلّع المتصل مش متصل) */
+async function onlineUserIds(ids) {
+  const list = [...new Set((ids || []).filter(Boolean).map(String))];
+  if (!list.length) return new Set();
+  const rows = await Presence.find({ userId: { $in: list }, lastSeen: { $gte: onlineSince() } }).select('userId').lean();
+  return new Set(rows.map((r) => String(r.userId)));
+}
+
+/** كل العملاء المتصلين دلوقتي (لفلتر "متصل دلوقتي" في صفحة العملاء) */
+async function allOnlineUserIds() {
+  const rows = await Presence.find({ lastSeen: { $gte: onlineSince() }, userId: { $ne: null } }).select('userId').limit(5000).lean();
+  return rows.map((r) => r.userId);
 }
 
 /** بداية النهارده بتوقيت مصر (لحظة UTC) */
@@ -73,6 +90,8 @@ module.exports = {
   deviceFromUA,
   onlineSince,
   isOnline,
+  onlineUserIds,
+  allOnlineUserIds,
   cairoTodayStart,
   cairoMonthStart,
   liveCounts,

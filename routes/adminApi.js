@@ -31,7 +31,7 @@ const AdminPin = require('../models/AdminPin');
 const { activatedRangeFilter } = require('../utils/finance');
 const { cairoParts, cairoWallToDate } = require('../utils/cairoTime');
 const {
-  isOnline, onlineSince, liveCounts, cairoTodayStart, cairoMonthStart, ONLINE_WINDOW_MS,
+  onlineUserIds, allOnlineUserIds, onlineSince, liveCounts, cairoTodayStart, cairoMonthStart, ONLINE_WINDOW_MS,
 } = require('../utils/presence');
 const { computeUgcStats, generateReferralCode, round2 } = require('../utils/ugc');
 const { cleanupExpiredInvitations, buildFilter, paidOwnerIds, DEFAULT_GRACE_DAYS } = require('../utils/cleanupExpired');
@@ -524,8 +524,8 @@ router.get('/admin/api/users', requireAdminSession, async (req, res) => {
     if (status === 'free') filter['subscription.packageId'] = null;
     if (status === 'suspended') filter['subscription.status'] = 'suspended';
     if (status === 'blocked') filter.isBlocked = true;
-    // المتصلين دلوقتي بس (فاتحين الموقع في آخر دقيقة ونص)
-    if (status === 'online') filter.lastSeenAt = { $gte: onlineSince() };
+    // المتصلين دلوقتي بس — من سجل الحضور (نفس اللي في النظرة العامة و"مباشر")
+    if (status === 'online') filter._id = { $in: await allOnlineUserIds() };
     // طريقة التسجيل: بجوجل (فيه googleId) ولا بالإيميل والباسورد
     if (status === 'google') filter.googleId = { $exists: true, $ne: null };
     if (status === 'email') filter.$and = [{ $or: [{ googleId: { $exists: false } }, { googleId: null }] }];
@@ -564,6 +564,7 @@ router.get('/admin/api/users', requireAdminSession, async (req, res) => {
     ]);
     const byUser = invCounts.reduce((acc, r) => { acc[String(r._id)] = r; return acc; }, {});
     const sourceOf = await sourcesFor(users);
+    const onNow = await onlineUserIds(ids);
     // في "فتحوا الموقع النهارده": كام واحد منهم رجع (مسجّل من قبل النهارده)
     const returningCount = status === 'activeToday'
       ? await User.countDocuments({ ...filter, createdAt: { $lt: todayStart } }) : undefined;
@@ -598,7 +599,7 @@ router.get('/admin/api/users', requireAdminSession, async (req, res) => {
           drafts: counts.drafts,
           createdAt: u.createdAt,
           // فاتح الموقع دلوقتي؟ وآخر مرة فتحه
-          online: isOnline(u.lastSeenAt),
+          online: onNow.has(String(u._id)),
           lastSeenAt: u.lastSeenAt || null,
           visitCount: u.visitCount || 0,
           // 'google' = بيدخل بجوجل بس، 'both' = عنده باسورد كمان وربط جوجل، 'email' = إيميل وباسورد
@@ -661,7 +662,7 @@ router.get('/admin/api/users/:id', requireAdminSession, async (req, res) => {
         phone: user.phone || '',
         createdAt: user.createdAt,
         signup: user.googleId ? (hasPassword ? 'both' : 'google') : 'email',
-        online: isOnline(user.lastSeenAt),
+        online: (await onlineUserIds([user._id])).has(String(user._id)),
         lastSeenAt: user.lastSeenAt || null,
         isBlocked: !!user.isBlocked,
         blockedAt: user.blockedAt || null,
@@ -1518,6 +1519,7 @@ router.get('/admin/api/pins', requireAdminSession, async (req, res) => {
     ]);
     const userById = new Map(users.map((u) => [String(u._id), u]));
     const invById = new Map(invitations.map((i) => [i.shortId, i]));
+    const onNow = await onlineUserIds(users.map((u) => u._id));
 
     const [invCounts, owners, rsvps] = await Promise.all([
       users.length ? Invitation.aggregate([
@@ -1556,7 +1558,7 @@ router.get('/admin/api/pins', requireAdminSession, async (req, res) => {
           isSuspended: sub.status === 'suspended',
           isBlocked: !!u.isBlocked,
           invitations: invCountOf.get(String(u._id)) || 0,
-          online: isOnline(u.lastSeenAt),
+          online: onNow.has(String(u._id)),
           lastSeenAt: u.lastSeenAt || null,
           visitCount: u.visitCount || 0,
           signup: signupOf(u),
@@ -1699,6 +1701,7 @@ router.get('/admin/api/support', requireAdminSession, async (req, res) => {
       .select('name email phone country subscription isBlocked lastSeenAt')
       .lean();
     const byId = users.reduce((acc, u) => { acc[String(u._id)] = u; return acc; }, {});
+    const onNow = await onlineUserIds(users.map((u) => u._id));
 
     const [unreadTotal, waitingTotal] = await Promise.all([
       SupportMessage.countDocuments({ from: 'user', readByAdmin: false }),
@@ -1722,7 +1725,7 @@ router.get('/admin/api/support', requireAdminSession, async (req, res) => {
           country: u.country || '',
           isPremium: !!(u.subscription && u.subscription.packageId),
           isBlocked: !!u.isBlocked,
-          online: isOnline(u.lastSeenAt),
+          online: onNow.has(String(u._id)),
           lastMessage: previewOf({ kind: t.lastKind, body: t.lastBody }).slice(0, 160),
           lastKind: t.lastKind || 'text',
           lastFrom: t.lastFrom,
@@ -1764,7 +1767,7 @@ router.get('/admin/api/support/:userId', requireAdminSession, async (req, res) =
         country: user.country || '',
         packageId: (user.subscription && user.subscription.packageId) || null,
         isBlocked: !!user.isBlocked,
-        online: isOnline(user.lastSeenAt),
+        online: (await onlineUserIds([user._id])).has(String(user._id)),
         lastSeenAt: user.lastSeenAt || null,
         createdAt: user.createdAt,
         google: !!user.googleId,

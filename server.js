@@ -342,11 +342,11 @@ const guestPhotoIpLimiter = rateLimit({
 });
 app.post('/i/:shortId/photos', guestPhotoIpLimiter);
 
-// إشارة "أنا فاتح الموقع" — كل تاب بيبعتها كل 40 ثانية، فالحد واسع (لو
-// العيلة كلها فاتحة من نفس الواي فاي). لمنع الإغراق بس.
+// إشارة "أنا فاتح الموقع" — كل تاب بيبعتها كل 20 ثانية (+ "خرجت/رجعت")، فالحد
+// واسع (لو العيلة كلها فاتحة من نفس الواي فاي). لمنع الإغراق بس.
 const presenceLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 400,
+  max: 1200,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'عدد كبير جدًا من الطلبات.' },

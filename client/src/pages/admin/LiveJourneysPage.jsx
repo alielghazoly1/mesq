@@ -87,7 +87,7 @@ export default function LiveJourneysPage() {
 
       {isLoading || !data ? (isError ? <Empty>معرفناش نحمّل — هنجرّب تاني.</Empty> : <Spinner />) : (
         <>
-          <Panel title="على الموقع دلوقتي" subtitle="المتصل = فاتح الموقع في آخر دقيقة ونص (حتى لو قاعد يقرا من غير ما يضغط)">
+          <Panel title="على الموقع دلوقتي" subtitle="المتصل = فاتح الموقع قدامه دلوقتي (حتى لو قاعد يقرا من غير ما يضغط) — أول ما يقفل أو يروح تاب تاني بيختفي">
             {data.live.length === 0 ? <Empty>مفيش حد على الموقع دلوقتي.</Empty> : (
               <ul className="grid gap-3 lg:grid-cols-2" data-live-list>
                 <AnimatePresence initial={false}>
