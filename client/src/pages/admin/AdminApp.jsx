@@ -10,7 +10,7 @@ import { NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { useDispatch } from 'react-redux';
 import {
   LayoutDashboard, Users, Receipt, FileText, MessageSquare,
-  Settings, ScrollText, LogOut, Loader2, Menu, X, Music, BadgePercent, Wallet, Banknote, Megaphone, LayoutTemplate, Tags, Bug, ShieldCheck, Eraser, MessageCircle, Target, ReceiptText, Activity, CalendarCheck, Radio, Pin,
+  Settings, ScrollText, LogOut, Loader2, Menu, X, Music, Wallet, Banknote, Megaphone, LayoutTemplate, Tags, Bug, ShieldCheck, Eraser, MessageCircle, Target, ReceiptText, Activity, CalendarCheck, Radio, Pin,
 } from 'lucide-react';
 import { adminApi, useGetOrdersAttentionQuery, useGetSupportUnreadQuery, useGetSecurityQuery, useGetPinsQuery } from '../../store/adminApi.js';
 import AdminLogin from './AdminLogin.jsx';
@@ -30,7 +30,6 @@ import InvitationsPage from './InvitationsPage.jsx';
 import MusicPage from './MusicPage.jsx';
 import SupportPage from './SupportPage.jsx';
 import SettingsPage from './SettingsPage.jsx';
-import DiscountsPanel from './DiscountsPanel.jsx';
 import PackagesPricesPage from './PackagesPricesPage.jsx';
 import ClientErrorsPage from './ClientErrorsPage.jsx';
 import AuditPage from './AuditPage.jsx';
@@ -58,8 +57,7 @@ const NAV = [
   { to: '/admin/templates', icon: LayoutTemplate, label: 'القوالب' },
   { to: '/admin/music', icon: Music, label: 'الموسيقى' },
   { to: '/admin/support', icon: MessageSquare, label: 'الدعم', badge: 'support' },
-  { to: '/admin/packages', icon: Tags, label: 'الباقات والأسعار' },
-  { to: '/admin/discounts', icon: BadgePercent, label: 'الخصومات' },
+  { to: '/admin/packages', icon: Tags, label: 'الباقات والخصومات' },
   { to: '/admin/settings', icon: Settings, label: 'بيانات الدفع' },
   { to: '/admin/whatsapp', icon: MessageCircle, label: 'واتساب' },
   { to: '/admin/cleanup', icon: Eraser, label: 'تنضيف الدعوات' },
@@ -338,7 +336,8 @@ export default function AdminApp() {
             <Route path="support" element={<SupportPage />} />
             <Route path="packages" element={<PackagesPricesPage />} />
             <Route path="errors" element={<ClientErrorsPage />} />
-            <Route path="discounts" element={<DiscountsPanel />} />
+            {/* الخصومات بقت جوه صفحة الباقات — اللينك القديم بيوديك هناك */}
+            <Route path="discounts" element={<Navigate to="/admin/packages" replace />} />
             <Route path="settings" element={<SettingsPage />} />
             <Route path="audit" element={<AuditPage />} />
             <Route path="security" element={<SecurityPage />} />

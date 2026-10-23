@@ -7,6 +7,8 @@
 // رقم ويتسجّل عليه رقم تاني — وده أسوأ حاجة ممكن تحصل في صفحة دفع.
 // عشان كده كلهم بينادوا الدالة اللي هنا.
 const PricingSettings = require('../models/PricingSettings');
+const { cairoParts, cairoWallToDate } = require('./cairoTime');
+const { sanitizeText } = require('./sanitize');
 const {
   getPackage, packagesAvailableIn, packagesForCountry,
   currencyForCountry, CURRENCY_LABELS, PACKAGES, CURRENCIES,
@@ -82,16 +84,16 @@ function clampPercent(value) {
  */
 function discountPercentFor(pkg, settings) {
   if (!pkg || !settings || !settings.enabled) return 0;
-  // الباقة المستثناة من الخصم (باقة الدعوة الواحدة) عمرها ما بتتخصم،
-  // مهما كان اللي متظبط في اللوحة
-  if (pkg.noDiscount) return 0;
   // عرض خلص ميعاده بيقف لوحده
   if (settings.endsAt && new Date(settings.endsAt).getTime() < Date.now()) return 0;
 
   const per = settings.perPackage || {};
   // نسبة خاصة موجودة (حتى لو صفر) بتغلب النسبة العامة
   const own = Object.prototype.hasOwnProperty.call(per, pkg.id) ? per[pkg.id] : null;
-  return clampPercent(own === null ? settings.percent : own);
+  // الباقة المستثناة (باقة الدعوة الواحدة) مابتاخدش النسبة العامة أبدًا —
+  // بتتخصم بس لو المالك حط عليها خصم بنفسه من صفحة الباقات
+  if (own === null) return pkg.noDiscount ? 0 : clampPercent(settings.percent);
+  return clampPercent(own);
 }
 
 /**
@@ -201,12 +203,8 @@ async function priceForOrder(packageId, countryCode) {
   return priced.price > 0 ? priced : null;
 }
 
-/**
- * بيحفظ أسعار الباقات وتشغيلها من لوحة التحكم.
- * @param {{ prices?: object, disabled?: string[] }} input
- * @returns {Promise<object>} المستند بعد الحفظ
- */
-async function savePackagePrices(input) {
+/** أسعار الباقات وتشغيلها من اللي جاي من اللوحة (بعد التنضيف) */
+function cleanPackagesInput(input) {
   const b = input || {};
   const incoming = (b.prices && typeof b.prices === 'object') ? b.prices : {};
   const prices = {};
@@ -227,10 +225,79 @@ async function savePackagePrices(input) {
   if (disabled.length >= PACKAGES.length) {
     throw Object.assign(new Error('لازم تفضل باقة واحدة على الأقل شغالة للعملاء.'), { status: 400 });
   }
+  return { prices, disabledPackages: disabled };
+}
 
+/**
+ * بيحفظ أسعار الباقات وتشغيلها من لوحة التحكم.
+ * @param {{ prices?: object, disabled?: string[] }} input
+ * @returns {Promise<object>} المستند بعد الحفظ
+ */
+async function savePackagePrices(input) {
   const doc = await PricingSettings.findOneAndUpdate(
     { key: KEY },
-    { prices, disabledPackages: disabled, updatedAt: new Date() },
+    { ...cleanPackagesInput(input), updatedAt: new Date() },
+    { new: true, upsert: true }
+  );
+  invalidateCache();
+  return doc;
+}
+
+/** "YYYY-MM-DD" (آخر يوم في العرض) → آخر دقيقة في اليوم ده بتوقيت مصر */
+function endOfCairoDay(value) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(value || ''));
+  if (!m) return null;
+  const y = Number(m[1]); const mo = Number(m[2]); const d = Number(m[3]);
+  if (mo < 1 || mo > 12 || d < 1 || d > 31 || y < 2020 || y > 2100) return null;
+  return new Date(cairoWallToDate(y, mo - 1, d, 23, 59).getTime() + 59 * 1000);
+}
+
+/** آخر يوم في العرض بتوقيت مصر كـ "YYYY-MM-DD" (للخانة في اللوحة) */
+function cairoDayOf(date) {
+  if (!date) return '';
+  const p = cairoParts(new Date(date));
+  return `${p.year}-${String(p.month).padStart(2, '0')}-${String(p.day).padStart(2, '0')}`;
+}
+
+/**
+ * صفحة "الباقات والأسعار" في اللوحة بتحفظ كل حاجة مرة واحدة: سعر كل باقة،
+ * تشغيلها، والخصم اللي عليها + إعدادات العرض. كتابة واحدة — يا كله يتحفظ
+ * يا مفيش حاجة، فالعميل عمره ما يشوف سعر جديد بخصم قديم.
+ *
+ * الخصم بقى لكل باقة لوحدها (perPackage صريح لكل باقة، والنسبة العامة 0).
+ * @param {{ prices?, disabled?, discounts?: object, enabled?, labelAr?, labelEn?, endsDay? }} input
+ */
+async function savePricingPage(input) {
+  const b = input || {};
+  const packs = cleanPackagesInput(b);
+  const incoming = (b.discounts && typeof b.discounts === 'object') ? b.discounts : {};
+  const perPackage = {};
+  PACKAGES.forEach((p) => {
+    const raw = incoming[p.id];
+    if (raw === '' || raw === null || raw === undefined) { perPackage[p.id] = 0; return; }
+    const n = Number(raw);
+    if (!Number.isFinite(n) || n < 0 || n > 90 || Math.round(n) !== n) {
+      throw Object.assign(new Error('نسبة الخصم لازم تبقى رقم صحيح من 0 لـ 90.'), { status: 400 });
+    }
+    perPackage[p.id] = n;
+  });
+  let endsAt = null;
+  if (b.endsDay) {
+    endsAt = endOfCairoDay(b.endsDay);
+    if (!endsAt) throw Object.assign(new Error('تاريخ نهاية العرض مش مظبوط.'), { status: 400 });
+  }
+  const doc = await PricingSettings.findOneAndUpdate(
+    { key: KEY },
+    {
+      ...packs,
+      enabled: !!b.enabled,
+      percent: 0,
+      perPackage,
+      labelAr: sanitizeText(b.labelAr, 60),
+      labelEn: sanitizeText(b.labelEn, 60),
+      endsAt,
+      updatedAt: new Date(),
+    },
     { new: true, upsert: true }
   );
   invalidateCache();
@@ -251,5 +318,7 @@ module.exports = {
   isPackageEnabled,
   cleanPrice,
   savePackagePrices,
+  savePricingPage,
+  cairoDayOf,
   MAX_PRICE,
 };

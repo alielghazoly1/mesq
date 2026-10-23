@@ -47,7 +47,8 @@ const { getPaymentSettings, updatePaymentSettings, TAPTAP_COUNTRIES } = require(
 const {
   getPricingSettings, getPricingSettingsCached, priceFor, clampPercent,
   invalidateCache: invalidatePricingCache,
-  listPriceFor, isPackageEnabled, savePackagePrices, MAX_PRICE,
+  listPriceFor, isPackageEnabled, savePackagePrices, savePricingPage, cairoDayOf,
+  discountPercentFor, MAX_PRICE,
 } = require('../utils/pricing');
 const { sanitizeText } = require('../utils/sanitize');
 const { hashPassword } = require('../utils/password');
@@ -2077,6 +2078,83 @@ router.put('/admin/api/package-prices', requireAdminSession, async (req, res) =>
   } catch (err) {
     if (err.status === 400) return res.status(400).json({ error: err.message });
     console.error('Error saving package prices:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+// ==========================================================================
+// صفحة "الباقات والأسعار" — الأسعار والتشغيل والخصم على كل باقة في مكان واحد
+// (حفظ واحد). /package-prices و /pricing-settings فاضلين زي ما هما للتوافق.
+// ==========================================================================
+router.get('/admin/api/pricing', requireAdminSession, async (req, res) => {
+  try {
+    const doc = await getPricingSettings();
+    const settings = {
+      enabled: !!doc.enabled,
+      percent: Number(doc.percent) || 0,
+      perPackage: doc.perPackage || {},
+      labelAr: doc.labelAr || '',
+      labelEn: doc.labelEn || '',
+      endsAt: doc.endsAt || null,
+      prices: doc.prices || {},
+      disabledPackages: doc.disabledPackages || [],
+    };
+    const per = settings.perPackage;
+    const own = settings.prices;
+    return res.json({
+      maxPrice: MAX_PRICE,
+      updatedAt: doc.updatedAt,
+      discount: {
+        enabled: settings.enabled,
+        labelAr: settings.labelAr,
+        labelEn: settings.labelEn,
+        endsAt: settings.endsAt,
+        endsDay: cairoDayOf(settings.endsAt),
+        expired: !!(settings.endsAt && new Date(settings.endsAt).getTime() < Date.now()),
+      },
+      packages: PACKAGES.map((p) => {
+        const has = Object.prototype.hasOwnProperty.call(per, p.id);
+        // الخصم المتظبط على الباقة (حتى لو الخصومات مقفولة دلوقتي) — البيانات
+        // القديمة كانت بنسبة عامة + استثناءات، فبنحسبها لكل باقة بنفس القاعدة
+        const configured = has ? clampPercent(per[p.id]) : (p.noDiscount ? 0 : clampPercent(settings.percent));
+        const cur = (c) => ({
+          def: (p.price && p.price[c]) || 0,
+          custom: (own[p.id] && own[p.id][c]) || null,
+          list: listPriceFor(p, c, settings),
+          final: priceFor(p, c, settings).price,
+        });
+        return {
+          id: p.id,
+          name: p.name.ar || p.name.en,
+          nameEn: p.name.en,
+          invitations: p.invitations,
+          countries: p.countries || [],
+          noDiscount: !!p.noDiscount,
+          enabled: isPackageEnabled(p.id, settings),
+          discount: configured,
+          liveDiscount: discountPercentFor(p, settings),
+          EGP: cur('EGP'), USD: cur('USD'), SAR: cur('SAR'), EUR: cur('EUR'),
+        };
+      }),
+    });
+  } catch (err) {
+    console.error('Error loading pricing page:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+router.put('/admin/api/pricing', requireAdminSession, async (req, res) => {
+  try {
+    const before = await getPricingSettings();
+    const doc = await savePricingPage(req.body);
+    logAdminAction(req, 'settings.pricingPage', { type: 'settings', id: 'default' }, {
+      before: { prices: before.prices || {}, disabled: before.disabledPackages || [], enabled: !!before.enabled, percent: before.percent || 0, perPackage: before.perPackage || {}, endsAt: before.endsAt || null },
+      after: { prices: doc.prices || {}, disabled: doc.disabledPackages || [], enabled: !!doc.enabled, perPackage: doc.perPackage || {}, endsAt: doc.endsAt || null },
+    });
+    return res.json({ ok: true, updatedAt: doc.updatedAt });
+  } catch (err) {
+    if (err.status === 400) return res.status(400).json({ error: err.message });
+    console.error('Error saving pricing page:', err);
     return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
   }
 });

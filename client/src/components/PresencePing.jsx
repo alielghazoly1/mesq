@@ -64,8 +64,9 @@ export default function PresencePing() {
     if (isAdmin) return undefined;
     const vid = visitorId();
     let away = false; // بعتنا "خرجت" ولسه مارجعش
+    let closed = false; // الصفحة بتتقفل — مفيش "أنا هنا" تاني إلا لو رجعت فعلًا
     function ping() {
-      if (document.visibilityState !== 'visible') return;
+      if (closed || document.visibilityState !== 'visible') return;
       away = false;
       post({ vid, path: pathRef.current, ...sourceInfo() });
     }
@@ -79,14 +80,15 @@ export default function PresencePing() {
     // ساب التاب = خرج، رجع = متصل تاني على طول
     const onVis = () => { if (document.visibilityState === 'visible') ping(); else leave(); };
     // رجع للصفحة من زرار "رجوع" (الصفحة كانت محفوظة في المتصفح)
-    const onShow = (e) => { if (e.persisted) ping(); };
+    const onShow = (e) => { if (e.persisted) { closed = false; ping(); } };
+    const onHide = () => { closed = true; leave(); };
     document.addEventListener('visibilitychange', onVis);
-    window.addEventListener('pagehide', leave);
+    window.addEventListener('pagehide', onHide);
     window.addEventListener('pageshow', onShow);
     return () => {
       clearInterval(timer);
       document.removeEventListener('visibilitychange', onVis);
-      window.removeEventListener('pagehide', leave);
+      window.removeEventListener('pagehide', onHide);
       window.removeEventListener('pageshow', onShow);
       // دخل لوحة التحكم من نفس التاب — مش عميل
       if (window.location.pathname.startsWith('/admin')) leave();
