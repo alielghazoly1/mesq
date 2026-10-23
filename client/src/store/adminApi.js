@@ -10,21 +10,18 @@
 // التوكن نفسه عمره ما بيعدي من هنا: كوكي httpOnly، الجافاسكريبت مش
 // شايفاه أصلًا. credentials:'include' بيخلي المتصفح يبعته لوحده.
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { recentlyActive, signalLocked } from '../lib/adminActivity.js';
+import { signalLocked } from '../lib/adminActivity.js';
 
 const rawBaseQuery = fetchBaseQuery({
   baseUrl: '/admin/api',
   credentials: 'include',
   prepareHeaders: (headers) => {
     headers.set('X-Admin-Request', '1');
-    // الأدمن لمس الشاشة في آخر دقيقة → الطلب ده "استخدام" بيمدّ الجلسة
-    // (التحديث التلقائي من غير لمس مابيمدّهاش — قفل الـ 5 دقايق)
-    if (recentlyActive()) headers.set('X-Admin-Active', '1');
     return headers;
   },
 });
 
-// الجلسة خلصت (خمول 5 دقايق أو خروج من جهاز تاني) → اللوحة تقفل على طول
+// الجلسة اتقفلت من السيرفر (اتقفلت من جهاز تاني / جهاز غريب / عمرها خلص) → اللوحة تقفل على طول
 const baseQuery = async (args, api, extra) => {
   const result = await rawBaseQuery(args, api, extra);
   if (result.error && result.error.status === 401) signalLocked('server');
@@ -38,6 +35,9 @@ export const adminApi = createApi({
   endpoints: (builder) => ({
     // ===== الأمان (التحقق بخطوتين) =====
     getSecurity: builder.query({ query: () => '/security', providesTags: ['Security'] }),
+    getAdminDevices: builder.query({ query: () => '/security/devices', providesTags: ['Security'] }),
+    closeAdminDevice: builder.mutation({ query: (id) => ({ url: `/security/devices/${id}`, method: 'DELETE' }), invalidatesTags: ['Security', 'Audit'] }),
+    closeOtherAdminDevices: builder.mutation({ query: () => ({ url: '/security/devices/close-others', method: 'POST' }), invalidatesTags: ['Security', 'Audit'] }),
     start2fa: builder.mutation({ query: () => ({ url: '/security/2fa/setup', method: 'POST' }) }),
     enable2fa: builder.mutation({
       query: (code) => ({ url: '/security/2fa/enable', method: 'POST', body: { code } }),
@@ -321,6 +321,7 @@ export const adminApi = createApi({
 export const {
   useGetGoogleLoginQuery, useSaveGoogleLoginMutation,
   useGetSecurityQuery, useStart2faMutation, useEnable2faMutation, useDisable2faMutation, useNewBackupCodesMutation,
+  useGetAdminDevicesQuery, useCloseAdminDeviceMutation, useCloseOtherAdminDevicesMutation,
   useGetCleanupPreviewQuery, useRunCleanupMutation,
   useGetWhatsAppQuery, useLinkWhatsAppMutation, useUnlinkWhatsAppMutation, useSaveWhatsAppSettingsMutation, useTestWhatsAppMutation,
   useGetOverviewQuery,

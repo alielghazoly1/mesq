@@ -2343,6 +2343,51 @@ router.get('/admin/api/security', requireAdminSession, async (req, res) => {
   }
 });
 
+// ===== الأجهزة اللي فاتحة اللوحة =====
+// المالك يشوف كل جهاز داخل على اللوحة دلوقتي (نوعه، آخر مرة، IP مخفي جزئيًا)
+// ويقفل أي جهاز مش بتاعه بضغطة — أو يقفل الكل غير الجهاز اللي في إيده.
+router.get('/admin/api/security/devices', requireAdminSession, async (req, res) => {
+  try {
+    const AdminSession = require('../models/AdminSession');
+    const list = await AdminSession.find({}).sort({ lastSeenAt: -1 }).select('device ip createdAt lastSeenAt expiresAt').lean();
+    return res.json({
+      devices: list.map((d) => ({
+        id: String(d._id), device: d.device || 'جهاز', ip: d.ip || '', createdAt: d.createdAt,
+        lastSeenAt: d.lastSeenAt, current: String(d._id) === req.adminSessionId,
+      })),
+    });
+  } catch (err) {
+    console.error('Admin devices failed:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+router.delete('/admin/api/security/devices/:id', requireAdminSession, async (req, res) => {
+  try {
+    const AdminSession = require('../models/AdminSession');
+    const id = String(req.params.id || '');
+    if (!/^[a-f0-9]{24}$/.test(id)) return res.status(400).json({ error: 'الجهاز مش موجود.' });
+    if (id === req.adminSessionId) return res.status(400).json({ error: 'ده الجهاز اللي معاك — استخدم "خروج" لو عايز تقفله.' });
+    const r = await AdminSession.deleteOne({ _id: id });
+    logAdminAction(req, 'security.device.close', { type: 'admin', label: 'قفل جهاز فاتح اللوحة' });
+    return res.json({ ok: true, closed: r.deletedCount || 0 });
+  } catch (err) {
+    console.error('Admin device close failed:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+router.post('/admin/api/security/devices/close-others', requireAdminSession, async (req, res) => {
+  try {
+    const closed = await destroyOtherAdminSessions(req);
+    logAdminAction(req, 'security.device.close_others', { type: 'admin', label: 'قفل كل الأجهزة التانية' }, { closed });
+    return res.json({ ok: true, closed });
+  } catch (err) {
+    console.error('Admin close others failed:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
 // بداية التفعيل: سر جديد + رابط الـ QR. مش بيتفعّل غير بعد أول كود صح.
 router.post('/admin/api/security/2fa/setup', requireAdminSession, async (req, res) => {
   try {

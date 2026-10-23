@@ -12,9 +12,9 @@ import {
   LayoutDashboard, Users, Receipt, FileText, MessageSquare,
   Settings, ScrollText, LogOut, Loader2, Menu, X, Music, BadgePercent, Wallet, Banknote, Megaphone, LayoutTemplate, Tags, Bug, ShieldCheck, Eraser, MessageCircle, Target, ReceiptText, Activity, CalendarCheck, Radio,
 } from 'lucide-react';
-import { adminApi, useGetOrdersAttentionQuery, useGetSupportUnreadQuery } from '../../store/adminApi.js';
+import { adminApi, useGetOrdersAttentionQuery, useGetSupportUnreadQuery, useGetSecurityQuery } from '../../store/adminApi.js';
 import AdminLogin from './AdminLogin.jsx';
-import { startActivityWatch, LOCK_EVENT, markActive } from '../../lib/adminActivity.js';
+import { LOCK_EVENT } from '../../lib/adminActivity.js';
 import OverviewPage from './OverviewPage.jsx';
 import ClientsPage from './ClientsPage.jsx';
 import OrdersPage from './OrdersPage.jsx';
@@ -67,6 +67,23 @@ const NAV = [
 
 // عدد الإيصالات اللي مستنية تفعيل جنب "الطلبات" — بيتحدّث لوحده كل 30
 // ثانية، فأي عميل يرفع إيصال تشوفه من أي صفحة في اللوحة.
+/**
+ * اللوحة بتفضل مفتوحة على جهازك — فأهم حماية بقت: إن محدش يقدر يدخل
+ * بكلمة السر لوحدها. لو التحقق بخطوتين مش مفعّل، شريط أحمر فوق كل صفحة.
+ */
+function TwoFactorBanner() {
+  const { data } = useGetSecurityQuery();
+  if (!data || data.enabled) return null;
+  return (
+    <NavLink to="/admin/security" data-2fa-banner
+      className="mb-4 flex items-center gap-3 rounded-2xl border border-error/50 bg-error/15 px-4 py-3 text-[13px] font-bold text-[#f3b4a8] hover:bg-error/20">
+      <ShieldCheck size={18} className="shrink-0" />
+      <span className="flex-1">التحقق بخطوتين مش مفعّل — أي حد يعرف كلمة السر يقدر يدخل اللوحة. فعّله دلوقتي (دقيقة واحدة).</span>
+      <span className="shrink-0 rounded-full bg-error/30 px-3 py-1 text-[12px]">فعّله ←</span>
+    </NavLink>
+  );
+}
+
 function OrdersBadge() {
   const { data } = useGetOrdersAttentionQuery(undefined, {
     pollingInterval: 30000,
@@ -154,23 +171,19 @@ export default function AdminApp() {
 
   useEffect(() => { check(); }, [check]);
 
-  // قفل بعد 5 دقايق من غير استخدام (بطلب المالك) — السيرفر بيقفل الجلسة
-  // نفسها، وهنا بنقفل الشاشة على طول ونمسح بيانات العملاء من الذاكرة
-  const lock = useCallback(async (reason) => {
-    await fetch('/admin/logout', { method: 'POST', credentials: 'include', headers: { 'X-Admin-Request': '1' } }).catch(() => {});
-    dispatch(adminApi.util.resetApiState());
-    setLockNotice(reason === 'server'
-      ? 'الجلسة خلصت — ادخل تاني.'
-      : 'اللوحة اتقفلت لوحدها بعد 5 دقايق من غير استخدام — ادخل تاني.');
-    setAuth(false);
-  }, [dispatch]);
+  // اللوحة بتفضل مفتوحة على جهازك (بطلب المالك). بس لو الجلسة اتقفلت من
+  // السيرفر (قفلتها من جهاز تاني، أو اتستخدمت من جهاز غريب) أي طلب بيرجع
+  // 401 → الشاشة تتقفل على طول وبيانات العملاء تتمسح من الذاكرة.
   useEffect(() => {
     if (!auth) return undefined;
-    const stop = startActivityWatch(() => lock('idle'));
-    const onLocked = (e) => lock((e.detail && e.detail.reason) || 'server');
+    const onLocked = () => {
+      dispatch(adminApi.util.resetApiState());
+      setLockNotice('الجلسة على الجهاز ده اتقفلت — ادخل تاني.');
+      setAuth(false);
+    };
     window.addEventListener(LOCK_EVENT, onLocked);
-    return () => { stop(); window.removeEventListener(LOCK_EVENT, onLocked); };
-  }, [auth, lock]);
+    return () => window.removeEventListener(LOCK_EVENT, onLocked);
+  }, [auth, dispatch]);
 
   // اللوحة عربي دايمًا — بنظبط الاتجاه على الصفحة نفسها ونرجّعه زي ما كان
   // لما نخرج منها، عشان مانلخبطش لغة الموقع لو المستخدم كان بالإنجليزي.
@@ -209,7 +222,7 @@ export default function AdminApp() {
     );
   }
 
-  if (!auth) return <AdminLogin notice={lockNotice} onSuccess={() => { dispatch(adminApi.util.resetApiState()); markActive(); setLockNotice(''); setAuth(true); }} />;
+  if (!auth) return <AdminLogin notice={lockNotice} onSuccess={() => { dispatch(adminApi.util.resetApiState()); setLockNotice(''); setAuth(true); }} />;
 
   return (
     <div className="min-h-screen bg-night text-ivory" dir="rtl">
@@ -288,6 +301,7 @@ export default function AdminApp() {
             <OrdersBadge />
           </button>
 
+          <TwoFactorBanner />
           <Routes>
             <Route index element={<OverviewPage />} />
             <Route path="live" element={<LiveJourneysPage />} />

@@ -6,16 +6,62 @@
 import { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
 import {
-  ShieldCheck, ShieldAlert, Smartphone, Copy, Check, Download, KeyRound, RefreshCw, Lock,
+  ShieldCheck, ShieldAlert, Smartphone, Copy, Check, Download, KeyRound, RefreshCw, Lock, Monitor, X,
 } from 'lucide-react';
 import {
   useGetSecurityQuery, useStart2faMutation, useEnable2faMutation,
   useDisable2faMutation, useNewBackupCodesMutation,
+  useGetAdminDevicesQuery, useCloseAdminDeviceMutation, useCloseOtherAdminDevicesMutation,
 } from '../../store/adminApi.js';
 import { Panel, Btn, Spinner, fmtDate } from '../../components/admin/ui.jsx';
 import CodeInput from '../../components/admin/CodeInput.jsx';
 
 const errOf = (e) => (e && e.data && e.data.error) || 'حصل خطأ، جرّب تاني.';
+
+/**
+ * كل جهاز فاتح اللوحة دلوقتي. اللوحة بتفضل مفتوحة على جهازك، فالقايمة دي
+ * هي اللي بتطمّنك: لو شفت جهاز مش بتاعك اقفله، وغيّر كلمة السر.
+ */
+function DevicesPanel() {
+  const { data, isLoading } = useGetAdminDevicesQuery(undefined, { pollingInterval: 60000 });
+  const [closeOne, { isLoading: c1 }] = useCloseAdminDeviceMutation();
+  const [closeOthers, { isLoading: c2 }] = useCloseOtherAdminDevicesMutation();
+  const [msg, setMsg] = useState('');
+  const devices = (data && data.devices) || [];
+  const others = devices.filter((d) => !d.current).length;
+  return (
+    <Panel title="الأجهزة اللي فاتحة اللوحة" subtitle="اللوحة بتفضل مفتوحة على جهازك — لو شفت جهاز مش بتاعك اقفله على طول"
+      action={others > 0 && (
+        <Btn size="sm" tone="danger" icon={Lock} disabled={c2}
+          onClick={async () => { try { const r = await closeOthers().unwrap(); setMsg(`اتقفل ${r.closed} جهاز — جهازك بس اللي فاتح دلوقتي.`); } catch (e) { setMsg(errOf(e)); } }}>
+          اقفل كل الأجهزة التانية
+        </Btn>
+      )}>
+      {isLoading ? <Spinner /> : (
+        <ul className="space-y-2" data-admin-devices>
+          {devices.map((d) => (
+            <li key={d.id} className={`flex items-center gap-3 rounded-xl border px-3.5 py-2.5 ${d.current ? 'border-ok/40 bg-ok/[0.06]' : 'border-line-lite bg-night/30'}`} data-device={d.current ? 'current' : 'other'}>
+              {/آيفون|أندرويد|آيباد/.test(d.device) ? <Smartphone size={17} className="shrink-0 text-ivory/50" /> : <Monitor size={17} className="shrink-0 text-ivory/50" />}
+              <span className="min-w-0 flex-1">
+                <span className="block text-[13px] font-bold text-ivory/90">{d.device}{d.current && <span className="ms-2 rounded-full bg-ok/15 px-2 py-0.5 text-[10.5px] text-ok">الجهاز ده</span>}</span>
+                <span className="block text-[11.5px] text-ivory/45">
+                  دخل {fmtDate(d.createdAt, true)} · آخر مرة {fmtDate(d.lastSeenAt, true)}{d.ip ? <> · <span dir="ltr">{d.ip}</span></> : ''}
+                </span>
+              </span>
+              {!d.current && (
+                <Btn size="sm" tone="danger" icon={X} disabled={c1}
+                  onClick={async () => { try { await closeOne(d.id).unwrap(); setMsg('الجهاز اتقفل — لو مش بتاعك غيّر كلمة السر كمان.'); } catch (e) { setMsg(errOf(e)); } }}>
+                  اقفله
+                </Btn>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+      {msg && <p className="mt-3 rounded-xl bg-ok/10 px-3.5 py-2.5 text-[12.5px] text-ok" data-devices-msg>{msg}</p>}
+    </Panel>
+  );
+}
 
 function CopyBtn({ text, label = 'انسخ' }) {
   const [done, setDone] = useState(false);
@@ -242,6 +288,7 @@ export default function SecurityPage() {
           </div>
         )}
       </Panel>
+      <DevicesPanel />
     </div>
   );
 }

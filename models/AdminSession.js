@@ -18,8 +18,13 @@ const adminSessionSchema = new mongoose.Schema({
   // آخر نشاط — بيسمح بإغلاق الجلسة بعد فترة خمول قصيرة حتى لو مدتها
   // الكلية لسه ما خلصتش
   lastSeenAt: { type: Date, default: Date.now },
-  // آخر استخدام فعلي من الأدمن (لمسة/كتابة) — الخمول 5 دقايق بيتحسب منه
-  lastActiveAt: { type: Date },
+  // تجديد التوكن كل يوم: التوكن القديم (بصمته) مقبول دقيقتين بس بعد التجديد
+  rotatedAt: { type: Date },
+  prevToken: { type: String, index: true },
+  prevGraceUntil: { type: Date },
+  // للعرض في "الأجهزة اللي فاتحة اللوحة": نوع الجهاز والمتصفح + IP مخفي جزئيًا
+  device: { type: String, default: '' },
+  ip: { type: String, default: '' },
   // true = الـ token المتخزّن بصمة (sha256) للتوكن اللي في الكوكي، مش التوكن
   // نفسه. الجلسات القديمة (قبل التشفير) ملهاش الحقل ده.
   hashed: { type: Boolean, default: false },
