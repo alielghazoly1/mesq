@@ -15,7 +15,7 @@ import SignupBadge from '../../pages/admin/SignupBadge.jsx';
 import SourceBadge from '../../pages/admin/SourceBadge.jsx';
 
 /** العميل فين في الموقع — بالعربي بدل المسار الخام */
-function placeLabel(path) {
+export function placeLabel(path) {
   const p = String(path || '/');
   if (p === '/' || p === '') return 'الصفحة الرئيسية';
   if (p.startsWith('/packages')) return 'صفحة الباقات';
@@ -27,7 +27,7 @@ function placeLabel(path) {
 }
 
 /** رقم بيتغيّر بحركة (القديم بيطلع لفوق والجديد بيدخل) */
-function Ticker({ value, className }) {
+export function Ticker({ value, className }) {
   return (
     <span className={`relative inline-flex overflow-hidden ${className || ''}`}>
       <AnimatePresence mode="popLayout" initial={false}>

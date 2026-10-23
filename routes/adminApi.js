@@ -27,6 +27,7 @@ const Presence = require('../models/Presence');
 const Visit = require('../models/Visit');
 const Campaign = require('../models/Campaign');
 const SiteDeviceDay = require('../models/SiteDeviceDay');
+const AdminPin = require('../models/AdminPin');
 const { activatedRangeFilter } = require('../utils/finance');
 const { cairoParts, cairoWallToDate } = require('../utils/cairoTime');
 const {
@@ -1484,6 +1485,148 @@ router.get('/admin/api/invitations', requireAdminSession, async (req, res) => {
     });
   } catch (err) {
     console.error('Error listing invitations:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+// ==========================================================================
+// المثبّتين — عملاء ودعوات المالك بيثبّتهم عشان يفضلوا قدامه على طول
+// ==========================================================================
+const MAX_PINS = 300;
+
+router.get('/admin/api/pins', requireAdminSession, async (req, res) => {
+  try {
+    const pins = await AdminPin.find({}).sort({ createdAt: -1 }).lean();
+    const userPins = pins.filter((p) => p.kind === 'user' && mongoose.isValidObjectId(p.ref));
+    const invPins = pins.filter((p) => p.kind === 'invitation');
+
+    const [users, invitations] = await Promise.all([
+      userPins.length
+        ? User.find({ _id: { $in: userPins.map((p) => p.ref) } })
+          .select('name email country phone subscription isBlocked createdAt lastSeenAt visitCount googleId passwordHash')
+          .lean()
+        : [],
+      invPins.length
+        ? Invitation.find({ shortId: { $in: invPins.map((p) => p.ref) } })
+          .select('shortId templateId brideNameAr groomNameAr brideName groomName venueName weddingDateTime viewCount isPremium status ownerId createdAt language')
+          .lean()
+        : [],
+    ]);
+    const userById = new Map(users.map((u) => [String(u._id), u]));
+    const invById = new Map(invitations.map((i) => [i.shortId, i]));
+
+    const [invCounts, owners, rsvps] = await Promise.all([
+      users.length ? Invitation.aggregate([
+        { $match: { ownerId: { $in: users.map((u) => u._id) }, status: { $ne: 'draft' } } },
+        { $group: { _id: '$ownerId', n: { $sum: 1 } } },
+      ]) : [],
+      invitations.length
+        ? User.find({ _id: { $in: [...new Set(invitations.map((i) => i.ownerId).filter(Boolean).map(String))] } }).select('name').lean()
+        : [],
+      invitations.length ? Rsvp.aggregate([
+        { $match: { shortId: { $in: invitations.map((i) => i.shortId) } } },
+        { $group: { _id: '$shortId', n: { $sum: 1 } } },
+      ]) : [],
+    ]);
+    const invCountOf = new Map(invCounts.map((r) => [String(r._id), r.n]));
+    const ownerName = new Map(owners.map((u) => [String(u._id), u.name]));
+    const rsvpOf = new Map(rsvps.map((r) => [r._id, r.n]));
+
+    return res.json({
+      // اللي اتمسح من الموقع بيفضل ظاهر كـ "اتمسح" عشان تقدر تشيله بنفسك
+      users: userPins.map((p) => {
+        const u = userById.get(p.ref);
+        const base = { ref: p.ref, note: p.note || '', pinnedAt: p.createdAt };
+        if (!u) return { ...base, missing: true };
+        const sub = u.subscription || {};
+        const pkg = sub.packageId ? getPackage(sub.packageId) : null;
+        return {
+          ...base,
+          id: String(u._id),
+          name: u.name,
+          email: u.email,
+          phone: u.phone || '',
+          country: u.country,
+          isPremium: !!sub.packageId,
+          packageName: pkg ? (pkg.name.ar || pkg.name.en) : null,
+          isSuspended: sub.status === 'suspended',
+          isBlocked: !!u.isBlocked,
+          invitations: invCountOf.get(String(u._id)) || 0,
+          online: isOnline(u.lastSeenAt),
+          lastSeenAt: u.lastSeenAt || null,
+          visitCount: u.visitCount || 0,
+          signup: signupOf(u),
+        };
+      }),
+      invitations: invPins.map((p) => {
+        const i = invById.get(p.ref);
+        const base = { ref: p.ref, note: p.note || '', pinnedAt: p.createdAt };
+        if (!i) return { ...base, missing: true };
+        const tpl = TEMPLATES.find((x) => x.id === i.templateId);
+        return {
+          ...base,
+          shortId: i.shortId,
+          namesAr: `${i.brideNameAr || ''} & ${i.groomNameAr || ''}`.trim(),
+          namesEn: `${i.brideName || ''} & ${i.groomName || ''}`.trim(),
+          templateName: tpl ? (typeof tpl.name === 'string' ? tpl.name : (tpl.name.ar || tpl.name.en)) : (i.templateId || ''),
+          venueName: i.venueName,
+          weddingDate: i.weddingDateTime,
+          views: i.viewCount || 0,
+          rsvps: rsvpOf.get(i.shortId) || 0,
+          isPremium: !!i.isPremium,
+          isDraft: i.status === 'draft',
+          owner: i.ownerId ? { id: String(i.ownerId), name: ownerName.get(String(i.ownerId)) || '' } : null,
+        };
+      }),
+    });
+  } catch (err) {
+    console.error('Error loading pins:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+// تثبيت (أو تعديل الملاحظة لو متثبّت قبل كده)
+router.put('/admin/api/pins', requireAdminSession, async (req, res) => {
+  try {
+    const kind = req.body && req.body.kind;
+    const ref = String((req.body && req.body.ref) || '').trim().slice(0, 64);
+    if (!['user', 'invitation'].includes(kind) || !ref) return res.status(400).json({ error: 'طلب مش صحيح.' });
+    let label = '';
+    if (kind === 'user') {
+      if (!mongoose.isValidObjectId(ref)) return res.status(400).json({ error: 'طلب مش صحيح.' });
+      const u = await User.findById(ref).select('name').lean();
+      if (!u) return res.status(404).json({ error: 'العميل ده مش موجود.' });
+      label = u.name;
+    } else {
+      const i = await Invitation.findOne({ shortId: ref }).select('shortId brideNameAr groomNameAr brideName groomName').lean();
+      if (!i) return res.status(404).json({ error: 'الدعوة دي مش موجودة.' });
+      label = `${i.brideNameAr || i.brideName || ''} & ${i.groomNameAr || i.groomName || ''} (${i.shortId})`;
+    }
+    const exists = await AdminPin.exists({ kind, ref });
+    if (!exists && (await AdminPin.countDocuments({})) >= MAX_PINS) {
+      return res.status(400).json({ error: `وصلت لأقصى عدد (${MAX_PINS}) — شيل حاجة الأول.` });
+    }
+    const set = { kind, ref };
+    if (req.body.note !== undefined) set.note = sanitizeText(req.body.note, 120);
+    await AdminPin.updateOne({ kind, ref }, { $set: set, $setOnInsert: { createdAt: new Date() } }, { upsert: true });
+    if (!exists) logAdminAction(req, 'pin.add', { type: kind, id: ref, label });
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error('Error pinning:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+router.delete('/admin/api/pins/:kind/:ref', requireAdminSession, async (req, res) => {
+  try {
+    const { kind } = req.params;
+    const ref = String(req.params.ref || '').slice(0, 64);
+    if (!['user', 'invitation'].includes(kind)) return res.status(400).json({ error: 'طلب مش صحيح.' });
+    const r = await AdminPin.deleteOne({ kind, ref });
+    if (r.deletedCount) logAdminAction(req, 'pin.remove', { type: kind, id: ref });
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error('Error unpinning:', err);
     return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
   }
 });

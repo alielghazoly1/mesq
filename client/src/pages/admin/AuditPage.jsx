@@ -11,6 +11,8 @@ import {
 // وصف عربي لكل إجراء + لونه حسب خطورته
 const ACTIONS = {
   'login.ok': { label: 'دخول للوحة', tone: 'ok' },
+  'pin.add': { label: 'تثبيت', tone: 'gold' },
+  'pin.remove': { label: 'شيل من المثبّتين', tone: 'muted' },
   'login.failed': { label: 'محاولة دخول غلط', tone: 'danger' },
   'login.2fa_failed': { label: 'كود تحقق غلط', tone: 'danger' },
   'security.2fa.enable': { label: 'تفعيل التحقق بخطوتين', tone: 'ok' },

@@ -10,9 +10,9 @@ import { NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { useDispatch } from 'react-redux';
 import {
   LayoutDashboard, Users, Receipt, FileText, MessageSquare,
-  Settings, ScrollText, LogOut, Loader2, Menu, X, Music, BadgePercent, Wallet, Banknote, Megaphone, LayoutTemplate, Tags, Bug, ShieldCheck, Eraser, MessageCircle, Target, ReceiptText, Activity, CalendarCheck, Radio,
+  Settings, ScrollText, LogOut, Loader2, Menu, X, Music, BadgePercent, Wallet, Banknote, Megaphone, LayoutTemplate, Tags, Bug, ShieldCheck, Eraser, MessageCircle, Target, ReceiptText, Activity, CalendarCheck, Radio, Pin,
 } from 'lucide-react';
-import { adminApi, useGetOrdersAttentionQuery, useGetSupportUnreadQuery, useGetSecurityQuery } from '../../store/adminApi.js';
+import { adminApi, useGetOrdersAttentionQuery, useGetSupportUnreadQuery, useGetSecurityQuery, useGetPinsQuery } from '../../store/adminApi.js';
 import AdminLogin from './AdminLogin.jsx';
 import { LOCK_EVENT } from '../../lib/adminActivity.js';
 import OverviewPage from './OverviewPage.jsx';
@@ -38,9 +38,12 @@ import SecurityPage from './SecurityPage.jsx';
 import CleanupPage from './CleanupPage.jsx';
 import WhatsAppPage from './WhatsAppPage.jsx';
 import CampaignsPage from './CampaignsPage.jsx';
+import PinnedPage from './PinnedPage.jsx';
+import LiveFloat from '../../components/admin/LiveFloat.jsx';
 
 const NAV = [
   { to: '/admin', end: true, icon: LayoutDashboard, label: 'نظرة عامة' },
+  { to: '/admin/pinned', icon: Pin, label: 'المثبّتين', badge: 'pins' },
   { to: '/admin/live', icon: Radio, label: 'مباشر' },
   { to: '/admin/analytics', icon: Activity, label: 'التحليلات' },
   { to: '/admin/earnings', icon: Wallet, label: 'الأرباح' },
@@ -81,6 +84,18 @@ function TwoFactorBanner() {
       <span className="flex-1">التحقق بخطوتين مش مفعّل — أي حد يعرف كلمة السر يقدر يدخل اللوحة. فعّله دلوقتي (دقيقة واحدة).</span>
       <span className="shrink-0 rounded-full bg-error/30 px-3 py-1 text-[12px]">فعّله ←</span>
     </NavLink>
+  );
+}
+
+// عدد المثبّتين جنب "المثبّتين" (بلون هادي — مش تنبيه)
+function PinsBadge() {
+  const { data } = useGetPinsQuery();
+  const n = (data?.users?.length || 0) + (data?.invitations?.length || 0);
+  if (!n) return null;
+  return (
+    <span className="ms-auto min-w-[20px] rounded-full bg-ivory/[0.08] px-1.5 py-0.5 text-center text-[10.5px] font-bold leading-none text-ivory/60" data-pins-count>
+      {n}
+    </span>
   );
 }
 
@@ -229,6 +244,7 @@ export default function AdminApp() {
       <div className="mx-auto flex max-w-[1500px]">
         {/* القايمة الجانبية */}
         <aside
+          data-admin-nav
           className={`fixed inset-y-0 start-0 z-40 w-[232px] shrink-0 border-e border-line-lite bg-panel transition-transform lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${
             navOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'
           }`}
@@ -266,6 +282,7 @@ export default function AdminApp() {
                   <Icon size={15} /> {label}
                   {badge === 'orders' && <OrdersBadge />}
                   {badge === 'support' && <SupportBadge />}
+                  {badge === 'pins' && <PinsBadge />}
                 </NavLink>
               ))}
             </nav>
@@ -304,6 +321,7 @@ export default function AdminApp() {
           <TwoFactorBanner />
           <Routes>
             <Route index element={<OverviewPage />} />
+            <Route path="pinned" element={<PinnedPage />} />
             <Route path="live" element={<LiveJourneysPage />} />
             <Route path="analytics" element={<AnalyticsPage />} />
             <Route path="earnings" element={<EarningsPage />} />
@@ -329,6 +347,9 @@ export default function AdminApp() {
             <Route path="*" element={<Navigate to="/admin" replace />} />
           </Routes>
         </main>
+
+        {/* المربع الطاير "على الموقع دلوقتي" — كل الصفحات ما عدا النظرة العامة، شاشات كبيرة بس */}
+        {!/^\/admin\/?$/.test(location.pathname) && <LiveFloat />}
       </div>
     </div>
   );

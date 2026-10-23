@@ -12,6 +12,7 @@ import { countryName, waLink } from './format.js';
 import ClientDrawer from './ClientDrawer.jsx';
 import SignupBadge from './SignupBadge.jsx';
 import SourceBadge from './SourceBadge.jsx';
+import { PinButton, PinnedStrip } from '../../components/admin/Pins.jsx';
 
 const FILTERS = [
   { value: 'all', label: 'الكل' },
@@ -66,6 +67,9 @@ export default function ClientsPage() {
         </p>
       </div>
 
+      {/* المثبّتين فوق على طول */}
+      <PinnedStrip kind="user" />
+
       <Panel
         title={titleOf()}
         subtitle={subtitleOf()}
@@ -90,6 +94,7 @@ export default function ClientsPage() {
                 <Row key={u.id} onClick={() => dispatch(openUser(u.id))}>
                   <Cell>
                     <div className="flex flex-wrap items-center gap-1.5">
+                      <PinButton kind="user" refId={u.id} className="-ms-1.5" />
                       {u.online && <LiveDot size={8} />}
                       <span className="font-bold text-ivory">{u.name}</span>
                       <SignupBadge signup={u.signup} />

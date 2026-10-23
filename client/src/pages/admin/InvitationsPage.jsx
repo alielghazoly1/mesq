@@ -1,12 +1,15 @@
 import { useDispatch, useSelector } from 'react-redux';
+import { AnimatePresence } from 'motion/react';
 import { Search, ExternalLink, BarChart3 } from 'lucide-react';
 import { useGetInvitationsQuery } from '../../store/adminApi.js';
 import {
-  setInvitationsQuery, setInvitationsPage, setInvitationsFilter, openUser,
+  setInvitationsQuery, setInvitationsPage, setInvitationsFilter, openUser, closeUser,
 } from '../../store/adminSlice.js';
 import {
   Panel, Badge, Table, Row, Cell, Spinner, Empty, Pager, Field, Tabs, fmtDate, fmtNum,
 } from '../../components/admin/ui.jsx';
+import { PinButton, PinnedStrip } from '../../components/admin/Pins.jsx';
+import ClientDrawer from './ClientDrawer.jsx';
 
 const FILTERS = [
   { value: 'all', label: 'كل الدعوات' },
@@ -15,7 +18,7 @@ const FILTERS = [
 
 export default function InvitationsPage() {
   const dispatch = useDispatch();
-  const { invitationsQuery, invitationsPage, invitationsFilter } = useSelector((s) => s.admin);
+  const { invitationsQuery, invitationsPage, invitationsFilter, openUserId } = useSelector((s) => s.admin);
   const today = invitationsFilter === 'today';
   const { data, isLoading, isFetching } = useGetInvitationsQuery({
     q: invitationsQuery, page: invitationsPage, filter: invitationsFilter,
@@ -29,6 +32,9 @@ export default function InvitationsPage() {
           كل دعوة على الموقع — ابحث بالاسم، القاعة، أو كود اللينك.
         </p>
       </div>
+
+      {/* المثبّتة فوق على طول */}
+      <PinnedStrip kind="invitation" />
 
       <Panel
         title={data ? (today ? `${fmtNum(data.total)} دعوة اتنشرت النهارده` : `${fmtNum(data.total)} دعوة`) : 'الدعوات'}
@@ -54,6 +60,7 @@ export default function InvitationsPage() {
                 <Row key={inv.shortId}>
                   <Cell>
                     <div className="flex flex-wrap items-center gap-1.5">
+                      <PinButton kind="invitation" refId={inv.shortId} className="-ms-1.5" />
                       <span className="font-bold text-ivory">{inv.namesAr || inv.namesEn}</span>
                       {inv.isDraft && <Badge>مسودة</Badge>}
                       {inv.isPremium && <Badge tone="gold">مميزة</Badge>}
@@ -109,6 +116,14 @@ export default function InvitationsPage() {
           </>
         )}
       </Panel>
+
+      {/* ملف صاحب الدعوة (من اسمه في الجدول أو من الكروت المثبّتة) */}
+      <AnimatePresence>
+        {openUserId && <ClientDrawer userId={openUserId} onClose={() => dispatch(closeUser())} />}
+      </AnimatePresence>
+      {openUserId && (
+        <button type="button" aria-label="اقفل" onClick={() => dispatch(closeUser())} className="fixed inset-0 z-40 bg-black/55" />
+      )}
     </div>
   );
 }

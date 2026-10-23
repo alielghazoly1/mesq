@@ -22,6 +22,7 @@ import SignupBadge from './SignupBadge.jsx';
 import ClientPasswordPanel from './ClientPasswordPanel.jsx';
 import ClientMessagePanel from './ClientMessagePanel.jsx';
 import ClientJourneysPanel from './ClientJourneysPanel.jsx';
+import { PinButton } from '../../components/admin/Pins.jsx';
 
 /** مدة الزيارة بشكل مقروء (الدقة دقيقتين — آخر نشاط بيتكتب كل دقيقتين) */
 function fmtDuration(from, to) {
@@ -233,9 +234,12 @@ export default function ClientDrawer({ userId, onClose }) {
     >
       <header className="flex shrink-0 items-center justify-between border-b border-line-lite px-5 py-3.5">
         <h2 className="font-serif text-[16px] font-bold text-ivory">ملف العميل</h2>
-        <button type="button" onClick={onClose} className="text-ivory/50 hover:text-ivory">
-          <X size={18} />
-        </button>
+        <span className="flex items-center gap-3">
+          {data && <PinButton kind="user" refId={userId} variant="pill" />}
+          <button type="button" onClick={onClose} className="text-ivory/50 hover:text-ivory">
+            <X size={18} />
+          </button>
+        </span>
       </header>
 
       <div className="min-h-0 flex-1 space-y-5 overflow-y-auto p-5">

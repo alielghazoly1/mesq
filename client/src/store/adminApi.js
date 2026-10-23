@@ -31,8 +31,27 @@ const baseQuery = async (args, api, extra) => {
 export const adminApi = createApi({
   reducerPath: 'adminApi',
   baseQuery,
-  tagTypes: ['Overview', 'Users', 'User', 'Orders', 'Invitations', 'Support', 'SupportUnread', 'Settings', 'Pricing', 'Thread', 'Audit', 'Tracks', 'Withdrawals', 'Ugc', 'SiteTemplates', 'Security', 'Cleanup', 'WhatsApp', 'Campaigns', 'GoogleLogin', 'Finance'],
+  tagTypes: ['Overview', 'Users', 'User', 'Orders', 'Invitations', 'Support', 'SupportUnread', 'Settings', 'Pricing', 'Thread', 'Audit', 'Tracks', 'Withdrawals', 'Ugc', 'SiteTemplates', 'Security', 'Cleanup', 'WhatsApp', 'Campaigns', 'GoogleLogin', 'Finance', 'Pins'],
   endpoints: (builder) => ({
+    // ===== المثبّتين (عملاء ودعوات بيفضلوا فوق على طول) =====
+    getPins: builder.query({ query: () => '/pins', providesTags: ['Pins'] }),
+    pin: builder.mutation({
+      query: (body) => ({ url: '/pins', method: 'PUT', body }),
+      invalidatesTags: (r, e) => (e ? [] : ['Pins', 'Audit']),
+    }),
+    unpin: builder.mutation({
+      query: ({ kind, ref }) => ({ url: `/pins/${kind}/${encodeURIComponent(ref)}`, method: 'DELETE' }),
+      // بيختفي من القايمة على طول من غير ما يستنى السيرفر
+      async onQueryStarted({ kind, ref }, { dispatch, queryFulfilled }) {
+        const key = kind === 'user' ? 'users' : 'invitations';
+        const patch = dispatch(adminApi.util.updateQueryData('getPins', undefined, (d) => {
+          d[key] = d[key].filter((x) => x.ref !== ref);
+        }));
+        try { await queryFulfilled; } catch { patch.undo(); }
+      },
+      invalidatesTags: (r, e) => (e ? [] : ['Pins', 'Audit']),
+    }),
+
     // ===== الأمان (التحقق بخطوتين) =====
     getSecurity: builder.query({ query: () => '/security', providesTags: ['Security'] }),
     getAdminDevices: builder.query({ query: () => '/security/devices', providesTags: ['Security'] }),
@@ -364,6 +383,9 @@ export const {
   useGetAdminPackagesQuery,
   useGetPricingSettingsQuery,
   useGetLiveQuery,
+  useGetPinsQuery,
+  usePinMutation,
+  useUnpinMutation,
   useGetClientErrorsQuery,
   useGetRevenueMonthlyQuery,
   useGetPackagePricesQuery,
