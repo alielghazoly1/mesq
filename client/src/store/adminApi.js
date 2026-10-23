@@ -10,15 +10,26 @@
 // التوكن نفسه عمره ما بيعدي من هنا: كوكي httpOnly، الجافاسكريبت مش
 // شايفاه أصلًا. credentials:'include' بيخلي المتصفح يبعته لوحده.
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { recentlyActive, signalLocked } from '../lib/adminActivity.js';
 
-const baseQuery = fetchBaseQuery({
+const rawBaseQuery = fetchBaseQuery({
   baseUrl: '/admin/api',
   credentials: 'include',
   prepareHeaders: (headers) => {
     headers.set('X-Admin-Request', '1');
+    // الأدمن لمس الشاشة في آخر دقيقة → الطلب ده "استخدام" بيمدّ الجلسة
+    // (التحديث التلقائي من غير لمس مابيمدّهاش — قفل الـ 5 دقايق)
+    if (recentlyActive()) headers.set('X-Admin-Active', '1');
     return headers;
   },
 });
+
+// الجلسة خلصت (خمول 5 دقايق أو خروج من جهاز تاني) → اللوحة تقفل على طول
+const baseQuery = async (args, api, extra) => {
+  const result = await rawBaseQuery(args, api, extra);
+  if (result.error && result.error.status === 401) signalLocked('server');
+  return result;
+};
 
 export const adminApi = createApi({
   reducerPath: 'adminApi',

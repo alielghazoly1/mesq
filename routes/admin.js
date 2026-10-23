@@ -11,6 +11,7 @@ const crypto = require('crypto');
 const {
   isValidAdminKey, createAdminSession, destroyAdminSession, hasValidAdminSession,
   fingerprintOf, hashToken,
+  requireAdminSession,
 } = require('../middleware/adminAuth');
 const AdminLoginTicket = require('../models/AdminLoginTicket');
 const twoFactor = require('../utils/adminTwoFactor');
@@ -161,6 +162,11 @@ router.post('/admin/logout', async (req, res) => {
 
 // بترجع 200 دايمًا — واجهة اللوحة بتسأل الأول عشان تعرف تعرض شاشة الدخول
 // ولا اللوحة، من غير ما تتعامل مع حالة خطأ.
+// POST /admin/api/ping — اللوحة بتبعته كل نص دقيقة لو الأدمن بيستخدمها فعلًا
+// (حتى لو الصفحة نفسها مش بتطلب حاجة) — عشان الـ 5 دقايق خمول مايقفلوش
+// اللوحة في وش حد شغال. الحارس العام على /admin/api بيعمل الشغل كله.
+router.post('/admin/api/ping', requireAdminSession, (req, res) => res.json({ ok: true }));
+
 router.get('/admin/session', async (req, res) => {
   const valid = await hasValidAdminSession(req);
   return res.json({ authenticated: valid });

@@ -32,6 +32,8 @@ const userSchema = new mongoose.Schema({
   commissionRate: { type: Number, default: 0, min: 0, max: 100 },
   // رقم فودافون كاش اللي بيسحب عليه (بيدخله هو من لوحته)
   payoutPhone: { type: String, default: '', maxlength: 30 },
+  // قفل لحظي على طلب السحب: طلبين في نفس اللحظة مايقدروش يسحبوا نفس الرصيد مرتين
+  withdrawLockUntil: { type: Date, default: null },
   // عدد مرات فتح لينك إحالته (زيارات)
   referralClicks: { type: Number, default: 0 },
   // للحسابات العادية: كود الـ UGC اللي جابهم لو سجّلوا من لينك إحالة. بيتحط

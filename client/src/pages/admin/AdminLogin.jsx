@@ -22,7 +22,7 @@ async function post(url, body) {
   return { ok: res.ok, data };
 }
 
-export default function AdminLogin({ onSuccess }) {
+export default function AdminLogin({ onSuccess, notice = '' }) {
   const [key, setKey] = useState('');
   const [step, setStep] = useState('password'); // 'password' | 'code'
   const [code, setCode] = useState('');
@@ -86,6 +86,11 @@ export default function AdminLogin({ onSuccess }) {
             </div>
             <h1 className="mb-1 font-serif text-[19px] font-bold text-ivory">لوحة تحكم ميثاق</h1>
             <p className="mb-6 text-[12.5px] text-ivory/45">ادخل كلمة السر عشان تكمّل.</p>
+            {notice && (
+              <p className="-mt-3 mb-4 rounded-xl border border-brass/25 bg-brass/10 px-3 py-2 text-[12px] font-bold text-brass-soft" data-lock-notice>
+                {notice}
+              </p>
+            )}
 
             <input
               type="password"

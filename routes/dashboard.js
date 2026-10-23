@@ -347,15 +347,28 @@ router.post('/api/dashboard/ugc/withdraw', requireAuth, async (req, res) => {
     if (!CURRENCIES.includes(currency)) return res.status(400).json({ error: 'العملة مش صحيحة.' });
     if (!Number.isFinite(amount) || amount <= 0) return res.status(400).json({ error: 'اكتب مبلغ صحيح.' });
     if (!req.user.payoutPhone) return res.status(400).json({ error: 'ضيف رقم فودافون كاش الأول.' });
-    // بنعيد حساب المتاح لحظيًا (المعلّق داخل الحساب) عشان مايطلبش أكتر من رصيده
-    const stats = await computeUgcStats(req.user);
-    if (amount > stats.available[currency]) {
-      return res.status(400).json({ error: `المبلغ أكبر من رصيدك المتاح (${stats.available[currency]}).` });
+    // قفل لحظي: لو اتبعت طلبين سحب في نفس اللحظة (ضغطتين ورا بعض أو سكريبت)
+    // الاتنين كانوا بيشوفوا نفس الرصيد قبل ما أي واحد يتسجّل — فيتسحب الرصيد
+    // مرتين. دلوقتي طلب واحد بس يعدّي في المرة، والتاني يستنى أو يترفض.
+    const now = new Date();
+    const lock = await User.updateOne(
+      { _id: req.user.id, $or: [{ withdrawLockUntil: null }, { withdrawLockUntil: { $lte: now } }] },
+      { $set: { withdrawLockUntil: new Date(now.getTime() + 20000) } },
+    );
+    if (!lock.modifiedCount) return res.status(429).json({ error: 'فيه طلب سحب بيتسجّل دلوقتي — استنى ثواني وجرّب تاني.' });
+    try {
+      // بنعيد حساب المتاح لحظيًا (المعلّق داخل الحساب) عشان مايطلبش أكتر من رصيده
+      const stats = await computeUgcStats(req.user);
+      if (amount > stats.available[currency]) {
+        return res.status(400).json({ error: `المبلغ أكبر من رصيدك المتاح (${stats.available[currency]}).` });
+      }
+      const w = await Withdrawal.create({
+        ugcUserId: req.user.id, currency, amount, phone: req.user.payoutPhone, status: 'pending',
+      });
+      return res.status(201).json({ ok: true, id: String(w._id) });
+    } finally {
+      await User.updateOne({ _id: req.user.id }, { $set: { withdrawLockUntil: null } }).catch(() => {});
     }
-    const w = await Withdrawal.create({
-      ugcUserId: req.user.id, currency, amount, phone: req.user.payoutPhone, status: 'pending',
-    });
-    return res.status(201).json({ ok: true, id: String(w._id) });
   } catch (err) {
     console.error('Error requesting withdrawal:', err);
     return res.status(500).json({ error: 'حصل خطأ في السيرفر.' });

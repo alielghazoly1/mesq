@@ -30,6 +30,7 @@ const adminAnalyticsRouter = require('./routes/adminAnalytics');
 const adminOrdersDayRouter = require('./routes/adminOrdersDay');
 const { ensureDeviceId, deviceInvitationLimiter } = require('./middleware/deviceLimiter');
 const { attachUser } = require('./middleware/auth');
+const { requireAdminSession } = require('./middleware/adminAuth');
 const { requestLogger, installProcessHandlers, write: logLine, LOG_FILE } = require('./utils/requestLogger');
 
 // بنمسك أي عطل بيوقّع عملية Node ونسجّله في اللوج قبل ما يطلع.
@@ -277,6 +278,9 @@ const adminApiLimiter = rateLimit({
   message: { error: 'عدد كبير جدًا من الطلبات، استنى شوية.' },
 });
 app.use('/admin/api', adminApiLimiter);
+// حارس عام: كل /admin/api محتاج جلسة أدمن — حتى لو مسار جديد اتنسى عليه
+// requireAdminSession، مايبقاش مفتوح (طبقة حماية تانية فوق حارس كل مسار)
+app.use('/admin/api', requireAdminSession);
 
 // 4) تسجيل/دخول: حد صارم عشان يصعب تخمين باسورد حساب حد (brute force)
 //    أو عمل حسابات وهمية بالجملة.
@@ -426,6 +430,50 @@ const CLIENT_ROUTE_EXCLUDED_PREFIXES = [
 // دلوقتي بيرجّع 404 صريح، والصفحة بتعرف تتصرف وتعيد التحميل (client/index.html).
 const FILE_LIKE = /\.[a-z0-9]{2,6}$/i;
 
+// لوحة التحكم أخطر صفحة في الموقع (بيانات كل العملاء والفلوس)، فبتاخد سياسة
+// أمان (CSP) أشد من باقي الموقع: مفيش أي سكريبت من برّه (لا Tilda ولا جوجل)
+// ولا أي كود مكتوب جوه الصفحة غير السكريبت الوحيد بتاع index.html (بالبصمة).
+// يعني حتى لو حد قدر يدسّ نص فيه <script> في أي حتة بتتعرض في اللوحة،
+// المتصفح مش هيشغّله. السياسة بتتحسب من index.html نفسه (بيتغيّر مع كل رفع).
+let adminCspCache = { mtime: 0, value: '' };
+function adminCsp() {
+  try {
+    const file = path.join(CLIENT_DIST, 'index.html');
+    const { mtimeMs } = require('fs').statSync(file);
+    if (adminCspCache.mtime === mtimeMs) return adminCspCache.value;
+    const html = require('fs').readFileSync(file, 'utf8');
+    const hashes = [];
+    html.replace(/<script(\s[^>]*)?>([\s\S]*?)<\/script>/gi, (m, attrs = '', body) => {
+      if (/\bsrc=/i.test(attrs) || /application\/ld\+json/i.test(attrs) || !body.trim()) return m;
+      // المتصفح بيحوّل نهايات السطور (\r\n) لـ \n قبل ما يحسب البصمة — لازم نعمل زيه
+      const text = body.replace(/\r\n?/g, '\n');
+      hashes.push(`'sha256-${require('crypto').createHash('sha256').update(text).digest('base64')}'`);
+      return m;
+    });
+    const media = "'self' blob: https://res.cloudinary.com https://pub-4dc8201144ca418fb604349c73e8c724.r2.dev https://asmaa-mohamed.vercel.app";
+    const value = [
+      "default-src 'self'",
+      `script-src 'self' ${hashes.join(' ')}`.trim(),
+      "script-src-attr 'none'",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "font-src 'self' data: https://fonts.gstatic.com",
+      "img-src 'self' data: blob: https://res.cloudinary.com",
+      `media-src ${media}`,
+      "connect-src 'self'",
+      "frame-src 'self' https://www.google.com",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+      "frame-ancestors 'none'",
+      ...(process.env.NODE_ENV === 'production' ? ['upgrade-insecure-requests'] : []),
+    ].join('; ');
+    adminCspCache = { mtime: mtimeMs, value };
+    return value;
+  } catch {
+    return '';
+  }
+}
+
 app.get('*', (req, res, next) => {
   if (CLIENT_ROUTE_EXCLUDED_PREFIXES.some((p) => req.path.startsWith(p))) return next();
   if (req.path.startsWith('/assets/') || FILE_LIKE.test(req.path)) {
@@ -433,6 +481,13 @@ app.get('*', (req, res, next) => {
   }
   // الصفحة نفسها عمرها ما تتخزّن: هي اللي بتقول أسماء الملفات الحالية
   res.setHeader('Cache-Control', 'no-store');
+  if (req.path === '/admin' || req.path.startsWith('/admin/')) {
+    const csp = adminCsp();
+    if (csp) res.setHeader('Content-Security-Policy', csp);
+    // اللوحة مش لازم تتفهرس ولا يتبعت معاها أي رابط لمواقع تانية
+    res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+    res.setHeader('Referrer-Policy', 'no-referrer');
+  }
   return res.sendFile(path.join(CLIENT_DIST, 'index.html'));
 });
 

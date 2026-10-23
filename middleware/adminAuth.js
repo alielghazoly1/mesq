@@ -9,7 +9,10 @@
 //   3) هيدر X-Admin-Request → أي طلب من موقع تاني لازم يعدي على preflight،
 //      والـ CORS بتاعنا بيرفضه. ده بيقفل CSRF حتى لو الـ sameSite اتحايل عليه
 //   4) بصمة المتصفح       → كوكي متسروق ومستخدم من جهاز تاني بيترفض
-//   5) خمول 60 دقيقة      → لوحة مفتوحة ومنسية بتقفل لوحدها
+//   5) خمول 5 دقايق        → اللوحة بتقفل لوحدها لو محدش استخدمها 5 دقايق
+//      (بطلب المالك). "استخدام" = لمسة/كتابة/سكرول من الأدمن نفسه (هيدر
+//      X-Admin-Active من اللوحة) — التحديث التلقائي في الخلفية مش بيحسب،
+//      فاللوحة المفتوحة والمسابة بتقفل برضه.
 const crypto = require('crypto');
 const connectDB = require('../config/db');
 const AdminSession = require('../models/AdminSession');
@@ -17,8 +20,10 @@ const AdminSession = require('../models/AdminSession');
 const ADMIN_COOKIE_NAME = 'wda_admin_session';
 // 24 ساعة — أقصر بكتير من جلسة المستخدم العادي لأنه مفتاح مشترك عالي الصلاحية
 const ADMIN_SESSION_DURATION_MS = 24 * 60 * 60 * 1000;
-// أقصى مدة خمول قبل ما الجلسة تلغي نفسها
-const ADMIN_IDLE_TIMEOUT_MS = 60 * 60 * 1000;
+// أقصى مدة من غير استخدام فعلي قبل ما الجلسة تلغي نفسها (بطلب المالك)
+const ADMIN_IDLE_TIMEOUT_MS = 5 * 60 * 1000;
+// اللوحة بتبعته مع أي طلب لو الأدمن لمس الشاشة في آخر دقيقة
+const ADMIN_ACTIVE_HEADER = 'x-admin-active';
 // الهيدر اللي كل طلب من اللوحة لازم يبعته (client/src/store/adminApi.js)
 const ADMIN_REQUEST_HEADER = 'x-admin-request';
 
@@ -75,6 +80,7 @@ async function createAdminSession(req, res) {
     expiresAt,
     fingerprint: fingerprintOf(req),
     lastSeenAt: new Date(),
+    lastActiveAt: new Date(),
   });
   res.cookie(ADMIN_COOKIE_NAME, token, cookieOptions());
 }
@@ -103,9 +109,10 @@ async function hasValidAdminSession(req) {
     const now = new Date();
     if (session.expiresAt <= now) return false;
 
-    // خمول طويل = الجلسة خلاص
-    const lastSeen = session.lastSeenAt || session.createdAt || now;
-    if (now - new Date(lastSeen) > ADMIN_IDLE_TIMEOUT_MS) {
+    // 5 دقايق من غير استخدام فعلي = الجلسة خلاص (الجلسات القديمة من قبل
+    // الحقل ده بتتحسب من آخر طلب)
+    const lastActive = session.lastActiveAt || session.lastSeenAt || session.createdAt || now;
+    if (now - new Date(lastActive) > ADMIN_IDLE_TIMEOUT_MS) {
       await AdminSession.deleteOne({ _id: session._id });
       return false;
     }
@@ -117,8 +124,11 @@ async function hasValidAdminSession(req) {
       return false;
     }
 
-    // تحديث آخر نشاط — مش بننتظره عشان ميبطّأش كل طلب
-    AdminSession.updateOne({ _id: session._id }, { $set: { lastSeenAt: now } }).catch(() => {});
+    // تحديث آخر نشاط — مش بننتظره عشان ميبطّأش كل طلب. "استخدام فعلي" بس
+    // لو اللوحة قالت إن الأدمن لمس الشاشة (مش تحديث تلقائي في الخلفية)
+    const set = { lastSeenAt: now };
+    if (req.headers && req.headers[ADMIN_ACTIVE_HEADER] === '1') set.lastActiveAt = now;
+    AdminSession.updateOne({ _id: session._id }, { $set: set }).catch(() => {});
     return true;
   } catch (err) {
     console.error('Admin session check failed:', err.message);
@@ -136,8 +146,11 @@ async function requireAdminSession(req, res, next) {
   if (req.headers[ADMIN_REQUEST_HEADER] !== '1') {
     return res.status(403).json({ error: 'الطلب ده مرفوض.' });
   }
+  // الحارس العام على /admin/api (server.js) اتأكد خلاص في نفس الطلب
+  if (req.adminSessionOk) return next();
   const valid = await hasValidAdminSession(req);
-  if (!valid) return res.status(401).json({ error: 'لازم تسجل دخول للوحة التحكم الأول.' });
+  if (!valid) return res.status(401).json({ error: 'لازم تسجل دخول للوحة التحكم الأول.', locked: true });
+  req.adminSessionOk = true;
   return next();
 }
 
@@ -152,5 +165,5 @@ async function destroyOtherAdminSessions(req) {
 module.exports = {
   isValidAdminKey, createAdminSession, destroyAdminSession, destroyOtherAdminSessions,
   hasValidAdminSession, requireAdminSession, fingerprintOf, hashToken,
-  ADMIN_COOKIE_NAME, ADMIN_REQUEST_HEADER,
+  ADMIN_COOKIE_NAME, ADMIN_REQUEST_HEADER, ADMIN_IDLE_TIMEOUT_MS,
 };

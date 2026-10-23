@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { adminApi, useGetOrdersAttentionQuery, useGetSupportUnreadQuery } from '../../store/adminApi.js';
 import AdminLogin from './AdminLogin.jsx';
+import { startActivityWatch, LOCK_EVENT, markActive } from '../../lib/adminActivity.js';
 import OverviewPage from './OverviewPage.jsx';
 import ClientsPage from './ClientsPage.jsx';
 import OrdersPage from './OrdersPage.jsx';
@@ -138,6 +139,7 @@ export default function AdminApp() {
   const dispatch = useDispatch();
   const location = useLocation();
   const [auth, setAuth] = useState(null); // null = بنشيك لسه
+  const [lockNotice, setLockNotice] = useState('');
   const [navOpen, setNavOpen] = useState(false);
 
   const check = useCallback(async () => {
@@ -151,6 +153,24 @@ export default function AdminApp() {
   }, []);
 
   useEffect(() => { check(); }, [check]);
+
+  // قفل بعد 5 دقايق من غير استخدام (بطلب المالك) — السيرفر بيقفل الجلسة
+  // نفسها، وهنا بنقفل الشاشة على طول ونمسح بيانات العملاء من الذاكرة
+  const lock = useCallback(async (reason) => {
+    await fetch('/admin/logout', { method: 'POST', credentials: 'include', headers: { 'X-Admin-Request': '1' } }).catch(() => {});
+    dispatch(adminApi.util.resetApiState());
+    setLockNotice(reason === 'server'
+      ? 'الجلسة خلصت — ادخل تاني.'
+      : 'اللوحة اتقفلت لوحدها بعد 5 دقايق من غير استخدام — ادخل تاني.');
+    setAuth(false);
+  }, [dispatch]);
+  useEffect(() => {
+    if (!auth) return undefined;
+    const stop = startActivityWatch(() => lock('idle'));
+    const onLocked = (e) => lock((e.detail && e.detail.reason) || 'server');
+    window.addEventListener(LOCK_EVENT, onLocked);
+    return () => { stop(); window.removeEventListener(LOCK_EVENT, onLocked); };
+  }, [auth, lock]);
 
   // اللوحة عربي دايمًا — بنظبط الاتجاه على الصفحة نفسها ونرجّعه زي ما كان
   // لما نخرج منها، عشان مانلخبطش لغة الموقع لو المستخدم كان بالإنجليزي.
@@ -189,7 +209,7 @@ export default function AdminApp() {
     );
   }
 
-  if (!auth) return <AdminLogin onSuccess={() => { dispatch(adminApi.util.resetApiState()); setAuth(true); }} />;
+  if (!auth) return <AdminLogin notice={lockNotice} onSuccess={() => { dispatch(adminApi.util.resetApiState()); markActive(); setLockNotice(''); setAuth(true); }} />;
 
   return (
     <div className="min-h-screen bg-night text-ivory" dir="rtl">
