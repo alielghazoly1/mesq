@@ -4,7 +4,8 @@
 //    مونوجرام "ع ل" بنفس ستايل الصورة اللي بعتها (مقصوص منها) — seal-v2.webp.
 // 2) أول كارت بعد الفتح: الأسامي اتشالت ومكانها "عمر & لجين" (عمر فوق) بالخط الذهبي
 //    المحفور من صورته (names-v2.webp)، وبتظهر بالحبر من اليمين للشمال.
-// 3) التاريخ أرقام بس — من غير اسم الشهر (أول كارت + كروت الخربشة + العدّاد).
+// 3) التاريخ أرقام بس — من غير اسم الشهر (أول كارت + كروت الخربشة + العدّاد)،
+//    والساعة تحته رقم (7:30 PM) مش كلام.
 //    بيتقري من بيانات الدعوة، فلو التاريخ اتغيّر من المحرر يتغيّر هنا.
 // 4) كارت المشاركة (واتساب): الأسامي بالخط الذهبي على ورق — share-v2.jpg.
 //
@@ -23,6 +24,9 @@ const CSS = `
 /* التاريخ أرقام وكلها نفس المقاس (اليوم والشهر والسنة) */
 #hv-hero .hv-date.ju-num .hv-date__m,#hv-hero .hv-date.ju-num .hv-date__y{font-size:29.588px;font-weight:500;letter-spacing:.1777em;text-transform:none}
 #hv-hero .hv-tile__val.ju-num{font-size:42px;letter-spacing:.02em}
+/* الساعة رقم مش كلام: 7:30 PM في سطر واحد */
+#hv-hero .hv-time.ju-num [data-elem-id="cl10"]{display:none!important}
+#hv-hero .hv-time.ju-num [data-elem-id="cl9"]{font-size:16px;letter-spacing:.14em;font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1}
 `;
 
 const SCRIPT = `(function(){
@@ -51,6 +55,8 @@ function dates(){
   txt(document.querySelector('[data-elem-id="cl8"]'),y);
   ['cl22','cl23','cl24'].forEach(function(id,i){var e=document.querySelector('[data-elem-id="'+id+'"]');if(e){e.classList.add('ju-num');txt(e,[d,m,y][i]);}});
   txt(document.querySelector('[data-elem-id="cl32"]'),d+' . '+m+' . '+y);
+  if(cd.hour!=null){var tm=document.querySelector('#hv-hero .hv-time');if(tm)tm.classList.add('ju-num');
+    txt(document.querySelector('[data-elem-id="cl9"]'),(cd.hour%12||12)+':'+pad(cd.minute||0)+(cd.hour<12?' AM':' PM'));}
 }
 function all(){try{seal();names();dates();}catch(e){}}
 all();document.addEventListener('DOMContentLoaded',all);window.addEventListener('load',all);
