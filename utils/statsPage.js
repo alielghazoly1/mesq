@@ -352,14 +352,25 @@ async function loadStatsData(Rsvp, shortId) {
  */
 async function ensureStatsToken(invitation) {
   if (invitation.statsToken) return invitation.statsToken;
+  // تحديث مباشر للحقل ده بس (مش save) — الدعوات القديمة ممكن يكون ناقصها
+  // حقول بقت مطلوبة بعدين (زي venueCity)، وsave كان بيفشل عليها بخطأ تحقق.
+  // والشرط statsToken مش موجود بيمنع إن طلبين مع بعض يولّدوا توكنين مختلفين.
+  const Model = invitation.constructor;
   for (let i = 0; i < 5; i += 1) {
-    invitation.statsToken = generateShortId(24);
+    const token = generateShortId(24);
     try {
-      await invitation.save();
-      return invitation.statsToken;
+      const r = await Model.updateOne(
+        { _id: invitation._id, $or: [{ statsToken: { $exists: false } }, { statsToken: null }, { statsToken: '' }] },
+        { $set: { statsToken: token } },
+      );
+      if (r.modifiedCount === 1) { invitation.statsToken = token; return token; }
+      // حد تاني لحق ولّد توكن — نستخدم بتاعه
+      const cur = await Model.findById(invitation._id).select('statsToken').lean();
+      if (cur && cur.statsToken) { invitation.statsToken = cur.statsToken; return cur.statsToken; }
+      throw new Error('invitation not found');
     } catch (err) {
       // توكن اتكرر (نادر جدًا) — نجرّب واحد جديد
-      if (err && err.code === 11000) { invitation.statsToken = undefined; continue; }
+      if (err && err.code === 11000) continue;
       throw err;
     }
   }

@@ -171,6 +171,26 @@ function LiveFloatInner() {
   if (rail && rightX + size.w > rail.left && rightX < rail.right) rightX = rail.left - size.w - MARGIN;
   const restX = prefs.side === 'left' ? MARGIN : Math.max(MARGIN, rightX);
   const x = pos ? pos.x : restX;
+
+  // على الشاشات الكبيرة المربع بياخد مكانه جنب المحتوى بدل ما يغطّي عليه
+  // (كان بيقعد فوق زراير الجداول اللي على الشمال). المحتوى بيوسّع له مسافة
+  // من ناحيته بس. أثناء السحب بنسيب المسافة زي ما هي لحد ما تسيبه.
+  const dock = useMedia('(min-width: 1280px)');
+  useLayoutEffect(() => {
+    const main = document.querySelector('[data-admin-main]');
+    if (!main) return undefined;
+    const clear = () => { main.style.paddingLeft = ''; main.style.paddingRight = ''; };
+    if (!dock || prefs.min) { clear(); return clear; }
+    const base = 28;
+    clear();
+    const mr = main.getBoundingClientRect();
+    if (prefs.side === 'left') {
+      main.style.paddingLeft = `${Math.max(base, MARGIN + size.w + 20 - mr.left)}px`;
+    } else {
+      main.style.paddingRight = `${Math.max(base, mr.right - restX + 20)}px`;
+    }
+    return clear;
+  }, [dock, prefs.min, prefs.side, size.w, vw, restX]);
   const y = pos ? pos.y : restY;
 
   // السحب: بنسمع لحركة الماوس على الصفحة كلها (مش المربع بس) عشان لو

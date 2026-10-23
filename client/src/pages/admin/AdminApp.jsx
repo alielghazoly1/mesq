@@ -307,7 +307,7 @@ export default function AdminApp() {
         )}
 
         {/* المحتوى */}
-        <main className="min-w-0 flex-1 p-5 lg:p-7">
+        <main data-admin-main className="min-w-0 flex-1 p-5 transition-[padding] duration-300 lg:p-7">
           <button
             type="button"
             onClick={() => setNavOpen(true)}

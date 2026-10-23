@@ -192,7 +192,7 @@ export function PinnedInvitationCard({ inv, compact = false }) {
               className="inline-flex flex-1 items-center justify-center gap-1 rounded-lg bg-brass/15 px-2 py-1.5 text-[11.5px] font-bold text-brass-soft hover:bg-brass/25">
               <ExternalLink size={12} /> افتحها
             </a>
-            <a href={`/i/${inv.shortId}/stats`} target="_blank" rel="noopener noreferrer"
+            <a href={`/admin/stats/${inv.shortId}`} target="_blank" rel="noopener noreferrer"
               className="inline-flex flex-1 items-center justify-center gap-1 rounded-lg bg-ivory/[0.06] px-2 py-1.5 text-[11.5px] font-bold text-ivory/65 hover:bg-ivory/[0.1]">
               <BarChart3 size={12} /> إحصائياتها
             </a>

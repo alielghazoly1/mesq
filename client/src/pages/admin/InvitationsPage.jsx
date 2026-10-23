@@ -29,7 +29,7 @@ export default function InvitationsPage() {
       <div>
         <h1 className="font-serif text-[21px] font-bold text-ivory">الدعوات</h1>
         <p className="mt-0.5 text-[12.5px] text-ivory/45">
-          كل دعوة على الموقع — ابحث بالاسم، القاعة، أو كود اللينك.
+          كل دعوة على الموقع — ابحث باسم العروسين، القاعة، كود اللينك، أو اسم/موبايل/إيميل صاحبها.
         </p>
       </div>
 
@@ -44,7 +44,7 @@ export default function InvitationsPage() {
         <div className="mb-4 flex items-center gap-2">
           <Search size={15} className="text-ivory/35" />
           <Field
-            placeholder="اسم العروسين، القاعة، أو كود الدعوة..."
+            placeholder="اسم العروسين، القاعة، كود الدعوة، أو اسم/موبايل/إيميل صاحبها..."
             value={invitationsQuery}
             onChange={(e) => dispatch(setInvitationsQuery(e.target.value))}
             className="flex-1"
@@ -88,24 +88,26 @@ export default function InvitationsPage() {
                   <Cell className="whitespace-nowrap text-ivory/55">{fmtDate(inv.weddingDate)}</Cell>
                   <Cell className="whitespace-nowrap text-ivory/45">{today ? fmtDate(inv.publishedAt, true) : fmtDate(inv.createdAt)}</Cell>
                   <Cell>
-                    <div className="flex gap-2">
+                    <div className="flex items-center gap-1.5 whitespace-nowrap">
                       <a
                         href={`/i/${inv.shortId}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        title="افتح الدعوة"
-                        className="text-ivory/50 hover:text-brass-soft"
+                        title="افتح الدعوة زي ما الضيوف بيشوفوها"
+                        data-inv-open
+                        className="inline-flex items-center gap-1 rounded-full border border-line-lite px-2.5 py-1 text-[11.5px] font-bold text-ivory/65 transition hover:border-brass/50 hover:text-brass-soft"
                       >
-                        <ExternalLink size={13} />
+                        <ExternalLink size={12} /> الدعوة
                       </a>
                       <a
-                        href={`/i/${inv.shortId}/stats`}
+                        href={`/admin/stats/${inv.shortId}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        title="إحصائياتها"
-                        className="text-ivory/50 hover:text-brass-soft"
+                        title="المشاهدات يوم بيوم، الضيوف اللي ردّوا، التهاني والصور"
+                        data-inv-stats
+                        className="inline-flex items-center gap-1 rounded-full bg-brass/15 px-2.5 py-1 text-[11.5px] font-bold text-brass-soft transition hover:bg-brass/25"
                       >
-                        <BarChart3 size={13} />
+                        <BarChart3 size={12} /> الإحصائيات
                       </a>
                     </div>
                   </Cell>

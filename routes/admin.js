@@ -14,6 +14,8 @@ const {
 } = require('../middleware/adminAuth');
 const AdminLoginTicket = require('../models/AdminLoginTicket');
 const twoFactor = require('../utils/adminTwoFactor');
+const Invitation = require('../models/Invitation');
+const { ensureStatsToken } = require('../utils/statsPage');
 const connectDB = require('../config/db');
 const RateLimit = require('../models/RateLimit');
 const { hashIp } = require('../middleware/freeQuota');
@@ -164,6 +166,36 @@ router.post('/admin/logout', async (req, res) => {
 router.get('/admin/session', async (req, res) => {
   const valid = await hasValidAdminSession(req, res);
   return res.json({ authenticated: valid });
+});
+
+// GET /admin/stats/:shortId — أيقونة "الإحصائيات" في صفحة الدعوات بالوحة.
+// صفحة الإحصائيات الحقيقية لينكها سري (/s/:token) — والرابط القديم
+// /i/:shortId/stats لصاحب الدعوة بس، فكان بيطلع للمالك "الصفحة مش موجودة".
+// هنا: لو إنت داخل اللوحة → بنولّد التوكن (للدعوات القديمة) ونوديك على صفحتها.
+// من غير جلسة أدمن → صفحة الدخول للوحة. مفيش أي بيانات بتطلع لغير الأدمن.
+const STATS_MSG = (title, body) => '<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">'
+  + '<meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">'
+  + '<title>' + title + '</title></head>'
+  + '<body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#14110d;color:#efe6d6;font-family:system-ui,Tahoma,sans-serif;text-align:center;padding:24px">'
+  + '<div><h1 style="font-size:22px;margin:0 0 10px">' + title + '</h1><p style="opacity:.65;margin:0 0 22px;font-size:14px">' + body + '</p>'
+  + '<a href="/admin/invitations" style="display:inline-block;background:#c9a25c;color:#241608;padding:10px 20px;border-radius:999px;font-weight:700;text-decoration:none;font-size:14px">ارجع للدعوات</a></div></body></html>';
+
+router.get('/admin/stats/:shortId', async (req, res) => {
+  try {
+    res.set('Cache-Control', 'no-store');
+    res.set('X-Robots-Tag', 'noindex');
+    if (!(await hasValidAdminSession(req, res))) return res.redirect(302, '/admin');
+    const shortId = String(req.params.shortId || '').slice(0, 40);
+    const invitation = /^[A-Za-z0-9_-]+$/.test(shortId) ? await Invitation.findOne({ shortId }) : null;
+    if (!invitation) {
+      return res.status(404).type('html').send(STATS_MSG('الدعوة دي مش موجودة', 'ممكن تكون اتمسحت من صاحبها أو من تنضيف الدعوات المنتهية.'));
+    }
+    const token = await ensureStatsToken(invitation);
+    return res.redirect(302, `/s/${encodeURIComponent(token)}`);
+  } catch (err) {
+    console.error('Error opening invitation stats from admin:', err);
+    return res.status(500).type('html').send(STATS_MSG('حصل خطأ', 'جرّب تاني بعد شوية.'));
+  }
 });
 
 module.exports = router;

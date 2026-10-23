@@ -1437,9 +1437,13 @@ router.get('/admin/api/invitations', requireAdminSession, async (req, res) => {
     const parts = [];
     if (q) {
       const re = new RegExp(escapeRegex(q), 'i');
+      // البحث كمان باسم/إيميل/موبايل صاحب الدعوة
+      const ownerIds = (await User.find({ $or: [{ name: re }, { email: re }, { phone: re }] })
+        .select('_id').limit(200).lean()).map((u) => u._id);
       parts.push({ $or: [
         { shortId: re }, { brideName: re }, { groomName: re },
         { brideNameAr: re }, { groomNameAr: re }, { venueName: re },
+        ...(ownerIds.length ? [{ ownerId: { $in: ownerIds } }] : []),
       ] });
     }
     // "اتنشرت النهارده" (بتوقيت مصر) — نفس الرقم اللي في النظرة العامة
