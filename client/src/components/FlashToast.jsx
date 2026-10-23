@@ -26,7 +26,7 @@ export default function FlashToast() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8 }}
             transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-            className="pointer-events-auto flex items-center gap-2.5 rounded-full bg-night px-4 py-2.5 text-[13.5px] font-bold text-ivory shadow-[0_14px_34px_-14px_rgba(0,0,0,.7)]"
+            className="pointer-events-auto flex items-center gap-2 rounded-full bg-night px-3.5 py-2 text-[12.5px] font-bold text-ivory shadow-[0_14px_34px_-14px_rgba(0,0,0,.7)]"
             role="status"
             data-flash
           >

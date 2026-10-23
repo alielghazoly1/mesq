@@ -198,9 +198,9 @@ function Tip({ title, body, cta, onCta, onClose, tone }) {
       exit={{ opacity: 0, y: 10, scale: 0.95 }}
       transition={{ type: 'spring', stiffness: 360, damping: 24 }}
       style={{ transformOrigin: 'bottom' }}
-      className="absolute bottom-full end-0 mb-3.5 w-[min(290px,calc(100vw-24px))]"
+      className="absolute bottom-full end-0 mb-3 w-[min(232px,calc(100vw-24px))]"
     >
-      <div className={`relative rounded-[18px] p-3.5 pe-9 shadow-[0_20px_40px_-16px_rgba(8,19,15,.65)] ${
+      <div className={`relative rounded-[15px] p-2.5 pe-8 shadow-[0_20px_40px_-16px_rgba(8,19,15,.65)] ${
         tone === 'vip'
           ? 'bg-gradient-to-br from-[#1a3a2c] to-night text-ivory ring-1 ring-brass/50'
           : 'bg-night text-ivory'
@@ -210,19 +210,19 @@ function Tip({ title, body, cta, onCta, onClose, tone }) {
           type="button"
           onClick={onClose}
           aria-label={t('bottomNav.dismiss')}
-          className="absolute end-2 top-2 flex h-7 w-7 items-center justify-center rounded-full text-ivory/55 transition active:bg-ivory/10"
+          className="absolute end-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full text-ivory/55 transition active:bg-ivory/10"
         >
-          <X size={15} />
+          <X size={13} />
         </button>
-        <div className={`text-[13.5px] font-extrabold ${tone === 'vip' ? 'text-brass-soft' : 'text-ivory'}`}>{title}</div>
-        <p className="mt-1 text-[12px] leading-[1.75] text-ivory/75">{body}</p>
+        <div className={`text-[12.5px] font-extrabold ${tone === 'vip' ? 'text-brass-soft' : 'text-ivory'}`}>{title}</div>
+        <p className="mt-0.5 text-[11px] leading-[1.6] text-ivory/70">{body}</p>
         {cta && (
           <button
             type="button"
             onClick={onCta}
-            className="mt-2.5 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-l from-brass to-brass-soft px-4 py-2 text-[12px] font-extrabold text-[#241608] active:scale-95"
+            className="mt-2 inline-flex items-center gap-1 rounded-full bg-gradient-to-l from-brass to-brass-soft px-3 py-1.5 text-[11px] font-extrabold text-[#241608] active:scale-95"
           >
-            <LogIn size={13} className="rtl:rotate-180" /> {cta}
+            <LogIn size={12} className="rtl:rotate-180" /> {cta}
           </button>
         )}
         {/* السهم بيشاور على أيقونة الحساب (آخر خانة في الشريط) */}
@@ -282,27 +282,49 @@ export default function BottomNav() {
   }, [pathname]);
 
   // ===== بيستخبى وهو بيكتب =====
+  // مهم: لو الخانة اتشالت من الصفحة وهي عليها المؤشر (نافذة الدخول اتقفلت بعد
+  // ما سجّل، أو راح صفحة تانية) المتصفح مابيبعتش "سابها" — فكان الشريط بيفضل
+  // مستخبي لحد ما يدوس على خانة تانية. عشان كده بنتأكد من جديد مع كل تغيير
+  // صفحة، وكل لمسة، ونص ثانية طول ما هو "بيكتب".
   const [typing, setTyping] = useState(false);
   useEffect(() => {
-    const isField = (el) => !!el && (
+    const isField = (el) => !!el && el.isConnected !== false && (
       el.tagName === 'TEXTAREA' || el.tagName === 'SELECT' || el.isContentEditable
       || (el.tagName === 'INPUT' && !['checkbox', 'radio', 'button', 'submit', 'range', 'file', 'color'].includes(el.type))
     );
+    const recheck = () => setTyping(isField(document.activeElement));
     const onIn = (e) => { if (isField(e.target)) setTyping(true); };
     // بنستنى لحظة: لو انتقل من خانة لخانة، الشريط ميرمش
     let timer = 0;
     const onOut = () => {
       clearTimeout(timer);
-      timer = setTimeout(() => setTyping(isField(document.activeElement)), 120);
+      timer = setTimeout(recheck, 120);
     };
+    const onTouch = () => { clearTimeout(timer); timer = setTimeout(recheck, 250); };
+    const poll = setInterval(() => { if (document.activeElement && !isField(document.activeElement)) recheck(); }, 500);
     document.addEventListener('focusin', onIn);
     document.addEventListener('focusout', onOut);
+    document.addEventListener('pointerdown', onTouch, true);
+    window.addEventListener('pageshow', recheck);
     return () => {
       document.removeEventListener('focusin', onIn);
       document.removeEventListener('focusout', onOut);
+      document.removeEventListener('pointerdown', onTouch, true);
+      window.removeEventListener('pageshow', recheck);
       clearTimeout(timer);
+      clearInterval(poll);
     };
   }, []);
+  // صفحة جديدة أو نافذة الدخول اتقفلت = نشوف تاني هو لسه في خانة ولا لأ
+  useEffect(() => {
+    const t1 = setTimeout(() => {
+      const el = document.activeElement;
+      const field = !!el && el.isConnected && (el.tagName === 'TEXTAREA' || el.tagName === 'SELECT' || el.isContentEditable
+        || (el.tagName === 'INPUT' && !['checkbox', 'radio', 'button', 'submit', 'range', 'file', 'color'].includes(el.type)));
+      if (!field) setTyping(false);
+    }, 150);
+    return () => clearTimeout(t1);
+  }, [pathname, authModalOpen, supportOpen]);
 
   // ===== إشعار الزائر: "سجّل دخول عشان..." =====
   const [guestTip, setGuestTip] = useState(false);

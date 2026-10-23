@@ -367,27 +367,27 @@ export default function SupportLauncher() {
             initial={{ opacity: 0, y: 10, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 6, scale: 0.97 }}
-            className={`fixed start-4 z-[121] w-[min(300px,calc(100vw-32px))] ${withNav
+            className={`fixed start-4 z-[121] w-[min(248px,calc(100vw-32px))] ${withNav
               ? 'bottom-[calc(84px+env(safe-area-inset-bottom))] md:bottom-[84px]'
               : overBar ? 'bottom-[calc(150px+env(safe-area-inset-bottom))] sm:bottom-[84px]' : 'bottom-[84px]'}`}
             data-support-preview
           >
-            <div className="relative rounded-2xl border border-line bg-white p-3 pe-8 shadow-[0_18px_44px_-18px_rgba(8,19,15,.55)]">
+            <div className="relative rounded-[15px] border border-line bg-white p-2.5 pe-7 shadow-[0_14px_34px_-16px_rgba(8,19,15,.5)]">
               <button
                 type="button"
                 onClick={() => dispatch(dismissPreview())}
                 aria-label={t('auth.close')}
-                className="absolute end-2 top-2 grid h-6 w-6 place-items-center rounded-full text-ink-dim hover:bg-ink/5"
+                className="absolute end-1.5 top-1.5 grid h-5 w-5 place-items-center rounded-full text-ink-dim hover:bg-ink/5"
               >
-                <X size={13} />
+                <X size={12} />
               </button>
               <button type="button" onClick={() => { dispatch(setSupportOpen(true)); dispatch(setView('chat')); }} className="flex w-full items-start gap-2.5 text-start">
-                <SupportAvatar size={34} online={adminOnline} />
+                <SupportAvatar size={28} online={adminOnline} />
                 <span className="min-w-0 flex-1">
-                  <span className="block text-[12px] font-extrabold text-ink">
+                  <span className="block text-[11.5px] font-extrabold text-ink">
                     {unread > 1 ? t('support.newMany', { n: unread }) : t('support.newOne')}
                   </span>
-                  <span className="mt-0.5 line-clamp-2 block text-[12.5px] leading-snug text-ink-dim">{latest.preview}</span>
+                  <span className="mt-0.5 line-clamp-2 block text-[11.5px] leading-snug text-ink-dim">{latest.preview}</span>
                 </span>
               </button>
             </div>
