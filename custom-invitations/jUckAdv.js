@@ -8,6 +8,10 @@
 //    والساعة تحته رقم (7:30 PM) مش كلام.
 //    بيتقري من بيانات الدعوة، فلو التاريخ اتغيّر من المحرر يتغيّر هنا.
 // 4) كارت المشاركة (واتساب): الأسامي بالخط الذهبي على ورق — share-v2.jpg.
+// 5) (24 أكتوبر) "YOU ARE INVITED TO THE WEDDING OF" نازل ≈24px على الشاشة
+//    (كان لازق في الورود المحفورة فوق)، والخط اللي بين عمر ولجين بقى في النص
+//    بالظبط: لجين طلعت 34px لفوق جوه الصورة (names-v3.webp) — المسافة بين
+//    الخط وكل اسم 83px في الصورة.
 //
 // البيانات (التاريخ/الوقت/المكان/الخريطة): oneOffFix jUckAdv-tolip-2027.
 const BASE = '/custom/jUckAdv';
@@ -16,8 +20,12 @@ const CSS = `
 /* الأسامي بالخط الذهبي مكان الأسامي المكتوبة */
 #hv-hero .hv-names.ju-on>span{display:none!important}
 #hv-hero .hv-names.ju-on{margin-top:6px;-webkit-text-stroke:0;white-space:normal;line-height:0}
-#hv-hero .ju-names{display:block;width:auto;height:312px;margin:0 auto;pointer-events:none;
+#hv-hero .ju-names{display:block;width:auto;height:300px;margin:0 auto;pointer-events:none;
   filter:drop-shadow(0 1px 0 rgba(255,255,255,.35))}
+/* الكلام اللي فوق الأسامي نازل شوية عن أول الكارت — بـ top (مش margin): الكارت
+   بيتوسّط ويصغّر نفسه لو المحتوى طوّل، فالـ margin كان بيضيع نصّه */
+#hv-hero .hv-card>.hv-eyebrow,#hv-hero .hv-card>.hv-names{position:relative;top:34px}
+#hv-hero .hv-card>.hv-date,#hv-hero .hv-card>.hv-time{position:relative;top:30px}
 /* الحبر بيمشي من اليمين للشمال (عربي) */
 @keyframes ju-ink{from{clip-path:inset(-8% -8% -8% 100%);opacity:.2}12%{opacity:1}to{clip-path:inset(-8% -8% -8% -8%);opacity:1}}
 #hv-hero.hv--play .hv-card>.hv-names.ju-on{animation:ju-ink 2.4s cubic-bezier(.45,.05,.35,1) .9s both}
@@ -41,8 +49,8 @@ function seal(){
 function names(){
   var h=document.querySelector('#hv-hero .hv-names');
   if(!h||h.querySelector('.ju-names'))return;
-  var i=new Image();i.className='ju-names';i.alt='عمر & لجين';i.src=BASE+'/names-v2.webp';i.decoding='async';
-  i.width=579;i.height=866;
+  var i=new Image();i.className='ju-names';i.alt='عمر & لجين';i.src=BASE+'/names-v3.webp';i.decoding='async';
+  i.width=579;i.height=832;
   h.appendChild(i);h.classList.add('ju-on');
 }
 function dates(){
