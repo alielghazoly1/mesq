@@ -27,6 +27,7 @@ import { useGetMeQuery } from '../store/api.js';
 import { openAuthModal, setSupportOpen, toggleSupport } from '../store/uiSlice.js';
 import { readAuthHint } from '../lib/authHint.js';
 import { hasBottomNav } from '../lib/bottomNav.js';
+import WhatsAppFloat from './WhatsAppFloat.jsx';
 
 const SPRING = { type: 'spring', stiffness: 420, damping: 32 };
 const GUEST_TIP_KEY = 'mithaq:nav-guest-tip'; // sessionStorage: اتقفل في الزيارة دي
@@ -136,54 +137,6 @@ function NavItem({ item, active }) {
         {label}
       </span>
     </motion.button>
-  );
-}
-
-/** الزرار البارز في النص (الباقات، أو "سجّل" للزائر) */
-function CenterItem({ item, active }) {
-  const { icon: Icon, label, onClick } = item;
-  return (
-    <div className="relative flex h-full flex-col items-center justify-end pb-[9px]">
-      <motion.button
-        type="button"
-        onClick={onClick}
-        whileTap={{ scale: 0.88 }}
-        aria-label={label}
-        aria-current={active ? 'page' : undefined}
-        className="absolute -top-[26px] flex h-[60px] w-[60px] items-center justify-center rounded-full outline-none"
-      >
-        {/* نبضة دهبي بتلفت النظر — بتقف لما يكون في الصفحة نفسها */}
-        {!active && (
-          <motion.span
-            aria-hidden="true"
-            className="absolute inset-0 rounded-full bg-brass/45"
-            animate={{ scale: [1, 1.45], opacity: [0.55, 0] }}
-            transition={{ duration: 2.2, repeat: Infinity, ease: 'easeOut', repeatDelay: 0.6 }}
-          />
-        )}
-        <span className="absolute inset-0 rounded-full bg-gradient-to-br from-brass-soft via-brass to-[#8a6a20] p-[2.5px] shadow-[0_14px_26px_-10px_rgba(8,19,15,.75)] ring-[5px] ring-card">
-          <span className={`flex h-full w-full items-center justify-center rounded-full transition-colors duration-300 ${
-            active ? 'bg-gradient-to-br from-brass-soft to-brass' : 'bg-gradient-to-br from-[#163327] to-night'
-          }`}
-          >
-            <motion.span
-              animate={active ? { rotate: [0, -12, 10, 0], scale: [1, 1.15, 1] } : { rotate: 0, scale: 1 }}
-              transition={{ duration: 0.55 }}
-            >
-              <Icon
-                size={24}
-                strokeWidth={2}
-                className={active ? 'text-[#241608]' : 'text-brass-soft'}
-                fill={active ? 'currentColor' : 'none'}
-              />
-            </motion.span>
-          </span>
-        </span>
-      </motion.button>
-      <span className={`text-[10.5px] leading-none ${active ? 'font-extrabold text-ink' : 'font-bold text-[#8a6a20]'}`}>
-        {label}
-      </span>
-    </div>
   );
 }
 
@@ -439,6 +392,7 @@ export default function BottomNav() {
             // أيقونة الدعم تفضل ظاهرة ومختارة وتقفل اللوحة لو ضغط عليها تاني
             className="fixed inset-x-3 bottom-[calc(10px+env(safe-area-inset-bottom))] z-[117] md:hidden"
           >
+            <WhatsAppFloat variant="mobile" />
             <AnimatePresence>
               {showGuestTip && (
                 <Tip
@@ -462,9 +416,9 @@ export default function BottomNav() {
             </AnimatePresence>
 
             <div className="grid h-[66px] grid-cols-5 rounded-[24px] border border-line bg-card/95 px-1 shadow-[0_18px_44px_-16px_rgba(8,19,15,.5)] backdrop-blur-xl">
-              {items.map((item) => (item.key === 'center'
-                ? <CenterItem key={item.key + (user ? '-u' : '-g')} item={item} active={routeActive === 'center'} />
-                : <NavItem key={item.key} item={item} active={routeActive === item.key} />))}
+              {/* كل الأيقونات بنفس الحجم والشكل (بطلب المالك: زرار الباقات/سجّل
+                  اللي كان بارز في النص كان كبير وتقيل) */}
+              {items.map((item) => <NavItem key={item.key + (item.key === 'center' ? (user ? '-u' : '-g') : '')} item={item} active={routeActive === item.key} />)}
             </div>
           </motion.nav>
         )}

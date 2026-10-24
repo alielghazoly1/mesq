@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import WelcomeGate from './components/WelcomeGate.jsx';
 import OrderNoticeGate from './components/OrderNoticeGate.jsx';
 import SupportLauncher from './components/SupportLauncher.jsx';
+import WhatsAppFloat from './components/WhatsAppFloat.jsx';
 import FlashToast from './components/FlashToast.jsx';
 import BottomNav from './components/BottomNav.jsx';
 import PresencePing from './components/PresencePing.jsx';
@@ -150,6 +151,8 @@ export default function App() {
       {/* زرار التواصل في كل صفحة — إلا المحرر (شاشة شغل كاملة وعنده
           درج أدوات تحت) ولوحة التحكم (دي بتاعتك إنت مش بتاعة العميل) */}
       {!isFullScreen && <SupportLauncher />}
+      {/* واتساب طاير على الكمبيوتر (على الموبايل جوه الشريط اللي تحت) */}
+      {!isFullScreen && <WhatsAppFloat />}
       {/* شريط التنقّل السفلي — موبايل بس، وبيقرر لوحده هو يظهر فين */}
       <BottomNav />
       <FlashToast />

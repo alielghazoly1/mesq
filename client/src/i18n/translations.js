@@ -564,6 +564,7 @@ export const resources = {
       },
       bottomNav: {
         label: 'Quick navigation',
+        whatsapp: 'Chat with us on WhatsApp',
         home: 'Home',
         designs: 'Designs',
         packages: 'Packages',
@@ -1488,6 +1489,7 @@ export const resources = {
       },
       bottomNav: {
         label: 'التنقّل السريع',
+        whatsapp: 'كلّمنا على واتساب',
         home: 'الرئيسية',
         designs: 'التصاميم',
         packages: 'الباقات',

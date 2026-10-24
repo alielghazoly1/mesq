@@ -5,12 +5,16 @@
 // 2) لينك فيه # (/#gallery من الإعلانات، /#tpl-xxx من زرار "كل التصاميم")
 //    ← بينزل على المكان ده أول ما يظهر (الصفحة React والكروت بتتحمّل بعدين،
 //    فالمتصفح لوحده مكانش بيلاقيه).
-// 3) أول فتحة للموقع على الموبايل بس (بطلب المالك): بعد ما يشوف الواجهة
-//    ثانية، الصفحة بتنزل لوحدها بالراحة لحد "اختار تصميم دعوتك". مرة واحدة
-//    في الزيارة، ولو لمس الشاشة أو بدأ ينزل بنفسه بنسيبه فورًا.
+// 3) أول ما الموقع يتفتح على الموبايل بس (بطلب المالك): بعد ما يشوف الواجهة
+//    ثانية، الصفحة بتنزل لوحدها واحدة واحدة لحد "اختار تصميم دعوتك" فوق
+//    خالص. بتحصل مع كل فتحة للموقع (مش لما يرجع للرئيسية من جوه الموقع)،
+//    ولو كان نزل بنفسه أو لمس الشاشة وهي بتتحرك بنسيبه فورًا.
 
 export const PREVIEW_FROM_KEY = 'mithaq:preview-from';
-const INTRO_KEY = 'mithaq:intro-scrolled';
+// مرة واحدة لكل فتحة للموقع (تحميل الصفحة) — الرجوع للرئيسية من جوه الموقع مش
+// بيكررها. ولو الموقع اتفتح على صفحة تانية (الباقات مثلًا) وبعدين داس "الرئيسية"،
+// هو عايز أول الصفحة — فالنزول بيحصل بس لو الفتحة نفسها كانت على الرئيسية.
+let introDone = typeof window !== 'undefined' && window.location.pathname !== '/';
 const RETURN_FRESH_MS = 30 * 60 * 1000;
 
 const ss = {
@@ -38,7 +42,8 @@ function whenPresent(selector, cb, timeout = 6000) {
   return () => { stopped = true; cancelAnimationFrame(raf); };
 }
 
-const ease = (x) => (x < 0.5 ? 4 * x * x * x : 1 - ((-2 * x + 2) ** 3) / 2);
+// بداية ونهاية هاديين جدًا (sine) — "واحدة واحدة"
+const ease = (x) => -(Math.cos(Math.PI * x) - 1) / 2;
 
 /** نزول ناعم بإيدينا (scrollTo smooth سريع ومش متحكم فيه على الموبايل) */
 // الصفحة عليها scroll-behavior: smooth (index.css) — لازم يتقفل وإحنا بنحرّك
@@ -83,14 +88,6 @@ function glideTo(getTarget, duration, onDone) {
   return stop;
 }
 
-// أي لمسة/سكرول من أول ما الموقع اتحمّل (حتى قبل ما الرئيسية تترسم) = الزائر
-// بيتصرف بنفسه، فالنزول التلقائي مابيشتغلش
-let interacted = false;
-if (typeof window !== 'undefined') {
-  const mark = () => { interacted = true; };
-  ['touchstart', 'pointerdown', 'wheel', 'keydown'].forEach((e) => window.addEventListener(e, mark, { capture: true, passive: true }));
-}
-
 const isPhone = () => {
   try { return window.innerWidth < 768 && window.matchMedia('(pointer: coarse)').matches; } catch { return false; }
 };
@@ -130,7 +127,7 @@ export function startHomeScroll() {
   try { back = JSON.parse(ss.get(PREVIEW_FROM_KEY) || 'null'); } catch { back = null; }
   ss.del(PREVIEW_FROM_KEY);
   if (back && back.id && Date.now() - back.at < RETURN_FRESH_MS && /^[a-z0-9-]+$/.test(back.id)) {
-    ss.set(INTRO_KEY, '1');
+    introDone = true;
     cleanups.push(whenPresent(`#tpl-${back.id}`, (el) => instant(el, 'center')));
     return () => cleanups.forEach((c) => c());
   }
@@ -138,35 +135,27 @@ export function startHomeScroll() {
   // 2) لينك فيه #
   const hash = window.location.hash.slice(1);
   if (hash && /^[a-z0-9-]+$/i.test(hash)) {
-    ss.set(INTRO_KEY, '1');
+    introDone = true;
     cleanups.push(whenPresent(`#${hash}`, (el) => instant(el, hash.startsWith('tpl-') ? 'center' : 'start')));
     return () => cleanups.forEach((c) => c());
   }
 
   // 3) أول فتحة على الموبايل
-  if (!isPhone() || ss.get(INTRO_KEY)) return () => {};
-  // لمس الشاشة قبل ما الحركة تبدأ = هو بيتصرف بنفسه، مش هنحرّك حاجة
-  let touched = false;
-  const onTouch = () => { touched = true; };
-  const EV = ['touchstart', 'pointerdown', 'wheel', 'keydown'];
-  EV.forEach((e) => window.addEventListener(e, onTouch, { capture: true, passive: true }));
-  const unlisten = () => EV.forEach((e) => window.removeEventListener(e, onTouch, true));
-  cleanups.push(unlisten);
+  if (!isPhone() || introDone) return () => {};
   const timer = setTimeout(() => {
-    unlisten();
-    if (touched || interacted) { ss.set(INTRO_KEY, '1'); return; }
+    introDone = true;
+    // نزل بنفسه خلاص / نافذة مفتوحة / التاب مش ظاهر — مش هنحرّك حاجة
     if (window.scrollY > 40 || modalOpen() || document.visibilityState !== 'visible') return;
     const title = document.querySelector('#gallery h2');
     if (!title) return;
-    ss.set(INTRO_KEY, '1');
     const target = () => Math.max(0, title.getBoundingClientRect().top + window.scrollY - 14);
     if (target() - window.scrollY < 60) return;
     let finished = false;
-    cleanups.push(glideTo(target, 1700, () => {
+    cleanups.push(glideTo(target, 2800, () => {
       // وصل (مش اتوقف بلمسة): يفضل العنوان في مكانه لو حاجة فوقه اتحمّلت
       if (!finished && Math.abs(target() - window.scrollY) < 6) { finished = true; hold(title, 1500); }
     }));
-  }, 1300);
+  }, 1200);
   cleanups.push(() => clearTimeout(timer));
   return () => cleanups.forEach((c) => c());
 }
