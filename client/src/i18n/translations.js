@@ -199,6 +199,9 @@ export const resources = {
         popular: 'Most popular',
         included: 'What you can do',
         invitations: '{{count}} premium invitations',
+        // ناس كانت فاهمة "دعوة واحدة" = تتبعت لشخص واحد — السطر ده بيوضّح
+        sendOne: 'Create 1 invitation and send it to unlimited people',
+        sendMany: 'Each invitation can be sent to unlimited people',
         order: 'Order package',
         ordered: 'Order received ✓',
         activeNotice: 'Your package is active — <b>{{count}}</b> premium invitations left.',
@@ -1095,6 +1098,9 @@ export const resources = {
         popular: 'الأكثر طلبًا',
         included: 'اللي هتقدر تعمله',
         invitations: '{{count}} دعوة مميزة',
+        // ناس كانت فاهمة "دعوة واحدة" = تتبعت لشخص واحد — السطر ده بيوضّح
+        sendOne: 'تنشئ دعوة واحدة وتبعتها لعدد لا نهائي من الناس',
+        sendMany: 'كل دعوة تبعتها لعدد لا نهائي من الناس',
         order: 'اطلب الباقة',
         ordered: 'تم تسجيل طلبك ✓',
         activeNotice: 'باقتك شغالة — فاضلك <b>{{count}}</b> دعوة مميزة.',

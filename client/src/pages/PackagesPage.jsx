@@ -33,7 +33,7 @@ function deltaFeatures(pkg, prev) {
 /** اللي بيجي مع أي باقة — بيتعرض جوه كل كارت عشان كل باقة تشرح نفسها */
 function everyItems(pkg, t) {
   const items = [
-    { icon: Users, text: t('packages.every1') },
+    // "ضيوف من غير حد أقصى" اتشالت من هنا — بقت مكتوبة تحت عدد الدعوات فوق
     { icon: InfinityIcon, text: t('packages.every2') },
   ];
   // مدة التعديل بتاعة الباقة دي (null = مدى الحياة، 0 = القاعدة متقفلة)
@@ -144,16 +144,23 @@ function PackageCard({ pkg, prev, index, highlighted, onOrder, currentPackageId,
         </div>
 
         {/* عدد الدعوات + سعر الدعوة الواحدة — الرقم اللي بيحسم القرار */}
-        <div className={`mt-3 flex items-center justify-between gap-3 rounded-xl px-3 py-2 ${
+        <div className={`mt-3 rounded-xl px-3 py-2 ${
           dark ? 'bg-ivory/[0.06]' : 'bg-ivory/70'
         }`}
         >
-          <span className={`text-[13px] font-bold ${dark ? 'text-ivory' : 'text-ink'}`}>
-            {t('packages.invitations', { count: pkg.invitations })}
-          </span>
-          <span className={`shrink-0 text-[12px] ${dark ? 'text-brass-soft' : 'text-emerald'}`}>
-            {t('packages.perInvitation', { price: perUnit, currency: pkg.currencyLabel })}
-          </span>
+          <div className="flex items-center justify-between gap-3">
+            <span className={`text-[13px] font-bold ${dark ? 'text-ivory' : 'text-ink'}`}>
+              {t('packages.invitations', { count: pkg.invitations })}
+            </span>
+            <span className={`shrink-0 text-[12px] ${dark ? 'text-brass-soft' : 'text-emerald'}`}>
+              {t('packages.perInvitation', { price: perUnit, currency: pkg.currencyLabel })}
+            </span>
+          </div>
+          {/* الدعوة الواحدة بتتبعت لأي عدد ناس — مش لشخص واحد */}
+          <div data-send-line className={`mt-1 flex items-center gap-1.5 text-[11.5px] font-bold leading-snug ${dark ? 'text-brass-soft' : 'text-emerald'}`}>
+            <Users size={13} className="shrink-0" />
+            {pkg.invitations === 1 ? t('packages.sendOne') : t('packages.sendMany')}
+          </div>
         </div>
 
         {/* ===== المميزات ===== */}

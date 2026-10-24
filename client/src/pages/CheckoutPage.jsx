@@ -333,6 +333,7 @@ export default function CheckoutPage() {
               </div>
               <div className="text-[11.5px] text-ivory/55 lg:mt-1 lg:text-[13px]">
                 {t('packages.invitations', { count: pkg.invitations })}
+                <span className="text-brass-soft"> · {pkg.invitations === 1 ? t('packages.sendOne') : t('packages.sendMany')}</span>
               </div>
             </div>
             <div className="flex shrink-0 items-baseline gap-1.5 lg:mt-5 lg:justify-between lg:border-t lg:border-ivory/12 lg:pt-4">
