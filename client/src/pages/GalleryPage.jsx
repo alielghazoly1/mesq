@@ -3,6 +3,7 @@ import TemplateGallery from '../components/TemplateGallery.jsx';
 import { EditorDemoSection } from '../components/EditorDemo.jsx';
 import PremiumSection from '../components/PremiumSection.jsx';
 import CommissionBanner from '../components/CommissionBanner.jsx';
+import HomeFaq from '../components/HomeFaq.jsx';
 import Footer from '../components/Footer.jsx';
 
 export default function GalleryPage() {
@@ -16,6 +17,7 @@ export default function GalleryPage() {
       <EditorDemoSection />
       <PremiumSection />
       <CommissionBanner />
+      <HomeFaq />
       <Footer />
     </div>
   );

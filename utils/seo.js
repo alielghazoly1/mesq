@@ -1,0 +1,102 @@
+// utils/seo.js
+// اللي جوجل بيشوفه في كل صفحة عامة من الموقع.
+//
+// الموقع صفحة React واحدة (index.html)، فقبل كده كل الصفحات كانت بترجع
+// نفس العنوان ونفس الـ canonical = الصفحة الرئيسية — يعني جوجل كان فاهم إن
+// /packages نسخة مكررة من الرئيسية ومش بيفهرسها. دلوقتي السيرفر بيكتب لكل
+// صفحة عامة عنوانها ووصفها ورابطها الأصلي قبل ما يبعتها.
+//
+// فرق مهم: عنوان جوجل (<title>) فيه الكلمات اللي الناس بتدوّر بيها (دعوة
+// زفاف إلكترونية…)، لكن كارت المشاركة (og:title — اللي بيظهر لما اللينك
+// يتبعت على واتساب/فيسبوك) مكتوب فيه "ميثاق" بس بطلب المالك، عشان الموقع
+// هيبقى فيه بعد كده دعوات أعياد ميلاد ومناسبات تانية مش أفراح بس.
+const { TEMPLATES } = require('../templates/registry');
+
+const SITE = 'https://mithaq-invitation.com';
+
+const PAGES = {
+  '/': {
+    title: 'ميثاق | دعوة زفاف إلكترونية — اعمل دعوة فرحك أونلاين بلينك خاص',
+    description: 'ميثاق — موقع دعوات زفاف وخطوبة إلكترونية: اعمل دعوة فرحك أونلاين في دقائق بتصميم فاخر، صور وموسيقى تختارها، عدّاد للفرح وخريطة القاعة وتأكيد حضور، ولينك خاص باسم العروسين تبعته على واتساب.',
+  },
+  '/packages': {
+    title: 'أسعار الدعوات الإلكترونية والباقات | ميثاق',
+    description: 'باقات وأسعار دعوات الزفاف والخطوبة الإلكترونية من ميثاق: كل دعوة تبعتها لعدد لا نهائي من الضيوف، تعديل بعد النشر، وتأكيد حضور — ادفع بفودافون كاش أو إنستاباي.',
+  },
+  '/privacy': { title: 'سياسة الخصوصية | ميثاق', description: 'سياسة الخصوصية في ميثاق — إزاي بنتعامل مع بياناتك وبيانات ضيوفك.' },
+  '/terms': { title: 'الشروط والأحكام | ميثاق', description: 'شروط استخدام موقع ميثاق للدعوات الإلكترونية.' },
+};
+
+function esc(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function pageMeta(pathname) {
+  const p = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname;
+  return PAGES[p] ? { path: p, ...PAGES[p] } : null;
+}
+
+/**
+ * index.html → نفس الصفحة بعنوان ووصف ورابط أصلي خاصين بالصفحة دي.
+ * بنغيّر وسوم الـ head بس — السكريبتات زي ما هي (بصمات الـ CSP مابتتأثرش).
+ */
+function applyPageMeta(html, meta) {
+  if (!meta) return html;
+  const url = SITE + (meta.path === '/' ? '/' : meta.path);
+  return html
+    .replace(/<title>[\s\S]*?<\/title>/i, `<title>${esc(meta.title)}</title>`)
+    .replace(/(<meta name="description" content=")[^"]*(")/i, `$1${esc(meta.description)}$2`)
+    .replace(/(<link rel="canonical" href=")[^"]*(")/i, `$1${esc(url)}$2`)
+    .replace(/(<meta property="og:url" content=")[^"]*(")/i, `$1${esc(url)}$2`);
+}
+
+/** عنوان ووصف صفحة معاينة تصميم (/preview-sample/:id) */
+function previewMeta(template) {
+  return {
+    title: `تصميم ${template.name} — دعوة زفاف إلكترونية | ميثاق`,
+    description: `شوف شكل دعوة الزفاف الإلكترونية بتصميم ${template.name} من ميثاق: ${template.description || 'تصميم فاخر'}. اكتب بياناتك وابعت لضيوفك لينك جاهز في دقائق.`,
+    canonical: `${SITE}/preview-sample/${template.id}`,
+  };
+}
+
+/**
+ * ملفات التصاميم مصدّرة من Tilda وجواها canonical بيشاور على موقع Tilda
+ * (webgency.tilda.ws) — يعني كنا بنقول لجوجل إن الصفحة دي بتاعة موقع تاني.
+ * بنشيله ونحط عنوان ووصف ورابط بتوعنا.
+ */
+function applyPreviewMeta(html, template) {
+  const m = previewMeta(template);
+  const tags = `<title>${esc(m.title)}</title>\n    <meta name="description" content="${esc(m.description)}">\n    <link rel="canonical" href="${esc(m.canonical)}">`;
+  let out = String(html)
+    .replace(/<link[^>]+rel\s*=\s*["']canonical["'][^>]*>\s*/gi, '')
+    .replace(/<meta[^>]+name\s*=\s*["']description["'][^>]*>\s*/gi, '');
+  // العنوان الأول بس (اللي في الـ head) — أي <title> تاني جوه SVG يفضل زي ما هو
+  out = out.replace(/<title>[\s\S]*?<\/title>/i, '');
+  const charset = out.match(/<meta[^>]+charset[^>]*>/i);
+  if (charset) {
+    const at = out.indexOf(charset[0]) + charset[0].length;
+    return out.slice(0, at) + '\n    ' + tags + out.slice(at);
+  }
+  return out.replace(/<head[^>]*>/i, (h) => `${h}\n    ${tags}`);
+}
+
+// تاريخ آخر رفع (السيرفر بيقوم من جديد مع كل رفع) — مش تاريخ النهارده كل
+// يوم، عشان جوجل بيتجاهل lastmod لو لقاه بيتغيّر من غير ما الصفحة تتغيّر
+const DEPLOYED = new Date().toISOString().slice(0, 10);
+
+function sitemapXml() {
+  const today = DEPLOYED;
+  const urls = [
+    { loc: '/', freq: 'weekly', pr: '1.0' },
+    { loc: '/packages', freq: 'weekly', pr: '0.9' },
+    ...TEMPLATES.map((t) => ({ loc: `/preview-sample/${t.id}`, freq: 'monthly', pr: '0.7' })),
+    { loc: '/privacy', freq: 'yearly', pr: '0.2' },
+    { loc: '/terms', freq: 'yearly', pr: '0.2' },
+  ];
+  return '<?xml version="1.0" encoding="UTF-8"?>\n'
+    + '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+    + urls.map((u) => `  <url>\n    <loc>${SITE}${u.loc}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>${u.freq}</changefreq>\n    <priority>${u.pr}</priority>\n  </url>`).join('\n')
+    + '\n</urlset>\n';
+}
+
+module.exports = { SITE, pageMeta, applyPageMeta, applyPreviewMeta, previewMeta, sitemapXml };

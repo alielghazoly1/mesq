@@ -19,6 +19,7 @@ const { injectBeforeBodyEnd } = require('../utils/templateFixes');
 const { guestExtrasTags, hasGuestExtras } = require('../utils/guestExtras');
 const { shareImageSize: shareImageSize_ } = require('../utils/shareImageSize');
 const { cloudinaryShareImageOf } = require('../utils/shareTags');
+const { applyPreviewMeta } = require('../utils/seo');
 const { buildInvitationDataFromRequest, hasActivePackage } = require('../utils/invitationData');
 const { buildStatsPage, loadStatsData, ensureStatsToken } = require('../utils/statsPage');
 const { isEditWindowOpen, editWindowEndedBody } = require('../utils/editWindow');
@@ -471,7 +472,8 @@ router.get('/preview-sample/:templateId', (req, res) => {
     coverStyle: template.id === 'royal-maroon' ? 'envelope' : '',
   };
 
-  const html = renderNewPathHtml(data);
+  // عنوان ووصف ورابط أصلي لجوجل بدل "دعوة فرح يوسف و أميرة" ورابط Tilda
+  const html = applyPreviewMeta(renderNewPathHtml(data), template);
   res.set('Content-Type', 'text/html; charset=utf-8');
   return res.send(html);
 });

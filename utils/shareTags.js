@@ -145,7 +145,8 @@ function buildShareTags(data, pageUrl, fallbackImage, imageSize) {
   const u = pageUrl && origin ? new URL(pageUrl) : null;
   const url = u ? origin + u.pathname + u.search : pageUrl;
   const canonical = u ? origin + u.pathname : pageUrl;
-  const siteName = isAr ? 'ميثاق — دعوات الأفراح' : 'Mithaq — Wedding Invitations';
+  // "ميثاق" بس بطلب المالك — الموقع هيبقى فيه مناسبات تانية غير الأفراح
+  const siteName = isAr ? 'ميثاق' : 'Mithaq';
 
   return [
     `<meta property="og:type" content="website">`,
@@ -186,6 +187,8 @@ function buildShareTags(data, pageUrl, fallbackImage, imageSize) {
 function stripTemplateShareTags(html) {
   return String(html)
     .replace(/<meta[^>]+(?:property|name)\s*=\s*["'](?:og:[^"']*|twitter:[^"']*|description)["'][^>]*>\s*/gi, '')
+    // canonical بتاع Tilda (webgency.tilda.ws) كان بيقول لجوجل إن الصفحة بتاعة موقع تاني
+    .replace(/<link[^>]+rel\s*=\s*["']canonical["'][^>]*>\s*/gi, '')
     .replace(/<title>[\s\S]*?<\/title>\s*/i, '');
 }
 

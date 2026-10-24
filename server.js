@@ -32,6 +32,7 @@ const { ensureDeviceId, deviceInvitationLimiter } = require('./middleware/device
 const { attachUser } = require('./middleware/auth');
 const { requireAdminSession } = require('./middleware/adminAuth');
 const { requestLogger, installProcessHandlers, write: logLine, LOG_FILE } = require('./utils/requestLogger');
+const { pageMeta, applyPageMeta, sitemapXml } = require('./utils/seo');
 
 // بنمسك أي عطل بيوقّع عملية Node ونسجّله في اللوج قبل ما يطلع.
 installProcessHandlers();
@@ -50,6 +51,16 @@ app.set('trust proxy', 1);
 // بيعلّم الطلبات البطيئة [SLOW] والأخطاء [ERROR] والمحاولات المشبوهة
 // [SUSPICIOUS]. أول middleware عشان يشوف كل طلب حتى الملفات الثابتة و404.
 app.use(requestLogger);
+
+// www.mithaq-invitation.com كان بيفتح نفس الموقع بالظبط (نسخة مكررة في عين
+// جوجل، وبيقسم قوة الموقع على عنوانين). أي فتح من www بيتحوّل للعنوان
+// الأساسي بنفس المسار. GET/HEAD بس — أي طلب بيانات مالوش دعوة.
+app.use((req, res, next) => {
+  if ((req.method === 'GET' || req.method === 'HEAD') && req.hostname === 'www.mithaq-invitation.com') {
+    return res.redirect(301, 'https://mithaq-invitation.com' + req.originalUrl);
+  }
+  return next();
+});
 
 // أمان أساسي على مستوى الـ HTTP headers، بما فيها Content-Security-Policy
 // مضبوطة فعليًا (مش متقفلة) — بتسمح بس بالمصادر الخارجية اللي التصميم
@@ -185,7 +196,17 @@ app.use(['/api/preview', '/preview-sample', '/api/invitations', '/api/auth', '/a
 // (ملحوظة: لو استضفت المشروع على Vercel، الفولدر ده بيتقدّم من الـ CDN
 // بتاعهم مباشرة وبيتجاهل السطر ده تلقائيًا — راجع README لو مش فاهم ليه)
 const CLIENT_DIST = path.join(__dirname, 'client', 'dist');
+// خريطة الموقع لجوجل: بتتعمل من قايمة التصاميم نفسها، فأي تصميم جديد
+// بيدخلها لوحده (utils/seo.js)
+app.get('/sitemap.xml', (req, res) => {
+  res.type('application/xml').set('Cache-Control', 'public, max-age=3600').send(sitemapXml());
+});
+// /gallery مكانتش صفحة أصلًا (كانت بتفتح فاضية) — التصاميم في الرئيسية
+app.get('/gallery', (req, res) => res.redirect(301, '/#gallery'));
 app.use(express.static(CLIENT_DIST, {
+  // الصفحة الرئيسية مابتتبعتش من هنا: بتعدّي على آخر الملف عشان تاخد
+  // عنوانها ووصفها لجوجل (utils/seo.js) زي باقي الصفحات
+  index: false,
   // ملفات /assets/ اسمها فيه بصمة محتواها (index-BEQg6LwI.js) — يعني أي
   // تعديل بيغيّر الاسم. فنقدر نخليها تتخزّن للأبد بأمان.
   // index.html بالعكس: لازم المتصفح يسأل عنها كل مرة، لأنها هي اللي
@@ -438,6 +459,20 @@ const FILE_LIKE = /\.[a-z0-9]{2,6}$/i;
 // ولا أي كود مكتوب جوه الصفحة غير السكريبت الوحيد بتاع index.html (بالبصمة).
 // يعني حتى لو حد قدر يدسّ نص فيه <script> في أي حتة بتتعرض في اللوحة،
 // المتصفح مش هيشغّله. السياسة بتتحسب من index.html نفسه (بيتغيّر مع كل رفع).
+// index.html نفسه (بيتقري مرة لكل رفع) — الصفحات العامة بتاخده وتغيّر
+// العنوان والوصف بس
+let spaCache = { mtime: 0, html: '' };
+function spaHtml() {
+  try {
+    const file = path.join(CLIENT_DIST, 'index.html');
+    const { mtimeMs } = require('fs').statSync(file);
+    if (spaCache.mtime !== mtimeMs) spaCache = { mtime: mtimeMs, html: require('fs').readFileSync(file, 'utf8') };
+    return spaCache.html;
+  } catch {
+    return '';
+  }
+}
+
 let adminCspCache = { mtime: 0, value: '' };
 function adminCsp() {
   try {
@@ -490,6 +525,14 @@ app.get('*', (req, res, next) => {
     // اللوحة مش لازم تتفهرس ولا يتبعت معاها أي رابط لمواقع تانية
     res.setHeader('X-Robots-Tag', 'noindex, nofollow');
     res.setHeader('Referrer-Policy', 'no-referrer');
+  }
+  const meta = pageMeta(req.path);
+  if (meta) {
+    const html = spaHtml();
+    if (html) return res.type('html').send(applyPageMeta(html, meta));
+  } else if (!res.getHeader('X-Robots-Tag')) {
+    // صفحات الحساب والدفع والمحرر، وأي مسار مش موجود: مش لجوجل
+    res.setHeader('X-Robots-Tag', 'noindex');
   }
   return res.sendFile(path.join(CLIENT_DIST, 'index.html'));
 });
