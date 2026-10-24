@@ -66,18 +66,48 @@ function previewMeta(template) {
  */
 function applyPreviewMeta(html, template) {
   const m = previewMeta(template);
-  const tags = `<title>${esc(m.title)}</title>\n    <meta name="description" content="${esc(m.description)}">\n    <link rel="canonical" href="${esc(m.canonical)}">`;
+  const img = `${SITE}/img/template-thumbs/${template.id}.jpg`;
+  // كارت المشاركة: لما حد يبعت لينك التصميم (زرار المشاركة) يظهر اسم التصميم
+  // وصورته — مش "دعوة فرح يوسف و أميرة" بتاعة بيانات المعاينة الوهمية
+  const share = `${template.name} | ميثاق`;
+  const shareDesc = `شوف تصميم دعوة ${template.name} واعمل دعوتك بيه على ميثاق.`;
+  const tags = [
+    `<title>${esc(m.title)}</title>`,
+    `<meta name="description" content="${esc(m.description)}">`,
+    `<link rel="canonical" href="${esc(m.canonical)}">`,
+    '<meta property="og:type" content="website">',
+    '<meta property="og:site_name" content="ميثاق">',
+    `<meta property="og:url" content="${esc(m.canonical)}">`,
+    `<meta property="og:title" content="${esc(share)}">`,
+    `<meta property="og:description" content="${esc(shareDesc)}">`,
+    '<meta property="og:locale" content="ar_EG">',
+    `<meta property="og:image" content="${esc(img)}">`,
+    `<meta property="og:image:secure_url" content="${esc(img)}">`,
+    '<meta property="og:image:type" content="image/jpeg">',
+    '<meta property="og:image:width" content="640">',
+    '<meta property="og:image:height" content="1385">',
+    `<meta property="og:image:alt" content="${esc(share)}">`,
+    '<meta name="twitter:card" content="summary_large_image">',
+    `<meta name="twitter:title" content="${esc(share)}">`,
+    `<meta name="twitter:description" content="${esc(shareDesc)}">`,
+    `<meta name="twitter:image" content="${esc(img)}">`,
+  ].join('\n    ');
   let out = String(html)
     .replace(/<link[^>]+rel\s*=\s*["']canonical["'][^>]*>\s*/gi, '')
-    .replace(/<meta[^>]+name\s*=\s*["']description["'][^>]*>\s*/gi, '');
+    .replace(/<meta[^>]+(?:property|name)\s*=\s*["'](?:og:[^"']*|twitter:[^"']*|description)["'][^>]*>\s*/gi, '');
   // العنوان الأول بس (اللي في الـ head) — أي <title> تاني جوه SVG يفضل زي ما هو
   out = out.replace(/<title>[\s\S]*?<\/title>/i, '');
   const charset = out.match(/<meta[^>]+charset[^>]*>/i);
   if (charset) {
     const at = out.indexOf(charset[0]) + charset[0].length;
-    return out.slice(0, at) + '\n    ' + tags + out.slice(at);
+    out = out.slice(0, at) + '\n    ' + tags + out.slice(at);
+  } else {
+    out = out.replace(/<head[^>]*>/i, (h) => `${h}\n    ${tags}`);
   }
-  return out.replace(/<head[^>]*>/i, (h) => `${h}\n    ${tags}`);
+  // شريط "رجوع" + "مشاركة" فوق المعاينة (client/public/preview-bar.js)
+  const bar = `<script src="/preview-bar.js" defer data-tpl="${esc(template.id)}" data-name="${esc(template.name)}"></script>`;
+  const close = out.lastIndexOf('</body>');
+  return close === -1 ? out + bar : out.slice(0, close) + bar + '\n' + out.slice(close);
 }
 
 // تاريخ آخر رفع (السيرفر بيقوم من جديد مع كل رفع) — مش تاريخ النهارده كل

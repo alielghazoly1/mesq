@@ -6,6 +6,8 @@ import { Sparkles, Wand2, Loader2, Eye, Crown } from 'lucide-react';
 import { useGetMeQuery, useCreateDraftMutation } from '../store/api.js';
 import { isEditOpen } from '../lib/editWindow.js';
 import DesignLanguagePicker from './DesignLanguagePicker.jsx';
+import ShareDesignButton from './ShareDesignButton.jsx';
+import { rememberPreviewFrom } from '../lib/homeScroll.js';
 
 // كارت تصميم في المعرض.
 //
@@ -61,7 +63,8 @@ export default function TemplateCard({ template, index }) {
 
   return (
     <motion.div
-      className={`relative flex flex-col overflow-hidden rounded-[18px] border bg-card transition-shadow hover:shadow-2xl hover:shadow-ink/10 sm:rounded-[22px] ${
+      id={`tpl-${template.id}`}
+      className={`relative flex scroll-mt-20 flex-col overflow-hidden rounded-[18px] border bg-card transition-shadow hover:shadow-2xl hover:shadow-ink/10 sm:rounded-[22px] ${
         template.isNew ? 'border-rose/40 shadow-[0_18px_40px_-26px_rgba(185,80,106,.7)]' : 'border-line'
       }`}
       initial={{ opacity: 0, y: 26 }}
@@ -122,17 +125,21 @@ export default function TemplateCard({ template, index }) {
           {template.description}
         </p>
 
-        <div className="flex flex-col gap-1.5 sm:flex-row sm:gap-2">
+        <div className="flex flex-col gap-1.5 sm:gap-2">
           {/* المعاينة مفتوحة زي أي تصميم — العميل لازم يشوف اللي هيدفع فيه.
               المقفول هو الاستخدام بس. */}
-          <a
-            href={`/preview-sample/${template.id}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-full border border-line px-2.5 py-2 text-[11.5px] font-bold leading-tight text-ink-dim transition hover:border-brass/50 hover:text-ink sm:px-3.5 sm:py-2.5 sm:text-[12.5px]"
-          >
-            <Eye size={13} className="shrink-0" /> {t(locked ? 'gallery.lockedPreview' : 'gallery.preview')}
-          </a>
+          {/* المعاينة بتفتح في نفس الصفحة: فيها زرار "رجوع" بيرجّعه هنا تاني */}
+          <div className="flex flex-1 items-stretch gap-1.5">
+            <a
+              href={`/preview-sample/${template.id}`}
+              onClick={() => rememberPreviewFrom(template.id)}
+              data-preview-link={template.id}
+              className="flex flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-full border border-line px-2.5 py-2 text-[11.5px] font-bold leading-tight text-ink-dim transition hover:border-brass/50 hover:text-ink sm:px-3.5 sm:py-2.5 sm:text-[12.5px]"
+            >
+              <Eye size={13} className="shrink-0" /> {t(locked ? 'gallery.lockedPreview' : 'gallery.preview')}
+            </a>
+            <ShareDesignButton template={template} className="shrink-0" />
+          </div>
           {locked ? (
             <button
               type="button"

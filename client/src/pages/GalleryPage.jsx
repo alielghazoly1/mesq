@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+import { startHomeScroll } from '../lib/homeScroll.js';
 import Hero from '../components/Hero.jsx';
 import TemplateGallery from '../components/TemplateGallery.jsx';
 import { EditorDemoSection } from '../components/EditorDemo.jsx';
@@ -7,6 +9,8 @@ import HomeFaq from '../components/HomeFaq.jsx';
 import Footer from '../components/Footer.jsx';
 
 export default function GalleryPage() {
+  // الرجوع من معاينة / لينك فيه # / النزول الناعم لأول فتحة على الموبايل
+  useEffect(() => startHomeScroll(), []);
   return (
     <div>
       <Hero />
