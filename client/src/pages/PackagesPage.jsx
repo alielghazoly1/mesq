@@ -8,6 +8,7 @@
 // بتبقى قرار واضح مش مقارنة مرهقة.
 //
 // والضغط على أي باقة بيودّي لصفحة الدفع على طول (/checkout/:id).
+import { createLine } from '../lib/packageText.js';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
@@ -150,7 +151,7 @@ function PackageCard({ pkg, prev, index, highlighted, onOrder, currentPackageId,
         >
           <div className="flex items-center justify-between gap-3">
             <span className={`text-[13px] font-bold ${dark ? 'text-ivory' : 'text-ink'}`}>
-              {t('packages.invitations', { count: pkg.invitations })}
+              {createLine(t, pkg.invitations)}
             </span>
             <span className={`shrink-0 text-[12px] ${dark ? 'text-brass-soft' : 'text-emerald'}`}>
               {t('packages.perInvitation', { price: perUnit, currency: pkg.currencyLabel })}

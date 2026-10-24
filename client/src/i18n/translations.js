@@ -200,8 +200,12 @@ export const resources = {
         included: 'What you can do',
         invitations: '{{count}} premium invitations',
         // ناس كانت فاهمة "دعوة واحدة" = تتبعت لشخص واحد — السطر ده بيوضّح
-        sendOne: 'Create 1 invitation and send it to unlimited people',
-        sendMany: 'Each invitation can be sent to unlimited people',
+        sendOne: 'Send it to unlimited people',
+        sendMany: 'Send each one to unlimited people',
+        // "تنشئ 1 دعوة مميزة" — الفعل قبل الرقم
+        createOne: 'Create {{count}} premium invitation',
+        createFew: 'Create {{count}} premium invitations',
+        createMany: 'Create {{count}} premium invitations',
         order: 'Order package',
         ordered: 'Order received ✓',
         activeNotice: 'Your package is active — <b>{{count}}</b> premium invitations left.',
@@ -1099,8 +1103,12 @@ export const resources = {
         included: 'اللي هتقدر تعمله',
         invitations: '{{count}} دعوة مميزة',
         // ناس كانت فاهمة "دعوة واحدة" = تتبعت لشخص واحد — السطر ده بيوضّح
-        sendOne: 'تنشئ دعوة واحدة وتبعتها لعدد لا نهائي من الناس',
-        sendMany: 'كل دعوة تبعتها لعدد لا نهائي من الناس',
+        sendOne: 'وتبعتها لعدد لا نهائي من الناس',
+        sendMany: 'وكل دعوة تبعتها لعدد لا نهائي من الناس',
+        // "تنشئ 1 دعوة مميزة" — الفعل قبل الرقم، والجمع صح (3–10 دعوات)
+        createOne: 'تنشئ {{count}} دعوة مميزة',
+        createFew: 'تنشئ {{count}} دعوات مميزة',
+        createMany: 'تنشئ {{count}} دعوة مميزة',
         order: 'اطلب الباقة',
         ordered: 'تم تسجيل طلبك ✓',
         activeNotice: 'باقتك شغالة — فاضلك <b>{{count}}</b> دعوة مميزة.',
