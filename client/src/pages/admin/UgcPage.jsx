@@ -9,6 +9,7 @@ import { openUser, closeUser } from '../../store/adminSlice.js';
 import {
   Panel, StatTile, Badge, Table, Row, Cell, Spinner, Empty, fmtDate, fmtNum, fmtMoney,
 } from '../../components/admin/ui.jsx';
+import { useMoneyHidden } from '../../components/admin/moneyPrivacy.js';
 import { countryName, waLink } from './format.js';
 import ClientDrawer from './ClientDrawer.jsx';
 
@@ -29,6 +30,7 @@ export default function UgcPage() {
   const { data, isLoading, isFetching } = useGetUgcQuery();
   const affiliates = data?.affiliates || [];
   const t = data?.totals;
+  const hideMoney = useMoneyHidden(); // "إخفاء الفلوس" (الأمان) → مربعات وأعمدة الفلوس بتتشال
 
   return (
     <div className="space-y-5">
@@ -39,21 +41,21 @@ export default function UgcPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className={`grid grid-cols-2 gap-3 ${hideMoney ? '' : 'sm:grid-cols-4'}`}>
         <StatTile icon={Users} tone="gold" label="عدد المسوّقين" value={fmtNum(t?.count || 0)} />
-        <StatTile icon={Wallet} tone="danger" label="مستحق عليك (جنيه)" value={fmtMoney(t?.available?.EGP || 0, 'EGP')} />
-        <StatTile icon={Wallet} tone="danger" label="مستحق عليك (دولار)" value={fmtMoney(t?.available?.USD || 0, 'USD')} />
+        {!hideMoney && <StatTile icon={Wallet} tone="danger" label="مستحق عليك (جنيه)" value={fmtMoney(t?.available?.EGP || 0, 'EGP')} />}
+        {!hideMoney && <StatTile icon={Wallet} tone="danger" label="مستحق عليك (دولار)" value={fmtMoney(t?.available?.USD || 0, 'USD')} />}
         <StatTile icon={Crown} tone="ok" label="عملاء جابوهم ودفعوا" value={fmtNum(t?.paidCustomers || 0)} />
       </div>
 
       <Panel
         title={data ? `${fmtNum(t?.count || 0)} مسوّق` : 'المسوّقين'}
-        subtitle={isFetching ? 'بيحدّث...' : 'المستحق = المكتسب ناقص المسحوب والمعلّق'}
+        subtitle={isFetching ? 'بيحدّث...' : hideMoney ? '' : 'المستحق = المكتسب ناقص المسحوب والمعلّق'}
       >
         {isLoading && affiliates.length === 0 ? <Spinner /> : affiliates.length === 0 ? (
           <Empty>لسه مفيش مسوّقين. فعّل UGC لأي عميل من ملفه.</Empty>
         ) : (
-          <Table head={['المسوّق', 'العمولة', 'سجّلوا', 'دفعوا', 'مستحق عليك', 'معلّق', 'رقم الدفع']}>
+          <Table head={['المسوّق', 'العمولة', 'سجّلوا', 'دفعوا', ...(hideMoney ? [] : ['مستحق عليك', 'معلّق']), 'رقم الدفع']}>
             {affiliates.map((a) => (
               <Row key={a.id}>
                 <Cell>
@@ -71,12 +73,14 @@ export default function UgcPage() {
                 <Cell className="whitespace-nowrap"><Badge tone="gold">{a.commissionRate}%</Badge></Cell>
                 <Cell className="text-ivory/70">{fmtNum(a.stats?.registrations || 0)}</Cell>
                 <Cell className="text-ivory/70">{fmtNum(a.stats?.paidCustomers || 0)}</Cell>
+                {!hideMoney && <>
                 <Cell><Money egp={a.stats?.available?.EGP} usd={a.stats?.available?.USD} sar={a.stats?.available?.SAR} eur={a.stats?.available?.EUR} tone="text-brass-soft" /></Cell>
                 <Cell>
                   {(a.stats?.pending?.EGP || a.stats?.pending?.USD)
                     ? <span className="inline-flex items-center gap-1 text-amber-300/80"><Clock size={11} /><Money egp={a.stats?.pending?.EGP} usd={a.stats?.pending?.USD} tone="text-amber-300/80" /></span>
                     : <span className="text-ivory/30">—</span>}
                 </Cell>
+                </>}
                 <Cell>
                   {a.payoutPhone ? (
                     <a href={waLink(a.payoutPhone, 'EG')} target="_blank" rel="noopener noreferrer" dir="ltr"

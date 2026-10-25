@@ -156,7 +156,3 @@ iframe {
   60% { transform: rotate(14deg); }
   80% { transform: rotate(-4deg); }
 }
-
-/* لوحة التحكم: زرار "إخفاء الفلوس" (components/admin/moneyPrivacy.js) — خانات
-   المبالغ بتتغبّش، وبتوضح بس وإنت بتكتب فيها */
-html[data-hide-money] input.money:not(:focus){filter:blur(6px);transition:filter .2s}

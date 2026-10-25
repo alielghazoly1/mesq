@@ -9,6 +9,7 @@ import { AnimatePresence } from 'motion/react';
 import {
   Panel, Badge, Btn, Table, Row, Cell, Spinner, Empty, Tabs, fmtDate, fmtMoney, fmtNum,
 } from '../../components/admin/ui.jsx';
+import { useMoneyHidden } from '../../components/admin/moneyPrivacy.js';
 import { waLink } from './format.js';
 import ClientDrawer from './ClientDrawer.jsx';
 
@@ -23,6 +24,7 @@ export default function WithdrawalsPage() {
   const dispatch = useDispatch();
   const openUserId = useSelector((s) => s.admin.openUserId);
   const [status, setStatus] = useState('pending');
+  const hideMoney = useMoneyHidden(); // "إخفاء الفلوس" (الأمان) → عمود المبلغ بيتشال
   const [page, setPage] = useState(1);
   const [items, setItems] = useState([]);
   const { data, isLoading, isFetching } = useGetWithdrawalsQuery({ status, page });
@@ -83,7 +85,7 @@ export default function WithdrawalsPage() {
           <Empty>مفيش طلبات هنا.</Empty>
         ) : (
           <>
-            <Table head={['المسوّق', 'المبلغ', 'رقم فودافون', 'التاريخ', 'الحالة', '']}>
+            <Table head={['المسوّق', ...(hideMoney ? [] : ['المبلغ']), 'رقم فودافون', 'التاريخ', 'الحالة', '']}>
               {items.map((w) => (
                 <Row key={w.id}>
                   <Cell>
@@ -92,7 +94,7 @@ export default function WithdrawalsPage() {
                     </button>
                     <div className="text-[11px] text-ivory/40">{w.user.email}</div>
                   </Cell>
-                  <Cell className="whitespace-nowrap font-bold text-brass-soft">{fmtMoney(w.amount, w.currency)}</Cell>
+                  {!hideMoney && <Cell className="whitespace-nowrap font-bold text-brass-soft">{fmtMoney(w.amount, w.currency)}</Cell>}
                   <Cell>
                     {w.phone ? (
                       <a href={waLink(w.phone, 'EG')} target="_blank" rel="noopener noreferrer" dir="ltr"

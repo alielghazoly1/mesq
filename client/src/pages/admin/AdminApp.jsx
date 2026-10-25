@@ -10,7 +10,7 @@ import { NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { useDispatch } from 'react-redux';
 import {
   LayoutDashboard, Users, Receipt, FileText, MessageSquare,
-  Settings, ScrollText, LogOut, Loader2, Menu, X, Music, Wallet, Banknote, Megaphone, LayoutTemplate, Tags, Bug, ShieldCheck, Eraser, MessageCircle, Target, ReceiptText, Activity, CalendarCheck, Radio, Pin, Eye, EyeOff,
+  Settings, ScrollText, LogOut, Loader2, Menu, X, Music, Wallet, Banknote, Megaphone, LayoutTemplate, Tags, Bug, ShieldCheck, Eraser, MessageCircle, Target, ReceiptText, Activity, CalendarCheck, Radio, Pin, EyeOff,
 } from 'lucide-react';
 import { adminApi, useGetOrdersAttentionQuery, useGetSupportUnreadQuery, useGetSecurityQuery, useGetPinsQuery } from '../../store/adminApi.js';
 import AdminLogin from './AdminLogin.jsx';
@@ -39,15 +39,15 @@ import WhatsAppPage from './WhatsAppPage.jsx';
 import CampaignsPage from './CampaignsPage.jsx';
 import PinnedPage from './PinnedPage.jsx';
 import LiveFloat from '../../components/admin/LiveFloat.jsx';
-import { useMoneyHidden, toggleMoneyHidden } from '../../components/admin/moneyPrivacy.js';
+import { useMoneyHidden } from '../../components/admin/moneyPrivacy.js';
 
 const NAV = [
   { to: '/admin', end: true, icon: LayoutDashboard, label: 'نظرة عامة' },
   { to: '/admin/pinned', icon: Pin, label: 'المثبّتين', badge: 'pins' },
   { to: '/admin/live', icon: Radio, label: 'مباشر' },
   { to: '/admin/analytics', icon: Activity, label: 'التحليلات' },
-  { to: '/admin/earnings', icon: Wallet, label: 'الأرباح' },
-  { to: '/admin/expenses', icon: ReceiptText, label: 'المصاريف' },
+  { to: '/admin/earnings', icon: Wallet, label: 'الأرباح', money: true },
+  { to: '/admin/expenses', icon: ReceiptText, label: 'المصاريف', money: true },
   { to: '/admin/campaigns', icon: Target, label: 'الإعلانات' },
   { to: '/admin/withdrawals', icon: Banknote, label: 'طلبات السحب' },
   { to: '/admin/ugc', icon: Megaphone, label: 'المسوّقين' },
@@ -167,29 +167,21 @@ function SupportBadge() {
 }
 
 /**
- * زرار "إخفاء الفلوس" (بطلب المالك): لو حد قاعد جنبك، ضغطة واحدة تخفي كل
- * مبلغ في اللوحة (الأرباح، المصاريف، الطلبات، العمولات، الرسوم) — وضغطة
- * تانية ترجّعها. فاكر اختيارك على الجهاز ده.
+ * "إخفاء الفلوس" (بطلب المالك — الزرار في صفحة الأمان): صفحات الفلوس بالكامل
+ * (الأرباح، المصاريف) بتختفي من القايمة، ولو حد فتح اللينك بتاعها مباشرة
+ * بيلاقي رسالة بدل الأرقام.
  */
-function MoneyToggle({ compact = false }) {
+function MoneyGate({ children }) {
   const hidden = useMoneyHidden();
-  const Icon = hidden ? EyeOff : Eye;
-  const label = hidden ? 'إظهار الفلوس' : 'إخفاء الفلوس';
+  if (!hidden) return children;
   return (
-    <button
-      type="button"
-      onClick={toggleMoneyHidden}
-      aria-pressed={hidden}
-      title={hidden ? 'الفلوس مخفية — اضغط عشان تظهر' : 'اخفي كل الأرقام اللي فيها فلوس'}
-      data-money-toggle
-      className={`inline-flex items-center gap-2 rounded-full border font-bold transition ${
-        compact ? 'px-4 py-2 text-[12.5px]' : 'w-full justify-center px-3 py-2 text-[12.5px]'
-      } ${hidden
-        ? 'border-brass/60 bg-brass/15 text-brass-soft hover:bg-brass/25'
-        : 'border-line-lite text-ivory/60 hover:border-ivory/30 hover:text-ivory'}`}
-    >
-      <Icon size={15} /> {label}
-    </button>
+    <div className="flex min-h-[50vh] flex-col items-center justify-center gap-3 text-center" data-money-gate>
+      <EyeOff size={30} className="text-ivory/30" />
+      <p className="text-[14px] font-bold text-ivory/70">الصفحة دي مقفولة دلوقتي</p>
+      <NavLink to="/admin/security" className="rounded-full border border-line-lite px-4 py-2 text-[12.5px] font-bold text-ivory/60 hover:text-ivory">
+        افتحها من الأمان ←
+      </NavLink>
+    </div>
   );
 }
 
@@ -199,8 +191,8 @@ export default function AdminApp() {
   const [auth, setAuth] = useState(null); // null = بنشيك لسه
   const [lockNotice, setLockNotice] = useState('');
   const [navOpen, setNavOpen] = useState(false);
-  // اللوحة كلها بتعيد الرسم لما زرار "إخفاء الفلوس" يتقلب → كل مبلغ يتحدّث
-  useMoneyHidden();
+  // اللوحة كلها بتعيد الرسم لما "إخفاء الفلوس" يتقلب (من صفحة الأمان)
+  const hideMoney = useMoneyHidden();
 
   const check = useCallback(async () => {
     try {
@@ -291,12 +283,11 @@ export default function AdminApp() {
                 <X size={17} />
               </button>
             </div>
-            <div className="mb-3 shrink-0 px-1"><MoneyToggle /></div>
 
             {/* الأقسام كتير — القايمة نفسها بتسكرول جوه الشريط (والشعار
                 وزرار الخروج ثابتين)، فأي قسم توصله من غير ما حاجة تتقص */}
             <nav className="-me-2 min-h-0 flex-1 space-y-0.5 overflow-y-auto overscroll-contain pe-2 [scrollbar-width:thin]">
-              {NAV.map(({ to, end, icon: Icon, label, badge }) => (
+              {NAV.filter((n) => !(hideMoney && n.money)).map(({ to, end, icon: Icon, label, badge }) => (
                 <NavLink
                   key={to}
                   to={to}
@@ -346,7 +337,6 @@ export default function AdminApp() {
             {/* على الموبايل القايمة مقفولة — العداد يبان على الزرار نفسه */}
             <OrdersBadge />
           </button>
-          <span className="ms-2 lg:hidden"><MoneyToggle compact /></span>
 
           <TwoFactorBanner />
           <Routes>
@@ -354,8 +344,8 @@ export default function AdminApp() {
             <Route path="pinned" element={<PinnedPage />} />
             <Route path="live" element={<LiveJourneysPage />} />
             <Route path="analytics" element={<AnalyticsPage />} />
-            <Route path="earnings" element={<EarningsPage />} />
-            <Route path="expenses" element={<ExpensesPage />} />
+            <Route path="earnings" element={<MoneyGate><EarningsPage /></MoneyGate>} />
+            <Route path="expenses" element={<MoneyGate><ExpensesPage /></MoneyGate>} />
             <Route path="campaigns" element={<CampaignsPage />} />
             <Route path="withdrawals" element={<WithdrawalsPage />} />
             <Route path="ugc" element={<UgcPage />} />

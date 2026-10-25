@@ -59,7 +59,7 @@ export function usePageVisible() {
 }
 
 export default function LivePanel() {
-  useMoneyHidden(); // يعيد الرسم لما زرار "إخفاء الفلوس" يتقلب
+  const hideMoney = useMoneyHidden(); // "إخفاء الفلوس" (الأمان) → مربع الأرباح بيتشال
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const visible = usePageVisible();
@@ -188,7 +188,7 @@ export default function LivePanel() {
       {/* النهارده (بتوقيت مصر) */}
       <div>
         <h2 className="mb-2.5 font-serif text-[15px] font-bold text-ivory/80">النهارده</h2>
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
+        <div className={`grid grid-cols-2 gap-3 sm:gap-4 ${hideMoney ? 'lg:grid-cols-4' : 'lg:grid-cols-5'}`}>
           <StatTile icon={UserPlus} tone="gold" label="سجّلوا النهارده" value={fmtNum(today?.signups || 0)} delay={0}
             onClick={() => goClients('today')} />
           <StatTile
@@ -200,13 +200,13 @@ export default function LivePanel() {
             onClick={goInvitations} />
           <StatTile icon={Receipt} label="طلبات باقات النهارده" value={fmtNum(today?.orders || 0)} delay={0.09}
             onClick={goOrders} cta="شوفهم" />
-          <StatTile
+          {!hideMoney && <StatTile
             icon={Wallet} label="أرباح النهارده" delay={0.12} onClick={() => navigate('/admin/orders-day')} cta="الطلبات"
             value={fmtMoney(today?.revenue?.EGP?.total || 0, 'EGP')}
             hint={(today?.revenue?.USD?.total || today?.revenue?.SAR?.total || today?.revenue?.EUR?.total)
               ? [today.revenue.USD?.total ? `+ ${fmtMoney(today.revenue.USD.total, 'USD')}` : '', today.revenue.SAR?.total ? `+ ${fmtMoney(today.revenue.SAR.total, 'SAR')}` : '', today.revenue.EUR?.total ? `+ ${fmtMoney(today.revenue.EUR.total, 'EUR')}` : ''].filter(Boolean).join(' ')
               : 'الطلبات اللي اتفعّلت النهارده'}
-          />
+          />}
         </div>
       </div>
     </div>

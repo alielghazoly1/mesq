@@ -6,8 +6,9 @@
 import { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
 import {
-  ShieldCheck, ShieldAlert, Smartphone, Copy, Check, Download, KeyRound, RefreshCw, Lock, Monitor, X,
+  ShieldCheck, ShieldAlert, Smartphone, Copy, Check, Download, KeyRound, RefreshCw, Lock, Monitor, X, Eye, EyeOff,
 } from 'lucide-react';
+import { useMoneyHidden, toggleMoneyHidden } from '../../components/admin/moneyPrivacy.js';
 import {
   useGetSecurityQuery, useStart2faMutation, useEnable2faMutation,
   useDisable2faMutation, useNewBackupCodesMutation,
@@ -215,6 +216,39 @@ function CodeAction({ title, body, cta, tone, onRun, onCancel }) {
   );
 }
 
+/**
+ * إخفاء الفلوس (بطلب المالك): لو حد قاعد جنبك — كل مربع فيه فلوس (أرباح،
+ * مصاريف، أسعار الطلبات، العمولات، رسوم الأرباح) بيتشال من اللوحة خالص،
+ * وصفحتين الأرباح والمصاريف بيختفوا من القايمة. الزرار هنا بس (مش ظاهر
+ * في كل صفحة)، والاختيار بيتحفظ على الجهاز ده.
+ */
+function HideMoneyPanel() {
+  const hidden = useMoneyHidden();
+  return (
+    <Panel title="إخفاء الفلوس" subtitle="لو حد قاعد جنبك — كل حاجة فيها فلوس بتتشال من اللوحة، وبترجع بنفس الزرار">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="flex items-center gap-2 text-[13px] font-bold" data-money-state>
+          {hidden
+            ? <><EyeOff size={16} className="text-brass-soft" /> <span className="text-brass-soft">الفلوس مخفية دلوقتي</span></>
+            : <><Eye size={16} className="text-ivory/50" /> <span className="text-ivory/70">الفلوس ظاهرة</span></>}
+        </p>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={hidden}
+          onClick={toggleMoneyHidden}
+          data-money-toggle
+          className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[13px] font-bold transition ${hidden
+            ? 'border-brass/60 bg-brass/15 text-brass-soft hover:bg-brass/25'
+            : 'border-line-lite text-ivory/70 hover:border-ivory/30 hover:text-ivory'}`}
+        >
+          {hidden ? <><Eye size={15} /> إظهار الفلوس</> : <><EyeOff size={15} /> إخفاء الفلوس</>}
+        </button>
+      </div>
+    </Panel>
+  );
+}
+
 export default function SecurityPage() {
   const { data, isLoading } = useGetSecurityQuery();
   const [disable] = useDisable2faMutation();
@@ -232,6 +266,8 @@ export default function SecurityPage() {
         <h1 className="font-serif text-[21px] font-bold text-ivory">الأمان</h1>
         <p className="mt-0.5 text-[12.5px] text-ivory/45">حماية دخول لوحة التحكم.</p>
       </div>
+
+      <HideMoneyPanel />
 
       <Panel
         title="التحقق بخطوتين"

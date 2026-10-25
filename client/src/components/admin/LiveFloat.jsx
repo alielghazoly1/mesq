@@ -88,7 +88,7 @@ export default function LiveFloat() {
 }
 
 function LiveFloatInner() {
-  useMoneyHidden(); // يعيد الرسم لما زرار "إخفاء الفلوس" يتقلب
+  const hideMoney = useMoneyHidden(); // "إخفاء الفلوس" (الأمان) → الأرباح بتتشال
   const navigate = useNavigate();
   const visible = usePageVisible();
   const tv = useMedia('(min-width: 1800px)');
@@ -312,7 +312,7 @@ function LiveFloatInner() {
             <div className="mt-1.5"><Spark points={hist} /></div>
 
             {/* النهارده */}
-            <div className="mt-2.5 grid grid-cols-2 gap-1.5" data-lf-nodrag>
+            <div className={`mt-2.5 grid gap-1.5 ${hideMoney ? 'grid-cols-3' : 'grid-cols-2'}`} data-lf-nodrag>
               <Stat icon={MonitorSmartphone} label="أجهزة النهارده" accent="text-[#8fcbff]" onClick={() => navigate('/admin/analytics')}>
                 {fmtNum(today?.devices || 0)}
                 {today?.newDevices ? <span className="ms-1 font-sans text-[10.5px] font-bold text-emerald-bright">+{fmtNum(today.newDevices)} جديد</span> : null}
@@ -323,11 +323,13 @@ function LiveFloatInner() {
               <Stat icon={Receipt} label="طلبات النهارده" onClick={() => navigate('/admin/orders-day?kind=created')}>
                 {fmtNum(today?.orders || 0)}
               </Stat>
+              {!hideMoney && (
               <Stat icon={Wallet} label="أرباح النهارده" accent="text-brass-soft" onClick={() => navigate('/admin/orders-day')}>
                 <span title={extraRev.join(' + ')}>{fmtMoney(rev.EGP?.total || 0, 'EGP')}</span>
               </Stat>
+              )}
             </div>
-            {extraRev.length > 0 && <p className="mt-1 truncate text-[10.5px] text-ivory/40">+ {extraRev.join(' + ')}</p>}
+            {!hideMoney && extraRev.length > 0 && <p className="mt-1 truncate text-[10.5px] text-ivory/40">+ {extraRev.join(' + ')}</p>}
 
             {/* العملاء المتصلين */}
             <div className="mt-2.5" data-lf-nodrag>

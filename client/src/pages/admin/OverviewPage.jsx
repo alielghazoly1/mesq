@@ -14,6 +14,7 @@ import {
 } from '../../components/admin/ui.jsx';
 import { AreaTrend, BarTrend, LineTrend, COLORS } from '../../components/admin/Charts.jsx';
 import RankedBars from '../../components/admin/RankedBars.jsx';
+import { useMoneyHidden } from '../../components/admin/moneyPrivacy.js';
 import { countryName } from './format.js';
 
 /**
@@ -81,6 +82,7 @@ export default function OverviewPage() {
   // ملف العميل بيتفتح من قايمة "العملاء المتصلين"
   const openUserId = useSelector((s) => s.admin.openUserId);
   const { data, isLoading, isFetching } = useGetOverviewQuery(period);
+  const hideMoney = useMoneyHidden();
 
   if (isLoading) return <Spinner label="بنجمّع الأرقام..." />;
   if (!data) return <Empty>مفيش بيانات.</Empty>;
@@ -106,7 +108,8 @@ export default function OverviewPage() {
       {/* اللحظة دي: مين على الموقع + أرقام النهارده */}
       <LivePanel />
 
-      {/* الأرباح */}
+      {/* الأرباح — بتتشال خالص لما "إخفاء الفلوس" شغال (صفحة الأمان) */}
+      {!hideMoney && (<>
       <div className="flex items-center justify-between">
         <h2 className="font-serif text-[15px] font-bold text-ivory/80">الأرباح</h2>
         <Link
@@ -179,6 +182,7 @@ export default function OverviewPage() {
 
       {/* الأرباح شهر بشهر */}
       <MonthlyRevenue />
+      </>)}
 
       {/* أرقام الموقع */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -203,6 +207,7 @@ export default function OverviewPage() {
 
       {/* الرسوم */}
       <div className="grid gap-5 xl:grid-cols-2">
+        {!hideMoney && (
         <Panel title="الأرباح يوم بيوم" subtitle="الطلبات المفعّلة بس — العملتين منفصلين">
           <BarTrend
             money
@@ -214,6 +219,7 @@ export default function OverviewPage() {
             ]}
           />
         </Panel>
+        )}
 
         <Panel title="الدعوات الجديدة" subtitle="إجمالي الدعوات، والمميز منها">
           <AreaTrend
@@ -229,7 +235,7 @@ export default function OverviewPage() {
           <AreaTrend data={series.users} keys={[{ key: 'count', label: 'حسابات', color: COLORS.EMERALD }]} />
         </Panel>
 
-        <Panel title="ردود الحضور" subtitle="كل الردود، والموافقين منهم">
+        <Panel title="ردود الحضور" subtitle="كل الردود، والموافقين منهم" className={hideMoney ? 'xl:col-span-2' : ''}>
           <LineTrend
             data={series.rsvps}
             keys={[
@@ -250,14 +256,14 @@ export default function OverviewPage() {
           ) : <Empty>لسه مفيش دعوات.</Empty>}
         </Panel>
 
-        <Panel title="الباقات المباعة" subtitle="عدد الباقات المتفعّلة (المدفوعة) وفلوس كل باقة (كل الوقت)">
+        <Panel title="الباقات المباعة" subtitle={hideMoney ? 'عدد الباقات المتفعّلة (المدفوعة) — كل الوقت' : 'عدد الباقات المتفعّلة (المدفوعة) وفلوس كل باقة (كل الوقت)'}>
           {breakdown.packages.length ? (
             <RankedBars
               rows={breakdown.packages}
               unit="باقة"
               periodLabel={periodLabel}
               emptyLabel="لسه ماتباعتش"
-              renderExtra={(p) => ((p.egp > 0 || p.usd > 0 || p.sar > 0 || p.eur > 0) ? (
+              renderExtra={(p) => (!hideMoney && (p.egp > 0 || p.usd > 0 || p.sar > 0 || p.eur > 0) ? (
                 <span className="font-bold text-brass-soft" data-ranked-money>
                   {[p.egp > 0 && fmtMoney(p.egp, 'EGP'), p.usd > 0 && fmtMoney(p.usd, 'USD'), p.sar > 0 && fmtMoney(p.sar, 'SAR'), p.eur > 0 && fmtMoney(p.eur, 'EUR')]
                     .filter(Boolean).join(' · ')}

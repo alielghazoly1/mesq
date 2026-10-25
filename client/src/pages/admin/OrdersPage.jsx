@@ -10,6 +10,7 @@ import { setOrdersStatus, openUser } from '../../store/adminSlice.js';
 import {
   Panel, Badge, Btn, Table, Row, Cell, Spinner, Empty, Tabs, fmtDate, fmtMoney, fmtNum, fmtLastSeen,
 } from '../../components/admin/ui.jsx';
+import { useMoneyHidden } from '../../components/admin/moneyPrivacy.js';
 import { countryName, waLink } from './format.js';
 
 const FILTERS = [
@@ -31,6 +32,7 @@ function isNewReceipt(o) {
 export default function OrdersPage() {
   const dispatch = useDispatch();
   const status = useSelector((s) => s.admin.ordersStatus);
+  const hideMoney = useMoneyHidden(); // "إخفاء الفلوس" (الأمان) → عمود المبلغ بيتشال
   const [page, setPage] = useState(1);
   const [items, setItems] = useState([]);
   // القايمة مترتبة بآخر حركة (طلب أو رفع إيصال)، فأي إيصال جديد بيطلع
@@ -169,7 +171,7 @@ export default function OrdersPage() {
           <Empty>مفيش طلبات هنا.</Empty>
         ) : (
           <>
-            <Table head={['العميل', 'الباقة', 'المبلغ', 'الإيصال', 'اتطلب', '']}>
+            <Table head={['العميل', 'الباقة', ...(hideMoney ? [] : ['المبلغ']), 'الإيصال', 'اتطلب', '']}>
               {items.map((o) => (
                 <Row key={o.id}>
                   <Cell>
@@ -200,9 +202,11 @@ export default function OrdersPage() {
                     {o.packageName}
                     <div className="text-[11px] text-ivory/40">{o.invitations} دعوة</div>
                   </Cell>
+                  {!hideMoney && (
                   <Cell className="whitespace-nowrap font-bold text-brass-soft">
                     {fmtMoney(o.price, o.currency)}
                   </Cell>
+                  )}
                   <Cell>
                     {o.paymentProofUrl ? (
                       <a

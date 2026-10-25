@@ -19,6 +19,7 @@ import {
 import { AreaTrend, COLORS } from '../../components/admin/Charts.jsx';
 import { countryName, waLink } from './format.js';
 import ClientDrawer from './ClientDrawer.jsx';
+import { useMoneyHidden } from '../../components/admin/moneyPrivacy.js';
 
 const PLATFORMS = [
   { id: 'instagram', label: 'إنستجرام', icon: Camera },
@@ -139,7 +140,7 @@ function NewCampaign({ onDone }) {
           </div>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
-          <Field label="صرفت عليه قد إيه؟ (اختياري — تقدر تكتبه بعدين)" type="number" min="0" step="any" placeholder="1400" className="money" value={f.spendAmount} onChange={set('spendAmount')} />
+          <Field label="صرفت عليه قد إيه؟ (اختياري — تقدر تكتبه بعدين)" type="number" min="0" step="any" placeholder="1400" value={f.spendAmount} onChange={set('spendAmount')} />
           <label className="flex flex-col gap-1.5">
             <span className="text-[12px] text-ivory/55">العملة</span>
             <div className="flex rounded-xl border border-line-lite p-1">
@@ -182,6 +183,7 @@ function CampaignDetail({ id }) {
   const dispatch = useDispatch();
   const { data, isLoading } = useGetCampaignQuery(id);
   const [filter, setFilter] = useState('all');
+  const hideMoney = useMoneyHidden();
   if (isLoading || !data) return <Spinner />;
   const people = data.people || [];
   const counts = people.reduce((a, p) => { a[p.status] = (a[p.status] || 0) + 1; return a; }, {});
@@ -237,7 +239,7 @@ function CampaignDetail({ id }) {
                   <span className="text-[11.5px] text-ivory/50">{countryName(u.country)}</span>
                   <span className="text-[11.5px] text-ivory/45">سجّل {fmtDate(u.signedUpAt)}</span>
                   <Badge tone={st.tone}>{st.label}</Badge>
-                  {u.status === 'paid' && (
+                  {u.status === 'paid' && !hideMoney && (
                     <span className="font-bold text-brass-soft">
                       {[u.amount.EGP ? fmtMoney(u.amount.EGP, 'EGP') : '', u.amount.USD ? fmtMoney(u.amount.USD, 'USD') : '', u.amount.SAR ? fmtMoney(u.amount.SAR, 'SAR') : '', u.amount.EUR ? fmtMoney(u.amount.EUR, 'EUR') : ''].filter(Boolean).join(' · ')}
                     </span>
@@ -382,7 +384,7 @@ function SpendEditor({ c, onClose }) {
   const [cur, setCur] = useState(c.spend.currency);
   return (
     <div className="flex flex-wrap items-end gap-2 rounded-xl bg-ivory/[0.04] p-3">
-      <Field label="صرفت قد إيه" type="number" min="0" step="any" value={amount} onChange={(e) => setAmount(e.target.value)} className="w-32 money" />
+      <Field label="صرفت قد إيه" type="number" min="0" step="any" value={amount} onChange={(e) => setAmount(e.target.value)} className="w-32" />
       <div className="flex rounded-xl border border-line-lite p-1">
         {['EGP', 'USD'].map((x) => (
           <button key={x} type="button" onClick={() => setCur(x)} className={`rounded-lg px-3 py-1.5 text-[12px] font-bold ${cur === x ? 'bg-brass text-[#241608]' : 'text-ivory/60'}`}>{x === 'EGP' ? 'جنيه' : 'دولار'}</button>
@@ -397,6 +399,7 @@ function SpendEditor({ c, onClose }) {
 function CampaignCard({ c, rate, open, onToggle }) {
   const [update, { isLoading: archiving }] = useUpdateCampaignMutation();
   const [editSpend, setEditSpend] = useState(false);
+  const hideMoney = useMoneyHidden();
   const s = c.stats;
   const m = money(c, rate);
   const P = platformOf(c.platform);
@@ -456,7 +459,8 @@ function CampaignCard({ c, rate, open, onToggle }) {
           </p>
         )}
 
-        {/* الفلوس */}
+        {/* الفلوس — بتتشال خالص مع "إخفاء الفلوس" (الأمان) */}
+        {!hideMoney && (<>
         <div className="mt-4 grid gap-3 sm:grid-cols-4">
           <div className="rounded-xl bg-ivory/[0.04] p-3">
             <div className="text-[11.5px] text-ivory/50">دخل فلوس</div>
@@ -489,6 +493,7 @@ function CampaignCard({ c, rate, open, onToggle }) {
           </div>
         </div>
         {editSpend && <div className="mt-3"><SpendEditor c={c} onClose={() => setEditSpend(false)} /></div>}
+        </>)}
 
         <button type="button" onClick={onToggle} data-campaign-open={c.code}
           className="mt-4 inline-flex items-center gap-1.5 text-[12.5px] font-bold text-brass-soft hover:text-brass">
@@ -514,6 +519,7 @@ export default function CampaignsPage() {
   const [creating, setCreating] = useState(false);
   const [openId, setOpenId] = useState(null);
   const [showArchived, setShowArchived] = useState(false);
+  const hideMoney = useMoneyHidden();
   const [rate, setRate] = useState(readRate);
   const [sarRate, setSarRate] = useState(readSarRate);
   const [eurRate, setEurRate] = useState(readEurRate);
@@ -573,10 +579,11 @@ export default function CampaignsPage() {
         </Panel>
       ) : (
         <>
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+          <div className={`grid grid-cols-2 gap-3 ${hideMoney ? 'lg:grid-cols-3' : 'lg:grid-cols-5'}`}>
             <StatTile icon={Eye} label="دخلوا من الإعلانات" value={fmtNum(tot.visitors)} hint={`${fmtNum(tot.clicks)} ضغطة`} />
             <StatTile icon={Users} label="سجّلوا" value={fmtNum(tot.signups)} hint={`${pct(tot.signups, tot.visitors)}%`} />
             <StatTile icon={Crown} tone="ok" label="دفعوا" value={fmtNum(tot.payers)} hint={`${pct(tot.payers, tot.signups)}%`} />
+            {!hideMoney && (<>
             <StatTile icon={Wallet} tone="gold" label="دخل فلوس (بالجنيه)" value={fmtMoney(Math.round(tot.revenue), 'EGP')} hint={tot.spend ? `صرفت ${fmtMoney(Math.round(tot.spend), 'EGP')}` : ''} />
             <StatTile
               icon={tot.revenue - tot.spend >= 0 ? TrendingUp : TrendingDown}
@@ -584,9 +591,11 @@ export default function CampaignsPage() {
               label={!tot.spend ? 'المكسب (اكتب الصرف)' : tot.revenue - tot.spend >= 0 ? 'كسبان' : 'لسه خسران'}
               value={tot.spend ? fmtMoney(Math.round(Math.abs(tot.revenue - tot.spend)), 'EGP') : '—'}
             />
+            </>)}
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line-lite bg-panel px-4 py-3">
+            {!hideMoney && (<>
             <label className="flex items-center gap-2 text-[12px] text-ivory/60">
               <MousePointerClick size={13} /> سعر الدولار بالجنيه (للحساب بس):
               <input
@@ -611,6 +620,7 @@ export default function CampaignsPage() {
                 className="w-20 rounded-lg border border-line-lite bg-night/60 px-2 py-1 text-center text-[12.5px] text-ivory focus:border-brass/60 focus:outline-none"
               />
             </label>
+            </>)}
             {archivedCount > 0 && (
               <button type="button" onClick={() => setShowArchived((v) => !v)} className="text-[12px] font-bold text-ivory/55 hover:text-ivory">
                 {showArchived ? 'اخفي المقفولة' : `ورّيني المقفولة (${archivedCount})`}

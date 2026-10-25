@@ -57,7 +57,7 @@ export default function ExpenseForm({ categories, editing, onDone, defaultRecurr
         </label>
         <label className="flex flex-col gap-1.5">
           <span className="text-[12px] text-ivory/55">المبلغ</span>
-          <input name="amount" className={`${input} money`} value={f.amount} onChange={set('amount')} inputMode="decimal" placeholder="0" dir="ltr" />
+          <input name="amount" className={input} value={f.amount} onChange={set('amount')} inputMode="decimal" placeholder="0" dir="ltr" />
         </label>
         <label className="flex flex-col gap-1.5">
           <span className="text-[12px] text-ivory/55">العملة</span>

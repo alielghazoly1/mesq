@@ -14,6 +14,7 @@ import { useGetOrdersDayQuery } from '../../store/adminApi.js';
 import { openUser, closeUser } from '../../store/adminSlice.js';
 import { Badge, Btn, Spinner, Empty, fmtDate, fmtNum, fmtMoney } from '../../components/admin/ui.jsx';
 import { countryName, waLink } from './format.js';
+import { useMoneyHidden } from '../../components/admin/moneyPrivacy.js';
 import SignupBadge from './SignupBadge.jsx';
 import SourceBadge from './SourceBadge.jsx';
 import ClientDrawer from './ClientDrawer.jsx';
@@ -63,6 +64,7 @@ function OrderDetail({ o, onClose, onOpenClient }) {
   const u = o.user;
   const KIcon = (u.device && KIND_ICON[u.device.kind]) || Smartphone;
   const [st, tone] = STATUS[o.status] || [o.status, 'muted'];
+  const hideMoney = useMoneyHidden();
   return (
     <motion.aside
       initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }} transition={{ type: 'spring', stiffness: 320, damping: 34 }}
@@ -76,7 +78,7 @@ function OrderDetail({ o, onClose, onOpenClient }) {
             <Badge tone={tone}>{st}</Badge>
             {o.status === 'activated' && (o.isFirst ? <Badge tone="ok" icon={Sparkles}>أول مرة يدفع</Badge> : <Badge tone="gold" icon={RotateCcw}>جدّد</Badge>)}
           </div>
-          <div className="mt-1 font-serif text-[22px] font-bold text-brass-soft">{fmtMoney(o.price, o.currency)} <span className="text-[13px] font-normal text-ivory/50">{o.packageName}</span></div>
+          <div className="mt-1 font-serif text-[22px] font-bold text-brass-soft">{!hideMoney && <>{fmtMoney(o.price, o.currency)} </>}<span className={hideMoney ? 'text-[15px] text-ivory/70' : 'text-[13px] font-normal text-ivory/50'}>{o.packageName}</span></div>
         </div>
         <button type="button" onClick={onClose} aria-label="اقفل" className="rounded-full p-1.5 text-ivory/60 hover:bg-ivory/10 hover:text-ivory"><X size={18} /></button>
       </header>
@@ -88,12 +90,12 @@ function OrderDetail({ o, onClose, onOpenClient }) {
             {u.phone ? <a href={waLink(u.phone, u.country)} target="_blank" rel="noopener noreferrer" dir="ltr" className="font-bold text-emerald-bright hover:underline">{u.phone} — واتساب</a> : <span className="text-ivory/40">مكتبش رقم</span>}
           </Row>
           <Row icon={CalendarDays} label="سجّل">{fmtDate(u.createdAt, true)}</Row>
-          <Row icon={Wallet} label="دفع لحد دلوقتي">{fmtNum(u.paidOrders)} طلب{u.paidEgp ? ` · ${fmtMoney(u.paidEgp, 'EGP')}` : ''}</Row>
+          <Row icon={Wallet} label="دفع لحد دلوقتي">{fmtNum(u.paidOrders)} طلب{u.paidEgp && !hideMoney ? ` · ${fmtMoney(u.paidEgp, 'EGP')}` : ''}</Row>
           <Row icon={FileText} label="دعواته">{fmtNum(u.published)} منشورة · {fmtNum(u.drafts)} مسودة · رصيده {fmtNum(u.invitationsLeft)}</Row>
         </Section>
         <Section title="إيه" icon={Package}>
           <Row icon={Crown} label="الباقة"><b>{o.packageName}</b> — {fmtNum(o.invitations)} دعوة{o.editDays ? ` · تعديل ${o.editDays} يوم` : ' · تعديل مدى الحياة'}</Row>
-          <Row icon={Wallet} label="المبلغ"><b className="text-brass-soft">{fmtMoney(o.price, o.currency)}</b>{o.currency !== 'EGP' ? ` ≈ ${fmtMoney(Math.round(o.eq), 'EGP')}` : ''}</Row>
+          {!hideMoney && <Row icon={Wallet} label="المبلغ"><b className="text-brass-soft">{fmtMoney(o.price, o.currency)}</b>{o.currency !== 'EGP' ? ` ≈ ${fmtMoney(Math.round(o.eq), 'EGP')}` : ''}</Row>}
           <Row icon={Receipt} label="رقم الطلب"><span dir="ltr" className="text-ivory/60">{o.id}</span></Row>
         </Section>
         <Section title="إزاي" icon={Clock}>
@@ -137,6 +139,7 @@ export default function OrdersDayPage() {
   const go = (next) => { setOpenId(null); setParams((p) => { const n = new URLSearchParams(p); Object.entries(next).forEach(([k, v]) => (v ? n.set(k, v) : n.delete(k))); return n; }); };
   const open = data && data.orders.find((o) => o.id === openId);
   const S = data && data.summary;
+  const hideMoney = useMoneyHidden(); // "إخفاء الفلوس" (الأمان) → مربع الفلوس وأسعار الطلبات بتتشال
 
   return (
     <div className="space-y-5" data-orders-day>
@@ -178,17 +181,17 @@ export default function OrdersDayPage() {
       {isLoading || !data ? (isError ? <Empty>معرفناش نحمّل الطلبات — جرّب تاني.</Empty> : <Spinner />) : (
         <>
           {/* ===== ملخص اليوم ===== */}
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4" data-day-summary>
+          <div className={`grid grid-cols-2 gap-3 ${hideMoney ? 'lg:grid-cols-3' : 'lg:grid-cols-4'}`} data-day-summary>
             <div className="rounded-2xl border border-brass/35 bg-brass/[0.07] p-4">
               <CheckCircle2 size={16} className="text-brass-soft" />
               <div className="mt-2.5 font-serif text-[30px] font-bold leading-none text-ivory" data-count>{fmtNum(S.orders)}</div>
               <div className="mt-1.5 text-[12px] text-ivory/60">{kind === 'activated' ? 'طلب اتفعّل' : 'طلب اتعمل'}{isFetching ? ' · بيحدّث' : ''}</div>
             </div>
-            <div className="rounded-2xl border border-emerald-bright/30 bg-emerald-bright/[0.06] p-4">
+            {!hideMoney && <div className="rounded-2xl border border-emerald-bright/30 bg-emerald-bright/[0.06] p-4">
               <Wallet size={16} className="text-emerald-bright" />
               <div className="mt-2.5 font-serif text-[24px] font-bold leading-none text-ivory" data-money>{Object.keys(S.byCurrency).length ? Object.entries(S.byCurrency).map(([c, v]) => fmtMoney(v.total, c)).join(' + ') : '0'}</div>
               <div className="mt-1.5 text-[12px] text-ivory/60">{Object.keys(S.byCurrency).length > 1 || (Object.keys(S.byCurrency)[0] && Object.keys(S.byCurrency)[0] !== 'EGP') ? `≈ ${fmtMoney(Math.round(S.eq), 'EGP')} بالجنيه` : kind === 'activated' ? 'فلوس دخلت' : 'قيمة الطلبات'}</div>
-            </div>
+            </div>}
             <div className="rounded-2xl border border-line-lite bg-panel p-4">
               <Sparkles size={16} className="text-ivory/50" />
               <div className="mt-2.5 font-serif text-[24px] font-bold leading-none text-ivory">{fmtNum(S.newPayers)} <span className="text-[14px] text-ivory/50">جديد</span> · {fmtNum(S.renewals)} <span className="text-[14px] text-ivory/50">جدّد</span></div>
@@ -237,7 +240,7 @@ export default function OrdersDayPage() {
                         </span>
                       </span>
                       <span className="shrink-0 text-end">
-                        <span className="block font-serif text-[17px] font-bold text-brass-soft">{fmtMoney(o.price, o.currency)}</span>
+                        {!hideMoney && <span className="block font-serif text-[17px] font-bold text-brass-soft">{fmtMoney(o.price, o.currency)}</span>}
                         <span className="text-[11.5px] text-ivory/55">{o.packageName}</span>
                       </span>
                     </button>

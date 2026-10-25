@@ -17,6 +17,7 @@ import {
   Panel, StatTile, Badge, Btn, Field, Table, Row, Cell,
   Spinner, Empty, fmtDate, fmtNum, fmtMoney, LiveDot, fmtLastSeen,
 } from '../../components/admin/ui.jsx';
+import { useMoneyHidden } from '../../components/admin/moneyPrivacy.js';
 import { countryName, waLink } from './format.js';
 import SignupBadge from './SignupBadge.jsx';
 import ClientPasswordPanel from './ClientPasswordPanel.jsx';
@@ -124,6 +125,7 @@ function UgcPanel({ userId, ugc }) {
   const [err, setErr] = useState('');
   const isUgc = !!ugc?.isUgc;
   const s = ugc?.stats;
+  const hideMoney = useMoneyHidden();
   const link = ugc?.referralCode ? `${window.location.origin}/r/${ugc.referralCode}` : '';
 
   async function run(body) {
@@ -177,8 +179,8 @@ function UgcPanel({ userId, ugc }) {
               <StatTile icon={MousePointerClick} label="زيارات اللينك" value={fmtNum(s.clicks)} />
               <StatTile icon={UserPlus} label="سجّلوا" value={fmtNum(s.registrations)} />
               <StatTile icon={Crown} tone="gold" label="دفعوا" value={fmtNum(s.paidCustomers)} />
-              <StatTile icon={Wallet} tone="ok" label="عمولته (جنيه)" value={fmtMoney(s.earned.EGP, 'EGP')} hint={`متاح ${fmtMoney(s.available.EGP, 'EGP')}`} />
-              <StatTile icon={Wallet} tone="ok" label="عمولته (دولار)" value={fmtMoney(s.earned.USD, 'USD')} hint={`متاح ${fmtMoney(s.available.USD, 'USD')}`} />
+              {!hideMoney && <StatTile icon={Wallet} tone="ok" label="عمولته (جنيه)" value={fmtMoney(s.earned.EGP, 'EGP')} hint={`متاح ${fmtMoney(s.available.EGP, 'EGP')}`} />}
+              {!hideMoney && <StatTile icon={Wallet} tone="ok" label="عمولته (دولار)" value={fmtMoney(s.earned.USD, 'USD')} hint={`متاح ${fmtMoney(s.available.USD, 'USD')}`} />}
             </div>
           )}
 
@@ -202,6 +204,7 @@ function UgcPanel({ userId, ugc }) {
 
 export default function ClientDrawer({ userId, onClose }) {
   const { data, isLoading } = useGetUserQuery(userId);
+  const hideMoney = useMoneyHidden(); // "إخفاء الفلوس" (الأمان) → مربعات "دفع كام" وعمود المبلغ بيتشالوا
   const { data: pkgData } = useGetAdminPackagesQuery();
   const [updateSubscription, { isLoading: saving }] = useUpdateSubscriptionMutation();
   const [blockUser, { isLoading: blocking }] = useBlockUserMutation();
@@ -311,12 +314,12 @@ export default function ClientDrawer({ userId, onClose }) {
               <StatTile icon={Eye} label="مشاهدات" value={fmtNum(data.totals.views)} />
               <StatTile icon={MessageSquare} label="ردود حضور" value={fmtNum(data.totals.rsvps)} hint={`${data.totals.rsvpYes} موافق`} />
               <StatTile icon={Crown} tone="gold" label="رصيد متبقي" value={fmtNum(data.user.subscription.invitationsLeft)} />
-              <StatTile icon={Wallet} tone="ok" label="دفع بالجنيه" value={fmtMoney(data.totals.paid.EGP, 'EGP')} />
-              <StatTile icon={Wallet} tone="ok" label="دفع بالدولار" value={fmtMoney(data.totals.paid.USD, 'USD')} />
-              {data.totals.paid.SAR > 0 && (
+              {!hideMoney && <StatTile icon={Wallet} tone="ok" label="دفع بالجنيه" value={fmtMoney(data.totals.paid.EGP, 'EGP')} />}
+              {!hideMoney && <StatTile icon={Wallet} tone="ok" label="دفع بالدولار" value={fmtMoney(data.totals.paid.USD, 'USD')} />}
+              {!hideMoney && data.totals.paid.SAR > 0 && (
                 <StatTile icon={Wallet} tone="ok" label="دفع بالريال" value={fmtMoney(data.totals.paid.SAR, 'SAR')} />
               )}
-              {data.totals.paid.EUR > 0 && (
+              {!hideMoney && data.totals.paid.EUR > 0 && (
                 <StatTile icon={Wallet} tone="ok" label="دفع باليورو" value={fmtMoney(data.totals.paid.EUR, 'EUR')} />
               )}
               <StatTile
@@ -535,11 +538,11 @@ export default function ClientDrawer({ userId, onClose }) {
             {/* طلباته */}
             <Panel title={`طلباته (${data.orders.length})`}>
               {data.orders.length === 0 ? <Empty>مفيش طلبات.</Empty> : (
-                <Table head={['الباقة', 'المبلغ', 'الحالة', 'التاريخ', 'الإيصال']}>
+                <Table head={['الباقة', ...(hideMoney ? [] : ['المبلغ']), 'الحالة', 'التاريخ', 'الإيصال']}>
                   {data.orders.map((o) => (
                     <Row key={o.id}>
                       <Cell>{o.packageName}</Cell>
-                      <Cell className="whitespace-nowrap">{fmtMoney(o.price, o.currency)}</Cell>
+                      {!hideMoney && <Cell className="whitespace-nowrap">{fmtMoney(o.price, o.currency)}</Cell>}
                       <Cell>
                         <Badge tone={o.status === 'activated' ? 'ok' : o.status === 'pending' ? 'warn' : 'muted'}>
                           {o.status === 'activated' ? 'مفعّل' : o.status === 'pending' ? 'مستني' : 'ملغي'}
