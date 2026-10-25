@@ -139,7 +139,7 @@ function NewCampaign({ onDone }) {
           </div>
         </div>
         <div className="grid gap-4 md:grid-cols-3">
-          <Field label="صرفت عليه قد إيه؟ (اختياري — تقدر تكتبه بعدين)" type="number" min="0" step="any" placeholder="1400" value={f.spendAmount} onChange={set('spendAmount')} />
+          <Field label="صرفت عليه قد إيه؟ (اختياري — تقدر تكتبه بعدين)" type="number" min="0" step="any" placeholder="1400" className="money" value={f.spendAmount} onChange={set('spendAmount')} />
           <label className="flex flex-col gap-1.5">
             <span className="text-[12px] text-ivory/55">العملة</span>
             <div className="flex rounded-xl border border-line-lite p-1">
@@ -382,7 +382,7 @@ function SpendEditor({ c, onClose }) {
   const [cur, setCur] = useState(c.spend.currency);
   return (
     <div className="flex flex-wrap items-end gap-2 rounded-xl bg-ivory/[0.04] p-3">
-      <Field label="صرفت قد إيه" type="number" min="0" step="any" value={amount} onChange={(e) => setAmount(e.target.value)} className="w-32" />
+      <Field label="صرفت قد إيه" type="number" min="0" step="any" value={amount} onChange={(e) => setAmount(e.target.value)} className="w-32 money" />
       <div className="flex rounded-xl border border-line-lite p-1">
         {['EGP', 'USD'].map((x) => (
           <button key={x} type="button" onClick={() => setCur(x)} className={`rounded-lg px-3 py-1.5 text-[12px] font-bold ${cur === x ? 'bg-brass text-[#241608]' : 'text-ivory/60'}`}>{x === 'EGP' ? 'جنيه' : 'دولار'}</button>

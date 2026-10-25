@@ -205,6 +205,7 @@ export default function OverviewPage() {
       <div className="grid gap-5 xl:grid-cols-2">
         <Panel title="الأرباح يوم بيوم" subtitle="الطلبات المفعّلة بس — العملتين منفصلين">
           <BarTrend
+            money
             data={series.revenue}
             keys={[
               { key: 'egp', label: 'جنيه', color: COLORS.GOLD },

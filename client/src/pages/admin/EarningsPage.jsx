@@ -26,6 +26,7 @@ import {
 import { countryName, waLink } from './format.js';
 import ClientDrawer from './ClientDrawer.jsx';
 import ExpenseForm from './ExpenseForm.jsx';
+import { moneyText } from '../../components/admin/moneyPrivacy.js';
 
 const MONTHS_AR = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
 const CUR_LABEL = { EGP: 'جنيه', USD: 'دولار', SAR: 'ريال', EUR: 'يورو' };
@@ -41,7 +42,7 @@ const shortMonth = (k) => { const [, m] = String(k).split('-').map(Number); retu
 /** مبلغ بالجنيه (مقرّب) — والسالب بعلامة واضحة */
 const egp = (n) => {
   const v = Math.round(Number(n) || 0);
-  return `${v < 0 ? '−' : ''}${fmtNum(Math.abs(v))} ج.م`;
+  return moneyText(`${v < 0 ? '−' : ''}${fmtNum(Math.abs(v))} ج.م`, 'ج.م');
 };
 
 /** نسبة التغيير عن الشهر اللي فات — أخضر لو أحسن (للمصاريف العكس) */
@@ -375,7 +376,7 @@ export default function EarningsPage() {
                 onClick={(e) => { if (e && e.activeLabel) setMonth(e.activeLabel); }}>
                 <CartesianGrid stroke={GRID} vertical={false} />
                 <XAxis dataKey="label" tickFormatter={shortMonth} stroke={AXIS} tick={{ fontSize: 11, fill: AXIS }} tickLine={false} axisLine={{ stroke: GRID }} interval={0} angle={-30} textAnchor="end" height={44} />
-                <YAxis stroke={AXIS} tick={{ fontSize: 11, fill: AXIS }} tickLine={false} axisLine={{ stroke: GRID }} width={56} tickFormatter={(v) => (Math.abs(v) >= 1000 ? `${Math.round(v / 100) / 10}k` : v)} />
+                <YAxis stroke={AXIS} tick={{ fontSize: 11, fill: AXIS }} tickLine={false} axisLine={{ stroke: GRID }} width={56} tickFormatter={(v) => moneyText(Math.abs(v) >= 1000 ? `${Math.round(v / 100) / 10}k` : v)} />
                 <Tooltip content={<ChartTip />} cursor={{ fill: 'rgba(250,245,236,0.05)' }} />
                 <Legend wrapperStyle={{ fontSize: 11, color: AXIS }} />
                 <Bar dataKey="revenue" name="الإيرادات" fill="#2f9c80" radius={[4, 4, 0, 0]} maxBarSize={22} cursor="pointer" />
@@ -392,7 +393,7 @@ export default function EarningsPage() {
                 <BarChart data={daily} margin={{ top: 6, right: 6, left: 0, bottom: 0 }}>
                   <CartesianGrid stroke={GRID} vertical={false} />
                   <XAxis dataKey="day" stroke={AXIS} tick={{ fontSize: 11, fill: AXIS }} tickLine={false} axisLine={{ stroke: GRID }} minTickGap={8} />
-                  <YAxis stroke={AXIS} tick={{ fontSize: 11, fill: AXIS }} tickLine={false} axisLine={{ stroke: GRID }} width={56} />
+                  <YAxis stroke={AXIS} tick={{ fontSize: 11, fill: AXIS }} tickLine={false} axisLine={{ stroke: GRID }} width={56} tickFormatter={(v) => moneyText(v)} />
                   <Tooltip content={<ChartTip />} cursor={{ fill: 'rgba(250,245,236,0.05)' }} />
                   <Bar dataKey="revenue" name="الإيرادات" fill="#c9a24a" radius={[4, 4, 0, 0]} maxBarSize={18} />
                 </BarChart>

@@ -8,6 +8,7 @@ import {
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { useGetRevenueMonthlyQuery } from '../../store/adminApi.js';
 import { Panel, Tabs, Spinner, Empty, fmtNum, fmtMoney } from './ui.jsx';
+import { moneyText, useMoneyHidden } from './moneyPrivacy.js';
 
 const RANGES = [
   { value: 6, label: '6 شهور' },
@@ -56,6 +57,7 @@ function ChartTip({ active, payload, currency }) {
 }
 
 export default function MonthlyRevenue() {
+  useMoneyHidden(); // يعيد الرسم لما زرار "إخفاء الفلوس" يتقلب
   const [months, setMonths] = useState(12);
   const [currency, setCurrency] = useState('egp');
   const { data, isLoading, isFetching } = useGetRevenueMonthlyQuery(months);
@@ -117,7 +119,7 @@ export default function MonthlyRevenue() {
                 <CartesianGrid stroke={GRID} vertical={false} />
                 <XAxis dataKey="label" stroke={AXIS} tick={{ fontSize: 11, fill: AXIS }} tickLine={false} axisLine={{ stroke: GRID }} interval="preserveStartEnd" minTickGap={8} />
                 <YAxis allowDecimals={false} stroke={AXIS} tick={{ fontSize: 11, fill: AXIS }} tickLine={false} axisLine={{ stroke: GRID }} width={56}
-                  tickFormatter={(v) => (v >= 1000 ? `${Math.round(v / 100) / 10}k` : v)} />
+                  tickFormatter={(v) => moneyText(v >= 1000 ? `${Math.round(v / 100) / 10}k` : v)} />
                 <Tooltip content={<ChartTip currency={currency} />} cursor={{ fill: 'rgba(250,245,236,0.05)' }} />
                 <Bar dataKey={currency} radius={[6, 6, 0, 0]} maxBarSize={38}>
                   {rows.map((r) => (

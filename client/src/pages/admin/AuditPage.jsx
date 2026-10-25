@@ -3,6 +3,7 @@
 // السجل ده للقراءة بس: مفيش أي مسار في السيرفر بيعدّل أو يمسح منه.
 import { useState } from 'react';
 import { ShieldCheck } from 'lucide-react';
+import { moneyText } from '../../components/admin/moneyPrivacy.js';
 import { useGetAuditQuery } from '../../store/adminApi.js';
 import {
   Panel, Badge, Table, Row, Cell, Spinner, Empty, Pager, fmtDate,
@@ -57,10 +58,10 @@ function summarize(entry) {
     return `الباقة: ${m.after.packageId} · الرصيد بقى ${m.after.invitationsLeft}`;
   }
   if (entry.action === 'order.activate') {
-    return `${m.packageId || ''} · ${m.price || 0} ${m.currency || ''} · الرصيد بقى ${m.creditsAfter}`;
+    return `${m.packageId || ''} · ${moneyText(`${m.price || 0} ${m.currency || ''}`, m.currency || '')} · الرصيد بقى ${m.creditsAfter}`;
   }
   if (entry.action === 'order.cancel') {
-    return `${m.packageId || ''} · ${m.price || 0} ${m.currency || ''}`;
+    return `${m.packageId || ''} · ${moneyText(`${m.price || 0} ${m.currency || ''}`, m.currency || '')}`;
   }
   if (entry.action === 'order.revoke') {
     return `${m.packageId || ''} · اتسحب ${m.creditsRemoved || 0} من الرصيد`;

@@ -6,6 +6,7 @@ import {
   ResponsiveContainer, AreaChart, Area, BarChart, Bar, LineChart, Line,
   PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from 'recharts';
+import { moneyText } from './moneyPrivacy.js';
 
 const GOLD = '#c9a24a';
 const GOLD_SOFT = '#e6c684';
@@ -30,7 +31,7 @@ const axisProps = {
   axisLine: { stroke: GRID },
 };
 
-function TooltipBox({ active, payload, label }) {
+function TooltipBox({ active, payload, label, money }) {
   if (!active || !payload || !payload.length) return null;
   return (
     <div className="rounded-xl border border-line-lite bg-night px-3 py-2 text-[12px] shadow-xl">
@@ -38,7 +39,7 @@ function TooltipBox({ active, payload, label }) {
       {payload.map((p) => (
         <div key={p.name} className="flex items-center gap-2 text-ivory/70">
           <span className="inline-block h-2 w-2 rounded-full" style={{ background: p.color }} />
-          {p.name}: <b className="text-ivory">{Number(p.value).toLocaleString('en-US')}</b>
+          {p.name}: <b className="text-ivory">{money ? moneyText(Number(p.value).toLocaleString('en-US')) : Number(p.value).toLocaleString('en-US')}</b>
         </div>
       ))}
     </div>
@@ -79,15 +80,15 @@ export function AreaTrend({ data, keys, height = 230 }) {
   );
 }
 
-/** أعمدة — للأرباح اليومية */
-export function BarTrend({ data, keys, height = 230 }) {
+/** أعمدة — للأرباح اليومية. money = مبالغ (بتستخبى مع زرار "إخفاء الفلوس") */
+export function BarTrend({ data, keys, height = 230, money = false }) {
   return (
     <ResponsiveContainer width="100%" height={height}>
       <BarChart data={data} margin={{ top: 6, right: 6, left: -20, bottom: 0 }}>
         <CartesianGrid stroke={GRID} vertical={false} />
         <XAxis dataKey="date" tickFormatter={shortDate} {...axisProps} minTickGap={24} />
-        <YAxis allowDecimals={false} {...axisProps} width={52} />
-        <Tooltip content={<TooltipBox />} cursor={{ fill: 'rgba(250,245,236,0.05)' }} />
+        <YAxis allowDecimals={false} {...axisProps} width={52} tickFormatter={money ? (v) => moneyText(v) : undefined} />
+        <Tooltip content={<TooltipBox money={money} />} cursor={{ fill: 'rgba(250,245,236,0.05)' }} />
         <Legend wrapperStyle={{ fontSize: 11, color: AXIS }} />
         {keys.map((k) => (
           <Bar key={k.key} dataKey={k.key} name={k.label} fill={k.color} radius={[4, 4, 0, 0]} maxBarSize={26} />

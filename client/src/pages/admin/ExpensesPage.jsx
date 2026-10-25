@@ -15,6 +15,7 @@ import {
   Panel, Badge, Btn, Table, Row, Cell, Spinner, Empty, fmtDate, fmtNum, fmtMoney,
 } from '../../components/admin/ui.jsx';
 import ExpenseForm from './ExpenseForm.jsx';
+import { moneyText } from '../../components/admin/moneyPrivacy.js';
 
 const MONTHS_AR = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
 const monthLabel = (k) => {
@@ -23,7 +24,7 @@ const monthLabel = (k) => {
   return `${MONTHS_AR[m - 1]} ${y}`;
 };
 const monthOf = (d) => { const x = new Date(d); return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}`; };
-const egp = (n) => { const v = Math.round(Number(n) || 0); return `${v < 0 ? '−' : ''}${fmtNum(Math.abs(v))} ج.م`; };
+const egp = (n) => { const v = Math.round(Number(n) || 0); return moneyText(`${v < 0 ? '−' : ''}${fmtNum(Math.abs(v))} ج.م`, 'ج.م'); };
 
 function Delta({ value }) {
   if (value == null) return <span className="text-[11px] text-ivory/35">مفيش مقارنة</span>;

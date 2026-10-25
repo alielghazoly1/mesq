@@ -5,6 +5,7 @@
 // الموقع وإنت فاتح الاتنين.
 import { motion } from 'motion/react';
 import { Loader2 } from 'lucide-react';
+import { moneyText } from './moneyPrivacy.js';
 
 /** بطاقة قسم */
 export function Panel({ title, subtitle, action, children, className = '' }) {
@@ -197,7 +198,8 @@ export function fmtNum(n) {
 /** مبلغ بعملته */
 export function fmtMoney(amount, currency) {
   const label = currency === 'EGP' ? 'ج.م' : currency === 'SAR' ? 'ر.س' : currency === 'EUR' ? '€' : '$';
-  return `${fmtNum(amount)} ${label}`;
+  // زرار "إخفاء الفلوس" (moneyPrivacy.js) → •••• بدل الرقم
+  return moneyText(`${fmtNum(amount)} ${label}`, label);
 }
 
 /** الفلاتر على شكل أزرار متجاورة */

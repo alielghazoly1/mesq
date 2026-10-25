@@ -16,6 +16,7 @@ import {
 import { useGetLiveQuery } from '../../store/adminApi.js';
 import { LiveDot, fmtNum, fmtMoney } from './ui.jsx';
 import { Ticker, placeLabel, usePageVisible } from './LivePanel.jsx';
+import { useMoneyHidden } from './moneyPrivacy.js';
 
 const STORE_KEY = 'mithaq-admin-livefloat';
 const MARGIN = 16;
@@ -87,6 +88,7 @@ export default function LiveFloat() {
 }
 
 function LiveFloatInner() {
+  useMoneyHidden(); // يعيد الرسم لما زرار "إخفاء الفلوس" يتقلب
   const navigate = useNavigate();
   const visible = usePageVisible();
   const tv = useMedia('(min-width: 1800px)');

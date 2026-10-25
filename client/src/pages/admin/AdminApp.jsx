@@ -10,7 +10,7 @@ import { NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { useDispatch } from 'react-redux';
 import {
   LayoutDashboard, Users, Receipt, FileText, MessageSquare,
-  Settings, ScrollText, LogOut, Loader2, Menu, X, Music, Wallet, Banknote, Megaphone, LayoutTemplate, Tags, Bug, ShieldCheck, Eraser, MessageCircle, Target, ReceiptText, Activity, CalendarCheck, Radio, Pin,
+  Settings, ScrollText, LogOut, Loader2, Menu, X, Music, Wallet, Banknote, Megaphone, LayoutTemplate, Tags, Bug, ShieldCheck, Eraser, MessageCircle, Target, ReceiptText, Activity, CalendarCheck, Radio, Pin, Eye, EyeOff,
 } from 'lucide-react';
 import { adminApi, useGetOrdersAttentionQuery, useGetSupportUnreadQuery, useGetSecurityQuery, useGetPinsQuery } from '../../store/adminApi.js';
 import AdminLogin from './AdminLogin.jsx';
@@ -39,6 +39,7 @@ import WhatsAppPage from './WhatsAppPage.jsx';
 import CampaignsPage from './CampaignsPage.jsx';
 import PinnedPage from './PinnedPage.jsx';
 import LiveFloat from '../../components/admin/LiveFloat.jsx';
+import { useMoneyHidden, toggleMoneyHidden } from '../../components/admin/moneyPrivacy.js';
 
 const NAV = [
   { to: '/admin', end: true, icon: LayoutDashboard, label: 'نظرة عامة' },
@@ -165,12 +166,41 @@ function SupportBadge() {
   );
 }
 
+/**
+ * زرار "إخفاء الفلوس" (بطلب المالك): لو حد قاعد جنبك، ضغطة واحدة تخفي كل
+ * مبلغ في اللوحة (الأرباح، المصاريف، الطلبات، العمولات، الرسوم) — وضغطة
+ * تانية ترجّعها. فاكر اختيارك على الجهاز ده.
+ */
+function MoneyToggle({ compact = false }) {
+  const hidden = useMoneyHidden();
+  const Icon = hidden ? EyeOff : Eye;
+  const label = hidden ? 'إظهار الفلوس' : 'إخفاء الفلوس';
+  return (
+    <button
+      type="button"
+      onClick={toggleMoneyHidden}
+      aria-pressed={hidden}
+      title={hidden ? 'الفلوس مخفية — اضغط عشان تظهر' : 'اخفي كل الأرقام اللي فيها فلوس'}
+      data-money-toggle
+      className={`inline-flex items-center gap-2 rounded-full border font-bold transition ${
+        compact ? 'px-4 py-2 text-[12.5px]' : 'w-full justify-center px-3 py-2 text-[12.5px]'
+      } ${hidden
+        ? 'border-brass/60 bg-brass/15 text-brass-soft hover:bg-brass/25'
+        : 'border-line-lite text-ivory/60 hover:border-ivory/30 hover:text-ivory'}`}
+    >
+      <Icon size={15} /> {label}
+    </button>
+  );
+}
+
 export default function AdminApp() {
   const dispatch = useDispatch();
   const location = useLocation();
   const [auth, setAuth] = useState(null); // null = بنشيك لسه
   const [lockNotice, setLockNotice] = useState('');
   const [navOpen, setNavOpen] = useState(false);
+  // اللوحة كلها بتعيد الرسم لما زرار "إخفاء الفلوس" يتقلب → كل مبلغ يتحدّث
+  useMoneyHidden();
 
   const check = useCallback(async () => {
     try {
@@ -261,6 +291,7 @@ export default function AdminApp() {
                 <X size={17} />
               </button>
             </div>
+            <div className="mb-3 shrink-0 px-1"><MoneyToggle /></div>
 
             {/* الأقسام كتير — القايمة نفسها بتسكرول جوه الشريط (والشعار
                 وزرار الخروج ثابتين)، فأي قسم توصله من غير ما حاجة تتقص */}
@@ -315,6 +346,7 @@ export default function AdminApp() {
             {/* على الموبايل القايمة مقفولة — العداد يبان على الزرار نفسه */}
             <OrdersBadge />
           </button>
+          <span className="ms-2 lg:hidden"><MoneyToggle compact /></span>
 
           <TwoFactorBanner />
           <Routes>

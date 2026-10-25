@@ -14,6 +14,7 @@ import { LiveDot, StatTile, fmtNum, fmtMoney, fmtLastSeen } from './ui.jsx';
 import { countryName } from '../../pages/admin/format.js';
 import SignupBadge from '../../pages/admin/SignupBadge.jsx';
 import SourceBadge from '../../pages/admin/SourceBadge.jsx';
+import { useMoneyHidden } from './moneyPrivacy.js';
 
 /** العميل فين في الموقع — بالعربي بدل المسار الخام */
 export function placeLabel(path) {
@@ -58,6 +59,7 @@ export function usePageVisible() {
 }
 
 export default function LivePanel() {
+  useMoneyHidden(); // يعيد الرسم لما زرار "إخفاء الفلوس" يتقلب
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const visible = usePageVisible();
