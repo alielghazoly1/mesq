@@ -9,7 +9,7 @@
 //        الموبايل وخانة "Reply to yourself" والكلام القديم اتشالوا.
 //        فوقها كلام حقيقي بيتعدّل من المحرر (Aref Ruqaa):
 //          oo1 بسم الله الرحمن الرحيم · oo2 وَخَلَقْنَاكُمْ أَزْوَاجًا
-//          oo10 يدعوكم بكل حب و ود · oo11 محمد إبراهيم سالم · oo16 و محمد على هديهد
+//          oo10 يدعوكم بكل حب و ود · oo11 محمد إبراهيم سالم و oo16 محمد على هديهد (جنب بعض)
 //          oo12 لحضور حفل زفاف · oo13 ابراهيم · oo14 و · oo15 فرح
 //      • صورة 2 (custom/ooW5EFI/p2.webp): Save the Date — القوس الذهبي اللي كان
 //        مقصوص من فوق اتكمّل، والقلب على يوم 22 بس.
@@ -24,8 +24,11 @@
 // كل الأجزاء متصمّمة بمقاس لوحة القالب (705.75px عرض) وبتتصغّر على قد الشاشة
 // (--ok)، والمحرر بياخد نفس المعامل (__wdaLocalScale) عشان السحب يبقى مظبوط.
 
+// ببصمة المحتوى (custom-invitations/_asset.js): أي تعديل في الصورة → لينك جديد،
+// فالمتصفح اللي فتح الدعوة قبل كده بيجيب الجديدة على طول من غير ما يغيّر متصفح
+const { asset } = require('./_asset');
 const ASSET = '/custom/ooW5EFI/';
-const P1 = ASSET + 'p1.webp', P2 = ASSET + 'p2.webp', PAPER = ASSET + 'paper.webp';
+const P1 = asset(ASSET + 'p1.webp'), P2 = asset(ASSET + 'p2.webp'), PAPER = asset(ASSET + 'paper.webp');
 const FONTS = 'https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Pinyon+Script&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap';
 const W = 705.75, H1 = 1334.2, H2 = 1106.2;
 const MAP_LINK = 'https://goo.gl/maps/KCMpenYcVXjCKwgHA';
@@ -54,19 +57,20 @@ const CSS = `
   text-shadow:0 1px 0 rgba(255,250,240,.35)}
 .oo-p1 .oo-wide{left:${W / 2 - 230}px;width:460px}
 .oo-p1 .oo-narrow{left:${W / 2 - 128}px;width:256px}
-.oo-p1 .oo1{top:257px;font-size:44px;line-height:1.6;color:#a2717a}
-.oo-p1 .oo2{top:346px;font-size:50px;font-weight:700;line-height:1.7;color:#54462a}
-.oo-p1 .oo-orn{position:absolute;left:${W / 2 - 70}px;width:140px;top:${384 + 70}px;height:12px;display:flex;align-items:center;justify-content:center;gap:9px}
+.oo-p1 .oo1{top:338px;font-size:42px;line-height:1.6;color:#54462a}
+.oo-p1 .oo2{top:410px;font-size:50px;font-weight:700;line-height:1.7;color:#54462a}
+.oo-p1 .oo-orn{position:absolute;left:${W / 2 - 70}px;width:140px;top:512px;height:12px;display:flex;align-items:center;justify-content:center;gap:9px}
 .oo-orn i{flex:1;height:1px;background:linear-gradient(90deg,transparent,#b39566)}
 .oo-orn i:last-child{transform:scaleX(-1)}
 .oo-orn b{width:7px;height:7px;border:1px solid #b39566;transform:rotate(45deg)}
-.oo-p1 .oo10{top:484px;font-size:30px;line-height:1.6;color:#6a5434}
-.oo-p1 .oo11{top:536px;font-size:30px;font-weight:700;line-height:1.55;color:#54462a}
-.oo-p1 .oo16{top:583px;font-size:30px;font-weight:700;line-height:1.55;color:#54462a}
-.oo-p1 .oo12{top:648px;font-size:30px;line-height:1.6;color:#6a5434}
-.oo-p1 .oo13{top:720px;font-size:70px;font-weight:700;line-height:1.45;color:#8a3a3c}
-.oo-p1 .oo14{top:822px;font-size:42px;line-height:1.3;color:#b08d57}
-.oo-p1 .oo15{top:870px;font-size:70px;font-weight:700;line-height:1.45;color:#8a3a3c}
+.oo-p1 .oo10{top:534px;font-size:30px;line-height:1.6;color:#6a5434}
+.oo-p1 .oo-fathers{position:absolute;left:${W / 2 - 140}px;width:280px;top:590px;display:flex;align-items:center;justify-content:center;gap:10px;direction:rtl}
+.oo-fathers p{flex:1;margin:0;text-align:center;font-family:'Aref Ruqaa','Amiri',serif;font-size:28px;font-weight:700;line-height:1.45;color:#54462a;letter-spacing:0;text-shadow:0 1px 0 rgba(255,250,240,.35)}
+.oo-fathers i{flex:none;font:400 30px/1 'Aref Ruqaa','Amiri',serif;font-style:normal;color:#b08d57}
+.oo-p1 .oo12{top:688px;font-size:30px;line-height:1.6;color:#6a5434}
+.oo-p1 .oo13{top:752px;font-size:70px;font-weight:700;line-height:1.45;color:#8a3a3c}
+.oo-p1 .oo14{top:852px;font-size:42px;line-height:1.3;color:#b08d57}
+.oo-p1 .oo15{top:898px;font-size:70px;font-weight:700;line-height:1.45;color:#8a3a3c}
 
 /* دخول كلام الصورة الأولى بعد ما الظرف ينزل */
 #oo-scroll .oo-rv{opacity:0;transform:translateY(16px);filter:blur(6px);transition:opacity 1s ease,transform 1.1s cubic-bezier(.2,.7,.2,1),filter 1s ease;transition-delay:calc(var(--d,0) * 130ms + 250ms)}
@@ -335,8 +339,7 @@ const SCROLL = `<div id="oo-scroll" aria-label="الدعوة">
       ${P('oo-wide', 2, 2, 'وَخَلَقْنَاكُمْ أَزْوَاجًا')}
       <div class="oo-orn oo-rv" style="--d:4" aria-hidden="true"><i></i><b></b><i></i></div>
       ${P('oo-narrow', 10, 5, 'يدعوكم بكل حب و ود')}
-      ${P('oo-narrow', 11, 6.5, 'محمد إبراهيم سالم')}
-      ${P('oo-narrow', 16, 7.2, 'و محمد على هديهد')}
+      <div class="oo-fathers oo-rv" style="--d:6.5"><p data-elem-id="oo11">محمد إبراهيم سالم</p><i aria-hidden="true">و</i><p data-elem-id="oo16">محمد على هديهد</p></div>
       ${P('oo-narrow', 12, 8, 'لحضور حفل زفاف')}
       ${P('oo-narrow', 13, 9.5, 'ابراهيم')}
       ${P('oo-narrow', 14, 10.5, 'و')}
