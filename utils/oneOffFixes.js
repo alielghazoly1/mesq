@@ -237,8 +237,10 @@ const FIXES = [
     // واللوحة. بيتعمل بس لو الدعوة لسه بأسامي المسودة "العريس" و"العروسة".
     name: 'ooW5EFI-ibrahim-farah',
     shortId: 'ooW5EFI',
-    select: 'customizations templateId groomName brideName weddingDateTime',
-    when: (c, inv) => inv.templateId === 'velvet-voice' && inv.groomName === 'العريس' && inv.brideName === 'العروسة',
+    select: 'customizations templateId groomName brideName groomNameAr brideNameAr weddingDateTime',
+    // الدعوة العربي بتعرض groomNameAr/brideNameAr — أي واحد فيهم لسه أسامي المسودة
+    when: (c, inv) => inv.templateId === 'velvet-voice'
+      && [inv.groomNameAr, inv.groomName].includes('العريس') && [inv.brideNameAr, inv.brideName].includes('العروسة'),
     apply(c, inv) {
       const old = new Date(inv.weddingDateTime);
       return {
