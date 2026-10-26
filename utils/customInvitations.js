@@ -12,12 +12,14 @@ const ab1yJIK9C = require('../custom-invitations/1yJIK9C');
 const nxPjAHJ = require('../custom-invitations/nxPjAHJ');
 const jUckAdv = require('../custom-invitations/jUckAdv');
 const I0wY2Rx = require('../custom-invitations/I0wY2Rx');
+const ooW5EFI = require('../custom-invitations/ooW5EFI');
 
 const CUSTOM = { [QICmvQj.shortId]: QICmvQj, [GrpUVQq.shortId]: GrpUVQq, [vYsx7Gn.shortId]: vYsx7Gn,
   [ab1yJIK9C.shortId]: ab1yJIK9C,
   [nxPjAHJ.shortId]: nxPjAHJ,
   [jUckAdv.shortId]: jUckAdv,
   [I0wY2Rx.shortId]: I0wY2Rx,
+  [ooW5EFI.shortId]: ooW5EFI,
 };
 
 function getCustomInvitation(shortId) {
@@ -145,6 +147,11 @@ function injectCustomInvitation(html, custom, { editMode = false } = {}) {
   if (r.bodyEnd) {
     const end = out.lastIndexOf('</body>');
     out = end === -1 ? out + r.bodyEnd : out.slice(0, end) + r.bodyEnd + out.slice(end);
+  }
+  // تعديل جوه كود القالب نفسه للدعوة دي بس (زي ooW5EFI: الظرف بينزل بدل ما يتفتح).
+  // الدعوة بترجع الصفحة زي ما هي لو القالب اتغيّر ومالقتش اللي بتدوّر عليه.
+  if (typeof custom.transform === 'function') {
+    try { out = custom.transform(out, { editMode }) || out; } catch (e) { console.error('[custom] transform failed:', e.message); }
   }
   return out;
 }
