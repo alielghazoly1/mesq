@@ -231,6 +231,25 @@ const FIXES = [
     },
   },
   {
+    // ooW5EFI (Velvet Voice — دعوة كاستم: custom-invitations/ooW5EFI.js) — بطلب
+    // المالك: العريس ابراهيم والعروسة فرح، والفرح يوم 22/11/2026 (نفس الساعة).
+    // الصفحة نفسها مكتوب فيها الأسامي؛ ده عشان عنوان الدعوة وكارت المشاركة
+    // واللوحة. بيتعمل بس لو الدعوة لسه بأسامي المسودة "العريس" و"العروسة".
+    name: 'ooW5EFI-ibrahim-farah',
+    shortId: 'ooW5EFI',
+    select: 'customizations templateId groomName brideName weddingDateTime',
+    when: (c, inv) => inv.templateId === 'velvet-voice' && inv.groomName === 'العريس' && inv.brideName === 'العروسة',
+    apply(c, inv) {
+      const old = new Date(inv.weddingDateTime);
+      return {
+        groomName: 'ابراهيم', groomNameAr: 'ابراهيم',
+        brideName: 'فرح', brideNameAr: 'فرح',
+        // نفس طريقة utils/invitationData.js (ساعة مصر مكتوبة كساعة السيرفر)
+        weddingDateTime: new Date(2026, 10, 22, old.getHours(), old.getMinutes(), 0),
+      };
+    },
+  },
+  {
     // jUckAdv (Champagne Lace — عمر ولچين) — بطلب المالك: الفرح الجمعة 1/1/2027
     // الساعة 7:30 مساءً في فندق توليب أوليمبيك (طريق العين السخنة) بلينك الخريطة
     // اللي بعته، والخريطة المضمّنة على الدبوس نفسه. الوقت (cl9/cl10) بيرجع يظهر
