@@ -27,7 +27,7 @@
 const ASSET = '/custom/ooW5EFI/';
 const P1 = ASSET + 'p1.webp', P2 = ASSET + 'p2.webp', PAPER = ASSET + 'paper.webp';
 const FONTS = 'https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Pinyon+Script&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap';
-const W = 705.75, H1 = 1334.2, H2 = 1423.4;
+const W = 705.75, H1 = 1334.2, H2 = 1106.2;
 const MAP_LINK = 'https://goo.gl/maps/KCMpenYcVXjCKwgHA';
 const MAP_EMBED = 'https://www.google.com/maps?q=' + encodeURIComponent('قصر الأمير محمد علي بالمنيل، 1 السرايا، المنيل الشرقي، مصر القديمة، القاهرة') + '&z=16&output=embed';
 
@@ -47,26 +47,26 @@ const CSS = `
 .oo-p,.oo-sx{position:absolute;left:0;top:0;width:${W}px;transform:scale(var(--ok,.5));transform-origin:0 0}
 .oo-p{background-size:100% 100%;background-repeat:no-repeat}
 .oo-p1{height:${H1}px;background-image:url(${P1})}
-.oo-p2{height:${H2}px;background-image:url(${P2});-webkit-mask-image:linear-gradient(transparent 0,#000 24px);mask-image:linear-gradient(transparent 0,#000 24px)}
+.oo-p2{height:${H2}px;background-image:url(${P2});-webkit-mask-image:linear-gradient(transparent 0,#000 30px,#000 calc(100% - 90px),transparent);mask-image:linear-gradient(transparent 0,#000 30px,#000 calc(100% - 90px),transparent)}
 
 /* ===== صورة 1: الكلام ===== */
 .oo-p1 > p{position:absolute;margin:0;text-align:center;direction:rtl;letter-spacing:0;font-family:'Aref Ruqaa','Amiri',serif;
   text-shadow:0 1px 0 rgba(255,250,240,.35)}
 .oo-p1 .oo-wide{left:${W / 2 - 230}px;width:460px}
 .oo-p1 .oo-narrow{left:${W / 2 - 128}px;width:256px}
-.oo-p1 .oo1{top:187px;font-size:44px;line-height:1.6;color:#a2717a}
-.oo-p1 .oo2{top:276px;font-size:50px;font-weight:700;line-height:1.7;color:#54462a}
-.oo-p1 .oo-orn{position:absolute;left:${W / 2 - 70}px;width:140px;top:384px;height:12px;display:flex;align-items:center;justify-content:center;gap:9px}
+.oo-p1 .oo1{top:257px;font-size:44px;line-height:1.6;color:#a2717a}
+.oo-p1 .oo2{top:346px;font-size:50px;font-weight:700;line-height:1.7;color:#54462a}
+.oo-p1 .oo-orn{position:absolute;left:${W / 2 - 70}px;width:140px;top:${384 + 70}px;height:12px;display:flex;align-items:center;justify-content:center;gap:9px}
 .oo-orn i{flex:1;height:1px;background:linear-gradient(90deg,transparent,#b39566)}
 .oo-orn i:last-child{transform:scaleX(-1)}
 .oo-orn b{width:7px;height:7px;border:1px solid #b39566;transform:rotate(45deg)}
-.oo-p1 .oo10{top:414px;font-size:30px;line-height:1.6;color:#6a5434}
-.oo-p1 .oo11{top:466px;font-size:30px;font-weight:700;line-height:1.55;color:#54462a}
-.oo-p1 .oo16{top:513px;font-size:30px;font-weight:700;line-height:1.55;color:#54462a}
-.oo-p1 .oo12{top:578px;font-size:30px;line-height:1.6;color:#6a5434}
-.oo-p1 .oo13{top:650px;font-size:70px;font-weight:700;line-height:1.45;color:#8a3a3c}
-.oo-p1 .oo14{top:752px;font-size:42px;line-height:1.3;color:#b08d57}
-.oo-p1 .oo15{top:800px;font-size:70px;font-weight:700;line-height:1.45;color:#8a3a3c}
+.oo-p1 .oo10{top:484px;font-size:30px;line-height:1.6;color:#6a5434}
+.oo-p1 .oo11{top:536px;font-size:30px;font-weight:700;line-height:1.55;color:#54462a}
+.oo-p1 .oo16{top:583px;font-size:30px;font-weight:700;line-height:1.55;color:#54462a}
+.oo-p1 .oo12{top:648px;font-size:30px;line-height:1.6;color:#6a5434}
+.oo-p1 .oo13{top:720px;font-size:70px;font-weight:700;line-height:1.45;color:#8a3a3c}
+.oo-p1 .oo14{top:822px;font-size:42px;line-height:1.3;color:#b08d57}
+.oo-p1 .oo15{top:870px;font-size:70px;font-weight:700;line-height:1.45;color:#8a3a3c}
 
 /* دخول كلام الصورة الأولى بعد ما الظرف ينزل */
 #oo-scroll .oo-rv{opacity:0;transform:translateY(16px);filter:blur(6px);transition:opacity 1s ease,transform 1.1s cubic-bezier(.2,.7,.2,1),filter 1s ease;transition-delay:calc(var(--d,0) * 130ms + 250ms)}
@@ -108,24 +108,29 @@ const CSS = `
 .oo-btn svg{width:26px;height:26px;color:#f1d9a8}
 
 /* --- برنامج اليوم: كروت برجندي بتتقلب واحد ورا التاني --- */
-.oo-cards{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin:36px auto 0;width:600px;perspective:1400px}
-.oo-card{position:relative;height:270px;border-radius:22px;padding:26px 18px 22px;color:#f6e7c8;
-  background:radial-gradient(120% 90% at 30% 0%,#a4474b 0%,#7d2c30 55%,#5e1d22 100%);
-  box-shadow:0 22px 34px -20px rgba(70,20,20,.75),inset 0 1px 0 rgba(255,255,255,.12);
-  transform-origin:50% 50%;transform:rotateY(-95deg) translateZ(0);opacity:0;backface-visibility:hidden;
-  transition:transform 1.15s cubic-bezier(.2,.8,.2,1.05),opacity .4s ease;transition-delay:calc(var(--d,0) * 230ms)}
-.oo-card::before{content:"";position:absolute;inset:9px;border-radius:15px;border:1.5px solid rgba(225,190,120,.75)}
-.oo-card::after{content:"";position:absolute;inset:15px;border-radius:11px;border:1px solid rgba(225,190,120,.3)}
-.oo-cards.oo-vis .oo-card{transform:none;opacity:1}
-.oo-ci{display:block;width:54px;height:54px;margin:2px auto 8px;color:#e4c487}
-.oo-ci svg{width:100%;height:100%}
-.oo-ct{display:block;font-size:56px;font-weight:700;line-height:1.15;color:#f1d39a;text-shadow:0 2px 0 rgba(60,10,10,.35)}
-.oo-cl{display:block;margin-top:8px;font-size:30px;line-height:1.35;color:#f8ead0}
-.oo-cn{position:absolute;top:22px;inset-inline-start:26px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:22px;color:rgba(241,211,154,.6);direction:ltr}
-.oo-card .oo-shine{position:absolute;inset:0;border-radius:22px;overflow:hidden;pointer-events:none}
-.oo-card .oo-shine::after{content:"";position:absolute;top:-30%;bottom:-30%;width:40%;left:-70%;transform:skewX(-20deg);background:linear-gradient(90deg,transparent,rgba(255,235,190,.32),transparent)}
-.oo-cards.oo-vis .oo-shine::after{animation:ooSheen 1.5s ease-in-out both;animation-delay:calc(var(--d,0) * 230ms + 900ms)}
-@keyframes ooSheen{to{left:140%}}
+/* --- برنامج اليوم: تسلسلي لتحت (دهبي وزيتي، من غير أحمر) --- */
+.oo-prog .oo-h{color:#54462a}
+.oo-steps{position:relative;margin:30px auto 0;width:520px}
+.oo-step{position:relative;display:flex;flex-direction:column;align-items:center;padding-bottom:22px}
+.oo-step + .oo-step{padding-top:96px}
+/* الخط اللي بيوصل بين كل ميعاد واللي بعده — بيترسم لتحت لما يظهر */
+.oo-step + .oo-step::before{content:"";position:absolute;left:50%;top:4px;width:2px;height:80px;margin-left:-1px;
+  background:repeating-linear-gradient(#b39566 0 6px,transparent 6px 12px);transform-origin:50% 0;transform:scaleY(0);transition:transform .9s cubic-bezier(.4,0,.2,1) var(--sd,0ms)}
+.oo-step + .oo-step::after{content:"";position:absolute;left:50%;top:84px;width:8px;height:8px;margin-left:-4px;border:1.5px solid #b39566;transform:rotate(45deg) scale(0);transition:transform .5s ease calc(var(--sd,0ms) + .7s)}
+.oo-step.oo-vis::before{transform:scaleY(1)}
+.oo-step.oo-vis::after{transform:rotate(45deg) scale(1)}
+.oo-ring{position:relative;width:96px;height:96px;border-radius:50%;display:grid;place-items:center;color:#8a6a32;
+  background:radial-gradient(circle at 35% 30%,#fbf3e3,#efdfc2);box-shadow:0 0 0 1.5px #c9a46a,0 0 0 7px rgba(201,164,106,.14),0 14px 24px -14px rgba(90,60,20,.55);
+  transform:scale(.5);opacity:0;transition:transform .8s cubic-bezier(.3,1.5,.5,1) calc(var(--sd,0ms) + .35s),opacity .5s ease calc(var(--sd,0ms) + .35s)}
+.oo-ring svg{width:46px;height:46px}
+.oo-ring::after{content:"";position:absolute;inset:-12px;border-radius:50%;border:1.5px solid rgba(201,164,106,.7);opacity:0}
+.oo-step.oo-vis .oo-ring{transform:none;opacity:1}
+.oo-step.oo-vis .oo-ring::after{animation:ooRing 1.4s ease-out calc(var(--sd,0ms) + .8s) 1 both}
+@keyframes ooRing{0%{transform:scale(.75);opacity:1}100%{transform:scale(1.45);opacity:0}}
+.oo-stime{display:block;margin-top:18px;font-size:50px;font-weight:700;line-height:1.15;color:#54462a;opacity:0;transform:translateY(18px);transition:opacity .8s ease calc(var(--sd,0ms) + .6s),transform .9s cubic-bezier(.2,.7,.2,1) calc(var(--sd,0ms) + .6s)}
+.oo-slab{display:block;margin-top:4px;font-size:32px;line-height:1.4;color:#8a6a32;opacity:0;transform:translateY(18px);transition:opacity .8s ease calc(var(--sd,0ms) + .75s),transform .9s cubic-bezier(.2,.7,.2,1) calc(var(--sd,0ms) + .75s)}
+.oo-step.oo-vis .oo-stime,.oo-step.oo-vis .oo-slab{opacity:1;transform:none}
+#oo-scroll.oo-now .oo-step::before,#oo-scroll.oo-now .oo-step::after,#oo-scroll.oo-now .oo-step *{transition:none!important;animation:none!important}
 
 /* --- الدريس كود: دواير ألوان --- */
 .oo-grp{display:flex;align-items:center;justify-content:center;gap:14px;margin:34px 0 20px;font-size:32px;line-height:1.4;color:#6a5434}
@@ -138,6 +143,7 @@ const CSS = `
   box-shadow:0 0 0 3px #f6ead6,0 0 0 4.5px #c9a46a,0 14px 22px -12px rgba(50,25,10,.7),inset 0 -10px 18px rgba(0,0,0,.18),inset 0 8px 14px rgba(255,255,255,.12)}
 .oo-dot::after{content:"";position:absolute;top:-20%;bottom:-20%;width:45%;left:-70%;transform:skewX(-18deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent)}
 .oo-sws.oo-vis .oo-dot::after{animation:ooSheen 1.4s ease-in-out both;animation-delay:calc(var(--d,0) * 150ms + 700ms)}
+@keyframes ooSheen{to{left:140%}}
 .oo-swe{display:block;margin-top:16px;font-family:'Cormorant Garamond',serif;font-weight:600;font-size:26px;line-height:1.2;color:#54462a;direction:ltr;letter-spacing:.04em}
 .oo-end{margin-top:56px}
 
@@ -201,15 +207,13 @@ textarea.oo-fld{resize:none;min-height:84px}
 .oo-voice.sent .oo-vok{display:block}.oo-voice.sent .oo-vprev,.oo-voice.sent .oo-fld,.oo-voice.sent .oo-send{display:none}
 .oo-voice.sent .oo-mic,.oo-voice.sent .oo-vhint{display:none}
 
-/* "مرّر للأسفل" — بيختفي أول ما الضيف ينزل */
-.oo-cue{position:absolute;z-index:26;margin:0;padding:0;border:0;background:none;-webkit-appearance:none;appearance:none;font:inherit;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));transform:translate(-50%,10px);
-  display:flex;flex-direction:column;align-items:center;gap:4px;opacity:0;pointer-events:none;direction:rtl;
-  transition:opacity .6s ease,transform .6s ease}
-.oo-cue span{padding:7px 18px 8px;border-radius:999px;background:linear-gradient(180deg,#fbf6f0,#efe3d8);border:1px solid rgba(180,150,110,.6);
-  box-shadow:0 8px 20px rgba(60,40,20,.25);font:400 15px/1 'Aref Ruqaa','Amiri',serif;color:#5b2229}
-.oo-cue svg{width:20px;height:20px;color:#7a6040;animation:ooNudge 1.8s ease-in-out infinite}
-@keyframes ooNudge{0%,100%{transform:translateY(-2px);opacity:.6}50%{transform:translateY(4px);opacity:1}}
-.stage.opened .oo-cue.on{opacity:1;transform:translate(-50%,0);pointer-events:auto;cursor:pointer}
+/* "انزل لتحت" — جوه الصورة الأولى تحت الأسامي، ثابتة */
+.oo-p1 .oo-down{position:absolute;left:${W / 2 - 150}px;top:1072px;width:300px;margin:0;padding:0;border:0;background:none;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:6px;direction:rtl;-webkit-appearance:none;appearance:none}
+.oo-down b{font:700 34px/1.2 'Aref Ruqaa','Amiri',serif;color:#54462a;text-shadow:0 1px 0 rgba(255,250,240,.5)}
+.oo-down small{font:italic 500 24px/1 'Cormorant Garamond',serif;color:#8a6a32;letter-spacing:.12em;direction:ltr}
+.oo-down svg{width:42px;height:42px;color:#a8803f;animation:ooNudge 1.8s ease-in-out infinite}
+@keyframes ooNudge{0%,100%{transform:translateY(-4px);opacity:.55}50%{transform:translateY(8px);opacity:1}}
 
 /* الظرف: الختم بيطير والظرف كله بينزل لتحت (زي Sage Garden) — بدل ما يتفتح */
 .intro.oo-drop{cursor:default}
@@ -221,7 +225,7 @@ textarea.oo-fld{resize:none;min-height:84px}
 .intro.oo-drop .tap{opacity:0;transform:translateY(16px)}
 .intro.oo-drop .dust{opacity:0;transition:opacity .6s ease}
 .intro.oo-gone{opacity:0;transition:opacity .55s ease;pointer-events:none}
-@media (prefers-reduced-motion:reduce){#oo-scroll .oo-rv,.oo-a,.oo-sw,.oo-card{transition:none}.oo-cue svg,.oo-dot::after,.oo-shine::after,.oo-mic::before,.oo-mic::after{animation:none}}
+@media (prefers-reduced-motion:reduce){#oo-scroll .oo-rv,.oo-a,.oo-sw,.oo-step,.oo-step *,.oo-step::before{transition:none}.oo-down svg,.oo-dot::after,.oo-ring::after,.oo-mic::before,.oo-mic::after{animation:none}}
 `;
 
 const ICON = {
@@ -243,10 +247,10 @@ const P = (cls, id, d, text) => `<p class="${cls} oo${id} oo-rv" style="--d:${d}
 const T = (tag, cls, id, text, d) => `<${tag} class="${cls} oo-a" style="--d:${d || 0}" data-elem-id="oo${id}">${text}</${tag}>`;
 
 const PROGRAM = [
-  ['r', 'rings', 30, '٣:٣٠', 31, 'بدء الحفل'],
-  ['l', 'dine', 32, '٦:٠٠', 33, 'الغداء'],
-  ['r', 'music', 34, '٧:٠٠', 35, 'متابعة الحفل'],
-  ['l', 'moon', 36, '٨:٠٠', 37, 'نهاية الحفل'],
+  ['r', 'rings', 30, '٣:٣٠ م', 31, 'بدء الحفل'],
+  ['l', 'dine', 32, '٦:٠٠ م', 33, 'الغداء'],
+  ['r', 'music', 34, '٧:٠٠ م', 35, 'متابعة الحفل'],
+  ['l', 'moon', 36, '٨:٠٠ م', 37, 'نهاية الحفل'],
 ];
 const LADIES = [
   ['#6b1d29', 43, 'Burgundy'],
@@ -277,8 +281,8 @@ const SECTIONS = `<div class="oo-w oo-w3" id="oo-w3"><div class="oo-sx" id="oo-s
         <div class="oo-orn2 oo-a" aria-hidden="true"><i></i><b></b><i></i></div>
         ${T('p', 'oo-script', 24, 'The Program', 0)}
         ${T('h2', 'oo-h', 25, 'برنامج اليوم', 1)}
-        <div class="oo-cards oo-a4" id="oo-cards">
-          ${PROGRAM.map(([side, ic, t1, time, t2, label], i) => `<div class="oo-card" style="--d:${i}"><span class="oo-shine"></span><span class="oo-cn">0${i + 1}</span><span class="oo-ci">${ICON[ic]}</span><b class="oo-ct" data-elem-id="oo${t1}">${time}</b><span class="oo-cl" data-elem-id="oo${t2}">${label}</span></div>`).join('\n          ')}
+        <div class="oo-steps" id="oo-steps">
+          ${PROGRAM.map(([side, ic, t1, time, t2, label], i) => `<div class="oo-step oo-a4" style="--sd:${i * 450}ms"><span class="oo-ring">${ICON[ic]}</span><b class="oo-stime" data-elem-id="oo${t1}">${time}</b><span class="oo-slab" data-elem-id="oo${t2}">${label}</span></div>`).join('\n          ')}
         </div>
       </section>
       <section class="oo-s oo-dress">
@@ -337,18 +341,18 @@ const SCROLL = `<div id="oo-scroll" aria-label="الدعوة">
       ${P('oo-narrow', 13, 9.5, 'ابراهيم')}
       ${P('oo-narrow', 14, 10.5, 'و')}
       ${P('oo-narrow', 15, 11.5, 'فرح')}
+      <button class="oo-down oo-rv" style="--d:13" type="button" id="oo-down" aria-label="انزل لتحت"><b data-elem-id="oo17">انزل لتحت</b><small data-elem-id="oo18">Scroll down</small><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8l6 6 6-6"/><path d="M8.5 4.5 12 8l3.5-3.5" opacity=".55"/></svg></button>
     </div></div>
     <div class="oo-w oo-w2"><div class="oo-p oo-p2" role="img" aria-label="Save the Date — 22 نوفمبر 2026"></div></div>
     ${SECTIONS}
     ${RSVP}
   </div>
-  <button class="oo-cue" id="oo-cue" type="button" aria-label="انزل لتحت"><span>مرّر للأسفل</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8l6 6 6-6"/><path d="M8.5 4.5 12 8l3.5-3.5" opacity=".55"/></svg></button>
   `;
 
 // بيتحط جوه سكريبت القالب (قبل "start") — فبيوصل لـ stage / intro / opened ...
 const LOGIC = `
   /* ---------- ooW5EFI: صفحة واحدة بالسكرول + الظرف بينزل بدل ما يتفتح ---------- */
-  const ooS = document.getElementById('oo-scroll'), ooCue = document.getElementById('oo-cue');
+  const ooS = document.getElementById('oo-scroll');
   const ooW3 = document.getElementById('oo-w3'), ooSx = document.getElementById('oo-sx');
   stage.classList.add('oo-mode');
   function ooFit() {
@@ -360,16 +364,13 @@ const LOGIC = `
   ooFit(); addEventListener('resize', ooFit); addEventListener('orientationchange', () => setTimeout(ooFit, 200));
   if (window.ResizeObserver) new ResizeObserver(ooFit).observe(ooSx);
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(ooFit);
-  let ooCueOff = false;
-  function ooCueHide() { if (ooCueOff) return; ooCueOff = true; ooCue.classList.remove('on'); }
-  ooCue.addEventListener('click', e => { e.stopPropagation(); ooS.scrollBy({ top: ooS.clientHeight * 0.85, behavior: 'smooth' }); ooCueHide(); });
+  document.getElementById('oo-down').addEventListener('click', e => { e.stopPropagation(); if (EDIT) return; ooS.scrollTo({ top: document.querySelector('.oo-w2').offsetTop - 10, behavior: 'smooth' }); });
   // الأجزاء اللي تحت: بتظهر لما توصلها، والخريطة بتتحمّل قبلها بشوية
   const ooAll = [...ooS.querySelectorAll('.oo-a, .oo-a4')];
   const ooMap = ooS.querySelector('.oo-mapin iframe');
   function ooMapLoad() { if (!ooMap.getAttribute('src')) ooMap.setAttribute('src', ooMap.dataset.ooSrc); }
   function ooScan() {
     const h = ooS.clientHeight, top = ooS.getBoundingClientRect().top;
-    if (ooS.scrollTop > 40) ooCueHide();
     ooAll.forEach(el => { if (!el.classList.contains('oo-vis') && el.getBoundingClientRect().top - top < h * 0.86) el.classList.add('oo-vis'); });
     if (ooMap.getBoundingClientRect().top - top < h * 2.2) ooMapLoad();
   }
@@ -383,7 +384,6 @@ const LOGIC = `
     }
     ooS.classList.add('oo-in');
     ooFit(); setTimeout(ooScan, 50);
-    if (!EDIT) setTimeout(() => { if (!ooCueOff && ooS.scrollTop < 40) ooCue.classList.add('on'); }, now ? 600 : 2600);
   }
   /* تأكيد الحضور — نفس طريقة القالب بالظبط (بيوصل للوحة صاحب الدعوة) */
   {
