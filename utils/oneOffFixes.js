@@ -252,6 +252,30 @@ const FIXES = [
     },
   },
   {
+    // ooW5EFI (ابراهيم وفرح) — بطلب المالك: الفرح في قصر الأمير محمد علي (المنيل)
+    // بلينك الخريطة اللي بعته، ويبدأ الساعة 3:30 العصر يوم 22/11/2026.
+    // بيتعمل بس لو الدعوة لسه بمكان المسودة ("Venue").
+    name: 'ooW5EFI-manial-palace',
+    shortId: 'ooW5EFI',
+    select: '-__v',
+    when: (c, inv) => inv.templateId === 'velvet-voice' && inv.venueName === 'Venue',
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: inv.language, occasionType: inv.occasionType,
+        hiddenSections: inv.hiddenSections, timeline: inv.timeline, name: inv.name,
+        groomName: inv.groomName, groomNameAr: inv.groomNameAr,
+        brideName: inv.brideName, brideNameAr: inv.brideNameAr,
+        venueName: 'قصر الأمير محمد علي', venueCity: 'المنيل — القاهرة',
+        venueMapQuery: 'https://goo.gl/maps/KCMpenYcVXjCKwgHA',
+        weddingDate: '2026-11-22', weddingTime: '15:30',
+      }, { ownsTemplate: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      return set;
+    },
+  },
+  {
     // jUckAdv (Champagne Lace — عمر ولچين) — بطلب المالك: الفرح الجمعة 1/1/2027
     // الساعة 7:30 مساءً في فندق توليب أوليمبيك (طريق العين السخنة) بلينك الخريطة
     // اللي بعته، والخريطة المضمّنة على الدبوس نفسه. الوقت (cl9/cl10) بيرجع يظهر
