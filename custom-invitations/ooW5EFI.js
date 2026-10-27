@@ -65,13 +65,13 @@ const CSS = `
 .oo-orn i:last-child{transform:scaleX(-1)}
 .oo-orn b{width:7px;height:7px;border:1px solid #b39566;transform:rotate(45deg)}
 .oo-p1 .oo10{top:506px;font-size:30px;line-height:1.6;color:#6a5434}
-.oo-p1 .oo-fathers{position:absolute;left:${W / 2 - 170}px;width:340px;top:556px;display:flex;align-items:baseline;justify-content:center;gap:12px;direction:rtl;white-space:nowrap}
-.oo-fathers p{flex:none;margin:0;text-align:center;font-family:'Aref Ruqaa','Amiri',serif;font-size:31px;font-weight:700;line-height:1.45;color:#46381f;letter-spacing:0;text-shadow:0 1px 0 rgba(255,250,240,.35)}
+.oo-p1 .oo-fathers{position:absolute;left:${W / 2 - 170}px;width:340px;top:554px;display:flex;align-items:baseline;justify-content:center;gap:12px;direction:rtl;white-space:nowrap}
+.oo-fathers p{flex:none;margin:0;text-align:center;font-family:'Aref Ruqaa','Amiri',serif;font-size:35px;font-weight:700;line-height:1.4;color:#46381f;letter-spacing:0;text-shadow:0 1px 0 rgba(255,250,240,.35)}
 .oo-fathers i{flex:none;font:400 30px/1 'Aref Ruqaa','Amiri',serif;font-style:normal;color:#b08d57}
 .oo-p1 .oo12{top:664px;font-size:30px;line-height:1.6;color:#6a5434}
-.oo-p1 .oo13{top:736px;font-size:70px;font-weight:700;line-height:1.45;color:#8a3a3c}
-.oo-p1 .oo14{top:836px;font-size:42px;line-height:1.3;color:#b08d57}
-.oo-p1 .oo15{top:882px;font-size:70px;font-weight:700;line-height:1.45;color:#8a3a3c}
+.oo-p1 .oo13{top:720px;font-size:86px;font-weight:700;line-height:1.45;color:#8a3a3c}
+.oo-p1 .oo14{top:845px;font-size:42px;line-height:1.3;color:#b08d57}
+.oo-p1 .oo15{top:889px;font-size:86px;font-weight:700;line-height:1.45;color:#8a3a3c}
 
 /* دخول كلام الصورة الأولى بعد ما الظرف ينزل */
 #oo-scroll .oo-rv{opacity:0;transform:translateY(16px);filter:blur(6px);transition:opacity 1s ease,transform 1.1s cubic-bezier(.2,.7,.2,1),filter 1s ease;transition-delay:calc(var(--d,0) * 130ms + 250ms)}
