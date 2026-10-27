@@ -58,17 +58,17 @@ const CSS = `
   text-shadow:0 1px 0 rgba(255,250,240,.35)}
 .oo-p1 .oo-wide{left:${W / 2 - 230}px;width:460px}
 .oo-p1 .oo-narrow{left:${W / 2 - 128}px;width:256px}
-.oo-p1 .oo1{top:318px;font-size:42px;line-height:1.6;color:#54462a}
-.oo-p1 .oo2{top:386px;font-size:50px;font-weight:400;line-height:1.7;color:#54462a}
-.oo-p1 .oo-orn{position:absolute;left:${W / 2 - 70}px;width:140px;top:486px;height:12px;display:flex;align-items:center;justify-content:center;gap:9px}
+.oo-p1 .oo1{top:196px;font-size:42px;line-height:1.6;color:#54462a}
+.oo-p1 .oo2{top:372px;font-size:44px;font-weight:400;line-height:1.7;color:#54462a}
+.oo-p1 .oo-orn{position:absolute;left:${W / 2 - 70}px;width:140px;top:470px;height:12px;display:flex;align-items:center;justify-content:center;gap:9px}
 .oo-orn i{flex:1;height:1px;background:linear-gradient(90deg,transparent,#b39566)}
 .oo-orn i:last-child{transform:scaleX(-1)}
 .oo-orn b{width:7px;height:7px;border:1px solid #b39566;transform:rotate(45deg)}
-.oo-p1 .oo10{top:506px;font-size:30px;line-height:1.6;color:#6a5434}
-.oo-p1 .oo-fathers{position:absolute;left:${W / 2 - 170}px;width:340px;top:554px;display:flex;align-items:baseline;justify-content:center;gap:12px;direction:rtl;white-space:nowrap}
+.oo-p1 .oo10{top:496px;font-size:30px;line-height:1.6;color:#6a5434}
+.oo-p1 .oo-fathers{position:absolute;left:${W / 2 - 170}px;width:340px;top:572px;display:flex;align-items:baseline;justify-content:center;gap:12px;direction:rtl;white-space:nowrap}
 .oo-fathers p{flex:none;margin:0;text-align:center;font-family:'Aref Ruqaa','Amiri',serif;font-size:35px;font-weight:700;line-height:1.4;color:#46381f;letter-spacing:0;text-shadow:0 1px 0 rgba(255,250,240,.35)}
 .oo-fathers i{flex:none;font:400 30px/1 'Aref Ruqaa','Amiri',serif;font-style:normal;color:#b08d57}
-.oo-p1 .oo12{top:664px;font-size:30px;line-height:1.6;color:#6a5434}
+.oo-p1 .oo12{top:668px;font-size:30px;line-height:1.6;color:#6a5434}
 .oo-p1 .oo13{top:720px;font-size:86px;font-weight:700;line-height:1.45;color:#8a3a3c}
 .oo-p1 .oo14{top:845px;font-size:42px;line-height:1.3;color:#b08d57}
 .oo-p1 .oo15{top:889px;font-size:86px;font-weight:700;line-height:1.45;color:#8a3a3c}
@@ -87,6 +87,7 @@ const CSS = `
 .oo-sub{margin:6px 0 0;font-size:26px;line-height:1.5;color:#6a5434}
 .oo-hen{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:50px;line-height:1.2;direction:ltr;letter-spacing:.01em}
 .oo-venue .oo-sub{font-size:36px;margin-top:10px;color:#54462a}
+.oo-venue .oo-eye{font-size:36px;color:#8a6a32}
 .oo-script{margin:0;font-family:'Pinyon Script',cursive;font-size:62px;line-height:1.15;color:#54462a;direction:ltr}
 .oo-orn2{display:flex;align-items:center;justify-content:center;gap:12px;margin:18px auto 22px;width:220px}
 .oo-orn2 i{flex:1;height:1px;background:linear-gradient(90deg,transparent,#b39566)}
@@ -276,10 +277,10 @@ const SECTIONS = `<div class="oo-w oo-w3" id="oo-w3"><div class="oo-sx" id="oo-s
       <section class="oo-s oo-venue">
         <div class="oo-orn2 oo-a" aria-hidden="true"><i></i><b></b><i></i></div>
         ${T('p', 'oo-eye', 20, 'مكان الحفل', 0)}
-        ${T('h2', 'oo-h oo-hen', 21, 'Prince Mohamed Ali Palace', 1)}
+        ${T('h2', 'oo-h', 21, 'قصر الأمير محمد علي', 1)}
         ${T('p', 'oo-sub', 22, 'المنيل · القاهرة', 2)}
         <div class="oo-mapframe oo-a" style="--d:3">${CORNERS}
-          <div class="oo-mapin"><iframe title="Prince Mohamed Ali Palace" loading="lazy" referrerpolicy="no-referrer-when-downgrade" tabindex="-1" data-oo-src="${MAP_EMBED}"></iframe>
+          <div class="oo-mapin"><iframe title="قصر الأمير محمد علي" loading="lazy" referrerpolicy="no-referrer-when-downgrade" tabindex="-1" data-oo-src="${MAP_EMBED}"></iframe>
             <a class="oo-maphit" href="${MAP_LINK}" target="_blank" rel="noopener" aria-label="افتح الموقع في خرائط جوجل"></a></div>
         </div>
         <a class="oo-btn oo-a" style="--d:4" href="${MAP_LINK}" target="_blank" rel="noopener">${ICON.pin}<span data-elem-id="oo23">افتح الموقع على الخريطة</span></a>
