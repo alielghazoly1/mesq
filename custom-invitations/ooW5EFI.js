@@ -9,7 +9,7 @@
 //        الموبايل وخانة "Reply to yourself" والكلام القديم اتشالوا.
 //        فوقها كلام حقيقي بيتعدّل من المحرر (Aref Ruqaa):
 //          oo1 بسم الله الرحمن الرحيم · oo2 وَخَلَقْنَاكُمْ أَزْوَاجًا
-//          oo10 يدعوكم بكل حب و ود · oo11 محمد إبراهيم سالم و oo16 محمد على هديهد (جنب بعض)
+//          oo10 يدعوكم بكل حب و ود · oo11 محمد سالم و oo16 محمد هديهد (سطر واحد)
 //          oo12 لحضور حفل زفاف · oo13 ابراهيم · oo14 و · oo15 فرح
 //      • صورة 2 (custom/ooW5EFI/p2.webp): Save the Date — القوس الذهبي اللي كان
 //        مقصوص من فوق اتكمّل، والقلب على يوم 22 بس.
@@ -29,10 +29,10 @@
 const { asset } = require('./_asset');
 const ASSET = '/custom/ooW5EFI/';
 const P1 = asset(ASSET + 'p1.webp'), P2 = asset(ASSET + 'p2.webp'), PAPER = asset(ASSET + 'paper.webp');
-const FONTS = 'https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Pinyon+Script&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap';
+const FONTS = 'https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Pinyon+Script&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Lora:wght@500&display=swap';
 const W = 705.75, H1 = 1334.2, H2 = 1106.2;
-const MAP_LINK = 'https://goo.gl/maps/KCMpenYcVXjCKwgHA';
-const MAP_EMBED = 'https://www.google.com/maps?q=' + encodeURIComponent('قصر الأمير محمد علي بالمنيل، 1 السرايا، المنيل الشرقي، مصر القديمة، القاهرة') + '&z=16&output=embed';
+const MAP_LINK = 'https://goo.gl/maps/cZnwZp9SU5csH7yz8';
+const MAP_EMBED = 'https://www.google.com/maps?q=' + encodeURIComponent('26CG+GPX Prince Mohamed Ali Palace, 11 Al Saraya, Al Manyal Ash Sharqi, Old Cairo, Cairo') + '&z=16&output=embed';
 
 const CSS = `
 .stage.oo-mode .cv,.stage.oo-mode .vv-nav,.stage.oo-mode .vv-chip{display:none!important}
@@ -50,6 +50,7 @@ const CSS = `
 .oo-p,.oo-sx{position:absolute;left:0;top:0;width:${W}px;transform:scale(var(--ok,.5));transform-origin:0 0}
 .oo-p{background-size:100% 100%;background-repeat:no-repeat}
 .oo-p1{height:${H1}px;background-image:url(${P1})}
+.oo-p2 .oo-nov{position:absolute;left:0;right:0;top:230px;margin:0;text-align:center;font:500 47.5px/1 'Lora',Georgia,serif;color:#6f3728;letter-spacing:.005em;direction:ltr;white-space:nowrap}
 .oo-p2{height:${H2}px;background-image:url(${P2});-webkit-mask-image:linear-gradient(transparent 0,#000 30px,#000 calc(100% - 90px),transparent);mask-image:linear-gradient(transparent 0,#000 30px,#000 calc(100% - 90px),transparent)}
 
 /* ===== صورة 1: الكلام ===== */
@@ -57,20 +58,20 @@ const CSS = `
   text-shadow:0 1px 0 rgba(255,250,240,.35)}
 .oo-p1 .oo-wide{left:${W / 2 - 230}px;width:460px}
 .oo-p1 .oo-narrow{left:${W / 2 - 128}px;width:256px}
-.oo-p1 .oo1{top:338px;font-size:42px;line-height:1.6;color:#54462a}
-.oo-p1 .oo2{top:410px;font-size:50px;font-weight:700;line-height:1.7;color:#54462a}
-.oo-p1 .oo-orn{position:absolute;left:${W / 2 - 70}px;width:140px;top:512px;height:12px;display:flex;align-items:center;justify-content:center;gap:9px}
+.oo-p1 .oo1{top:318px;font-size:42px;line-height:1.6;color:#54462a}
+.oo-p1 .oo2{top:386px;font-size:50px;font-weight:400;line-height:1.7;color:#54462a}
+.oo-p1 .oo-orn{position:absolute;left:${W / 2 - 70}px;width:140px;top:486px;height:12px;display:flex;align-items:center;justify-content:center;gap:9px}
 .oo-orn i{flex:1;height:1px;background:linear-gradient(90deg,transparent,#b39566)}
 .oo-orn i:last-child{transform:scaleX(-1)}
 .oo-orn b{width:7px;height:7px;border:1px solid #b39566;transform:rotate(45deg)}
-.oo-p1 .oo10{top:534px;font-size:30px;line-height:1.6;color:#6a5434}
-.oo-p1 .oo-fathers{position:absolute;left:${W / 2 - 140}px;width:280px;top:590px;display:flex;align-items:center;justify-content:center;gap:10px;direction:rtl}
-.oo-fathers p{flex:1;margin:0;text-align:center;font-family:'Aref Ruqaa','Amiri',serif;font-size:28px;font-weight:700;line-height:1.45;color:#54462a;letter-spacing:0;text-shadow:0 1px 0 rgba(255,250,240,.35)}
+.oo-p1 .oo10{top:506px;font-size:30px;line-height:1.6;color:#6a5434}
+.oo-p1 .oo-fathers{position:absolute;left:${W / 2 - 170}px;width:340px;top:556px;display:flex;align-items:baseline;justify-content:center;gap:12px;direction:rtl;white-space:nowrap}
+.oo-fathers p{flex:none;margin:0;text-align:center;font-family:'Aref Ruqaa','Amiri',serif;font-size:31px;font-weight:700;line-height:1.45;color:#46381f;letter-spacing:0;text-shadow:0 1px 0 rgba(255,250,240,.35)}
 .oo-fathers i{flex:none;font:400 30px/1 'Aref Ruqaa','Amiri',serif;font-style:normal;color:#b08d57}
-.oo-p1 .oo12{top:688px;font-size:30px;line-height:1.6;color:#6a5434}
-.oo-p1 .oo13{top:752px;font-size:70px;font-weight:700;line-height:1.45;color:#8a3a3c}
-.oo-p1 .oo14{top:852px;font-size:42px;line-height:1.3;color:#b08d57}
-.oo-p1 .oo15{top:898px;font-size:70px;font-weight:700;line-height:1.45;color:#8a3a3c}
+.oo-p1 .oo12{top:664px;font-size:30px;line-height:1.6;color:#6a5434}
+.oo-p1 .oo13{top:736px;font-size:70px;font-weight:700;line-height:1.45;color:#8a3a3c}
+.oo-p1 .oo14{top:836px;font-size:42px;line-height:1.3;color:#b08d57}
+.oo-p1 .oo15{top:882px;font-size:70px;font-weight:700;line-height:1.45;color:#8a3a3c}
 
 /* دخول كلام الصورة الأولى بعد ما الظرف ينزل */
 #oo-scroll .oo-rv{opacity:0;transform:translateY(16px);filter:blur(6px);transition:opacity 1s ease,transform 1.1s cubic-bezier(.2,.7,.2,1),filter 1s ease;transition-delay:calc(var(--d,0) * 130ms + 250ms)}
@@ -84,6 +85,8 @@ const CSS = `
 .oo-eye{margin:0;font-size:26px;line-height:1.5;color:#a07a4a}
 .oo-h{margin:4px 0 0;font-size:54px;font-weight:700;line-height:1.35;color:#8a3a3c}
 .oo-sub{margin:6px 0 0;font-size:26px;line-height:1.5;color:#6a5434}
+.oo-hen{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:50px;line-height:1.2;direction:ltr;letter-spacing:.01em}
+.oo-venue .oo-sub{font-size:36px;margin-top:10px;color:#54462a}
 .oo-script{margin:0;font-family:'Pinyon Script',cursive;font-size:62px;line-height:1.15;color:#54462a;direction:ltr}
 .oo-orn2{display:flex;align-items:center;justify-content:center;gap:12px;margin:18px auto 22px;width:220px}
 .oo-orn2 i{flex:1;height:1px;background:linear-gradient(90deg,transparent,#b39566)}
@@ -212,11 +215,11 @@ textarea.oo-fld{resize:none;min-height:84px}
 .oo-voice.sent .oo-mic,.oo-voice.sent .oo-vhint{display:none}
 
 /* "انزل لتحت" — جوه الصورة الأولى تحت الأسامي، ثابتة */
-.oo-p1 .oo-down{position:absolute;left:${W / 2 - 150}px;top:1072px;width:300px;margin:0;padding:0;border:0;background:none;cursor:pointer;
+.oo-p1 .oo-down{position:absolute;left:${W / 2 - 150}px;top:1112px;width:300px;margin:0;padding:0;border:0;background:none;cursor:pointer;
   display:flex;flex-direction:column;align-items:center;gap:6px;direction:rtl;-webkit-appearance:none;appearance:none}
-.oo-down b{font:700 34px/1.2 'Aref Ruqaa','Amiri',serif;color:#54462a;text-shadow:0 1px 0 rgba(255,250,240,.5)}
-.oo-down small{font:italic 500 24px/1 'Cormorant Garamond',serif;color:#8a6a32;letter-spacing:.12em;direction:ltr}
-.oo-down svg{width:42px;height:42px;color:#a8803f;animation:ooNudge 1.8s ease-in-out infinite}
+.oo-down b{font:400 30px/1.2 'Aref Ruqaa','Amiri',serif;color:#6a5434;text-shadow:0 1px 0 rgba(255,250,240,.5)}
+.oo-down small{font:italic 500 22px/1 'Cormorant Garamond',serif;color:#8a6a32;letter-spacing:.12em;direction:ltr}
+.oo-down svg{width:36px;height:36px;color:#a8803f;animation:ooNudge 1.8s ease-in-out infinite}
 @keyframes ooNudge{0%,100%{transform:translateY(-4px);opacity:.55}50%{transform:translateY(8px);opacity:1}}
 
 /* الظرف: الختم بيطير والظرف كله بينزل لتحت (زي Sage Garden) — بدل ما يتفتح */
@@ -259,7 +262,7 @@ const PROGRAM = [
 const LADIES = [
   ['#6b1d29', 43, 'Burgundy'],
   ['#a5502b', 45, 'Rust'],
-  ['#7f8a57', 47, 'Sage'],
+  ['#5b6234', 47, 'Olive'],
   ['#45291f', 49, 'Chocolate'],
 ];
 const MEN = [
@@ -273,10 +276,10 @@ const SECTIONS = `<div class="oo-w oo-w3" id="oo-w3"><div class="oo-sx" id="oo-s
       <section class="oo-s oo-venue">
         <div class="oo-orn2 oo-a" aria-hidden="true"><i></i><b></b><i></i></div>
         ${T('p', 'oo-eye', 20, 'مكان الحفل', 0)}
-        ${T('h2', 'oo-h', 21, 'قصر الأمير محمد علي', 1)}
+        ${T('h2', 'oo-h oo-hen', 21, 'Prince Mohamed Ali Palace', 1)}
         ${T('p', 'oo-sub', 22, 'المنيل · القاهرة', 2)}
         <div class="oo-mapframe oo-a" style="--d:3">${CORNERS}
-          <div class="oo-mapin"><iframe title="خريطة قصر الأمير محمد علي" loading="lazy" referrerpolicy="no-referrer-when-downgrade" tabindex="-1" data-oo-src="${MAP_EMBED}"></iframe>
+          <div class="oo-mapin"><iframe title="Prince Mohamed Ali Palace" loading="lazy" referrerpolicy="no-referrer-when-downgrade" tabindex="-1" data-oo-src="${MAP_EMBED}"></iframe>
             <a class="oo-maphit" href="${MAP_LINK}" target="_blank" rel="noopener" aria-label="افتح الموقع في خرائط جوجل"></a></div>
         </div>
         <a class="oo-btn oo-a" style="--d:4" href="${MAP_LINK}" target="_blank" rel="noopener">${ICON.pin}<span data-elem-id="oo23">افتح الموقع على الخريطة</span></a>
@@ -339,14 +342,14 @@ const SCROLL = `<div id="oo-scroll" aria-label="الدعوة">
       ${P('oo-wide', 2, 2, 'وَخَلَقْنَاكُمْ أَزْوَاجًا')}
       <div class="oo-orn oo-rv" style="--d:4" aria-hidden="true"><i></i><b></b><i></i></div>
       ${P('oo-narrow', 10, 5, 'يدعوكم بكل حب و ود')}
-      <div class="oo-fathers oo-rv" style="--d:6.5"><p data-elem-id="oo11">محمد إبراهيم سالم</p><i aria-hidden="true">و</i><p data-elem-id="oo16">محمد على هديهد</p></div>
+      <div class="oo-fathers oo-rv" style="--d:6.5"><p data-elem-id="oo11">محمد سالم</p><i aria-hidden="true">و</i><p data-elem-id="oo16">محمد هديهد</p></div>
       ${P('oo-narrow', 12, 8, 'لحضور حفل زفاف')}
       ${P('oo-narrow', 13, 9.5, 'ابراهيم')}
       ${P('oo-narrow', 14, 10.5, 'و')}
       ${P('oo-narrow', 15, 11.5, 'فرح')}
       <button class="oo-down oo-rv" style="--d:13" type="button" id="oo-down" aria-label="انزل لتحت"><b data-elem-id="oo17">انزل لتحت</b><small data-elem-id="oo18">Scroll down</small><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8l6 6 6-6"/><path d="M8.5 4.5 12 8l3.5-3.5" opacity=".55"/></svg></button>
     </div></div>
-    <div class="oo-w oo-w2"><div class="oo-p oo-p2" role="img" aria-label="Save the Date — 22 نوفمبر 2026"></div></div>
+    <div class="oo-w oo-w2"><div class="oo-p oo-p2" role="img" aria-label="Save the Date — 22 نوفمبر 2026"><p class="oo-nov" data-elem-id="oo19">22 NOVEMBER 2026</p></div></div>
     ${SECTIONS}
     ${RSVP}
   </div>

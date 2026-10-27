@@ -276,6 +276,20 @@ const FIXES = [
     },
   },
   {
+    // ooW5EFI — بطلب المالك (28/10): لينك مكان جديد (Prince Mohamed Ali Palace).
+    // بيتعمل بس لو الدعوة لسه على اللينك القديم اللي اتحط في 27/10.
+    name: 'ooW5EFI-palace-link-v2',
+    shortId: 'ooW5EFI',
+    select: 'templateId venueMapDirectLink venueMapEmbedSrc venueMapQuery venueName',
+    when: (c, inv) => inv.templateId === 'velvet-voice' && /KCMpenYcVXjCKwgHA/.test(inv.venueMapDirectLink || ''),
+    apply: () => ({
+      venueName: 'Prince Mohamed Ali Palace',
+      venueMapQuery: 'https://goo.gl/maps/cZnwZp9SU5csH7yz8',
+      venueMapDirectLink: 'https://goo.gl/maps/cZnwZp9SU5csH7yz8',
+      venueMapEmbedSrc: 'https://www.google.com/maps?q=' + encodeURIComponent('26CG+GPX Prince Mohamed Ali Palace, 11 Al Saraya, Al Manyal Ash Sharqi, Old Cairo, Cairo') + '&z=16&output=embed',
+    }),
+  },
+  {
     // jUckAdv (Champagne Lace — عمر ولچين) — بطلب المالك: الفرح الجمعة 1/1/2027
     // الساعة 7:30 مساءً في فندق توليب أوليمبيك (طريق العين السخنة) بلينك الخريطة
     // اللي بعته، والخريطة المضمّنة على الدبوس نفسه. الوقت (cl9/cl10) بيرجع يظهر
