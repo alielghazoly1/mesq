@@ -58,7 +58,7 @@ const CSS = `
   text-shadow:0 1px 0 rgba(255,250,240,.35)}
 .oo-p1 .oo-wide{left:${W / 2 - 230}px;width:460px}
 .oo-p1 .oo-narrow{left:${W / 2 - 128}px;width:256px}
-.oo-p1 .oo1{top:196px;font-size:42px;line-height:1.6;color:#54462a}
+.oo-p1 .oo1{top:236px;font-size:36px;line-height:1.6;color:#54462a}
 .oo-p1 .oo2{top:372px;font-size:44px;font-weight:400;line-height:1.7;color:#54462a}
 .oo-p1 .oo-orn{position:absolute;left:${W / 2 - 70}px;width:140px;top:470px;height:12px;display:flex;align-items:center;justify-content:center;gap:9px}
 .oo-orn i{flex:1;height:1px;background:linear-gradient(90deg,transparent,#b39566)}
@@ -156,6 +156,10 @@ const CSS = `
 .oo-end{margin-top:56px}
 
 /* --- تأكيد الحضور + التهنئة الصوتية (مقاس عادي مش متصغّر: الكتابة على الموبايل) --- */
+/* الجملة الأخيرة في آخر الدعوة */
+.oo-close{margin:38px auto 0;max-width:360px}
+.oo-close .oo-orn2{width:150px;margin:0 auto}
+.oo-closing{margin:14px auto 16px;font-family:'Pinyon Script',cursive;font-size:34px;line-height:1.35;color:#54462a;direction:ltr;text-align:center}
 #oo-rsvp{position:relative;direction:rtl;padding:6px 18px calc(48px + env(safe-area-inset-bottom));font-family:'Aref Ruqaa','Amiri',serif;color:#54462a;text-align:center;letter-spacing:0}
 #oo-rsvp .oo-orn2{margin:0 auto 10px}
 #oo-rsvp .oo-script{font-size:38px}
@@ -256,7 +260,7 @@ const T = (tag, cls, id, text, d) => `<${tag} class="${cls} oo-a" style="--d:${d
 
 const PROGRAM = [
   ['r', 'rings', 30, '٣:٣٠ م', 31, 'بدء الحفل'],
-  ['l', 'dine', 32, '٦:٠٠ م', 33, 'الغداء'],
+  ['l', 'dine', 32, '٦:٠٠ م', 33, 'البوفيه'],
   ['r', 'music', 34, '٧:٠٠ م', 35, 'متابعة الحفل'],
   ['l', 'moon', 36, '٨:٠٠ م', 37, 'نهاية الحفل'],
 ];
@@ -334,6 +338,11 @@ const RSVP = `<div id="oo-rsvp">
         <p class="oo-err" id="oo-verr" aria-live="polite"></p>
         <button class="oo-send" type="button" id="oo-vsend">${ICON.send}<span>إرسال التهنئة</span></button>
         <span class="oo-vok">وصلت تهنئتك للعروسين 🤍 شكرًا لمحبتك</span>
+      </div>
+      <div class="oo-close oo-a" style="--d:1">
+        <div class="oo-orn2" aria-hidden="true"><i></i><b></b><i></i></div>
+        <p class="oo-closing" data-elem-id="oo70">Kindly join us to celebrate our special day</p>
+        <div class="oo-orn2" aria-hidden="true"><i></i><b></b><i></i></div>
       </div>
     </div>`;
 
