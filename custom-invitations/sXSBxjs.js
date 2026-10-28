@@ -132,6 +132,16 @@ const COVER = `<div class="sx-env" id="sx-env" role="button" tabindex="0" aria-l
 
 // بيتحط في سكريبت القالب قبل "STATIC" — openInvite متعرّفة قبله
 const LOGIC = `
+  /* ---------- sXSBxjs: برنامج اليوم (مواعيد العروسين) + الزي وتأكيد الحضور اتشالوا ---------- */
+  {
+    const SCH = [['sg40', '5:00 PM', 'sg41', 'Church Ceremony'], ['sg42', '7:00 PM', 'sg43', 'Cocktails'], ['sg44', '8:00 PM', 'sg45', 'First dance & party'], ['sg46', '10:00 PM', 'sg47', 'Dinner & after-party']];
+    SCH.forEach(([t, tv, n, nv]) => { const a = byId(t), b = byId(n); if (a) a.textContent = tv; if (b) b.textContent = nv; });
+    // الرقصة قبل العشا: أيقونة المزيكا للتالت والشوكة والسكينة للرابع
+    const ics = $$('#schedule .tl .ic');
+    if (ics.length === 4) { const x = ics[2].innerHTML; ics[2].innerHTML = ics[3].innerHTML; ics[3].innerHTML = x; }
+    ['dress', 'rsvp'].forEach((id) => { const e = document.getElementById(id); if (e) e.classList.add('off'); });
+    GO.rsvp = '#extras';
+  }
   /* ---------- sXSBxjs: تقويم Save the Date (الشهر بتاع الفرح، والقلب على يومه) ---------- */
   {
     const MN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -260,6 +270,66 @@ const COUNT_HEAD = `<p class="sxd-head" data-elem-id="sx29">The celebration begi
     <div class="sxd-orn" aria-hidden="true"><i></i><svg viewBox="0 0 40 20"><path d="M20 3c3 4 3 10 0 14-3-4-3-10 0-14zM20 10c4-4 10-4 14 0-4 4-10 4-14 0zM20 10c-4-4-10-4-14 0 4 4 10 4 14 0z" fill="none" stroke="#b98c55" stroke-width="1.2"/></svg><i></i></div>
     `;
 
+// ===== رابع تعديل: برجندي بدل الأخضر + المواعيد + مكانين بصورهم + Our love story =====
+const CHURCH = asset('/custom/sXSBxjs/church.webp');
+const HOTEL = asset('/custom/sXSBxjs/hotel.webp');
+const COUPLE = asset('/custom/sXSBxjs/couple.webp');
+const CHURCH_MAP = 'https://maps.app.goo.gl/yzFxLJwYCa1Du8kK7?g_st=ic';
+const HOTEL_MAP = 'https://maps.app.goo.gl/sNG2VyrC5vFGNMnt8?g_st=ic';
+const PIN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 21s-7-6.3-7-11.5A7 7 0 0 1 19 9.5C19 14.7 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>';
+const place = (kind, idK, idN, name, img, href, idB) => `<div class="sxv-place reveal">
+      <div class="sxv-kind" data-elem-id="${idK}">${kind}</div>
+      <div class="sxv-name" data-elem-id="${idN}">${name}</div>
+      <a class="sxv-photo" href="${href}" target="_blank" rel="noopener" aria-label="${name} — Google Maps"><img src="${img}" alt="${name}" loading="lazy"><span class="sxv-tag">${PIN}</span></a>
+      <a class="btn btn-sage sxv-btn" href="${href}" target="_blank" rel="noopener">${PIN}<span data-elem-id="${idB}">Open in Google Maps</span></a>
+    </div>`;
+const VENUE = `<section class="venue-sec" id="venue" data-section="venue">
+    <div class="eyebrow reveal" data-elem-id="sx50">Join us at</div>
+    <div class="h-script reveal d1" data-elem-id="sx51">Locations</div>
+    ${place('Church', 'sx52', 'sx53', 'St. Mary Church — East Abbasia', CHURCH, CHURCH_MAP, 'sx54')}
+    <div class="sxv-sep" aria-hidden="true"><i></i><b></b><i></i></div>
+    ${place('Venue', 'sx55', 'sx56', 'The Guard Hotel — La Luna', HOTEL, HOTEL_MAP, 'sx57')}
+    <iframe id="sgMap" hidden title="map"></iframe><a id="mapBtn" hidden></a>
+  </section>`;
+const LOVE = `<figure class="sxl-photo reveal"><img src="${COUPLE}" alt="" loading="lazy"></figure>
+    <div class="h-script reveal d1" data-elem-id="sx60">Our love story</div>
+    <p class="sxl-text reveal d2" data-elem-id="sx61">What began as childhood memories blossomed into a love so true.<br>From being little neighbors to saying “I do”.</p>`;
+const MORE_CSS = `
+/* الأخضر → برجندي في الدعوة كلها */
+:root{--sage:#8a3a46;--sage-d:#6b1d29;--sage-dd:#5a1822;--sage-l:#e3c3c6;--sage-ll:#f4e7e6}
+.btn-sage{box-shadow:0 14px 28px -14px rgba(107,29,41,.75)!important}
+.rec-btn{background:radial-gradient(circle at 30% 30%,#a4474b,#6b1d29)!important;box-shadow:0 16px 30px -14px rgba(107,29,41,.85)!important}
+.rec.on .rec-btn{background:radial-gradient(circle at 30% 30%,#c46a5c,#8f2f34)!important}
+/* ورق الورد اللي بيقع: ورد وبرجندي فاتح بدل الأخضر */
+.petal{filter:hue-rotate(250deg) saturate(1.5)}
+.tl .ic{color:${BUR}!important;border-color:rgba(107,29,41,.45)!important}
+.timeline::before{background:linear-gradient(rgba(107,29,41,.25),rgba(107,29,41,.55))!important}
+.tl .t{color:${BUR}!important}
+/* الزي وتأكيد الحضور اتشالوا */
+#dress,#rsvp{display:none!important}
+/* المكانين */
+.sxv-place{max-width:380px;margin:22px auto 0;text-align:center}
+.sxv-kind{font-family:'Cinzel','Cormorant Garamond',serif;font-size:13px;letter-spacing:.32em;text-transform:uppercase;color:#a07a4a}
+.sxv-name{margin:6px 0 14px;font:600 26px/1.25 'Cormorant Garamond',serif;color:${BUR}}
+.sxv-photo{position:relative;display:block;border-radius:14px;overflow:hidden;padding:6px;background:#fff;
+  box-shadow:0 0 0 1px rgba(107,29,41,.25),0 18px 34px -18px rgba(70,25,30,.6)}
+.sxv-photo img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:9px;transition:transform .8s cubic-bezier(.2,.7,.2,1)}
+.sxv-photo:hover img{transform:scale(1.03)}
+.sxv-tag{position:absolute;right:16px;bottom:16px;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:${BUR};color:#fbf3ec;box-shadow:0 8px 16px -8px rgba(0,0,0,.6)}
+.sxv-tag svg{width:20px;height:20px}
+.sxv-btn{margin-top:16px;display:inline-flex;align-items:center;gap:8px}
+.sxv-btn svg{width:18px;height:18px}
+.sxv-sep{display:flex;align-items:center;justify-content:center;gap:10px;width:200px;margin:34px auto 6px}
+.sxv-sep i{flex:1;height:1px;background:linear-gradient(90deg,transparent,#b98c55)}.sxv-sep i:last-child{transform:scaleX(-1)}
+.sxv-sep b{width:7px;height:7px;border:1px solid #b98c55;transform:rotate(45deg)}
+/* Our love story — آخر صفحة */
+.closing{background:linear-gradient(180deg,#f7f1ea,#f1e1de)!important}
+.sxl-photo{margin:0 auto;max-width:300px;padding:8px;background:#fff;border-radius:160px 160px 14px 14px;
+  box-shadow:0 0 0 1px rgba(107,29,41,.28),0 24px 40px -22px rgba(70,25,30,.7)}
+.sxl-photo img{display:block;width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:152px 152px 9px 9px}
+.sxl-text{max-width:330px;margin:10px auto 0;font:italic 500 21px/1.55 'Cormorant Garamond',serif;color:${BUR};text-align:center}
+`;
+
 const PATCHES = [
   ['    <div class="countdown">\n', `    ${COUNT_HEAD}<div class="countdown">\n`],
   ['  <!-- ============ برنامج اليوم ============ -->\n', `  ${CAL}\n\n  <!-- ============ برنامج اليوم ============ -->\n`],
@@ -273,13 +343,24 @@ module.exports = {
 
   render() {
     return {
-      head: `<link rel="preload" as="image" href="${TOP}"><link rel="preload" as="image" href="${BOTTOM}"><link rel="preload" as="image" href="${SEAL}"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Cinzel:wght@500&family=Cormorant+Garamond:wght@500;600&display=swap"><style id="sx-style">${CSS}${CAL_CSS}</style>`,
+      head: `<link rel="preload" as="image" href="${TOP}"><link rel="preload" as="image" href="${BOTTOM}"><link rel="preload" as="image" href="${SEAL}"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Cinzel:wght@500&family=Cormorant+Garamond:wght@500;600&display=swap"><style id="sx-style">${CSS}${CAL_CSS}${MORE_CSS}</style>`,
     };
   },
 
   transform(html) {
     const nl = html.includes('\r\n') ? '\r\n' : '\n';
     let out = html;
+    // قسم المكان كله بيتبدّل (مكانين بصورهم) — ولو مالقيناهوش الصفحة زي ما هي
+    const vs = out.indexOf('<section class="venue-sec" id="venue"');
+    const ve = vs < 0 ? -1 : out.indexOf('</section>', vs);
+    if (vs < 0 || ve < 0) { console.error('[custom sXSBxjs] venue section not found'); return html; }
+    out = out.slice(0, vs) + VENUE + out.slice(ve + '</section>'.length);
+    // الختام: صورة العروسين مكان طبق الدبل، و"Our love story" مكان الجملة
+    const PLATE = '<img class="plate reveal" src="/templates/sage-garden/c-rings-plate.webp" alt="">';
+    const ps = out.indexOf(PLATE);
+    const pe = ps < 0 ? -1 : out.indexOf('</div>', out.indexOf('data-elem-id="sg82"', ps));
+    if (ps < 0 || pe < 0) { console.error('[custom sXSBxjs] closing not found'); return html; }
+    out = out.slice(0, ps) + LOVE + out.slice(pe + '</div>'.length);
     for (const [find, repl] of PATCHES) {
       const f = find.replace(/\n/g, nl);
       if (out.split(f).length !== 2) {
