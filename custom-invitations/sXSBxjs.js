@@ -132,6 +132,23 @@ const COVER = `<div class="sx-env" id="sx-env" role="button" tabindex="0" aria-l
 
 // بيتحط في سكريبت القالب قبل "STATIC" — openInvite متعرّفة قبله
 const LOGIC = `
+  /* ---------- sXSBxjs: تقويم Save the Date (الشهر بتاع الفرح، والقلب على يومه) ---------- */
+  {
+    const MN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const mEl = document.querySelector('[data-elem-id="sx31"]'), yEl = document.querySelector('[data-elem-id="sx32"]');
+    if (mEl && !mEl.textContent.trim()) mEl.textContent = MN[M];
+    if (yEl && !yEl.textContent.trim()) yEl.textContent = String(Y);
+    const g = document.getElementById('sxcGrid');
+    if (g) {
+      const first = new Date(Y, M, 1).getDay(), days = new Date(Y, M + 1, 0).getDate();
+      let h = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map((d) => '<b>' + d + '</b>').join('');
+      for (let k = 0; k < first; k++) h += '<span></span>';
+      for (let d = 1; d <= days; d++) h += '<span' + (d === D ? ' class="wd"' : '') + '>' + d + '</span>';
+      g.innerHTML = h;
+    }
+    // Save the Date في الكولاج بيودّي على التقويم
+    GO.calendar = '#sxCal';
+  }
   /* ---------- sXSBxjs: كلام الكولاج الجديد من بيانات الدعوة ---------- */
   {
     const up = (s) => String(s || '').toUpperCase();
@@ -167,7 +184,85 @@ const LOGIC = `
   }
 `;
 
+// ===== تالت تعديل: العد التنازلي بستايل "The celebration begins." + كارت Save the Date (تقويم) تحته =====
+const BUR = '#6b1d29';
+// غصن صغير (ورق دهبي + توت برجندي) — بيتكرر في الأربع أركان
+// غصن ركنة (للركن الشمال فوق) — فرعين ماشيين مع الحافتين، ورق دهبي وتوت برجندي؛ بيتقلب للأركان التانية
+const _leaves = (pts) => pts.map(([x, y, r]) => `<ellipse cx="${x}" cy="${y}" rx="6" ry="2.4" transform="rotate(${r} ${x} ${y})"/>`).join('');
+const SPRIG = `<svg viewBox="0 0 120 120" aria-hidden="true"><g fill="none" stroke="#b98c55" stroke-width="1.2" stroke-linecap="round">
+  <path d="M6 6 C40 10 76 16 116 34"/><path d="M6 6 C10 40 16 76 34 116"/><path d="M40 12 C50 22 54 30 54 40"/><path d="M12 40 C22 50 30 54 40 54"/></g>
+  <g fill="#c9a26b">${_leaves([[20,10,-25],[22,4,20],[34,13,-20],[36,7,25],[50,16,-15],[52,10,28],[66,20,-12],[68,14,30],[82,26,-8],[84,20,32],[98,31,0],[100,25,36],
+    [10,20,-65],[4,22,-110],[13,34,-70],[7,36,-115],[16,50,-75],[10,52,-118],[20,66,-78],[14,68,-120],[26,82,-82],[20,84,-122],[31,98,-90],[25,100,-126],[48,26,60],[52,34,80],[26,48,30],[34,52,10]])}</g>
+  <g fill="${BUR}">${[[112,34,3],[106,38,2.3],[116,28,2.2],[34,112,3],[38,106,2.3],[28,116,2.2],[56,42,2.6],[42,56,2.6],[60,46,2],[46,60,2]].map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}"/>`).join('')}</g></svg>`;
+const ORN = `<div class="sxc-orn" aria-hidden="true"><i></i><svg viewBox="0 0 24 24"><path d="M12 2l2.2 6.6L21 7l-4.8 5L21 17l-6.8-1.6L12 22l-2.2-6.6L3 17l4.8-5L3 7l6.8 1.6z" fill="#b98c55"/></svg><i></i></div>`;
+const CAL = `<section class="sxc-sec" id="sxCal" aria-label="Save the date">
+  <div class="sxc-card reveal">
+    <svg class="sxc-frame" viewBox="0 0 340 660" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M24 46 Q24 26 46 26 H140 Q160 26 170 8 Q180 26 200 26 H294 Q316 26 316 46 V614 Q316 634 294 634 H200 Q180 634 170 652 Q160 634 140 634 H46 Q24 634 24 614 Z" fill="#f7efe6" stroke="${BUR}" stroke-width="3" vector-effect="non-scaling-stroke"/>
+      <path d="M33 52 Q33 35 52 35 H143 Q161 35 170 20 Q179 35 197 35 H288 Q307 35 307 52 V608 Q307 625 288 625 H197 Q179 625 170 640 Q161 625 143 625 H52 Q33 625 33 608 Z" fill="none" stroke="#b98c55" stroke-width="1.2" vector-effect="non-scaling-stroke"/>
+    </svg>
+    <span class="sxc-sp k1">${SPRIG}</span><span class="sxc-sp k2">${SPRIG}</span><span class="sxc-sp k3">${SPRIG}</span><span class="sxc-sp k4">${SPRIG}</span>
+    <div class="sxc-in">
+      <p class="sxc-eye" data-elem-id="sx30">SAVE THE DATE</p>
+      ${ORN}
+      <p class="sxc-my"><span class="sxc-m" data-elem-id="sx31"></span> <span class="sxc-y" data-elem-id="sx32"></span></p>
+      ${ORN}
+      <div class="sxc-grid" id="sxcGrid" dir="ltr"></div>
+      ${ORN}
+      <p class="sxc-foot" data-elem-id="sx33">WE CAN’T WAIT TO<br>CELEBRATE WITH YOU</p>
+      <div class="sxc-orn sxc-heart" aria-hidden="true"><i></i><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" fill="none" stroke="#b98c55" stroke-width="1.6"/></svg><i></i></div>
+    </div>
+  </div>
+</section>`;
+const CAL_CSS = `
+/* العد التنازلي — أرضية فاتحة وكتابة برجندي */
+.count-sec{background:#f7f1ea!important;padding:46px 14px 40px!important;text-align:center}
+.sxd-head{margin:0 0 6px;font:400 44px/1.15 'Pinyon Script',cursive;color:${BUR}}
+.sxd-orn{display:flex;align-items:center;justify-content:center;gap:10px;margin:0 auto 18px;width:220px}
+.sxd-orn i{flex:1;height:1px;background:linear-gradient(90deg,transparent,#b98c55)}.sxd-orn i:last-child{transform:scaleX(-1)}
+.sxd-orn svg{width:30px;height:16px}
+.count-sec .countdown{display:flex!important;justify-content:center;gap:0;max-width:380px;direction:ltr}
+.count-sec .cd{position:relative;flex:1;background:none!important;border:0!important;box-shadow:none!important;padding:0!important}
+.count-sec .cd + .cd::before{content:":";position:absolute;left:-5px;top:2px;font:500 40px/1 'Cormorant Garamond',serif;color:${BUR}}
+.count-sec .cd .cn{font-variant-numeric:lining-nums tabular-nums!important;font:500 54px/1 'Cormorant Garamond',serif!important;color:${BUR}!important}
+.count-sec .cd .cl{margin-top:12px!important;font:500 18px/1 'Cormorant Garamond',serif!important;letter-spacing:.02em!important;text-transform:none!important;color:#7c4a4f!important}
+.count-sec .btn-ghost{color:${BUR}!important;border-color:rgba(107,29,41,.45)!important}
+
+/* كارت Save the Date (تقويم الشهر) */
+.sxc-sec{background:#f7f1ea;padding:6px 16px 48px}
+.sxc-card{position:relative;max-width:380px;margin:0 auto;aspect-ratio:340/660;filter:drop-shadow(0 16px 26px rgba(70,25,30,.16))}
+.sxc-frame{position:absolute;inset:0;width:100%;height:100%}
+.sxc-sp{position:absolute;width:30%;aspect-ratio:1;pointer-events:none}
+.sxc-sp svg{width:100%;height:100%}
+.sxc-sp.k1{left:9.5%;top:6.4%}
+.sxc-sp.k2{right:9.5%;top:6.4%;transform:scaleX(-1)}
+.sxc-sp.k3{left:9.5%;bottom:6.4%;transform:scaleY(-1)}
+.sxc-sp.k4{right:9.5%;bottom:6.4%;transform:scale(-1,-1)}
+.sxc-in{position:absolute;left:12%;right:12%;top:19%;bottom:9%;justify-content:center;display:flex;flex-direction:column;align-items:center;text-align:center;color:${BUR}}
+.sxc-eye{margin:0;font:500 clamp(15px,4.6vw,19px)/1 'Cinzel','Cormorant Garamond',serif;letter-spacing:.08em}
+.sxc-orn{display:flex;align-items:center;justify-content:center;gap:8px;width:78%;margin:10px auto}
+.sxc-orn i{flex:1;height:1px;background:#b98c55;position:relative}
+.sxc-orn i::before{content:"";position:absolute;top:-2px;width:5px;height:5px;border-radius:50%;border:1px solid #b98c55;left:0}
+.sxc-orn i:last-child::before{left:auto;right:0}
+.sxc-orn svg{width:16px;height:16px;flex:none}
+.sxc-my{margin:2px 0 0;white-space:nowrap;line-height:1}
+.sxc-m{font:400 clamp(38px,11.5vw,56px)/1 'Pinyon Script',cursive;color:${BUR}}
+.sxc-y{font-variant-numeric:lining-nums;font:500 clamp(27px,8.4vw,40px)/1 'Cormorant Garamond',serif;color:${BUR};margin-left:4px}
+.sxc-grid{display:grid;grid-template-columns:repeat(7,1fr);width:100%;row-gap:clamp(2px,1vw,6px);margin-top:2px;font:500 clamp(15px,4.4vw,19px)/1.75 'Cormorant Garamond',serif;font-variant-numeric:lining-nums;color:#3b1a1e}
+.sxc-grid b{font:500 clamp(10px,2.9vw,12.5px)/2 'Cinzel','Cormorant Garamond',serif;letter-spacing:.04em;color:${BUR}}
+.sxc-grid span{position:relative;display:flex;align-items:center;justify-content:center}
+.sxc-grid span.wd::before{content:"";position:absolute;width:2.3em;height:2.1em;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 22'%3E%3Cpath d='M12 20.4S2.6 14.6 1.5 8.6C.8 4.8 3.3 1.6 6.9 1.6c2.2 0 3.9 1.2 5.1 3 1.2-1.8 2.9-3 5.1-3 3.6 0 6.1 3.2 5.4 7-1.1 6-10.5 11.8-10.5 11.8z' fill='none' stroke='%23b98c55' stroke-width='1.4'/%3E%3C/svg%3E") center/contain no-repeat}
+.sxc-foot{margin:0;font:500 clamp(12px,3.6vw,15px)/1.45 'Cinzel','Cormorant Garamond',serif;letter-spacing:.06em;color:${BUR}}
+.sxc-heart{width:52%;margin-top:8px}.sxc-heart i::before{display:none}
+`;
+const COUNT_HEAD = `<p class="sxd-head" data-elem-id="sx29">The celebration begins.</p>
+    <div class="sxd-orn" aria-hidden="true"><i></i><svg viewBox="0 0 40 20"><path d="M20 3c3 4 3 10 0 14-3-4-3-10 0-14zM20 10c4-4 10-4 14 0-4 4-10 4-14 0zM20 10c-4-4-10-4-14 0 4 4 10 4 14 0z" fill="none" stroke="#b98c55" stroke-width="1.2"/></svg><i></i></div>
+    `;
+
 const PATCHES = [
+  ['    <div class="countdown">\n', `    ${COUNT_HEAD}<div class="countdown">\n`],
+  ['  <!-- ============ برنامج اليوم ============ -->\n', `  ${CAL}\n\n  <!-- ============ برنامج اليوم ============ -->\n`],
   ['    <div class="collage" id="collage">\n', `    <div class="collage" id="collage">\n      ${COLLAGE}\n`],
   ['<div class="cover" id="coverScreen">\n', `<div class="cover" id="coverScreen">\n  ${COVER}`],
   ['  if (STATIC) {\n    // المحرر: الغلاف بيفضل موجود', `${LOGIC}\n  if (STATIC) {\n    // المحرر: الغلاف بيفضل موجود`],
@@ -178,7 +273,7 @@ module.exports = {
 
   render() {
     return {
-      head: `<link rel="preload" as="image" href="${TOP}"><link rel="preload" as="image" href="${BOTTOM}"><link rel="preload" as="image" href="${SEAL}"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Cinzel:wght@500&family=Cormorant+Garamond:wght@500;600&display=swap"><style id="sx-style">${CSS}</style>`,
+      head: `<link rel="preload" as="image" href="${TOP}"><link rel="preload" as="image" href="${BOTTOM}"><link rel="preload" as="image" href="${SEAL}"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Cinzel:wght@500&family=Cormorant+Garamond:wght@500;600&display=swap"><style id="sx-style">${CSS}${CAL_CSS}</style>`,
     };
   },
 
