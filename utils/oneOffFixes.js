@@ -339,6 +339,48 @@ const FIXES = [
     },
   },
   {
+    // MeqC70l (Lily Garden عربي) — بطلب المالك: نسخة عربي من eJCypdA بكل تفاصيلها:
+    // داليا و عمر، 21/11/2026 الساعة 5، بسم الله فوق، يوم الخطوبة، صورة الغلاف
+    // والأغنية، جملة "قَدَّرَ اللهُ لَنَا لِقَاءً"، والمكان Pipe & Vibe Lounge في كراون
+    // بلازا ميراج بنفس لينك الخريطة. الختم (ع و د) في custom-invitations/MeqC70l.js.
+    // بيتعمل بس لو الدعوة لسه بأسامي المسودة.
+    name: 'MeqC70l-arabic-copy',
+    shortId: 'MeqC70l',
+    select: '-__v',
+    when: (c, inv) => inv.templateId === 'lily-garden' && inv.groomName === 'العريس' && inv.brideName === 'العروسة',
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: 'ar', occasionType: inv.occasionType,
+        hiddenSections: inv.hiddenSections, timeline: inv.timeline, name: inv.name,
+        groomName: 'داليا', groomNameAr: 'داليا', brideName: 'عمر', brideNameAr: 'عمر',
+        venueName: 'Pipe & Vibe Lounge', venueCity: 'كراون بلازا ميراج — الإسكندرية',
+        venueMapQuery: 'https://maps.app.goo.gl/Z3BoDiG85DhTNHzA6',
+        weddingDate: '2026-11-21', weddingTime: '17:00',
+      }, { ownsTemplate: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.venueMapDirectLink = 'https://maps.app.goo.gl/Z3BoDiG85DhTNHzA6';
+      set.venueMapEmbedSrc = 'https://www.google.com/maps?q=31.2150728,29.9467928&output=embed';
+      set['customizations.texts'] = {
+        ...(c.texts || {}),
+        lg1: 'بِسْمِ اللَّـهِ الرَّحْمَـٰنِ الرَّحِيمِ',
+        lg4: 'يوم الخطوبة',
+        lg42: 'حفل خطوبتنا',
+      };
+      set['customizations.images'] = {
+        ...(c.images || {}),
+        lg5: 'https://res.cloudinary.com/dxtkmyscw/image/upload/v1793223278/mithaq/users/6ac259d576f8e4b7f5938280/images/e8xttnlo1ckn8w43hnuo.jpg',
+      };
+      set['customizations.audioUrl'] = 'https://res.cloudinary.com/dxtkmyscw/video/upload/v1793223832/mithaq/users/6ac259d576f8e4b7f5938280/audio/gqbafhbnadbwzluw3x4t.mp3';
+      set['customizations.added'] = [
+        ...((c.added || []).filter((a) => a.id !== 'nmvsmyt3obu5r')),
+        { id: 'nmvsmyt3obu5r', text: 'قَدَّرَ اللهُ لَنَا لِقَاءً، فَكَانَ أَجْمَلَ قَدَر', xPct: 50, y: 0, size: 21, color: '#726434', align: 'center', anchor: 'sid_wg-invite-2', ay: 37, ww: 340 },
+      ];
+      return set;
+    },
+  },
+  {
     // jUckAdv (Champagne Lace — عمر ولچين) — بطلب المالك: الفرح الجمعة 1/1/2027
     // الساعة 7:30 مساءً في فندق توليب أوليمبيك (طريق العين السخنة) بلينك الخريطة
     // اللي بعته، والخريطة المضمّنة على الدبوس نفسه. الوقت (cl9/cl10) بيرجع يظهر

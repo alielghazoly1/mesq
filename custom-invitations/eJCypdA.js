@@ -25,8 +25,8 @@ html[dir="rtl"] .ej-tap,.ej-tap.ar{font:700 17px/1 'Amiri',serif;letter-spacing:
 @media (prefers-reduced-motion:reduce){.ej-tap{animation:none}}
 `;
 
-const script = (label, moveAdded) => `(function(){
-var MOVE=${JSON.stringify(moveAdded || '')};
+const script = (label, moveAdded, quote) => `(function(){
+var MOVE=${JSON.stringify(moveAdded || '')}, QUOTE=${JSON.stringify(quote || '')};
 var SEAL=${JSON.stringify(SEAL)}, OLD=${JSON.stringify(OLD)}, LABEL=${JSON.stringify(label)};
 // أول ما الضيف يضغط الختم الكلمة بتختفي (الختم بيفضل في الصفحة بعد الفتح) — حتى لو ضغط قبل ما الكلمة تتحط
 var OPENED=false;
@@ -55,6 +55,15 @@ function put(){
     if(a && addr && a.previousElementSibling!==addr){ addr.insertAdjacentElement('afterend',a); }
     if(a) a.classList.add('ej-inflow');
   }
+  // جملة "قَدَّرَ اللهُ" (العربي): تحت صورة الغلاف على طول، فوق "مرّر لتحت" — مش راكبة عليها
+  if(QUOTE && !/[?&]edit=1/.test(location.search)){
+    var qe=document.querySelector('[data-elem-id="'+QUOTE+'"]'), arch=document.querySelector('[data-elem-id="lg5"]');
+    if(qe && arch){
+      var ar=arch.getBoundingClientRect(), qr=qe.getBoundingClientRect();
+      var dy=ar.bottom+4-qr.top;
+      if(Math.abs(dy)>2){ var cur=parseFloat(qe.dataset.ejDy||'0'); cur+=dy; qe.dataset.ejDy=cur; qe.style.translate='0 '+cur+'px'; }
+    }
+  }
   return true;
 }
 var k=0,t=setInterval(function(){ put(); if(++k>240) clearInterval(t); },250);
@@ -62,12 +71,12 @@ if(window.MutationObserver){ var q=false; new MutationObserver(function(){ if(q)
 document.addEventListener('DOMContentLoaded',put); window.addEventListener('load',put);
 })();`;
 
-const make = (shortId, label, moveAdded) => ({
+const make = (shortId, label, moveAdded, quote) => ({
   shortId,
   render() {
     return {
       head: `<link rel="preload" as="image" href="${SEAL}"><style id="ej-style">${CSS}</style>`,
-      bodyEnd: `<script id="ej-script">${script(label, moveAdded)}</script>`,
+      bodyEnd: `<script id="ej-script">${script(label, moveAdded, quote)}</script>`,
     };
   },
 });
