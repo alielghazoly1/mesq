@@ -316,6 +316,29 @@ const FIXES = [
     }),
   },
   {
+    // sXSBxjs (Sage Garden كاستم — custom-invitations/sXSBxjs.js) — بطلب المالك:
+    // Maged & Rana، الفرح 19 نوفمبر 2026 الساعة 5 مساءً (الكنيسة)، والمكان The
+    // Guard Hotel. بيتعمل بس لو الدعوة لسه بأسامي المسودة Groom / Bride.
+    name: 'sXSBxjs-maged-rana',
+    shortId: 'sXSBxjs',
+    select: '-__v',
+    when: (c, inv) => inv.templateId === 'sage-garden' && inv.groomName === 'Groom' && inv.brideName === 'Bride',
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: inv.language, occasionType: inv.occasionType,
+        hiddenSections: inv.hiddenSections, timeline: inv.timeline, name: inv.name,
+        groomName: 'Maged', groomNameAr: 'Maged', brideName: 'Rana', brideNameAr: 'Rana',
+        venueName: 'The Guard Hotel — La Luna', venueCity: 'Cairo',
+        venueMapQuery: 'https://maps.app.goo.gl/sNG2VyrC5vFGNMnt8?g_st=ic',
+        weddingDate: '2026-11-19', weddingTime: '17:00',
+      }, { ownsTemplate: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      return set;
+    },
+  },
+  {
     // jUckAdv (Champagne Lace — عمر ولچين) — بطلب المالك: الفرح الجمعة 1/1/2027
     // الساعة 7:30 مساءً في فندق توليب أوليمبيك (طريق العين السخنة) بلينك الخريطة
     // اللي بعته، والخريطة المضمّنة على الدبوس نفسه. الوقت (cl9/cl10) بيرجع يظهر

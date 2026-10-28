@@ -293,7 +293,12 @@ const VENUE = `<section class="venue-sec" id="venue" data-section="venue">
   </section>`;
 const LOVE = `<figure class="sxl-photo reveal"><img src="${COUPLE}" alt="" loading="lazy"></figure>
     <div class="h-script reveal d1" data-elem-id="sx60">Our love story</div>
-    <p class="sxl-text reveal d2" data-elem-id="sx61">What began as childhood memories blossomed into a love so true.<br>From being little neighbors to saying “I do”.</p>`;
+    <p class="sxl-text reveal d2" data-elem-id="sx61">What began as childhood memories blossomed into a love so true.<br>From being little neighbors to saying “I do”.</p>
+    <div class="sxk reveal d3">
+      <div class="sxk-t" data-elem-id="sx62">A note about the kids</div>
+      <p class="sxk-p" data-elem-id="sx63">We look forward to celebrating together in a relaxed, adults-only gathering.</p>
+      <div class="sxk-s" data-elem-id="sx64">See you there!</div>
+    </div>`;
 const MORE_CSS = `
 /* الأخضر → برجندي في الدعوة كلها */
 :root{--sage:#8a3a46;--sage-d:#6b1d29;--sage-dd:#5a1822;--sage-l:#e3c3c6;--sage-ll:#f4e7e6}
@@ -327,6 +332,11 @@ const MORE_CSS = `
 .sxl-photo{margin:0 auto;max-width:300px;padding:8px;background:#fff;border-radius:160px 160px 14px 14px;
   box-shadow:0 0 0 1px rgba(107,29,41,.28),0 24px 40px -22px rgba(70,25,30,.7)}
 .sxl-photo img{display:block;width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:152px 152px 9px 9px}
+.sxk{max-width:380px;margin:34px auto 0;padding:30px 22px 28px;border-radius:18px;text-align:center;
+  background:linear-gradient(160deg,#7a2430,#5a1822);box-shadow:0 22px 40px -22px rgba(70,20,25,.75)}
+.sxk-t{font:400 34px/1.2 'Pinyon Script',cursive;color:#f6e7dc}
+.sxk-p{margin:12px auto 0;max-width:300px;font:500 18px/1.6 'Cormorant Garamond',serif;color:#f3e2d6}
+.sxk-s{margin-top:14px;font:400 32px/1 'Pinyon Script',cursive;color:#d8b07f}
 .sxl-text{max-width:330px;margin:10px auto 0;font:italic 500 21px/1.55 'Cormorant Garamond',serif;color:${BUR};text-align:center}
 `;
 
