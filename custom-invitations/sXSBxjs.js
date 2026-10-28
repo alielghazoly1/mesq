@@ -14,7 +14,9 @@ const BOTTOM = asset('/custom/sXSBxjs/bottom.webp');
 const SEAL = asset('/custom/sXSBxjs/seal.webp');
 
 // ===== تاني تعديل: الكولاج (صورة المالك "Sophia & Daniel" متقطّعة قطع) =====
-// كل قطعة (custom/sXSBxjs/c/*.webp) في نفس مكانها بالظبط في الصورة (عرض 736 زي
+// كل قطعة (custom/sXSBxjs/c/*.webp) مقصوصة على حدودها الحقيقية (SAM) والجزء اللي
+// كان مستخبي تحت قطعة تانية اتكمّل (مراية للكروت المتماثلة / LaMa) — scratch sx3/build.py.
+// كل قطعة في نفس مكانها بالظبط في الصورة (عرض 736 زي
 // كولاج القالب)، فلما يستقروا الشكل = الصورة؛ وكل قطعة بتدخل لوحدها بنفس حركة
 // القالب. الكلام اللي كان مرسوم (الأسامي، التاريخ، المكان، المونوجرام) اتشال من
 // الصورة وبقى كلام حقيقي بيتعدّل (sx10…) وبياخد من بيانات الدعوة (data-k).
@@ -22,7 +24,7 @@ const SEAL = asset('/custom/sXSBxjs/seal.webp');
 const PIECES = require('./sXSBxjs-pieces.json');
 const C = (n) => asset(`/custom/sXSBxjs/c/${n}.webp`);
 const CH = 1404;
-const SWAY = { bq1: '70% 30%', bq2: '30% 20%', branch: '90% 90%', calla: '50% 0%', gyp: '90% 80%', bq3: '50% 0%' };
+const SWAY = { bq1: '70% 30%', bq2: '30% 20%', calla: '50% 0%', gyp: '90% 80%', bq3: '50% 0%' };
 // كلام فوق القطع — بإحداثيات الصورة الأصلية (بتتحوّل لمكانها جوه القطعة)
 const TEXTS = {
   env: [['sx10', 'mono', 413, 318, 'MR']],
