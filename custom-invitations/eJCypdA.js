@@ -36,6 +36,7 @@ function swap(img){
   if(cur.indexOf(SEAL)<0 && OLD.some(function(o){return cur.indexOf(o)>=0;})){ img.removeAttribute('srcset'); img.setAttribute('data-original',SEAL); img.src=SEAL; }
 }
 function put(){
+  var bl=document.getElementById('birds-fly-layer'); if(bl && bl.classList.contains('birds-open')){ OPENED=true; var tt=document.querySelector('.ej-tap'); if(tt) tt.classList.add('ej-off'); }
   var el=document.querySelector('[data-elem-id="1773847037346"]'); if(!el) return false;
   var img=el.querySelector('img');
   if(img){
@@ -56,7 +57,7 @@ function put(){
   }
   return true;
 }
-var k=0,t=setInterval(function(){ put(); if(++k>80) clearInterval(t); },250);
+var k=0,t=setInterval(function(){ put(); if(++k>240) clearInterval(t); },250);
 if(window.MutationObserver){ var q=false; new MutationObserver(function(){ if(q) return; q=true; requestAnimationFrame(function(){ q=false; put(); }); }).observe(document.documentElement,{childList:true,subtree:true}); }
 document.addEventListener('DOMContentLoaded',put); window.addEventListener('load',put);
 })();`;
