@@ -28,6 +28,9 @@ html[dir="rtl"] .ej-tap,.ej-tap.ar{font:700 17px/1 'Amiri',serif;letter-spacing:
 const script = (label, moveAdded) => `(function(){
 var MOVE=${JSON.stringify(moveAdded || '')};
 var SEAL=${JSON.stringify(SEAL)}, OLD=${JSON.stringify(OLD)}, LABEL=${JSON.stringify(label)};
+// أول ما الضيف يضغط الختم الكلمة بتختفي (الختم بيفضل في الصفحة بعد الفتح) — حتى لو ضغط قبل ما الكلمة تتحط
+var OPENED=false;
+document.addEventListener('click',function(e){ if(e.target.closest && e.target.closest('[data-elem-id="1773847037346"]')){ OPENED=true; var t=document.querySelector('.ej-tap'); if(t) t.classList.add('ej-off'); } },true);
 function swap(img){
   var cur=(img.getAttribute('src')||'')+' '+(img.getAttribute('srcset')||'');
   if(cur.indexOf(SEAL)<0 && OLD.some(function(o){return cur.indexOf(o)>=0;})){ img.removeAttribute('srcset'); img.setAttribute('data-original',SEAL); img.src=SEAL; }
@@ -41,8 +44,7 @@ function put(){
   }
   if(!el.querySelector('.ej-tap')){
     var t=document.createElement('div'); t.className='ej-tap'; t.innerHTML='<i></i><span></span><i></i>'; t.querySelector('span').textContent=LABEL;
-    // أول ما الضيف يضغط الكلمة بتختفي (الختم بيفضل في الصفحة بعد الفتح)
-    el.addEventListener('click',function(){ t.classList.add('ej-off'); },true);
+    if(OPENED) t.classList.add('ej-off');
     var atom=el.querySelector('.tn-atom')||el; atom.style.position=atom.style.position||'relative'; atom.appendChild(t);
   }
   // سطر مضاف (زي "At Pipe&Vibe Lounge"): بيتحط جوه بلوك المكان نفسه بين العنوان والساعة —
