@@ -58,7 +58,7 @@ const CSS = `
   text-shadow:0 1px 0 rgba(255,250,240,.35)}
 .oo-p1 .oo-wide{left:${W / 2 - 230}px;width:460px}
 .oo-p1 .oo-narrow{left:${W / 2 - 128}px;width:256px}
-.oo-p1 .oo1{top:236px;font-size:36px;line-height:1.6;color:#54462a}
+.oo-p1 .oo1{top:264px;font-size:36px;line-height:1.6;color:#54462a}
 .oo-p1 .oo2{top:372px;font-size:44px;font-weight:400;line-height:1.7;color:#54462a}
 .oo-p1 .oo-orn{position:absolute;left:${W / 2 - 70}px;width:140px;top:470px;height:12px;display:flex;align-items:center;justify-content:center;gap:9px}
 .oo-orn i{flex:1;height:1px;background:linear-gradient(90deg,transparent,#b39566)}
