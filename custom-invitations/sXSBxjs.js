@@ -139,8 +139,9 @@ const LOGIC = `
     // الرقصة قبل العشا: أيقونة المزيكا للتالت والشوكة والسكينة للرابع
     const ics = $$('#schedule .tl .ic');
     if (ics.length === 4) { const x = ics[2].innerHTML; ics[2].innerHTML = ics[3].innerHTML; ics[3].innerHTML = x; }
-    ['dress', 'rsvp'].forEach((id) => { const e = document.getElementById(id); if (e) e.classList.add('off'); });
-    GO.rsvp = '#extras';
+    ['dress'].forEach((id) => { const e = document.getElementById(id); if (e) e.classList.add('off'); });
+    // تأكيد الحضور رجع (خامس تعديل) — ظاهر دايمًا فوق التهنئة الصوتية
+    { const r = document.getElementById('rsvp'); if (r) r.classList.remove('off'); }
   }
   /* ---------- sXSBxjs: تقويم Save the Date (الشهر بتاع الفرح، والقلب على يومه) ---------- */
   {
@@ -310,8 +311,8 @@ const MORE_CSS = `
 .tl .ic{color:${BUR}!important;border-color:rgba(107,29,41,.45)!important}
 .timeline::before{background:linear-gradient(rgba(107,29,41,.25),rgba(107,29,41,.55))!important}
 .tl .t{color:${BUR}!important}
-/* الزي وتأكيد الحضور اتشالوا */
-#dress,#rsvp{display:none!important}
+/* الزي اتشال (تأكيد الحضور رجع بستايل برجندي — RSVP_CSS) */
+#dress{display:none!important}
 /* المكانين */
 .sxv-place{max-width:380px;margin:22px auto 0;text-align:center}
 .sxv-kind{font-family:'Cinzel','Cormorant Garamond',serif;font-size:13px;letter-spacing:.32em;text-transform:uppercase;color:#a07a4a}
@@ -340,6 +341,38 @@ const MORE_CSS = `
 .sxl-text{max-width:330px;margin:10px auto 0;font:italic 500 21px/1.55 'Cormorant Garamond',serif;color:${BUR};text-align:center}
 `;
 
+// ===== خامس تعديل: تأكيد الحضور (الاسم + هيحضر ولا لأ + رسالة) فوق التهنئة الصوتية =====
+// نفس فورم القالب (بيوصل للوحة العميل). بطلب المالك: مربع بسيط شيك — إطار برجندي رفيع
+// بزوايا حادة، من غير زخارف ولا كلام زيادة جوه، زراير مستطيلة، والفورم ظاهر على طول
+// (حتى بعد الإرسال: سطر شكر صغير تحت الزرار بدل ما الفورم يستخبى).
+const RSVP_CSS = `
+.rsvp{background:#f7f1ea!important;color:${BUR}!important;padding-bottom:56px!important}
+.rsvp .sprig{display:none!important}
+.rsvp .eyebrow{color:#a07a4a!important}
+.rsvp .h-script{color:${BUR}!important}
+.rsvp-card{-webkit-mask:none!important;mask:none!important;background:#fffdf9!important;border:1px solid rgba(107,29,41,.55);border-radius:0!important;
+  padding:30px 24px 26px!important;box-shadow:none!important}
+.rsvp-card.reveal{opacity:1!important;transform:none!important}
+.rsvp-card h3,.rsvp-card .by{display:none!important}
+.rsvp-card .field{margin-bottom:20px!important}
+.rsvp-card .field .lab{color:#8a5a5e!important;font-size:10.5px!important;letter-spacing:.22em!important}
+.rsvp-card .field input,.rsvp-card .field textarea{border:1px solid rgba(107,29,41,.25)!important;border-radius:0!important;padding:11px 12px!important;
+  background:#fff!important;color:#3b1a1e!important;font-size:18px!important}
+.rsvp-card .field input:focus,.rsvp-card .field textarea:focus{border-color:${BUR}!important}
+.rsvp-card .field textarea{min-height:84px!important}
+.rsvp-card .choice{gap:10px!important}
+.rsvp-card .choice [role=radio]{border:1px solid rgba(107,29,41,.25)!important;border-radius:0!important;background:#fff;color:#5a1822!important;box-shadow:none!important;
+  padding:12px 4px!important;font-size:clamp(14px,4.1vw,17px)!important;white-space:nowrap}
+.rsvp-card .choice [aria-checked=true]{background:${BUR}!important;border-color:${BUR}!important;color:#fbf3ec!important}
+.rsvp-card .btn{border-radius:0!important;box-shadow:none!important;letter-spacing:.24em!important;margin-top:4px!important}
+.rsvp-card .r-err{color:${BUR}!important}
+/* بعد الإرسال الفورم بيفضل ظاهر، وسطر الشكر تحته */
+#mithaq-rsvp.sent form{display:block!important}
+#mithaq-rsvp.sent .rsvp-done{display:block!important;padding:14px 0 0!important}
+.rsvp-done img,.rsvp-done .again{display:none!important}
+.rsvp-done p{color:#5a1822!important;font-size:17px!important}
+`;
+
 const PATCHES = [
   ['    <div class="countdown">\n', `    ${COUNT_HEAD}<div class="countdown">\n`],
   ['  <!-- ============ برنامج اليوم ============ -->\n', `  ${CAL}\n\n  <!-- ============ برنامج اليوم ============ -->\n`],
@@ -353,7 +386,7 @@ module.exports = {
 
   render() {
     return {
-      head: `<link rel="preload" as="image" href="${TOP}"><link rel="preload" as="image" href="${BOTTOM}"><link rel="preload" as="image" href="${SEAL}"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Cinzel:wght@500&family=Cormorant+Garamond:wght@500;600&display=swap"><style id="sx-style">${CSS}${CAL_CSS}${MORE_CSS}</style>`,
+      head: `<link rel="preload" as="image" href="${TOP}"><link rel="preload" as="image" href="${BOTTOM}"><link rel="preload" as="image" href="${SEAL}"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Cinzel:wght@500&family=Cormorant+Garamond:wght@500;600&display=swap"><style id="sx-style">${CSS}${CAL_CSS}${MORE_CSS}${RSVP_CSS}</style>`,
     };
   },
 
