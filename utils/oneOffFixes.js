@@ -347,7 +347,9 @@ const FIXES = [
     name: 'MeqC70l-arabic-copy',
     shortId: 'MeqC70l',
     select: '-__v',
-    when: (c, inv) => inv.templateId === 'lily-garden' && inv.groomName === 'العريس' && inv.brideName === 'العروسة',
+    // الاسم المعروض في الدعوة العربي من groomNameAr — والإنجليزي ممكن يكون Groom
+    when: (c, inv) => inv.templateId === 'lily-garden'
+      && [inv.groomNameAr, inv.groomName].includes('العريس') && [inv.brideNameAr, inv.brideName].includes('العروسة'),
     async apply(c, inv) {
       const { buildInvitationDataFromRequest } = require('./invitationData');
       const data = await buildInvitationDataFromRequest({
