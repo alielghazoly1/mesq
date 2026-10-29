@@ -554,7 +554,7 @@ export default function ClientDrawer({ userId, onClose }) {
                           <a href={o.paymentProofUrl} target="_blank" rel="noopener noreferrer" className="text-brass-soft hover:underline">
                             شوف
                           </a>
-                        ) : <span className="text-ivory/30">—</span>}
+                        ) : o.paymentSenderPhone ? <span className="whitespace-nowrap font-bold text-emerald-bright">📱 <span dir="ltr" className="select-all font-mono">{o.paymentSenderPhone}</span></span> : <span className="text-ivory/30">—</span>}
                       </Cell>
                     </Row>
                   ))}

@@ -101,6 +101,7 @@ function OrderDetail({ o, onClose, onOpenClient }) {
         <Section title="إزاي" icon={Clock}>
           <Row icon={CalendarDays} label="اتطلب">{fmtDate(o.createdAt, true)}</Row>
           <Row icon={Receipt} label="رفع الإيصال">{o.paymentProofAt ? fmtDate(o.paymentProofAt, true) : <span className="text-ivory/40">من غير إيصال</span>}</Row>
+          {o.paymentSenderPhone && <Row icon={Receipt} label="حوّل من رقم"><span className="font-bold text-emerald-bright" data-sender-phone>📱 <span dir="ltr" className="select-all font-mono">{o.paymentSenderPhone}</span></span> <span className="ms-1 text-[11.5px] text-ivory/45">(كتبه بدل صورة الإيصال)</span></Row>}
           <Row icon={CheckCircle2} label="اتفعّل">{o.activatedAt ? fmtDate(o.activatedAt, true) : <span className="text-ivory/40">لسه</span>}</Row>
           <Row icon={Timer} label="وقت التفعيل">{o.activationMinutes != null ? `${mins(o.activationMinutes)} من ${o.paymentProofAt ? 'رفع الإيصال' : 'الطلب'}` : '—'}</Row>
           <Row icon={Sparkles} label="جه منين"><SourceBadge source={u.source} />{u.device && u.device.src ? <span className="ms-2 text-[12px] text-ivory/50">دخل الموقع من: {SRC[u.device.src] || u.device.src}</span> : null}</Row>
@@ -226,7 +227,9 @@ export default function OrdersDayPage() {
                       </span>
                       {o.paymentProofUrl
                         ? <img src={o.paymentProofUrl} alt="" className="h-11 w-11 shrink-0 rounded-lg border border-line-lite object-cover" loading="lazy" />
-                        : <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-dashed border-line-lite text-ivory/30"><Receipt size={16} /></span>}
+                        : o.paymentSenderPhone
+                          ? <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-emerald-bright/40 text-[18px]" title={`حوّل من ${o.paymentSenderPhone}`}>📱</span>
+                          : <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-dashed border-line-lite text-ivory/30"><Receipt size={16} /></span>}
                       <span className="min-w-0 flex-1">
                         <span className="flex flex-wrap items-center gap-1.5 text-[14px] font-bold text-ivory">
                           {o.user.name}

@@ -10,6 +10,7 @@ const mongoose = require('mongoose');
 const Invitation = require('../models/Invitation');
 const User = require('../models/User');
 const Order = require('../models/Order');
+const { HAS_PROOF, hasProof } = require('../utils/orderProof');
 const Rsvp = require('../models/Rsvp');
 const Session = require('../models/Session');
 const SupportMessage = require('../models/SupportMessage');
@@ -722,6 +723,7 @@ router.get('/admin/api/users/:id', requireAdminSession, async (req, res) => {
           currency: o.currency,
           status: o.status,
           paymentProofUrl: o.paymentProofUrl || null,
+          paymentSenderPhone: o.paymentSenderPhone || null,
           createdAt: o.createdAt,
           activatedAt: o.activatedAt || null,
         };
@@ -970,9 +972,9 @@ router.get('/admin/api/orders', requireAdminSession, async (req, res) => {
 
     // الفلاتر: إيصالات مستنية تفعيل / مستني / مفعّل / ملغي / رفعوا إيصال / الكل
     let filter = {};
-    if (status === 'review') filter = { status: 'pending', paymentProofUrl: { $ne: null } };
+    if (status === 'review') filter = { status: 'pending', ...HAS_PROOF };
     else if (['pending', 'activated', 'cancelled'].includes(status)) filter = { status };
-    else if (status === 'receipt') filter = { paymentProofUrl: { $ne: null } };
+    else if (status === 'receipt') filter = { ...HAS_PROOF };
 
     // الترتيب بآخر حركة على الطلب: إمتى اتطلب أو إمتى اترفع إيصاله — أيهم
     // أحدث. فالعميل اللي طلب من 3 أيام ورفع الإيصال دلوقتي بيطلع أول القايمة
@@ -986,7 +988,7 @@ router.get('/admin/api/orders', requireAdminSession, async (req, res) => {
         { $limit: perPage },
       ]),
       Order.countDocuments(filter),
-      Order.countDocuments({ status: 'pending', paymentProofUrl: { $ne: null } }),
+      Order.countDocuments({ status: 'pending', ...HAS_PROOF }),
     ]);
     const userIds = [...new Set(orders.map((o) => String(o.userId)))];
     const users = await User.find({ _id: { $in: userIds } }).select('name email country phone').lean();
@@ -1015,6 +1017,7 @@ router.get('/admin/api/orders', requireAdminSession, async (req, res) => {
           createdAt: o.createdAt,
           activatedAt: o.activatedAt || null,
           paymentProofUrl: o.paymentProofUrl || null,
+          paymentSenderPhone: o.paymentSenderPhone || null,
           paymentProofAt: o.paymentProofAt || null,
           activityAt: o.activityAt || o.createdAt,
           user: {
@@ -1034,7 +1037,7 @@ router.get('/admin/api/orders', requireAdminSession, async (req, res) => {
 // الجانبية. اللوحة بتسأل كل 30 ثانية؛ استعلام عدّ واحد على فهرس الحالة.
 router.get('/admin/api/orders/attention', requireAdminSession, async (req, res) => {
   try {
-    const review = await Order.countDocuments({ status: 'pending', paymentProofUrl: { $ne: null } });
+    const review = await Order.countDocuments({ status: 'pending', ...HAS_PROOF });
     return res.json({ review });
   } catch (err) {
     console.error('Error counting orders to review:', err);
@@ -1136,7 +1139,7 @@ router.post('/admin/api/orders/:id/cancel', requireAdminSession, async (req, res
     // رفض إيصال = إلغاء طلب كان مستني ومرفوع له إيصال. العميل بيشوف "الإيصال
     // ماتقبلش" مرة واحدة ويقدر يرفع إيصال تاني. (إلغاء باقة مفعّلة أو طلب
     // مهجور من غير إيصال مالوش رسالة.)
-    const rejectedReceipt = !wasActivated && !!order.paymentProofUrl;
+    const rejectedReceipt = !wasActivated && hasProof(order);
     order.status = 'cancelled';
     order.cancelledAt = new Date();
     if (rejectedReceipt) {

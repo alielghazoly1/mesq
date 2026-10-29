@@ -200,6 +200,11 @@ export const api = createApi({
       query: (formData) => ({ url: '/uploads/payment-proof', method: 'POST', body: formData }),
       invalidatesTags: ['Packages', 'OrderStatus'],
     }),
+    // بديل الإيصال (فودافون كاش / إنستاباي): رقم الموبايل اللي حوّل منه
+    sendPaymentPhone: builder.mutation({
+      query: (phone) => ({ url: '/uploads/payment-phone', method: 'POST', body: { phone } }),
+      invalidatesTags: ['Packages', 'OrderStatus'],
+    }),
 
     // ===== المحرر المباشر =====
     // بيرجع التخصيصات المحفوظة + الميزات المسموحة في باقة المستخدم +
@@ -299,6 +304,7 @@ export const {
   useGetSupportStatusQuery,
   useSendSupportVoiceMutation,
   useUploadPaymentProofMutation,
+  useSendPaymentPhoneMutation,
   useGetEditorQuery,
   useSaveCustomizationsMutation,
   useCreateDraftMutation,

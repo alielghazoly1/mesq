@@ -5,6 +5,7 @@
 const express = require('express');
 
 const Order = require('../models/Order');
+const { HAS_PROOF, hasProof } = require('../utils/orderProof');
 const {
   getPackage, currencyForCountry, packageAllowedInCountry, EDIT_WINDOW_DAYS,
 } = require('../packages/registry');
@@ -94,7 +95,7 @@ router.post('/api/packages/order', requireAuth, async (req, res) => {
       // دقة الفلوس: لو العميل رفع إيصال خلاص، يبقى حوّل المبلغ اللي كان مكتوب
       // ساعتها — السعر ده متقفل ومبيتغيّرش حتى لو السعر اتغيّر من اللوحة بعدها
       // (غير كده اللوحة هتوري مبلغ غير اللي اتحوّل فعلًا)
-      if (!existing.paymentProofUrl
+      if (!hasProof(existing)
         && (existing.price !== priced.price || existing.currency !== currency)) {
         existing.price = priced.price;
         existing.currency = currency;
@@ -102,13 +103,13 @@ router.post('/api/packages/order', requireAuth, async (req, res) => {
       }
       // رسالة واتساب "محتاج مساعدة في الدفع؟" — لو مارفعش إيصال لسه
       // (مرة واحدة لكل عميل، وبتتبعت بعد دقايق لو لسه مادفعش — utils/whatsapp/outbox.js)
-      if (!existing.paymentProofUrl) enqueueCheckoutHelp(req.user._id, pkg.id);
+      if (!hasProof(existing)) enqueueCheckoutHelp(req.user._id, pkg.id);
       return res.status(200).json({
         ok: true,
         orderId: String(existing._id),
         alreadyPending: true,
         // رفع إيصال خلاص؟ الصفحة بتوريله "جاري المراجعة" بدل ما تطلب إيصال تاني
-        hasReceipt: !!existing.paymentProofUrl,
+        hasReceipt: hasProof(existing),
         paymentProofAt: existing.paymentProofAt || null,
       });
     }
@@ -134,7 +135,7 @@ router.post('/api/packages/order', requireAuth, async (req, res) => {
 router.get('/api/packages/status', requireAuth, async (req, res) => {
   try {
     const [reviewing, notice] = await Promise.all([
-      Order.findOne({ userId: req.user.id, status: 'pending', paymentProofUrl: { $ne: null } })
+      Order.findOne({ userId: req.user.id, status: 'pending', ...HAS_PROOF })
         .sort({ paymentProofAt: -1 }).lean(),
       Order.findOne({ userId: req.user.id, notice: { $in: ['activated', 'rejected'] }, noticeSeenAt: null })
         .sort({ activatedAt: -1, cancelledAt: -1, _id: -1 }).lean(),

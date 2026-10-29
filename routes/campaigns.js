@@ -15,6 +15,7 @@ const CampaignVisit = require('../models/CampaignVisit');
 const CampaignHit = require('../models/CampaignHit');
 const User = require('../models/User');
 const Order = require('../models/Order');
+const { HAS_PROOF, hasProof } = require('../utils/orderProof');
 const Invitation = require('../models/Invitation');
 const { requireAdminSession, ADMIN_COOKIE_NAME } = require('../middleware/adminAuth');
 const { ensureDeviceId } = require('../middleware/deviceLimiter');
@@ -199,7 +200,7 @@ async function statsFor(campaigns) {
         { $group: { _id: { u: '$userId', c: '$currency' }, total: { $sum: '$price' }, n: { $sum: 1 } } },
       ]),
       Order.aggregate([
-        { $match: { userId: { $in: userIds }, status: 'pending', paymentProofUrl: { $ne: null } } },
+        { $match: { userId: { $in: userIds }, status: 'pending', ...HAS_PROOF } },
         { $group: { _id: '$userId' } },
       ]),
     ]);
@@ -360,7 +361,7 @@ router.get('/admin/api/campaigns/:id', requireAdminSession, async (req, res) => 
     const ids = users.map((u) => u._id);
     const [orders, invCounts] = await Promise.all([
       ids.length ? Order.find({ userId: { $in: ids }, status: { $in: ['activated', 'pending'] } })
-        .select('userId packageId currency price status paymentProofUrl activatedAt createdAt').lean() : [],
+        .select('userId packageId currency price status paymentProofUrl paymentSenderPhone activatedAt createdAt').lean() : [],
       ids.length ? Invitation.aggregate([{ $match: { ownerId: { $in: ids } } }, { $group: { _id: '$ownerId', n: { $sum: 1 } } }]) : [],
     ]);
     const invBy = {}; invCounts.forEach((r) => { invBy[String(r._id)] = r.n; });
@@ -370,7 +371,7 @@ router.get('/admin/api/campaigns/:id', requireAdminSession, async (req, res) => 
     const people = users.map((u) => {
       const os = ordBy[String(u._id)] || [];
       const paid = os.filter((o) => o.status === 'activated');
-      const waiting = os.some((o) => o.status === 'pending' && o.paymentProofUrl);
+      const waiting = os.some((o) => o.status === 'pending' && (o.paymentProofUrl || o.paymentSenderPhone));
       const ordered = os.some((o) => o.status === 'pending');
       const amount = { EGP: 0, USD: 0, SAR: 0, EUR: 0 };
       paid.forEach((o) => { const cu = ['USD', 'SAR', 'EUR'].includes(o.currency) ? o.currency : 'EGP'; amount[cu] = r2(amount[cu] + o.price); });

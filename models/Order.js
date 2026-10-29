@@ -20,6 +20,9 @@ const orderSchema = new mongoose.Schema({
   // في لوحة التحكم جنب الطلب عشان تراجعها قبل التفعيل
   paymentProofUrl: { type: String, default: null },
   paymentProofAt: { type: Date, default: null },
+  // بديل الإيصال للدفع المصري (فودافون كاش / إنستاباي): رقم الموبايل اللي حوّل منه.
+  // paymentProofAt بيتسجّل معاه كوقت الإرسال — utils/orderProof.js
+  paymentSenderPhone: { type: String, default: null },
 
   activatedAt: { type: Date, default: null },
   cancelledAt: { type: Date, default: null },

@@ -22,7 +22,7 @@ import {
 import { VodafoneCashLogo, VodafoneMark, BankMark } from '../components/PayBrand.jsx';
 import {
   useGetPackagesQuery, useGetPaymentInfoQuery, useOrderPackageMutation,
-  useUploadPaymentProofMutation, useGetMeQuery,
+  useUploadPaymentProofMutation, useSendPaymentPhoneMutation, useGetMeQuery,
 } from '../store/api.js';
 import { openAuthModal } from '../store/uiSlice.js';
 import { tooBig, sizeError, uploadError } from '../lib/uploadLimits.js';
@@ -155,6 +155,9 @@ export default function CheckoutPage() {
   });
   const [orderPackage] = useOrderPackageMutation();
   const [uploadProof, { isLoading: uploading }] = useUploadPaymentProofMutation();
+  // بديل الإيصال للمصري على الكمبيوتر/اللابتوب: رقم الموبايل اللي حوّل منه
+  const [sendPhone, { isLoading: sendingPhone }] = useSendPaymentPhoneMutation();
+  const [senderPhone, setSenderPhone] = useState('');
 
   const fileRef = useRef(null);
   const [uploaded, setUploaded] = useState(false);
@@ -217,6 +220,20 @@ export default function CheckoutPage() {
       // السيرفر عنده إيصال للطلب ده خلاص — نوريه حالة المراجعة
       if (err?.data?.code === 'RECEIPT_UNDER_REVIEW') { setUploaded(true); return; }
       setError(uploadError(err, t));
+    }
+  }
+
+  async function onSendPhone(e) {
+    e.preventDefault();
+    setError('');
+    const d = senderPhone.replace(/[٠-٩]/g, (c) => '٠١٢٣٤٥٦٧٨٩'.indexOf(c)).replace(/\D/g, '').replace(/^(?:0020|20)(?=1)/, '0');
+    if (!/^01[0125]\d{8}$/.test(d)) { setError(t('payment.phoneBad')); return; }
+    try {
+      await sendPhone(d).unwrap();
+      setUploaded(true);
+    } catch (err) {
+      if (err?.data?.code === 'RECEIPT_UNDER_REVIEW') { setUploaded(true); return; }
+      setError(err?.data?.error || t('payment.phoneBad'));
     }
   }
 
@@ -798,6 +815,40 @@ export default function CheckoutPage() {
                   {uploading ? t('payment.uploading') : t('payment.uploadProof')}
                 </button>
                 <p className="mt-2.5 text-center text-[11.5px] text-ink-dim">{t('payment.proofHint')}</p>
+                {/* على الكمبيوتر واللابتوب: صورة الإيصال غالبًا على الموبايل — فالعميل
+                    المصري (فودافون كاش / إنستاباي) يقدر يكتب الرقم اللي حوّل منه بدلها */}
+                {isVodafone && (
+                  <form onSubmit={onSendPhone} className="mt-5 hidden md:block" data-sender-phone>
+                    <div className="mb-4 flex items-center gap-3 text-[12px] font-bold text-ink-dim">
+                      <span className="h-px flex-1 bg-line" />{t('payment.orPhone')}<span className="h-px flex-1 bg-line" />
+                    </div>
+                    <p className="text-[13.5px] font-extrabold text-ink">{t('payment.phoneTitle')}</p>
+                    <p className="mt-1 text-[12px] leading-relaxed text-ink-dim">{t('payment.phoneHint')}</p>
+                    <div className="mt-3 flex gap-2">
+                      <input
+                        name="senderPhone"
+                        type="tel"
+                        inputMode="tel"
+                        autoComplete="tel"
+                        dir="ltr"
+                        maxLength={20}
+                        value={senderPhone}
+                        onChange={(e) => setSenderPhone(e.target.value)}
+                        placeholder={t('payment.phonePlaceholder')}
+                        className="min-w-0 flex-1 rounded-full border border-line bg-ivory/60 px-5 py-3 text-center text-[16px] font-bold tracking-wider text-ink outline-none transition focus:border-emerald"
+                      />
+                      <button
+                        type="submit"
+                        disabled={sendingPhone || !senderPhone.trim()}
+                        className="inline-flex shrink-0 items-center gap-2 rounded-full bg-emerald px-6 py-3 text-[13px] font-bold text-ivory transition hover:bg-night disabled:opacity-50"
+                      >
+                        {sendingPhone ? <Loader2 size={14} className="animate-spin" /> : <Check size={14} />}
+                        {t('payment.phoneSend')}
+                      </button>
+                    </div>
+                    {error && <p className="mt-2 text-center text-[12px] font-bold text-[#b3261e]" role="alert">{error}</p>}
+                  </form>
+                )}
               </>
             )}
           </Step>

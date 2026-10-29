@@ -146,6 +146,7 @@ async function processNext({ send, now = new Date(), ignoreGap = false }) {
       $or: [
         { status: 'activated', activatedAt: { $gte: item.createdAt } },
         { paymentProofUrl: { $nin: [null, ''] }, status: { $ne: 'cancelled' } },
+        { paymentSenderPhone: { $nin: [null, ''] }, status: { $ne: 'cancelled' } },
       ],
     });
     if (paid) return finish('skipped', 'paid');

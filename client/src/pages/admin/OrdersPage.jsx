@@ -217,8 +217,12 @@ export default function OrdersPage() {
                       >
                         <Receipt size={12} /> شوف الصورة <ExternalLink size={10} />
                       </a>
+                    ) : o.paymentSenderPhone ? (
+                      <span className="inline-flex items-center gap-1 whitespace-nowrap font-bold text-emerald-bright" title="العميل كتب الرقم اللي حوّل منه بدل صورة الإيصال">
+                        📱 حوّل من: <span dir="ltr" className="select-all font-mono">{o.paymentSenderPhone}</span>
+                      </span>
                     ) : null}
-                    {o.paymentProofUrl && o.paymentProofAt && (
+                    {(o.paymentProofUrl || o.paymentSenderPhone) && o.paymentProofAt && (
                       <div className="mt-0.5 whitespace-nowrap text-[11px] text-ivory/45" title={fmtDate(o.paymentProofAt, true)}>
                         اترفع {fmtDate(o.paymentProofAt, true)}
                         <span className={isNewReceipt(o) ? 'block font-bold text-brass-soft' : 'block'}>
@@ -226,7 +230,7 @@ export default function OrdersPage() {
                         </span>
                       </div>
                     )}
-                    {!o.paymentProofUrl && (
+                    {!o.paymentProofUrl && !o.paymentSenderPhone && (
                       <Badge tone="muted">مرفعش إيصال</Badge>
                     )}
                   </Cell>

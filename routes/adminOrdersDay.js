@@ -80,6 +80,7 @@ router.get('/admin/api/orders-day', requireAdminSession, async (req, res) => {
         editDays: pkg && Number.isFinite(pkg.editDays) ? pkg.editDays : null,
         price: o.price, currency: o.currency, eq: eq(o.price, o.currency),
         createdAt: o.createdAt, paymentProofAt: o.paymentProofAt || null, paymentProofUrl: o.paymentProofUrl || null,
+        paymentSenderPhone: o.paymentSenderPhone || null,
         activatedAt: o.activatedAt || null, cancelledAt: o.cancelledAt || null,
         // من رفع الإيصال (أو الطلب) لحد التفعيل — بالدقايق
         activationMinutes: o.activatedAt ? Math.max(0, Math.round((new Date(o.activatedAt) - new Date(t0)) / 60000)) : null,
@@ -121,7 +122,7 @@ router.get('/admin/api/orders-day', requireAdminSession, async (req, res) => {
           pending: list.filter((o) => o.status === 'pending').length,
           activated: list.filter((o) => o.status === 'activated').length,
           cancelled: list.filter((o) => o.status === 'cancelled').length,
-          withReceipt: list.filter((o) => o.paymentProofUrl).length,
+          withReceipt: list.filter((o) => o.paymentProofUrl || o.paymentSenderPhone).length,
         } : null,
       },
       orders: list,

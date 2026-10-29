@@ -12,6 +12,7 @@ const { validateImage, validateAudio, MAX_AUDIO_BYTES } = require('../utils/uplo
 const { requireAuth } = require('../middleware/auth');
 const { requireAdminSession } = require('../middleware/adminAuth');
 const Order = require('../models/Order');
+const { hasProof, NO_PROOF } = require('../utils/orderProof');
 
 const router = express.Router();
 
@@ -114,7 +115,7 @@ router.post('/api/uploads/payment-proof', requireAuth, upload.single('file'), as
     if (!order) {
       return res.status(400).json({ error: 'مفيش طلب باقة مستني — اطلب الباقة الأول.' });
     }
-    if (order.paymentProofUrl) {
+    if (hasProof(order)) {
       return res.status(409).json({ code: 'RECEIPT_UNDER_REVIEW', error: 'إيصالك وصلنا وجاري مراجعته — هتوصلك رسالة أول ما الباقة تتفعّل.' });
     }
 
@@ -141,7 +142,7 @@ router.post('/api/uploads/payment-proof', requireAuth, upload.single('file'), as
     // مايظهرش للأدمن غير الطلب الصح — وماتحصلش لخبطة في المبلغ اللي هيتفعّل.
     // آمن تمامًا: بننقل طلبات مستنية لـ"ملغية" بس، من غير أي مساس بالرصيد أو الفلوس.
     await Order.updateMany(
-      { userId: req.user.id, status: 'pending', _id: { $ne: order._id }, paymentProofUrl: null },
+      { userId: req.user.id, status: 'pending', _id: { $ne: order._id }, ...NO_PROOF },
       { $set: { status: 'cancelled' } }
     );
 
@@ -149,6 +150,40 @@ router.post('/api/uploads/payment-proof', requireAuth, upload.single('file'), as
   } catch (err) {
     console.error('Payment proof upload failed:', err);
     return res.status(500).json({ error: 'الرفع فشل، حاول تاني.' });
+  }
+});
+
+// POST /api/uploads/payment-phone — بديل الإيصال للدفع المصري (فودافون كاش /
+// إنستاباي): العميل بيكتب رقم الموبايل اللي حوّل منه، والأدمن بيطابقه مع
+// التحويل اللي وصله. بيتعامل زي رفع الإيصال بالظبط (جاري المراجعة + الطلبات
+// المهجورة بتتلغي) — utils/orderProof.js.
+router.post('/api/uploads/payment-phone', requireAuth, express.json({ limit: '2kb' }), async (req, res) => {
+  try {
+    const digits = String((req.body && req.body.phone) || '')
+      .replace(/[٠-٩]/g, (d) => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+      .replace(/[۰-۹]/g, (d) => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+      .replace(/\D/g, '')
+      .replace(/^(?:0020|20)(?=1)/, '0');
+    if (!/^01[0125]\d{8}$/.test(digits)) {
+      return res.status(400).json({ code: 'BAD_PHONE', error: 'اكتب رقم موبايل مصري صحيح (11 رقم يبدأ بـ 01).' });
+    }
+    const order = await Order.findOne({ userId: req.user.id, status: 'pending' }).sort({ createdAt: -1 });
+    if (!order) return res.status(400).json({ error: 'مفيش طلب باقة مستني — اطلب الباقة الأول.' });
+    if (order.currency !== 'EGP') return res.status(400).json({ error: 'الرقم بدل الإيصال متاح للتحويل من مصر بس — ارفع صورة الإيصال.' });
+    if (hasProof(order)) {
+      return res.status(409).json({ code: 'RECEIPT_UNDER_REVIEW', error: 'بياناتك وصلتنا وجاري مراجعتها — هتوصلك رسالة أول ما الباقة تتفعّل.' });
+    }
+    order.paymentSenderPhone = digits;
+    order.paymentProofAt = new Date();
+    await order.save();
+    await Order.updateMany(
+      { userId: req.user.id, status: 'pending', _id: { $ne: order._id }, ...NO_PROOF },
+      { $set: { status: 'cancelled' } }
+    );
+    return res.status(201).json({ ok: true });
+  } catch (err) {
+    console.error('Payment phone failed:', err);
+    return res.status(500).json({ error: 'حصل خطأ، حاول تاني.' });
   }
 });
 
