@@ -20,6 +20,7 @@ import { AreaTrend, COLORS } from '../../components/admin/Charts.jsx';
 import { countryName, waLink } from './format.js';
 import ClientDrawer from './ClientDrawer.jsx';
 import { useMoneyHidden } from '../../components/admin/moneyPrivacy.js';
+import MetaTrackingPanel from '../../components/admin/MetaTrackingPanel.jsx';
 
 const PLATFORMS = [
   { id: 'instagram', label: 'إنستجرام', icon: Camera },
@@ -557,6 +558,8 @@ export default function CampaignsPage() {
           ومن يوم ما تحدده إن الإعلان اشتغل.
         </div>
       </div>
+
+      <MetaTrackingPanel />
 
       <AnimatePresence>
         {creating && (

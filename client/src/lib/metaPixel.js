@@ -1,15 +1,22 @@
 // بيكسل ميتا (فيسبوك/إنستجرام) — بيبلّغ ميتا بخطوات الزائر عشان الإعلانات
 // توصل لناس شبه اللي بيدفعوا فعلًا:
-//   PageView          كل صفحة في الموقع
-//   CompleteRegistration  عمل حساب جديد
-//   InitiateCheckout  فتح صفحة الدفع (ومعاها الباقة والسعر)
-//   AddPaymentInfo    رفع الإيصال / كتب الرقم اللي حوّل منه
+//   PageView              كل صفحة في الموقع
+//   CompleteRegistration  عمل حساب جديد            event_id: reg_<user>
+//   InitiateCheckout      فتح صفحة الدفع            event_id: ic_<order>
+//   AddPaymentInfo        رفع الإيصال / كتب رقمه     event_id: pay_<order>
+//   Purchase              شاف "باقتك اتفعّلت"        event_id: purchase_<order>
 // ViewContent (فتح ديمو تصميم) بيتبعت من صفحة المعاينة نفسها (utils/metaPixel.js).
+//
+// السيرفر بيبعت نفس الأحداث دي بنفس الـ event_id (utils/metaCapi.js) — ميتا بتعدّ
+// كل حدث مرة واحدة، واللي البيكسل بتاعه اتمنع (آيفون/مانع إعلانات) بيوصل من السيرفر.
+// العميل المسجّل: إيميله ورقم حسابه ودولته بيتبعتوا للبيكسل (البيكسل بيشفّرهم
+// بنفسه قبل ما يبعت) عشان ميتا تعرفه وتنسب الشراء للإعلان الصح.
 // مابيشتغلش أبدًا في لوحة التحكم، ولا في التطوير المحلي (npm run dev).
 const PIXEL_ID = '1073401149053954';
 
 let loaded = false;
 let lastPath = '';
+let matchedUser = '';
 const sentOnce = new Set();
 
 function enabled() {
@@ -39,17 +46,29 @@ export function pixelPageView(path) {
   window.fbq('track', 'PageView');
 }
 
+/** العميل المسجّل (Advanced Matching) — مرة واحدة لكل حساب */
+export function pixelUser(user) {
+  if (!user || !user.id || matchedUser === user.id) return;
+  if (!load()) return;
+  matchedUser = user.id;
+  const data = { external_id: String(user.id) };
+  if (user.email) data.em = String(user.email).trim().toLowerCase();
+  if (user.country) data.country = String(user.country).trim().toLowerCase();
+  window.fbq('init', PIXEL_ID, data);
+}
+
 /**
- * حدث قياسي. once: مفتاح بيمنع التكرار في نفس الزيارة (زي فتح صفحة الدفع
- * مرتين لنفس الباقة).
+ * حدث قياسي. once: مفتاح بيمنع التكرار في نفس الزيارة. eventId: نفس اللي السيرفر
+ * بيبعته (ميتا بتعدّهم مرة واحدة).
  */
-export function pixelTrack(event, params, once) {
+export function pixelTrack(event, params, once, eventId) {
   if (once) {
     if (sentOnce.has(once)) return;
     sentOnce.add(once);
   }
   if (!load()) return;
-  window.fbq('track', event, params || {});
+  if (eventId) window.fbq('track', event, params || {}, { eventID: eventId });
+  else window.fbq('track', event, params || {});
 }
 
 /** بيانات الباقة بالشكل اللي ميتا مستنياه */

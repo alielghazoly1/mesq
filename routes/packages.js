@@ -14,6 +14,7 @@ const { requireAuth } = require('../middleware/auth');
 const { getPaymentSettings, publicPaymentInfo } = require('../utils/paymentSettings');
 const { pricedPackagesFor, priceForOrder } = require('../utils/pricing');
 const { enqueueCheckoutHelp } = require('../utils/whatsapp/outbox');
+const metaCapi = require('../utils/metaCapi');
 
 const router = express.Router();
 
@@ -61,6 +62,15 @@ router.get('/api/packages/payment-info', requireAuth, async (req, res) => {
   }
 });
 
+// بيكسل ميتا (السيرفر): "فتح صفحة الدفع" مرة واحدة لكل أوردر، وبيحفظ بيانات
+// متصفح العميل على الأوردر عشان حدث الشراء بعدين يتنسب للإعلان الصح
+function metaCheckout(order, req) {
+  const ctx = metaCapi.contextFromReq(req);
+  const first = !(order.metaSent && order.metaSent.ic);
+  Order.updateOne({ _id: order._id }, { $set: { metaCtx: ctx, ...(first ? { 'metaSent.ic': new Date() } : {}) } }).catch(() => {});
+  if (first) metaCapi.fire('InitiateCheckout', { eventId: 'ic_' + order._id, user: req.user, ctx, custom: metaCapi.orderCustom(order) });
+}
+
 // POST /api/packages/order — تسجيل طلب شراء (محتاج تسجيل دخول)
 router.post('/api/packages/order', requireAuth, async (req, res) => {
   try {
@@ -104,6 +114,7 @@ router.post('/api/packages/order', requireAuth, async (req, res) => {
       // رسالة واتساب "محتاج مساعدة في الدفع؟" — لو مارفعش إيصال لسه
       // (مرة واحدة لكل عميل، وبتتبعت بعد دقايق لو لسه مادفعش — utils/whatsapp/outbox.js)
       if (!hasProof(existing)) enqueueCheckoutHelp(req.user._id, pkg.id);
+      metaCheckout(existing, req);
       return res.status(200).json({
         ok: true,
         orderId: String(existing._id),
@@ -121,6 +132,7 @@ router.post('/api/packages/order', requireAuth, async (req, res) => {
       price: priced.price,
     });
     enqueueCheckoutHelp(req.user._id, pkg.id);
+    metaCheckout(order, req);
 
     return res.status(201).json({ ok: true, orderId: String(order._id), hasReceipt: false });
   } catch (err) {
@@ -148,7 +160,8 @@ router.get('/api/packages/status', requireAuth, async (req, res) => {
       reviewing: reviewing ? {
         orderId: String(reviewing._id), paymentProofAt: reviewing.paymentProofAt, ...pkgOf(reviewing),
       } : null,
-      notice: notice ? { orderId: String(notice._id), type: notice.notice, ...pkgOf(notice) } : null,
+      // price/currency: بيكسل ميتا في المتصفح بيبعت "اشترى" بالمبلغ لما العميل يشوف "باقتك اتفعّلت"
+      notice: notice ? { orderId: String(notice._id), type: notice.notice, price: notice.price, currency: notice.currency, ...pkgOf(notice) } : null,
     });
   } catch (err) {
     console.error('Error reading order status:', err);

@@ -34,6 +34,15 @@ const orderSchema = new mongoose.Schema({
   notice: { type: String, enum: ['', 'activated', 'rejected'], default: '' },
   noticeSeenAt: { type: Date, default: null },
 
+  // بيكسل ميتا: بيانات متصفح العميل (كوكيز _fbp/_fbc والـ IP والمتصفح) من آخر
+  // خطوة عملها — عشان حدث الشراء اللي بيتبعت لما الأدمن يفعّل يتنسب للإعلان الصح.
+  // metaSent: كل حدث اتبعت امتى (مايتكررش).
+  metaCtx: {
+    fbp: String, fbc: String, ip: String, ua: String, url: String,
+  },
+  metaSent: {
+    ic: Date, pay: Date, purchase: Date,
+  },
   createdAt: { type: Date, default: Date.now },
 });
 

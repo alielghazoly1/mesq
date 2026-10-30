@@ -24,6 +24,12 @@ const siteConfigSchema = new mongoose.Schema({
   googleLoginEnabled: { type: Boolean, default: true },
   // أسعار الصرف لصفحة الأرباح (كام جنيه في الوحدة) — بيها بنجمع كل العملات
   // في رقم واحد بالجنيه للمكسب الصافي. المالك بيعدّلها من الصفحة نفسها.
+  // بيكسل ميتا — Conversions API (utils/metaCapi.js). الـ Token سر: مابيرجعش للوحة
+  // أبدًا (select:false) — اللوحة بتعرف بس إنه موجود وآخر 4 حروف منه.
+  // metaTestCode: كود Test Events من Events Manager (للتجربة بس — فاضي = أحداث حقيقية).
+  metaCapiToken: { type: String, default: '', select: false, maxlength: 600 },
+  metaTestCode: { type: String, default: '', maxlength: 40 },
+  metaCapiEnabled: { type: Boolean, default: true },
   fxRates: {
     USD: { type: Number, default: 50 },
     SAR: { type: Number, default: 13.3 },

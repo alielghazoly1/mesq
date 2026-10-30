@@ -31,7 +31,7 @@ const baseQuery = async (args, api, extra) => {
 export const adminApi = createApi({
   reducerPath: 'adminApi',
   baseQuery,
-  tagTypes: ['Overview', 'Users', 'User', 'Orders', 'Invitations', 'Support', 'SupportUnread', 'Settings', 'Pricing', 'Thread', 'Audit', 'Tracks', 'Withdrawals', 'Ugc', 'SiteTemplates', 'Security', 'Cleanup', 'WhatsApp', 'Campaigns', 'GoogleLogin', 'Finance', 'Pins'],
+  tagTypes: ['Overview', 'Users', 'User', 'Orders', 'Invitations', 'Support', 'SupportUnread', 'Settings', 'Pricing', 'Thread', 'Audit', 'Tracks', 'Withdrawals', 'Ugc', 'SiteTemplates', 'Security', 'Cleanup', 'WhatsApp', 'Campaigns', 'GoogleLogin', 'Finance', 'Pins', 'MetaTracking'],
   endpoints: (builder) => ({
     // ===== المثبّتين (عملاء ودعوات بيفضلوا فوق على طول) =====
     getPins: builder.query({ query: () => '/pins', providesTags: ['Pins'] }),
@@ -259,6 +259,16 @@ export const adminApi = createApi({
       invalidatesTags: (r, e) => (e ? [] : ['Settings', 'Audit']),
     }),
     getAdminPackages: builder.query({ query: () => '/packages', providesTags: ['Pricing'] }),
+    // تتبع ميتا (Conversions API): الـ Token + كود التجربة + سجل الأحداث
+    getMetaTracking: builder.query({ query: () => '/meta-tracking', providesTags: ['MetaTracking'] }),
+    saveMetaTracking: builder.mutation({
+      query: (body) => ({ url: '/meta-tracking', method: 'PUT', body }),
+      invalidatesTags: (r, e) => (e ? [] : ['MetaTracking', 'Audit']),
+    }),
+    sendMetaTest: builder.mutation({
+      query: () => ({ url: '/meta-tracking/test', method: 'POST' }),
+      invalidatesTags: (r, e) => (e ? [] : ['MetaTracking']),
+    }),
     // الدخول بجوجل (Client ID + تشغيل/قفل)
     getGoogleLogin: builder.query({ query: () => '/google-login', providesTags: ['GoogleLogin'] }),
     saveGoogleLogin: builder.mutation({
@@ -349,6 +359,7 @@ export const adminApi = createApi({
 
 export const {
   useGetGoogleLoginQuery, useSaveGoogleLoginMutation,
+  useGetMetaTrackingQuery, useSaveMetaTrackingMutation, useSendMetaTestMutation,
   useGetSecurityQuery, useStart2faMutation, useEnable2faMutation, useDisable2faMutation, useNewBackupCodesMutation,
   useGetAdminDevicesQuery, useCloseAdminDeviceMutation, useCloseOtherAdminDevicesMutation,
   useGetCleanupPreviewQuery, useRunCleanupMutation,

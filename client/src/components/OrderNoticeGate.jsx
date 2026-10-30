@@ -14,6 +14,7 @@ import {
 } from '../store/api.js';
 import { useDispatch } from 'react-redux';
 import { useEffect, useRef, useState } from 'react';
+import { pixelTrack } from '../lib/metaPixel.js';
 
 export default function OrderNoticeGate() {
   const { t, i18n } = useTranslation();
@@ -54,6 +55,15 @@ export default function OrderNoticeGate() {
     if (notice?.type === 'activated' && lastType.current !== notice.orderId) {
       lastType.current = notice.orderId;
       dispatch(api.util.invalidateTags(['Me', 'Packages', 'Dashboard']));
+      // بيكسل ميتا: الشراء اتأكد. السيرفر بعته لما الأدمن فعّل (نفس event_id) —
+      // ده من متصفح العميل نفسه عشان ميتا تربطه بالإعلان اللي جه منه
+      pixelTrack('Purchase', {
+        value: Number(notice.price) || 0,
+        currency: notice.currency || 'USD',
+        content_ids: [notice.packageId],
+        content_type: 'product',
+        num_items: 1,
+      }, 'purchase:' + notice.orderId, 'purchase_' + notice.orderId);
     }
   }, [notice, dispatch]);
 

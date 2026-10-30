@@ -302,7 +302,7 @@ function RegisterForm({ onEmailTaken }) {
       finishAuth(dispatch);
       // شاشة الترحيب مكان فورم التسجيل على طول — من غير أي فراغ بينهم
       dispatch(showWelcome((res && res.user && res.user.name) || values.name || ''));
-      pixelTrack('CompleteRegistration', { content_name: 'email' }, 'signup');
+      if (res && res.user) pixelTrack('CompleteRegistration', { content_name: 'email' }, 'signup', 'reg_' + res.user.id);
     } catch { /* الخطأ بيتعرض تحت */ }
   }
 
@@ -428,7 +428,7 @@ function GoogleCompleteForm({ pending, profile, onBack }) {
       finishAuth(dispatch);
       if (res && res.isNew) {
         dispatch(showWelcome((res.user && res.user.name) || values.name || ''));
-        pixelTrack('CompleteRegistration', { content_name: 'google' }, 'signup');
+        if (res.user) pixelTrack('CompleteRegistration', { content_name: 'google' }, 'signup', 'reg_' + res.user.id);
       }
     } catch { /* الخطأ بيتعرض تحت */ }
   }

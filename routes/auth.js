@@ -13,6 +13,7 @@ const { hashPassword, verifyPassword } = require('../utils/password');
 const { sendWelcomeMessage } = require('../utils/welcomeMessage');
 const { editWindowInfo } = require('../utils/editWindow');
 const { verifyGoogleIdToken, signPending, readPending, getGoogleConfig } = require('../utils/googleAuth');
+const metaCapi = require('../utils/metaCapi');
 
 const router = express.Router();
 
@@ -115,6 +116,8 @@ router.post('/api/auth/register', async (req, res) => {
     // رسالة ترحيب تستناه في صندوق رسايله. مش بننتظرها (ولا بنوقف عليها
     // لو فشلت) — الحساب اتعمل خلاص والرد لازم يوصل له فورًا.
     sendWelcomeMessage(user);
+    // بيكسل ميتا من السيرفر (نفس event_id اللي المتصفح بيبعته — client/src/lib/metaPixel.js)
+    metaCapi.fire('CompleteRegistration', { eventId: 'reg_' + user._id, user, ctx: metaCapi.contextFromReq(req), custom: { content_name: 'email' } });
 
     return res.status(201).json({
       user: { id: String(user._id), email: user.email, name: user.name, country: user.country },
@@ -261,6 +264,7 @@ router.post('/api/auth/google/complete', async (req, res) => {
     await createSession(res, user._id);
     clearAttribution(res, { referredBy, campaign });
     sendWelcomeMessage(user);
+    metaCapi.fire('CompleteRegistration', { eventId: 'reg_' + user._id, user, ctx: metaCapi.contextFromReq(req), custom: { content_name: 'google' } });
     return res.status(201).json({ user: publicUser(user), isNew: true });
   } catch (err) {
     console.error('Error completing google sign-up:', err);

@@ -196,7 +196,7 @@ export default function CheckoutPage() {
       .then((r) => {
         if (!alive) return;
         setOrderReady(true);
-        pixelTrack('InitiateCheckout', pixelPackage(pkg), 'checkout:' + pkg.id);
+        if (r && r.orderId) pixelTrack('InitiateCheckout', pixelPackage(pkg), 'checkout:' + r.orderId, 'ic_' + r.orderId);
         // رفع إيصال للطلب ده قبل كده؟ (رجع للصفحة أو عمل refresh) — يبقى
         // "جاري المراجعة" مش "ارفع إيصال" تاني
         if (r && r.hasReceipt) setUploaded(true);
@@ -216,9 +216,9 @@ export default function CheckoutPage() {
     try {
       const fd = new FormData();
       fd.append('file', file);
-      await uploadProof(fd).unwrap();
+      const r = await uploadProof(fd).unwrap();
       setUploaded(true);
-      pixelTrack('AddPaymentInfo', pixelPackage(pkg), 'pay:' + pkg.id);
+      if (r && r.orderId) pixelTrack('AddPaymentInfo', pixelPackage(pkg), 'pay:' + r.orderId, 'pay_' + r.orderId);
     } catch (err) {
       // السيرفر عنده إيصال للطلب ده خلاص — نوريه حالة المراجعة
       if (err?.data?.code === 'RECEIPT_UNDER_REVIEW') { setUploaded(true); return; }
@@ -232,9 +232,9 @@ export default function CheckoutPage() {
     const d = senderPhone.replace(/[٠-٩]/g, (c) => '٠١٢٣٤٥٦٧٨٩'.indexOf(c)).replace(/\D/g, '').replace(/^(?:0020|20)(?=1)/, '0');
     if (!/^01[0125]\d{8}$/.test(d)) { setError(t('payment.phoneBad')); return; }
     try {
-      await sendPhone(d).unwrap();
+      const r = await sendPhone(d).unwrap();
       setUploaded(true);
-      pixelTrack('AddPaymentInfo', pixelPackage(pkg), 'pay:' + pkg.id);
+      if (r && r.orderId) pixelTrack('AddPaymentInfo', pixelPackage(pkg), 'pay:' + r.orderId, 'pay_' + r.orderId);
     } catch (err) {
       if (err?.data?.code === 'RECEIPT_UNDER_REVIEW') { setUploaded(true); return; }
       setError(err?.data?.error || t('payment.phoneBad'));

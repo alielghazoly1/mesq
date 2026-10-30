@@ -155,7 +155,7 @@ async function attachUser(req, res, next) {
     }
 
     const user = await User.findById(session.userId)
-      .select('email name country subscription isBlocked isUgc referralCode commissionRate payoutPhone referralClicks');
+      .select('email name phone country subscription isBlocked isUgc referralCode commissionRate payoutPhone referralClicks');
     if (!user) return next();
 
     // حساب محظور من لوحة التحكم = زائر مجهول. الحظر بيمسح جلساته وقتها،
@@ -174,6 +174,8 @@ async function attachUser(req, res, next) {
       _id: user._id,
       email: user.email,
       name: user.name,
+      // بيكسل ميتا (utils/metaCapi.js): بيتبعت متشفّر عشان ميتا تعرف العميل
+      phone: user.phone || '',
       country: user.country,
       subscription: user.subscription || null,
       // حقول التسويق بالعمولة (UGC) — لوحة المسوّق بتعتمد عليها

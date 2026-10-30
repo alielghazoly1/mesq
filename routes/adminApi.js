@@ -60,6 +60,7 @@ const {
 const { logAdminAction } = require('../utils/adminAudit');
 const { requireAdminSession, destroyOtherAdminSessions } = require('../middleware/adminAuth');
 const twoFactor = require('../utils/adminTwoFactor');
+const metaCapi = require('../utils/metaCapi');
 
 const router = express.Router();
 
@@ -1088,6 +1089,20 @@ router.post('/admin/api/orders/:id/activate', requireAdminSession, async (req, r
       type: 'order', id: order._id, label: user.email,
     }, { packageId: pkg.id, price: order.price, currency: order.currency, creditsAfter: user.subscription.invitationsLeft });
 
+    // بيكسل ميتا: ده الشراء الحقيقي (الفلوس اتأكدت). بيانات المتصفح من آخر خطوة
+    // عملها العميل (الأوردر) — مش من جهازك إنت. نفس event_id اللي متصفح العميل
+    // بيبعته لما يشوف "باقتك اتفعّلت" (purchase_<order>)
+    if (!(order.metaSent && order.metaSent.purchase)) {
+      Order.updateOne({ _id: order._id }, { $set: { 'metaSent.purchase': new Date() } }).catch(() => {});
+      const mc = order.metaCtx || {};
+      metaCapi.fire('Purchase', {
+        eventId: 'purchase_' + order._id,
+        user,
+        ctx: { fbp: mc.fbp, fbc: mc.fbc, ip: mc.ip, ua: mc.ua, url: mc.url },
+        custom: metaCapi.orderCustom(order),
+      });
+    }
+
     return res.json({
       ok: true,
       invitationsLeft: user.subscription.invitationsLeft,
@@ -1910,6 +1925,100 @@ router.put('/admin/api/google-login', requireAdminSession, async (req, res) => {
     return res.json({ ok: true });
   } catch (err) {
     console.error('Error saving google login settings:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+// ==========================================================================
+// تتبع ميتا (Conversions API) — الـ Token + كود التجربة + سجل كل حدث ونتيجته من ميتا
+// الـ Token مابيرجعش للوحة أبدًا (آخر 4 حروف بس)
+// ==========================================================================
+const META_EVENTS = ['CompleteRegistration', 'InitiateCheckout', 'AddPaymentInfo', 'Purchase'];
+router.get('/admin/api/meta-tracking', requireAdminSession, async (req, res) => {
+  try {
+    const SiteConfig = require('../models/SiteConfig');
+    const MetaEvent = require('../models/MetaEvent');
+    const doc = await SiteConfig.findOne({ key: 'default' }).select('+metaCapiToken metaTestCode metaCapiEnabled').lean();
+    const token = (doc && doc.metaCapiToken) || '';
+    const since = new Date(Date.now() - 7 * 24 * 3600 * 1000);
+    const [recent, agg] = await Promise.all([
+      MetaEvent.find({}).sort({ $natural: -1 }).limit(40).lean(),
+      MetaEvent.aggregate([
+        { $match: { at: { $gte: since }, test: false } },
+        { $group: { _id: { name: '$name', ok: '$ok' }, n: { $sum: 1 } } },
+      ]),
+    ]);
+    const week = META_EVENTS.map((name) => ({
+      name,
+      ok: (agg.find((a) => a._id.name === name && a._id.ok) || {}).n || 0,
+      failed: (agg.find((a) => a._id.name === name && !a._id.ok) || {}).n || 0,
+    }));
+    return res.json({
+      pixelId: require('../utils/metaPixel').PIXEL_ID,
+      hasToken: !!token,
+      tokenHint: token ? '…' + token.slice(-4) : '',
+      testCode: (doc && doc.metaTestCode) || '',
+      enabled: !(doc && doc.metaCapiEnabled === false),
+      week,
+      recent: recent.map((e) => ({
+        name: e.name, ok: e.ok, error: e.error, test: e.test, value: e.value, currency: e.currency,
+        matchKeys: e.matchKeys || [], at: e.at,
+      })),
+    });
+  } catch (err) {
+    console.error('Error loading meta tracking:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+router.put('/admin/api/meta-tracking', requireAdminSession, async (req, res) => {
+  try {
+    const SiteConfig = require('../models/SiteConfig');
+    const b = req.body || {};
+    const set = { updatedAt: new Date() };
+    if (typeof b.token === 'string' && b.token.trim()) {
+      const token = b.token.trim();
+      if (!/^[A-Za-z0-9_-]{40,600}$/.test(token)) {
+        return res.status(400).json({ error: 'الـ Token شكله مش مظبوط — انسخه من ميتا زي ما هو (حروف وأرقام من غير مسافات).' });
+      }
+      const check = await metaCapi.checkToken(token);
+      if (!check.ok) {
+        return res.status(400).json({ error: 'ميتا رفضت الـ Token ده: ' + check.error });
+      }
+      set.metaCapiToken = token;
+    }
+    if (b.clearToken === true) set.metaCapiToken = '';
+    if (typeof b.testCode === 'string') {
+      const tc = b.testCode.trim();
+      if (tc && !/^[A-Za-z0-9]{3,40}$/.test(tc)) return res.status(400).json({ error: 'كود التجربة شكله مش مظبوط (زي TEST12345).' });
+      set.metaTestCode = tc;
+    }
+    if (typeof b.enabled === 'boolean') set.metaCapiEnabled = b.enabled;
+    await SiteConfig.findOneAndUpdate({ key: 'default' }, { $set: set }, { upsert: true });
+    metaCapi.clearConfigCache();
+    logAdminAction(req, 'settings.meta', { type: 'settings', id: 'default' }, {
+      token: set.metaCapiToken === undefined ? 'unchanged' : (set.metaCapiToken ? 'set' : 'cleared'),
+      testCode: set.metaTestCode === undefined ? 'unchanged' : (set.metaTestCode ? 'set' : 'cleared'),
+    });
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error('Error saving meta tracking:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+// حدث تجربة: بيظهر في Events Manager ← Test events (محتاج كود التجربة — من غيره
+// الحدث هيتحسب حقيقي، فمش بنبعته)
+router.post('/admin/api/meta-tracking/test', requireAdminSession, async (req, res) => {
+  try {
+    const cfg = await metaCapi.config();
+    if (!cfg.token) return res.status(400).json({ error: 'حط الـ Token الأول.' });
+    if (!cfg.testCode) return res.status(400).json({ error: 'حط كود التجربة (Test event code) الأول — من غيره الحدث هيتحسب زيارة حقيقية.' });
+    const r = await metaCapi.sendEvent('PageView', { eventId: 'admin_test_' + Date.now(), ctx: metaCapi.contextFromReq(req), test: cfg.testCode });
+    if (!r.ok) return res.status(502).json({ error: 'ميتا مارضيتش تستلم: ' + (r.error || 'سبب مش معروف') });
+    return res.json({ ok: true, received: r.received });
+  } catch (err) {
+    console.error('Error sending meta test event:', err);
     return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
   }
 });

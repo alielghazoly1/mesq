@@ -13,6 +13,16 @@ const { requireAuth } = require('../middleware/auth');
 const { requireAdminSession } = require('../middleware/adminAuth');
 const Order = require('../models/Order');
 const { hasProof, NO_PROOF } = require('../utils/orderProof');
+const metaCapi = require('../utils/metaCapi');
+
+// بيكسل ميتا (السيرفر): "بعت الدفع" مرة واحدة لكل أوردر + آخر بيانات متصفح العميل
+// (حدث الشراء لما الأدمن يفعّل بيستخدمها). نفس event_id اللي المتصفح بيبعته: pay_<order>
+function metaPaid(order, req) {
+  const ctx = metaCapi.contextFromReq(req);
+  const first = !(order.metaSent && order.metaSent.pay);
+  Order.updateOne({ _id: order._id }, { $set: { metaCtx: ctx, ...(first ? { 'metaSent.pay': new Date() } : {}) } }).catch(() => {});
+  if (first) metaCapi.fire('AddPaymentInfo', { eventId: 'pay_' + order._id, user: req.user, ctx, custom: metaCapi.orderCustom(order) });
+}
 
 const router = express.Router();
 
@@ -146,7 +156,8 @@ router.post('/api/uploads/payment-proof', requireAuth, upload.single('file'), as
       { $set: { status: 'cancelled' } }
     );
 
-    return res.status(201).json({ ok: true, url: result.secure_url });
+    metaPaid(order, req);
+    return res.status(201).json({ ok: true, url: result.secure_url, orderId: String(order._id) });
   } catch (err) {
     console.error('Payment proof upload failed:', err);
     return res.status(500).json({ error: 'الرفع فشل، حاول تاني.' });
@@ -180,7 +191,8 @@ router.post('/api/uploads/payment-phone', requireAuth, express.json({ limit: '2k
       { userId: req.user.id, status: 'pending', _id: { $ne: order._id }, ...NO_PROOF },
       { $set: { status: 'cancelled' } }
     );
-    return res.status(201).json({ ok: true });
+    metaPaid(order, req);
+    return res.status(201).json({ ok: true, orderId: String(order._id) });
   } catch (err) {
     console.error('Payment phone failed:', err);
     return res.status(500).json({ error: 'حصل خطأ، حاول تاني.' });
