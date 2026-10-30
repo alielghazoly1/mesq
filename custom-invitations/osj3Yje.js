@@ -8,6 +8,9 @@
 // لصاحب الدعوة في لوحته (التهاني الصوتية) بالاسم والحضور. الواجهة نفسها من
 // client/public/guest-extras.js (متفعّلة بـ guestExtras.voice — utils/oneOffFixes.js)،
 // وهنا بس مكانها وألوانها.
+//
+// وخريطة المكان في إطار "قوس" (فوقه دايرة وتحته مستقيم) بحافة بيضا وخط ذهبي
+// رفيع من جوه — زي الفيديو اللي المالك بعته.
 
 const CSS = `
 .mm-album{padding-top:40px;position:relative}
@@ -66,6 +69,15 @@ const VOICE_CSS = `
 .guestbook-section .gx .gx-name{font-family:var(--sans-ar);font-size:14px}
 .guestbook-section .gx .gx-mic{background:radial-gradient(circle at 36% 28%,#7a2530,var(--maroon) 72%);box-shadow:0 0 0 1.5px rgba(201,152,87,.9),0 0 0 5px rgba(201,152,87,.16),0 10px 22px -8px rgba(42,10,14,.6)}
 .guestbook-section .gx .gx-ic.gx-play{background:var(--maroon)}
+`;
+
+const MAP_CSS = `
+.location-section .venue-map{width:min(84%,330px);max-width:none;aspect-ratio:33/37;margin:24px auto 0;
+  border:7px solid #fffdf9;border-radius:999px 999px 10px 10px;overflow:hidden;background:#efe6d8;
+  box-shadow:0 22px 38px -18px rgba(42,10,14,.45),0 2px 8px rgba(42,10,14,.12);isolation:isolate}
+.location-section .venue-map::after{content:"";position:absolute;inset:5px;border:1px solid rgba(201,152,87,.75);
+  border-radius:999px 999px 5px 5px;pointer-events:none;z-index:2}
+.location-section .venue-map iframe{position:absolute;inset:0;width:100%;height:100%!important;border:0}
 `;
 
 const SCRIPT = `(function(){
@@ -179,8 +191,8 @@ module.exports = {
 
   render() {
     return {
-      head: `<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&display=swap"><style id="mm-album-style">${CSS}${VOICE_CSS}</style>`
-        + '<script>window.MITHAQ_EXTRAS_OPTS = { anchor: ".guestbook-section .light-card", inline: true, attend: true };</script>',
+      head: `<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&display=swap"><style id="mm-album-style">${CSS}${VOICE_CSS}${MAP_CSS}</style>`
+        + '<script>window.MITHAQ_EXTRAS_OPTS = { anchor: ".guestbook-section .light-card", inline: true, attend: true, lang: "ar" };</script>',
       bodyEnd: `<script id="mm-album-script">${SCRIPT}</script>`,
     };
   },

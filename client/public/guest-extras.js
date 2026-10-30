@@ -14,12 +14,13 @@
   if (!X.voice && !X.photos) return;
   if (document.getElementById('mithaq-extras')) return;
   var C = window.WEDDING_CONFIG || {};
-  var AR = X.lang === 'ar';
+  // إعدادات دعوة بعينها (custom-invitations): anchor = جوه أنهي عنصر تتحط،
+  // inline = من غير كارت منفصل (جزء من القسم اللي هي فيه)، attend = تسأل "هتحضر؟"،
+  // lang = لغة الكلام لو محتوى الدعوة غير لغتها المتسجّلة
+  var O = window.MITHAQ_EXTRAS_OPTS || {};
+  var AR = (O.lang || X.lang) === 'ar';
   var EDIT = !!X.editMode;
   var shortId = X.shortId || C.shortId || null;
-  // إعدادات دعوة بعينها (custom-invitations): anchor = جوه أنهي عنصر تتحط،
-  // inline = من غير كارت منفصل (جزء من القسم اللي هي فيه)، attend = تسأل "هتحضر؟"
-  var O = window.MITHAQ_EXTRAS_OPTS || {};
 
   var T = AR ? {
     vEyebrow: 'رسالة بصوتك', vTitle: 'سجّل تهنئتك', vSub: 'امسك المايك واتكلم — أو دوس دوسة واحدة وسجّل من غير ما تمسك',
