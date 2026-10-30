@@ -59,7 +59,7 @@ const VOICE_CSS = `
   --gx-body:'Cairo','Amiri',sans-serif;--gx-disp:'Aref Ruqaa','Amiri',serif;text-align:center}
 .guestbook-section .gx.gx-inline{margin-top:24px}
 .guestbook-section .gx .gx-or{font-family:var(--serif-ar);font-size:16px;color:var(--maroon)}
-.guestbook-section .gx .gx-title{font-family:'Aref Ruqaa',var(--serif-ar);font-size:30px;color:var(--maroon);font-weight:700}
+.guestbook-section .gx .gx-title{font-family:var(--serif-ar);font-size:26px;line-height:1.5;white-space:nowrap;color:var(--maroon);font-weight:700;-webkit-text-stroke:0}
 .guestbook-section .gx .gx-sub{font-size:13px;color:var(--ink-soft);line-height:1.7}
 .guestbook-section .gx .gx-att-q{font-size:14px;font-weight:700;color:var(--maroon);font-family:var(--sans-ar)}
 .guestbook-section .gx .gx-att-b{font-family:var(--sans-ar);font-size:13px;font-weight:700;color:var(--maroon);background:var(--cream);box-shadow:inset 0 0 0 1.4px rgba(78,20,27,.35)}
