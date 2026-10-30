@@ -111,6 +111,7 @@ router.post(
         duration: Math.round(Math.max(0, seconds) * 10) / 10,
         bytes: result.bytes || req.file.size || 0,
         guestName: sanitizeText(req.body && req.body.guestName, 60),
+        attending: ['yes', 'no'].includes(req.body && req.body.attending) ? req.body.attending : null,
         deviceId,
       });
 
@@ -141,10 +142,12 @@ router.get('/api/dashboard/invitations/:shortId/voices', requireAuth, async (req
     if (req.query.before && mongoose.isValidObjectId(req.query.before)) {
       query._id = { $lt: new mongoose.Types.ObjectId(String(req.query.before)) };
     }
-    const [rows, total, unheard] = await Promise.all([
+    const [rows, total, unheard, attYes, attNo] = await Promise.all([
       GuestVoice.find(query).sort({ _id: -1 }).limit(n + 1).lean(),
       GuestVoice.countDocuments({ shortId: invitation.shortId }),
       GuestVoice.countDocuments({ shortId: invitation.shortId, heardAt: null }),
+      GuestVoice.countDocuments({ shortId: invitation.shortId, attending: 'yes' }),
+      GuestVoice.countDocuments({ shortId: invitation.shortId, attending: 'no' }),
     ]);
     const hasMore = rows.length > n;
     const page = hasMore ? rows.slice(0, n) : rows;
@@ -152,6 +155,7 @@ router.get('/api/dashboard/invitations/:shortId/voices', requireAuth, async (req
       voices: page.map(serializeVoice),
       total,
       unheard,
+      attending: { yes: attYes, no: attNo },
       nextCursor: hasMore ? String(page[page.length - 1]._id) : null,
       enabled: voiceEnabled(invitation),
       supported: invitationHasVoice(invitation),

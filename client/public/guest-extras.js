@@ -3,7 +3,8 @@
  *      عشان تكمّل من غير ما تمسك، اسمع تسجيلك، وابعته باسمك.
  *   2) رفع صور الفرح: اختار كذا صورة مرة واحدة، بتتصغّر على الموبايل وتترفع
  *      واحدة ورا التانية بشريط تقدّم.
- * بيتحط تحت فورم تأكيد الحضور. كل اللي بيتبعت بيوصل لصاحب الدعوة في لوحته
+ * بيتحط تحت فورم تأكيد الحضور (أو جوه أي مكان تاني الدعوة تحدده في
+ * window.MITHAQ_EXTRAS_OPTS — زي سجل التهاني، ومعاها سؤال "هتحضر؟"). كل اللي بيتبعت بيوصل لصاحب الدعوة في لوحته
  * بس (routes/guestVoices.js و routes/guestPhotos.js) — مفيش حاجة بتتعرض
  * للضيوف التانيين.
  */
@@ -16,6 +17,9 @@
   var AR = X.lang === 'ar';
   var EDIT = !!X.editMode;
   var shortId = X.shortId || C.shortId || null;
+  // إعدادات دعوة بعينها (custom-invitations): anchor = جوه أنهي عنصر تتحط،
+  // inline = من غير كارت منفصل (جزء من القسم اللي هي فيه)، attend = تسأل "هتحضر؟"
+  var O = window.MITHAQ_EXTRAS_OPTS || {};
 
   var T = AR ? {
     vEyebrow: 'رسالة بصوتك', vTitle: 'سجّل تهنئتك', vSub: 'امسك المايك واتكلم — أو دوس دوسة واحدة وسجّل من غير ما تمسك',
@@ -29,6 +33,8 @@
     pUp: function (i, n) { return 'بنرفع ' + i + ' من ' + n + '…'; }, pNeedName: 'اكتب اسمك الأول', pType: 'اختار صور بس',
     pFail: 'في صور مارفعتش — جرّب تاني', pNet: 'النت فصل — جرّب تاني', pPreview: 'دي معاينة — الصور مش هتترفع',
     del: 'امسح', play: 'شغّل', stop: 'وقّف', send: 'ابعت', mic: 'اضغط مطوّل وسجّل تهنئة',
+    iOr: 'أو', iTitle: 'تهنئة بصوتك', iSub: 'سجّل كلمتين للعروسين بصوتك — هتوصلهم هما بس',
+    aQ: 'هتشرّفنا في الفرح؟', aYes: 'هحضر إن شاء الله', aNo: 'مش هقدر أحضر', needAttend: 'اختار هتحضر ولا لأ الأول',
   } : {
     vEyebrow: 'A VOICE NOTE', vTitle: 'Leave us a voice note', vSub: 'Hold the mic and speak — or tap once to record hands-free',
     idle: 'Tap the mic to record', slide: 'Slide to cancel', namePh: 'Your name',
@@ -41,6 +47,8 @@
     pUp: function (i, n) { return 'Uploading ' + i + ' of ' + n + '…'; }, pNeedName: 'Please write your name first', pType: 'Please choose photos only',
     pFail: 'Some photos couldn’t be uploaded — please try again', pNet: 'Connection lost — please try again', pPreview: 'This is a preview — photos aren’t uploaded',
     del: 'Delete', play: 'Play', stop: 'Stop', send: 'Send', mic: 'Hold to record a voice greeting',
+    iOr: 'or', iTitle: 'A voice greeting', iSub: 'Record a few words for the couple — only they will hear it',
+    aQ: 'Will you attend?', aYes: 'Yes, I’ll be there', aNo: 'Sorry, I can’t make it', needAttend: 'Please tell us if you’ll attend first',
   };
 
   var NAME_KEY = 'mithaq_guest_name';
@@ -78,14 +86,24 @@
   // ===== البناء =====
   var root = document.createElement('section');
   root.id = 'mithaq-extras';
-  root.className = 'gx';
+  root.className = 'gx' + (O.inline ? ' gx-inline' : '');
   root.setAttribute('dir', AR ? 'rtl' : 'ltr');
-  var html = '<div class="gx-orn" aria-hidden="true"><i></i></div>';
+  var html = O.inline ? '' : '<div class="gx-orn" aria-hidden="true"><i></i></div>';
   if (X.voice) {
     html += '<div class="gx-card gx-voice">'
-      + '<p class="gx-eyebrow">' + esc(T.vEyebrow) + '</p>'
-      + '<h2 class="gx-title">' + esc(T.vTitle) + '</h2>'
-      + '<p class="gx-sub">' + esc(T.vSub) + '</p>'
+      + (O.inline
+        ? '<div class="gx-or" aria-hidden="true"><span>' + esc(T.iOr) + '</span></div>'
+          + '<h3 class="gx-title">' + esc(T.iTitle) + '</h3>'
+          + '<p class="gx-sub">' + esc(T.iSub) + '</p>'
+        : '<p class="gx-eyebrow">' + esc(T.vEyebrow) + '</p>'
+          + '<h2 class="gx-title">' + esc(T.vTitle) + '</h2>'
+          + '<p class="gx-sub">' + esc(T.vSub) + '</p>')
+      + (O.attend
+        ? '<div class="gx-att" role="radiogroup" aria-label="' + esc(T.aQ) + '"><p class="gx-att-q">' + esc(T.aQ) + '</p><div class="gx-att-row">'
+          + '<button type="button" class="gx-att-b" data-v="yes" role="radio" aria-checked="false">' + SVG.check + '<span>' + esc(T.aYes) + '</span></button>'
+          + '<button type="button" class="gx-att-b" data-v="no" role="radio" aria-checked="false"><span>' + esc(T.aNo) + '</span></button>'
+          + '</div></div>'
+        : '')
       + '<div class="gx-rec" data-state="idle">'
       + '<div class="gx-bar">'
       + '<span class="gx-idle">' + SVG.wave + '<span>' + esc(T.idle) + '</span></span>'
@@ -127,6 +145,8 @@
   // المكان: تحت قسم تأكيد الحضور على طول
   function place() {
     if (root.isConnected) return true;
+    var inside = O.anchor && document.querySelector(O.anchor);
+    if (inside) { inside.appendChild(root); return true; }
     var anchor = document.getElementById('rsvp-wrap')
       || (document.getElementById('mithaq-rsvp') && (document.getElementById('mithaq-rsvp').closest('.t-rec, section, .rs-rec') || document.getElementById('mithaq-rsvp')));
     if (anchor && anchor.parentNode) { anchor.parentNode.insertBefore(root, anchor.nextSibling); return true; }
@@ -158,7 +178,34 @@
     var stream = null, rec = null, chunks = [], actx = null, an = null, raf = 0, t0 = 0, dur = 0;
     var held = false, locked = false, cancelled = false, sendAfterStop = false, wantLock = false, starting = false, startTimer = 0, px = 0, py = 0;
     var levels = [], blob = null, player = null, playerUrl = '', musicWasOn = false, toastT = 0;
-    var dirSign = AR ? 1 : -1;   // الإلغاء بيتسحب ناحية بداية السطر (شمال في الإنجليزي، يمين في العربي)
+    var dirSign = AR ? 1 : -1;
+    // هتحضر ولا لأ — الاختيار بيتحفظ على الجهاز ويتبعت مع التهنئة
+    var ATT_KEY = 'mithaq_gx_att_' + (shortId || 'preview');
+    var attWrap = root.querySelector('.gx-att');
+    var attending = attWrap ? (store.get(ATT_KEY) === 'yes' || store.get(ATT_KEY) === 'no' ? store.get(ATT_KEY) : '') : '';
+    function paintAtt() {
+      if (!attWrap) return;
+      Array.prototype.forEach.call(attWrap.querySelectorAll('.gx-att-b'), function (b) {
+        var on = b.getAttribute('data-v') === attending;
+        b.classList.toggle('on', on); b.setAttribute('aria-checked', on ? 'true' : 'false');
+      });
+    }
+    if (attWrap) {
+      paintAtt();
+      attWrap.addEventListener('click', function (e) {
+        var b = e.target.closest && e.target.closest('.gx-att-b');
+        if (!b) return;
+        attending = b.getAttribute('data-v'); store.set(ATT_KEY, attending);
+        attWrap.classList.remove('gx-need'); paintAtt(); buzz(8);
+        if (toastEl.textContent === T.needAttend) toastEl.textContent = '';
+      });
+    }
+    function needAttend() {
+      if (!attWrap || attending) return false;
+      attWrap.classList.remove('gx-need'); void attWrap.offsetWidth; attWrap.classList.add('gx-need');
+      toast(T.needAttend, 'err', 3000);
+      return true;
+    }   // الإلغاء بيتسحب ناحية بداية السطر (شمال في الإنجليزي، يمين في العربي)
 
     var SHOW = {
       idle: [idleEl], rec: [dot, tEl, slide], locked: [dot, tEl, cvs, del, stopBtn],
@@ -292,6 +339,7 @@
     });
     function trySend() {
       if (!blob) return;
+      if (needAttend()) { if (state() !== 'review') toReview(); return; }
       var nm = knownName();
       if (nm.length >= 2) { upload(nm); return; }
       if (player) { try { player.pause(); } catch (e) { /* */ } play.innerHTML = SVG.play; }
@@ -318,6 +366,7 @@
       var ext = /mp4|aac|m4a/.test(type) ? 'm4a' : /ogg/.test(type) ? 'ogg' : 'webm';
       var fd = new FormData();
       fd.append('guestName', name || '');
+      if (attending) fd.append('attending', attending);
       fd.append('duration', String(Math.round(dur * 10) / 10));
       fd.append('file', blob, 'voice.' + ext);
       fetch('/i/' + encodeURIComponent(shortId) + '/voice', { method: 'POST', body: fd, credentials: 'same-origin' })

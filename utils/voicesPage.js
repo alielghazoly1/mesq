@@ -41,7 +41,7 @@ function buildVoicesPage(invitation, voices, opts) {
         <svg class="i-pause" viewBox="0 0 24 24"><path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor"/></svg>
       </button>
       <div class="meta">
-        <div class="name">${escapeHtml(v.guestName || `ضيف ${voices.length - i}`)}</div>
+        <div class="name">${escapeHtml(v.guestName || `ضيف ${voices.length - i}`)}${v.attending === 'yes' ? ' <span class="att yes">هيحضر</span>' : v.attending === 'no' ? ' <span class="att no">مش هيحضر</span>' : ''}</div>
         <div class="bar"><span></span></div>
         <div class="sub"><span class="t">${fmt(v.duration)}</span> · ${escapeHtml(v.createdAt ? dt.format(new Date(v.createdAt)) : '')}</div>
       </div>
@@ -96,6 +96,9 @@ function buildVoicesPage(invitation, voices, opts) {
   .row.on .play .i-play{ display:none; } .row.on .play .i-pause{ display:block; }
   .meta{ flex:1; min-width:0; }
   .name{ font-weight:700; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .att{ display:inline-block; margin-inline-start:6px; padding:1px 8px; border-radius:99px; font-size:11px; font-weight:700; vertical-align:2px; }
+  .att.yes{ background:#e3f3ea; color:#1f7a4d; }
+  .att.no{ background:#f6e4e4; color:#9a3b3b; }
   .bar{ height:4px; background:rgba(122,42,55,.12); border-radius:4px; margin:8px 0 6px; overflow:hidden; }
   .bar span{ display:block; height:100%; width:0; background:var(--wine); border-radius:4px; transition:width .2s linear; }
   .sub{ font-size:12px; color:var(--ink-dim); font-variant-numeric:tabular-nums; }

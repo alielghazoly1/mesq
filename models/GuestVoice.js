@@ -15,6 +15,8 @@ const guestVoiceSchema = new mongoose.Schema({
   bytes: { type: Number, default: 0 },
 
   guestName: { type: String, default: '', maxlength: 60 },
+  // الضيف قال هيحضر ولا لأ (الدعوات اللي بتسأل مع التهنئة — MITHAQ_EXTRAS_OPTS.attend)
+  attending: { type: String, enum: ['yes', 'no', null], default: null },
   deviceId: { type: String, default: null },
 
   // صاحب الدعوة سمعها؟ (عشان علامة "جديد" وعدّاد اللي ماتسمعش على كارت الدعوة)

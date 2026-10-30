@@ -32,6 +32,8 @@ export default function GuestVoices({ shortId, title, onClose }) {
   const [voices, setVoices] = useState([]);
   const [total, setTotal] = useState(0);
   const [unheard, setUnheard] = useState(0);
+  // هتحضر ولا لأ (الدعوات اللي بتسأل مع التهنئة)
+  const [att, setAtt] = useState({ yes: 0, no: 0 });
   const [cursor, setCursor] = useState(null);
   const [meta, setMeta] = useState({ loaded: false, enabled: true });
   const [error, setError] = useState('');
@@ -50,6 +52,7 @@ export default function GuestVoices({ shortId, title, onClose }) {
       });
       setTotal(r.total);
       setUnheard(r.unheard);
+      if (r.attending) setAtt(r.attending);
       setCursor(r.nextCursor);
       setMeta({ loaded: true, enabled: r.enabled });
     } catch {
@@ -126,6 +129,7 @@ export default function GuestVoices({ shortId, title, onClose }) {
       setVoices((prev) => prev.filter((x) => x.id !== v.id));
       setTotal((n) => Math.max(0, n - 1));
       if (!v.heard) setUnheard((n) => Math.max(0, n - 1));
+      if (v.attending) setAtt((a) => ({ ...a, [v.attending]: Math.max(0, a[v.attending] - 1) }));
     } catch { setError(t('dash.statsError')); }
     setBusyId(null);
   }
@@ -183,6 +187,12 @@ export default function GuestVoices({ shortId, title, onClose }) {
 
         {(total > 0 || (meta.loaded && !meta.enabled) || error) && (
           <div className="shrink-0 border-b border-line px-5 py-3.5">
+            {att.yes + att.no > 0 && (
+              <div className="mb-3 flex flex-wrap items-center gap-2 text-[12.5px] font-bold" data-voices-att>
+                <span className="rounded-full bg-[#1f7a4d]/12 px-3 py-1 text-[#1f7a4d]">✓ {att.yes} {t('dash.voicesAttYes')}</span>
+                <span className="rounded-full bg-[#9a3b3b]/10 px-3 py-1 text-[#9a3b3b]">{att.no} {t('dash.voicesAttNo')}</span>
+              </div>
+            )}
             {total > 0 && (
               <a href={`/api/dashboard/invitations/${encodeURIComponent(shortId)}/voices/zip`} target="_blank" rel="noopener noreferrer"
                 className={`${btn} bg-night text-ivory hover:bg-emerald`}>
@@ -227,6 +237,11 @@ export default function GuestVoices({ shortId, title, onClose }) {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
                         <span className="truncate text-[14px] font-bold text-ink">{name}</span>
+                        {v.attending && (
+                          <span data-att={v.attending} className={`shrink-0 rounded-full px-2 text-[10.5px] font-bold leading-[18px] ${v.attending === 'yes' ? 'bg-[#1f7a4d]/12 text-[#1f7a4d]' : 'bg-[#9a3b3b]/10 text-[#9a3b3b]'}`}>
+                            {v.attending === 'yes' ? `✓ ${t('dash.voicesAttYes')}` : t('dash.voicesAttNo')}
+                          </span>
+                        )}
                         {!v.heard && (
                           <span className="shrink-0 rounded-full bg-[#7a2a37] px-1.5 text-[10px] font-bold leading-[16px] text-white">{t('dash.voicesNewBadge')}</span>
                         )}

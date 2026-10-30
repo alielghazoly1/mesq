@@ -57,6 +57,7 @@ function serializeVoice(v) {
     download: asMp3(cloudinaryVariant(v.url, `fl_attachment:${attachmentName(v.shortId, v)}`)),
     duration: Math.round((v.duration || 0) * 10) / 10,
     heard: !!v.heardAt,
+    attending: v.attending === 'yes' || v.attending === 'no' ? v.attending : null,
     createdAt: v.createdAt,
   };
 }

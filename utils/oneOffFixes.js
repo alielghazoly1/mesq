@@ -160,6 +160,18 @@ const FIXES = [
     },
   },
   {
+    // osj3Yje (احمد & شهد — Royal Maroon) — بطلب المالك: تهنئة صوتية جوه سجل
+    // التهاني مع "هتحضر ولا لأ" (المكان والألوان في custom-invitations/osj3Yje.js).
+    // صوت بس، من غير رفع صور. مرة واحدة بس لو لسه مش متفعّلة.
+    name: 'osj3Yje-guest-voice',
+    shortId: 'osj3Yje',
+    select: 'customizations guestExtras templateId',
+    when: (c, inv) => !(inv.guestExtras && inv.guestExtras.voice),
+    apply() {
+      return { 'guestExtras.voice': true };
+    },
+  },
+  {
     // vYsx7Gn (الغزالى ومها — قصر ليالي نمار) — بطلب المالك: "الموقع يظهر عند
     // ناس صح وعند ناس غلط". الخريطة المضمّنة كانت على مكان "الكاميرا" في لينك
     // جوجل (46.5907552) مش الدبوس نفسه (46.591414). بنحطها على الدبوس، واللينك

@@ -3,6 +3,11 @@
 // على الجناب، على شريط ورق، وتحتهم أسهم وعدّاد (01 / 08) ونقط. سحب يمين وشمال.
 // الكلام بلون الدعوة (البرجاندي). الصور نفسها زي ما هي من الدعوة (والمحرر لسه
 // يقدر يغيّر أو يشيل أي صورة — الألبوم بيعيد الحساب لوحده).
+//
+// وكمان: تهنئة صوتية جوه "سجل التهاني" نفسه، ومعاها "هتحضر ولا لأ" — بتوصل
+// لصاحب الدعوة في لوحته (التهاني الصوتية) بالاسم والحضور. الواجهة نفسها من
+// client/public/guest-extras.js (متفعّلة بـ guestExtras.voice — utils/oneOffFixes.js)،
+// وهنا بس مكانها وألوانها.
 
 const CSS = `
 .mm-album{padding-top:40px;position:relative}
@@ -43,6 +48,24 @@ const CSS = `
 .mm-dots{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:12px;direction:rtl}
 .mm-dots span{width:5px;height:5px;border-radius:50%;background:rgba(78,20,27,.25);transition:all .3s}
 .mm-dots span.on{width:7px;height:7px;border-radius:1px;transform:rotate(45deg);background:var(--maroon)}
+`;
+
+// التهنئة الصوتية بألوان الدعوة (برجاندي + كريمي) جوه كارت سجل التهاني
+const VOICE_CSS = `
+.guestbook-section .gx{--gx-ink:#4E141B;--gx-soft:#7A5C52;--gx-gold:#C99857;--gx-gold2:#E8CB98;--gx-line:rgba(78,20,27,.3);--gx-red:#a8323f;
+  --gx-body:'Cairo','Amiri',sans-serif;--gx-disp:'Aref Ruqaa','Amiri',serif;text-align:center}
+.guestbook-section .gx.gx-inline{margin-top:24px}
+.guestbook-section .gx .gx-or{font-family:var(--serif-ar);font-size:16px;color:var(--maroon)}
+.guestbook-section .gx .gx-title{font-family:'Aref Ruqaa',var(--serif-ar);font-size:30px;color:var(--maroon);font-weight:700}
+.guestbook-section .gx .gx-sub{font-size:13px;color:var(--ink-soft);line-height:1.7}
+.guestbook-section .gx .gx-att-q{font-size:14px;font-weight:700;color:var(--maroon);font-family:var(--sans-ar)}
+.guestbook-section .gx .gx-att-b{font-family:var(--sans-ar);font-size:13px;font-weight:700;color:var(--maroon);background:var(--cream);box-shadow:inset 0 0 0 1.4px rgba(78,20,27,.35)}
+.guestbook-section .gx .gx-att-b.on{background:var(--maroon);color:var(--text-cream);box-shadow:none}
+.guestbook-section .gx .gx-bar{background:var(--cream);box-shadow:inset 0 0 0 1.4px rgba(78,20,27,.35)}
+.guestbook-section .gx .gx-idle,.guestbook-section .gx .gx-slide,.guestbook-section .gx .gx-sending,.guestbook-section .gx .gx-toast{font-family:var(--sans-ar);font-size:13.5px}
+.guestbook-section .gx .gx-name{font-family:var(--sans-ar);font-size:14px}
+.guestbook-section .gx .gx-mic{background:radial-gradient(circle at 36% 28%,#7a2530,var(--maroon) 72%);box-shadow:0 0 0 1.5px rgba(201,152,87,.9),0 0 0 5px rgba(201,152,87,.16),0 10px 22px -8px rgba(42,10,14,.6)}
+.guestbook-section .gx .gx-ic.gx-play{background:var(--maroon)}
 `;
 
 const SCRIPT = `(function(){
@@ -156,7 +179,8 @@ module.exports = {
 
   render() {
     return {
-      head: `<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&display=swap"><style id="mm-album-style">${CSS}</style>`,
+      head: `<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&display=swap"><style id="mm-album-style">${CSS}${VOICE_CSS}</style>`
+        + '<script>window.MITHAQ_EXTRAS_OPTS = { anchor: ".guestbook-section .light-card", inline: true, attend: true };</script>',
       bodyEnd: `<script id="mm-album-script">${SCRIPT}</script>`,
     };
   },

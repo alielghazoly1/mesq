@@ -143,3 +143,26 @@
 .gx.gx-inview .gx-card{animation:gx-in 1.1s cubic-bezier(.2,.7,.2,1) both}
 .gx.gx-inview .gx-card + .gx-card{animation-delay:.18s}
 @media (prefers-reduced-motion:reduce){.gx *{animation:none !important}.gx .gx-card{opacity:1 !important;transform:none !important}}
+
+/* ===== جوه قسم تاني (سجل التهاني مثلًا) — MITHAQ_EXTRAS_OPTS.inline ===== */
+.gx.gx-inline{background:transparent;padding:0;margin-top:22px}
+.gx.gx-inline .gx-card{max-width:none;padding:0;background:transparent;box-shadow:none}
+.gx.gx-inline .gx-card::before{display:none}
+.gx.gx-inline .gx-title{font-size:26px;margin-top:6px}
+.gx.gx-inline .gx-sub{font-size:14.5px;margin-top:4px}
+.gx-or{display:flex;align-items:center;gap:12px;color:var(--gx-soft);font:400 14px/1 var(--gx-body)}
+.gx-or::before,.gx-or::after{content:"";flex:1;height:1px;background:linear-gradient(to right,transparent,var(--gx-line))}
+.gx-or::after{transform:scaleX(-1)}
+
+/* ===== هتحضر؟ ===== */
+.gx-att{margin-top:16px}
+.gx-att-q{font:600 15px/1.4 var(--gx-body);color:var(--gx-ink)}
+.gx-att-row{display:flex;gap:8px;margin-top:9px}
+.gx-att-b{flex:1;min-width:0;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:44px;padding:8px 10px;border:0;border-radius:999px;cursor:pointer;
+  font:600 14px/1.25 var(--gx-body);color:var(--gx-ink);background:transparent;box-shadow:inset 0 0 0 1.3px var(--gx-line);transition:background .2s,color .2s,box-shadow .2s,transform .15s;-webkit-tap-highlight-color:transparent}
+.gx-att-b svg{width:15px;height:15px;display:none}
+.gx-att-b:active{transform:scale(.97)}
+.gx-att-b.on{background:var(--gx-ink);color:#fbf7ef;box-shadow:none}
+.gx-att-b.on svg{display:block}
+.gx-att.gx-need .gx-att-b{box-shadow:inset 0 0 0 1.6px var(--gx-red);animation:gx-att-shake .4s ease}
+@keyframes gx-att-shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
