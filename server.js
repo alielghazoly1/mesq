@@ -107,10 +107,11 @@ app.use(helmet({
       connectSrc: ["'self'", 'https://accounts.google.com/gsi/', 'https://www.facebook.com', 'https://connect.facebook.net', ...TILDA_CDN_HOSTS],
       // 'self' لازم عشان المحرر المباشر بيعرض الدعوة نفسها جوه iframe من
       // نفس الأوريجن؛ google.com للخرايط المضمّنة جوه الدعوة.
-      frameSrc: ["'self'", 'https://www.google.com', 'https://accounts.google.com/gsi/'],
+      // www.facebook.com (هنا وفي formAction): بيكسل ميتا بيبعت الأحداث بفورم مخفي جوه iframe
+      frameSrc: ["'self'", 'https://www.google.com', 'https://accounts.google.com/gsi/', 'https://www.facebook.com'],
       objectSrc: ["'none'"],
       baseUri: ["'self'"],
-      formAction: ["'self'"],
+      formAction: ["'self'", 'https://www.facebook.com'],
       frameAncestors: ["'self'"],
       // ترقية أي طلب http لـ https — مهمة على الإنتاج، بس لازم تتشال
       // في التطوير. سبب عملي: كروم بيستثني localhost من الترقية دي،
