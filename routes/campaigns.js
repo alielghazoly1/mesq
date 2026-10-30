@@ -3,6 +3,7 @@
 //
 //   GET /go/:code                       — اللينك اللي بيتحط في الإعلان: بيعدّ الزيارة،
 //                                         بيعلّم الجهاز 30 يوم، ويودّي على الموقع
+//   GET /ad/:token                      — لينك سري لأرقام إعلان واحد (للي بيعمل الإعلانات)
 //   /admin/api/campaigns ...            — لوحة التحكم: عمل/تعديل/أرشفة اللينكات
 //                                         وأرقام كل إعلان (زيارات → تسجيل → دفع → فلوس)
 //
@@ -22,6 +23,8 @@ const { ensureDeviceId } = require('../middleware/deviceLimiter');
 const { logAdminAction } = require('../utils/adminAudit');
 const { sanitizeText } = require('../utils/sanitize');
 const { cairoParts, cairoWallToDate } = require('../utils/cairoTime');
+const { getRates } = require('../utils/finance');
+const { renderCampaignSharePage } = require('../utils/campaignSharePage');
 
 const router = express.Router();
 
@@ -234,6 +237,8 @@ function serialize(c, s) {
     landing: c.landing || '/',
     notes: c.notes || '',
     archived: !!c.archived,
+    shareToken: c.shareToken || null,
+    shareMoney: c.shareMoney !== false,
     createdAt: c.createdAt,
     startedAt: c.startedAt || c.createdAt,
     stats: s,
@@ -244,6 +249,77 @@ function serialize(c, s) {
 function dayKey(date) {
   const p = cairoParts(date);
   return `${p.year}-${String(p.month).padStart(2, '0')}-${String(p.day).padStart(2, '0')}`;
+}
+
+/** كل تفاصيل إعلان: الأرقام + كل اللي سجّلوا منه + يوم بيوم آخر 30 يوم + سجل الفتحات */
+async function campaignDetail(campaign) {
+  const [stats, users] = await Promise.all([
+    statsFor([campaign]),
+    User.find({ campaign: campaign.code, campaignAt: { $gte: new Date(campaign.startedAt || campaign.createdAt || 0) } })
+      .select('name email phone country createdAt campaignAt subscription lastSeenAt')
+      .sort({ campaignAt: -1 }).limit(1000).lean(),
+  ]);
+  const ids = users.map((u) => u._id);
+  const [orders, invCounts] = await Promise.all([
+    ids.length ? Order.find({ userId: { $in: ids }, status: { $in: ['activated', 'pending'] } })
+      .select('userId packageId currency price status paymentProofUrl paymentSenderPhone activatedAt createdAt').lean() : [],
+    ids.length ? Invitation.aggregate([{ $match: { ownerId: { $in: ids } } }, { $group: { _id: '$ownerId', n: { $sum: 1 } } }]) : [],
+  ]);
+  const invBy = {}; invCounts.forEach((r) => { invBy[String(r._id)] = r.n; });
+  const ordBy = {};
+  orders.forEach((o) => { (ordBy[String(o.userId)] = ordBy[String(o.userId)] || []).push(o); });
+
+  const people = users.map((u) => {
+    const os = ordBy[String(u._id)] || [];
+    const paid = os.filter((o) => o.status === 'activated');
+    const waiting = os.some((o) => o.status === 'pending' && (o.paymentProofUrl || o.paymentSenderPhone));
+    const ordered = os.some((o) => o.status === 'pending');
+    const amount = { EGP: 0, USD: 0, SAR: 0, EUR: 0 };
+    paid.forEach((o) => { const cu = ['USD', 'SAR', 'EUR'].includes(o.currency) ? o.currency : 'EGP'; amount[cu] = r2(amount[cu] + o.price); });
+    const last = paid.sort((a, b) => new Date(b.activatedAt || 0) - new Date(a.activatedAt || 0))[0];
+    return {
+      id: String(u._id),
+      name: u.name || '',
+      email: u.email || '',
+      phone: u.phone || '',
+      country: u.country || '',
+      signedUpAt: u.campaignAt || u.createdAt,
+      // paid = دفع واتفعّل، receipt = رفع إيصال ومستني، ordered = طلب باقة ومادفعش، signed = سجّل بس
+      status: paid.length ? 'paid' : waiting ? 'receipt' : ordered ? 'ordered' : 'signed',
+      amount,
+      packageId: last ? last.packageId : (u.subscription && u.subscription.packageId) || null,
+      paidAt: last ? last.activatedAt : null,
+      invitations: invBy[String(u._id)] || 0,
+    };
+  });
+
+  // يوم بيوم — آخر 30 يوم بتوقيت مصر (أو من يوم الإعلان لو أحدث)
+  const days = 30;
+  const p = cairoParts(new Date());
+  const from = cairoWallToDate(p.year, p.month - 1, p.day - (days - 1), 0, 0);
+  const start = new Date(campaign.startedAt || campaign.createdAt || 0);
+  const [visitDays, hitLog] = await Promise.all([
+    // الزوار الحقيقيين بس (اللي الموقع أكّدهم) من يوم بداية الإعلان
+    CampaignVisit.aggregate([
+      { $match: { campaignId: campaign._id, verifiedAt: { $gte: from > start ? from : start } } },
+      { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$verifiedAt', timezone: 'Africa/Cairo' } }, n: { $sum: 1 } } },
+    ]),
+    // سجل آخر الفتحات — المتحسوب وغير المتحسوب وسببه
+    CampaignHit.find({ campaignId: campaign._id }).sort({ at: -1 }).limit(300).select('at status src device').lean(),
+  ]);
+  const byDay = {};
+  for (let i = 0; i < days; i++) {
+    const key = dayKey(new Date(from.getTime() + i * 86400000 + 12 * 3600000));
+    byDay[key] = { date: key, visitors: 0, signups: 0, payers: 0 };
+  }
+  visitDays.forEach((v) => { if (byDay[v._id]) byDay[v._id].visitors = v.n; });
+  people.forEach((u) => {
+    const k = dayKey(new Date(u.signedUpAt));
+    if (byDay[k]) byDay[k].signups += 1;
+    if (u.paidAt) { const k2 = dayKey(new Date(u.paidAt)); if (byDay[k2]) byDay[k2].payers += 1; }
+  });
+
+  return { stats, people, daily: Object.values(byDay), hitLog, start };
 }
 
 // ======================================================================
@@ -352,81 +428,64 @@ router.get('/admin/api/campaigns/:id', requireAdminSession, async (req, res) => 
     if (!/^[a-f0-9]{24}$/i.test(String(req.params.id))) return res.status(404).json({ error: 'الإعلان مش موجود.' });
     const campaign = await Campaign.findById(req.params.id).lean();
     if (!campaign) return res.status(404).json({ error: 'الإعلان مش موجود.' });
-    const [stats, users] = await Promise.all([
-      statsFor([campaign]),
-      User.find({ campaign: campaign.code, campaignAt: { $gte: new Date(campaign.startedAt || campaign.createdAt || 0) } })
-        .select('name email phone country createdAt campaignAt subscription lastSeenAt')
-        .sort({ campaignAt: -1 }).limit(1000).lean(),
-    ]);
-    const ids = users.map((u) => u._id);
-    const [orders, invCounts] = await Promise.all([
-      ids.length ? Order.find({ userId: { $in: ids }, status: { $in: ['activated', 'pending'] } })
-        .select('userId packageId currency price status paymentProofUrl paymentSenderPhone activatedAt createdAt').lean() : [],
-      ids.length ? Invitation.aggregate([{ $match: { ownerId: { $in: ids } } }, { $group: { _id: '$ownerId', n: { $sum: 1 } } }]) : [],
-    ]);
-    const invBy = {}; invCounts.forEach((r) => { invBy[String(r._id)] = r.n; });
-    const ordBy = {};
-    orders.forEach((o) => { (ordBy[String(o.userId)] = ordBy[String(o.userId)] || []).push(o); });
-
-    const people = users.map((u) => {
-      const os = ordBy[String(u._id)] || [];
-      const paid = os.filter((o) => o.status === 'activated');
-      const waiting = os.some((o) => o.status === 'pending' && (o.paymentProofUrl || o.paymentSenderPhone));
-      const ordered = os.some((o) => o.status === 'pending');
-      const amount = { EGP: 0, USD: 0, SAR: 0, EUR: 0 };
-      paid.forEach((o) => { const cu = ['USD', 'SAR', 'EUR'].includes(o.currency) ? o.currency : 'EGP'; amount[cu] = r2(amount[cu] + o.price); });
-      const last = paid.sort((a, b) => new Date(b.activatedAt || 0) - new Date(a.activatedAt || 0))[0];
-      return {
-        id: String(u._id),
-        name: u.name || '',
-        email: u.email || '',
-        phone: u.phone || '',
-        country: u.country || '',
-        signedUpAt: u.campaignAt || u.createdAt,
-        // paid = دفع واتفعّل، receipt = رفع إيصال ومستني، ordered = طلب باقة ومادفعش، signed = سجّل بس
-        status: paid.length ? 'paid' : waiting ? 'receipt' : ordered ? 'ordered' : 'signed',
-        amount,
-        packageId: last ? last.packageId : (u.subscription && u.subscription.packageId) || null,
-        paidAt: last ? last.activatedAt : null,
-        invitations: invBy[String(u._id)] || 0,
-      };
-    });
-
-    // يوم بيوم — آخر 30 يوم بتوقيت مصر (أو من يوم الإعلان لو أحدث)
-    const days = 30;
-    const p = cairoParts(new Date());
-    const from = cairoWallToDate(p.year, p.month - 1, p.day - (days - 1), 0, 0);
-    const start = new Date(campaign.startedAt || campaign.createdAt || 0);
-    const [visitDays, hitLog] = await Promise.all([
-      // الزوار الحقيقيين بس (اللي الموقع أكّدهم) من يوم بداية الإعلان
-      CampaignVisit.aggregate([
-        { $match: { campaignId: campaign._id, verifiedAt: { $gte: from > start ? from : start } } },
-        { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$verifiedAt', timezone: 'Africa/Cairo' } }, n: { $sum: 1 } } },
-      ]),
-      // سجل آخر الفتحات — المتحسوب وغير المتحسوب وسببه
-      CampaignHit.find({ campaignId: campaign._id }).sort({ at: -1 }).limit(300).select('at status src device').lean(),
-    ]);
-    const byDay = {};
-    for (let i = 0; i < days; i++) {
-      const key = dayKey(new Date(from.getTime() + i * 86400000 + 12 * 3600000));
-      byDay[key] = { date: key, visitors: 0, signups: 0, payers: 0 };
-    }
-    visitDays.forEach((v) => { if (byDay[v._id]) byDay[v._id].visitors = v.n; });
-    people.forEach((u) => {
-      const k = dayKey(new Date(u.signedUpAt));
-      if (byDay[k]) byDay[k].signups += 1;
-      if (u.paidAt) { const k2 = dayKey(new Date(u.paidAt)); if (byDay[k2]) byDay[k2].payers += 1; }
-    });
-
+    const { stats, people, daily, hitLog, start } = await campaignDetail(campaign);
     return res.json({
       campaign: serialize(campaign, stats[campaign.code]),
       people,
-      daily: Object.values(byDay),
+      daily,
       hits: hitLog.map((h) => ({ at: h.at, status: h.status, src: h.src, device: h.device, beforeStart: h.at < start })),
     });
   } catch (err) {
     console.error('Error loading campaign:', err);
     return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+// لينك أرقام الإعلان للي بيعمل الإعلانات: action = on (يعمل لينك لو مفيش)،
+// new (لينك جديد والقديم يبطّل)، off (يقفل اللينك). money = يظهر الفلوس ولا لأ.
+router.post('/admin/api/campaigns/:id/share', requireAdminSession, async (req, res) => {
+  try {
+    if (!/^[a-f0-9]{24}$/i.test(String(req.params.id))) return res.status(404).json({ error: 'الإعلان مش موجود.' });
+    const campaign = await Campaign.findById(req.params.id);
+    if (!campaign) return res.status(404).json({ error: 'الإعلان مش موجود.' });
+    const b = req.body || {};
+    const action = ['on', 'new', 'off'].includes(b.action) ? b.action : null;
+    if (action === 'off') campaign.shareToken = undefined;
+    else if (action === 'new' || (action === 'on' && !campaign.shareToken)) campaign.shareToken = crypto.randomBytes(18).toString('base64url');
+    if (b.money !== undefined) campaign.shareMoney = !!b.money;
+    campaign.updatedAt = new Date();
+    await campaign.save();
+    logAdminAction(req, 'campaign.share', { type: 'campaign', id: campaign._id, label: campaign.name }, { action, money: campaign.shareMoney });
+    const c = campaign.toObject();
+    const stats = await statsFor([c]);
+    return res.json({ campaign: serialize(c, stats[c.code]) });
+  } catch (err) {
+    console.error('Error sharing campaign:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+// GET /ad/:token — صفحة أرقام الإعلان المشاركة. عامة عن قصد لأي حد معاه اللينك
+// السري، ومفيهاش أي بيانات تعرّف عميل.
+router.get('/ad/:token', async (req, res) => {
+  res.set({ 'X-Robots-Tag': 'noindex, nofollow', 'Cache-Control': 'no-store', 'Referrer-Policy': 'no-referrer' });
+  try {
+    const token = String(req.params.token || '');
+    const campaign = /^[A-Za-z0-9_-]{16,40}$/.test(token) ? await Campaign.findOne({ shareToken: token }).lean() : null;
+    if (!campaign) {
+      return res.status(404).type('html').send(
+        '<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex">' +
+        '<body style="font-family:sans-serif;text-align:center;margin-top:20vh;color:#444;padding:0 16px">' +
+        '<h1>اللينك ده مش شغال</h1><p>ممكن يكون اتقفل أو اتغيّر — اطلب اللينك الجديد من صاحب الموقع.</p></body></html>'
+      );
+    }
+    const [{ stats, people, daily, hitLog }, rates] = await Promise.all([campaignDetail(campaign), getRates()]);
+    return res.type('html').send(renderCampaignSharePage({
+      campaign, stats: stats[campaign.code], people, daily, hitLog, rates,
+    }));
+  } catch (err) {
+    console.error('Error loading shared campaign:', err);
+    return res.status(500).type('html').send('<!doctype html><meta charset="utf-8"><p style="font-family:sans-serif;text-align:center;margin-top:20vh">حصل خطأ — جرّب تاني بعد شوية.</p>');
   }
 });
 

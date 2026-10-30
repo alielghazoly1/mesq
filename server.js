@@ -171,6 +171,7 @@ app.use('/s', requireDB);
 app.use('/r', requireDB);
 // لينكات الإعلانات (/go/<code>)
 app.use('/go', requireDB);
+app.use('/ad', requireDB);
 app.use('/api/campaign-seen', requireDB);
 // صفحة ألبوم صور الضيوف المشاركة (routes/guestPhotos.js)
 app.use('/a', requireDB);

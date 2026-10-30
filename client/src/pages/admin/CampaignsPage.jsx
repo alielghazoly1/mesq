@@ -8,9 +8,10 @@ import {
   Target, Plus, Copy, Check, Link2, Users, Crown, Wallet, Eye, Archive, ArchiveRestore,
   ChevronDown, TrendingUp, TrendingDown, Pencil, X, Camera, ThumbsUp, Music2, Search,
   MessageCircle, Ghost, Megaphone, Clock, MousePointerClick, ShieldCheck, CalendarDays, Smartphone, Monitor, Tablet,
+  Share2, RefreshCw, ExternalLink,
 } from 'lucide-react';
 import {
-  useGetCampaignsQuery, useGetCampaignQuery, useCreateCampaignMutation, useUpdateCampaignMutation,
+  useGetCampaignsQuery, useGetCampaignQuery, useCreateCampaignMutation, useUpdateCampaignMutation, useShareCampaignMutation,
 } from '../../store/adminApi.js';
 import { openUser, closeUser } from '../../store/adminSlice.js';
 import {
@@ -325,6 +326,54 @@ function Filtered({ f }) {
 
 /** من إمتى الأرقام بتتحسب */
 /** اللينك بيودّي على أنهي صفحة — يتغيّر في أي وقت (اللينك نفسه مبيتغيّرش) */
+/** لينك سري لأرقام الإعلان ده — يتبعت للي بيعمل الإعلانات (من غير بيانات العملاء) */
+function ShareReport({ c }) {
+  const [share, { isLoading }] = useShareCampaignMutation();
+  const [done, setDone] = useState(false);
+  const url = c.shareToken ? `${window.location.origin}/ad/${c.shareToken}` : '';
+  const copy = () => {
+    const ok = () => { setDone(true); setTimeout(() => setDone(false), 1800); };
+    if (navigator.clipboard?.writeText) navigator.clipboard.writeText(url).then(ok, () => window.prompt('انسخ اللينك:', url));
+    else window.prompt('انسخ اللينك:', url);
+  };
+  if (!c.shareToken) {
+    return (
+      <div className="mt-3 flex flex-wrap items-center gap-2 text-[12px] text-ivory/60" data-share-report="off">
+        <Share2 size={13} className="text-brass-soft" />
+        <span>تبعت أرقام الإعلان ده للي بيعملك الإعلانات؟</span>
+        <Btn size="sm" icon={Share2} loading={isLoading} onClick={() => share({ id: c.id, action: 'on' })}>اعمل لينك أرقام</Btn>
+      </div>
+    );
+  }
+  return (
+    <div className="mt-3 space-y-2 rounded-xl border border-line-lite p-3 text-[12px]" data-share-report="on">
+      <div className="flex flex-wrap items-center gap-2 font-bold text-ivory/80">
+        <Share2 size={13} className="text-brass-soft" /> لينك أرقام الإعلان (للي بيعملك الإعلانات)
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="min-w-0 flex-1 truncate rounded-lg bg-ivory/[0.05] px-2.5 py-1.5 font-mono text-[11.5px] text-ivory/70" dir="ltr">{url}</span>
+        <Btn size="sm" tone="gold" icon={done ? Check : Copy} onClick={copy}>{done ? 'اتنسخ' : 'انسخ'}</Btn>
+        <a href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-brass-soft underline"><ExternalLink size={12} /> افتحه</a>
+      </div>
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-ivory/55">
+        <label className="inline-flex cursor-pointer items-center gap-1.5">
+          <input type="checkbox" checked={c.shareMoney} disabled={isLoading} onChange={(e) => share({ id: c.id, money: e.target.checked })} data-share-money />
+          يظهر فيه الفلوس اللي دخلت والعائد
+        </label>
+        <button type="button" disabled={isLoading} className="inline-flex items-center gap-1 underline hover:text-ivory"
+          onClick={() => { if (window.confirm('لينك جديد؟ اللينك القديم هيبطّل يفتح.')) share({ id: c.id, action: 'new' }); }}>
+          <RefreshCw size={11} /> لينك جديد
+        </button>
+        <button type="button" disabled={isLoading} className="underline hover:text-error"
+          onClick={() => { if (window.confirm('تقفل اللينك؟ اللي معاه مش هيقدر يفتحه تاني.')) share({ id: c.id, action: 'off' }); }}>
+          اقفل اللينك
+        </button>
+      </div>
+      <p className="text-[11px] text-ivory/35">بيشوف أرقام الإعلان ده بس (دخلوا، سجّلوا، دفعوا، الصرف وتكلفة العميل، يوم بيوم) — من غير أي اسم أو رقم تليفون لعميل.</p>
+    </div>
+  );
+}
+
 function LandingPicker({ c }) {
   const [update, { isLoading }] = useUpdateCampaignMutation();
   return (
@@ -432,6 +481,7 @@ function CampaignCard({ c, rate, open, onToggle }) {
         </div>
 
         <CopyLink code={c.code} />
+        <ShareReport c={c} />
 
         {/* القمع: دخلوا ← سجّلوا ← دفعوا */}
         <div className="mt-4 grid gap-3 sm:grid-cols-3">

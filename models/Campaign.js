@@ -21,6 +21,11 @@ const campaignSchema = new mongoose.Schema({
   spendCurrency: { type: String, enum: ['EGP', 'USD'], default: 'EGP' },
   landing: { type: String, enum: LANDINGS, default: '/' },
   notes: { type: String, default: '', maxlength: 300 },
+  // لينك سري (/ad/<token>) يتبعت للي بيعمل الإعلانات: بيشوف أرقام الإعلان ده بس
+  // من غير بيانات أي عميل. null = مفيش لينك (أو اتقفل)
+  shareToken: { type: String, default: undefined, index: { unique: true, sparse: true } },
+  // يظهر في اللينك ده الفلوس اللي دخلت والعائد ولا لأ
+  shareMoney: { type: Boolean, default: true },
   // مقفول = بيختفي من القايمة الأساسية، بس اللينك لسه شغال ولسه بيعدّ
   archived: { type: Boolean, default: false },
   // عدّاد قديم (أول نسخة) — الأرقام دلوقتي بتتحسب من CampaignHit/CampaignVisit

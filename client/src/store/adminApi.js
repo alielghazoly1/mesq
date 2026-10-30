@@ -346,6 +346,10 @@ export const adminApi = createApi({
       query: (body) => ({ url: '/campaigns', method: 'POST', body }),
       invalidatesTags: ['Campaigns'],
     }),
+    shareCampaign: builder.mutation({
+      query: ({ id, ...body }) => ({ url: `/campaigns/${id}/share`, method: 'POST', body }),
+      invalidatesTags: ['Campaigns'],
+    }),
     updateCampaign: builder.mutation({
       query: ({ id, ...body }) => ({ url: `/campaigns/${id}`, method: 'PATCH', body }),
       invalidatesTags: ['Campaigns'],
@@ -365,7 +369,7 @@ export const {
   useGetCleanupPreviewQuery, useRunCleanupMutation,
   useGetWhatsAppQuery, useLinkWhatsAppMutation, useUnlinkWhatsAppMutation, useSaveWhatsAppSettingsMutation, useTestWhatsAppMutation,
   useGetOverviewQuery,
-  useGetCampaignsQuery, useGetCampaignQuery, useCreateCampaignMutation, useUpdateCampaignMutation,
+  useGetCampaignsQuery, useGetCampaignQuery, useCreateCampaignMutation, useUpdateCampaignMutation, useShareCampaignMutation,
   useGetUsersQuery,
   useGetUserQuery,
   useGetUserVisitsQuery,
