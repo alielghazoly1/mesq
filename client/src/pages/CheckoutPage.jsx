@@ -30,6 +30,7 @@ import { whatsappLink } from '../lib/contact.js';
 import Footer from '../components/Footer.jsx';
 import BarqPay from '../components/BarqPay.jsx';
 import InstaPay from '../components/InstaPay.jsx';
+import { pixelTrack, pixelPackage } from '../lib/metaPixel.js';
 
 /**
  * خانة بيانات جنب بعضها — كل واحدة كارت مستقل فيه العنوان فوق والقيمة
@@ -195,6 +196,7 @@ export default function CheckoutPage() {
       .then((r) => {
         if (!alive) return;
         setOrderReady(true);
+        pixelTrack('InitiateCheckout', pixelPackage(pkg), 'checkout:' + pkg.id);
         // رفع إيصال للطلب ده قبل كده؟ (رجع للصفحة أو عمل refresh) — يبقى
         // "جاري المراجعة" مش "ارفع إيصال" تاني
         if (r && r.hasReceipt) setUploaded(true);
@@ -216,6 +218,7 @@ export default function CheckoutPage() {
       fd.append('file', file);
       await uploadProof(fd).unwrap();
       setUploaded(true);
+      pixelTrack('AddPaymentInfo', pixelPackage(pkg), 'pay:' + pkg.id);
     } catch (err) {
       // السيرفر عنده إيصال للطلب ده خلاص — نوريه حالة المراجعة
       if (err?.data?.code === 'RECEIPT_UNDER_REVIEW') { setUploaded(true); return; }
@@ -231,6 +234,7 @@ export default function CheckoutPage() {
     try {
       await sendPhone(d).unwrap();
       setUploaded(true);
+      pixelTrack('AddPaymentInfo', pixelPackage(pkg), 'pay:' + pkg.id);
     } catch (err) {
       if (err?.data?.code === 'RECEIPT_UNDER_REVIEW') { setUploaded(true); return; }
       setError(err?.data?.error || t('payment.phoneBad'));

@@ -26,6 +26,7 @@ const { isEditWindowOpen, editWindowEndedBody } = require('../utils/editWindow')
 const { hashIp } = require('../middleware/freeQuota');
 const SiteTotals = require('../models/SiteTotals');
 const { getTemplate, TEMPLATES } = require('../templates/registry');
+const { injectPixel } = require('../utils/metaPixel');
 const {
   getHiddenTemplateIds, getTemplateLayout, sortByOrder, defaultTemplateLayout,
 } = require('../utils/siteConfig');
@@ -473,7 +474,11 @@ router.get('/preview-sample/:templateId', (req, res) => {
   };
 
   // عنوان ووصف ورابط أصلي لجوجل بدل "دعوة فرح يوسف و أميرة" ورابط Tilda
-  const html = applyPreviewMeta(renderNewPathHtml(data), template);
+  let html = applyPreviewMeta(renderNewPathHtml(data), template);
+  // بيكسل ميتا: الزائر فتح ديمو التصميم ده (على الموقع الحقيقي بس)
+  if (process.env.NODE_ENV === 'production' || process.env.META_PIXEL_ON === '1') {
+    html = injectPixel(html, { viewContent: { id: template.id, name: template.name } });
+  }
   res.set('Content-Type', 'text/html; charset=utf-8');
   return res.send(html);
 });

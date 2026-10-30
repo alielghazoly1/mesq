@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { api, useLoginMutation, useRegisterMutation, useGoogleCompleteMutation } from '../store/api.js';
 import { closeAuthModal, openAuthModal, showWelcome } from '../store/uiSlice.js';
+import { pixelTrack } from '../lib/metaPixel.js';
 import CountrySelect from './form/CountrySelect.jsx';
 import GoogleSignIn from './GoogleSignIn.jsx';
 import { guessCountry } from '../lib/guessCountry.js';
@@ -301,6 +302,7 @@ function RegisterForm({ onEmailTaken }) {
       finishAuth(dispatch);
       // شاشة الترحيب مكان فورم التسجيل على طول — من غير أي فراغ بينهم
       dispatch(showWelcome((res && res.user && res.user.name) || values.name || ''));
+      pixelTrack('CompleteRegistration', { content_name: 'email' }, 'signup');
     } catch { /* الخطأ بيتعرض تحت */ }
   }
 
@@ -424,7 +426,10 @@ function GoogleCompleteForm({ pending, profile, onBack }) {
     try {
       const res = await complete({ pending, ...values, name: values.name.trim() }).unwrap();
       finishAuth(dispatch);
-      if (res && res.isNew) dispatch(showWelcome((res.user && res.user.name) || values.name || ''));
+      if (res && res.isNew) {
+        dispatch(showWelcome((res.user && res.user.name) || values.name || ''));
+        pixelTrack('CompleteRegistration', { content_name: 'google' }, 'signup');
+      }
     } catch { /* الخطأ بيتعرض تحت */ }
   }
 
