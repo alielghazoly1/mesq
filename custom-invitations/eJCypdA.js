@@ -81,5 +81,27 @@ const make = (shortId, label, moveAdded, quote) => ({
   },
 });
 
-module.exports = make('eJCypdA', 'Tap to open', 'add_nmvsntcajz4m8');
+// صورة الغلاف (الطفلين): بطلب المالك اتشالت خلفية الاستوديو (BiRefNet) وبقت
+// مقصوصة PNG شفافة (custom/eJCypdA/kids.webp) واقفة على قاعدة القوس كاملة من غير
+// ما القوس يقص رجل الولد أو جنب البنت، بظل خفيف تحت الرجلين.
+// التكبير اللي صاحب الدعوة عامله من المحرر (scale) بيكبّر لفوق من القاعدة مش من النص. بتتبدّل بس لو صاحب
+// الدعوة لسه على نفس الصورة — لو غيّرها من المحرر، صورته هي اللي بتظهر عادي.
+const KIDS = asset('/custom/eJCypdA/kids.webp');
+const KIDS_OLD = /https:\/\/res\.cloudinary\.com\/[^"'\s]*?pcdswn19b13esa4fwxma\.jpg/g;
+const KIDS_CSS = `
+#wg-invite-1 .arch:has(img[src*="/custom/eJCypdA/kids"]){overflow:visible;border-radius:0;clip-path:none!important}
+#wg-invite-1 .arch:has(img[src*="/custom/eJCypdA/kids"])::before{content:"";position:absolute;left:50%;bottom:-3%;width:118%;height:9%;transform:translateX(-50%);
+  background:radial-gradient(ellipse at center,rgba(96,52,44,.26) 0%,rgba(96,52,44,.1) 45%,transparent 72%);pointer-events:none}
+#wg-invite-1 .arch img[src*="/custom/eJCypdA/kids"]{position:absolute;left:50%;bottom:0;width:118%;height:auto;max-width:none;transform:translateX(-50%);transform-origin:50% 100%;object-fit:contain;
+  filter:drop-shadow(0 4px 8px rgba(80,40,30,.16))}
+`;
+const base = make('eJCypdA', 'Tap to open', 'add_nmvsntcajz4m8');
+module.exports = {
+  ...base,
+  render(opts) {
+    const r = base.render(opts);
+    return { ...r, head: `<link rel="preload" as="image" href="${KIDS}">${r.head}<style id="ej-kids">${KIDS_CSS}</style>` };
+  },
+  transform(html) { return html.replace(KIDS_OLD, KIDS); },
+};
 module.exports.make = make;
