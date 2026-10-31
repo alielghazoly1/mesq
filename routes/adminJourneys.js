@@ -142,3 +142,7 @@ router.get('/admin/api/users/:id/journeys', requireAdminSession, async (req, res
 });
 
 module.exports = router;
+module.exports.peopleFor = peopleFor;
+module.exports.summarize = summarize;
+module.exports.onlineSet = onlineSet;
+module.exports.presenceOf = presenceOf;

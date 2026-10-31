@@ -79,6 +79,8 @@ router.post('/api/track', async (req, res) => {
           device: deviceKeyOf(req, String(body.vid || '')),
           src: sourceOf(req, String(body.ref || '').slice(0, 300), String(body.utm || '').slice(0, 40)),
           ref: String(body.ref || '').slice(0, 200), kind, os, browser: browserOf(ua),
+          // جه من لينك إعلان؟ عشان صفحة الإعلانات تعرض مين دخل منه بالظبط
+          cmp: /^[a-z0-9-]{1,40}$/.test(String((req.cookies && req.cookies.mithaq_cmp) || '')) ? req.cookies.mithaq_cmp : '',
         },
         $set: set,
         $push: { events: { $each: events, $slice: -MAX_EVENTS_PER_SESSION } },

@@ -149,6 +149,8 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '20kb' }));
 app.use(cookieParser());
+// ?_ad=<كود> — الشخص خرج من متصفح إنستجرام لكروم/سفاري: نفس الإعلان يفضل متعلّم
+app.use(campaignsRouter.carryAdCookie);
 
 // بنتأكد إن قاعدة البيانات متصلة قبل أي طلب يحتاجها فعليًا (إنشاء/عرض دعوة).
 // المعاينة الحية وقائمة القوالب (/api/preview, /api/templates) مايحتاجوش

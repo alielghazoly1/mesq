@@ -11,6 +11,7 @@
 // عدّاد ممكن ينحرف عن الحقيقة غير عدّاد الضغطات.
 const express = require('express');
 const crypto = require('crypto');
+const mongoose = require('mongoose');
 const Campaign = require('../models/Campaign');
 const CampaignVisit = require('../models/CampaignVisit');
 const CampaignHit = require('../models/CampaignHit');
@@ -25,6 +26,8 @@ const { sanitizeText } = require('../utils/sanitize');
 const { cairoParts, cairoWallToDate } = require('../utils/cairoTime');
 const { getRates } = require('../utils/finance');
 const { renderCampaignSharePage } = require('../utils/campaignSharePage');
+const JourneySession = require('../models/JourneySession');
+const { peopleFor, summarize, onlineSet, presenceOf } = require('./adminJourneys');
 
 const router = express.Router();
 
@@ -65,6 +68,36 @@ const isPrefetch = (req) => {
   return /prefetch|prerender/.test(h('sec-purpose') + ' ' + h('purpose') + ' ' + h('x-moz'))
     || h('x-purpose') === 'preview' || h('x-fb-purpose') !== '' || h('x-fb-preload') !== '';
 };
+// نسخة مقروءة من كود الإعلان — الموقع بيحطها في اللينك لما الشخص يخرج من
+// متصفح إنستجرام لكروم/سفاري (عشان يسجّل بجوجل)، عشان التسجيل يتحسب للإعلان
+// برضه (كل متصفح ليه كوكيز لوحده)
+const CARRY_COOKIE = 'mithaq_cmp_c';
+function setAdCookies(res, code) {
+  const secure = process.env.NODE_ENV === 'production';
+  const maxAge = COOKIE_DAYS * 24 * 60 * 60 * 1000;
+  res.cookie(COOKIE, code, { httpOnly: true, sameSite: 'lax', secure, maxAge, path: '/' });
+  res.cookie(CARRY_COOKIE, code, { httpOnly: false, sameSite: 'lax', secure, maxAge, path: '/' });
+}
+
+/**
+ * ?_ad=<code> في أي لينك: الشخص كان داخل من الإعلان جوه إنستجرام وفتح الصفحة
+ * في كروم/سفاري — بنعلّم المتصفح الجديد بنفس الإعلان (من غير ما نعدّها زيارة تانية).
+ */
+async function carryAdCookie(req, res, next) {
+  // ناس دخلوا من الإعلان قبل النسخة دي: عندهم الكوكي الأصلي بس — نكمّلهم بالنسخة المقروءة
+  const had = req.cookies && req.cookies[COOKIE];
+  if (had && !req.cookies[CARRY_COOKIE] && /^[a-z0-9-]{1,40}$/.test(had) && req.method === 'GET') {
+    res.cookie(CARRY_COOKIE, had, { httpOnly: false, sameSite: 'lax', secure: process.env.NODE_ENV === 'production', maxAge: COOKIE_DAYS * 24 * 60 * 60 * 1000, path: '/' });
+  }
+  const code = req.method === 'GET' && typeof req.query._ad === 'string' ? req.query._ad.toLowerCase().slice(0, 40) : '';
+  if (!code || !/^[a-z0-9-]+$/.test(code) || (req.cookies && req.cookies[COOKIE]) || isBot(req) || isOwner(req)) return next();
+  if (mongoose.connection.readyState !== 1) return next();
+  try {
+    if (await Campaign.exists({ code, archived: { $ne: true } })) setAdCookies(res, code);
+  } catch (e) { /* الإعلان مايوقّفش الموقع */ }
+  return next();
+}
+
 const isOwner = (req) => !!(req.cookies && (req.cookies[ADMIN_COOKIE_NAME] || req.cookies[OWNER_COOKIE]));
 
 function srcOf(ua) {
@@ -97,10 +130,8 @@ router.get('/go/:code', ensureDeviceId, async (req, res) => {
     // البرامج الآلية وصاحب الموقع: مفيش علامة على الجهاز (فالتسجيل منهم مايتحسبش)
     if (status === 'bot' || status === 'owner') return res.redirect(302, landing);
 
+    setAdCookies(res, campaign.code);
     const secure = process.env.NODE_ENV === 'production';
-    res.cookie(COOKIE, campaign.code, {
-      httpOnly: true, sameSite: 'lax', secure, maxAge: COOKIE_DAYS * 24 * 60 * 60 * 1000, path: '/',
-    });
     // علامة قصيرة العمر يقراها الموقع عشان يأكّد إن الصفحة اتفتحت فعلًا
     if (hit) {
       res.cookie(VERIFY_COOKIE, String(hit._id), {
@@ -322,6 +353,50 @@ async function campaignDetail(campaign) {
   return { stats, people, daily: Object.values(byDay), hitLog, start };
 }
 
+/**
+ * مين دخل من الإعلان بالظبط: كل جهاز جه من اللينك (زيارات الموقع اللي عليها كود
+ * الإعلان) — دخل إمتى، فتح إيه، قعد قد إيه، على الموقع دلوقتي ولا لأ، وسجّل
+ * باسم مين لو سجّل (حتى لو سجّل بعدها في زيارة تانية).
+ * الزيارات قبل 31 أكتوبر ماكانش عليها كود الإعلان (كانت متعلّمة "إعلان" بس)،
+ * فبتتحسب للإعلان ده لو هو الإعلان الوحيد الشغّال.
+ */
+async function adVisitors(campaign, start) {
+  const only = (await Campaign.countDocuments({ archived: { $ne: true } })) <= 1;
+  const or = [{ cmp: campaign.code }];
+  if (only && !campaign.archived) or.push({ src: 'ads', cmp: { $in: ['', null] } });
+  const sessions = await JourneySession.find({ startedAt: { $gte: start }, $or: or })
+    .sort({ lastAt: -1 }).limit(600).select({ events: { $slice: -40 } }).lean();
+  if (!sessions.length) return [];
+  const devices = [...new Set(sessions.map((s) => s.device).filter(Boolean))];
+  // نفس الجهاز سجّل بعدين (الزيارات اللي بعد التسجيل مابقاش عليها كود الإعلان)
+  const later = await JourneySession.find({ device: { $in: devices }, userId: { $ne: null } })
+    .sort({ lastAt: -1 }).select('device userId').lean();
+  const userOfDevice = new Map();
+  later.forEach((s) => { if (!userOfDevice.has(s.device)) userOfDevice.set(s.device, s.userId); });
+
+  const groups = new Map();
+  sessions.forEach((s) => {
+    const key = s.device || String(s._id);
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(s);
+  });
+  const latest = [...groups.values()].map((g) => g[0]);
+  const withUser = latest.map((s) => ({ ...s, userId: s.userId || g0User(groups.get(s.device || String(s._id))) || userOfDevice.get(s.device) || null }));
+  function g0User(g) { const x = (g || []).find((s) => s.userId); return x ? x.userId : null; }
+  const [on, personOf] = await Promise.all([onlineSet(withUser), peopleFor(withUser)]);
+  return withUser.map((s) => {
+    const g = groups.get(s.device || String(s._id));
+    const first = g[g.length - 1];
+    return {
+      ...summarize(s, personOf(s), !s.endedAt && presenceOf(s, on) != null),
+      visits: g.length,
+      firstAt: first.startedAt,
+      totalViews: g.reduce((a, x) => a + (x.views || 0), 0),
+      totalSec: Math.round(g.reduce((a, x) => a + Math.max(0, new Date(x.lastAt) - new Date(x.startedAt)), 0) / 1000),
+    };
+  }).slice(0, 300);
+}
+
 // ======================================================================
 // لوحة التحكم
 // ======================================================================
@@ -429,7 +504,9 @@ router.get('/admin/api/campaigns/:id', requireAdminSession, async (req, res) => 
     const campaign = await Campaign.findById(req.params.id).lean();
     if (!campaign) return res.status(404).json({ error: 'الإعلان مش موجود.' });
     const { stats, people, daily, hitLog, start } = await campaignDetail(campaign);
+    const visitors = await adVisitors(campaign, start).catch((e) => { console.error('Ad visitors failed:', e.message); return []; });
     return res.json({
+      visitors,
       campaign: serialize(campaign, stats[campaign.code]),
       people,
       daily,
@@ -490,4 +567,5 @@ router.get('/ad/:token', async (req, res) => {
 });
 
 module.exports = router;
+module.exports.carryAdCookie = carryAdCookie;
 module.exports.statsFor = statsFor;

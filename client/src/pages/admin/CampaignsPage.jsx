@@ -8,15 +8,17 @@ import {
   Target, Plus, Copy, Check, Link2, Users, Crown, Wallet, Eye, Archive, ArchiveRestore,
   ChevronDown, TrendingUp, TrendingDown, Pencil, X, Camera, ThumbsUp, Music2, Search,
   MessageCircle, Ghost, Megaphone, Clock, MousePointerClick, ShieldCheck, CalendarDays, Smartphone, Monitor, Tablet,
-  Share2, RefreshCw, ExternalLink,
+  Share2, RefreshCw, ExternalLink, ChevronUp,
 } from 'lucide-react';
 import {
   useGetCampaignsQuery, useGetCampaignQuery, useCreateCampaignMutation, useUpdateCampaignMutation, useShareCampaignMutation,
 } from '../../store/adminApi.js';
 import { openUser, closeUser } from '../../store/adminSlice.js';
 import {
-  Panel, StatTile, Badge, Btn, Field, Spinner, Empty, fmtNum, fmtMoney, fmtDate,
+  Panel, StatTile, Badge, Btn, Field, Spinner, Empty, fmtNum, fmtMoney, fmtDate, LiveDot,
 } from '../../components/admin/ui.jsx';
+import JourneyTimeline from './JourneyTimeline.jsx';
+import { pageLabel, fmtDur, KIND_LABEL } from './journeyUtils.js';
 import { AreaTrend, COLORS } from '../../components/admin/Charts.jsx';
 import { countryName, waLink } from './format.js';
 import ClientDrawer from './ClientDrawer.jsx';
@@ -183,7 +185,8 @@ const STATUS = {
 /** تفاصيل إعلان: يوم بيوم + الناس */
 function CampaignDetail({ id }) {
   const dispatch = useDispatch();
-  const { data, isLoading } = useGetCampaignQuery(id);
+  // بيتحدّث لوحده كل 15 ثانية وإنت فاتح الصفحة — اللي يدخل من الإعلان يبان على طول
+  const { data, isLoading } = useGetCampaignQuery(id, { pollingInterval: 15000, skipPollingIfUnfocused: true, refetchOnMountOrArgChange: true, refetchOnFocus: true });
   const [filter, setFilter] = useState('all');
   const hideMoney = useMoneyHidden();
   if (isLoading || !data) return <Spinner />;
@@ -207,6 +210,8 @@ function CampaignDetail({ id }) {
           ]}
         />
       </div>
+
+      <AdVisitors list={data.visitors || []} onOpenClient={(uid) => dispatch(openUser(uid))} />
 
       <div>
         <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
@@ -273,6 +278,69 @@ const HIT = {
   bot: { label: 'ماتحسبش — برنامج آلي أو معاينة لينك', tone: 'danger' },
   owner: { label: 'ماتحسبش — ده إنت (جهازك)', tone: 'gold' },
 };
+
+/** مين دخل من الإعلان: كل جهاز — دخل إمتى، فتح إيه، قعد قد إيه، وسجّل باسم مين */
+function AdVisitors({ list, onOpenClient }) {
+  const [openId, setOpenId] = useState(null);
+  const [all, setAll] = useState(false);
+  const online = list.filter((v) => v.online).length;
+  const named = list.filter((v) => v.person).length;
+  const shown = all ? list : list.slice(0, 20);
+  return (
+    <div data-ad-visitors>
+      <div className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12.5px] font-bold text-ivory/70">
+        <span>مين دخل من الإعلان ({fmtNum(list.length)})</span>
+        {online > 0 && <span className="inline-flex items-center gap-1.5 text-[#4fe08a]"><LiveDot size={7} /> {fmtNum(online)} على الموقع دلوقتي</span>}
+        {named > 0 && <span className="text-ivory/45">· {fmtNum(named)} منهم سجّلوا</span>}
+      </div>
+      {!list.length ? (
+        <Empty>لسه محدش دخل من الإعلان ده — أول ما حد يدخل هيظهر هنا لوحده.</Empty>
+      ) : (
+        <ul className="space-y-1.5">
+          {shown.map((v) => {
+            const open = openId === v.id;
+            const dur = fmtDur(v.totalSec);
+            return (
+              <li key={v.id} className="rounded-xl border border-line-lite bg-night/30" data-ad-visitor>
+                <button type="button" onClick={() => setOpenId(open ? null : v.id)} className="flex w-full items-center gap-3 px-3.5 py-2.5 text-start">
+                  {v.online ? <LiveDot size={8} /> : <span className="h-2 w-2 shrink-0 rounded-full bg-ivory/20" />}
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[13px] font-bold text-ivory/90">
+                      {v.person ? (v.person.name || v.person.email) : 'زائر'}
+                      {v.person && <span className="ms-2 text-[11px] font-bold text-[#4fe08a]">سجّل ✓</span>}
+                      {v.online && <span className="ms-2 text-[11px] text-[#4fe08a]">· على الموقع دلوقتي — في {pageLabel(v.current)}</span>}
+                    </span>
+                    <span className="block truncate text-[11.5px] text-ivory/45">
+                      دخل {fmtDate(v.firstAt, true)}
+                      {v.visits > 1 ? ` · رجع ${fmtNum(v.visits)} مرات` : ''}
+                      {' · '}{fmtNum(v.totalViews)} صفحة · {dur}
+                      {' · '}{KIND_LABEL[v.kind] || v.kind}{v.os ? ` ${v.os}` : ''}
+                      {v.country ? ` · ${countryName(v.country)}` : ''}
+                      {' · '}آخر صفحة: {pageLabel(v.online ? v.current : v.exit)}
+                    </span>
+                  </span>
+                  {open ? <ChevronUp size={16} className="text-ivory/40" /> : <ChevronDown size={16} className="text-ivory/40" />}
+                </button>
+                {open && (
+                  <div className="border-t border-line-lite p-3.5">
+                    {v.person && <Btn size="sm" onClick={() => onOpenClient(v.person.id)}>افتح ملفه</Btn>}
+                    <div className={v.person ? 'mt-3' : ''}><JourneyTimeline id={v.id} onOpenClient={onOpenClient} /></div>
+                  </div>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      {list.length > 20 && (
+        <button type="button" onClick={() => setAll((x) => !x)} className="mt-2 text-[11.5px] font-bold text-brass-soft hover:underline">
+          {all ? 'اعرض أقل' : `اعرض الكل (${fmtNum(list.length)})`}
+        </button>
+      )}
+      <p className="mt-2 text-[11px] text-ivory/35">دوس على أي حد تشوف عمل إيه على الموقع خطوة بخطوة. القايمة بتتحدّث لوحدها كل 15 ثانية.</p>
+    </div>
+  );
+}
 
 /** سجل كل مرة اللينك اتفتح — عشان المالك يشوف الأرقام جت منين */
 function HitLog({ hits }) {
@@ -566,7 +634,7 @@ function CampaignCard({ c, rate, open, onToggle }) {
 export default function CampaignsPage() {
   const dispatch = useDispatch();
   const openUserId = useSelector((s) => s.admin.openUserId);
-  const { data, isLoading, isFetching } = useGetCampaignsQuery(undefined, { pollingInterval: 60000 });
+  const { data, isLoading, isFetching } = useGetCampaignsQuery(undefined, { pollingInterval: 20000, skipPollingIfUnfocused: true, refetchOnMountOrArgChange: true, refetchOnFocus: true });
   const [creating, setCreating] = useState(false);
   const [openId, setOpenId] = useState(null);
   const [showArchived, setShowArchived] = useState(false);

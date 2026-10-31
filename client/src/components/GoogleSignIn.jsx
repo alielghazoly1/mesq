@@ -41,10 +41,39 @@ export function inAppBrowser() {
   return '';
 }
 
+// كود الإعلان اللي الشخص جه منه (لو جه من إعلان) — بيتحط في اللينك وهو بيخرج
+// لكروم/سفاري، عشان تسجيله هناك يتحسب للإعلان (كل متصفح ليه كوكيز لوحده)
+function adCode() {
+  const m = /(?:^|; )mithaq_cmp_c=([a-z0-9-]{1,40})/.exec(document.cookie || '');
+  return m ? m[1] : '';
+}
+
 function InAppNotice({ kind }) {
   const { t } = useTranslation();
+  // على الآيفون الشخص بيخرج بنفسه من قايمة ••• بنفس اللينك اللي فوق — فبنحطّه فيه
+  // طول ما الرسالة دي ظاهرة، ونشيله تاني بعدها
+  useEffect(() => {
+    const code = adCode();
+    if (!code) return undefined;
+    try {
+      const u = new URL(window.location.href);
+      if (u.searchParams.get('_ad') === code) return undefined;
+      u.searchParams.set('_ad', code);
+      window.history.replaceState(window.history.state, '', u.href);
+    } catch { return undefined; }
+    return () => {
+      try {
+        const u = new URL(window.location.href);
+        if (u.searchParams.get('_ad') !== code) return;
+        u.searchParams.delete('_ad');
+        window.history.replaceState(window.history.state, '', u.href);
+      } catch { /* مش مهم */ }
+    };
+  }, []);
   function openChrome() {
     const u = new URL(window.location.href);
+    const code = adCode();
+    if (code) u.searchParams.set('_ad', code);
     const fallback = encodeURIComponent(u.href);
     window.location.href = `intent://${u.host}${u.pathname}${u.search}#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=${fallback};end`;
   }

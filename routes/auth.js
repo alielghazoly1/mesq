@@ -47,7 +47,7 @@ async function attributionFromCookies(req) {
 // خلصنا الربط — نمسح الكوكيز عشان مايتربطوش بحساب تاني بعدين
 function clearAttribution(res, { referredBy, campaign }) {
   if (referredBy) res.clearCookie('mithaq_ref', { path: '/' });
-  if (campaign) res.clearCookie('mithaq_cmp', { path: '/' });
+  if (campaign) { res.clearCookie('mithaq_cmp', { path: '/' }); res.clearCookie('mithaq_cmp_c', { path: '/' }); }
 }
 
 const publicUser = (user) => ({ id: String(user._id), email: user.email, name: user.name, country: user.country });

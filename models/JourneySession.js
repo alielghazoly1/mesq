@@ -32,6 +32,7 @@ const journeySessionSchema = new mongoose.Schema({
   views: { type: Number, default: 0 },
   clicks: { type: Number, default: 0 },
   src: { type: String, default: 'direct' },
+  cmp: { type: String, default: '', index: true },          // كود الإعلان اللي الجهاز جه منه (كوكي mithaq_cmp)
   ref: { type: String, default: '' },
   kind: { type: String, default: 'desktop' },
   os: { type: String, default: '' },
