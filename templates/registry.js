@@ -240,6 +240,33 @@ const TEMPLATES = [
     isNew: true,
     isPremium: true,
   },
+  {
+    id: 'pearl-peony',
+    name: 'Pearl Peony',
+    description: 'ظرف دانتيل بشريطة خضرا وختم — بيتفتح بلمسة وينزل لتحت، وورد بيوني ولؤلؤ بيتمايل وورد صغير بينزل من فوق، وموسيقى شوبان — الموعد والعدّاد، برنامج الحفل، المكان، ألوان الإطلالة، ملاحظات للضيوف وتأكيد الحضور',
+    file: 'pearl-peony.html',
+    languages: SUPPORTED_LANGUAGES,
+    occasionTypes: SUPPORTED_OCCASIONS,
+    // الإخفاء في views/pearl-peony.html (data-section). الافتتاحية والموعد ثابتين.
+    optionalSections: [
+      { key: 'countdown', label: 'العداد التنازلي' },
+      { key: 'timeline', label: 'برنامج الحفل' },
+      { key: 'venue', label: 'مكان الحفل' },
+      { key: 'dressCode', label: 'ألوان الإطلالة (Dress Code)' },
+      { key: 'notes', label: 'ملاحظات للضيوف' },
+      { key: 'rsvp', label: 'تأكيد الحضور (RSVP)' },
+    ],
+    // البرنامج نصوص قابلة للتعديل جوه التصميم (مش مراحل الفورم)
+    timelineStages: [],
+    extraFields: [
+      { key: 'venueAddress', label: 'عنوان القاعة (بيظهر تحت اسمها — اختياري)', maxlength: 200 },
+    ],
+    // نسختين منفصلتين: عربي (التصميم الأصلي — المعاينة للزوار) وإنجليزي.
+    // العميل بيختار واحدة وهو بيبدأ الدعوة — مفيش زرار لغة جوه الدعوة.
+    designLanguages: ['ar', 'en'],
+    isNew: true,
+    isPremium: true,
+  },
 ];
 
 function getTemplate(templateId) {
