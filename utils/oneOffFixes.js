@@ -421,6 +421,31 @@ const FIXES = [
       set['customizations.hidden'] = (c.hidden || []).filter((id) => id !== 'cl9' && id !== 'cl10');
       return set;
     },
+  },  {
+    // MeqC70l (Lily Garden عربي — عمر وداليا) — بطلب المالك (31 أكتوبر):
+    // - "يوم الخطوبة" اتشال، والسطر نفسه (lg4) بقى "حفل خطوبة" وطالع تحت البسملة
+    //   فوق الأسامي (المكان في custom-invitations/MeqC70l.js)
+    // - الأسامي "عمر و داليا": حقل العريس كان فيه داليا وحقل العروسة فيه عمر
+    //   (عشان كده داليا كانت الأول) — اتصلّحوا في مكانهم الصح فعمر بقى الأول
+    // - "أحبابنا الأهل والأصدقاء — بكل حب ندعوكم لتشاركونا أجمل بداية في حياتنا: حفل خطوبتنا"
+    // بيتعمل بس لو الدعوة لسه على الحالة اللي اتشافت وقت الطلب.
+    name: 'MeqC70l-omar-dalia-engagement',
+    shortId: 'MeqC70l',
+    select: 'customizations groomName groomNameAr brideName brideNameAr',
+    when: (c, inv) => inv.groomNameAr === 'داليا' && inv.brideNameAr === 'عمر'
+      && (c.texts || {}).lg4 === 'يوم الخطوبة',
+    apply(c) {
+      return {
+        groomName: 'عمر', groomNameAr: 'عمر', brideName: 'داليا', brideNameAr: 'داليا',
+        'customizations.texts': {
+          ...(c.texts || {}),
+          lg4: 'حفل خطوبة',
+          lg40: 'بكل حب ندعوكم لتشاركونا',
+          lg41: 'أجمل بداية في حياتنا',
+          lg42: 'حفل خطوبتنا',
+        },
+      };
+    },
   },
 ];
 
