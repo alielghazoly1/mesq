@@ -464,6 +464,37 @@ const FIXES = [
       return { 'customizations.offsets': offsets };
     },
   },
+  {
+    // 1yJIK9C (عمرو ونور) — بطلب المالك: "بجوار نادي الزمالك…" وأسامي العائلات
+    // كانوا كلام مضاف متثبّت بمكانه على الشاشة، فعلى موبايلات تانية بيركبوا على
+    // "بمسجد الحامدية" والقلب. بقوا جوه عناصر القالب نفسها فبينزلوا تحتها على
+    // طول على أي شاشة: السطر التاني من iv20، والعائلات في iv22 (كان مخفي).
+    // والحروف الفارسي (ی ک) اتصلّحت لعربي.
+    name: '1yJIK9C-flow-venue-families',
+    shortId: '1yJIK9C',
+    when: (c) => (c.texts || {}).iv20 === 'بمسجد الحامدية الشاذلية'
+      && (c.added || []).some((a) => a.id === 'nmvwu5uk1kyoq'),
+    apply(c) {
+      const gone = ['nmvwttt9vqgdx', 'nmvwtupglsjo7', 'nmvwtvgtrycr3', 'nmvwtwizyahaf', 'nmvwu17wrds3y', 'nmvwu1oaaliio', 'nmvwu5uk1kyoq'];
+      const offsets = { ...(c.offsets || {}) };
+      delete offsets.iv21;
+      gone.forEach((id) => delete offsets['add_' + id]);
+      const sizes = { ...(c.sizes || {}) };
+      delete sizes.iv20;
+      delete sizes.iv22;
+      return {
+        'customizations.texts': {
+          ...(c.texts || {}),
+          iv20: 'بمسجد الحامدية الشاذلية\nبجوار نادي الزمالك ومحطة وادي النيل للمترو',
+          iv22: 'آل التيجاني الصديق وآل بكري محمد مدني\nوآل أبو علامة وآل عبدالله علي نصر',
+        },
+        'customizations.added': (c.added || []).filter((a) => !gone.includes(a.id)),
+        'customizations.offsets': offsets,
+        'customizations.sizes': sizes,
+        'customizations.hidden': (c.hidden || []).filter((id) => id !== 'iv22'),
+      };
+    },
+  },
 ];
 
 let done = false;
