@@ -334,6 +334,8 @@ const PROPAGATED_FIELDS = [
   'brideNameAr', 'groomNameAr', 'brideName', 'groomName',
   'venueName', 'venueCity', 'venueAddress', 'contactName', 'contactPhone',
 ];
+// نفس الشخص بلغتين
+const NAME_PAIRS = [['brideNameAr', 'brideName'], ['groomNameAr', 'groomName']];
 
 // PATCH /api/editor/:shortId/text — تعديل نص بالضغط عليه في الدعوة
 router.patch('/api/editor/:shortId/text', requireAuth, async (req, res) => {
@@ -375,16 +377,27 @@ router.patch('/api/editor/:shortId/text', requireAuth, async (req, res) => {
     }
 
     const previous = String(oldText || '').trim();
-    const propagated = PROPAGATED_FIELDS.find(
-      (f) => previous && String(invitation[f] || '').trim() === previous
-    );
+    const valueOf = (f) => String(invitation[f] || '').trim();
+    let propagated = PROPAGATED_FIELDS.find((f) => previous && valueOf(f) === previous);
+    // العميل كتب اسم الطرف التاني مكان ده (بيبدّل مين فوق ومين تحت — زي
+    // "اسم العريس الأول" في Champagne Lace). قبل كده الاسم الجديد كان بيتكتب
+    // في حقل العروسة نفسه فالاسمين يبقوا واحد، والتعديل التاني يرجّع كل حاجة
+    // زي ما كانت ("بعدّل وبنشر ومابيسمعش"). دلوقتي التبديل بيتحفظ على العنصر
+    // ده بس، وبيانات العرسان نفسها مابتتلخبطش.
+    const takenByOther = PROPAGATED_FIELDS.some((f) => valueOf(f) === newText && valueOf(f) !== previous);
+    if (takenByOther) propagated = null;
 
     if (propagated) {
-      // النص ده هو حقل أساسي — نعدّله في مكانه الأصلي فيتغيّر في الدعوة كلها
-      invitation[propagated] = newText;
-      // ولو كان فيه تعديل قديم على نفس العنصر، بيتشال عشان مايغطّيش عليه
-      if (invitation.customizations && invitation.customizations.texts) {
-        delete invitation.customizations.texts[id];
+      // النص ده هو حقل أساسي — نعدّله في مكانه الأصلي فيتغيّر في الدعوة كلها.
+      // ونفس الاسم لو مكتوب بالعربي والإنجليزي بنفس الشكل بيتغيّر في الاتنين —
+      // وإلا القالب اللي بيقرا الحقل التاني كان بيفضل عارض الاسم القديم.
+      const same = NAME_PAIRS.find((pair) => pair.includes(propagated)) || [propagated];
+      same.forEach((f) => { if (f === propagated || valueOf(f) === previous) invitation[f] = newText; });
+      const texts = invitation.customizations && invitation.customizations.texts;
+      if (texts && texts[id] != null) {
+        // العنصر ده العميل كان مثبّت عليه اسم بإيده (بعد تبديل) — يفضل مثبّت
+        // بالاسم الجديد، وإلا كان هيرجع يعرض اسم الطرف التاني
+        invitation.customizations = { ...cloneCustomizations(invitation.customizations), texts: { ...texts, [id]: newText } };
         invitation.markModified('customizations');
       }
     } else {
