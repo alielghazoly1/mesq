@@ -11,6 +11,7 @@
 // يتبعت على واتساب/فيسبوك) مكتوب فيه "ميثاق" بس بطلب المالك، عشان الموقع
 // هيبقى فيه بعد كده دعوات أعياد ميلاد ومناسبات تانية مش أفراح بس.
 const { TEMPLATES } = require('../templates/registry');
+const { LANDING_KEYS, urlOf: landingUrl } = require('./landingPages');
 
 const SITE = 'https://mithaq-invitation.com';
 
@@ -119,6 +120,8 @@ function sitemapXml() {
   const urls = [
     { loc: '/', freq: 'weekly', pr: '1.0' },
     { loc: '/packages', freq: 'weekly', pr: '0.9' },
+    // صفحات جوجل (utils/landingPages.js) — اللينك العربي متشفّر زي ما المواصفات طالبة
+    ...LANDING_KEYS.map((k) => ({ loc: encodeURI(landingUrl(k)), freq: 'weekly', pr: '0.9' })),
     ...TEMPLATES.map((t) => ({ loc: `/preview-sample/${t.id}`, freq: 'monthly', pr: '0.7' })),
     { loc: '/privacy', freq: 'yearly', pr: '0.2' },
     { loc: '/terms', freq: 'yearly', pr: '0.2' },

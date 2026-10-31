@@ -33,6 +33,7 @@ const { attachUser } = require('./middleware/auth');
 const { requireAdminSession } = require('./middleware/adminAuth');
 const { requestLogger, installProcessHandlers, write: logLine, LOG_FILE } = require('./utils/requestLogger');
 const { pageMeta, applyPageMeta, sitemapXml } = require('./utils/seo');
+const { landingKeyFor, landingHtml } = require('./utils/landingPages');
 
 // بنمسك أي عطل بيوقّع عملية Node ونسجّله في اللوج قبل ما يطلع.
 installProcessHandlers();
@@ -514,6 +515,20 @@ function adminCsp() {
     return '';
   }
 }
+
+// صفحات جوجل ("دعوة زفاف إلكترونية"، "دعوة فرح"...) — HTML كامل من السيرفر
+// (utils/landingPages.js). لازم قبل الـ catch-all اللي بيرجّع صفحة React.
+app.get('*', async (req, res, next) => {
+  const key = landingKeyFor(req.path);
+  if (!key) return next();
+  try {
+    res.set('Cache-Control', 'public, max-age=300');
+    return res.type('html').send(await landingHtml(key));
+  } catch (err) {
+    console.error('[landing] render failed:', err.message);
+    return next();
+  }
+});
 
 app.get('*', (req, res, next) => {
   if (CLIENT_ROUTE_EXCLUDED_PREFIXES.some((p) => req.path.startsWith(p))) return next();

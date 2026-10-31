@@ -4,6 +4,16 @@ import { useTranslation } from 'react-i18next';
 import { MessageCircle, Palette } from 'lucide-react';
 import { whatsappLink, WHATSAPP_MESSAGES, phoneDisplay } from '../lib/contact.js';
 
+const SEO_LINKS = [
+  ['/دعوة-زفاف-الكترونية', 'دعوة زفاف إلكترونية'],
+  ['/دعوة-فرح', 'دعوة فرح'],
+  ['/دعوة-خطوبة', 'دعوة خطوبة'],
+  ['/دعوة-كتب-كتاب', 'دعوة كتب كتاب'],
+  ['/كروت-افراح', 'كروت أفراح'],
+  ['/دعوات-الكترونية', 'دعوات إلكترونية'],
+  ['/صيغ-دعوة-زفاف', 'صيغ دعوة زفاف'],
+];
+
 export default function Footer() {
   const { t, i18n } = useTranslation();
   // نفس منطق الهيدر: لو اللوجو مش متحط لسه، نعرض الاسم مكتوب بس
@@ -64,7 +74,16 @@ export default function Footer() {
           </a>
         </div>
 
-        <div className="mt-7 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[12.5px] text-ink-dim">
+        {/* صفحات جوجل (utils/landingPages.js) — <a> عادي مش Link: الصفحات
+            دي بتتبني على السيرفر، مش جوه React. اللينكات هنا بتعرّف جوجل
+            عليها من الصفحة الرئيسية وبتديها قيمة */}
+        <nav aria-label="دعوات" dir="rtl" className="mt-7 flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-[12.5px] text-ink-dim">
+          {SEO_LINKS.map(([href, label]) => (
+            <a key={href} href={href} className="hover:text-rose">{label}</a>
+          ))}
+        </nav>
+
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[12.5px] text-ink-dim">
           <Link to="/packages" className="hover:text-rose">{t('packages.eyebrow')}</Link>
           <span className="h-3 w-px bg-line" />
           <Link to="/dashboard" className="hover:text-rose">{t('nav.dashboard')}</Link>

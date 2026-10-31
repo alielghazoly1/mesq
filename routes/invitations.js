@@ -24,7 +24,7 @@ const { buildInvitationDataFromRequest, hasActivePackage } = require('../utils/i
 const { buildStatsPage, loadStatsData, ensureStatsToken } = require('../utils/statsPage');
 const { isEditWindowOpen, editWindowEndedBody } = require('../utils/editWindow');
 const { hashIp } = require('../middleware/freeQuota');
-const SiteTotals = require('../models/SiteTotals');
+const { getPublicStats } = require('../utils/publicStats');
 const { getTemplate, TEMPLATES } = require('../templates/registry');
 const { injectPixel } = require('../utils/metaPixel');
 const {
@@ -64,37 +64,11 @@ router.get('/api/templates', async (req, res) => {
   }
 });
 
-// GET /api/public-stats — أرقام حقيقية آمنة (مفيش أي بيانات شخصية) بتتعرض
-// للزوار في الصفحة الرئيسية (عدد الدعوات، عدد المشاهدات، عدد المستخدمين).
-// متكاشة لمدة قصيرة عشان آلاف الزيارات على الصفحة الرئيسية ما تضغطش على
-// قاعدة البيانات في كل مرة.
-let publicStatsCache = { data: null, expiresAt: 0 };
+// GET /api/public-stats — أرقام حقيقية آمنة بتتعرض للزوار في الصفحة الرئيسية
+// (الحساب والكاش في utils/publicStats.js — نفس الأرقام في صفحات جوجل).
 router.get('/api/public-stats', async (req, res) => {
   try {
-    const now = Date.now();
-    if (publicStatsCache.data && publicStatsCache.expiresAt > now) {
-      return res.json(publicStatsCache.data);
-    }
-
-    const [totalInvitations, viewsAgg, uniqueCreators, archived] = await Promise.all([
-      // المسودات مش دعوات حقيقية لسه — مالهاش لازمة في الأرقام العامة
-      Invitation.countDocuments({ status: { $ne: 'draft' } }),
-      Invitation.aggregate([{ $group: { _id: null, total: { $sum: '$viewCount' } } }]),
-      Invitation.distinct('creatorDeviceId', { creatorDeviceId: { $ne: null } }),
-      // أرقام الدعوات اللي اتمسحت في التنضيف الدوري
-      SiteTotals.findOne({ key: 'default' }).lean(),
-    ]);
-
-    // الأرقام اللي بتبان للزوار = الموجود فعلاً + اللي اتمسح.
-    // من غير الجمع ده، العداد كان هينزل قدام الناس كل ما بننضّف —
-    // وده أسوأ من إن القاعدة تكبر.
-    const data = {
-      totalInvitations: totalInvitations + ((archived && archived.archivedInvitations) || 0),
-      totalViews: (viewsAgg[0] ? viewsAgg[0].total : 0) + ((archived && archived.archivedViews) || 0),
-      totalUsers: uniqueCreators.length + ((archived && archived.archivedCreators) || 0),
-    };
-    publicStatsCache = { data, expiresAt: now + 30 * 1000 }; // كاش لمدة 30 ثانية
-    return res.json(data);
+    return res.json(await getPublicStats());
   } catch (err) {
     console.error('Error fetching public stats:', err);
     // في أسوأ الأحوال بنرجع أصفار بدل ما نكسر تحميل الصفحة الرئيسية
