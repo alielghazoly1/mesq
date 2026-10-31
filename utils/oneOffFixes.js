@@ -446,6 +446,23 @@ const FIXES = [
         },
       };
     },
+  },  {
+    // MeqC70l — تكملة للي فوق: صاحب الدعوة كان ساحب بإيده "يوم الخطوبة" 16px لفوق
+    // و"عمر"/"داليا" شوية عشان يظبطهم في الترتيب القديم. في الترتيب الجديد (حفل خطوبة
+    // تحت البسملة) السحبات دي بتخلّي "حفل خطوبة" يركب على البسملة — بتتشال هي بس،
+    // ولو لسه بنفس القيم بالظبط (لو اتحرّكت تاني من المحرر مابنلمسهاش).
+    name: 'MeqC70l-drop-old-cover-drags',
+    shortId: 'MeqC70l',
+    when: (c) => {
+      const o = c.offsets || {};
+      return o.lg4 && o.lg4.dy === -16.25 && o.lg79 && o.lg79.dy === 11.25 && o.lg3 && o.lg3.dy === -6.25
+        && (c.texts || {}).lg4 === 'حفل خطوبة';
+    },
+    apply(c) {
+      const offsets = { ...(c.offsets || {}) };
+      ['lg4', 'lg79', 'lg3'].forEach((k) => delete offsets[k]);
+      return { 'customizations.offsets': offsets };
+    },
   },
 ];
 
