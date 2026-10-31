@@ -84,24 +84,38 @@ const make = (shortId, label, moveAdded, quote) => ({
 // صورة الغلاف (الطفلين): بطلب المالك اتشالت خلفية الاستوديو (BiRefNet) وبقت
 // مقصوصة PNG شفافة (custom/eJCypdA/kids.webp) واقفة على قاعدة القوس كاملة من غير
 // ما القوس يقص رجل الولد أو جنب البنت، بظل خفيف تحت الرجلين.
-// التكبير اللي صاحب الدعوة عامله من المحرر (scale) بيكبّر لفوق من القاعدة مش من النص. بتتبدّل بس لو صاحب
+// مقاسها 86% من القوس (= 48% من عرض الصفحة): بين الوردتين من غير ما تلمس أي واحدة
+// حتى عند رجل الولد تحت (الورد بيوصل لحد ~22% و78% من العرض تحت). تكبير المحرر
+// (scale inline !important) بيتلغي بالسكريبت تحت عشان الصورة ماترجعش تركب على الورد. بتتبدّل بس لو صاحب
 // الدعوة لسه على نفس الصورة — لو غيّرها من المحرر، صورته هي اللي بتظهر عادي.
 const KIDS = asset('/custom/eJCypdA/kids.webp');
 const KIDS_OLD = /https:\/\/res\.cloudinary\.com\/[^"'\s]*?pcdswn19b13esa4fwxma\.jpg/g;
 const KIDS_CSS = `
 #wg-invite-1 .arch:has(img[src*="/custom/eJCypdA/kids"]){overflow:visible;border-radius:0;clip-path:none!important}
-#wg-invite-1 .arch:has(img[src*="/custom/eJCypdA/kids"])::before{content:"";position:absolute;left:50%;bottom:-3%;width:118%;height:9%;transform:translateX(-50%);
+#wg-invite-1 .arch:has(img[src*="/custom/eJCypdA/kids"])::before{content:"";position:absolute;left:50%;bottom:-3%;width:82%;height:8%;transform:translateX(-50%);
   background:radial-gradient(ellipse at center,rgba(96,52,44,.26) 0%,rgba(96,52,44,.1) 45%,transparent 72%);pointer-events:none}
-#wg-invite-1 .arch img[src*="/custom/eJCypdA/kids"]{position:absolute;left:50%;bottom:0;width:118%;height:auto;max-width:none;transform:translateX(-50%);transform-origin:50% 100%;object-fit:contain;
+#wg-invite-1 .arch img[src*="/custom/eJCypdA/kids"]{position:absolute;left:50%;bottom:0;width:86%;height:auto;max-width:none;transform:translateX(-50%);transform-origin:50% 100%;scale:1!important;object-fit:contain;
   filter:drop-shadow(0 4px 8px rgba(80,40,30,.16))}
 `;
+const KIDS_SCRIPT = `(function(){
+function fix(){ var i=document.querySelector('#wg-invite-1 .arch img[src*="/custom/eJCypdA/kids"]'); if(i && i.style.getPropertyValue('scale')!=='1') i.style.setProperty('scale','1','important'); }
+fix(); var k=0,t=setInterval(function(){ fix(); if(++k>120) clearInterval(t); },250);
+if(window.MutationObserver) new MutationObserver(fix).observe(document.documentElement,{subtree:true,attributes:true,attributeFilter:['style','src']});
+})();`;
 const base = make('eJCypdA', 'Tap to open', 'add_nmvsntcajz4m8');
 module.exports = {
   ...base,
   render(opts) {
     const r = base.render(opts);
-    return { ...r, head: `<link rel="preload" as="image" href="${KIDS}">${r.head}<style id="ej-kids">${KIDS_CSS}</style>` };
+    return {
+      ...r,
+      head: `<link rel="preload" as="image" href="${KIDS}">${r.head}<style id="ej-kids">${KIDS_CSS}</style>`,
+      bodyEnd: `${r.bodyEnd}<script id="ej-kids-script">${KIDS_SCRIPT}</script>`,
+    };
   },
   transform(html) { return html.replace(KIDS_OLD, KIDS); },
+  // كارت المشاركة (واتساب/فيسبوك): صورة الطفلين على لون الدعوة بين الوردتين (1200×630).
+  // العنوان والوصف بيفضلوا زي ما صاحب الدعوة كاتبهم. لو اتغيّرت: اسم ملف جديد.
+  share: { image: '/custom/eJCypdA/share-kids.jpg', width: 1200, height: 630, overrideImage: true },
 };
 module.exports.make = make;

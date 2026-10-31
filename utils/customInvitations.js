@@ -54,11 +54,11 @@ function applyCustomData(invitation, custom) {
       texts: { ...(c.texts || {}), ...(custom.texts || {}), ...dateTexts },
       hidden: [...new Set([...(c.hidden || []), ...(custom.hidden || [])])],
       rsvp: { ...(c.rsvp || {}), ...(custom.rsvp || {}) },
-      share: custom.share && custom.share.title
+      // كارت كاستم ممكن يبقى صورة بس (eJCypdA): العنوان والوصف بيفضلوا بتوع صاحب الدعوة
+      share: custom.share && (custom.share.title || custom.share.overrideImage)
         ? {
           ...(c.share || {}),
-          title: custom.share.title,
-          description: custom.share.description,
+          ...(custom.share.title ? { title: custom.share.title, description: custom.share.description } : {}),
           // صورة الكارت الكاستم تكسب على صورة المحرر (بتيجي من shareFallbackImage)
           ...(custom.share.overrideImage ? { image: '' } : {}),
         }
