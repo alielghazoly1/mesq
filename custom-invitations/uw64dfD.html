@@ -1,0 +1,672 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>زهير وغزل</title>
+<meta name="description" content="دعوة زفاف زهير وغزل — ٢٨ نوفمبر ٢٠٢٦">
+<link rel="icon" type="image/png" href="/img/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Amiri:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Pinyon+Script&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="assets/cover-bg.webp">
+<link rel="preload" as="image" href="assets/envelope.webp">
+<style>
+:root{
+  --paper:#f3eee4; --ink:#2f3a2f; --green:#2d4a35; --sage:#7d927a; --sage-d:#64795f; --line:#b9b19f;
+  --soft:#6d6a60; --pearl:#fbf8f1;
+  --ar:'Amiri',serif; --ar-cal:'Aref Ruqaa',serif;
+  --lat:'Cormorant Garamond',serif; --lat-cal:'Pinyon Script',cursive;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;background:var(--paper)}
+body{min-height:100svh;background:var(--paper) url(assets/paper.webp) center top/384px auto repeat;color:var(--ink);font-family:var(--ar);overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+body.locked{overflow:hidden;height:100svh}
+img{display:block;max-width:none;user-select:none;-webkit-user-drag:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+
+/* ================= الظرف ================= */
+#cover{position:fixed;inset:0;z-index:50;overflow:hidden;background:#efe8da}
+#cover.gone{display:none}
+.cv{position:absolute;left:50%;top:50%;width:max(100vw,51.84svh);aspect-ratio:564/1088;transform:translate(-50%,-50%);container-type:inline-size}
+@media (min-width:560px){.cv{width:max(min(100vw,500px),51.84svh)}}
+.cv-bg{position:absolute;inset:0;width:100%;height:100%;transition:opacity .9s ease .35s}
+.cv-txt{position:absolute;left:0;right:0;text-align:center;color:var(--ink);transition:opacity .5s ease}
+.cv-top{top:19%;font-size:4.6cqw;line-height:1.6}
+.cv-hint{top:74.5%;font-size:4.9cqw;font-weight:700}
+.cv-hint .orn{width:34cqw;margin:1.2cqw auto 0}
+.cv-langs{position:absolute;top:83.4%;left:0;right:0;z-index:3;display:flex;justify-content:center;gap:5.5cqw;direction:ltr;transition:opacity .5s ease}
+.cv-langs button{min-width:21cqw;height:8.4cqw;padding:0 4.6cqw;border-radius:99px;border:1px solid #9d9886;background:rgba(251,248,241,.78);
+  font-size:4.2cqw;font-weight:700;color:#2f3a2f;box-shadow:0 1px 0 rgba(255,255,255,.8) inset,0 .6cqw 1.6cqw rgba(80,70,50,.12);transition:transform .25s,background .25s,box-shadow .25s}
+.cv-langs button[data-lang=sv]{font-family:var(--lat);font-size:4cqw;font-weight:500}
+.cv-langs button:hover{background:#fff}
+.cv-langs button:active,.cv-langs button.on{transform:scale(.95);background:#eef0e6;box-shadow:0 0 0 .6cqw rgba(125,146,122,.25)}
+.lang-tip{position:absolute;top:75%;left:50%;z-index:4;transform:translate(-50%,2cqw);white-space:nowrap;padding:2.2cqw 5cqw;border-radius:3cqw;
+  background:#2f4a35;color:#fbf8f1;font-size:4.4cqw;line-height:1.35;text-align:center;box-shadow:0 2cqw 5cqw rgba(30,45,30,.3);opacity:0;pointer-events:none;transition:opacity .35s,transform .35s}
+.lang-tip b{font-weight:700}.lang-tip span{display:block;font-family:var(--lat);font-size:4.2cqw;opacity:.9;font-weight:500}
+.lang-tip::after{content:"";position:absolute;left:50%;bottom:-1.6cqw;width:3.2cqw;height:3.2cqw;background:#2f4a35;transform:translateX(-50%) rotate(45deg)}
+#cover.ask .lang-tip{opacity:1;transform:translate(-50%,0)}
+#cover.ask .cv-hint{opacity:0}
+#cover.ask .cv-langs button{animation:nudge .9s ease 2}
+@keyframes nudge{0%,100%{transform:none}40%{transform:translateY(-1.4cqw) scale(1.07);box-shadow:0 0 0 1.2cqw rgba(125,146,122,.32)}}
+.cv-tap{position:absolute;left:0;right:0;top:24%;height:48%;z-index:2;cursor:pointer}
+.cv-langs .leaf{position:absolute;top:50%;width:5cqw;height:5cqw;transform:translateY(-50%);opacity:.8}
+.env{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;will-change:transform}
+.env img{position:absolute;inset:0;width:100%;height:100%}
+.env-t{position:absolute;left:0;right:0;text-align:center}
+.env-names{top:30.2%;font-weight:700;font-family:var(--ar-cal);font-size:10.4cqw;line-height:1.3;color:#1f3a28}
+.env-orn{top:38.4%;width:22cqw;left:50%;right:auto;transform:translateX(-50%)}
+.env-date{top:41.4%;font-variant-numeric:lining-nums;font-family:var(--lat);font-size:3.9cqw;letter-spacing:.12em;color:#3b3f37;font-weight:500}
+.seal-glow{position:absolute;left:49.6%;top:53.6%;width:22cqw;height:22cqw;border-radius:50%;transform:translate(-50%,-50%) scale(.6);
+  background:radial-gradient(circle,rgba(255,250,235,.95),rgba(255,246,220,0) 68%);opacity:0;pointer-events:none}
+.seal-hit{position:absolute;left:49.6%;top:53.6%;width:23cqw;height:23cqw;border-radius:50%;transform:translate(-50%,-50%);pointer-events:auto}
+.cv-pulse .seal-glow{animation:sealPulse 2.6s ease-in-out 1.2s infinite}
+@keyframes sealPulse{0%,100%{opacity:0;transform:translate(-50%,-50%) scale(.7)}50%{opacity:.55;transform:translate(-50%,-50%) scale(1.05)}}
+
+/* الفتح: الختم يلمع ← الظرف ينزل لتحت ← الخلفية تختفي */
+#cover.opening .seal-glow{animation:sealOpen .7s ease-out forwards}
+@keyframes sealOpen{0%{opacity:.2;transform:translate(-50%,-50%) scale(.7)}45%{opacity:1;transform:translate(-50%,-50%) scale(1.25)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.6)}}
+#cover.opening .env{animation:envDrop 1.35s cubic-bezier(.5,-.12,.72,.22) .32s forwards}
+@keyframes envDrop{0%{transform:translateY(0) rotate(0) scale(1)}10%{transform:translateY(.4%) rotate(0) scale(.985)}100%{transform:translateY(118%) rotate(5deg) scale(.96)}}
+#cover.opening .cv-bg{opacity:0}
+#cover.opening .cv-txt,#cover.opening .cv-langs{opacity:0}
+#cover.opening{background:transparent}
+
+/* ================= الدعوة ================= */
+#inv{position:relative;width:min(100%,480px);margin:0 auto;container-type:inline-size;overflow:hidden;padding-bottom:0}
+#inv::before,#inv::after{content:"";position:absolute;top:0;bottom:0;width:22px;pointer-events:none;z-index:4}
+body:not(.locked) #inv{animation:invIn 1.4s ease-out both}
+@keyframes invIn{from{opacity:.25;transform:scale(1.025)}to{opacity:1;transform:none}}
+@media (min-width:520px){
+  html{background:#e9e2d4}
+  #inv{box-shadow:0 0 0 1px rgba(160,150,125,.18),0 30px 80px rgba(90,80,60,.16)}
+}
+.sec{position:relative;text-align:center;padding:0 9cqw;z-index:2}
+.sec>*{position:relative;z-index:3}
+.t{color:var(--ink)}
+.h{font-weight:700;color:var(--green);font-size:9.4cqw;line-height:1.45}
+.p{font-size:4.75cqw;line-height:1.9;color:#34392f}
+.small{font-size:3.7cqw}
+[dir=ltr] .h{font-family:var(--lat);font-weight:600;font-size:9.4cqw;line-height:1.15;letter-spacing:.01em}
+[dir=ltr] .p{font-family:var(--lat);font-size:4.9cqw;line-height:1.6;font-weight:500}
+.orn{display:block;width:40cqw;height:auto;margin:3.2cqw auto;color:var(--sage)}
+.orn.sm{width:30cqw}
+.orn.wide{width:62cqw}
+
+/* الورد: غلاف للبارالاكس ← ظهور ← تمايل */
+.fl{position:absolute;z-index:1;pointer-events:none}
+.fl>.rv{width:100%;height:100%;opacity:0;transform:scale(.9) translate(var(--fx,0),var(--fy,0));filter:blur(5px);
+  transition:opacity 1.6s ease,transform 2s cubic-bezier(.2,.8,.2,1),filter 1.6s ease;transform-origin:var(--o,50% 50%)}
+.fl.in>.rv{opacity:1;transform:none;filter:none}
+.fl img{width:100%;height:auto;transform-origin:var(--o,50% 50%);animation:sway var(--sd,7s) ease-in-out var(--sl,0s) infinite alternate;
+  filter:drop-shadow(0 .8cqw 1.2cqw rgba(70,60,40,.16))}
+@keyframes sway{from{transform:rotate(calc(var(--sw,1.4deg)*-1))}to{transform:rotate(var(--sw,1.4deg))}}
+.emb{position:absolute;z-index:0;pointer-events:none;opacity:.9}
+.fade-b img{-webkit-mask-image:linear-gradient(to bottom,#000 72%,transparent 99%);mask-image:linear-gradient(to bottom,#000 72%,transparent 99%)}
+.fade-t img{-webkit-mask-image:linear-gradient(to top,#000 72%,transparent 99%);mask-image:linear-gradient(to top,#000 72%,transparent 99%)}
+
+/* ظهور الكلام مع السكرول */
+.r{opacity:0;transform:translateY(5cqw);transition:opacity 1.1s ease,transform 1.2s cubic-bezier(.2,.8,.2,1)}
+.r.in{opacity:1;transform:none}
+.r.d1{transition-delay:.12s}.r.d2{transition-delay:.24s}.r.d3{transition-delay:.36s}.r.d4{transition-delay:.48s}.r.d5{transition-delay:.6s}
+
+/* 1) الافتتاحية */
+.s-intro{padding-top:46cqw;padding-bottom:6cqw}
+.bism{font-size:4.9cqw;color:#3a3f36;margin-bottom:6.5cqw}
+.names{font-family:var(--ar-cal);font-weight:700;font-size:17cqw;line-height:1.5;color:#1d3a26;margin:3cqw -9cqw 0;padding:0 9cqw;
+  -webkit-mask-image:linear-gradient(to left,#000 45%,transparent 55%);mask-image:linear-gradient(to left,#000 45%,transparent 55%);
+  -webkit-mask-size:240% 100%;mask-size:240% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  -webkit-mask-position:0 0;mask-position:0 0;transition:-webkit-mask-position 2.4s cubic-bezier(.45,.05,.25,1) .2s,mask-position 2.4s cubic-bezier(.45,.05,.25,1) .2s}
+.names.r{transform:none}
+.names.in{-webkit-mask-position:100% 0;mask-position:100% 0}
+[dir=ltr] .names{font-family:var(--lat-cal);font-size:13.4cqw;line-height:1.45;white-space:nowrap;
+  -webkit-mask-image:linear-gradient(to right,#000 45%,transparent 55%);mask-image:linear-gradient(to right,#000 45%,transparent 55%);-webkit-mask-position:100% 0;mask-position:100% 0}
+[dir=ltr] .names.in{-webkit-mask-position:0 0;mask-position:0 0}
+.names-lat{font-family:var(--lat);font-size:6.1cqw;letter-spacing:.14em;color:#2c3a2f;font-weight:500;margin-top:-.5cqw}
+[dir=ltr] .names-lat{font-weight:700;font-family:var(--ar-cal);letter-spacing:0;font-size:6.6cqw}
+.date-line{font-size:6.2cqw;font-weight:700;color:#273a2c}
+[dir=ltr] .date-line{font-family:var(--lat);letter-spacing:.06em}
+
+/* 2) الموعد */
+.s-date{padding-top:30cqw;padding-bottom:4cqw}
+.big-day{font-size:30cqw;font-weight:700;line-height:1.1;color:#1f3a27;margin-top:1cqw}
+[dir=ltr] .big-day{font-family:var(--lat);font-weight:500;font-size:30cqw;line-height:.9}
+.month{font-size:9.4cqw;font-weight:700;line-height:1.25;color:#2a3d2e}
+.year{font-size:9.4cqw;font-weight:700;line-height:1.25;color:#2a3d2e;letter-spacing:.06em}
+[dir=ltr] .month,[dir=ltr] .year{font-family:var(--lat);font-weight:500}
+.time{font-size:6.8cqw;font-weight:700;color:#26372a}
+[dir=ltr] .time{font-family:var(--lat);font-weight:600}
+.cd{display:flex;gap:3cqw;justify-content:center;margin-top:4cqw}
+html[dir=ltr] .cd{flex-direction:row-reverse}
+.cd>div{width:18.6cqw;height:22cqw;border:1px solid #b8b5a3;border-radius:2.6cqw;background:rgba(250,247,239,.55);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.4cqw;box-shadow:0 .5cqw 1.6cqw rgba(90,80,60,.06),inset 0 0 0 .7cqw rgba(255,255,255,.35)}
+.cd b{font-variant-numeric:lining-nums;font-family:var(--lat);font-size:7.6cqw;font-weight:600;color:#26372a;line-height:1;font-variant-numeric:tabular-nums}
+.cd span{font-size:4.1cqw;color:#4a4d44}
+[dir=ltr] .cd span{font-family:var(--lat);font-size:3.9cqw;font-weight:500}
+.pill{text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:2.4cqw;height:12cqw;padding:0 7cqw;border-radius:99px;
+  border:1px solid #9e9a88;background:rgba(251,248,241,.7);font-size:4.6cqw;font-weight:700;color:#2f3a2f;margin-top:6cqw;
+  box-shadow:0 .7cqw 2cqw rgba(80,70,50,.08);transition:transform .2s,background .2s}
+.pill:active{transform:scale(.96)}
+.pill svg{width:5cqw;height:5cqw}
+[dir=ltr] .pill{font-family:var(--lat);font-size:4.6cqw;font-weight:600}
+.pill.green{background:linear-gradient(#7f957b,#677d63);border-color:#5b7058;color:#fff;box-shadow:0 1cqw 2.6cqw rgba(60,80,55,.28),inset 0 1px 0 rgba(255,255,255,.25)}
+
+/* 3) البرنامج */
+.s-prog{padding-top:24cqw;padding-bottom:16cqw}
+.tl{position:relative;margin:6cqw auto 0;width:100%}
+.tl::before{content:"";position:absolute;top:2cqw;bottom:2cqw;left:38%;width:1px;background:linear-gradient(#a49f8c,#a49f8c);transform-origin:top;transform:scaleY(var(--tl,0));transition:transform 2.4s cubic-bezier(.3,.6,.3,1)}
+[dir=ltr] .tl::before{left:auto;right:38%}
+.tl.in{--tl:1}
+.ti{position:relative;display:grid;grid-template-columns:38% 62%;align-items:center;min-height:30cqw}
+[dir=rtl] .ti{direction:ltr}
+.ti .ic{display:flex;justify-content:center}
+.ti .ic img{width:17cqw;height:auto;opacity:.92}
+.ti .tx{text-align:right;padding-right:0;padding-left:8cqw;direction:rtl}
+[dir=ltr] .ti{grid-template-columns:62% 38%}
+[dir=ltr] .ti .ic{order:2}
+[dir=ltr] .ti .tx{order:1;text-align:left;direction:ltr;padding-left:0;padding-right:8cqw}
+.ti .tx b{display:block;font-size:6.6cqw;font-weight:700;color:#24372a}
+[dir=ltr] .ti .tx b{font-variant-numeric:lining-nums;font-family:var(--lat);font-weight:600;font-size:6.6cqw}
+.ti .tx span{display:block;font-size:4.6cqw;line-height:1.6;color:#3b3e36}
+.ti .tx span{text-wrap:balance}
+[dir=ltr] .ti .tx span{font-family:var(--lat);font-size:4.7cqw;font-weight:500;line-height:1.35}
+.pearl{position:absolute;left:38%;top:50%;width:4.4cqw;height:4.4cqw;border-radius:50%;transform:translate(-50%,-50%) scale(0);
+  background:radial-gradient(circle at 35% 30%,#fff 0,#fbf6ec 30%,#e6dccb 70%,#c9bca6 100%);box-shadow:0 .4cqw .9cqw rgba(80,70,50,.25);
+  transition:transform .8s cubic-bezier(.3,1.6,.5,1)}
+[dir=ltr] .pearl{left:62%}
+.ti.in .pearl{transform:translate(-50%,-50%) scale(1)}
+
+/* 4) المكان */
+.s-place{padding-top:18cqw;padding-bottom:8cqw}
+.arch{position:relative;margin:5cqw auto 0;width:74cqw;padding:12cqw 6cqw 9cqw;border:1px solid rgba(170,160,135,.55);border-radius:37cqw 37cqw 2cqw 2cqw;
+  box-shadow:inset 0 0 0 1.6cqw rgba(255,255,255,.35),inset 0 0 0 1.75cqw rgba(170,160,135,.35),0 1cqw 4cqw rgba(90,80,60,.06);background:rgba(250,247,240,.35)}
+.pin{width:36cqw;margin:0 auto;transform-origin:50% 92%}
+.pin-wrap{position:relative}
+.pin-wrap.in .pin{animation:pinDrop 1.3s cubic-bezier(.3,1.4,.5,1) both}
+@keyframes pinDrop{0%{opacity:0;transform:translateY(-14cqw) scale(.9)}60%{opacity:1}100%{opacity:1;transform:none}}
+.ripple{position:absolute;left:50%;bottom:1.2cqw;width:26cqw;height:6cqw;border-radius:50%;border:1px solid rgba(160,150,120,.6);transform:translateX(-50%) scale(.4);opacity:0}
+.pin-wrap.in .ripple{animation:ripple 3.2s ease-out 1s infinite}
+.pin-wrap.in .ripple.r2{animation-delay:2.6s}
+@keyframes ripple{0%{opacity:.8;transform:translateX(-50%) scale(.4)}100%{opacity:0;transform:translateX(-50%) scale(1.5)}}
+.venue{font-family:var(--lat);font-size:7.4cqw;font-weight:600;color:#26332a;margin-top:4cqw;line-height:1.15}
+.city{font-family:var(--lat);font-size:5cqw;color:#3b3f37;letter-spacing:.05em;font-weight:500}
+.bye{font-size:4.8cqw;color:#34392f}
+
+/* 5) الألوان */
+.s-dress{padding-top:34cqw;padding-bottom:8cqw}
+.dress-en{font-family:var(--lat);font-size:5.4cqw;font-weight:500;color:#2d342c;margin-top:-1cqw}
+.sw{display:flex;flex-wrap:wrap;justify-content:center;gap:4cqw 4.4cqw;margin:6cqw auto 2cqw;width:84cqw}
+.sw button{width:25cqw;height:25cqw;border-radius:50%;overflow:hidden;border:.9cqw solid #f7f2e8;box-shadow:0 0 0 1px #d8cfbd,0 1.2cqw 3cqw rgba(80,70,50,.14);
+  transform:scale(.4);opacity:0;transition:transform .9s cubic-bezier(.3,1.5,.5,1),opacity .6s}
+.sw button img{width:100%;height:100%;object-fit:cover;transition:transform 3s ease}
+.sw button:hover img,.sw button:focus img{transform:scale(1.18) rotate(4deg)}
+.sw.in button{transform:none;opacity:1}
+.sw.in button:nth-child(2){transition-delay:.12s}.sw.in button:nth-child(3){transition-delay:.24s}.sw.in button:nth-child(4){transition-delay:.36s}.sw.in button:nth-child(5){transition-delay:.48s}
+
+/* 6) ملاحظات */
+.s-notes{padding-top:26cqw;padding-bottom:6cqw}
+.s-notes .p{margin:0 auto;max-width:76cqw}
+.s-notes .orn{margin:3.6cqw auto}
+.thanks{font-size:5cqw;font-weight:700;color:#2b3a2e}
+[dir=ltr] .thanks{font-family:var(--lat)}
+
+/* 7) تأكيد الحضور */
+.s-rsvp{padding-top:22cqw;padding-bottom:52cqw}
+.form{margin:6cqw auto 0;text-align:start;width:76cqw}
+.form label.lb{display:block;font-size:4.4cqw;color:#3b3e36;margin:0 0 1.6cqw}
+[dir=ltr] .form label.lb{font-family:var(--lat);font-size:4.4cqw;font-weight:600}
+.field{position:relative;display:block;width:100%;border:1px solid #b9b5a2;border-radius:2.6cqw;background:rgba(251,248,241,.75);
+  font:inherit;font-size:16px;color:#2f3a2f;padding:2.8cqw 10cqw 2.8cqw 3cqw;outline:none;transition:border-color .2s,box-shadow .2s}
+[dir=ltr] .field{padding:2.8cqw 3cqw 2.8cqw 10cqw;font-family:var(--lat);font-size:17px}
+.field:focus{border-color:var(--sage);box-shadow:0 0 0 .8cqw rgba(125,146,122,.18)}
+.fwrap{position:relative;margin-bottom:4.4cqw}
+.fwrap svg{position:absolute;top:3.2cqw;right:3cqw;width:4.6cqw;height:4.6cqw;color:#8b8a7c;pointer-events:none}
+[dir=ltr] .fwrap svg{right:auto;left:3cqw}
+textarea.field{min-height:22cqw;resize:vertical}
+.radio{display:flex;align-items:center;gap:3cqw;font-size:4.8cqw;margin:0 0 3cqw;cursor:pointer;color:#2f3a2f}
+[dir=ltr] .radio{font-family:var(--lat);font-size:4.8cqw;font-weight:500}
+.radio input{appearance:none;-webkit-appearance:none;width:5.2cqw;height:5.2cqw;border-radius:50%;border:1px solid #8f8c7c;background:#fbf8f1;display:grid;place-items:center;margin:0}
+.radio input::after{content:"";width:2.8cqw;height:2.8cqw;border-radius:50%;background:var(--sage-d);transform:scale(0);transition:transform .25s cubic-bezier(.3,1.6,.5,1)}
+.radio input:checked::after{transform:scale(1)}
+.radios{margin:1cqw 0 5cqw}
+.send{width:100%;margin-top:4cqw;height:13cqw;font-size:4.6cqw}
+.sent{display:none;padding:6cqw 4cqw;border-radius:4cqw;background:rgba(251,248,241,.7);border:1px solid #cfc7b3;margin-top:6cqw}
+.sent.show{display:block;animation:fadeUp .8s ease both}
+.sent b{display:block;font-size:5cqw;color:var(--green);margin-bottom:1cqw}
+@keyframes fadeUp{from{opacity:0;transform:translateY(4cqw)}to{opacity:1;transform:none}}
+.err{color:#9b4b3c;font-size:3.6cqw;min-height:5cqw;margin-top:2cqw}
+
+/* الورد الصغير اللي بينزل */
+#petals{position:fixed;inset:0;pointer-events:none;z-index:60;overflow:hidden}
+.pt{position:absolute;top:-6vh;left:0;will-change:transform;animation:fall var(--d,6s) linear var(--dl,0s) forwards}
+.pt>i{display:block;width:var(--s,12px);height:var(--s,12px);animation:spin var(--sd,3s) ease-in-out infinite alternate}
+.pt svg{width:100%;height:100%;display:block}
+@keyframes fall{
+  0%{transform:translate3d(var(--x),0,0);opacity:0}
+  6%{opacity:var(--op,1)}
+  25%{transform:translate3d(calc(var(--x) + var(--dx)),27vh,0)}
+  50%{transform:translate3d(calc(var(--x) - var(--dx)*.6),55vh,0)}
+  75%{transform:translate3d(calc(var(--x) + var(--dx)*.8),82vh,0);opacity:var(--op,1)}
+  100%{transform:translate3d(calc(var(--x) - var(--dx)*.3),112vh,0);opacity:0}
+}
+@keyframes spin{from{transform:rotate(var(--r0,0deg)) rotateY(0)}to{transform:rotate(var(--r1,200deg)) rotateY(55deg)}}
+
+@media (prefers-reduced-motion:reduce){
+  .fl img,.cv-pulse .seal-glow{animation:none}
+  .r,.fl>.rv,.names{transition-duration:.01s!important}
+}
+</style>
+</head>
+<body class="locked">
+
+<!-- ================= الظرف ================= -->
+<div id="cover" class="cv-pulse">
+  <div class="cv">
+    <img class="cv-bg" src="assets/cover-bg.webp" alt="">
+    <p class="cv-txt cv-top" data-k="coverTop"></p>
+    <div class="env">
+      <img src="assets/envelope.webp" alt="">
+      <div class="env-t env-names" data-k="names"></div>
+      <svg class="env-t env-orn" viewBox="0 0 120 22" aria-hidden="true"><use href="#sprig"/></svg>
+      <div class="env-t env-date" data-k="dateDots" dir="ltr"></div>
+      <div class="seal-glow"></div>
+    </div>
+    <div class="cv-txt cv-hint"><span data-k="openHint"></span><svg class="orn" viewBox="0 0 240 22" aria-hidden="true"><use href="#orn-line"/></svg></div>
+    <button type="button" class="cv-tap" aria-label="افتحي الدعوة"></button>
+    <div class="lang-tip" role="status"><b>اختاري لغة الدعوة</b><span>Välj språk för inbjudan</span></div>
+    <div class="cv-langs">
+      <button type="button" data-lang="ar">العربية</button>
+      <button type="button" data-lang="sv">Svenska</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= الدعوة ================= -->
+<main id="inv" aria-live="polite">
+
+  <!-- 1) الافتتاحية -->
+  <section class="sec s-intro">
+    <div class="fl" data-fl style="top:0;right:-3cqw;width:66cqw;--o:100% 0;--fx:6cqw;--fy:-6cqw;--sw:1.2deg;--sd:7.5s"><div class="rv"><img src="assets/fl-c.webp" alt=""></div></div>
+    <div class="emb" style="top:4cqw;left:-2cqw;width:34cqw"><img src="assets/emb-a.webp" alt="" style="width:100%"></div>
+    <p class="bism r" data-k="bism"></p>
+    <p class="p r d1" data-k="intro"></p>
+    <h1 class="names r" data-k="names"></h1>
+    <svg class="orn r d1" viewBox="0 0 240 22" aria-hidden="true"><use href="#orn-pearl"/></svg>
+    <p class="names-lat r d2" data-k="namesAlt"></p>
+    <p class="p r d2" data-k="story" style="margin-top:6cqw"></p>
+    <svg class="orn wide r d1" viewBox="0 0 240 22" aria-hidden="true"><use href="#orn-pearl"/></svg>
+    <p class="date-line r d2" data-k="dateLong"></p>
+    <div class="fl fade-b" data-fl style="bottom:-30cqw;left:-3cqw;width:44cqw;--o:0 100%;--fx:-6cqw;--fy:6cqw;--sw:1.6deg;--sd:8s;--sl:-2s"><div class="rv"><img src="assets/fl-d.webp" alt=""></div></div>
+  </section>
+
+  <!-- 2) الموعد -->
+  <section class="sec s-date">
+    <div class="fl fade-t" data-fl style="top:2cqw;left:-3cqw;width:64cqw;--o:0 0;--fx:-6cqw;--fy:-4cqw;--sw:1.3deg;--sd:7s"><div class="rv"><img src="assets/fl-e.webp" alt=""></div></div>
+    <div class="emb" style="top:96cqw;left:-2cqw;width:26cqw"><img src="assets/emb-c.webp" alt="" style="width:100%"></div>
+    <div class="emb" style="top:150cqw;right:-2cqw;width:22cqw;transform:scaleX(-1)"><img src="assets/emb-c.webp" alt="" style="width:100%"></div>
+    <h2 class="h r" data-k="dateTitle" style="margin-top:22cqw"></h2>
+    <svg class="orn sm r d1" viewBox="0 0 240 22" aria-hidden="true"><use href="#orn-line"/></svg>
+    <div class="big-day r d1" data-k="day"></div>
+    <div class="month r d2" data-k="month"></div>
+    <div class="year r d2" data-k="year"></div>
+    <svg class="orn sm r d1" viewBox="0 0 240 22" aria-hidden="true"><use href="#orn-line"/></svg>
+    <p class="time r d2" data-k="time"></p>
+    <svg class="orn wide r d1" viewBox="0 0 240 22" aria-hidden="true"><use href="#orn-line"/></svg>
+    <p class="p r" data-k="countTitle" style="font-weight:700;font-size:5.2cqw"></p>
+    <div class="cd r d1" id="cd" dir="ltr">
+      <div><b data-cd="s">—</b><span data-k="cdS"></span></div>
+      <div><b data-cd="m">—</b><span data-k="cdM"></span></div>
+      <div><b data-cd="h">—</b><span data-k="cdH"></span></div>
+      <div><b data-cd="d">—</b><span data-k="cdD"></span></div>
+    </div>
+    <a class="pill r d2" id="cal" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4M8 13h2M12 13h2M16 13h1M8 16.5h2M12 16.5h2"/></svg><span data-k="calBtn"></span></a>
+  </section>
+
+  <!-- 3) البرنامج -->
+  <section class="sec s-prog">
+    <div class="emb" style="top:10cqw;left:-3cqw;width:26cqw"><img src="assets/emb-b.webp" alt="" style="width:100%"></div>
+    <div class="emb" style="top:10cqw;right:-3cqw;width:26cqw;transform:scaleX(-1)"><img src="assets/emb-b.webp" alt="" style="width:100%"></div>
+    <h2 class="h r" data-k="progTitle"></h2>
+    <svg class="orn r d1" viewBox="0 0 240 22" aria-hidden="true"><use href="#orn-line"/></svg>
+    <div class="tl" data-tl>
+      <div class="ti r"><div class="ic"><img src="assets/ic-toast.webp" alt=""></div><div class="tx"><b data-k="p1t"></b><span data-k="p1"></span></div><i class="pearl"></i></div>
+      <div class="ti r"><div class="ic"><img src="assets/ic-couple.webp" alt=""></div><div class="tx"><b data-k="p2t"></b><span data-k="p2"></span></div><i class="pearl"></i></div>
+      <div class="ti r"><div class="ic"><img src="assets/ic-ladies.webp" alt=""></div><div class="tx"><b data-k="p3t"></b><span data-k="p3"></span></div><i class="pearl"></i></div>
+      <div class="ti r"><div class="ic"><img src="assets/ic-dinner.webp" alt=""></div><div class="tx"><b data-k="p4t"></b><span data-k="p4"></span></div><i class="pearl"></i></div>
+    </div>
+    <div class="fl fade-b" data-fl style="bottom:-22cqw;right:-3cqw;width:62cqw;--o:100% 100%;--fx:6cqw;--fy:6cqw;--sw:1.4deg;--sd:8.5s;--sl:-1s"><div class="rv"><img src="assets/fl-f.webp" alt=""></div></div>
+  </section>
+
+  <!-- 4) المكان -->
+  <section class="sec s-place">
+    <h2 class="h r" data-k="placeTitle"></h2>
+    <svg class="orn sm r d1" viewBox="0 0 240 22" aria-hidden="true"><use href="#orn-line"/></svg>
+    <div class="arch r d1">
+      <div class="pin-wrap" data-pin><img class="pin" src="assets/pin.webp" alt=""><i class="ripple"></i><i class="ripple r2"></i></div>
+      <p class="venue" data-k="venue" dir="ltr"></p>
+      <p class="city" data-k="city" dir="ltr"></p>
+      <a class="pill green" id="map" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5a7 7 0 0 0-7 7c0 5 7 12 7 12s7-7 7-12a7 7 0 0 0-7-7Zm0 9.6a2.6 2.6 0 1 1 0-5.2 2.6 2.6 0 0 1 0 5.2Z"/></svg><span data-k="mapBtn"></span></a>
+    </div>
+    <svg class="orn sm r" viewBox="0 0 240 22" aria-hidden="true" style="margin-top:7cqw"><use href="#orn-heart"/></svg>
+    <p class="bye r d1" data-k="placeBye"></p>
+    <div class="fl fade-b" data-fl style="bottom:-30cqw;left:-3cqw;width:34cqw;--o:0 100%;--fx:-6cqw;--fy:6cqw;--sw:1.5deg;--sd:7.8s;--sl:-3s"><div class="rv"><img src="assets/fl-hm.webp" alt=""></div></div>
+  </section>
+
+  <!-- 5) الألوان -->
+  <section class="sec s-dress">
+    <div class="fl fade-t" data-fl style="top:-2cqw;right:-3cqw;width:46cqw;--o:100% 0;--fx:6cqw;--fy:-6cqw;--sw:1.3deg;--sd:7.2s;--sl:-1.5s"><div class="rv"><img src="assets/fl-gm.webp" alt=""></div></div>
+    <h2 class="h r" data-k="dressTitle" style="margin-top:10cqw"></h2>
+    <svg class="orn sm r d1" viewBox="0 0 240 22" aria-hidden="true"><use href="#orn-line"/></svg>
+    <p class="p r d1" data-k="dressCode" style="font-weight:700;font-size:5.2cqw"></p>
+    <p class="dress-en r d2" data-k="dressEn"></p>
+    <div class="sw" data-sw>
+      <button type="button" aria-label="sage"><img src="assets/sw-1.webp" alt=""></button>
+      <button type="button" aria-label="pink"><img src="assets/sw-2.webp" alt=""></button>
+      <button type="button" aria-label="lavender"><img src="assets/sw-3.webp" alt=""></button>
+      <button type="button" aria-label="blue"><img src="assets/sw-4.webp" alt=""></button>
+      <button type="button" aria-label="peach"><img src="assets/sw-5.webp" alt=""></button>
+    </div>
+    <svg class="orn sm r" viewBox="0 0 240 22" aria-hidden="true"><use href="#orn-pearl"/></svg>
+    <p class="p r d1" data-k="dressNote" style="font-weight:700"></p>
+  </section>
+
+  <!-- 6) ملاحظات -->
+  <section class="sec s-notes">
+    <div class="fl fade-t" data-fl style="top:2cqw;left:-3cqw;width:46cqw;--o:0 0;--fx:-6cqw;--fy:-6cqw;--sw:1.4deg;--sd:8s"><div class="rv"><img src="assets/fl-g.webp" alt=""></div></div>
+    <h2 class="h r" data-k="notesTitle" style="margin-top:16cqw"></h2>
+    <svg class="orn sm r d1" viewBox="0 0 240 22" aria-hidden="true"><use href="#orn-line"/></svg>
+    <p class="p r" data-k="n1"></p>
+    <svg class="orn sm r" viewBox="0 0 240 22" aria-hidden="true"><use href="#orn-dot"/></svg>
+    <p class="p r" data-k="n2"></p>
+    <svg class="orn sm r" viewBox="0 0 240 22" aria-hidden="true"><use href="#orn-dot"/></svg>
+    <p class="p r" data-k="n3"></p>
+    <svg class="orn sm r" viewBox="0 0 240 22" aria-hidden="true"><use href="#orn-dot"/></svg>
+    <p class="p r" data-k="n4"></p>
+    <svg class="orn sm r" viewBox="0 0 240 22" aria-hidden="true"><use href="#orn-dot"/></svg>
+    <p class="thanks r" data-k="n5"></p>
+  </section>
+
+  <!-- 7) تأكيد الحضور -->
+  <section class="sec s-rsvp">
+    <h2 class="h r" data-k="rsvpTitle"></h2>
+    <svg class="orn sm r d1" viewBox="0 0 240 22" aria-hidden="true"><use href="#orn-line"/></svg>
+    <p class="p r d1" data-k="rsvpSub"></p>
+    <form class="form r d2" id="rsvp" novalidate>
+      <label class="lb" for="fname" data-k="fName"></label>
+      <div class="fwrap"><input class="field" id="fname" name="name" autocomplete="name"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4.5 20c1.2-3.6 4-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/></svg></div>
+      <div class="radios">
+        <label class="radio"><input type="radio" name="att" value="yes"><span data-k="fYes"></span></label>
+        <label class="radio"><input type="radio" name="att" value="no"><span data-k="fNo"></span></label>
+      </div>
+      <label class="lb" for="fmsg" data-k="fMsg"></label>
+      <div class="fwrap"><textarea class="field" id="fmsg" name="message" maxlength="200"></textarea><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10Z"/></svg></div>
+      <button class="pill green send" type="submit"><svg viewBox="0 0 24 24" fill="currentColor" style="transform:scaleX(var(--flip,1))"><path d="M21 3 3 10.5l7 2.5 2.5 7L21 3Zm-9.6 9.4L17 7l-4.6 6.9-.9 3-1-4.5Z"/></svg><span data-k="fSend"></span></button>
+      <p class="err" id="err"></p>
+    </form>
+    <div class="sent" id="sent"><b data-k="sentT"></b><span class="p" data-k="sentP"></span></div>
+    <svg class="orn sm r" viewBox="0 0 240 22" aria-hidden="true" style="margin-top:8cqw"><use href="#orn-pearl"/></svg>
+    <p class="p r d1" data-k="rsvpThanks"></p>
+    <div class="fl" data-fl style="bottom:-1.5cqw;left:-3cqw;width:44cqw;--o:0 100%;--fx:-6cqw;--fy:6cqw;--sw:1.4deg;--sd:8s"><div class="rv"><img src="assets/fl-d.webp" alt=""></div></div>
+    <div class="fl" data-fl style="bottom:-1.5cqw;right:-3cqw;width:44cqw;--o:100% 100%;--fx:6cqw;--fy:6cqw;--sw:1.2deg;--sd:7.4s;--sl:-2s"><div class="rv"><img src="assets/fl-b.webp" alt=""></div></div>
+  </section>
+</main>
+
+<div id="petals" aria-hidden="true"></div>
+
+<!-- الزخارف (SVG بتتكرر) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <radialGradient id="pg" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="#f6efe2"/><stop offset="1" stop-color="#cbbfa8"/></radialGradient>
+    <symbol id="sprig" viewBox="0 0 120 22">
+      <path d="M8 11h40M72 11h40" stroke="#8c9b86" stroke-width=".8" fill="none"/>
+      <g fill="#7f957b"><path d="M50 11c3-4 7-5 9-4-2 3-5 4-9 4Z"/><path d="M50 11c3 3 6 4 9 3-2-3-5-3-9-3Z" opacity=".85"/>
+      <path d="M70 11c-3-4-7-5-9-4 2 3 5 4 9 4Z"/><path d="M70 11c-3 3-6 4-9 3 2-3 5-3 9-3Z" opacity=".85"/></g>
+      <circle cx="60" cy="11" r="3.2" fill="url(#pg)"/>
+    </symbol>
+    <symbol id="orn-line" viewBox="0 0 240 22">
+      <path d="M10 11h88M142 11h88" stroke="#8f9a88" stroke-width=".9" fill="none"/>
+      <path d="M100 11h40" stroke="#8f9a88" stroke-width=".6" fill="none" opacity=".0"/>
+      <g fill="none" stroke="#5f7a5f" stroke-width="1.1" stroke-linecap="round"><path d="M104 11h32"/><path d="M120 11c-4-6-10-7-13-6 2 4 7 6 13 6Z" fill="#7f957b" stroke="none"/>
+      <path d="M120 11c4-6 10-7 13-6-2 4-7 6-13 6Z" fill="#7f957b" stroke="none"/><path d="M112 11c-2 3-5 4-7 4M128 11c2 3 5 4 7 4" /></g>
+      <circle cx="120" cy="11" r="2.2" fill="#5f7a5f"/>
+    </symbol>
+    <symbol id="orn-pearl" viewBox="0 0 240 22">
+      <path d="M14 11h82M144 11h82" stroke="#8f9a88" stroke-width=".9" fill="none"/>
+      <g fill="#7f957b"><path d="M120 11c-5-5-13-6-17-4 3 4 10 5 17 4Z"/><path d="M107 11c-3-3-7-3-9-2 2 2 5 3 9 2Z" opacity=".8"/>
+      <path d="M120 11c5-5 13-6 17-4-3 4-10 5-17 4Z"/><path d="M133 11c3-3 7-3 9-2-2 2-5 3-9 2Z" opacity=".8"/>
+      <path d="M120 11c-5 4-12 5-15 3 3-3 9-4 15-3Z" opacity=".75"/><path d="M120 11c5 4 12 5 15 3-3-3-9-4-15-3Z" opacity=".75"/></g>
+      <circle cx="120" cy="10.6" r="4.2" fill="url(#pg)"/>
+    </symbol>
+    <symbol id="orn-heart" viewBox="0 0 240 22">
+      <path d="M14 11h86M140 11h86" stroke="#8f9a88" stroke-width=".9" fill="none"/>
+      <g fill="#7f957b"><path d="M112 11c-4-4-10-5-13-3 2 3 8 4 13 3Z"/><path d="M128 11c4-4 10-5 13-3-2 3-8 4-13 3Z"/></g>
+      <path d="M120 16.5s-6-3.6-6-7.6a3.2 3.2 0 0 1 6-1.6 3.2 3.2 0 0 1 6 1.6c0 4-6 7.6-6 7.6Z" fill="url(#pg)" stroke="#b8ab92" stroke-width=".6"/>
+    </symbol>
+    <symbol id="orn-dot" viewBox="0 0 240 22">
+      <path d="M40 11h64M136 11h64" stroke="#a6a593" stroke-width=".8" fill="none"/>
+      <path d="M120 5l5 6-5 6-5-6Z" fill="none" stroke="#6f856c" stroke-width="1"/><circle cx="120" cy="11" r="1.6" fill="#6f856c"/>
+      <circle cx="109" cy="11" r="1.2" fill="#8f9a88"/><circle cx="131" cy="11" r="1.2" fill="#8f9a88"/>
+    </symbol>
+  </defs>
+</svg>
+
+<script>
+// ===== النصوص (عربي / سويدي) — كل سطر بيتعدّل من هنا =====
+var TEXT = {
+  ar: {
+    coverTop: 'بكل الحب،<br>ندعوكِ لمشاركتنا فرحتنا',
+    names: 'زهير وغزل', namesAlt: 'Zohir &amp; Kazel', dateDots: '28.11.2026', openHint: 'افتحي دعوتك',
+    bism: 'بسم الله الرحمن الرحيم',
+    intro: 'بقلوبٍ يملؤها الحبّ والفرح،<br>ودعاءٍ بأن يبارك الله لنا بداية حياتنا معًا،<br>يسعدنا أن ندعوكم لمشاركتنا فرحة زفافنا',
+    story: 'نبدأ معًا حكاية عمر،<br>وبين أهلنا وأحبّتنا تكتمل فرحتنا.<br>ننتظركم بكل محبة،<br>ليكون حضوركم من أجمل ذكريات يومنا',
+    dateLong: '٢٨ نوفمبر ٢٠٢٦',
+    dateTitle: 'موعد فرحتنا', day: '٢٨', month: 'نوفمبر', year: '٢٠٢٦', time: 'الساعة ٥:٠٠ مساءً',
+    countTitle: 'باقي على فرحتنا', cdD: 'يوم', cdH: 'ساعة', cdM: 'دقيقة', cdS: 'ثانية', calBtn: 'أضيفي الموعد للتقويم',
+    progTitle: 'برنامج فرحتنا',
+    p1t: '٥:٠٠ مساءً', p1: 'بداية الحفل',
+    p2t: '٥:٣٠ مساءً', p2: 'دخلة العروس والعريس',
+    p3t: '٦:١٠ مساءً', p3: 'مغادرة العريس<br>ومتابعة الاحتفال بصحبة السيدات',
+    p4t: '٦:٣٠ مساءً', p4: 'العشاء',
+    placeTitle: 'نلتقي هنا', venue: 'Forsälla bygdegård', city: 'Uddevalla', mapBtn: 'موقع الحفل', placeBye: 'بانتظاركم بكل محبة',
+    dressTitle: 'ألوان إطلالتكم', dressCode: 'دريس كود: ألوان الباستيل', dressEn: 'Dress code: Pastel colors',
+    dressNote: 'يسعدنا أن تشاركونا فرحتنا<br>بإطلالاتٍ بألوان الباستيل الناعمة',
+    notesTitle: 'بكل محبة،<br>لضيفاتنا العزيزات',
+    n1: 'وجودكم معنا يُكمل فرحتنا.',
+    n2: 'نخصّص هذه الأمسية للكبار فقط،<br>ونشكر لكم تفهّمكم<br>بالحضور دون اصطحاب الأطفال.',
+    n3: 'تقتصر الدعوة على الأسماء المذكورة فيها لمحدودية المقاعد. نرجو التواصل معنا والحصول على موافقتنا مسبقًا قبل اصطحاب أي ضيفة إضافية.',
+    n4: 'الحفل مخصّص للسيدات، ويحضر العريس وقت الدخلة حتى الساعة ٦:١٠ مساءً، ثم نكمل فرحتنا بصحبتكم.',
+    n5: 'شكرًا لمحبتكم وتفهّمكم',
+    rsvpTitle: 'هل ستشاركيننا فرحتنا؟', rsvpSub: 'نرجو تأكيد الحضور أو الاعتذار<br>قبل ٢١ نوفمبر ٢٠٢٦',
+    fName: 'الاسم الكامل', fYes: 'سأحضر', fNo: 'أعتذر عن الحضور', fMsg: 'كلمة للعروسين — اختياري', fSend: 'إرسال الرد',
+    rsvpThanks: 'شكرًا لردكِ، ولكِ منّا كل المحبة',
+    sentT: 'وصلنا ردّك 🤍', sentP: 'شكرًا لكِ، ولكِ منّا كل المحبة.',
+    errName: 'من فضلك اكتبي اسمك', errAtt: 'من فضلك اختاري سأحضر أو أعتذر', errSend: 'الرد ماوصلش، جرّبي تاني بعد لحظة',
+    calTitle: 'زفاف زهير وغزل'
+  },
+  sv: {
+    coverTop: 'Med all vår kärlek<br>bjuder vi in dig att dela vår glädje',
+    names: 'Zohir &amp; Kazel', namesAlt: 'زهير وغزل', dateDots: '28.11.2026', openHint: 'Öppna din inbjudan',
+    bism: 'I Guds namn, den Nåderike, den Barmhärtige',
+    intro: 'Med hjärtan fyllda av kärlek och glädje,<br>och en bön om att Gud välsignar<br>början på vårt liv tillsammans,<br>har vi glädjen att bjuda in er<br>att dela vår bröllopsdag',
+    story: 'Tillsammans börjar vi livets berättelse,<br>och bland familj och nära vänner<br>blir vår lycka fullkomlig.<br>Vi väntar på er med all kärlek –<br>må er närvaro bli ett av de vackraste<br>minnena från vår dag',
+    dateLong: '28 november 2026',
+    dateTitle: 'Vår stora dag', day: '28', month: 'November', year: '2026', time: 'Klockan 17.00',
+    countTitle: 'Nedräkning till vår dag', cdD: 'Dagar', cdH: 'Timmar', cdM: 'Minuter', cdS: 'Sekunder', calBtn: 'Spara i kalendern',
+    progTitle: 'Kvällens program',
+    p1t: '17.00', p1: 'Festen börjar',
+    p2t: '17.30', p2: 'Brudparets entré',
+    p3t: '18.10', p3: 'Brudgummen tackar för sig,<br>damerna firar vidare',
+    p4t: '18.30', p4: 'Middag',
+    placeTitle: 'Här möts vi', venue: 'Forsälla bygdegård', city: 'Uddevalla', mapBtn: 'Visa på kartan', placeBye: 'Vi väntar på er med kärlek',
+    dressTitle: 'Klädkod', dressCode: 'Pastellfärger', dressEn: '',
+    dressNote: 'Det skulle glädja oss om ni firar med oss<br>i mjuka pastellfärger',
+    notesTitle: 'Med kärlek,<br>till våra kära gäster',
+    n1: 'Er närvaro gör vår glädje fullkomlig.',
+    n2: 'Kvällen är endast för vuxna –<br>tack för att ni kommer<br>utan barn.',
+    n3: 'Inbjudan gäller endast de namn som står på den, eftersom antalet platser är begränsat. Kontakta oss och få vårt godkännande i förväg innan ni tar med en extra gäst.',
+    n4: 'Festen är för damer. Brudgummen är med under entrén fram till klockan 18.10, därefter fortsätter vi firandet i ert sällskap.',
+    n5: 'Tack för er kärlek och förståelse',
+    rsvpTitle: 'Firar du med oss?', rsvpSub: 'Vänligen meddela om du kommer<br>senast den 21 november 2026',
+    fName: 'Fullständigt namn', fYes: 'Jag kommer', fNo: 'Jag kan tyvärr inte komma', fMsg: 'Hälsning till brudparet – valfritt', fSend: 'Skicka svar',
+    rsvpThanks: 'Tack för ditt svar – all vår kärlek till dig',
+    sentT: 'Tack för ditt svar 🤍', sentP: 'All vår kärlek till dig.',
+    errName: 'Skriv ditt namn', errAtt: 'Välj om du kommer eller inte', errSend: 'Svaret kunde inte skickas, försök igen',
+    calTitle: 'Bröllop – Zohir & Kazel'
+  }
+};
+var EVENT = { start: '2026-11-28T16:00:00Z', end: '2026-11-28T21:00:00Z', place: 'Forsälla bygdegård, Uddevalla, Sweden', map: 'https://maps.app.goo.gl/JuoR8tX9ThAntn4K9' };
+var lang = 'ar';
+
+function applyLang(l) {
+  lang = l;
+  var T = TEXT[l];
+  document.documentElement.lang = l;
+  document.documentElement.dir = l === 'ar' ? 'rtl' : 'ltr';
+  document.title = l === 'ar' ? 'زهير وغزل' : 'Zohir & Kazel';
+  document.querySelectorAll('#inv [data-k]').forEach(function (el) {
+    var v = T[el.getAttribute('data-k')];
+    el.innerHTML = v == null ? '' : v;
+    el.style.display = v === '' ? 'none' : '';
+  });
+  document.getElementById('map').href = EVENT.map;
+  document.querySelector('.send').style.setProperty('--flip', l === 'ar' ? -1 : 1);
+  if (window.tick) tick();
+  if (window.calLink) document.getElementById('cal').href = calLink();
+}
+// الغلاف عربي زي التصميم (الاسم والتاريخ)
+(function () {
+  var T = TEXT.ar;
+  document.querySelectorAll('#cover [data-k]').forEach(function (el) { el.innerHTML = T[el.getAttribute('data-k')]; });
+})();
+applyLang('ar');
+
+// ===== الورد الصغير اللي بينزل من فوق =====
+var FLORET = [
+  '<svg viewBox="0 0 20 20"><g fill="#fffdf8" stroke="#e4dccb" stroke-width=".5"><circle cx="10" cy="4.6" r="3.6"/><circle cx="15.2" cy="8.4" r="3.6"/><circle cx="13.2" cy="14.6" r="3.6"/><circle cx="6.8" cy="14.6" r="3.6"/><circle cx="4.8" cy="8.4" r="3.6"/></g><circle cx="10" cy="10" r="2.6" fill="#e8dfae"/><circle cx="10" cy="10" r="1.2" fill="#c9b878"/></svg>',
+  '<svg viewBox="0 0 20 20"><g fill="#fff" stroke="#e6ddcc" stroke-width=".5"><ellipse cx="10" cy="5" rx="3" ry="4"/><ellipse cx="15" cy="10" rx="4" ry="3"/><ellipse cx="10" cy="15" rx="3" ry="4"/><ellipse cx="5" cy="10" rx="4" ry="3"/></g><circle cx="10" cy="10" r="2.2" fill="#eadfb4"/></svg>',
+  '<svg viewBox="0 0 24 24"><defs><radialGradient id="pk" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#fff6f3"/><stop offset=".6" stop-color="#f6d9d2"/><stop offset="1" stop-color="#e8b9ae"/></radialGradient></defs><path d="M12 2C6 6 4.5 13 7.5 19c1.5 3 7.5 3 9 0C19.5 13 18 6 12 2Z" fill="url(#pk)" stroke="#e5c3b9" stroke-width=".4"/><path d="M12 4c-1 5-1 10 0 16" stroke="#efcdc4" stroke-width=".5" fill="none"/></svg>',
+  '<svg viewBox="0 0 24 24"><defs><radialGradient id="wp" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#fff"/><stop offset=".7" stop-color="#f7f1e6"/><stop offset="1" stop-color="#e7dccb"/></radialGradient></defs><path d="M12 3C7 6 5 12 8 18c1.6 3 6.4 3 8 0 3-6 1-12-4-15Z" fill="url(#wp)" stroke="#e2d8c6" stroke-width=".4"/></svg>'
+];
+var petals = document.getElementById('petals');
+function dropOne(burst) {
+  var vw = window.innerWidth;
+  var kind = Math.random() < 0.7 ? (Math.random() < 0.6 ? 0 : 1) : (Math.random() < 0.55 ? 2 : 3);
+  var s = kind < 2 ? 7 + Math.random() * 9 : 11 + Math.random() * 10;
+  var el = document.createElement('div');
+  el.className = 'pt';
+  var d = (burst ? 4.2 : 7) + Math.random() * (burst ? 3 : 4);
+  el.style.cssText = '--x:' + Math.round(Math.random() * vw) + 'px;--dx:' + Math.round(20 + Math.random() * 50) + 'px;--d:' + d.toFixed(2) + 's;--dl:' + (burst ? Math.random() * 1.6 : 0).toFixed(2) + 's;--s:' + s.toFixed(1) + 'px;--op:' + (0.75 + Math.random() * 0.25).toFixed(2);
+  var i = document.createElement('i');
+  i.style.cssText = '--sd:' + (2 + Math.random() * 2.5).toFixed(2) + 's;--r0:' + Math.round(Math.random() * 360) + 'deg;--r1:' + Math.round(180 + Math.random() * 360) + 'deg';
+  i.innerHTML = FLORET[kind];
+  el.appendChild(i);
+  petals.appendChild(el);
+  setTimeout(function () { el.remove(); }, (d + 2) * 1000);
+}
+var ambient = null;
+function shower() {
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var n = reduce ? 0 : Math.min(70, Math.round(window.innerWidth / 6));
+  for (var k = 0; k < n; k++) dropOne(true);
+  if (!reduce) {
+    clearInterval(ambient);
+    var left = 40;
+    ambient = setInterval(function () { if (document.hidden) return; dropOne(false); if (--left <= 0) clearInterval(ambient); }, 1400);
+  }
+}
+
+// ===== فتح الظرف =====
+var cover = document.getElementById('cover');
+var opened = false;
+function openInvite(l) {
+  if (opened) return;
+  opened = true;
+  applyLang(l);
+  cover.classList.remove('cv-pulse', 'ask');
+  cover.classList.add('opening');
+  setTimeout(function () { document.body.classList.remove('locked'); window.scrollTo(0, 0); observe(); }, 650);
+  setTimeout(shower, 700);
+  setTimeout(function () { cover.classList.add('gone'); }, 1900);
+}
+// الضغط على الظرف نفسه: نسأله يختار اللغة (والزرارين بيتنططوا)
+var askT = null;
+document.querySelector('.cv-tap').addEventListener('click', function () {
+  if (opened) return;
+  cover.classList.remove('ask'); void cover.offsetWidth; cover.classList.add('ask');
+  clearTimeout(askT); askT = setTimeout(function () { cover.classList.remove('ask'); }, 3600);
+});
+document.querySelectorAll('.cv-langs button').forEach(function (b) {
+  b.addEventListener('click', function () { b.classList.add('on'); openInvite(b.getAttribute('data-lang')); });
+});
+
+// ===== الظهور مع السكرول =====
+function observe() {
+  var io = new IntersectionObserver(function (es) {
+    es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
+  document.querySelectorAll('.r,[data-fl],[data-tl],[data-pin],[data-sw],.ti').forEach(function (el) { io.observe(el); });
+}
+// بارالاكس خفيف للورد
+var fls = [].slice.call(document.querySelectorAll('[data-fl]'));
+var ticking = false;
+function para() {
+  ticking = false;
+  var vh = window.innerHeight;
+  fls.forEach(function (f) {
+    var r = f.getBoundingClientRect();
+    if (r.bottom < -200 || r.top > vh + 200) return;
+    var p = ((r.top + r.height / 2) - vh / 2) / vh;
+    f.style.transform = 'translate3d(0,' + (p * -18).toFixed(1) + 'px,0)';
+  });
+}
+window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(para); } }, { passive: true });
+
+// ===== العدّاد =====
+function pad(n) { return n < 10 ? '0' + n : '' + n; }
+function tick() {
+  var ms = Math.max(0, new Date(EVENT.start) - new Date());
+  var s = Math.floor(ms / 1000);
+  var v = { d: Math.floor(s / 86400), h: Math.floor(s % 86400 / 3600), m: Math.floor(s % 3600 / 60), s: s % 60 };
+  for (var k in v) {
+    var t = k === 'd' ? '' + v[k] : pad(v[k]);
+    if (lang === 'ar') t = t.replace(/\d/g, function (c) { return '٠١٢٣٤٥٦٧٨٩'[c]; });
+    document.querySelector('[data-cd="' + k + '"]').textContent = t;
+  }
+}
+tick(); setInterval(tick, 1000);
+
+// ===== أضيفي للتقويم (جوجل كالندر — بيفتح على أي موبايل) =====
+function calLink() {
+  var f = function (iso) { return iso.replace(/[-:]/g, '').replace('.000', ''); };
+  return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent(TEXT[lang].calTitle)
+    + '&dates=' + f(EVENT.start) + '/' + f(EVENT.end) + '&location=' + encodeURIComponent(EVENT.place);
+}
+document.getElementById('cal').href = calLink();
+
+// ===== تأكيد الحضور — بيوصل لوحة صاحب الدعوة (في المعاينة مفيش لينك فمش بيتبعت) =====
+var RSVP_URL = window.ZK_RSVP_URL || '';
+document.getElementById('rsvp').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var form = this, T = TEXT[lang], err = document.getElementById('err'), btn = form.querySelector('.send');
+  var name = form.name.value.trim(), att = (form.querySelector('input[name=att]:checked') || {}).value;
+  if (!name) { err.textContent = T.errName; return; }
+  if (!att) { err.textContent = T.errAtt; return; }
+  err.textContent = '';
+  function done() {
+    form.style.display = 'none';
+    document.getElementById('sent').classList.add('show');
+    for (var k = 0; k < 24; k++) dropOne(true);
+  }
+  if (!RSVP_URL) { done(); return; }
+  btn.disabled = true; btn.style.opacity = '.6';
+  fetch(RSVP_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin',
+    body: JSON.stringify({ guestName: name, attending: att, note: form.message.value.trim() }) })
+    .then(function (r) {
+      if (r.ok) return done();
+      return r.json().catch(function () { return {}; }).then(function (j) { throw new Error((lang === 'ar' && j.error) || T.errSend); });
+    })
+    .catch(function (x) { err.textContent = (x && x.message) || T.errSend; btn.disabled = false; btn.style.opacity = ''; });
+});
+</script>
+</body>
+</html>

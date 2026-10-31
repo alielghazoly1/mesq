@@ -509,6 +509,32 @@ const FIXES = [
       },
     }),
   },
+  {
+    // uw64dfD — دعوة زهير وغزل (custom-invitations/uw64dfD.js بيعرض الصفحة
+    // المعمولة بإيدينا). هنا بيانات الدعوة نفسها عشان لوحة العميل وعنوان الدعوة
+    // يبقوا صح: الأسامي، الفرح السبت 28/11/2026 الساعة 5 مساءً، والمكان.
+    // بيتعمل بس لو الدعوة لسه بأسامي المسودة.
+    name: 'uw64dfD-zohir-kazel',
+    shortId: 'uw64dfD',
+    select: '-__v',
+    when: (c, inv) => inv.groomName === 'Groom' && inv.brideName === 'Bride',
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: 'ar', occasionType: inv.occasionType,
+        hiddenSections: inv.hiddenSections, timeline: inv.timeline, name: inv.name,
+        groomName: 'Zohir', groomNameAr: 'زهير',
+        brideName: 'Kazel', brideNameAr: 'غزل',
+        venueName: 'Forsälla bygdegård', venueCity: 'Uddevalla',
+        venueMapQuery: 'https://maps.app.goo.gl/JuoR8tX9ThAntn4K9',
+        weddingDate: '2026-11-28', weddingTime: '17:00',
+      }, { ownsTemplate: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.language = 'ar';
+      return set;
+    },
+  },
 ];
 
 let done = false;
