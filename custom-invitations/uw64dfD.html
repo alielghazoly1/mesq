@@ -251,6 +251,19 @@ textarea.field{min-height:22cqw;resize:vertical}
 }
 @keyframes spin{from{transform:rotate(var(--r0,0deg)) rotateY(0)}to{transform:rotate(var(--r1,200deg)) rotateY(55deg)}}
 
+/* زرار الأغنية — بيظهر بعد فتح الظرف */
+#music{position:fixed;z-index:40;bottom:calc(18px + env(safe-area-inset-bottom,0px));left:calc(16px + env(safe-area-inset-left,0px));width:46px;height:46px;border-radius:50%;
+  display:none;align-items:center;justify-content:center;background:rgba(251,248,241,.92);border:1px solid #c9c1ad;color:#4f6a4c;
+  box-shadow:0 6px 18px rgba(70,60,40,.18);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);transition:transform .2s}
+#music.show{display:flex;animation:fadeUp .6s ease both}
+#music:active{transform:scale(.92)}
+#music svg{width:20px;height:20px}
+#music .bars{display:flex;gap:2px;align-items:flex-end;height:16px}
+#music .bars i{width:3px;background:currentColor;border-radius:2px;height:5px;animation:bar 1s ease-in-out infinite alternate}
+#music .bars i:nth-child(2){animation-delay:.25s}#music .bars i:nth-child(3){animation-delay:.5s}#music .bars i:nth-child(4){animation-delay:.15s}
+@keyframes bar{from{height:4px}to{height:16px}}
+#music .off{display:none}
+#music.paused .bars{display:none}#music.paused .off{display:block}
 @media (prefers-reduced-motion:reduce){
   .fl img,.cv-pulse .seal-glow{animation:none}
   .r,.fl>.rv,.names{transition-duration:.01s!important}
@@ -412,6 +425,8 @@ textarea.field{min-height:22cqw;resize:vertical}
 </main>
 
 <div id="petals" aria-hidden="true"></div>
+<audio id="song" loop playsinline preload="none"></audio>
+<button type="button" id="music" aria-label="الموسيقى"><span class="bars"><i></i><i></i><i></i><i></i></span><svg class="off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/><path d="M3 3l18 18"/></svg></button>
 
 <!-- الزخارف (SVG بتتكرر) -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -584,10 +599,37 @@ function openInvite(l) {
   applyLang(l);
   cover.classList.remove('cv-pulse', 'ask');
   cover.classList.add('opening');
+  startSong();
   setTimeout(function () { document.body.classList.remove('locked'); window.scrollTo(0, 0); observe(); }, 650);
   setTimeout(shower, 700);
   setTimeout(function () { cover.classList.add('gone'); }, 1900);
 }
+// ===== الأغنية: بتشتغل مع ضغطة فتح الظرف (الموبايلات بتسمح بالصوت بعد ضغطة بس) =====
+var song = document.getElementById('song'), musicBtn = document.getElementById('music');
+var SONG_URL = window.ZK_SONG || '';
+var wantMusic = true;
+function startSong() {
+  if (!SONG_URL) return;
+  song.src = SONG_URL;
+  song.volume = 0;
+  var p = song.play();
+  if (p && p.catch) p.catch(function () { musicBtn.classList.add('paused'); });
+  // دخول ناعم للصوت
+  var v = 0, fade = setInterval(function () { v = Math.min(1, v + 0.05); try { song.volume = v; } catch (e) {} if (v >= 1) clearInterval(fade); }, 120);
+  setTimeout(function () { musicBtn.classList.add('show'); }, 1200);
+}
+musicBtn.addEventListener('click', function () {
+  if (song.paused) { wantMusic = true; song.play(); musicBtn.classList.remove('paused'); }
+  else { wantMusic = false; song.pause(); musicBtn.classList.add('paused'); }
+});
+song.addEventListener('play', function () { musicBtn.classList.remove('paused'); });
+song.addEventListener('pause', function () { musicBtn.classList.add('paused'); });
+// الضيفة خرجت من الصفحة (قفلت الشاشة/فتحت واتساب) ← الأغنية تقف، ولما ترجع تكمل
+document.addEventListener('visibilitychange', function () {
+  if (!SONG_URL || !opened) return;
+  if (document.hidden) song.pause(); else if (wantMusic) song.play().catch(function () {});
+});
+
 // الضغط على الظرف نفسه: نسأله يختار اللغة (والزرارين بيتنططوا)
 var askT = null;
 document.querySelector('.cv-tap').addEventListener('click', function () {

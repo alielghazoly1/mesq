@@ -32,6 +32,18 @@ function shareTags(templateHtml) {
   return tags ? tags.join('\n') : '';
 }
 
+/**
+ * الأغنية اللي بتشتغل مع فتح الظرف: ملف song.mp3 جنب صور الدعوة لو موجود،
+ * وإلا الأغنية اللي صاحب الدعوة رافعها على الدعوة (audioUrl في بياناتها)
+ */
+function songUrl(templateHtml) {
+  for (const root of ['public', 'dist']) {
+    if (fs.existsSync(path.join(__dirname, '..', 'client', root, 'custom', SHORT, 'song.mp3'))) return asset(`${DIR}song.mp3`);
+  }
+  const m = templateHtml.match(/"audioUrl":"(https:\/\/[^"]+)"/);
+  return m ? m[1].replace(/\\u002F/g, '/') : '';
+}
+
 module.exports = {
   shortId: SHORT,
 
@@ -58,7 +70,8 @@ module.exports = {
       out = out.replace(/<title>[^<]*<\/title>\s*/i, '').replace(/<meta name="description"[^>]*>\s*/i, '');
       out = out.replace(/<head>/i, (m) => `${m}\n${tags}`);
     }
-    out = out.replace(/<script>(\r?\n\/\/ ===== النصوص)/, (m, rest) => `<script>window.ZK_RSVP_URL = '/i/${SHORT}/rsvp';</script>\n<script>${rest}`);
+    const song = songUrl(templateHtml);
+    out = out.replace(/<script>(\r?\n\/\/ ===== النصوص)/, (m, rest) => `<script>window.ZK_RSVP_URL = '/i/${SHORT}/rsvp';${song ? `window.ZK_SONG = ${JSON.stringify(song)};` : ''}</script>\n<script>${rest}`);
     // المحرر مالوش شغل على الدعوة دي — بنوضّح لصاحبها إن التعديل بيبقى من عندنا
     if (editMode) {
       out = out.replace(/<body[^>]*>/i, (m) => `${m}<div style="position:fixed;top:0;left:0;right:0;z-index:99;padding:10px 14px;background:#2f4a35;color:#fff;font:600 14px/1.5 Amiri,serif;text-align:center;direction:rtl">الدعوة دي معمولة مخصوص — لأي تعديل كلّمنا وهنعدّله لك</div>`);
