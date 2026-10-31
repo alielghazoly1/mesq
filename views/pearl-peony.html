@@ -304,6 +304,9 @@ body.pp-edit .sent{display:block;margin-top:5cqw;outline:1px dashed rgba(125,146
 [dir=ltr] .names .amp,[dir=ltr] .env-names .amp{font-size:.8em}
 body.pp-edit .fl,body.pp-edit .emb{pointer-events:none}
 #coverScreen.pp-cover-edit{cursor:default}
+/* في المحرر: الأسامي والتاريخ والختم اللي على الظرف لازم ياخدوا الضغط (برّه المحرر الظرف كله زرار فتح) */
+#coverScreen.pp-cover-edit .env,#coverScreen.pp-cover-edit .env-t,#coverScreen.pp-cover-edit .env-mono{pointer-events:auto}
+#coverScreen.pp-cover-edit .env-orn,#coverScreen.pp-cover-edit .env>img,#coverScreen.pp-cover-edit .seal-glow{pointer-events:none}
 #coverScreen.pp-cover-edit .seal-glow,#coverScreen.pp-cover-edit .seal-ring{animation:none}
 </style>
 </head>
@@ -616,17 +619,50 @@ body.pp-edit .fl,body.pp-edit .emb{pointer-events:none}
     t0: clock(base), t1: clock(base + 30), t2: clock(base + 60), t3: clock(base + 120),
     hall: C.venueName || '', city: C.venueAddress || C.venueCity || '',
     // حروف الختم: أول حرف من اسم العريس والعروسة بالإنجليزي (ولو مش موجودين بالعربي)
-    mono: ((gL || groom).trim().charAt(0).toUpperCase() || '') + '&' + ((bL || bride).trim().charAt(0).toUpperCase() || '')
+    mono: ''
   };
   $$('[data-f]').forEach(function (el) { var v = F[el.getAttribute('data-f')]; if (v != null) el.textContent = v; });
-  byId('pp61').dataset.auto = F.mono;
   if (groom || bride) document.title = AR ? (groom + ' و ' + bride + ' | ' + (ENGAGED ? 'دعوة خطوبة' : 'دعوة زفاف')) : (groom + ' & ' + bride + ' | ' + (ENGAGED ? 'Engagement Invitation' : 'Wedding Invitation'));
 
   // سطر فاضي (صاحب الدعوة مسحه أو مش مكتوب) مايسيبش مكان — إلا في المحرر عشان يقدر يكتب فيه
   function hideEmpty() {
     if (EDIT) return;
-    ['pp8', 'pp38'].forEach(function (id) { var el = byId(id); if (el) el.style.display = el.textContent.trim() ? '' : 'none'; });
+    ['pp8', 'pp38'].forEach(function (id) { var el = byId(id); if (!el) return; var d = el.textContent.trim() ? '' : 'none'; if (el.style.display !== d) el.style.display = d; });
   }
+
+  /* ---------- حروف الختم: دايمًا إنجليزي ----------
+     الاسم مكتوب إنجليزي ← أول حرف منه. مكتوب عربي ولسه زي ما هو في بيانات الدعوة
+     ← أول حرف من الاسم الإنجليزي اللي في البيانات. غير كده ← الحرف العربي بالإنجليزي
+     (زي ما المصريين بيكتبوا الأسامي: عمر O، خالد K، جنى G، إيمان I، شادي S). */
+  var AR2EN = { 'ا': 'A', 'أ': 'A', 'آ': 'A', 'إ': 'I', 'ٱ': 'A', 'ب': 'B', 'ت': 'T', 'ث': 'T', 'ج': 'G', 'ح': 'H', 'خ': 'K', 'د': 'D', 'ذ': 'Z',
+    'ر': 'R', 'ز': 'Z', 'س': 'S', 'ش': 'S', 'ص': 'S', 'ض': 'D', 'ط': 'T', 'ظ': 'Z', 'ع': 'A', 'غ': 'G', 'ف': 'F', 'ق': 'K', 'ك': 'K', 'ل': 'L',
+    'م': 'M', 'ن': 'N', 'ه': 'H', 'ة': 'H', 'و': 'W', 'ي': 'Y', 'ى': 'Y', 'ئ': 'E', 'ؤ': 'O', 'پ': 'P', 'گ': 'G', 'ڤ': 'V' };
+  var PLACEHOLDER = { 'العريس': 'G', 'العروسة': 'B', 'العروس': 'B', 'groom': 'G', 'bride': 'B' };
+  function arInitial(name) {
+    var s = String(name || '').replace(/[ً-ٰٟـ]/g, '').trim();
+    if (PLACEHOLDER[s] != null) return PLACEHOLDER[s];
+    // ألقاب في الأول (م. / د. / المهندس …) مالهاش دعوة بالحرف
+    s = s.replace(/^(?:(?:م|د|أ|ا)\s*[./]\s*|(?:المهندسة?|الدكتورة?|الأستاذة?|الاستاذة?)\s+)/, '').trim();
+    if (/^عبد\s*/.test(s)) return 'A';
+    if (/^(?:عمر|عمرو|عمار|عثمان|علا|عُلا|عمرة)/.test(s)) return 'O';
+    if (/^يو/.test(s)) return 'Y';
+    var c = s.charAt(0);
+    return AR2EN[c] || (/[A-Za-z]/.test(c) ? c.toUpperCase() : '');
+  }
+  function initialOf(visible, latin, original) {
+    var v = String(visible || '').trim();
+    var m = v.match(/[A-Za-z]/);
+    if (m && /^[^؀-ۿ]*[A-Za-z]/.test(v)) return PLACEHOLDER[v.toLowerCase()] || m[0].toUpperCase();
+    var lat = String(latin || '').trim();
+    if (lat && /^[A-Za-z]/.test(lat) && !PLACEHOLDER[lat.toLowerCase()] && v === String(original || '').trim()) return lat.charAt(0).toUpperCase();
+    return arInitial(v);
+  }
+  function sealText() {
+    var g1 = byId('pp2'), b1 = byId('pp62');
+    var gi = initialOf(g1 && g1.textContent, gL, groom), bi = initialOf(b1 && b1.textContent, bL, bride);
+    return (gi || '') + '&' + (bi || '');
+  }
+  (function () { var m = byId('pp61'); m.textContent = sealText(); m.dataset.auto = m.textContent; })();
 
   /* ---------- الخريطة + التقويم ---------- */
   $('#mapBtn').href = C.venueMapDirectLink || 'https://www.google.com/maps';
@@ -650,28 +686,44 @@ body.pp-edit .fl,body.pp-edit .emb{pointer-events:none}
   tick(); setInterval(tick, 1000);
 
   /* ---------- الأسامي الطويلة بتصغر لحد ما تدخل مكانها ---------- */
+  // مهم: كل كتابة هنا بتحصل بس لو القيمة اتغيّرت فعلًا. المحرر وطبقة التخصيصات
+  // بيراقبوا الصفحة — لو كتبنا نفس القيمة كل مرة، كل واحد بيصحّي التاني في لفّة
+  // مالهاش آخر (على الموبايل كانت بتوقّع الصفحة).
+  function fitOne(el) {
+    var cs = getComputedStyle(el);
+    var pad = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0);
+    var avail = el.clientWidth - pad;
+    var cur = parseFloat(el.style.getPropertyValue('--fit')) || 1;
+    var w = el.scrollWidth - pad;
+    // الكلام أقصر من المكان وهو متصغّر — نرجّعه لحجمه ونقيس من الأول
+    if (cur < 1 && w <= avail + 1) { el.style.removeProperty('--fit'); cur = 1; w = el.scrollWidth - pad; }
+    var natural = w / cur;
+    var want = avail > 0 && natural > avail + 1 ? Math.max(0.45, (avail / natural) * 0.97) : 1;
+    if (Math.abs(want - cur) < 0.01) return;
+    if (want === 1) el.style.removeProperty('--fit'); else el.style.setProperty('--fit', want.toFixed(3));
+  }
   function fitAll() {
     hideEmpty();
     // حروف الختم من الأسامي اللي ظاهرة (لو صاحب الدعوة غيّرها) — إلا لو هو كاتب الحروف بنفسه
-    var mono = byId('pp61'), g1 = byId('pp2'), b1 = byId('pp62');
+    var mono = byId('pp61');
     if (mono && mono.textContent === mono.dataset.auto) {
-      var ini = function (s, l) { s = String(s || '').trim(); return (/^[A-Za-z]/.test(s) ? s : (l || s)).charAt(0).toUpperCase(); };
-      var t = ini(g1 && g1.textContent, gL) + '&' + ini(b1 && b1.textContent, bL);
-      mono.textContent = t; mono.dataset.auto = t;
+      var t = sealText();
+      if (t !== mono.textContent) { mono.textContent = t; mono.dataset.auto = t; }
     }
-    $$('.fit').forEach(function (el) {
-      el.style.removeProperty('--fit');
-      var avail = el.clientWidth - (parseFloat(getComputedStyle(el).paddingLeft) || 0) - (parseFloat(getComputedStyle(el).paddingRight) || 0);
-      var w = el.scrollWidth - (parseFloat(getComputedStyle(el).paddingLeft) || 0) - (parseFloat(getComputedStyle(el).paddingRight) || 0);
-      if (avail > 0 && w > avail + 1) el.style.setProperty('--fit', Math.max(0.45, (avail / w) * 0.97).toFixed(3));
-    });
+    $$('.fit').forEach(fitOne);
   }
   var fitT = 0;
   var fitSoon = function () { clearTimeout(fitT); fitT = setTimeout(fitAll, 60); };
   fitAll();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitAll);
   addEventListener('resize', fitSoon);
-  $$('.fit, [data-elem-id="pp8"], [data-elem-id="pp38"], [data-elem-id="pp2"], [data-elem-id="pp62"]').forEach(function (el) { new MutationObserver(fitSoon).observe(el, { subtree: true, characterData: true, childList: true }); });
+  var lastTexts = '';
+  var watched = $$('.fit, [data-elem-id="pp8"], [data-elem-id="pp38"]');
+  var onText = function () {
+    var now = watched.map(function (el) { return el.textContent; }).join('|');
+    if (now !== lastTexts) { lastTexts = now; fitSoon(); }
+  };
+  watched.forEach(function (el) { new MutationObserver(onText).observe(el, { subtree: true, characterData: true, childList: true }); });
 
   /* ---------- الظهور مع النزول ---------- */
   var revealSel = '.r,[data-fl],[data-tl],[data-pin],[data-sw],.ti';
