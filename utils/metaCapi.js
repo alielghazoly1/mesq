@@ -87,7 +87,7 @@ async function record(doc) {
 
 /**
  * يبعت حدث لميتا. مابيرميش أخطاء أبدًا.
- * @param {string} name   PageView | CompleteRegistration | InitiateCheckout | AddPaymentInfo | Purchase
+ * @param {string} name   PageView | ViewContent | CompleteRegistration | InitiateCheckout | AddPaymentInfo | Purchase
  * @param {object} o      { eventId, user, ctx, custom: {value, currency, content_ids...}, eventTime, test }
  */
 async function sendEvent(name, o = {}) {
@@ -124,7 +124,9 @@ async function sendEvent(name, o = {}) {
       clearTimeout(timer);
     }
     const matchKeys = Object.keys(event.user_data).filter((k) => !['client_user_agent'].includes(k));
-    await record({
+    // فتح ديمو تصميم بيحصل كتير — نسجّل لو فشل بس، عشان سجل اللوحة يفضل
+    // للأحداث المهمة (التسجيل والدفع والشراء)
+    if (!(name === 'ViewContent' && ok)) await record({
       name, eventId: o.eventId || '', ok, error: String(error).slice(0, 300), test: !!testCode,
       value: o.custom && o.custom.value, currency: o.custom && o.custom.currency,
       matchKeys, fbtrace: (json && json.fbtrace_id) || '',

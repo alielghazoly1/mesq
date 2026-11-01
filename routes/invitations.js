@@ -1,4 +1,5 @@
 // routes/invitations.js
+const crypto = require('crypto');
 const express = require('express');
 const { recordInvitationView, invitationInsights } = require('../utils/inviteAnalytics');
 const InvitationDay = require('../models/InvitationDay');
@@ -27,6 +28,9 @@ const { hashIp } = require('../middleware/freeQuota');
 const { getPublicStats } = require('../utils/publicStats');
 const { getTemplate, TEMPLATES } = require('../templates/registry');
 const { injectPixel } = require('../utils/metaPixel');
+const metaCapi = require('../utils/metaCapi');
+// بوتات معاينة اللينكات والكرولرز — مش زوار حقيقيين، مانبلّغش ميتا عنهم
+const PREVIEW_BOT_RE = /bot|crawl|spider|slurp|facebookexternalhit|facebot|whatsapp|telegram|preview|headless|lighthouse/i;
 const {
   getHiddenTemplateIds, getTemplateLayout, sortByOrder, defaultTemplateLayout,
 } = require('../utils/siteConfig');
@@ -451,7 +455,18 @@ router.get('/preview-sample/:templateId', (req, res) => {
   let html = applyPreviewMeta(renderNewPathHtml(data), template);
   // بيكسل ميتا: الزائر فتح ديمو التصميم ده (على الموقع الحقيقي بس)
   if (process.env.NODE_ENV === 'production' || process.env.META_PIXEL_ON === '1') {
-    html = injectPixel(html, { viewContent: { id: template.id, name: template.name } });
+    // نفس الحدث من السيرفر كمان (Conversions API) بنفس event_id: ميتا كانت
+    // بتقول إن السيرفر بيبعت أقل بكتير من البيكسل في ViewContent. الزوار اللي
+    // مانعين البيكسل (آيفون/مانع إعلانات) بيوصلوا كده. بوتات المعاينة لأ.
+    const vcId = 'vc_' + crypto.randomBytes(8).toString('hex');
+    html = injectPixel(html, { viewContent: { id: template.id, name: template.name }, eventId: vcId });
+    if (!PREVIEW_BOT_RE.test(String(req.get('user-agent') || ''))) {
+      metaCapi.fire('ViewContent', {
+        eventId: vcId,
+        ctx: { ...metaCapi.contextFromReq(req), url: 'https://mithaq-invitation.com' + req.originalUrl.slice(0, 300) },
+        custom: { content_ids: [template.id], content_name: template.name || template.id, content_type: 'product' },
+      });
+    }
   }
   res.set('Content-Type', 'text/html; charset=utf-8');
   return res.send(html);
