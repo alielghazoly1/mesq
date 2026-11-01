@@ -1943,8 +1943,9 @@ router.get('/admin/api/meta-tracking', requireAdminSession, async (req, res) => 
   try {
     const SiteConfig = require('../models/SiteConfig');
     const MetaEvent = require('../models/MetaEvent');
-    const doc = await SiteConfig.findOne({ key: 'default' }).select('+metaCapiToken metaTestCode metaTestCodeAt metaCapiEnabled').lean();
-    const token = (doc && doc.metaCapiToken) || '';
+    const doc = await SiteConfig.findOne({ key: 'default' }).select('+metaCapiToken metaCapiPixel metaTestCode metaTestCodeAt metaCapiEnabled').lean();
+    // Token بتاع بكسل قديم = كأنه مش موجود (لازم واحد جديد للبكسل الحالي)
+    const token = metaCapi.tokenFor(doc);
     const since = new Date(Date.now() - 7 * 24 * 3600 * 1000);
     const [recent, agg] = await Promise.all([
       MetaEvent.find({}).sort({ $natural: -1 }).limit(40).lean(),
@@ -1995,6 +1996,7 @@ router.put('/admin/api/meta-tracking', requireAdminSession, async (req, res) => 
         return res.status(400).json({ error: 'ميتا رفضت الـ Token ده: ' + check.error });
       }
       set.metaCapiToken = token;
+      set.metaCapiPixel = metaCapi.PIXEL_ID;
     }
     if (b.clearToken === true) set.metaCapiToken = '';
     if (typeof b.testCode === 'string') {

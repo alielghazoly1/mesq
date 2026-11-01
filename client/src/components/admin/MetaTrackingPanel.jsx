@@ -9,7 +9,8 @@ import {
 } from '../../store/adminApi.js';
 import { Panel, Btn, Field, fmtNum, fmtMoney, fmtDate } from './ui.jsx';
 
-const BIZ = '593528983846305';
+// البكسل جوه حساب الإعلانات مباشرة (مش بيزنس) — اللينكات بتفتح على الحساب ده
+const ACT = '382732043449217';
 const LABEL = {
   CompleteRegistration: 'عمل حساب',
   InitiateCheckout: 'فتح صفحة الدفع',
@@ -93,7 +94,7 @@ export default function MetaTrackingPanel() {
           <details className="text-[12px] leading-relaxed text-ivory/60" open={!data.hasToken}>
             <summary className="cursor-pointer font-bold text-ivory/80">تجيب الـ Token منين (دقيقتين)</summary>
             <ol className="mt-2 list-decimal space-y-1 ps-5">
-              <li>افتح <a className="text-brass-soft underline" href={`${ds}/settings?business_id=${BIZ}`} target="_blank" rel="noopener noreferrer">إعدادات البيكسل في ميتا</a>.</li>
+              <li>افتح <a className="text-brass-soft underline" href={`${ds}/settings?act=${ACT}`} target="_blank" rel="noopener noreferrer">إعدادات البيكسل في ميتا</a>.</li>
               <li>انزل لـ <b dir="ltr">Conversions API</b> ← تحت <b dir="ltr">Set up direct integration</b> اضغط <b dir="ltr">Generate access token</b>.</li>
               <li>انسخ الكود الطويل والصقه في الخانة فوق ← احفظ. (ماتبعتهوش لحد في الشات.)</li>
             </ol>
@@ -104,7 +105,7 @@ export default function MetaTrackingPanel() {
         <div className="space-y-2.5 rounded-xl border border-line-lite p-3.5">
           <div className="flex items-center gap-2 text-[13px] font-bold text-ivory"><FlaskConical size={15} className="text-brass-soft" /> جرّب إن ميتا بتستلم</div>
           <p className="text-[12px] leading-relaxed text-ivory/55">
-            افتح <a className="text-brass-soft underline" href={`${ds}/test_events?business_id=${BIZ}`} target="_blank" rel="noopener noreferrer">Test events في ميتا</a>،
+            افتح <a className="text-brass-soft underline" href={`${ds}/test_events?act=${ACT}`} target="_blank" rel="noopener noreferrer">Test events في ميتا</a>،
             انسخ الكود اللي زي <span dir="ltr" className="font-mono">TEST12345</span> وحطه هنا ← احفظ ← اضغط "ابعت حدث تجربة"، وهتشوفه ظاهر عندهم.
             وكمان: افتح الموقع من موبايلك وهتشوف زياراتك بتظهر في نفس الصفحة. <b>امسح الكود لما تخلّص</b> (طول ما هو موجود الأحداث بتروح للتجربة مش للإعلانات).
           </p>
@@ -143,7 +144,7 @@ export default function MetaTrackingPanel() {
           </div>
         )}
 
-        <a className="inline-flex items-center gap-1.5 text-[12px] text-brass-soft underline" href={`${ds}/overview?business_id=${BIZ}`} target="_blank" rel="noopener noreferrer">
+        <a className="inline-flex items-center gap-1.5 text-[12px] text-brass-soft underline" href={`${ds}/overview?act=${ACT}`} target="_blank" rel="noopener noreferrer">
           <ExternalLink size={13} /> افتح البيكسل في Events Manager
         </a>
       </div>

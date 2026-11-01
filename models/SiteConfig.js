@@ -28,6 +28,9 @@ const siteConfigSchema = new mongoose.Schema({
   // أبدًا (select:false) — اللوحة بتعرف بس إنه موجود وآخر 4 حروف منه.
   // metaTestCode: كود Test Events من Events Manager (للتجربة بس — فاضي = أحداث حقيقية).
   metaCapiToken: { type: String, default: '', select: false, maxlength: 600 },
+  // البكسل اللي الـ Token اتحفظ له — لو البكسل اتغيّر في الكود، الـ Token القديم
+  // مابيتبعتش (ميتا هترفضه) واللوحة بتطلب واحد جديد
+  metaCapiPixel: { type: String, default: '' },
   metaTestCode: { type: String, default: '', maxlength: 40 },
   // إمتى اتحفظ — الكود بيبطّل يأثر على الأحداث الحقيقية بعد ساعتين لوحده
   // (لو اتنسي، المبيعات كانت هتروح "تجربة" وميتا ماتحسبهاش للإعلانات)

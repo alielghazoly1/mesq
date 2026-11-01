@@ -20,16 +20,22 @@ const SITE = 'https://mithaq-invitation.com';
 // كود التجربة بيشتغل على الأحداث الحقيقية المدة دي بس بعد حفظه
 const TEST_CODE_TTL_MS = 2 * 3600 * 1000;
 
+/** الـ Token المحفوظ لو بتاع البكسل الحالي بس (اتغيّر البكسل = Token جديد) */
+function tokenFor(doc) {
+  if (!doc || !doc.metaCapiToken) return '';
+  return doc.metaCapiPixel === PIXEL_ID ? doc.metaCapiToken : '';
+}
+
 let cache = { at: 0, cfg: null };
 async function config() {
   if (cache.cfg && Date.now() - cache.at < 60 * 1000) return cache.cfg;
   try {
     const SiteConfig = require('../models/SiteConfig');
-    const doc = await SiteConfig.findOne({ key: 'default' }).select('+metaCapiToken metaTestCode metaTestCodeAt metaCapiEnabled').lean();
+    const doc = await SiteConfig.findOne({ key: 'default' }).select('+metaCapiToken metaCapiPixel metaTestCode metaTestCodeAt metaCapiEnabled').lean();
     cache = {
       at: Date.now(),
       cfg: {
-        token: (doc && doc.metaCapiToken) || process.env.META_CAPI_TOKEN || '',
+        token: tokenFor(doc) || process.env.META_CAPI_TOKEN || '',
         testCode: (doc && doc.metaTestCode) || '',
         // شغال على الأحداث الحقيقية؟ (زرار "ابعت حدث تجربة" بيستخدم الكود دايمًا)
         testLive: !!(doc && doc.metaTestCode && doc.metaTestCodeAt
@@ -168,4 +174,4 @@ async function checkToken(token) {
   }
 }
 
-module.exports = { sendEvent, fire, contextFromReq, orderCustom, checkToken, config, clearConfigCache, API_VERSION };
+module.exports = { tokenFor, PIXEL_ID, sendEvent, fire, contextFromReq, orderCustom, checkToken, config, clearConfigCache, API_VERSION };
