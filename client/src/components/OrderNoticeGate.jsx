@@ -14,7 +14,7 @@ import {
 } from '../store/api.js';
 import { useDispatch } from 'react-redux';
 import { useEffect, useRef, useState } from 'react';
-import { pixelTrack } from '../lib/metaPixel.js';
+import { pixelTrack, pixelValue } from '../lib/metaPixel.js';
 
 export default function OrderNoticeGate() {
   const { t, i18n } = useTranslation();
@@ -57,9 +57,9 @@ export default function OrderNoticeGate() {
       dispatch(api.util.invalidateTags(['Me', 'Packages', 'Dashboard']));
       // بيكسل ميتا: الشراء اتأكد. السيرفر بعته لما الأدمن فعّل (نفس event_id) —
       // ده من متصفح العميل نفسه عشان ميتا تربطه بالإعلان اللي جه منه
-      pixelTrack('Purchase', {
-        value: Number(notice.price) || 0,
-        currency: notice.currency || 'USD',
+      // أوردر من غير فلوس (هدية) مش شراء — ميتا بترفض Purchase من غير مبلغ
+      if (pixelValue(notice.price, notice.currency).value) pixelTrack('Purchase', {
+        ...pixelValue(notice.price, notice.currency),
         content_ids: [notice.packageId],
         content_type: 'product',
         num_items: 1,

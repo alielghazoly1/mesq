@@ -71,13 +71,19 @@ export function pixelTrack(event, params, once, eventId) {
   else window.fbq('track', event, params || {});
 }
 
+/** { value, currency } لو المبلغ أكبر من صفر، وإلا ولا حاجة */
+export function pixelValue(price, currency) {
+  const value = Math.round((Number(price) || 0) * 100) / 100;
+  return value > 0 ? { value, currency: currency || 'USD' } : {};
+}
+
 /** بيانات الباقة بالشكل اللي ميتا مستنياه */
 export function pixelPackage(pkg) {
   return {
     content_ids: [pkg.id],
     content_name: pkg.name,
     content_type: 'product',
-    value: Number(pkg.price) || 0,
-    currency: pkg.currency || 'USD',
+    // ميتا بترفض value = 0 — المبلغ بيتبعت بس لو أكبر من صفر
+    ...pixelValue(pkg.price, pkg.currency),
   };
 }

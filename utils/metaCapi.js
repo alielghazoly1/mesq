@@ -141,10 +141,12 @@ async function sendEvent(name, o = {}) {
 function fire(name, o) { sendEvent(name, o).catch(() => {}); }
 
 /** بيانات الباقة/الأوردر بالشكل اللي ميتا مستنياه */
+// ميتا بترفض value = 0 ("يجب أن يكون رقمًا أكبر من 0") وبتطلّع تحذير في Events
+// Manager — فالمبلغ بيتبعت بس لو أكبر من صفر (أوردر مجاني/خصم 100% مالوش مبلغ)
 function orderCustom(order) {
+  const value = Math.round((Number(order.price) || 0) * 100) / 100;
   return {
-    value: Number(order.price) || 0,
-    currency: order.currency || 'USD',
+    ...(value > 0 ? { value, currency: order.currency || 'USD' } : {}),
     content_ids: [String(order.packageId)],
     content_type: 'product',
     num_items: 1,

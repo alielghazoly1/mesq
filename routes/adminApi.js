@@ -1093,7 +1093,8 @@ router.post('/admin/api/orders/:id/activate', requireAdminSession, async (req, r
     // بيكسل ميتا: ده الشراء الحقيقي (الفلوس اتأكدت). بيانات المتصفح من آخر خطوة
     // عملها العميل (الأوردر) — مش من جهازك إنت. نفس event_id اللي متصفح العميل
     // بيبعته لما يشوف "باقتك اتفعّلت" (purchase_<order>)
-    if (!(order.metaSent && order.metaSent.purchase)) {
+    // أوردر من غير فلوس (هدية/خصم 100%) مش "شراء" — مانعلّمش ميتا إنه بيع
+    if (Number(order.price) > 0 && !(order.metaSent && order.metaSent.purchase)) {
       Order.updateOne({ _id: order._id }, { $set: { 'metaSent.purchase': new Date() } }).catch(() => {});
       const mc = order.metaCtx || {};
       metaCapi.fire('Purchase', {
