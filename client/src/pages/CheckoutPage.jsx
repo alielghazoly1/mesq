@@ -28,6 +28,7 @@ import { openAuthModal } from '../store/uiSlice.js';
 import { tooBig, sizeError, uploadError } from '../lib/uploadLimits.js';
 import { whatsappLink } from '../lib/contact.js';
 import Footer from '../components/Footer.jsx';
+import { ReviewsStrip } from '../components/ReviewsTeaser.jsx';
 import BarqPay from '../components/BarqPay.jsx';
 import InstaPay from '../components/InstaPay.jsx';
 import { pixelTrack, pixelPackage } from '../lib/metaPixel.js';
@@ -906,6 +907,10 @@ export default function CheckoutPage() {
               </a>
             </div>
           )}
+
+          {/* آراء العرسان — سطر صغير بعد الخطوات (مايزقّش بيانات التحويل لتحت) */}
+          {/* mb على الموبايل: آخر حاجة في الصفحة، فمن غيرها بتقعد تحت فقاعة الدعم والشريط الثابت */}
+          <ReviewsStrip variant="compact" className="mb-24 sm:mb-0" />
         </div>
         </div>
       </div>

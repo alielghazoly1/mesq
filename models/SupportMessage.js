@@ -19,6 +19,9 @@ const supportMessageSchema = new mongoose.Schema({
     publicId: { type: String, default: '' },
     duration: { type: Number, default: 0 },
   },
+  // رد تلقائي من الموقع (utils/supportAutoReply.js): 'ack' = "هنرد عليك"،
+  // 'whatsapp' = رقم الواتساب بزرار. فاضي = رسالة حقيقية
+  auto: { type: String, default: '' },
   // اتقريت من الطرف التاني ولا لسه
   readByAdmin: { type: Boolean, default: false },
   readByUser: { type: Boolean, default: false },

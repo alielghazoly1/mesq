@@ -23,6 +23,7 @@ import { openAuthModal } from '../store/uiSlice.js';
 import { formatDay } from '../lib/editWindow.js';
 import EditorDemo from '../components/EditorDemo.jsx';
 import Footer from '../components/Footer.jsx';
+import { ReviewsStrip } from '../components/ReviewsTeaser.jsx';
 
 /** بيرجّع مميزات الباقة دي اللي مش في اللي قبلها */
 function deltaFeatures(pkg, prev) {
@@ -473,6 +474,9 @@ export default function PackagesPage() {
             </div>
           </>
         )}
+
+        {/* آراء العرسان تحت الأسعار على طول — طمأنة قبل ما يدوس "اطلب" */}
+        <ReviewsStrip className="mt-10 sm:mt-14" />
 
         {/* الشرح والفيديو بعد الأسعار — اللي عايز يفهم أكتر ينزل لهم */}
         <div className="mt-10 sm:mt-14" />

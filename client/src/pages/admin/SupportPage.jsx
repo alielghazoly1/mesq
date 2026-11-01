@@ -201,6 +201,7 @@ function Thread({ userId, onBack }) {
                   {m.kind === 'voice' && m.voice
                     ? <VoicePlayer id={m.id} url={m.voice.url} duration={m.voice.duration} mine={mine} tone="dark" />
                     : <p className="whitespace-pre-line break-words">{m.body}</p>}
+                  {m.auto && <span className="mt-1 inline-block rounded-full bg-black/10 px-2 py-0.5 text-[10px] font-bold opacity-70">🤖 رد تلقائي</span>}
                   <div className={`mt-0.5 flex items-center justify-end gap-1 text-[10px] tabular-nums ${mine ? 'text-[#241608]/60' : 'text-ivory/35'}`}>
                     {timeLabel(m.createdAt, 'ar')}
                     {mine && <Ticks seen={m.seen} />}

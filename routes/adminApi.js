@@ -14,6 +14,7 @@ const { HAS_PROOF, hasProof } = require('../utils/orderProof');
 const Rsvp = require('../models/Rsvp');
 const Session = require('../models/Session');
 const SupportMessage = require('../models/SupportMessage');
+const { NOT_AUTO } = require('../utils/supportAutoReply');
 const {
   voiceUpload, serializeMessage, previewOf, storeVoice, touchAdmin,
 } = require('../utils/support');
@@ -1693,6 +1694,8 @@ router.get('/admin/api/support', requireAdminSession, async (req, res) => {
     }
     const threads = await SupportMessage.aggregate([
       ...pre,
+      // الرد التلقائي مش رد منك — مايخبّيش إن العميل لسه مستنيك
+      { $match: NOT_AUTO },
       { $sort: { createdAt: -1 } },
       {
         $group: {
@@ -1725,6 +1728,7 @@ router.get('/admin/api/support', requireAdminSession, async (req, res) => {
     const [unreadTotal, waitingTotal] = await Promise.all([
       SupportMessage.countDocuments({ from: 'user', readByAdmin: false }),
       SupportMessage.aggregate([
+        { $match: NOT_AUTO },
         { $sort: { createdAt: -1 } },
         { $group: { _id: '$userId', lastFrom: { $first: '$from' } } },
         { $match: { lastFrom: 'user' } },

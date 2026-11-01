@@ -35,6 +35,7 @@ function serializeMessage(m) {
     seen: m.from === 'user' ? !!m.readByAdmin : !!m.readByUser,
     seenAt: m.readAt || null,
   };
+  if (m.auto) out.auto = m.auto;
   if (out.kind === 'voice' && m.voice && m.voice.url) {
     out.voice = { url: asMp3(m.voice.url), duration: Math.round((m.voice.duration || 0) * 10) / 10 };
   }

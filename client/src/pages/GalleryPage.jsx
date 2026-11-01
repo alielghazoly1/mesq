@@ -6,6 +6,7 @@ import { EditorDemoSection } from '../components/EditorDemo.jsx';
 import PremiumSection from '../components/PremiumSection.jsx';
 import CommissionBanner from '../components/CommissionBanner.jsx';
 import HomeFaq from '../components/HomeFaq.jsx';
+import { ReviewsStrip } from '../components/ReviewsTeaser.jsx';
 import Footer from '../components/Footer.jsx';
 
 export default function GalleryPage() {
@@ -21,6 +22,10 @@ export default function GalleryPage() {
       <EditorDemoSection />
       <PremiumSection />
       <CommissionBanner />
+      {/* آراء العرسان قبل الأسئلة — آخر حاجة بيشوفها قبل ما يقرر */}
+      <div className="bg-ivory px-4 pt-12 sm:px-6 sm:pt-16">
+        <ReviewsStrip />
+      </div>
       <HomeFaq />
       <Footer />
     </div>

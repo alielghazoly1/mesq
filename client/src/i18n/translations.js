@@ -62,6 +62,11 @@ export const resources = {
         alt: 'Message from a couple {{n}}',
         prev: 'Previous',
         next: 'Next',
+        stripEyebrow: 'Real reviews',
+        stripTitle: 'Couples who sent their invitations with Mithaq',
+        stripSub: 'Real WhatsApp messages from our couples — tap any one to read it.',
+        stripCompact: 'Couples love their invitations',
+        stripAll: 'Read all {{n}} messages',
         swipe: 'Swipe to see more',
       },
       gallery: {
@@ -529,6 +534,7 @@ export const resources = {
         pickDesign: "Choose a design",
       },
       support: {
+        whatsappCta: 'Chat with us on WhatsApp',
         launcher: 'Help',
         title: 'Mithaq support',
         subtitle: 'We’re here for you',
@@ -995,6 +1001,11 @@ export const resources = {
         alt: 'رسالة من عميل {{n}}',
         prev: 'اللي قبلها',
         next: 'اللي بعدها',
+        stripEyebrow: 'آراء حقيقية',
+        stripTitle: 'عرسان بعتوا دعواتهم مع ميثاق',
+        stripSub: 'رسايل واتساب حقيقية من عرساننا — دوس على أي رسالة واقراها.',
+        stripCompact: 'العرسان مبسوطين بدعواتهم',
+        stripAll: 'اقرا الـ {{n}} رسالة',
         swipe: 'اسحب يمين وشمال عشان تشوف الباقي',
       },
       gallery: {
@@ -1462,6 +1473,7 @@ export const resources = {
         pickDesign: "اختار التصميم",
       },
       support: {
+        whatsappCta: 'كلّمنا على واتساب',
         launcher: 'محتاج مساعدة؟',
         title: 'دعم ميثاق',
         subtitle: 'إحنا معاك',

@@ -6,6 +6,7 @@ const express = require('express');
 const Invitation = require('../models/Invitation');
 const Rsvp = require('../models/Rsvp');
 const SupportMessage = require('../models/SupportMessage');
+const { sendSupportAutoReply } = require('../utils/supportAutoReply');
 const {
   voiceUpload, serializeMessage, previewOf, storeVoice, userVoiceFlood, adminOnline,
 } = require('../utils/support');
@@ -435,6 +436,8 @@ router.post('/api/dashboard/support', requireAuth, async (req, res) => {
     const msg = await SupportMessage.create({
       userId: req.user.id, from: 'user', kind: 'text', body, readByUser: true,
     });
+    // "وصلتنا رسالتك" + رقم الواتساب — قبل الرد، فالعميل يلاقيهم أول ما المحادثة تتحدّث
+    await sendSupportAutoReply(req.user.id, msg);
     return res.status(201).json({ message: serializeMessage(msg) });
   } catch (err) {
     console.error('Error sending support message:', err);
@@ -463,6 +466,7 @@ router.post('/api/dashboard/support/voice', requireAuth, (req, res, next) => {
       userId: req.user.id, from: 'user', kind: 'voice', body: '',
       voice: { url: v.url, publicId: v.publicId, duration: v.duration }, readByUser: true,
     });
+    await sendSupportAutoReply(req.user.id, msg);
     return res.status(201).json({ message: serializeMessage(msg) });
   } catch (err) {
     console.error('Error sending support voice:', err);
