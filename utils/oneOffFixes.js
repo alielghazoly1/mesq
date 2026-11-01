@@ -535,6 +535,32 @@ const FIXES = [
       return set;
     },
   },
+  {
+    // C7ZgURf — دعوة مي وعبد الرحمن (custom-invitations/C7ZgURf.js بيعرض الصفحة
+    // المعمولة بإيدينا). هنا بيانات الدعوة نفسها عشان لوحة العميل وعنوان الدعوة
+    // يبقوا صح: الأسامي، الفرح الخميس 26/11/2026 الساعة 7:30 مساءً، وقاعة سي ستار.
+    // بيتعمل بس لو الدعوة لسه بأسامي المسودة.
+    name: 'C7ZgURf-mai-abdelrahman',
+    shortId: 'C7ZgURf',
+    select: '-__v',
+    when: (c, inv) => inv.groomName === 'Groom' && inv.brideName === 'Bride',
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: 'en', occasionType: 'wedding',
+        hiddenSections: inv.hiddenSections, timeline: inv.timeline, name: inv.name,
+        groomName: 'Abdelrahman', groomNameAr: 'عبد الرحمن',
+        brideName: 'Mai', brideNameAr: 'مي',
+        venueName: 'Sea Star', venueCity: 'Alexandria',
+        venueMapQuery: 'https://maps.app.goo.gl/PqRU6BXrYPoHW2b18',
+        weddingDate: '2026-11-26', weddingTime: '19:30',
+      }, { ownsTemplate: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.language = 'en';
+      return set;
+    },
+  },
 ];
 
 let done = false;
