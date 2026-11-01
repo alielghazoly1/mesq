@@ -113,7 +113,11 @@ export default function MetaTrackingPanel() {
             <Btn size="sm" icon={Save} loading={saveState.isLoading} onClick={() => save({ testCode: tc.trim() })}>{tc ? 'احفظ الكود' : 'امسح الكود'}</Btn>
             <Btn size="sm" tone="gold" icon={Send} loading={testState.isLoading} disabled={!data.hasToken || !data.testCode} onClick={() => { testState.reset(); sendTest(); }}>ابعت حدث تجربة</Btn>
           </div>
-          {data.testCode && <div className="text-[11.5px] font-bold text-brass-soft">⚠ كود التجربة شغال — الأحداث دلوقتي رايحة للتجربة. امسحه لما تخلّص.</div>}
+          {data.testLiveUntil && (
+            <div className="text-[11.5px] font-bold text-brass-soft">
+              ⚠ كود التجربة شغال — الأحداث دلوقتي رايحة لـ Test events لحد الساعة {new Date(data.testLiveUntil).toLocaleTimeString('ar-EG', { hour: 'numeric', minute: '2-digit' })}، وبعدها بيقف لوحده وكله يرجع حقيقي.
+            </div>
+          )}
           {testState.isSuccess && <div className="text-[12.5px] text-ok">✓ ميتا استلمت حدث التجربة — هتلاقيه في Test events.</div>}
           {testState.error?.data?.error && <div className="text-[12.5px] text-error">{testState.error.data.error}</div>}
         </div>

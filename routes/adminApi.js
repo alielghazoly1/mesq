@@ -1942,7 +1942,7 @@ router.get('/admin/api/meta-tracking', requireAdminSession, async (req, res) => 
   try {
     const SiteConfig = require('../models/SiteConfig');
     const MetaEvent = require('../models/MetaEvent');
-    const doc = await SiteConfig.findOne({ key: 'default' }).select('+metaCapiToken metaTestCode metaCapiEnabled').lean();
+    const doc = await SiteConfig.findOne({ key: 'default' }).select('+metaCapiToken metaTestCode metaTestCodeAt metaCapiEnabled').lean();
     const token = (doc && doc.metaCapiToken) || '';
     const since = new Date(Date.now() - 7 * 24 * 3600 * 1000);
     const [recent, agg] = await Promise.all([
@@ -1962,6 +1962,10 @@ router.get('/admin/api/meta-tracking', requireAdminSession, async (req, res) => 
       hasToken: !!token,
       tokenHint: token ? '…' + token.slice(-4) : '',
       testCode: (doc && doc.metaTestCode) || '',
+      // لسه بيأثر على الأحداث الحقيقية؟ (بيقف لوحده بعد ساعتين من الحفظ)
+      testLiveUntil: doc && doc.metaTestCode && doc.metaTestCodeAt
+        && Date.now() - new Date(doc.metaTestCodeAt).getTime() < 2 * 3600 * 1000
+        ? new Date(new Date(doc.metaTestCodeAt).getTime() + 2 * 3600 * 1000) : null,
       enabled: !(doc && doc.metaCapiEnabled === false),
       week,
       recent: recent.map((e) => ({
@@ -1996,6 +2000,7 @@ router.put('/admin/api/meta-tracking', requireAdminSession, async (req, res) => 
       const tc = b.testCode.trim();
       if (tc && !/^[A-Za-z0-9]{3,40}$/.test(tc)) return res.status(400).json({ error: 'كود التجربة شكله مش مظبوط (زي TEST12345).' });
       set.metaTestCode = tc;
+      set.metaTestCodeAt = tc ? new Date() : null;
     }
     if (typeof b.enabled === 'boolean') set.metaCapiEnabled = b.enabled;
     await SiteConfig.findOneAndUpdate({ key: 'default' }, { $set: set }, { upsert: true });

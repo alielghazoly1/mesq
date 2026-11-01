@@ -29,6 +29,9 @@ const siteConfigSchema = new mongoose.Schema({
   // metaTestCode: كود Test Events من Events Manager (للتجربة بس — فاضي = أحداث حقيقية).
   metaCapiToken: { type: String, default: '', select: false, maxlength: 600 },
   metaTestCode: { type: String, default: '', maxlength: 40 },
+  // إمتى اتحفظ — الكود بيبطّل يأثر على الأحداث الحقيقية بعد ساعتين لوحده
+  // (لو اتنسي، المبيعات كانت هتروح "تجربة" وميتا ماتحسبهاش للإعلانات)
+  metaTestCodeAt: { type: Date, default: null },
   metaCapiEnabled: { type: Boolean, default: true },
   fxRates: {
     USD: { type: Number, default: 50 },
