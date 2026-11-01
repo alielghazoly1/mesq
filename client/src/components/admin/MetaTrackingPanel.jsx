@@ -38,7 +38,7 @@ export default function MetaTrackingPanel() {
       subtitle={`البيكسل ${data.pixelId} — بيبلّغ ميتا بكل خطوة عشان الإعلان يوصل لناس شبه اللي بيشتروا`}
       action={full
         ? <span className="rounded-full bg-ok/15 px-2.5 py-1 text-[11px] font-bold text-ok">تتبع كامل</span>
-        : <span className="rounded-full bg-brass/15 px-2.5 py-1 text-[11px] font-bold text-brass-soft">المتصفح بس</span>}
+        : <span className="rounded-full bg-ok/15 px-2.5 py-1 text-[11px] font-bold text-ok">شغال (البيكسل + سيرفر ميتا)</span>}
     >
       <div data-meta-admin className="space-y-4">
         {/* آخر 7 أيام — اللي ميتا أكّدت استلامه من السيرفر */}
@@ -55,8 +55,8 @@ export default function MetaTrackingPanel() {
           </div>
           {!data.hasToken && (
             <p className="mt-2 text-[11.5px] leading-relaxed text-ivory/45">
-              البيكسل اللي في المتصفح شغال دلوقتي (زيارات، فتح التصاميم، الدفع). الأرقام دي بتبدأ تتعدّ لما تحط الـ Token تحت —
-              وساعتها حدث <b>"اشترى"</b> بيتبعت لما تفعّل الأوردر حتى لو العميل قافل الموقع.
+              ✓ كله شغال: البيكسل بيبعت كل حاجة (زيارات، فتح التصاميم، التسجيل، الدفع، الشراء بالسعر)، و<b dir="ltr">Conversions API</b> بتاعة ميتا
+              (Web-only — مفعّلة من Events Manager) بتبعتهم تاني من سيرفرات ميتا. الـ Token تحت <b>اختياري</b> — الأرقام دي بتتعدّ بس لو اتحط.
             </p>
           )}
         </div>
@@ -67,7 +67,7 @@ export default function MetaTrackingPanel() {
           onChange={() => { if (saveState.error || saveState.isSuccess) saveState.reset(); }}
           className="space-y-2.5 rounded-xl border border-line-lite p-3.5"
         >
-          <div className="flex items-center gap-2 text-[13px] font-bold text-ivory"><KeyRound size={15} className="text-brass-soft" /> Conversions API Token
+          <div className="flex items-center gap-2 text-[13px] font-bold text-ivory"><KeyRound size={15} className="text-brass-soft" /> Conversions API Token <span className="text-[11px] font-normal text-ivory/45">(اختياري)</span>
             {data.hasToken && <span className="font-mono text-[11.5px] font-normal text-ok" dir="ltr">✓ محفوظ {data.tokenHint}</span>}
           </div>
           <Field
@@ -91,7 +91,7 @@ export default function MetaTrackingPanel() {
               </button>
             )}
           </div>
-          <details className="text-[12px] leading-relaxed text-ivory/60" open={!data.hasToken}>
+          <details className="text-[12px] leading-relaxed text-ivory/60">
             <summary className="cursor-pointer font-bold text-ivory/80">تجيب الـ Token منين (دقيقتين)</summary>
             <ol className="mt-2 list-decimal space-y-1 ps-5">
               <li>افتح <a className="text-brass-soft underline" href={`${ds}/settings?act=${ACT}`} target="_blank" rel="noopener noreferrer">إعدادات البيكسل في ميتا</a>.</li>
