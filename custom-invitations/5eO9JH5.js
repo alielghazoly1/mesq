@@ -89,9 +89,11 @@ const SCRIPT = `<script>
   var cov = document.getElementById('e5-cover');
   if (!cov) return;
   var C = window.WEDDING_CONFIG || {};
-  function drop() { cov.classList.add('gone'); document.documentElement.classList.remove('e5-on'); }
+  // بعد الفتح ختم القالب الأخضر بيفضل مستخبي: حركة اختفاءه (Tilda) مابتشتغلش
+  // مع الضغطة اللي من الكود، فلو رجّعناه كان بيقعد فوق الإيدين في أول صفحة
+  function drop() { cov.classList.add('gone'); }
   // المحرر/المعاينة الثابتة بتفتح القالب لوحدها — الغلاف ده مالوش لازمة هناك
-  if (C.autoOpen) { drop(); return; }
+  if (C.autoOpen) { drop(); document.documentElement.classList.remove('e5-on'); return; }
   if ((C.language || '') !== 'ar') {
     var h = document.getElementById('e5-hint');
     if (h) h.textContent = 'Tap the seal to open';
@@ -116,6 +118,79 @@ const SCRIPT = `<script>
 })();
 </script>`;
 
+// ===== أول صفحة زي الصورة اللي المالك بعتها: ورق بملمس، زنبق دهبي، أسامي وتاريخ
+// بدهب لامع، والإيدين لوحدهم من غير القوس — الكلام نفسه زي ما هو =====
+const GOLD = 'linear-gradient(178deg,#ead08f 0%,#c99d4f 38%,#9c7232 56%,#d4ad62 78%,#b38643 100%)';
+function pageCss() {
+  return `<link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<style id="e5-page-css">
+#wg-invite-1{background:#f6efdd url(${asset(`${DIR}paper.webp`)}) center top/320px auto repeat}
+#wg-invite-1 .names .nm,#wg-invite-1 .names .conn,#wg-invite-1 .names .second,#wg-invite-1 .date,#wg-invite-1 .wday{
+  background-image:${GOLD};background-size:100% 100%;-webkit-background-clip:text;background-clip:text;color:transparent!important;-webkit-text-fill-color:transparent;
+  padding:.18em .12em;margin:0 -.12em;filter:drop-shadow(0 1px 0 rgba(255,255,255,.55)) drop-shadow(0 1.5px 1.2px rgba(105,72,20,.28))}
+#wg-invite #wg-invite-1 .names .amp>.conn{padding-inline-start:.4em}
+#wg-invite-1 .date,#wg-invite-1 .wday{background-image:linear-gradient(178deg,#c9a35e,#8f6a2e 60%,#b48b48)}
+/* الإيدين على الورق نفسه — من غير القوس الفاتح، أكبر شوية وفي نص المسافة */
+/* (بادئة #wg-invite عشان تغلب ستايل القالب اللي بييجي بعدنا في الصفحة) */
+#wg-invite #wg-invite-1 .arch{left:12%;width:76%;top:52%;height:auto;border-radius:0;overflow:visible;background:none}
+#wg-invite #wg-invite-1 .arch img{width:100%;height:auto;object-fit:contain;filter:drop-shadow(0 8px 10px rgba(90,65,30,.12))}
+
+/* ===== الآية في ظرف الدانتيل (من Champagne Lace) ===== */
+#e5-verse{position:relative;width:100%;container-type:inline-size;overflow:hidden;background:#f6efdd url(${asset(`${DIR}paper.webp`)}) center top/320px auto repeat;direction:ltr}
+/* الورق المقطوع والورد اللي كانوا تحت أول صفحة (أول الكارت اللي بعدها) — بقوا أول القسم ده
+   عشان أول شاشة تفضل زي الصورة بالظبط، والورق بيقع على ورق الآية بضل خفيف */
+#e5-verse .strip{display:block;width:100%;height:auto;margin-bottom:-14cqw;position:relative;z-index:2;filter:drop-shadow(0 3px 3px rgba(90,70,40,.16));pointer-events:none}
+#e5-verse .in{position:relative;width:100%;max-width:520px;height:min(150cqw,780px);margin:0 auto;container-type:inline-size}
+#e5-verse .hr{position:absolute;opacity:0;transform:scale(.6) rotate(-8deg);transition:opacity .9s ease,transform 1.1s cubic-bezier(.2,.9,.25,1.2)}
+#e5-verse .hr.a{left:39%;top:5%;width:16%}
+#e5-verse .hr.b{left:53.5%;top:9.5%;width:10%;transition-delay:.25s}
+#e5-verse .env{position:absolute;left:3%;width:94%;top:44cqw;aspect-ratio:1050/1155}
+#e5-verse .env img{position:absolute;inset:0;width:100%;height:100%;display:block;-webkit-user-select:none;user-select:none;pointer-events:none}
+#e5-verse .env .back{z-index:1}
+#e5-verse .env .front{z-index:4}
+#e5-verse .card{position:absolute;z-index:3;left:14.05%;width:71.9%;top:10.8%;height:73.8%;background:#fbf8f3;box-shadow:-7px -7px 19px rgba(42,38,38,.09);transform:translateY(0);transition:transform 1.7s cubic-bezier(.3,0,.15,1) .35s}
+#e5-verse .card .tx{position:absolute;left:5%;right:5%;top:5.5%;text-align:center;direction:rtl;opacity:0;transition:opacity 1s ease 1.3s}
+#e5-verse .bsm{display:block;margin:0 0 .25em;font:400 clamp(17px,5.6cqw,24px)/1.55 'Amiri','Amiri Quran',serif;color:#8a6f4c}
+#e5-verse .ay{margin:0;font:400 clamp(15.5px,4.75cqw,21px)/1.95 'Amiri Quran','Amiri',serif;color:#2f2118}
+#e5-verse .ay i{font-style:normal;color:#a48c69}
+#e5-verse .sr{display:block;margin-top:.55em;font:400 clamp(11.5px,3.3cqw,14px)/1.5 'Amiri',serif;color:#8a7253}
+/* لما القسم يبان: القلوب بتظهر والكارت بيطلع من الظرف */
+#e5-verse.in-view .hr{opacity:1;transform:none}
+#e5-verse.in-view .card{transform:translateY(-29cqw)}
+#e5-verse.in-view .card .tx{opacity:1}
+@media (prefers-reduced-motion:reduce){#e5-verse *{transition-duration:.01ms!important}}
+</style>`;
+}
+
+const VERSE = `<section id="e5-verse" aria-label="آية قرآنية">
+  <img class="strip" src="${asset(`${DIR}peony-strip.webp`)}" alt="" decoding="async">
+  <div class="in">
+    <img class="hr a" src="/templates/champagne-lace/heart-large.webp" alt="">
+    <img class="hr b" src="/templates/champagne-lace/heart-small.webp" alt="">
+    <div class="env">
+      <img class="back" src="/templates/champagne-lace/lace-envelope-back.webp" alt="" loading="lazy" decoding="async">
+      <div class="card"><div class="tx">
+        <span class="bsm" role="img" aria-label="بسم الله الرحمن الرحيم">&#xFDFD;</span>
+        <p class="ay"><i>﴿</i>وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم<br>مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا<br>وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً<i>﴾</i></p>
+        <span class="sr">سورة الروم - الآية ٢١</span>
+      </div></div>
+      <img class="front" src="/templates/champagne-lace/lace-envelope-front.webp" alt="" loading="lazy" decoding="async">
+    </div>
+  </div>
+  <script>
+  (function () {
+    var s = document.getElementById('e5-verse');
+    if (!s) return;
+    var C = window.WEDDING_CONFIG || {};
+    if (C.autoOpen || !('IntersectionObserver' in window)) { s.classList.add('in-view'); return; }
+    var io = new IntersectionObserver(function (en) {
+      en.forEach(function (e) { if (e.isIntersecting) { s.classList.add('in-view'); io.disconnect(); } });
+    }, { threshold: 0.28 });
+    io.observe(s);
+  })();
+  </script>
+</section>`;
+
 module.exports = {
   shortId: SHORT,
 
@@ -133,5 +208,18 @@ module.exports = {
     // في المحرر: غلاف القالب العادي (هو اللي بيتعدّل)
     if (editMode) return {};
     return { head: css(), bodyStart: cover(), bodyEnd: SCRIPT };
+  },
+
+  // شكل أول صفحة + قسم الآية (في الدعوة وفي المحرر كمان)
+  transform(html) {
+    let out = html;
+    // الزنبق دهبي والإيدين من غير خلفية القوس (نسخ أوضح)
+    out = out.replace('src="/templates/lily-garden/lily-l.webp"', `src="${asset(`${DIR}lily-l-gold.webp`)}"`)
+      .replace('src="/templates/lily-garden/lily-r.webp"', `src="${asset(`${DIR}lily-r-gold.webp`)}"`)
+      .replace('data-elem-id="lg5" src="/templates/lily-garden/hands.webp"', `data-elem-id="lg5" src="${asset(`${DIR}hands.webp`)}"`);
+    // قسم الآية تحت أول صفحة على طول (قبل الكارت)
+    out = out.replace('<!-- ===== الصفحة 2 ===== -->', () => `${VERSE}\n                <!-- ===== الصفحة 2 ===== -->`);
+    out = out.replace(/<\/head>/i, () => `${pageCss()}</head>`);
+    return out;
   },
 };
