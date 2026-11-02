@@ -688,6 +688,63 @@ const FIXES = [
       return set;
     },
   },
+  {
+    // vma4JMh (Ivory Swans بشكله الإنجليزي — custom-invitations/vma4JMh.js) — إسلام وبسنت
+    // بطلب المالك (2026-11-03): الأسامي على الغلاف Islam & Basant، والفرح الأحد 20/12/2026
+    // (الاستقبال 4:30 العصر — العدّاد لحد الساعة دي)، في Bait Yazd — شبرامنت، أبو النمرس
+    // بلينك الخريطة اللي بعته. الخريطة نفسها على إحداثيات الـ plus code بتاع اللينك
+    // (W5HX+26F → 29.9275625,31.1980469): اسم المكان لوحده كان بيطلّع خريطة القاهرة كلها.
+    // والد العريس هشام عبيد ووالد العروسة محمد حسين؛ سطر "عائلات العدوي وعائلات حسانين"
+    // (كلام القالب) مستخبي لحد ما المالك يبعت أسامي العائلتين. فورم تأكيد الحضور بالعربي،
+    // وخانة "حساسية الأكل" بقت "اترك لنا رسالة". بيتعمل بس لو الدعوة لسه مسودة (Groom & Bride).
+    name: 'vma4JMh-islam-basant',
+    shortId: 'vma4JMh',
+    select: '-__v',
+    when: (c, inv) => inv.templateId === 'ivory-swans' && inv.groomName === 'Groom' && inv.brideName === 'Bride',
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const link = 'https://maps.app.goo.gl/qEbLamzXHEeLJQ3GA';
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: inv.language, occasionType: 'wedding',
+        hiddenSections: inv.hiddenSections, timeline: inv.timeline, name: inv.name,
+        groomName: 'Islam', groomNameAr: 'إسلام',
+        brideName: 'Basant', brideNameAr: 'بسنت',
+        venueName: 'Bait Yazd', venueCity: 'Shubra Ment, Abu El Numrus',
+        venueMapQuery: link,
+        weddingDate: '2026-12-20', weddingTime: '16:30',
+      }, { ownsTemplate: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.venueMapEmbedSrc = 'https://www.google.com/maps?q=29.9275625,31.1980469&z=16&output=embed';
+      set.venueMapDirectLink = link;
+      set['customizations.texts'] = {
+        ...(c.texts || {}),
+        // الغلاف
+        '1779566247730000001__1': 'Islam',
+        '1779566247730000001__2': 'Basant',
+        '1779566247730000003': '20.12.2026',
+        // تحت نتيجة "احفظ الموعد"
+        iv40: 'الأحد ٢٠ / ١٢ / ٢٠٢٦',
+        // الآباء
+        iv24: 'هشام عبيد',
+        iv26: 'محمد حسين',
+        // تحت اسم المكان في كارت الخريطة (كان "دار الحرس الجهوري" بتاع القالب)
+        iv30: 'Shubra Ment, Abu El Numrus, Egypt',
+      };
+      set['customizations.hidden'] = [...new Set([...(c.hidden || []), 'iv22'])];
+      set['customizations.rsvp'] = {
+        ...(c.rsvp || {}),
+        title: 'شرّفنا بتأكيد حضورك',
+        intro: 'وجودك معنا يكمّل فرحتنا',
+        nameLabel: 'اسمك',
+        yesLabel: 'سأحضر بإذن الله',
+        noLabel: 'أعتذر عن الحضور',
+        foodLabel: 'اترك لنا رسالة',
+        submit: 'تأكيد الحضور',
+      };
+      return set;
+    },
+  },
 ];
 
 let done = false;
