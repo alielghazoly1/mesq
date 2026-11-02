@@ -9,4 +9,23 @@ Disallow: /editor
 Disallow: /i/
 Disallow: /s/
 
+# قرّاء كروت اللينكات — مش محركات بحث ومابيفهرسوش حاجة: بيفتحوا اللينك بس لما حد
+# يبعته في شات، عشان يطلّعوا الصورة والعنوان. من غير المجموعة دي لينك الدعوة على
+# إنستجرام وفيسبوك وماسنجر كان بيظهر نص بس (واتساب مابيسألش الملف ده فكان شغال).
+# جوجل وباقي محركات البحث لسه ممنوعين من الدعوات (المجموعة اللي فوق).
+# الـ Disallow قبل الـ Allow عشان المعنى يبقى واحد عند أي قارئ.
+User-agent: facebookexternalhit
+User-agent: Facebot
+User-agent: Twitterbot
+User-agent: TelegramBot
+User-agent: LinkedInBot
+User-agent: Slackbot
+User-agent: Discordbot
+User-agent: SkypeUriPreview
+Disallow: /admin
+Disallow: /api/
+Disallow: /dashboard
+Disallow: /editor
+Allow: /
+
 Sitemap: https://mithaq-invitation.com/sitemap.xml
