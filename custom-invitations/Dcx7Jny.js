@@ -30,14 +30,37 @@ function shareTags(templateHtml) {
 }
 
 /**
- * الأغنية ("ادخلي عمري بخطوة" — مستنيين الملف من المالك): song.mp3 جنب صور الدعوة بس.
- * مش بناخد audioUrl بتاع الدعوة: ده موسيقى القالب الافتراضية مش أغنيتهم. مفيش = مفيش زرار.
+ * الأغنية "ادخلي عمري بخطوة" — من مكتبة الموسيقى بتاعة الموقع نفسه (بطلب المالك:
+ * "موجودة عندي على الويب سايت"). بندوّر عليها بالاسم في المكتبة ونحفظ اللينك في
+ * الذاكرة (transform مش async). لو اتحط song.mp3 جنب صور الدعوة يبقى هو الأولى.
+ * مش بناخد audioUrl بتاع الدعوة: ده موسيقى القالب الافتراضية مش أغنيتهم.
  */
+const SONG_TITLE = /[اأإ]دخل[يى]\s*عمر[يى]|عمر[يى]\s*بخطو/;
+let trackUrl = '';
+let trackTried = 0;
+function lookupTrack() {
+  if (trackUrl || Date.now() - trackTried < 60 * 1000) return;
+  trackTried = Date.now();
+  try {
+    const mongoose = require('mongoose');
+    if (mongoose.connection.readyState !== 1) { trackTried = 0; return; }
+    require('../models/Track')
+      .findOne({ active: true, $or: [{ title: SONG_TITLE }, { artist: SONG_TITLE }] })
+      .sort({ createdAt: -1 }).select('url title').lean()
+      .then((t) => { if (t && /^https:\/\//.test(t.url)) trackUrl = t.url; })
+      .catch(() => {});
+  } catch (e) { /* مفيش أغنية = مفيش زرار */ }
+}
+try {
+  require('mongoose').connection.once('connected', () => setTimeout(lookupTrack, 1500));
+} catch (e) { /* */ }
+
 function songUrl() {
   for (const root of ['public', 'dist']) {
     if (fs.existsSync(path.join(__dirname, '..', 'client', root, 'custom', SHORT, 'song.mp3'))) return asset(`${DIR}song.mp3`);
   }
-  return '';
+  lookupTrack();
+  return trackUrl;
 }
 
 module.exports = {
