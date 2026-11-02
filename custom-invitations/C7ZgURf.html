@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#071733">
-<title>The Wedding of Mai &amp; Abdelrahman</title>
-<meta name="description" content="Thursday, 26 November 2026 · 7:30 PM · Sea Star, Alexandria">
+<title>زفاف مي و عبد الرحمن</title>
+<meta name="description" content="الخميس ٢٦ نوفمبر ٢٠٢٦ · السابعة والنصف مساءً · سي ستار — المكس، الإسكندرية">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Gelasio:ital,wght@1,500&family=Great+Vibes&family=Marcellus&family=Tajawal:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@400;700&family=El+Messiri:wght@400;500;600;700&family=Tajawal:wght@400;500;700&display=swap">
 <link rel="preload" as="image" href="assets/open.jpg">
 <style>
 /* ============================================================
@@ -17,8 +17,9 @@
    ============================================================ */
 :root{
   --navy:#071733; --ink:#172957; --cream:#F5ECDD;
-  --serif:'Cormorant Garamond',Georgia,'Times New Roman',serif;
-  --script:'Great Vibes','Brush Script MT',cursive;
+  --serif:'Amiri','Times New Roman',serif;
+  --script:'Aref Ruqaa','Amiri',serif;
+  --head:'El Messiri','Amiri',sans-serif;
   --col:560px;
 }
 *{box-sizing:border-box}
@@ -300,6 +301,78 @@ button,input,textarea{font:inherit;color:inherit}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
+
+/* ============================================================
+   النسخة العربية (بطلب المالك 2026-11-02): كل الكلام عربي.
+   - الأسامي والخط المزخرف: Aref Ruqaa (دهبي)
+   - العناوين: El Messiri — من غير تباعد حروف (التباعد بيقطّع الحروف العربي)
+   - الكلام: Amiri — ومفيش مائل (الخط العربي المائل شكله مكسور)
+   ============================================================ */
+body,body *{font-style:normal!important}
+.cap{font-family:var(--head);letter-spacing:0!important;text-indent:0!important}
+.tap{font-family:var(--head);font-size:17px;letter-spacing:0;text-indent:0}
+.ht{font-family:var(--script);line-height:1.5}
+.ht-of{font-size:clamp(30px,10cqw,72px);word-spacing:0}
+.ht-names{font-size:clamp(36px,15.5vw,112px);font-size:clamp(36px,15.5cqw,112px)}
+.ht-names .amp{margin:0 .28em;font-family:var(--script);font-size:.8em;transform:translateY(-.06em)}
+.ht-date{font-family:var(--serif);font-weight:700;letter-spacing:.04em;text-indent:0;font-size:clamp(22px,7cqw,52px)}
+.st-cap{font-size:21px;font-weight:600}
+.st-script{font-family:var(--script);font-size:clamp(34px,11cqw,50px);line-height:1.5;padding:2px 20px 6px}
+.st-body{font-size:20px;line-height:1.85;max-width:min(90%,330px)}
+.dt-cap{font-size:19px;font-weight:600}
+.dt-day{font-family:var(--serif);font-weight:700;font-size:100px;line-height:1.15}
+.dt-month{font-size:32px;font-weight:600}
+.dt-year{font-family:var(--serif);font-weight:700;font-size:34px;letter-spacing:.06em!important}
+.dt-when{font-size:18px;font-weight:600}
+.dt-when em{margin:0 .45em}
+.dt-msg{font-size:19px;line-height:1.75;letter-spacing:0;max-width:min(88%,260px)}
+.cd-cap{font-size:20px;font-weight:600}
+.cd-until{font-size:23px;line-height:1.5}
+.cd-ido{font-family:var(--script);font-size:54px;line-height:1.5;padding:0 20px 4px}
+.cd-num{font-family:var(--serif);font-weight:700;font-size:50px;line-height:1.1}
+.cd-lab{font-family:var(--head);font-size:15px;letter-spacing:0;text-indent:0;margin-top:6px}
+.cd-msg{font-size:18px;line-height:1.75}
+.tl-cap{font-size:21px;font-weight:600}
+.row .t{padding:4px 0 4px 30px;font-family:var(--head);font-size:17px;letter-spacing:0;font-weight:600}
+.row .e{padding-left:0;padding-right:30px}
+.row .e span{max-width:175px;font-family:var(--serif);font-size:21px;line-height:1.45;font-weight:700}
+.tl-msg{font-size:18px;line-height:1.75}
+.lc-cap{font-size:21px;font-weight:600}
+.lc-venue{font-family:var(--script);font-size:46px;line-height:1.45;letter-spacing:0;text-indent:0;font-weight:700}
+.lc-city{font-family:var(--head);font-size:21px;letter-spacing:0}
+.lc-addr{font-size:18px;line-height:1.75}
+.lc-btn{font-family:var(--head);font-size:17px;letter-spacing:0;text-indent:0;font-weight:600}
+.lc-msg{max-width:min(92%,330px);font-size:18px;line-height:1.75}
+.rs-h{font-family:var(--head);font-weight:600;font-size:32px}
+.rs-lab{letter-spacing:0;font-size:16px;font-weight:500;color:#6f6356}
+.rs-opt{font-size:16px;letter-spacing:0}
+.rs-send{font-size:17px;font-weight:700;letter-spacing:0}
+.rs-done h3{font-family:var(--head);letter-spacing:0;text-indent:0;font-size:24px}
+.rs-done p{font-size:19px}
+.ty-cap{font-size:22px}
+.ty-msg{font-size:22px;line-height:1.7}
+.ty-names{font-family:var(--script);font-size:44px;line-height:1.5;font-weight:700}
+.ty-date{font-family:var(--serif);font-weight:700;font-size:18px;letter-spacing:.08em!important}
+@media (max-width:390px){
+  .st-body{font-size:19px}
+  .dt-day{font-size:90px}
+  .dt-month{font-size:29px}
+  .cd-num{font-size:46px}
+  .cd-ido{font-size:50px}
+  .row .t{padding-right:0;padding-left:24px;font-size:16px}
+  .row .e{padding-left:0;padding-right:24px}
+  .row .e span{max-width:150px;font-size:19px}
+  .lc-venue{font-size:42px}
+  .ty-msg{font-size:21px}
+  .ty-names{font-size:40px}
+}
+@media (max-width:340px){
+  .dt-day{font-size:80px}
+  .row .t{padding-right:0;padding-left:16px;font-size:15px}
+  .row .e{padding-left:0;padding-right:16px}
+  .row .e span{font-size:17px}
+  .lc-venue{font-size:38px}
+}
 /* معاينة ثابتة للصور (?static) */
 .static .rv,.static .rw,.static .ht{opacity:1;animation:none!important}
 </style>
@@ -307,11 +380,11 @@ button,input,textarea{font:inherit;color:inherit}
 <body class="locked">
 
 <!-- ===== الغلاف: صورة الظرف، والضغط عليها يشغّل فيديو الفتح ===== -->
-<div class="intro" id="intro" role="button" tabindex="0" aria-label="Tap to open the invitation">
+<div class="intro" id="intro" role="button" tabindex="0" aria-label="اضغط لفتح الدعوة">
   <div class="intro-stage">
     <img src="assets/open.jpg" alt="">
     <video id="openVid" src="assets/open.mp4" muted playsinline webkit-playsinline preload="auto"></video>
-    <button class="tap" id="tap" type="button" tabindex="-1">TAP TO OPEN</button>
+    <button class="tap" id="tap" type="button" tabindex="-1">اضغط لفتح الدعوة</button>
   </div>
 </div>
 
@@ -320,18 +393,18 @@ button,input,textarea{font:inherit;color:inherit}
   <!-- القصر: فيديو بيتحول من نهار لليل + الأسماء -->
   <header class="hero">
     <video id="heroVid" src="assets/hero.mp4" muted playsinline webkit-playsinline preload="auto"></video>
-    <p class="ht ht-of">The Wedding of</p>
-    <h1 class="ht ht-names"><span>Mai</span><span class="amp">&amp;</span><span>Abdelrahman</span></h1>
-    <p class="ht ht-date">26.11.2026</p>
+    <p class="ht ht-of">حفل زفاف</p>
+    <h1 class="ht ht-names"><span>مي</span><span class="amp">و</span><span>عبد الرحمن</span></h1>
+    <p class="ht ht-date" dir="ltr">٢٦ / ١١ / ٢٠٢٦</p>
   </header>
 
   <!-- قصتنا -->
   <section class="sec navy story">
-    <div class="g g1 rv" style="--d:.1s"><span class="cap st-cap">OUR STORY</span></div>
+    <div class="g g1 rv" style="--d:.1s"><span class="cap st-cap">حكايتنا</span></div>
     <div class="orn st-orn"><span><i></i><b></b><i></i></span></div>
-    <div class="g g2 rv pop" style="--d:.35s"><span class="st-script">Written in the Stars</span></div>
-    <div class="g g3 rv" style="--d:.7s"><span class="st-body">Some stories begin with a moment.</span></div>
-    <div class="g g3 rv" style="--d:.9s"><span class="st-body">Ours began with a feeling that became forever.</span></div>
+    <div class="g g2 rv pop" style="--d:.35s"><span class="st-script">كُتبت في النجوم</span></div>
+    <div class="g g3 rv" style="--d:.7s"><span class="st-body">بعضُ الحكايات تبدأ بلحظة،</span></div>
+    <div class="g g3 rv" style="--d:.9s"><span class="st-body">وحكايتنا بدأت بشعورٍ صار عمرًا.</span></div>
     <div class="orn st-bot"><span><i></i><b></b><i></i></span></div>
   </section>
 
@@ -345,14 +418,14 @@ button,input,textarea{font:inherit;color:inherit}
       <i class="orb" style="right:20%;top:78%;--s:6.6s;--dl:.6s"></i>
     </div>
     <div class="inner">
-      <div class="g g1 rv" style="--d:.1s"><span class="cap dt-cap">SAVE THE DATE</span></div>
+      <div class="g g1 rv" style="--d:.1s"><span class="cap dt-cap">احفظوا الموعد</span></div>
       <div class="orn dt-orn"><span><i></i><b></b><i></i></span></div>
-      <div class="g g2 rv pop" style="--d:.3s"><span class="dt-day">26<i class="shim"></i></span></div>
-      <div class="g g3 rv" style="--d:.55s"><span class="cap dt-month">NOVEMBER</span></div>
+      <div class="g g2 rv pop" style="--d:.3s"><span class="dt-day">٢٦<i class="shim"></i></span></div>
+      <div class="g g3 rv" style="--d:.55s"><span class="cap dt-month">نوفمبر</span></div>
       <div class="dt-plus"><span></span></div>
-      <div class="g g4 rv" style="--d:.75s"><span class="cap dt-year">2026</span></div>
-      <div class="g g5 rv" style="--d:.9s"><span class="cap dt-when">THURSDAY<em>·</em>7:30 PM</span></div>
-      <div class="g g6 rv" style="--d:1.05s"><span class="dt-msg">A beautiful day to begin forever.</span></div>
+      <div class="g g4 rv" style="--d:.75s"><span class="cap dt-year">٢٠٢٦</span></div>
+      <div class="g g5 rv" style="--d:.9s"><span class="cap dt-when">الخميس<em>·</em>٧:٣٠ مساءً</span></div>
+      <div class="g g6 rv" style="--d:1.05s"><span class="dt-msg">يومٌ جميل نبدأ فيه العمر معًا.</span></div>
       <div class="orn dt-bot"><span><i></i><b></b><i></i></span></div>
     </div>
   </section>
@@ -368,17 +441,17 @@ button,input,textarea{font:inherit;color:inherit}
       <i class="pt" style="left:88%;--s:8.8s;--dl:2.9s"></i>
     </div>
     <div class="inner">
-      <div class="g g1 rv" style="--d:.1s"><span class="cap cd-cap">COUNTDOWN</span></div>
+      <div class="g g1 rv" style="--d:.1s"><span class="cap cd-cap">العدّ التنازلي</span></div>
       <div class="orn beat cd-orn"><span><i></i><b></b><i></i></span></div>
-      <div class="g g2 rv" style="--d:.3s"><span class="cd-until">Until We Say</span></div>
-      <div class="g g3 rv pop" style="--d:.45s"><span class="cd-ido">I DO</span></div>
+      <div class="g g2 rv" style="--d:.3s"><span class="cd-until">باقي على</span></div>
+      <div class="g g3 rv pop" style="--d:.45s"><span class="cd-ido">ليلة العمر</span></div>
       <div class="cd-grid">
-        <div class="cd-card rv" style="--d:.6s;--gd:0s"><span class="cd-num" data-u="d">00</span><span class="cd-lab">DAYS</span></div>
-        <div class="cd-card rv" style="--d:.72s;--gd:.4s"><span class="cd-num" data-u="h">00</span><span class="cd-lab">HOURS</span></div>
-        <div class="cd-card rv" style="--d:.84s;--gd:.8s"><span class="cd-num" data-u="m">00</span><span class="cd-lab">MINUTES</span></div>
-        <div class="cd-card rv" style="--d:.96s;--gd:1.2s"><span class="cd-num" data-u="s">00</span><span class="cd-lab">SECONDS</span></div>
+        <div class="cd-card rv" style="--d:.6s;--gd:0s"><span class="cd-num" data-u="d">٠٠</span><span class="cd-lab">يوم</span></div>
+        <div class="cd-card rv" style="--d:.72s;--gd:.4s"><span class="cd-num" data-u="h">٠٠</span><span class="cd-lab">ساعة</span></div>
+        <div class="cd-card rv" style="--d:.84s;--gd:.8s"><span class="cd-num" data-u="m">٠٠</span><span class="cd-lab">دقيقة</span></div>
+        <div class="cd-card rv" style="--d:.96s;--gd:1.2s"><span class="cd-num" data-u="s">٠٠</span><span class="cd-lab">ثانية</span></div>
       </div>
-      <div class="g g4 rv" style="--d:1.05s"><span class="cd-msg">Every second brings us closer to forever.</span></div>
+      <div class="g g4 rv" style="--d:1.05s"><span class="cd-msg">كل ثانية بتقرّبنا من أحلى ليلة.</span></div>
       <div class="orn beat cd-bot"><span><i></i><b></b><i></i></span></div>
     </div>
   </section>
@@ -386,56 +459,56 @@ button,input,textarea{font:inherit;color:inherit}
   <!-- برنامج الفرح -->
   <section class="sec cream tl">
     <div class="inner">
-      <div class="g g1 rv" style="--d:.1s"><span class="cap tl-cap">WEDDING TIMELINE</span></div>
+      <div class="g g1 rv" style="--d:.1s"><span class="cap tl-cap">برنامج الحفل</span></div>
       <div class="orn tl-orn"><span><i></i><b></b><i></i></span></div>
       <div class="track" id="track">
         <div class="tl-line"></div>
         <div class="tl-cap-pt s"></div>
         <div class="tl-cap-pt e"></div>
         <div class="star" id="star" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 1.8 14.6 8.2 21.5 8.8 16.2 13.2 17.9 20 12 16.4 6.1 20 7.8 13.2 2.5 8.8 9.4 8.2Z" fill="#F6D98F" stroke="#B78431" stroke-width="1.2" stroke-linejoin="round"/><circle cx="12" cy="11.2" r="2.1" fill="#FFF8DF"/></svg></div>
-        <div class="row rw"><span class="t">7:30 PM</span><span class="p"></span><span class="e"><span>Guest Arrival</span></span></div>
-        <div class="row rw"><span class="t">8:00 PM</span><span class="p"></span><span class="e"><span>Bride Entrance</span></span></div>
-        <div class="row rw"><span class="t">9:00 PM</span><span class="p"></span><span class="e"><span>Dinner</span></span></div>
-        <div class="row rw"><span class="t">10:30 PM</span><span class="p"></span><span class="e"><span>First Dance</span></span></div>
-        <div class="row rw"><span class="t">11:30 PM</span><span class="p"></span><span class="e"><span>Let the Celebration Begin</span></span></div>
+        <div class="row rw"><span class="t">٧:٣٠ مساءً</span><span class="p"></span><span class="e"><span>استقبال الضيوف</span></span></div>
+        <div class="row rw"><span class="t">٨:٠٠ مساءً</span><span class="p"></span><span class="e"><span>دخلة العروسين</span></span></div>
+        <div class="row rw"><span class="t">٩:٠٠ مساءً</span><span class="p"></span><span class="e"><span>العشاء</span></span></div>
+        <div class="row rw"><span class="t">١٠:٣٠ مساءً</span><span class="p"></span><span class="e"><span>الرقصة الأولى</span></span></div>
+        <div class="row rw"><span class="t">١١:٣٠ مساءً</span><span class="p"></span><span class="e"><span>وتبدأ الاحتفالات</span></span></div>
       </div>
-      <div class="g g2 rv" style="--d:.2s"><span class="tl-msg">A night to remember, a story to treasure forever.</span></div>
+      <div class="g g2 rv" style="--d:.2s"><span class="tl-msg">ليلةٌ لا تُنسى، وحكايةٌ نحفظها العمر كله.</span></div>
     </div>
   </section>
 
   <!-- المكان -->
   <section class="sec navy loc">
     <div class="inner">
-      <div class="g g1 rv" style="--d:.1s"><span class="cap lc-cap">LOCATION</span></div>
+      <div class="g g1 rv" style="--d:.1s"><span class="cap lc-cap">مكان الحفل</span></div>
       <div class="orn lc-orn"><span><i></i><b></b><i></i></span></div>
-      <div class="g g2 rv" style="--d:.25s"><span class="lc-venue">SEA STAR</span></div>
-      <div class="g g3 rv" style="--d:.38s"><span class="lc-city">El Max, Alexandria</span></div>
+      <div class="g g2 rv" style="--d:.25s"><span class="lc-venue">سي ستار</span></div>
+      <div class="g g3 rv" style="--d:.38s"><span class="lc-city">المكس، الإسكندرية</span></div>
       <div class="orn flat dot lc-div"><span><i></i><b></b><i></i></span></div>
-      <div class="g g4 rv" style="--d:.52s"><span class="lc-addr">A beautiful place for our unforgettable night.</span></div>
-      <div class="g g5 rv pop" style="--d:.66s"><a class="lc-btn" href="https://maps.app.goo.gl/PqRU6BXrYPoHW2b18" target="_blank" rel="noopener noreferrer"><span>OPEN LOCATION</span></a></div>
-      <div class="g g6 rv" style="--d:.85s"><span class="lc-msg">We can’t wait to celebrate this beautiful night with you.</span></div>
+      <div class="g g4 rv" style="--d:.52s"><span class="lc-addr">مكانٌ جميل لليلتنا اللي مش هتتنسي.</span></div>
+      <div class="g g5 rv pop" style="--d:.66s"><a class="lc-btn" href="https://maps.app.goo.gl/PqRU6BXrYPoHW2b18" target="_blank" rel="noopener noreferrer"><span>افتح الموقع على الخريطة</span></a></div>
+      <div class="g g6 rv" style="--d:.85s"><span class="lc-msg">مستنيينكم تشاركونا فرحتنا في الليلة الحلوة دي.</span></div>
     </div>
   </section>
 
   <!-- تأكيد الحضور -->
   <section class="sec cream rsvp" id="rsvp">
-    <h2 class="rs-h rv" style="--d:.1s">RSVP</h2>
+    <h2 class="rs-h rv" style="--d:.1s">تأكيد الحضور</h2>
     <div class="rs-card rv" style="--d:.25s" id="rsCard">
       <form id="rsForm" novalidate>
-        <label class="rs-lab" for="rsName">YOUR NAME</label>
+        <label class="rs-lab" for="rsName">الاسم</label>
         <input class="rs-in" id="rsName" type="text" autocomplete="name" maxlength="80" dir="auto">
-        <div class="rs-lab rs-q">WILL YOU BE ATTENDING OUR DAY?</div>
-        <label class="rs-opt"><span>YES</span><input type="radio" name="att" value="yes" checked><i></i></label>
-        <label class="rs-opt"><span>NO</span><input type="radio" name="att" value="no"><i></i></label>
-        <label class="rs-lab rs-m" for="rsMsg">WRITE YOUR CONGRATULATIONS</label>
+        <div class="rs-lab rs-q">هتشاركونا فرحتنا؟</div>
+        <label class="rs-opt"><span>أكيد، هحضر</span><input type="radio" name="att" value="yes" checked><i></i></label>
+        <label class="rs-opt"><span>معلش، مش هقدر</span><input type="radio" name="att" value="no"><i></i></label>
+        <label class="rs-lab rs-m" for="rsMsg">اكتب تهنئتك (اختياري)</label>
         <textarea class="rs-in rs-ta" id="rsMsg" maxlength="200" dir="auto"></textarea>
         <p class="rs-err" id="rsErr" role="alert"></p>
-        <button class="rs-send" id="rsSend" type="submit">SEND</button>
+        <button class="rs-send" id="rsSend" type="submit">إرسال</button>
       </form>
       <div class="rs-done">
         <span class="ok"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.2 4.2L19 7"/></svg></span>
-        <h3>THANK YOU</h3>
-        <p id="rsDoneMsg">Your reply has reached us with love.</p>
+        <h3>شكرًا ليك</h3>
+        <p id="rsDoneMsg">ردّك وصلنا بكل حب.</p>
       </div>
     </div>
   </section>
@@ -444,21 +517,21 @@ button,input,textarea{font:inherit;color:inherit}
   <section class="sec navy ty">
     <div class="inner">
       <div class="orn ty-orn"><span><i></i><b></b><i></i></span></div>
-      <div class="g g1 rv" style="--d:.08s"><span class="cap ty-cap">THANK YOU</span></div>
-      <div class="g g2 rv" style="--d:.22s"><span class="ty-msg">Thank you for being part of our special day.</span></div>
+      <div class="g g1 rv" style="--d:.08s"><span class="cap ty-cap">شكرًا من القلب</span></div>
+      <div class="g g2 rv" style="--d:.22s"><span class="ty-msg">شكرًا إنكم جزء من أحلى يوم في عمرنا.</span></div>
       <div class="heart"><span></span></div>
-      <div class="g g3 rv" style="--d:.38s"><span class="ty-names">Mai &amp; Abdelrahman</span></div>
-      <div class="g g4 rv" style="--d:.5s"><span class="cap ty-date">26 · 11 · 2026</span></div>
+      <div class="g g3 rv" style="--d:.38s"><span class="ty-names">مي و عبد الرحمن</span></div>
+      <div class="g g4 rv" style="--d:.5s"><span class="cap ty-date" dir="ltr">٢٦ / ١١ / ٢٠٢٦</span></div>
       <div class="orn flat dot ty-bot"><span><i></i><b></b><i></i></span></div>
     </div>
   </section>
 
 </main>
 
-<button class="fab fab-music" id="musicBtn" type="button" aria-label="Music">
+<button class="fab fab-music" id="musicBtn" type="button" aria-label="الموسيقى">
   <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg>
 </button>
-<button class="fab fab-auto" id="autoBtn" type="button" aria-label="Auto scroll">
+<button class="fab fab-auto" id="autoBtn" type="button" aria-label="نزول تلقائي">
   <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 5.2v13.6L18.8 12z"/></svg>
   <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 5h3.6v14H7zM13.4 5H17v14h-3.6z"/></svg>
 </button>
@@ -587,7 +660,8 @@ button,input,textarea{font:inherit;color:inherit}
   // ===== العدّاد — الخميس 26/11/2026 الساعة 7:30 مساءً بتوقيت القاهرة (UTC+2) =====
   var TARGET = Date.UTC(2026, 10, 26, 17, 30, 0);
   var cells = { d: $('[data-u=d]'), h: $('[data-u=h]'), m: $('[data-u=m]'), s: $('[data-u=s]') };
-  function two(n) { return (n < 10 ? '0' : '') + n; }
+  var AR_DIGITS = '٠١٢٣٤٥٦٧٨٩';
+  function two(n) { return ((n < 10 ? '0' : '') + n).replace(/\d/g, function (d) { return AR_DIGITS[d]; }); }
   function tick() {
     var s = Math.max(0, Math.floor((TARGET - Date.now()) / 1000));
     var v = { d: Math.floor(s / 86400), h: Math.floor((s % 86400) / 3600), m: Math.floor((s % 3600) / 60), s: s % 60 };
@@ -636,11 +710,11 @@ button,input,textarea{font:inherit;color:inherit}
     var name = $('#rsName').value.trim();
     var att = (form.querySelector('input[name=att]:checked') || {}).value;
     var note = $('#rsMsg').value.trim();
-    if (!name) { err.textContent = 'Please write your name'; $('#rsName').focus(); return; }
-    if (!att) { err.textContent = 'Please choose YES or NO'; return; }
+    if (!name) { err.textContent = 'من فضلك اكتب اسمك'; $('#rsName').focus(); return; }
+    if (!att) { err.textContent = 'من فضلك اختار هتحضر ولا لأ'; return; }
     err.textContent = '';
     function done() {
-      $('#rsDoneMsg').textContent = att === 'yes' ? 'We can’t wait to see you there.' : 'We will miss you — thank you for letting us know.';
+      $('#rsDoneMsg').textContent = att === 'yes' ? 'مستنيينك بكل حب.' : 'هتوحشنا — شكرًا إنك عرّفتنا.';
       card.classList.add('sent');
     }
     if (!RSVP_URL) { done(); return; }
@@ -653,7 +727,7 @@ button,input,textarea{font:inherit;color:inherit}
       if (r.ok) return done();
       throw new Error('send');
     }).catch(function () {
-      err.textContent = 'Couldn’t send — please try again in a moment';
+      err.textContent = 'مااتبعتش — جرّب تاني كمان شوية';
       send.disabled = false;
     });
   });

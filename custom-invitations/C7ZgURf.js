@@ -41,8 +41,9 @@ module.exports = {
     width: 1200,
     height: 630,
     overrideImage: true,
-    title: 'The Wedding of Mai & Abdelrahman',
-    description: 'Thursday 26 November 2026 · 7:30 PM · Sea Star, Alexandria',
+    // عربي بطلب المالك (2026-11-02) — الدعوة كلها بقت عربي
+    title: 'دعوة زفاف مي و عبد الرحمن',
+    description: 'الخميس ٢٦ نوفمبر ٢٠٢٦ · السابعة والنصف مساءً · سي ستار — المكس، الإسكندرية',
   },
 
   // render لازم يبقى موجود عشان transform يشتغل (utils/customInvitations.js)
