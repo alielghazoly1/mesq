@@ -29,6 +29,18 @@ function shareTags(templateHtml) {
   return tags ? tags.join('\n') : '';
 }
 
+/**
+ * الأغنية ("ادخلي عمري بخطوة" — مستنيين الملف من المالك): song.mp3 جنب صور الدعوة
+ * لو موجود، وإلا الأغنية اللي صاحب الدعوة رافعها من لوحته (audioUrl). مفيش = مفيش زرار.
+ */
+function songUrl(templateHtml) {
+  for (const root of ['public', 'dist']) {
+    if (fs.existsSync(path.join(__dirname, '..', 'client', root, 'custom', SHORT, 'song.mp3'))) return asset(`${DIR}song.mp3`);
+  }
+  const m = templateHtml.match(/"audioUrl":"(https:\/\/[^"]+)"/);
+  return m ? m[1].replace(/\\u002F/g, '/') : '';
+}
+
 module.exports = {
   shortId: SHORT,
 
@@ -56,7 +68,8 @@ module.exports = {
       out = out.replace(/<head>/i, (m) => `${m}\n${tags}`);
     }
     // تأكيد الحضور بيروح للدعوة دي (في المعاينة من غير سيرفر بيظهر الشكر بس)
-    out = out.replace(/<head>/i, (m) => `${m}\n<script>window.MQ_RSVP_URL = '/i/${SHORT}/rsvp';</script>`);
+    // والأغنية (لو موجودة) بتشتغل مع فتح البابين
+    out = out.replace(/<head>/i, (m) => `${m}\n<script>window.MQ_RSVP_URL = '/i/${SHORT}/rsvp'; window.DW_SONG = ${JSON.stringify(songUrl(templateHtml))};</script>`);
     // المحرر مالوش شغل على الدعوة دي — بنوضّح لصاحبها إن التعديل بيبقى من عندنا
     if (editMode) {
       out = out.replace(/<body[^>]*>/i, (m) => `${m}<div style="position:fixed;top:0;left:0;right:0;z-index:100;padding:10px 14px;background:#8a6a2a;color:#fff;font:600 14px/1.5 Tajawal,Arial,sans-serif;text-align:center;direction:rtl">الدعوة دي معمولة مخصوص — لأي تعديل كلّمنا وهنعدّله لك</div>`);

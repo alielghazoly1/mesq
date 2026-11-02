@@ -172,6 +172,13 @@ button,input,textarea{font:inherit;color:inherit}
 
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 .static .rv{opacity:1!important;transform:none!important}
+/* زرار الأغنية (بيظهر بس لو فيه أغنية) */
+.music{position:fixed;z-index:60;left:max(16px,calc(50% - var(--col) / 2 + 16px));bottom:calc(18px + env(safe-area-inset-bottom,0px));display:none;place-items:center;width:48px;height:48px;padding:0;border:1px solid rgba(168,129,47,.5);border-radius:50%;background:#fff;color:var(--gold);box-shadow:0 10px 26px -12px rgba(110,80,25,.6);cursor:pointer}
+.has-song.opened .music{display:grid}
+.music svg{width:19px;height:19px}
+.music.on svg{animation:spin 6s linear infinite}
+.music.off::after{content:"";position:absolute;width:26px;height:1.6px;background:var(--gold);transform:rotate(-45deg)}
+@keyframes spin{to{transform:rotate(360deg)}}
 .static .ov.rv{transform:translate(-50%,-50%)!important}
 </style>
 </head>
@@ -214,9 +221,8 @@ button,input,textarea{font:inherit;color:inherit}
       <p class="lead">يتشرّفون بدعوتكم لحضور <b>حفل زفاف</b> أبنائهم</p>
     </section>
 
-    <!-- الفرح الأول -->
+    <!-- العريس والعروسة (فرح واحد) -->
     <section class="blk couple rv">
-      <span class="num">الفرح الأول</span>
       <span class="who">نجل الحاج الشحات عبد الحميد السنور</span>
       <span class="nm gold">محمود شحته السنور</span>
       <div class="rings" aria-hidden="true"><svg viewBox="0 0 42 30"><circle cx="15" cy="16" r="10" fill="none" stroke="#b08a3c" stroke-width="2.2"/><circle cx="27" cy="16" r="10" fill="none" stroke="#c9a253" stroke-width="2.2"/><path d="M27 2.5l2.2 2.6-2.2 2.6-2.2-2.6z" fill="#e2c27a"/></svg></div>
@@ -224,9 +230,8 @@ button,input,textarea{font:inherit;color:inherit}
       <span class="nm gold">زينب حسني أبو المجد</span>
     </section>
 
-    <!-- الفرح التاني -->
-    <section class="blk couple rv" style="margin-top:9cqw">
-      <span class="num">الفرح الثاني</span>
+    <!-- العريس والعروسة -->
+    <section class="blk couple rv" style="margin-top:6cqw">
       <span class="who">نجل الحاج عاطف عبد الحميد السنور</span>
       <span class="nm gold">طارق عاطف السنور</span>
       <div class="rings" aria-hidden="true"><svg viewBox="0 0 42 30"><circle cx="15" cy="16" r="10" fill="none" stroke="#b08a3c" stroke-width="2.2"/><circle cx="27" cy="16" r="10" fill="none" stroke="#c9a253" stroke-width="2.2"/><path d="M27 2.5l2.2 2.6-2.2 2.6-2.2-2.6z" fill="#e2c27a"/></svg></div>
@@ -313,6 +318,7 @@ button,input,textarea{font:inherit;color:inherit}
   </footer>
 </main>
 
+<button class="music" id="musicBtn" type="button" aria-label="الأغنية"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 3v10.55A4 4 0 1 0 14 17V7h4V3h-6z"/></svg></button>
 <i class="spark" style="left:12%;bottom:-10px;--s:11s;--dl:0s;--dx:18px"></i>
 <i class="spark" style="left:34%;bottom:-10px;--s:13s;--dl:3s;--dx:-14px"></i>
 <i class="spark" style="left:58%;bottom:-10px;--s:10s;--dl:6s;--dx:22px"></i>
@@ -338,9 +344,38 @@ button,input,textarea{font:inherit;color:inherit}
     dust.appendChild(d);
   }
 
+  // ===== الأغنية: بتبدأ مع فتح البابين (نفس الضغطة — عشان الآيفون يسمح) =====
+  var song = null, musicBtn = $('#musicBtn'), wanted = true, hidPause = false;
+  if (window.DW_SONG) {
+    song = new Audio(window.DW_SONG); song.loop = true; song.preload = 'auto';
+    body.classList.add('has-song');
+  }
+  function ui(on) { musicBtn.classList.toggle('on', on); musicBtn.classList.toggle('off', !on); }
+  function fadeIn() {
+    var v = 0, t = setInterval(function () { v = Math.min(0.85, v + 0.05); try { song.volume = v; } catch (e) {} if (v >= 0.85) clearInterval(t); }, 90);
+  }
+  function playSong() {
+    if (!song) return;
+    try { song.volume = 0; } catch (e) {}
+    var p; try { p = song.play(); } catch (e) { p = null; }
+    if (p && p.then) p.then(function () { ui(true); fadeIn(); }).catch(function () { ui(false); });
+    else { ui(!song.paused); fadeIn(); }
+  }
+  musicBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    if (!song) return;
+    if (song.paused) { wanted = true; playSong(); } else { wanted = false; song.pause(); ui(false); }
+  });
+  document.addEventListener('visibilitychange', function () {
+    if (!song) return;
+    if (document.hidden) { if (!song.paused) { song.pause(); hidPause = true; } }
+    else if (hidPause && wanted) { hidPause = false; song.play().catch(function () {}); }
+  });
+
   function open() {
     if (opened) return;
     opened = true;
+    playSong();
     intro.classList.add('open');
     window.scrollTo(0, 0);
     setTimeout(function () {
