@@ -173,18 +173,18 @@ function sectionsCss() {
   const paper = asset(`${DIR}paper.webp`);
   return `<style id="e5-sections-css">
 /* ===== العدّاد: كروت قوس كبيرة ومش طويلة، أرقام زيتي كبيرة ===== */
-#wg-invite #wg-invite-4{background:#f6efdd url(${paper}) center/320px auto repeat;padding:13cqw 4.5cqw 13cqw}
+#wg-invite #wg-invite-4{background:#f6efdd url(${paper}) center/320px auto repeat;padding:5cqw 4.5cqw 10cqw}
 #wg-invite #wg-invite-4 .until{color:#5f6230;font-size:12cqw;line-height:1.2}
 #wg-invite.wg-rtl #wg-invite-4 .until{font-size:10.5cqw;line-height:1.55}
-#wg-invite #wg-invite-4 .cd-orn{width:40cqw;margin-top:4cqw}
-#wg-invite #wg-countdown{gap:2.6cqw;margin-top:8cqw}
+#wg-invite #wg-invite-4 .cd-orn{width:58cqw;height:auto;margin-top:3cqw}
+#wg-invite #wg-countdown{gap:2.6cqw;margin-top:6cqw}
 #wg-invite #wg-countdown .wg-cd-block{aspect-ratio:1/1.08;padding:0;justify-content:center;
   background:linear-gradient(180deg,#fffcf4,#f8f0de);border:1.5px solid #c4a26b;border-radius:50% 50% 3.4cqw 3.4cqw / 34% 34% 3.4cqw 3.4cqw;
   box-shadow:0 0 0 1.6cqw rgba(255,251,242,.85),0 0 0 calc(1.6cqw + 1px) rgba(196,162,107,.18),0 14px 26px -16px rgba(110,90,40,.45)}
 #wg-invite #wg-countdown .wg-cd-num{font-size:15cqw;line-height:1;color:#555a29;background:none;-webkit-text-fill-color:#555a29;letter-spacing:-.03em;margin-top:2.4cqw}
 #wg-invite #wg-countdown .wg-cd-label{margin-top:2.6cqw;font-size:3.1cqw;color:#a3824f;letter-spacing:.2em}
 #wg-invite.wg-rtl #wg-countdown .wg-cd-label{font-size:4.1cqw;letter-spacing:0;font-family:'Amiri',serif;font-weight:700}
-#wg-invite #wg-countdown .wg-cd-label::before{width:5px;height:5px;margin-bottom:2cqw;background:#b38e57}
+#wg-invite #wg-countdown .wg-cd-label::before{width:1.9cqw;height:1.9cqw;margin-bottom:2.2cqw;background:#b38e57}
 
 /* ===== الخريطة في قوس، والبيوني حواليه ===== */
 #wg-invite #wg-map{background:#f6efdd url(${paper}) center/320px auto repeat;padding:44px 20px 56px;overflow:hidden}
@@ -193,12 +193,17 @@ function sectionsCss() {
 #wg-invite #wg-map .wg-map-script{color:#4e4f25;font-size:40px}
 #wg-invite #wg-map .wg-map-venue{color:#4b4a2c;font-family:'Amiri',serif;font-weight:700;font-size:25px;letter-spacing:0;margin:10px 0 2px;text-transform:none}
 #wg-invite #wg-map .wg-map-addr{color:#8b7550;font-family:'Amiri',serif;font-size:15px;margin:0 0 34px}
-#wg-invite #wg-map .wg-map-frame{position:relative;width:78%;max-width:400px;margin:0 auto;padding:7px;background:#fbf6ea;border:1.5px solid #e2d3b2;border-radius:50% 50% 14px 14px / 30% 30% 14px 14px;box-shadow:0 18px 34px -18px rgba(100,80,40,.45)}
+#wg-invite #wg-map .wg-map-frame{position:relative;width:70%;max-width:400px;margin:0 auto;padding:7px;background:#fbf6ea;border:1.5px solid #e2d3b2;border-radius:50% 50% 14px 14px / 30% 30% 14px 14px;box-shadow:0 18px 34px -18px rgba(100,80,40,.45)}
 #wg-invite #wg-map .wg-map-frame iframe{position:relative;z-index:1;height:auto;aspect-ratio:3/4;border-radius:50% 50% 9px 9px / 30% 30% 9px 9px;filter:sepia(.42) saturate(.75) contrast(.95) brightness(1.03)}
 #wg-invite #wg-map .pf{position:absolute;z-index:2;height:auto;pointer-events:none;filter:drop-shadow(0 6px 8px rgba(80,60,30,.18))}
-#wg-invite #wg-map .pf1{width:78%;right:-34%;top:-11%;transform:rotate(38deg)}
-#wg-invite #wg-map .pf2{width:44%;left:-9%;top:2%;transform:scaleX(-1) rotate(-32deg)}
-#wg-invite #wg-map .pf3{width:60%;left:-30%;bottom:-6%;transform:scaleX(-1) rotate(30deg)}
+
+
+
+/* الورد ماشي على القوس: بوكيه كبير على كتف اليمين نازل على الجنب، بوكيه على كتف الشمال، وواحد تحت على الشمال */
+#wg-invite #wg-map .pf1{width:86%;right:-34%;top:-13%;transform:rotate(20deg)}
+#wg-invite #wg-map .pf4{width:62%;right:-33%;top:17%;transform:rotate(78deg)}
+#wg-invite #wg-map .pf2{width:60%;left:-27%;top:-6%;transform:scaleX(-1) rotate(-16deg)}
+#wg-invite #wg-map .pf3{width:66%;left:-31%;bottom:-11%;transform:scaleX(-1) rotate(-4deg)}
 #wg-invite #wg-map .wg-map-btn{display:inline-flex;align-items:center;gap:10px;margin-top:34px;padding:12px 26px;background:transparent;color:#5c5b35;border:1.5px solid #b49a63;border-radius:2px;font-family:'Amiri',serif;font-size:17px;font-weight:700;letter-spacing:0;box-shadow:none}
 #wg-invite #wg-map .wg-map-btn:hover,#wg-invite #wg-map .wg-map-btn:active{background:rgba(180,154,99,.12);border-color:#9c8250;color:#4e4f25}
 #wg-invite #wg-map .wg-map-btn .pin{width:17px;height:17px;flex:none}
@@ -287,7 +292,8 @@ module.exports = {
     out = out.replace('<div class="wg-map-frame" data-elem-id="lg23" data-wg-reveal>', (m) => `${m}
                         <img class="pf pf1" src="${asset(`${DIR}peony-cluster.webp`)}" alt="" loading="lazy" decoding="async">
                         <img class="pf pf2" src="${asset(`${DIR}peony-cluster.webp`)}" alt="" loading="lazy" decoding="async">
-                        <img class="pf pf3" src="${asset(`${DIR}peony-cluster.webp`)}" alt="" loading="lazy" decoding="async">`);
+                        <img class="pf pf3" src="${asset(`${DIR}peony-cluster.webp`)}" alt="" loading="lazy" decoding="async">
+                        <img class="pf pf4" src="${asset(`${DIR}peony-cluster.webp`)}" alt="" loading="lazy" decoding="async">`);
     out = out.replace('<a class="wg-map-btn" id="wg-map-link" href="https://www.google.com/maps" target="_blank" rel="noopener">', (m) => `${m}<svg class="pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>`);
     return out;
   },
