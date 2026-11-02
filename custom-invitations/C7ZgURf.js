@@ -37,7 +37,8 @@ module.exports = {
 
   // عنوان ووصف وصورة كارت المشاركة (واتساب/فيسبوك/إنستجرام)
   share: {
-    image: `${DIR}share.jpg`,
+    // ببصمة المحتوى: الكارت اتغيّر للعربي — من غيرها واتساب/فيسبوك والكاش بيفضلوا على القديم
+    image: asset(`${DIR}share.jpg`),
     width: 1200,
     height: 630,
     overrideImage: true,
