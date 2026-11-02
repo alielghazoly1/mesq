@@ -161,6 +161,50 @@ function pageCss() {
 </style>`;
 }
 
+// درجات الوردي في القالب → زيتي ودهبي من ألوان الصور اللي المالك بعتها
+const PALETTE = [
+  ['#b9506a', '#6b6e35'], ['#9c3d57', '#555a29'], ['#a9455f', '#5f6230'], ['#d08c9c', '#b49a63'],
+  ['#c58a9a', '#b49a63'], ['#cf6f88', '#7d8040'], ['#fbe9ea', '#f3ead2'], ['#fff6f4', '#fbf7ec'],
+  ['rgba(185,80,106,', 'rgba(122,112,60,'], ['rgba(156,61,87,', 'rgba(110,100,50,'],
+];
+
+// العدّاد والخريطة زي الصور اللي المالك بعتها
+function sectionsCss() {
+  const paper = asset(`${DIR}paper.webp`);
+  return `<style id="e5-sections-css">
+/* ===== العدّاد: كروت قوس كبيرة ومش طويلة، أرقام زيتي كبيرة ===== */
+#wg-invite #wg-invite-4{background:#f6efdd url(${paper}) center/320px auto repeat;padding:13cqw 4.5cqw 13cqw}
+#wg-invite #wg-invite-4 .until{color:#5f6230;font-size:12cqw;line-height:1.2}
+#wg-invite.wg-rtl #wg-invite-4 .until{font-size:10.5cqw;line-height:1.55}
+#wg-invite #wg-invite-4 .cd-orn{width:40cqw;margin-top:4cqw}
+#wg-invite #wg-countdown{gap:2.6cqw;margin-top:8cqw}
+#wg-invite #wg-countdown .wg-cd-block{aspect-ratio:1/1.08;padding:0;justify-content:center;
+  background:linear-gradient(180deg,#fffcf4,#f8f0de);border:1.5px solid #c4a26b;border-radius:50% 50% 3.4cqw 3.4cqw / 34% 34% 3.4cqw 3.4cqw;
+  box-shadow:0 0 0 1.6cqw rgba(255,251,242,.85),0 0 0 calc(1.6cqw + 1px) rgba(196,162,107,.18),0 14px 26px -16px rgba(110,90,40,.45)}
+#wg-invite #wg-countdown .wg-cd-num{font-size:15cqw;line-height:1;color:#555a29;background:none;-webkit-text-fill-color:#555a29;letter-spacing:-.03em;margin-top:2.4cqw}
+#wg-invite #wg-countdown .wg-cd-label{margin-top:2.6cqw;font-size:3.1cqw;color:#a3824f;letter-spacing:.2em}
+#wg-invite.wg-rtl #wg-countdown .wg-cd-label{font-size:4.1cqw;letter-spacing:0;font-family:'Amiri',serif;font-weight:700}
+#wg-invite #wg-countdown .wg-cd-label::before{width:5px;height:5px;margin-bottom:2cqw;background:#b38e57}
+
+/* ===== الخريطة في قوس، والبيوني حواليه ===== */
+#wg-invite #wg-map{background:#f6efdd url(${paper}) center/320px auto repeat;padding:44px 20px 56px;overflow:hidden}
+#wg-invite #wg-map::before{display:none}
+#wg-invite #wg-map .e5-eyebrow{margin:0 0 4px;font:600 14px/1.4 'Amiri',serif;color:#8b7550;letter-spacing:0}
+#wg-invite #wg-map .wg-map-script{color:#4e4f25;font-size:40px}
+#wg-invite #wg-map .wg-map-venue{color:#4b4a2c;font-family:'Amiri',serif;font-weight:700;font-size:25px;letter-spacing:0;margin:10px 0 2px;text-transform:none}
+#wg-invite #wg-map .wg-map-addr{color:#8b7550;font-family:'Amiri',serif;font-size:15px;margin:0 0 34px}
+#wg-invite #wg-map .wg-map-frame{position:relative;width:78%;max-width:400px;margin:0 auto;padding:7px;background:#fbf6ea;border:1.5px solid #e2d3b2;border-radius:50% 50% 14px 14px / 30% 30% 14px 14px;box-shadow:0 18px 34px -18px rgba(100,80,40,.45)}
+#wg-invite #wg-map .wg-map-frame iframe{position:relative;z-index:1;height:auto;aspect-ratio:3/4;border-radius:50% 50% 9px 9px / 30% 30% 9px 9px;filter:sepia(.42) saturate(.75) contrast(.95) brightness(1.03)}
+#wg-invite #wg-map .pf{position:absolute;z-index:2;height:auto;pointer-events:none;filter:drop-shadow(0 6px 8px rgba(80,60,30,.18))}
+#wg-invite #wg-map .pf1{width:78%;right:-34%;top:-11%;transform:rotate(38deg)}
+#wg-invite #wg-map .pf2{width:44%;left:-9%;top:2%;transform:scaleX(-1) rotate(-32deg)}
+#wg-invite #wg-map .pf3{width:60%;left:-30%;bottom:-6%;transform:scaleX(-1) rotate(30deg)}
+#wg-invite #wg-map .wg-map-btn{display:inline-flex;align-items:center;gap:10px;margin-top:34px;padding:12px 26px;background:transparent;color:#5c5b35;border:1.5px solid #b49a63;border-radius:2px;font-family:'Amiri',serif;font-size:17px;font-weight:700;letter-spacing:0;box-shadow:none}
+#wg-invite #wg-map .wg-map-btn:hover,#wg-invite #wg-map .wg-map-btn:active{background:rgba(180,154,99,.12);border-color:#9c8250;color:#4e4f25}
+#wg-invite #wg-map .wg-map-btn .pin{width:17px;height:17px;flex:none}
+</style>`;
+}
+
 const VERSE = `<section id="e5-verse" aria-label="آية قرآنية">
   <img class="strip" src="${asset(`${DIR}peony-strip.webp`)}" alt="" decoding="async">
   <div class="in">
@@ -233,7 +277,18 @@ module.exports = {
       .replace('data-elem-id="lg5" src="/templates/lily-garden/hands.webp"', `data-elem-id="lg5" src="${asset(`${DIR}hands.webp`)}"`);
     // قسم الآية تحت أول صفحة على طول (قبل الكارت)
     out = out.replace('<!-- ===== الصفحة 2 ===== -->', () => `${VERSE}\n                <!-- ===== الصفحة 2 ===== -->`);
-    out = out.replace(/<\/head>/i, () => `${pageCss()}</head>`);
+    out = out.replace(/<\/head>/i, () => `${pageCss()}${sectionsCss()}</head>`);
+    // الوردة اللي فوق اسامي الختام (نفس الزنبق) دهبي كمان
+    out = out.replace(/src="\/templates\/lily-garden\/lily-r\.webp"/g, `src="${asset(`${DIR}lily-r-gold.webp`)}"`);
+    // ===== مفيش وردي في الكلام: كل درجات الوردي → زيتي/دهبي (ألوان الصور) =====
+    for (const [a, b] of PALETTE) out = out.split(a).join(b);
+    // ===== الخريطة: عنوان صغير فوق، قوس بورد بيوني حواليه، وزرار بإطار ودبوس =====
+    out = out.replace('<h2 class="wg-map-script" data-elem-id="lg20"', () => `<p class="e5-eyebrow" data-wg-reveal>يسعدنا حضوركم في</p>\n                    <h2 class="wg-map-script" data-elem-id="lg20"`);
+    out = out.replace('<div class="wg-map-frame" data-elem-id="lg23" data-wg-reveal>', (m) => `${m}
+                        <img class="pf pf1" src="${asset(`${DIR}peony-cluster.webp`)}" alt="" loading="lazy" decoding="async">
+                        <img class="pf pf2" src="${asset(`${DIR}peony-cluster.webp`)}" alt="" loading="lazy" decoding="async">
+                        <img class="pf pf3" src="${asset(`${DIR}peony-cluster.webp`)}" alt="" loading="lazy" decoding="async">`);
+    out = out.replace('<a class="wg-map-btn" id="wg-map-link" href="https://www.google.com/maps" target="_blank" rel="noopener">', (m) => `${m}<svg class="pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>`);
     return out;
   },
 };
