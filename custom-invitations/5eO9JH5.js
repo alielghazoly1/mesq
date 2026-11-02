@@ -58,6 +58,11 @@ function css() {
 #e5-cover.open .sp{animation:e5sp 1.2s ease-out forwards}
 @keyframes e5sp{0%{opacity:0;transform:translate(0,0) scale(.4)}15%{opacity:1}100%{opacity:0;transform:translate(var(--x),var(--y)) scale(1)}}
 #e5-cover.gone{display:none}
+/* الدعوة عربي بس الأسامي إنجليزي (طلب أصحابها): سطر الأسامي يتقري شمال→يمين زي
+   النسخة الإنجليزي ("Orjwan &" فوق و"Dr. Mohammed" تحت) مش "& Orjwan" */
+#wg-invite.wg-rtl #wg-invite-1 .names{direction:ltr}
+#wg-invite.wg-rtl #wg-invite-1 .names .amp>.conn{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-weight:500;font-size:.62em;vertical-align:.18em}
+#wg-invite.wg-rtl [data-elem-id="lg26"]{direction:ltr;unicode-bidi:isolate}
 /* ختم القالب نفسه مستخبي (بندوس عليه من الكود بس) — عشان مايبانش ختمين */
 html.e5-on .popup-enter{opacity:0!important}
 @media (prefers-reduced-motion:reduce){#e5-cover .fl{transition-duration:.01ms!important}#e5-cover *{animation-duration:.01ms!important}}
