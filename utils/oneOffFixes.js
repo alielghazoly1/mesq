@@ -619,6 +619,51 @@ const FIXES = [
     apply: (c) => ({ 'customizations.texts': { ...(c.texts || {}), lg20: 'مكان الحفل' } }),
   },
   {
+    // G1L8BxQ (Lily Garden بشكله — custom-invitations/G1L8BxQ.js) — أرجوان ود. محمد بطلب
+    // المالك: الأسامي والتاريخ فوق إنجليزي وباقي الدعوة عربي. الكارت: دعوة خاصة / بقلوب
+    // تملؤها المودة والحب / تتشرف عائلة الدكتور زيدان عبدالدائم بدعوتكم لحضور حفل زفاف
+    // ابنتهم أرجوان. الموعد والمكان: وذلك بمشيئة الله تعالى يوم الخميس الموافق 12/11/2026
+    // عند الساعة 7:30 في قاعة قلوريا. المكان: قاعة قلوريا للمناسبات الاجتماعية — طرابلس.
+    // من غير تأكيد حضور وصور ضيوف. بيتعمل بس لو الدعوة لسه مسودة (Groom & Bride).
+    name: 'G1L8BxQ-orjwan-mohammed',
+    shortId: 'G1L8BxQ',
+    select: '-__v',
+    when: (c, inv) => inv.groomName === 'Groom' && inv.brideName === 'Bride',
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const hidden = [...new Set([...(inv.hiddenSections || []).filter((k) => k !== 'map' && k !== 'countdown'), 'rsvp', 'guestPhotos'])];
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: 'ar', occasionType: 'wedding',
+        hiddenSections: hidden, timeline: inv.timeline, name: inv.name,
+        groomName: 'Dr. Mohammed', groomNameAr: 'Dr. Mohammed',
+        brideName: 'Orjwan', brideNameAr: 'Orjwan',
+        venueName: 'قاعة قلوريا للمناسبات الاجتماعية', venueCity: 'طرابلس',
+        venueAddress: 'طرابلس',
+        venueMapQuery: 'https://maps.app.goo.gl/mx3Gfuy2yGDNfJz46',
+        weddingDate: '2026-11-12', weddingTime: '19:30',
+      }, { ownsTemplate: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.language = 'ar';
+      set.hiddenSections = hidden;
+      set['customizations.texts'] = {
+        ...(c.texts || {}),
+        lg79: 'Orjwan', lg80: '&', lg3: 'Dr. Mohammed', lg4: 'Wedding Day',
+        lg26: 'Orjwan & Dr. Mohammed',
+        lg9: 'دعوة خاصة',
+        lg10: 'بقلوب تملؤها المودة والحب',
+        lg40: 'تتشرف عائلة الدكتور زيدان عبدالدائم',
+        lg41: 'بدعوتكم لحضور حفل زفاف ابنتهم أرجوان',
+        lg15: 'وذلك بمشيئة الله تعالىٰ',
+        lg16: 'يوم الخميس الموافق 12/11/2026',
+        lg17: 'عند الساعة 7:30 مساءً',
+        lg18: 'في قاعة قلوريا',
+        lg20: 'مكان الحفل',
+      };
+      return set;
+    },
+  },
+  {
     // Dcx7Jny — أفراح عائلات السنور وأبو المجد وآل عبد اللطيف (فرحين في ليلة واحدة؛
     // custom-invitations/Dcx7Jny.js بيعرض الصفحة). هنا بيانات الدعوة عشان لوحة العميل
     // والعنوان: الخميس 19/11/2026 بعد العشاء (7 مساءً)، كفر الشيخ. بيتعمل بس لو لسه مسودة.
