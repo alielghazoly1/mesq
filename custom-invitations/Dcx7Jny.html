@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f7f3ea">
+<title>أفراح عائلات السنور وأبو المجد وآل عبد اللطيف</title>
+<meta name="description" content="زفاف محمود وزينب · طارق وعزة — الخميس ١٩ نوفمبر ٢٠٢٦ بعد صلاة العشاء">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Amiri+Quran&family=Aref+Ruqaa:wght@400;700&family=El+Messiri:wght@400;500;600;700&family=Tajawal:wght@400;500;700&display=swap">
+<link rel="preload" as="image" href="assets/top.webp">
+<style>
+/* ============================================================
+   أفراح عائلات السنور وأبو المجد وآل عبد اللطيف — فرحين في ليلة واحدة
+   التصميم من كارت العيلة نفسه: الإطار الدهبي والقوس والورد (اتشال منه
+   الكلام واتكبّر)، والكلام كله حي فوقه بخطوط عربي.
+   الصفحة = القوس (فوق) + إطار بيطوّل مع المحتوى (بلاطة بتتكرر) + الورد (تحت).
+   ============================================================ */
+:root{
+  --paper:#ffffff; --ink:#4a3a22; --ink2:#6b5634; --gold:#a8812f; --gold2:#c9a253;
+  --col:560px;
+  --quran:'Amiri Quran','Amiri',serif;
+  --serif:'Amiri','Times New Roman',serif;
+  --script:'Aref Ruqaa','Amiri',serif;
+  --head:'El Messiri','Amiri',sans-serif;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html,body{margin:0;padding:0;background:#efe9dc}
+body{font-family:var(--serif);color:var(--ink);overflow-x:hidden;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+body.locked{overflow:hidden;height:100vh}
+button,input,textarea{font:inherit;color:inherit}
+
+/* النص الدهبي اللامع (الأسامي والعناوين الكبيرة) */
+.gold{background:linear-gradient(100deg,#8a6420 0%,#b98d3a 28%,#e6c77e 46%,#b98d3a 62%,#8a6420 100%);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;animation:sheen 6s ease-in-out infinite}
+@keyframes sheen{0%,100%{background-position:100% 0}50%{background-position:0 0}}
+
+/* ===== الغلاف: بابين بيتفتحوا ===== */
+.intro{position:fixed;inset:0;z-index:90;background:#fbf8f2;cursor:pointer;outline:none;-webkit-user-select:none;user-select:none;transition:background-color .9s ease .5s}
+.intro.open{background-color:transparent}
+/* البابين: كل باب فيه نص الإطار (القوس فوق، الورد تحت، والجوانب في النص) */
+.doors{position:absolute;top:0;bottom:0;left:50%;display:flex;width:min(100vw,var(--col));transform:translateX(-50%)}
+.door{position:relative;flex:1;height:100%;background-color:var(--paper);background-image:url(assets/top.webp),url(assets/bottom.webp),url(assets/mid.webp);background-repeat:no-repeat,no-repeat,repeat-y;background-size:200% auto,200% auto,200% auto;transition:transform 1.5s cubic-bezier(.7,0,.25,1);box-shadow:0 0 0 rgba(0,0,0,0)}
+.door.r{background-position:right top,right bottom,right top}
+.door.l{background-position:left top,left bottom,left top}
+.intro.open .door.r{transform:translateX(104%);box-shadow:-12px 0 30px rgba(90,70,30,.18)}
+.intro.open .door.l{transform:translateX(-104%);box-shadow:12px 0 30px rgba(90,70,30,.18)}
+.intro.gone{display:none}
+.seal{position:absolute;left:50%;top:53%;z-index:3;width:min(80vw,400px);transform:translate(-50%,-50%);text-align:center;transition:opacity .7s ease,transform .9s ease}
+.intro.open .seal{opacity:0;transform:translate(-50%,-50%) scale(1.08)}
+/* لمعة ورا الكلام عشان يتقري فوق الزخرفة */
+.seal::before{content:"";position:absolute;inset:-30px -10px;z-index:-1;border-radius:50%;background:radial-gradient(closest-side,rgba(255,255,255,.96),rgba(255,255,255,.85) 60%,rgba(255,255,255,0))}
+.seal .orn{display:block;width:46%;height:24px;margin:8px auto 4px;background:url(assets/med.webp) center/contain no-repeat}
+.seal .bsm{margin:0 0 10px;font-family:var(--quran);font-size:24px;line-height:1.9;color:var(--gold)}
+.seal h1{margin:0;font-family:var(--script);font-weight:700;font-size:clamp(28px,8.6vw,40px);line-height:1.5}
+.seal .hosts{margin:6px 0 0;font-family:var(--head);font-weight:600;font-size:clamp(16px,4.6vw,20px);line-height:1.7;color:var(--ink2)}
+.seal .dt{margin:16px 0 0;font-family:var(--head);font-size:15px;color:var(--gold)}
+.tap{display:inline-flex;align-items:center;gap:10px;margin-top:26px;padding:12px 26px;border:1px solid rgba(168,129,47,.6);border-radius:999px;background:rgba(255,255,255,.55);color:var(--ink);font-family:var(--head);font-size:17px;font-weight:600;cursor:pointer;animation:breath 2.6s ease-in-out infinite;box-shadow:0 10px 26px -14px rgba(120,90,30,.5)}
+.tap i{width:8px;height:8px;border:1px solid var(--gold);transform:rotate(45deg)}
+@keyframes breath{0%,100%{opacity:.75;transform:scale(1)}50%{opacity:1;transform:scale(1.03)}}
+.dust{position:absolute;inset:0;pointer-events:none;z-index:4;overflow:hidden}
+.dust i{position:absolute;width:5px;height:5px;border-radius:50%;background:radial-gradient(circle,#f6dc95,#c79a3f 60%,transparent 70%);opacity:0}
+.intro.open .dust i{animation:burst 1.6s ease-out forwards}
+@keyframes burst{0%{opacity:0;transform:translate(0,0) scale(.4)}15%{opacity:1}100%{opacity:0;transform:translate(var(--x),var(--y)) scale(1)}}
+
+/* ===== الصفحة (عمود بعرض الإطار) ===== */
+.page{position:relative;width:100%;max-width:var(--col);margin:0 auto;background:var(--paper);container-type:inline-size;box-shadow:0 0 60px rgba(90,70,30,.12)}
+.art{position:relative;width:100%}
+.art>img{display:block;width:100%;height:auto;pointer-events:none;-webkit-user-select:none;user-select:none}
+.mid{position:relative;background:var(--paper) url(assets/mid.webp) center top/100% auto repeat-y;padding:2cqw 15.5cqw 4cqw}
+.ov{position:absolute;left:50%;transform:translate(-50%,-50%);text-align:center;margin:0}
+
+/* القوس: العنوان والبسملة والآية فوق الرسمة (نسب من 960×712) */
+.h-fam{top:34.5%;width:54%}
+.h-fam .l1{display:block;font-family:var(--script);font-weight:700;font-size:6.6cqw;line-height:1.25}
+.h-fam .l2{display:block;margin-top:.3cqw;font-family:var(--head);font-weight:600;font-size:3.7cqw;line-height:1.45;color:var(--ink)}
+.h-bsm{top:67%;width:70%;font-family:var(--quran);font-size:6.2cqw;line-height:1.6;color:var(--gold)}
+.ayah{margin:0 auto;max-width:74cqw;font-family:var(--quran);font-size:clamp(16px,4.4cqw,24px);line-height:2.1;color:var(--ink)}
+.sdq{display:block;margin-top:1cqw;font-family:var(--serif);font-size:clamp(14px,3.6cqw,18px);color:var(--gold)}
+
+/* أجزاء الكلام جوه الإطار */
+.blk{position:relative;text-align:center}
+.lead{margin:0 auto;max-width:76cqw;font-size:clamp(17px,4.6cqw,24px);line-height:1.8;color:var(--ink)}
+.lead b{font-family:var(--head);font-weight:600;color:var(--gold)}
+.dv{display:block;width:88%;max-width:420px;height:auto;margin:5cqw auto;opacity:.95}
+.dv.sm{width:52%}
+.cap{display:inline-block;margin:0 0 1.5cqw;font-family:var(--head);font-weight:600;font-size:clamp(17px,4.6cqw,24px);color:var(--gold);letter-spacing:0}
+
+/* الفرحين */
+.couple{position:relative;margin:4cqw auto 0;padding:7cqw 4cqw 6cqw;border:1px solid rgba(168,129,47,.42);border-radius:46% 46% 18px 18px / 16% 16% 18px 18px;background:linear-gradient(180deg,rgba(255,255,255,.72),rgba(255,252,244,.5));box-shadow:0 18px 40px -26px rgba(110,80,25,.45)}
+.couple::before{content:"";position:absolute;inset:6px;border:1px solid rgba(168,129,47,.2);border-radius:inherit;pointer-events:none}
+.couple .num{position:absolute;top:-17px;left:50%;transform:translateX(-50%);padding:3px 16px;background:var(--paper);font-family:var(--head);font-weight:600;font-size:clamp(14px,3.8cqw,18px);color:var(--gold);white-space:nowrap}
+.who{display:block;font-family:var(--head);font-weight:500;font-size:clamp(13px,3.5cqw,17px);color:var(--ink2);line-height:1.6}
+.nm{display:block;margin:.5cqw 0 0;font-family:var(--script);font-weight:700;font-size:clamp(28px,8.4cqw,44px);line-height:1.45;white-space:nowrap}
+.rings{display:flex;align-items:center;justify-content:center;gap:10px;margin:3cqw 0}
+.rings::before,.rings::after{content:"";width:16%;height:1px;background:linear-gradient(90deg,transparent,rgba(168,129,47,.7))}
+.rings::after{background:linear-gradient(90deg,rgba(168,129,47,.7),transparent)}
+.rings svg{width:42px;height:30px;animation:ring 3.2s ease-in-out infinite}
+@keyframes ring{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+
+/* الداعون */
+.fams{display:grid;gap:5cqw;margin-top:3cqw}
+.fam{position:relative;padding-top:9cqw}
+.fam::before{content:"";position:absolute;top:0;left:50%;width:20cqw;height:8cqw;transform:translateX(-50%);background:url(assets/med.webp) center/contain no-repeat}
+.fam .hd{display:block;font-family:var(--head);font-weight:700;font-size:clamp(17px,4.6cqw,22px);color:var(--ink);line-height:1.6}
+.fam ul{list-style:none;margin:1.5cqw 0 0;padding:0}
+.fam li{font-size:clamp(16px,4.3cqw,21px);line-height:1.85;color:var(--ink2)}
+.fam li::before{content:"";display:inline-block;width:5px;height:5px;margin-left:8px;vertical-align:middle;border:1px solid var(--gold);transform:rotate(45deg)}
+@container (min-width:520px){
+  .fams{grid-template-columns:repeat(3,1fr);gap:2cqw}
+  .fam li{font-size:15px}
+  .fam .hd{font-size:16px}
+}
+
+/* الميعاد */
+.when .day{display:block;font-family:var(--head);font-weight:600;font-size:clamp(20px,5.6cqw,28px);color:var(--ink);margin-top:1cqw}
+.when .dd{display:flex;align-items:center;justify-content:center;gap:5cqw;margin:1cqw 0}
+.when .dd .n{font-family:var(--serif);font-weight:700;font-size:clamp(70px,23cqw,118px);line-height:1.15}
+.when .dd .side{display:flex;flex-direction:column;align-items:center;gap:1cqw;font-family:var(--head);font-weight:600;font-size:clamp(17px,4.8cqw,24px);color:var(--ink2)}
+.when .dd .side::before,.when .dd .side::after{content:"";width:58px;height:1px;background:rgba(168,129,47,.6)}
+.when .aft{display:inline-block;margin-top:1.5cqw;padding:6px 20px;border:1px solid rgba(168,129,47,.45);border-radius:999px;font-family:var(--head);font-weight:600;font-size:clamp(16px,4.4cqw,21px);color:var(--gold)}
+
+/* العدّاد */
+.cd{display:grid;grid-template-columns:repeat(4,1fr);gap:2.4cqw;margin:4cqw auto 0;max-width:420px}
+.cd div{padding:3.4cqw 0 2.6cqw;border:1px solid rgba(168,129,47,.45);border-radius:12px;background:rgba(255,255,255,.6)}
+.cd b{display:block;font-family:var(--serif);font-weight:700;font-size:clamp(24px,7.4cqw,38px);line-height:1.15;color:var(--gold)}
+.cd span{display:block;font-family:var(--head);font-size:clamp(12px,3.3cqw,15px);color:var(--ink2)}
+
+/* المكان */
+.map{display:block;width:100%;height:56cqw;max-height:300px;margin:3cqw 0 0;border:1px solid rgba(168,129,47,.45);border-radius:16px;background:#ece5d6}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:50px;margin-top:4cqw;padding:12px 26px;border:0;border-radius:999px;background:linear-gradient(135deg,#94702a,#c9a253 50%,#9b7630);color:#fffaf0;font-family:var(--head);font-weight:600;font-size:clamp(15px,4.2cqw,19px);text-decoration:none;box-shadow:0 12px 26px -12px rgba(120,85,25,.7);cursor:pointer}
+.btn:active{transform:scale(.98)}
+
+/* تأكيد الحضور */
+.rs{margin:3cqw auto 0;max-width:400px;padding:6cqw 5cqw;border:1px solid rgba(168,129,47,.45);border-radius:20px;background:rgba(255,255,255,.75);text-align:right;font-family:'Tajawal',sans-serif}
+.rs label.l{display:block;margin:0 0 8px;font-size:16px;font-weight:500;color:var(--ink2)}
+.rs .q{margin-top:14px}
+.rs input[type=text],.rs textarea{display:block;width:100%;height:50px;padding:10px 14px;border:1.5px solid rgba(168,129,47,.45);border-radius:13px;background:#fffdf8;color:var(--ink);font-family:'Tajawal',sans-serif;font-size:16px;outline:none;-webkit-appearance:none;appearance:none}
+.rs textarea{height:96px;resize:vertical;line-height:1.5}
+.rs input:focus,.rs textarea:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(168,129,47,.12)}
+.opt{position:relative;display:flex;align-items:center;justify-content:center;gap:12px;height:46px;margin:0 0 9px;border:1.5px solid rgba(168,129,47,.42);border-radius:999px;background:#fff;color:var(--ink);font-size:16px;cursor:pointer}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.opt i{width:15px;height:15px;border:1.5px solid #6b5634;border-radius:50%}
+.opt input:checked+i{background:var(--gold);box-shadow:inset 0 0 0 2px #fff6e0}
+.opt input:focus-visible+i{outline:2px solid var(--gold);outline-offset:2px}
+.err{margin:0;color:#9a3b2e;font-size:14px;text-align:center}
+.err:not(:empty){margin-top:10px}
+.send{display:block;width:100%;height:52px;margin-top:14px;border:0;border-radius:999px;background:linear-gradient(135deg,#94702a,#c9a253 50%,#9b7630);color:#fffaf0;font-family:'Tajawal',sans-serif;font-size:17px;font-weight:700;cursor:pointer}
+.send:disabled{opacity:.6}
+.done{display:none;padding:18px 4px 8px;text-align:center}
+.rs.sent form{display:none}
+.rs.sent .done{display:block}
+.done h3{margin:0 0 6px;font-family:var(--script);font-size:32px;line-height:1.5}
+.done p{margin:0;font-family:var(--serif);font-size:19px;color:var(--ink2)}
+
+/* الورد اللي تحت + الختام */
+.b-txt{top:52%;width:50%}
+.b-txt .t1{display:block;font-family:var(--script);font-weight:700;font-size:6.4cqw;line-height:1.5;white-space:nowrap}
+.b-txt .t2{display:block;font-family:var(--serif);font-size:3.6cqw;line-height:1.6;color:var(--ink2);white-space:nowrap}
+
+/* ظهور مع النزول */
+.rv{opacity:0;transform:translateY(14px)}
+.rv.in{opacity:1;transform:none;transition:opacity 1s ease var(--d,0s),transform 1s ease var(--d,0s)}
+.opened .ov.rv{transform:translate(-50%,-50%)}
+.ov.rv{transform:translate(-50%,calc(-50% + 12px))}
+.ov.rv.in{transform:translate(-50%,-50%)}
+
+/* لمعة دهب طايرة على الصفحة */
+.spark{position:fixed;z-index:5;width:4px;height:4px;border-radius:50%;background:#e9c97a;box-shadow:0 0 8px rgba(233,201,122,.9);pointer-events:none;opacity:0;animation:spark var(--s,9s) linear var(--dl,0s) infinite}
+@keyframes spark{0%{opacity:0;transform:translateY(0)}12%{opacity:.85}85%{opacity:.5}100%{opacity:0;transform:translateY(-70vh) translateX(var(--dx,20px))}}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+.static .rv{opacity:1!important;transform:none!important}
+.static .ov.rv{transform:translate(-50%,-50%)!important}
+</style>
+</head>
+<body class="locked">
+
+<!-- ===== الغلاف: بابين ===== -->
+<div class="intro" id="intro" role="button" tabindex="0" aria-label="اضغط لفتح الدعوة">
+  <div class="doors"><div class="door r"></div><div class="door l"></div></div>
+  <div class="seal">
+    <p class="bsm">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</p>
+    <h1 class="gold">أفراح عائلات</h1>
+    <span class="orn"></span>
+    <p class="hosts">عبد الحميد السنور وأبو المجد<br>وآل عبد اللطيف</p>
+    <p class="dt">الخميس ١٩ نوفمبر ٢٠٢٦</p>
+    <button class="tap" id="tap" type="button" tabindex="-1"><i></i>اضغط لفتح الدعوة<i></i></button>
+  </div>
+  <div class="dust" id="dust"></div>
+</div>
+
+<main class="page" id="page">
+
+  <!-- القوس: العنوان + البسملة + الآية -->
+  <header class="art">
+    <img src="assets/top.webp" alt="" width="1440" height="1068">
+    <h2 class="ov h-fam rv" style="--d:.2s"><span class="l1 gold">أفراح عائلات</span><span class="l2">عبد الحميد السنور وأبو المجد<br>وآل عبد اللطيف</span></h2>
+    <p class="ov h-bsm rv" style="--d:.5s">بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</p>
+  </header>
+
+  <div class="mid">
+
+    <!-- الآية -->
+    <section class="blk rv">
+      <p class="ayah">﴿&nbsp;وَمِنْ ءَايَٰتِهِۦٓ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَٰجًا لِّتَسْكُنُوٓاْ إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً&nbsp;﴾</p>
+      <span class="sdq">صدق الله العظيم</span>
+    </section>
+    <img class="dv" src="assets/div.webp" alt="" style="margin:4cqw auto 5cqw">
+
+    <!-- الدعوة -->
+    <section class="blk rv">
+      <p class="lead">يتشرّفون بدعوتكم لحضور <b>حفل زفاف</b> أبنائهم</p>
+    </section>
+
+    <!-- الفرح الأول -->
+    <section class="blk couple rv">
+      <span class="num">الفرح الأول</span>
+      <span class="who">نجل الحاج الشحات عبد الحميد السنور</span>
+      <span class="nm gold">محمود شحته السنور</span>
+      <div class="rings" aria-hidden="true"><svg viewBox="0 0 42 30"><circle cx="15" cy="16" r="10" fill="none" stroke="#b08a3c" stroke-width="2.2"/><circle cx="27" cy="16" r="10" fill="none" stroke="#c9a253" stroke-width="2.2"/><path d="M27 2.5l2.2 2.6-2.2 2.6-2.2-2.6z" fill="#e2c27a"/></svg></div>
+      <span class="who">كريمة الحاج حسني أبو المجد</span>
+      <span class="nm gold">زينب حسني أبو المجد</span>
+    </section>
+
+    <!-- الفرح التاني -->
+    <section class="blk couple rv" style="margin-top:9cqw">
+      <span class="num">الفرح الثاني</span>
+      <span class="who">نجل الحاج عاطف عبد الحميد السنور</span>
+      <span class="nm gold">طارق عاطف السنور</span>
+      <div class="rings" aria-hidden="true"><svg viewBox="0 0 42 30"><circle cx="15" cy="16" r="10" fill="none" stroke="#b08a3c" stroke-width="2.2"/><circle cx="27" cy="16" r="10" fill="none" stroke="#c9a253" stroke-width="2.2"/><path d="M27 2.5l2.2 2.6-2.2 2.6-2.2-2.6z" fill="#e2c27a"/></svg></div>
+      <span class="who">كريمة الأستاذ عمر عبد اللطيف الحلو</span>
+      <span class="nm gold">عزة عمر عبد اللطيف</span>
+    </section>
+
+    <img class="dv" src="assets/div.webp" alt="">
+
+    <!-- الداعون -->
+    <section class="blk rv">
+      <span class="cap">الداعون</span>
+      <div class="fams">
+        <div class="fam">
+          <span class="hd">الحاج عاطف عبد الحميد السنور</span>
+          <ul><li>الحاج الشحات عبد الحميد السنور</li><li>الأستاذ إبراهيم عاطف السنور</li><li>الأستاذ عبد الحميد شحته السنور</li></ul>
+        </div>
+        <div class="fam">
+          <span class="hd">الحاج حسني أبو المجد</span>
+          <ul><li>الأستاذ محمد حسني أبو المجد</li></ul>
+        </div>
+        <div class="fam">
+          <span class="hd">الحاج عبد اللطيف الحلو</span>
+          <ul><li>الأستاذ عمر عبد اللطيف</li><li>الأستاذ عبوده عبد اللطيف</li></ul>
+        </div>
+      </div>
+    </section>
+
+    <img class="dv" src="assets/div.webp" alt="">
+
+    <!-- الميعاد -->
+    <section class="blk when rv">
+      <span class="cap">وذلك بمشيئة الله تعالى</span>
+      <span class="day">يوم الخميس</span>
+      <div class="dd"><span class="side">نوفمبر</span><span class="n gold">١٩</span><span class="side">٢٠٢٦</span></div>
+      <span class="aft">بعد صلاة العشاء</span>
+      <div class="cd" aria-label="العدّ التنازلي">
+        <div><b data-u="d">٠٠</b><span>يوم</span></div>
+        <div><b data-u="h">٠٠</b><span>ساعة</span></div>
+        <div><b data-u="m">٠٠</b><span>دقيقة</span></div>
+        <div><b data-u="s">٠٠</b><span>ثانية</span></div>
+      </div>
+    </section>
+
+    <img class="dv sm" src="assets/med.webp" alt="" style="margin:7cqw auto 4cqw">
+
+    <!-- المكان -->
+    <section class="blk rv">
+      <span class="cap">مكان الحفل</span>
+      <p class="lead">الفرحين في مكانٍ واحد، ننتظركم بكل حب</p>
+      <iframe class="map" title="مكان الحفل على الخريطة" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=31.1998844,31.0906506&z=15&hl=ar&output=embed"></iframe>
+      <a class="btn" href="https://maps.app.goo.gl/2BAnL5vjDAa4hhcW9" target="_blank" rel="noopener noreferrer">افتح الموقع على الخريطة</a>
+    </section>
+
+    <img class="dv" src="assets/div.webp" alt="">
+
+    <!-- تأكيد الحضور -->
+    <section class="blk rv" id="rsvp">
+      <span class="cap">تأكيد الحضور</span>
+      <div class="rs" id="rsCard">
+        <form id="rsForm" novalidate>
+          <label class="l" for="rsName">الاسم</label>
+          <input id="rsName" type="text" autocomplete="name" maxlength="80">
+          <div class="l q">هتشاركونا فرحتنا؟</div>
+          <label class="opt"><span>أكيد، هحضر</span><input type="radio" name="att" value="yes" checked><i></i></label>
+          <label class="opt"><span>معلش، مش هقدر</span><input type="radio" name="att" value="no"><i></i></label>
+          <label class="l q" for="rsMsg">اكتب تهنئتك (اختياري)</label>
+          <textarea id="rsMsg" maxlength="200"></textarea>
+          <p class="err" id="rsErr" role="alert"></p>
+          <button class="send" id="rsSend" type="submit">إرسال</button>
+        </form>
+        <div class="done">
+          <h3 class="gold">شكرًا ليك</h3>
+          <p id="rsDoneMsg">ردّك وصلنا بكل حب.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- الورد اللي تحت + الختام -->
+  <footer class="art">
+    <img src="assets/bottom.webp" alt="" width="1440" height="624">
+    <p class="ov b-txt rv"><span class="t1 gold">حضوركم يزيدنا فرحًا</span><span class="t2">بالرفاء والبنين</span></p>
+  </footer>
+</main>
+
+<i class="spark" style="left:12%;bottom:-10px;--s:11s;--dl:0s;--dx:18px"></i>
+<i class="spark" style="left:34%;bottom:-10px;--s:13s;--dl:3s;--dx:-14px"></i>
+<i class="spark" style="left:58%;bottom:-10px;--s:10s;--dl:6s;--dx:22px"></i>
+<i class="spark" style="left:80%;bottom:-10px;--s:12s;--dl:1.5s;--dx:-20px"></i>
+<i class="spark" style="left:92%;bottom:-10px;--s:14s;--dl:8s;--dx:-10px"></i>
+
+<script>
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  var body = document.body, intro = $('#intro');
+  var STATIC = /[?&]static\b/.test(location.search);
+  var opened = false;
+
+  // لمعة دهب بتطير لما البابين يتفتحوا
+  var dust = $('#dust');
+  for (var i = 0; i < 26; i++) {
+    var d = document.createElement('i');
+    var ang = Math.random() * Math.PI * 2, r = 90 + Math.random() * 220;
+    d.style.left = '50%'; d.style.top = '42%';
+    d.style.setProperty('--x', Math.cos(ang) * r + 'px');
+    d.style.setProperty('--y', Math.sin(ang) * r + 'px');
+    d.style.animationDelay = (Math.random() * 0.25) + 's';
+    dust.appendChild(d);
+  }
+
+  function open() {
+    if (opened) return;
+    opened = true;
+    intro.classList.add('open');
+    window.scrollTo(0, 0);
+    setTimeout(function () {
+      body.classList.remove('locked');
+      body.classList.add('opened');
+      reveal();
+    }, 650);
+    setTimeout(function () { intro.classList.add('gone'); }, 1700);
+  }
+  intro.addEventListener('click', open);
+  intro.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+
+  // ظهور مع النزول
+  var els = Array.prototype.slice.call(document.querySelectorAll('.rv'));
+  var io = ('IntersectionObserver' in window) ? new IntersectionObserver(function (en) {
+    en.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.1, rootMargin: '0px 0px -5% 0px' }) : null;
+  function reveal() { els.forEach(function (el) { if (io) io.observe(el); else el.classList.add('in'); }); }
+
+  // العدّاد — الخميس 19/11/2026 بعد العشاء (حوالي 7 مساءً بتوقيت مصر = 5 مساءً UTC)
+  var TARGET = Date.UTC(2026, 10, 19, 17, 0, 0);
+  var AR = '٠١٢٣٤٥٦٧٨٩';
+  function two(n) { return ((n < 10 ? '0' : '') + n).replace(/\d/g, function (x) { return AR[x]; }); }
+  var cells = { d: $('[data-u=d]'), h: $('[data-u=h]'), m: $('[data-u=m]'), s: $('[data-u=s]') };
+  function tick() {
+    var s = Math.max(0, Math.floor((TARGET - Date.now()) / 1000));
+    var v = { d: Math.floor(s / 86400), h: Math.floor((s % 86400) / 3600), m: Math.floor((s % 3600) / 60), s: s % 60 };
+    for (var k in v) { var t = two(v[k]); if (cells[k].textContent !== t) cells[k].textContent = t; }
+  }
+  tick(); setInterval(tick, 1000);
+
+  // الأسامي سطر واحد جوه الكارت
+  function fit() {
+    Array.prototype.forEach.call(document.querySelectorAll('.nm'), function (el) {
+      el.style.fontSize = '';
+      var max = el.parentNode.clientWidth - 16, w = el.scrollWidth;
+      if (w > max) el.style.fontSize = (parseFloat(getComputedStyle(el).fontSize) * max / w).toFixed(1) + 'px';
+    });
+  }
+  fit();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+  window.addEventListener('resize', fit);
+
+  // تأكيد الحضور → لوحة العميل
+  var RSVP_URL = window.MQ_RSVP_URL || '';
+  var form = $('#rsForm'), err = $('#rsErr'), send = $('#rsSend'), card = $('#rsCard');
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var name = $('#rsName').value.trim();
+    var att = (form.querySelector('input[name=att]:checked') || {}).value;
+    var note = $('#rsMsg').value.trim();
+    if (!name) { err.textContent = 'من فضلك اكتب اسمك'; $('#rsName').focus(); return; }
+    if (!att) { err.textContent = 'من فضلك اختار هتحضر ولا لأ'; return; }
+    err.textContent = '';
+    function done() {
+      $('#rsDoneMsg').textContent = att === 'yes' ? 'مستنيينك بكل حب.' : 'هتوحشنا — شكرًا إنك عرّفتنا.';
+      card.classList.add('sent');
+    }
+    if (!RSVP_URL) { done(); return; }
+    send.disabled = true;
+    fetch(RSVP_URL, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ guestName: name, attending: att, note: note }) })
+      .then(function (r) { if (r.ok) return done(); throw new Error('send'); })
+      .catch(function () { err.textContent = 'مااتبعتش — جرّب تاني كمان شوية'; send.disabled = false; });
+  });
+
+  if (STATIC) {
+    body.classList.add('static', 'opened'); body.classList.remove('locked');
+    intro.classList.add('gone');
+    els.forEach(function (el) { el.classList.add('in'); });
+  }
+})();
+</script>
+</body>
+</html>

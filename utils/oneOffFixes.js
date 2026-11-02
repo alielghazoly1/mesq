@@ -561,6 +561,31 @@ const FIXES = [
       return set;
     },
   },
+  {
+    // Dcx7Jny — أفراح عائلات السنور وأبو المجد وآل عبد اللطيف (فرحين في ليلة واحدة؛
+    // custom-invitations/Dcx7Jny.js بيعرض الصفحة). هنا بيانات الدعوة عشان لوحة العميل
+    // والعنوان: الخميس 19/11/2026 بعد العشاء (7 مساءً)، كفر الشيخ. بيتعمل بس لو لسه مسودة.
+    name: 'Dcx7Jny-double-wedding',
+    shortId: 'Dcx7Jny',
+    select: '-__v',
+    when: (c, inv) => inv.groomName === 'Groom' && inv.brideName === 'Bride',
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: 'ar', occasionType: 'wedding',
+        hiddenSections: inv.hiddenSections, timeline: inv.timeline, name: inv.name,
+        groomName: 'Mahmoud & Tarek', groomNameAr: 'محمود وطارق',
+        brideName: 'Zeinab & Azza', brideNameAr: 'زينب وعزة',
+        venueName: 'مكان الحفل', venueCity: 'كفر الشيخ',
+        venueMapQuery: 'https://maps.app.goo.gl/2BAnL5vjDAa4hhcW9',
+        weddingDate: '2026-11-19', weddingTime: '19:00',
+      }, { ownsTemplate: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.language = 'ar';
+      return set;
+    },
+  },
 ];
 
 let done = false;
