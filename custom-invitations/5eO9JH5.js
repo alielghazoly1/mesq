@@ -181,11 +181,11 @@ function sectionsCss() {
 #wg-invite.wg-rtl #wg-invite-4 .until{font-size:10.5cqw;line-height:1.55}
 #wg-invite #wg-invite-4 .cd-orn{width:58cqw;height:auto;margin-top:3cqw}
 #wg-invite #wg-countdown{gap:3cqw;margin-top:7cqw;padding:0 1.5cqw}
-#wg-invite #wg-countdown .wg-cd-block{aspect-ratio:1/1.4;padding:5.5cqw 0 0;justify-content:center;
+#wg-invite #wg-countdown .wg-cd-block{box-sizing:border-box;aspect-ratio:1/1.4;padding:4cqw 0 4.5cqw;justify-content:center;
   background:linear-gradient(180deg,#fffcf4,#f8f0de);border:1.5px solid #c4a26b;border-radius:50% 50% 3.4cqw 3.4cqw / 34% 34% 3.4cqw 3.4cqw;
   box-shadow:0 0 0 1.6cqw rgba(255,251,242,.85),0 0 0 calc(1.6cqw + 1px) rgba(196,162,107,.18),0 14px 26px -16px rgba(110,90,40,.45)}
-#wg-invite #wg-countdown .wg-cd-num{font-size:12.5cqw;line-height:1;color:#555a29;background:none;-webkit-text-fill-color:#555a29;letter-spacing:-.03em;margin:0}
-#wg-invite #wg-countdown .wg-cd-label{margin-top:4.2cqw;font-size:3.1cqw;color:#a3824f;letter-spacing:.2em;line-height:1.2}
+#wg-invite #wg-countdown .wg-cd-num{font-size:11.8cqw;line-height:1;color:#555a29;background:none;-webkit-text-fill-color:#555a29;letter-spacing:-.03em;margin:0}
+#wg-invite #wg-countdown .wg-cd-label{margin-top:3.4cqw;font-size:3.1cqw;color:#a3824f;letter-spacing:.2em;line-height:1.2}
 #wg-invite.wg-rtl #wg-countdown .wg-cd-label{font-size:3.9cqw;letter-spacing:0;font-family:'Amiri',serif;font-weight:700;line-height:1.3}
 #wg-invite #wg-countdown .wg-cd-label::before{width:1.6cqw;height:1.6cqw;margin:0 auto 3.2cqw;background:#b38e57}
 
