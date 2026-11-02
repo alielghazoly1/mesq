@@ -119,6 +119,16 @@ const SCRIPT = `<script>
 module.exports = {
   shortId: SHORT,
 
+  // كارت لينك المشاركة: الظرف والختم والأسامي (بالإنجليزي بالترتيب بتاعهم) والتاريخ
+  share: {
+    image: asset(`${DIR}share.jpg`),
+    width: 1200,
+    height: 630,
+    overrideImage: true,
+    title: 'Orjwan & Dr. Mohammed — دعوة زفاف',
+    description: 'الخميس 12.11.2026 · الساعة 7:00 مساءً · قاعة قلوريا',
+  },
+
   render({ editMode } = {}) {
     // في المحرر: غلاف القالب العادي (هو اللي بيتعدّل)
     if (editMode) return {};
