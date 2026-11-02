@@ -148,16 +148,15 @@ function pageCss() {
 #e5-verse .env img{position:absolute;inset:0;width:100%;height:100%;display:block;-webkit-user-select:none;user-select:none;pointer-events:none}
 #e5-verse .env .back{z-index:1}
 #e5-verse .env .front{z-index:4}
-#e5-verse .card{position:absolute;z-index:3;left:14.05%;width:71.9%;top:10.8%;height:73.8%;background:#fbf8f3;box-shadow:-7px -7px 19px rgba(42,38,38,.09);transform:translateY(0);transition:transform 1.7s cubic-bezier(.3,0,.15,1) .35s}
-#e5-verse .card .tx{position:absolute;left:5%;right:5%;top:5.5%;text-align:center;direction:rtl;opacity:0;transition:opacity 1s ease 1.3s}
+/* الكارت مربوط بالسكرول: --p من 0 (مستخبي جوه الظرف) لـ 1 (طالع لفوق) */
+#e5-verse .card{--p:0;position:absolute;z-index:3;left:14.05%;width:71.9%;top:10.8%;height:73.8%;background:#fbf8f3;box-shadow:-7px -7px 19px rgba(42,38,38,.09);transform:translateY(calc(26cqw - var(--p) * 55cqw));will-change:transform}
+#e5-verse .card .tx{position:absolute;left:5%;right:5%;top:5.5%;text-align:center;direction:rtl;opacity:calc(var(--p) * 1.6 - .25)}
 #e5-verse .bsm{display:block;margin:0 0 .25em;font:400 clamp(17px,5.6cqw,24px)/1.55 'Amiri','Amiri Quran',serif;color:#8a6f4c}
 #e5-verse .ay{margin:0;font:400 clamp(15.5px,4.75cqw,21px)/1.95 'Amiri Quran','Amiri',serif;color:#2f2118}
 #e5-verse .ay i{font-style:normal;color:#a48c69}
 #e5-verse .sr{display:block;margin-top:.55em;font:400 clamp(11.5px,3.3cqw,14px)/1.5 'Amiri',serif;color:#8a7253}
 /* لما القسم يبان: القلوب بتظهر والكارت بيطلع من الظرف */
 #e5-verse.in-view .hr{opacity:1;transform:none}
-#e5-verse.in-view .card{transform:translateY(-29cqw)}
-#e5-verse.in-view .card .tx{opacity:1}
 @media (prefers-reduced-motion:reduce){#e5-verse *{transition-duration:.01ms!important}}
 </style>`;
 }
@@ -182,11 +181,26 @@ const VERSE = `<section id="e5-verse" aria-label="آية قرآنية">
     var s = document.getElementById('e5-verse');
     if (!s) return;
     var C = window.WEDDING_CONFIG || {};
-    if (C.autoOpen || !('IntersectionObserver' in window)) { s.classList.add('in-view'); return; }
-    var io = new IntersectionObserver(function (en) {
-      en.forEach(function (e) { if (e.isIntersecting) { s.classList.add('in-view'); io.disconnect(); } });
-    }, { threshold: 0.28 });
-    io.observe(s);
+    var card = s.querySelector('.card'), env = s.querySelector('.env');
+    // المحرر: الكارت طالع على طول عشان الكلام يبان
+    if (C.autoOpen) { s.classList.add('in-view'); card.style.setProperty('--p', '1'); return; }
+    var cur = 0, want = 0, raf = 0;
+    function target() {
+      var r = env.getBoundingClientRect(), vh = window.innerHeight || 800;
+      // بيبدأ يطلع لما الظرف يدخل الشاشة، وبيكمل لما يوصل لنصها تقريبًا
+      return Math.max(0, Math.min(1, (vh * 0.95 - r.top) / (vh * 0.55)));
+    }
+    function frame() {
+      raf = 0;
+      cur += (want - cur) * 0.22;            // نعومة: الكارت بيلحق السكرول بهدوء
+      if (Math.abs(want - cur) < 0.002) cur = want; else raf = requestAnimationFrame(frame);
+      card.style.setProperty('--p', cur.toFixed(4));
+      if (cur > 0.05) s.classList.add('in-view');
+    }
+    function onScroll() { want = target(); if (!raf) raf = requestAnimationFrame(frame); }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    onScroll();
   })();
   </script>
 </section>`;
