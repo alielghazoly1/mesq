@@ -453,7 +453,7 @@ export default function EditorPage() {
         setSelected(p.id
           ? {
             id: p.id, kind: p.kind || 'text', text: p.text,
-            fontSize: p.fontSize, bgColor: p.bgColor, scale: p.scale || 1, dateish: !!p.dateish,
+            fontSize: p.fontSize, bgColor: p.bgColor, scale: p.scale || 1, dateish: !!p.dateish, mapLink: !!p.mapLink,
           }
           : null);
       }
@@ -2197,7 +2197,7 @@ export default function EditorPage() {
                             )}
 
                             {/* المكان: لينك خرائط جوجل */}
-                            {selected.kind === 'map' && (
+                            {(selected.kind === 'map' || selected.mapLink) && (
                               <div id="wda-map-field" data-help="map-field" className="mb-4 rounded-xl border border-emerald/40 bg-emerald/[0.07] p-3">
                                 <div className="mb-2 flex items-center gap-1.5 text-[12px] font-bold text-emerald">
                                   <MapPin size={12} /> {t('editor.mapTitle')}

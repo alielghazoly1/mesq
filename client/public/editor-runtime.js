@@ -217,6 +217,13 @@
     return false;
   }
 
+  /** النص ده جوه رابط خرايط جوجل؟ (الكلام بيتعدّل عادي، وكمان ليه زرار تغيير المكان) */
+  function inMapLink(el) {
+    var a = el.closest && el.closest('a[href]');
+    if (!a) return false;
+    return /google\.com\/maps|maps\.google|maps\.app\.goo\.gl|goo\.gl\/maps/.test(a.getAttribute('href') || '');
+  }
+
   /** زرار تأكيد الحضور — بيفتح نموذج (بوب-أب). ليه أيقونة تعديل الفورم */
   /**
    * العنصر اللي "وريني" بتوديه له (لوحة المساعدة في المحرر).
@@ -1111,7 +1118,12 @@
     else if (act === 'delete') removeElement(state.selected);
     else if (act === 'image') pickImageFile(elemId(state.selected));
     else if (act === 'download') downloadSelectedImage(state.selected);
-    else if (act === 'map') send('pick-map', { id: elemId(state.selected) });
+    else if (act === 'map') {
+      // من جوه الكتابة (كلام زرار الخريطة): نحفظ الكلام الأول وبعدين نفتح خانة المكان
+      var mapEl = state.selected;
+      if (state.writing) stopWriting(true);
+      send('pick-map', { id: elemId(mapEl || state.selected) });
+    }
     else if (act === 'color') openColorPicker(state.selected);
     else if (act === 'resize') send('pick-scale', { id: elemId(state.selected) });
     else if (act === 'rsvp') send('pick-rsvp', {});
@@ -1306,6 +1318,13 @@
       ? '<button type="button" data-act="rsvp" title="عدّل فورم تأكيد الحضور">' + ICON_FORM + '</button>'
       : '';
 
+    // كلام جوه زرار خرايط جوجل (زي "View on map" في Pearl Peony — مفيش خريطة
+    // في الصفحة، الزرار بس): جنب القلم أيقونة الدبوس عشان العميل يحط لينك
+    // جوجل ماب بتاعه، والزرار بعد النشر بيفتح المكان ده
+    var mapLinkBtn = (kind === 'text' && mode !== 'moving' && inMapLink(el))
+      ? '<button type="button" data-act="map" title="غيّر المكان (لينك جوجل ماب)">' + ICON_PIN + '</button>'
+      : '';
+
     // باللمس: أيقونة التحريك (السحب المباشر بالصباع مقفول عشان السكرول)
     var moveBtn = (mode !== 'writing' && isTouchInput() && canMove(el))
       ? '<button type="button" data-act="move" title="حرّك">' + ICON_MOVE + '</button>'
@@ -1314,7 +1333,7 @@
     if (mode === 'moving') {
       tools.innerHTML = '<button type="button" data-act="done-move" class="go" title="خلصت تحريك">' + ICON_CHECK + '</button>';
     } else {
-      tools.innerHTML = first + moveBtn + downloadBtn + resizeBtn + rsvpBtn + alignBtn + colorBtn
+      tools.innerHTML = first + mapLinkBtn + moveBtn + downloadBtn + resizeBtn + rsvpBtn + alignBtn + colorBtn
         + '<button type="button" data-act="delete" class="danger" title="احذف">' + ICON_TRASH + '</button>';
     }
 
@@ -1726,6 +1745,8 @@
         calDay: Number(el.getAttribute('data-cal-day')) || 0,
         // حتة من التاريخ (شهر/يوم/سنة)؟ الشريط بيفتح النتيجة والساعة على طول
         dateish: (el.getAttribute('data-wda-kind') || 'text') === 'text' && !el.getAttribute('data-cal-day') && isDateish(el),
+        // كلام زرار خرايط جوجل ("View on map"): الشريط الجانبي بيوري خانة لينك المكان كمان
+        mapLink: (el.getAttribute('data-wda-kind') || 'text') === 'text' && inMapLink(el),
       });
     } else {
       hideTools();
