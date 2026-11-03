@@ -6,9 +6,10 @@
 //   ودواير الألوان الخمسة من صورة العميل بالظبط، والجملة بالعربي وتحتها الإنجليزي.
 // - صورة إسلام وبسنت وهما صغيرين (بولارويد) آخر حاجة في الدعوة بعد تأكيد الحضور.
 // - رسالة الشكر بعد تأكيد الحضور بالعربي (حسب "هحضر" أو "معتذر").
+// - (2026-11-04) الأسامي بالإنجليزي Eslam & Bassant، وكارت لينك المشاركة صورتهم وهما صغيرين.
 // الكلام كله ليه data-elem-id (vm1–vm30) فالمالك يقدر يعدّله من المحرر.
 // البيانات نفسها (الأسامي، التاريخ، المكان، الآباء، نصوص فورم الحضور) في
-// utils/oneOffFixes.js (vma4JMh-islam-basant).
+// utils/oneOffFixes.js (vma4JMh-islam-basant ثم vma4JMh-eslam-bassant).
 const { asset } = require('./_asset');
 
 const SHORT = 'vma4JMh';
@@ -246,7 +247,7 @@ function buildKids() {
   <figure class="vm-pola">
     <span class="vm-tape" aria-hidden="true"></span>
     <img src="${asset(DIR + 'kids.webp')}" alt="إسلام وبسنت وهما صغيرين" width="900" height="1085" loading="lazy" decoding="async" draggable="false">
-    <figcaption data-elem-id="vm30">Islam &amp; Basant</figcaption>
+    <figcaption data-elem-id="vm30">Eslam &amp; Bassant</figcaption>
   </figure>
 </section>
 <script>${REVEAL}</script>
@@ -272,6 +273,15 @@ const RSVP_DONE = `<script id="vm-rsvp-done">(function(){
 
 module.exports = {
   shortId: SHORT,
+
+  // كارت لينك المشاركة (واتساب/إنستجرام/فيسبوك): البولارويد بتاعهم وهما صغيرين بين بجعتين
+  // لوحة الغلاف (1200×630). العنوان والوصف بيفضلوا التلقائيين من الأسامي والتاريخ والمكان.
+  share: {
+    image: asset(`${DIR}share.jpg`),
+    width: 1200,
+    height: 630,
+    overrideImage: true,
+  },
 
   // مفيش حاجة قبل رسم الصفحة — كل التعديلات في transform
   render() { return {}; },

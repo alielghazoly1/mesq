@@ -745,6 +745,39 @@ const FIXES = [
       return set;
     },
   },
+  {
+    // vma4JMh — المالك بعت تهجية الأسامي بالإنجليزي (2026-11-04): Eslam & Bassant مش
+    // Islam & Basant، "من بره الكارت ومن جوه ومن كل حتة": أسامي الدعوة (عنوان كارت
+    // المشاركة وتاب المتصفح)، والغلاف، وأي نص في الدعوة فيه التهجية القديمة. الأسامي
+    // بالعربي (إسلام وبسنت) زي ما هي. بيغيّر بس اللي لسه بالتهجية القديمة بالظبط.
+    name: 'vma4JMh-eslam-bassant',
+    shortId: 'vma4JMh',
+    select: 'customizations groomName brideName name',
+    when: (c, inv) => inv.groomName === 'Islam' || inv.brideName === 'Basant'
+      || /\b(?:Islam|Basant)\b/.test(JSON.stringify([inv.name, c.texts, c.added, c.share])),
+    apply(c, inv) {
+      const OLD = /\b(?:Islam|Basant)\b/;
+      const fix = (s) => String(s).replace(/\bIslam\b/g, 'Eslam').replace(/\bBasant\b/g, 'Bassant');
+      const set = {};
+      if (inv.groomName === 'Islam') set.groomName = 'Eslam';
+      if (inv.brideName === 'Basant') set.brideName = 'Bassant';
+      if (OLD.test(inv.name || '')) set.name = fix(inv.name);
+      const texts = c.texts || {};
+      if (Object.values(texts).some((t) => typeof t === 'string' && OLD.test(t))) {
+        set['customizations.texts'] = Object.fromEntries(Object.entries(texts)
+          .map(([k, v]) => [k, typeof v === 'string' ? fix(v) : v]));
+      }
+      const added = Array.isArray(c.added) ? c.added : [];
+      if (added.some((a) => a && typeof a.text === 'string' && OLD.test(a.text))) {
+        set['customizations.added'] = added.map((a) => (a && typeof a.text === 'string' ? { ...a, text: fix(a.text) } : a));
+      }
+      const share = c.share || {};
+      if (OLD.test(share.title || '') || OLD.test(share.description || '')) {
+        set['customizations.share'] = { ...share, title: fix(share.title || ''), description: fix(share.description || '') };
+      }
+      return set;
+    },
+  },
 ];
 
 let done = false;
