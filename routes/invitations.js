@@ -29,6 +29,8 @@ const { getPublicStats } = require('../utils/publicStats');
 const { getTemplate, TEMPLATES } = require('../templates/registry');
 const { injectPixel } = require('../utils/metaPixel');
 const metaCapi = require('../utils/metaCapi');
+const { buildEventIcs } = require('../utils/calendarIcs');
+const { buildDisplayFields } = require('../utils/dateFormatter');
 // بوتات معاينة اللينكات والكرولرز — مش زوار حقيقيين، مانبلّغش ميتا عنهم
 const PREVIEW_BOT_RE = /bot|crawl|spider|slurp|facebookexternalhit|facebot|whatsapp|telegram|preview|headless|lighthouse/i;
 const {
@@ -401,6 +403,45 @@ router.get('/i/:shortId/stats', async (req, res) => {
   } catch (err) {
     console.error('Error redirecting to stats page:', err);
     return res.status(500).send('حصل خطأ في السيرفر');
+  }
+});
+
+// GET /i/:shortId/calendar.ics — ملف موعد الفرح لزرار "احفظ الموعد" (utils/calendarIcs.js):
+// الآيفون بيفتحه في تقويم أبل على طول. شغال بس للدعوات اللي ملفها الكاستم طالبه
+// (custom-invitations/<id>.js → calendar)؛ أي دعوة تانية "مش موجود" زي الأول.
+router.get('/i/:shortId/calendar.ics', async (req, res) => {
+  try {
+    const custom = getCustomInvitation(req.params.shortId);
+    const invitation = custom && custom.calendar
+      ? await Invitation.findOne({ shortId: req.params.shortId }).lean()
+      : null;
+    if (!invitation || invitation.status === 'draft' || !invitation.weddingDateTime) {
+      return res.status(404).type('text/plain; charset=utf-8').send('Not found');
+    }
+    const isAr = String(invitation.language || 'ar').toLowerCase() === 'ar';
+    const pageUrl = `${req.protocol}://${req.get('host')}/i/${invitation.shortId}`;
+    const map = invitation.venueMapDirectLink || '';
+    const ics = buildEventIcs({
+      uid: `${invitation.shortId}@${req.get('host')}`,
+      title: custom.calendar.title,
+      // نفس الساعة اللي في الدعوة والعداد (utils/dateFormatter.js)
+      start: buildDisplayFields(new Date(invitation.weddingDateTime)).countdown,
+      hours: custom.calendar.hours || 6,
+      location: [invitation.venueName, invitation.venueCity].filter(Boolean).join(isAr ? '، ' : ', '),
+      description: [
+        map ? `${isAr ? 'الموقع على الخريطة' : 'Map'}: ${map}` : '',
+        `${isAr ? 'الدعوة' : 'Invitation'}: ${pageUrl}`,
+      ].filter(Boolean).join('\n'),
+      url: pageUrl,
+    });
+    res.set('Content-Type', 'text/calendar; charset=utf-8');
+    // inline مش attachment: سفاري الآيفون بيعرض "إضافة إلى التقويم" بدل ما ينزّل الملف
+    res.set('Content-Disposition', 'inline; filename="wedding.ics"');
+    res.set('Cache-Control', 'no-store');
+    return res.send(ics);
+  } catch (err) {
+    console.error('Error building calendar file:', err);
+    return res.status(500).type('text/plain; charset=utf-8').send('Server error');
   }
 });
 
