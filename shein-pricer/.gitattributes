@@ -1,0 +1,2 @@
+# start.bat must keep Windows line endings or cmd.exe misreads it
+start.bat text eol=crlf

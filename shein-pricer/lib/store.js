@@ -131,6 +131,19 @@ class Settings {
     this.file.saveNow();
     return this.get();
   }
+
+  /** The Product Details URL that last answered (found automatically if the configured one is wrong). */
+  getEndpoint() {
+    const v = this.file.load().endpoint;
+    return typeof v === 'string' && v.startsWith('https://') ? v : null;
+  }
+
+  setEndpoint(url) {
+    const d = this.file.load();
+    if (d.endpoint === url) return;
+    d.endpoint = url;
+    this.file.saveNow();
+  }
 }
 
 /**

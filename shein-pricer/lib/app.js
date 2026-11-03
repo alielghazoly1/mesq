@@ -148,7 +148,7 @@ function createApp({ config, fetchImpl = fetch, now = () => Date.now() }) {
       cachedProducts: cache.size('p:'),
       api: {
         configured: Boolean(rc.key),
-        productUrl: rc.productUrl,
+        productUrl: settings.getEndpoint() || rc.productUrl,
         host: rc.host,
         country: rc.country,
         currency: rc.currency,

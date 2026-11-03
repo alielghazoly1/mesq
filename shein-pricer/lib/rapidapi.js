@@ -50,7 +50,8 @@ async function fetchProductDetails(goodsId, { rapidapi, fetchImpl = fetch }) {
   if (res.status === 429) throw new ApiError('QUOTA', message || 'Too many requests / quota exceeded', extra);
   if (res.status === 401 || res.status === 403) throw new ApiError('AUTH', message || `HTTP ${res.status}`, extra);
   if (res.status === 404) {
-    if (/does not exist|endpoint/i.test(message || text)) throw new ApiError('BAD_ENDPOINT', message, extra);
+    // RapidAPI's gateway: "Endpoint '/x' does not exist" (wrong path) / "API doesn't exists" (wrong host)
+    if (/(?:does\s*not|doesn'?t)\s+exists?|endpoint/i.test(message || text)) throw new ApiError('BAD_ENDPOINT', message, extra);
     throw new ApiError('NOT_FOUND', message, extra);
   }
   if (!res.ok) throw new ApiError('UPSTREAM', message || `HTTP ${res.status}`, extra);

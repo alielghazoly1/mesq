@@ -106,6 +106,7 @@ test('fetchProductDetails maps RapidAPI errors to clear codes', async () => {
     [429, { message: 'You have exceeded the MONTHLY quota' }, 'QUOTA'],
     [403, { message: 'You are not subscribed to this API.' }, 'AUTH'],
     [404, { message: "Endpoint '/product/details' does not exist" }, 'BAD_ENDPOINT'],
+    [404, { message: "API doesn't exists" }, 'BAD_ENDPOINT'],
     [404, { message: 'Product not found' }, 'NOT_FOUND'],
     [500, { message: 'boom' }, 'UPSTREAM'],
     [200, 'not json', 'BAD_RESPONSE'],

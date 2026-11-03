@@ -8,6 +8,9 @@ const { toEgp } = require('./prices');
 const CART_CACHE_MS = 30 * 60 * 1000;
 const RETRY_LATER_MS = 30 * 60 * 1000;
 const NOT_FOUND_MS = 6 * 3600 * 1000;
+// Usual paths for a "Product Details" endpoint, tried (same host) only when the
+// configured one answers "endpoint does not exist". The one that works is saved.
+const ENDPOINT_PATHS = ['/product/details', '/products/details', '/product/detail', '/product-details', '/productDetails'];
 
 async function mapLimit(list, limit, fn) {
   const out = new Array(list.length);
@@ -30,7 +33,16 @@ async function mapLimit(list, limit, fn) {
 function createQuoter({ config, cache, usage, settings, fetchImpl = fetch, now = () => Date.now() }) {
   const inflight = new Map();
   const events = [];
+  const badEndpoints = new Set();
   let lastApi = null;
+
+  function endpointCandidates() {
+    const configured = config.rapidapi.productUrl;
+    let origin = '';
+    try { origin = new URL(configured).origin; } catch { origin = config.rapidapi.host ? `https://${config.rapidapi.host}` : ''; }
+    const list = [settings.getEndpoint(), configured, ...(origin ? ENDPOINT_PATHS.map((p) => origin + p) : [])];
+    return [...new Set(list.filter(Boolean).map((u) => u.split('?')[0]))].filter((u) => !badEndpoints.has(u));
+  }
 
   function logEvent(e) {
     events.unshift({ at: new Date(now()).toISOString(), ...e });
@@ -51,27 +63,32 @@ function createQuoter({ config, cache, usage, settings, fetchImpl = fetch, now =
     if (hit) return Promise.resolve({ ...hit, cached: true });
     return once(key, async () => {
       if (!rc.key) return { ok: false, code: 'NO_KEY' };
-      const allowed = usage.canCall();
-      if (!allowed.ok) {
-        logEvent({ goodsId, code: 'QUOTA_GUARD', detail: allowed.reason });
-        return { ok: false, code: 'QUOTA_GUARD', reason: allowed.reason };
+      for (const endpoint of endpointCandidates()) {
+        const allowed = usage.canCall();
+        if (!allowed.ok) {
+          logEvent({ goodsId, code: 'QUOTA_GUARD', detail: allowed.reason });
+          return { ok: false, code: 'QUOTA_GUARD', reason: allowed.reason };
+        }
+        usage.record();
+        try {
+          const { json, sample, status } = await fetchProductDetails(goodsId, { rapidapi: { ...rc, productUrl: endpoint }, fetchImpl });
+          settings.setEndpoint(endpoint);
+          const result = normalizeProduct(json, goodsId, { expectCurrency: rc.currency.toUpperCase() });
+          lastApi = { at: new Date(now()).toISOString(), goodsId, endpoint, status, code: result.ok ? 'OK' : result.code, sample };
+          logEvent({ goodsId, code: result.ok ? 'OK' : result.code, status });
+          cache.set(key, result, result.ok ? config.cache.productHours * 3600 * 1000 : RETRY_LATER_MS);
+          return result;
+        } catch (err) {
+          const code = err.code || 'UPSTREAM';
+          lastApi = { at: new Date(now()).toISOString(), goodsId, endpoint, status: err.status ?? null, code, message: err.message, sample: err.sample || '' };
+          logEvent({ goodsId, code, status: err.status ?? null, detail: code === 'BAD_ENDPOINT' ? endpoint : undefined });
+          if (code === 'BAD_ENDPOINT') { badEndpoints.add(endpoint); continue; }
+          const result = { ok: false, code };
+          if (code === 'NOT_FOUND') cache.set(key, result, NOT_FOUND_MS);
+          return result;
+        }
       }
-      usage.record();
-      try {
-        const { json, sample, status } = await fetchProductDetails(goodsId, { rapidapi: rc, fetchImpl });
-        const result = normalizeProduct(json, goodsId, { expectCurrency: rc.currency.toUpperCase() });
-        lastApi = { at: new Date(now()).toISOString(), goodsId, status, code: result.ok ? 'OK' : result.code, sample };
-        logEvent({ goodsId, code: result.ok ? 'OK' : result.code, status });
-        cache.set(key, result, result.ok ? config.cache.productHours * 3600 * 1000 : RETRY_LATER_MS);
-        return result;
-      } catch (err) {
-        const code = err.code || 'UPSTREAM';
-        lastApi = { at: new Date(now()).toISOString(), goodsId, status: err.status ?? null, code, message: err.message, sample: err.sample || '' };
-        logEvent({ goodsId, code, status: err.status ?? null });
-        const result = { ok: false, code };
-        if (code === 'NOT_FOUND') cache.set(key, result, NOT_FOUND_MS);
-        return result;
-      }
+      return { ok: false, code: 'BAD_ENDPOINT' };
     });
   }
 

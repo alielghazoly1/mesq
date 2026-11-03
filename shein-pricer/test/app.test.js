@@ -28,7 +28,7 @@ function product(goodsId, amount) {
   };
 }
 
-async function setup(envOverrides = {}) {
+async function setup(envOverrides = {}, apiHandler = null) {
   const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'shein-pricer-'));
   const config = loadConfig({
     DATA_DIR: dataDir,
@@ -45,6 +45,7 @@ async function setup(envOverrides = {}) {
     if (url.startsWith(OTHER_ONELINK)) return new Response('<script>var x={"goods_id":"87654321"}</script>', { status: 200 });
     if (url.startsWith('https://shein-scraper-api.p.rapidapi.com/')) {
       apiCalls.push(url);
+      if (apiHandler) return apiHandler(new URL(url));
       const id = new URL(url).searchParams.get('goods_id');
       return new Response(JSON.stringify(product(id, 45)), { status: 200 });
     }
@@ -88,6 +89,28 @@ test('the daily cap stops RapidAPI requests before they are sent', async (t) => 
   assert.equal(r.groups[0].ok, false);
   assert.equal(r.groups[0].code, 'QUOTA_GUARD');
   assert.equal(ctx.apiCalls.length, 1);
+});
+
+test('a wrong endpoint path is found automatically once, then remembered', async (t) => {
+  const ctx = await setup({ RAPIDAPI_PRODUCT_URL: 'https://shein-scraper-api.p.rapidapi.com/v9/wrong' }, (u) => {
+    if (u.pathname === '/products/details') {
+      return new Response(JSON.stringify(product(u.searchParams.get('goods_id'), 45)), { status: 200 });
+    }
+    return new Response(JSON.stringify({ message: `Endpoint '${u.pathname}' does not exist` }), { status: 404 });
+  });
+  t.after(ctx.close);
+
+  const r1 = await (await post(ctx.base, '/api/quote', { text: PRODUCT_ONELINK })).json();
+  assert.equal(r1.groups[0].items[0].egp, 675);
+  assert.deepEqual(ctx.apiCalls.map((u) => new URL(u).pathname), ['/v9/wrong', '/product/details', '/products/details']);
+
+  const r2 = await (await post(ctx.base, '/api/quote', { text: OTHER_ONELINK })).json();
+  assert.equal(r2.groups[0].ok, true);
+  assert.equal(new URL(ctx.apiCalls.at(-1)).pathname, '/products/details');
+  assert.equal(ctx.apiCalls.length, 4, 'the working path is used directly next time');
+
+  const status = await (await fetch(`${ctx.base}/api/admin/status`, { headers: auth })).json();
+  assert.equal(status.api.productUrl, 'https://shein-scraper-api.p.rapidapi.com/products/details');
 });
 
 test('wrong input gets a clear code', async (t) => {
