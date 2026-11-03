@@ -88,7 +88,8 @@ function parseSheinUrl(href) {
   const q = sp.get('goods_id') || sp.get('goodsId') || '';
   if (GOODS_ID_RE.test(q)) return { kind: 'product', goodsId: q, country };
 
-  if (/sharejump/i.test(path) && /goods/i.test(sp.get('share_type') || '')) {
+  const shareType = sp.get('share_type') || '';
+  if (/sharejump/i.test(path) && (/goods/i.test(shareType) || shareType === '')) {
     const id = sp.get('id') || '';
     if (GOODS_ID_RE.test(id)) return { kind: 'product', goodsId: id, country };
   }
@@ -115,7 +116,7 @@ function decodeEntities(s) {
  * 200 page (no redirect) whose scripts carry the target: for a shared cart a
  * `shareInfo`/deeplink with group_id, for a product its goods_id.
  */
-function parseSheinHtml(html) {
+function parseSheinHtml(html, depth = 0) {
   const s = String(html || '').slice(0, 2_000_000);
   const out = { redirects: [] };
   if (!s) return out;
@@ -134,10 +135,13 @@ function parseSheinHtml(html) {
 
   // Product: the product page URL or a goods share deeplink are strong; a bare goods_id is weaker.
   const strongGoods = s.match(/-p-(\d{5,15})(?:-cat-\d+)?\.html/i)
-    || s.match(/share_type(?:=|%3[dD])goods[^"'<>\s]{0,400}?(?:&amp;|[?&]|%26|\\u0026)id(?:=|%3[dD])(\d{5,15})(?!\d)/i);
+    || s.match(/share_type(?:=|%3[dD])goods[^"'<>\s]{0,400}?(?:&amp;|[?&]|%26|\\u0026)id(?:=|%3[dD])(\d{5,15})(?!\d)/i)
+    || s.match(/applink(?:[\\/]+|%2[fF])goods(?:_?detail)?(?:[\\/]+|%2[fF])(\d{5,15})(?!\d)/i)
+    || s.match(/goods_?detail[^"'<>\s]{0,120}?(?:goods_id|goodsId|[?&/]id)(?:=|%3[dD]|[\\/]+)(\d{5,15})(?!\d)/i);
   const goods = strongGoods
     || s.match(/(?:goods_id|goodsId|goodsid)\\{0,3}["']?\s*[:=]\s*\\{0,3}["']?(\d{5,15})(?!\d)/i)
-    || s.match(/(?:goods_id|goodsId)(?:=|%3[dD])(\d{5,15})(?!\d)/i);
+    || s.match(/(?:goods_id|goodsId)(?:=|%3[dD])(\d{5,15})(?!\d)/i)
+    || s.match(/sharejump[^"'<>\s]{0,600}?(?:[?&]|%26|\\u0026|&amp;)id(?:=|%3[dD])(\d{5,15})(?!\d)/i);
   if (goods) {
     out.goodsId = goods[1];
     out.productStrong = Boolean(strongGoods);
@@ -157,7 +161,50 @@ function parseSheinHtml(html) {
     s.match(/(?:window\.)?location(?:\.href)?\s*=\s*["']([^"']+)["']/i),
   ];
   for (const h of hints) if (h && h[1]) out.redirects.push(decodeEntities(h[1]));
+
+  // Some share pages carry their data base64-encoded; look inside those once.
+  if (!out.groupId && !out.goodsId && depth < 1) {
+    let tries = 0;
+    for (const m of s.matchAll(/[A-Za-z0-9+/_-]{32,4000}={0,2}/g)) {
+      if (++tries > 60) break;
+      let decoded = '';
+      try { decoded = Buffer.from(m[0].replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8'); } catch { continue; }
+      if (!/goods|group|cart|-p-\d/i.test(decoded) || /[\u0000-\u0008�]/.test(decoded)) continue;
+      const inner = parseSheinHtml(decoded, depth + 1);
+      if (inner.groupId || inner.goodsId) {
+        return { ...inner, redirects: out.redirects, country: inner.country || out.country, shc: inner.shc || out.shc };
+      }
+    }
+  }
   return out;
 }
 
-module.exports = { hostIsShein, isSheinUrl, extractUrls, parseSheinUrl, parseSheinHtml, validShc };
+/**
+ * A short, readable digest of a page that couldn't be read (for /admin), so the
+ * owner can send it and the reader can be fixed for the real page shape.
+ */
+function summarizeHtml(html, max = 9000) {
+  const s = String(html || '');
+  const out = [`length: ${s.length}`];
+  const title = s.match(/<title[^>]*>([\s\S]{0,200}?)<\/title>/i);
+  if (title) out.push(`title: ${title[1].replace(/\s+/g, ' ').trim()}`);
+  const metas = [...s.matchAll(/<meta\b[^>]*>/gi)].map((m) => m[0]).filter((t) => /refresh|og:|al:|apple-itunes|twitter:app|url/i.test(t));
+  if (metas.length) out.push('meta:', ...metas.slice(0, 15).map((t) => `  ${t}`));
+  const scripts = [...s.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)];
+  out.push(`scripts: ${scripts.length}`);
+  for (const m of scripts.slice(0, 25)) {
+    const src = (m[1].match(/src\s*=\s*["']([^"']+)["']/i) || [])[1];
+    if (src) out.push(`  src: ${src}`);
+    else if (m[2].trim()) out.push(`  inline(${m[2].length}): ${m[2].replace(/\s+/g, ' ').trim().slice(0, 500)}`);
+  }
+  const urls = [...new Set([...s.matchAll(/https?:(?:\\?\/){2}[A-Za-z0-9.-]+\.[A-Za-z]{2,}[^\s"'<>)]*/g)].map((m) => m[0]))];
+  if (urls.length) out.push('urls:', ...urls.slice(0, 40).map((u) => `  ${u.slice(0, 300)}`));
+  const schemes = [...new Set([...s.matchAll(/\b(?:sheinlink|shein|intent):(?:\\?\/){2}[^\s"'<>]+/gi)].map((m) => m[0]))];
+  if (schemes.length) out.push('app links:', ...schemes.slice(0, 20).map((u) => `  ${u.slice(0, 300)}`));
+  const kv = [...s.matchAll(/["']?([\w$]*(?:goods|group|share|link|url|deeplink|jump|redirect|target|page|path|route|code)[\w$]*)["']?\s*[:=]\s*["']([^"']{1,300})["']/gi)]
+    .map((m) => `  ${m[1]} = ${m[2]}`);
+  if (kv.length) out.push('values:', ...[...new Set(kv)].slice(0, 80));
+  return out.join('\n').slice(0, max);
+}
+
+module.exports = { hostIsShein, isSheinUrl, extractUrls, parseSheinUrl, parseSheinHtml, summarizeHtml, validShc };

@@ -58,7 +58,48 @@ test('resolveLink never fetches a non-SHEIN host from a redirect', async () => {
   const link = await resolveLink(PRODUCT_ONELINK, { fetchImpl });
   assert.equal(link.kind, 'error');
   assert.equal(link.code, 'LINK_UNREADABLE');
+  assert.ok(calls.length >= 1 && calls.every((c) => new URL(c.url).hostname === 'onelink.shein.com'));
+});
+
+test('resolveLink reads the SHEIN target out of an off-site redirect without fetching it', async () => {
+  const calls = [];
+  const target = encodeURIComponent('https://ar.shein.com/Men-Sweater-p-12345678.html?ref=share');
+  const fetchImpl = router([[PRODUCT_ONELINK, { status: 302, headers: { location: `https://app.example-deeplinks.com/x?af_web_dp=${target}` } }]], calls);
+  assert.deepEqual(await resolveLink(PRODUCT_ONELINK, { fetchImpl }), { kind: 'product', goodsId: '12345678', country: undefined });
   assert.equal(calls.length, 1);
+});
+
+test('resolveLink retries as a link-preview bot when the phone page is only an app script', async () => {
+  const calls = [];
+  const fetchImpl = router([[PRODUCT_ONELINK, (url, opts) => (opts.headers['user-agent'].includes('LinkPreviewBot')
+    ? { body: '<html><head><meta property="og:url" content="https://m.shein.com/ar/Sweater-p-12345678.html"></head></html>' }
+    : { body: '<html><script src="https://sheinsz.ltwebstatic.com/onelink/app.js"></script></html>' })]], calls);
+  assert.deepEqual(await resolveLink(PRODUCT_ONELINK, { fetchImpl }), { kind: 'product', goodsId: '12345678', country: undefined });
+  assert.equal(calls.length, 2);
+});
+
+test('resolveLink understands app deeplinks, sharejump links and base64 payloads', async () => {
+  const pages = [
+    '<script>var dl = "sheinlink://applink/goods/12345678?url_from=share";</script>',
+    '<script>var u = "https:\\/\\/api-shein.shein.com\\/h5\\/sharejump\\/appsharejump?lan=ar\\u0026localcountry=SA\\u0026id=12345678";</script>',
+    `<script>var data = "${Buffer.from(JSON.stringify({ goods_id: '12345678', site: 'sa' })).toString('base64')}";</script>`,
+  ];
+  for (const body of pages) {
+    const fetchImpl = router([[PRODUCT_ONELINK, { body }]], []);
+    const link = await resolveLink(PRODUCT_ONELINK, { fetchImpl });
+    assert.equal(link.kind, 'product', body);
+    assert.equal(link.goodsId, '12345678', body);
+  }
+});
+
+test('an unreadable link keeps what SHEIN answered for diagnosis', async () => {
+  const html = '<html><title>SHEIN</title><script src="https://sheinsz.ltwebstatic.com/onelink/app.js"></script></html>';
+  const fetchImpl = router([[PRODUCT_ONELINK, { body: html }]], []);
+  const link = await resolveLink(PRODUCT_ONELINK, { fetchImpl });
+  assert.equal(link.code, 'LINK_UNREADABLE');
+  assert.equal(link.debug.status, 200);
+  assert.deepEqual(link.debug.pages.map((p) => p.label), ['phone', 'preview']);
+  assert.equal(link.debug.pages[0].html, html);
 });
 
 test('resolveLink answers without network for direct links and rejects other sites', async () => {

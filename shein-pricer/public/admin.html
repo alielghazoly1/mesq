@@ -37,6 +37,17 @@
       <p class="hint">الكاش بيوفّر الطلبات: نفس المنتج مش بيتسأل عليه تاني لحد ما المدة تخلص. امسحه بس لو عايز أسعار جديدة حالًا.</p>
     </section>
 
+    <section class="card form mt" id="link-debug-card" hidden>
+      <p class="label">آخر لينك مااتقراش</p>
+      <p class="hint">دوس "انسخ" وابعت اللي اتنسخ، عشان نظبط قراية اللينك على شكل صفحة شي إن الحقيقي.</p>
+      <pre id="link-debug" class="raw" dir="ltr"></pre>
+      <div class="actions">
+        <button type="button" id="copy-link-debug" class="btn primary">انسخ</button>
+        <a id="download-link-page" class="btn ghost" href="/api/admin/debug/link-page">نزّل الصفحة كاملة</a>
+      </div>
+      <p id="copy-msg" class="hint"></p>
+    </section>
+
     <section class="card form mt">
       <p class="label">آخر العمليات</p>
       <ul id="events" class="events"></ul>

@@ -16,6 +16,8 @@
     BAD_RESPONSE: 'الرد مش JSON',
     NO_KEY: 'مفيش مفتاح RapidAPI',
     CART_UNREADABLE: 'مقدرناش نقرا السلة من شي إن',
+    LINK_UNREADABLE: 'اللينك اتفتح بس مالقيناش فيه رقم المنتج أو السلة (التفاصيل في "آخر لينك مااتقراش")',
+    LINK_FETCH_FAILED: 'اللينك مافتحش خالص',
   };
 
   const fmtTime = (iso) => {
@@ -62,6 +64,21 @@
       list.append(li);
     }
 
+    const lf = s.lastLinkFailure;
+    $('link-debug-card').hidden = !lf;
+    if (lf) {
+      $('link-debug').textContent = [
+        `link: ${lf.url}`,
+        `when: ${lf.at}`,
+        `code: ${lf.code}`,
+        `status: ${lf.status ?? '-'}${lf.error ? ` (${lf.error})` : ''}`,
+        `final url: ${lf.finalUrl || '-'}${lf.offsite ? ' (outside shein.com)' : ''}`,
+        `hops: ${(lf.hops || []).join('  ->  ') || '-'}`,
+        '',
+        lf.summary || '(no page content)',
+      ].join('\n');
+    }
+
     const last = s.lastApi;
     $('last-api').textContent = last
       ? `${fmtTime(last.at)} · goods_id=${last.goodsId} · HTTP ${last.status ?? '-'} · ${last.code}${last.message ? ` · ${last.message}` : ''}\n\n${last.sample || ''}`
@@ -88,6 +105,21 @@
     if (!confirm('متأكد؟ أي منتج هيتسأل عليه تاني هياخد طلب جديد من RapidAPI.')) return;
     await api('/api/admin/cache/clear', {});
     load();
+  });
+
+  $('copy-link-debug').addEventListener('click', async () => {
+    const text = $('link-debug').textContent;
+    try {
+      await navigator.clipboard.writeText(text);
+      $('copy-msg').textContent = 'اتنسخ — الزقه في الشات وابعته.';
+    } catch {
+      const range = document.createRange();
+      range.selectNodeContents($('link-debug'));
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      $('copy-msg').textContent = 'اتحدد — دوس Ctrl+C وبعدين الزقه في الشات.';
+    }
   });
 
   $('refresh').addEventListener('click', load);

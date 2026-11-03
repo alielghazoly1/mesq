@@ -188,6 +188,13 @@ function createApp({ config, fetchImpl = fetch, now = () => Date.now() }) {
             return sendJson(res, 400, { ok: false, code: err instanceof RangeError ? `BAD_${err.message.toUpperCase()}` : 'BAD_INPUT' });
           }
         }
+        if (route === 'GET /api/admin/debug/link-page') {
+          return send(res, 200, quoter.lastLinkHtml() || '(empty)', {
+            'content-type': 'text/plain; charset=utf-8',
+            'content-disposition': 'attachment; filename="shein-link-page.txt"',
+            'cache-control': 'no-store',
+          });
+        }
         if (route === 'POST /api/admin/cache/clear') {
           return sendJson(res, 200, { ok: true, removed: cache.clear('p:') + cache.clear('c:') + cache.clear('link:') });
         }

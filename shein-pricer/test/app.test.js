@@ -11,6 +11,8 @@ const { createApp } = require('../lib/app');
 
 const PRODUCT_ONELINK = 'https://onelink.shein.com/59/6718cdkz1x06?shc=2_RsmvRAkFlGV';
 const OTHER_ONELINK = 'https://onelink.shein.com/59/other0000001';
+const UNREADABLE_ONELINK = 'https://onelink.shein.com/59/unreadable01';
+const APP_PAGE = '<html><title>SHEIN</title><script>window.__APP__ = {"jumpUrl":"/pages/landing","code":"abc"};</script></html>';
 const PRODUCT_TEXT = `كنزة رجالية سوداء وبيضاء مخططة
 لقد اكتشفت منتجات رائعة على موقع شي إن، تعالوا وتحققوا منها!
 ${PRODUCT_ONELINK}`;
@@ -43,6 +45,7 @@ async function setup(envOverrides = {}, apiHandler = null) {
   const fetchImpl = async (url) => {
     if (url.startsWith(PRODUCT_ONELINK)) return new Response('<script>var x={"goods_id":"12345678"}</script>', { status: 200 });
     if (url.startsWith(OTHER_ONELINK)) return new Response('<script>var x={"goods_id":"87654321"}</script>', { status: 200 });
+    if (url.startsWith(UNREADABLE_ONELINK)) return new Response(APP_PAGE, { status: 200 });
     if (url.startsWith('https://shein-scraper-api.p.rapidapi.com/')) {
       apiCalls.push(url);
       if (apiHandler) return apiHandler(new URL(url));
@@ -111,6 +114,28 @@ test('a wrong endpoint path is found automatically once, then remembered', async
 
   const status = await (await fetch(`${ctx.base}/api/admin/status`, { headers: auth })).json();
   assert.equal(status.api.productUrl, 'https://shein-scraper-api.p.rapidapi.com/products/details');
+});
+
+test('an unreadable link is shown in /admin with a digest and the full page', async (t) => {
+  const ctx = await setup();
+  t.after(ctx.close);
+
+  const r = await (await post(ctx.base, '/api/quote', { text: UNREADABLE_ONELINK })).json();
+  assert.equal(r.groups[0].code, 'LINK_UNREADABLE');
+  assert.equal(r.groups[0].debug, undefined, 'diagnostics never reach the customer');
+  assert.equal(ctx.apiCalls.length, 0);
+
+  const status = await (await fetch(`${ctx.base}/api/admin/status`, { headers: auth })).json();
+  assert.equal(status.lastLinkFailure.url, UNREADABLE_ONELINK);
+  assert.equal(status.lastLinkFailure.status, 200);
+  assert.match(status.lastLinkFailure.summary, /phone: status 200/);
+  assert.match(status.lastLinkFailure.summary, /preview: status 200/);
+  assert.match(status.lastLinkFailure.summary, /jumpUrl = \/pages\/landing/);
+
+  assert.equal((await fetch(`${ctx.base}/api/admin/debug/link-page`)).status, 401);
+  const page = await fetch(`${ctx.base}/api/admin/debug/link-page`, { headers: auth });
+  assert.match(page.headers.get('content-disposition'), /attachment/);
+  assert.match(await page.text(), /window\.__APP__/);
 });
 
 test('wrong input gets a clear code', async (t) => {

@@ -1,6 +1,6 @@
 'use strict';
 
-const { extractUrls, isSheinUrl } = require('./links');
+const { extractUrls, isSheinUrl, summarizeHtml } = require('./links');
 const { resolveLink, readSharedCart } = require('./shein');
 const { fetchProductDetails, normalizeProduct } = require('./rapidapi');
 const { toEgp } = require('./prices');
@@ -35,6 +35,28 @@ function createQuoter({ config, cache, usage, settings, fetchImpl = fetch, now =
   const events = [];
   const badEndpoints = new Set();
   let lastApi = null;
+  let lastLinkFailure = null;
+  let lastLinkHtml = '';
+
+  // Keeps what SHEIN answered for a link we couldn't read, for /admin.
+  function recordLinkFailure(url, link) {
+    const d = link.debug || {};
+    const pages = d.pages || (d.html !== undefined ? [d] : []);
+    const head = (p) => `${p.label || 'page'}: status ${p.status ?? '-'} | final ${p.finalUrl || '-'}${p.offsite ? ' (outside shein.com)' : ''}`;
+    lastLinkHtml = pages.map((p) => `===== ${head(p)}\n${p.html || ''}`).join('\n\n');
+    lastLinkFailure = {
+      at: new Date(now()).toISOString(),
+      url,
+      code: link.code,
+      status: d.status ?? null,
+      finalUrl: d.finalUrl || null,
+      hops: d.hops || [],
+      offsite: Boolean(d.offsite),
+      error: d.error || null,
+      summary: pages.map((p) => `--- ${head(p)}\n${summarizeHtml(p.html || '', 6000)}`).join('\n\n'),
+    };
+    logEvent({ code: link.code, detail: `${d.status ?? d.error ?? '-'} ${url}` });
+  }
 
   function endpointCandidates() {
     const configured = config.rapidapi.productUrl;
@@ -151,6 +173,7 @@ function createQuoter({ config, cache, usage, settings, fetchImpl = fetch, now =
       return { url, kind: 'cart', ok: true, items, truncated: cart.rows.length > rows.length };
     }
 
+    if (link.debug) recordLinkFailure(url, link);
     return { url, ok: false, code: link.code || 'LINK_UNREADABLE' };
   }
 
@@ -174,7 +197,8 @@ function createQuoter({ config, cache, usage, settings, fetchImpl = fetch, now =
   return {
     quote,
     getProduct,
-    status: () => ({ events: [...events], lastApi }),
+    status: () => ({ events: [...events], lastApi, lastLinkFailure }),
+    lastLinkHtml: () => lastLinkHtml,
   };
 }
 

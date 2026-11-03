@@ -4,6 +4,9 @@ const { hostIsShein, parseSheinUrl, parseSheinHtml } = require('./links');
 const { parsePrice } = require('./prices');
 
 const UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1';
+// Share links usually answer link-preview bots with a plain page (og:url, og:title…)
+// instead of the app-opening script a phone gets, so that's the second try.
+const PREVIEW_UA = 'Mozilla/5.0 (compatible; LinkPreviewBot/1.0)';
 const LINK_CACHE_MS = 30 * 24 * 3600 * 1000; // a share link always points to the same thing
 const MAX_HTML_BYTES = 2_000_000;
 
@@ -38,7 +41,7 @@ async function readCapped(res, maxBytes) {
  * GETs a SHEIN page following redirects by hand, and only ever to *.shein.com
  * (the customer controls the input URL, so nothing else is fetched).
  */
-async function fetchSheinPage(startUrl, { fetchImpl = fetch, maxHops = 5, timeoutMs = 10000, maxBytes = MAX_HTML_BYTES } = {}) {
+async function fetchSheinPage(startUrl, { fetchImpl = fetch, maxHops = 5, timeoutMs = 10000, maxBytes = MAX_HTML_BYTES, userAgent = UA } = {}) {
   let next = startUrl;
   const hops = [];
   for (let i = 0; i <= maxHops; i++) {
@@ -52,7 +55,7 @@ async function fetchSheinPage(startUrl, { fetchImpl = fetch, maxHops = 5, timeou
     const res = await fetchImpl(u.href, {
       redirect: 'manual',
       headers: {
-        'user-agent': UA,
+        'user-agent': userAgent,
         accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         'accept-language': 'ar,en;q=0.8',
       },
@@ -86,41 +89,71 @@ async function resolveLink(href, { fetchImpl = fetch, cache = null, timeoutMs = 
   if (hit) return hit;
   const save = (r) => { cache?.set(cacheKey, r, LINK_CACHE_MS); return r; };
 
-  let page;
-  try {
-    page = await fetchSheinPage(href, { fetchImpl, timeoutMs });
-  } catch (err) {
-    return { kind: 'error', code: 'LINK_FETCH_FAILED', detail: errName(err) };
+  const pages = [];
+  let lastError = null;
+  for (const [label, userAgent] of [['phone', UA], ['preview', PREVIEW_UA]]) {
+    let page;
+    try {
+      page = await fetchSheinPage(href, { fetchImpl, timeoutMs, userAgent });
+    } catch (err) {
+      lastError = errName(err);
+      continue;
+    }
+    const found = readSharePage(page, direct);
+    if (found) return save(found);
+    pages.push({ label, status: page.status ?? null, finalUrl: page.finalUrl, hops: page.hops, offsite: Boolean(page.offsite), html: page.html || '' });
+  }
+
+  if (!pages.length) return { kind: 'error', code: 'LINK_FETCH_FAILED', detail: lastError, debug: { error: lastError } };
+  const first = pages[0];
+  return {
+    kind: 'error',
+    code: 'LINK_UNREADABLE',
+    detail: `status ${first.status ?? '-'}${first.offsite ? ' offsite' : ''}`,
+    debug: { ...first, pages },
+  };
+}
+
+/** What one fetched short-link page points to, or null. */
+function readSharePage(page, direct) {
+  const asCart = (info) => ({ kind: 'cart', groupId: info.groupId, shc: direct.shc || info.shc, country: info.country });
+  const asProduct = (info) => ({ kind: 'product', goodsId: info.goodsId, country: info.country });
+
+  // 0) A redirect that leaves SHEIN (app-store / deep-link service) is never
+  //    fetched, but its URL often carries the SHEIN target in the query string.
+  if (page.offsite) {
+    let text = page.finalUrl;
+    for (let i = 0; i < 3; i++) { try { text = decodeURIComponent(text); } catch { break; } }
+    const fromUrl = parseSheinHtml(text);
+    if (fromUrl.groupId) return asCart(fromUrl);
+    if (fromUrl.goodsId) return asProduct(fromUrl);
   }
 
   // 1) A redirect that already landed on a product page or a shared cart.
   for (const hop of [...page.hops].reverse()) {
     const p = parseSheinUrl(hop);
-    if (p.kind === 'product') return save(p);
-    if (p.kind === 'cart') return save({ ...p, shc: p.shc || direct.shc });
+    if (p.kind === 'product') return p;
+    if (p.kind === 'cart') return { ...p, shc: p.shc || direct.shc };
   }
 
   // 2) The 200 page itself (shareInfo / deeplink / goods_id inside the scripts).
-  // A clear signal wins over a loose one (a generic page script may mention
-  // "cart/share" or some other groupId while the link is really a product).
+  //    A clear signal wins over a loose one (a generic page script may mention
+  //    "cart/share" or some other groupId while the link is really a product).
   const info = parseSheinHtml(page.html || '');
-  const asCart = () => save({ kind: 'cart', groupId: info.groupId, shc: direct.shc || info.shc, country: info.country });
-  const asProduct = () => save({ kind: 'product', goodsId: info.goodsId, country: info.country });
-  if (info.groupId && info.cartStrong) return asCart();
-  if (info.goodsId && info.productStrong) return asProduct();
-  if (info.groupId) return asCart();
-  if (info.goodsId) return asProduct();
+  if (info.groupId && info.cartStrong) return asCart(info);
+  if (info.goodsId && info.productStrong) return asProduct(info);
+  if (info.groupId) return asCart(info);
+  if (info.goodsId) return asProduct(info);
 
   // 3) A redirect hint in the page (meta refresh, og:url, location=...).
   for (const hint of info.redirects) {
     let abs;
     try { abs = new URL(hint, page.finalUrl).href; } catch { continue; }
     const p = parseSheinUrl(abs);
-    if (p.kind === 'product') return save(p);
-    if (p.kind === 'cart') return save({ ...p, shc: p.shc || direct.shc });
+    if (p.kind === 'product') return p;
+    if (p.kind === 'cart') return { ...p, shc: p.shc || direct.shc };
   }
-
-  return { kind: 'error', code: 'LINK_UNREADABLE', detail: `status ${page.status ?? '-'}${page.offsite ? ' offsite' : ''}` };
+  return null;
 }
 
 // ---------------------------------------------------------------------------
