@@ -42,7 +42,9 @@ async function setup(envOverrides = {}, apiHandler = null) {
     ...envOverrides,
   });
   const apiCalls = [];
+  const extraPages = new Map();
   const fetchImpl = async (url) => {
+    for (const [prefix, html] of extraPages) if (url.startsWith(prefix)) return new Response(html, { status: 200 });
     if (url.startsWith(PRODUCT_ONELINK)) return new Response('<script>var x={"goods_id":"12345678"}</script>', { status: 200 });
     if (url.startsWith(OTHER_ONELINK)) return new Response('<script>var x={"goods_id":"87654321"}</script>', { status: 200 });
     if (url.startsWith(UNREADABLE_ONELINK)) return new Response(APP_PAGE, { status: 200 });
@@ -59,7 +61,7 @@ async function setup(envOverrides = {}, apiHandler = null) {
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
   const base = `http://127.0.0.1:${server.address().port}`;
   const close = () => new Promise((resolve) => { app.flush(); server.close(() => { fs.rmSync(dataDir, { recursive: true, force: true }); resolve(); }); });
-  return { app, base, apiCalls, close, config };
+  return { app, base, apiCalls, close, config, extraPages };
 }
 
 const auth = { authorization: `Basic ${Buffer.from('admin:secret-pass').toString('base64')}` };
@@ -136,6 +138,43 @@ test('an unreadable link is shown in /admin with a digest and the full page', as
   const page = await fetch(`${ctx.base}/api/admin/debug/link-page`, { headers: auth });
   assert.match(page.headers.get('content-disposition'), /attachment/);
   assert.match(await page.text(), /window\.__APP__/);
+});
+
+test('the real product share page is priced, with the share title/image when the API has none', async (t) => {
+  const realLink = 'https://onelink.shein.com/59/6718cdkz1x06?shc=2_RsmvRAkFlGV';
+  const page = '<html><head><meta property="og:title" content="كنزة رجالية مخططة"/><meta property="og:image" content="https://img.ltwebstatic.com/v4/j/spmp/x.jpg"/></head><body>'
+    + '<input type="hidden" id="url" value="https://api-shein.shein.com/h5/sharejump/appjump?onelink=59/6718cdkz1x06&amp;localcountry=SA"/>'
+    + '<input type="hidden" id="deeplink" value="sheinlink://applink/goods?data=%7B%22goods_id%22%3A%22551922648%22%7D"/></body></html>';
+  const ctx = await setup({ SAR_TO_EGP: '15' }, (u) => new Response(JSON.stringify({
+    data: { goods_id: u.searchParams.get('goods_id'), salePrice: { amount: '59.00', amountWithSymbol: '59.00ر.س' } },
+  }), { status: 200 }));
+  t.after(ctx.close);
+  ctx.extraPages.set(realLink, page);
+
+  const r = await (await post(ctx.base, '/api/quote', { text: `كنزة رجالية\n${realLink}` })).json();
+  const item = r.groups[0].items[0];
+  assert.equal(item.goodsId, '551922648');
+  assert.equal(item.egp, 885); // 59 × 15
+  assert.equal(item.name, 'كنزة رجالية مخططة');
+  assert.equal(item.image, 'https://img.ltwebstatic.com/v4/j/spmp/x.jpg');
+  const u = new URL(ctx.apiCalls[0]);
+  assert.deepEqual([u.searchParams.get('goods_id'), u.searchParams.get('country'), u.searchParams.get('currency')], ['551922648', 'sa', 'sar']);
+});
+
+test('a cart SHEIN won\'t let us read shows up in /admin with each attempt', async (t) => {
+  const ctx = await setup();
+  t.after(ctx.close);
+  const cartLink = 'https://onelink.shein.com/59/6718bc3djj3g?shc=2_RsmcDqBA4AI';
+  ctx.extraPages.set(cartLink, '<script>var shareInfo={"group_id":"876543210","local_country":"SA"}</script>');
+  ctx.extraPages.set('https://m.shein.com/ar/cart/share/landing', '<html>verify you are human</html>');
+
+  const r = await (await post(ctx.base, '/api/quote', { text: cartLink })).json();
+  assert.equal(r.groups[0].code, 'CART_UNREADABLE');
+  const status = await (await fetch(`${ctx.base}/api/admin/status`, { headers: auth })).json();
+  assert.equal(status.lastLinkFailure.code, 'CART_UNREADABLE');
+  assert.match(status.lastLinkFailure.summary, /cart-page: status 200/);
+  assert.match(status.lastLinkFailure.summary, /cart-api@m\.shein\.com/);
+  assert.match(status.lastLinkFailure.summary, /cart-api@www\.shein\.com/);
 });
 
 test('wrong input gets a clear code', async (t) => {

@@ -158,11 +158,15 @@ test('readSharedCart falls back to the JSON endpoint with the right body', async
   assert.deepEqual(JSON.parse(calls[1].opts.body), { groupId: '876543210', localCountry: 'SA', shc: '2_RsmcDqBA4AI' });
 });
 
-test('readSharedCart reports failure when SHEIN blocks both ways', async () => {
+test('readSharedCart reports failure (with what SHEIN answered) when every way is blocked', async () => {
   const fetchImpl = router([
     ['https://m.shein.com/ar/cart/share/landing', { status: 403, body: '<html>verify</html>' }],
     ['https://m.shein.com/bff-api/', { status: 403, body: '<html>verify</html>' }],
+    ['https://www.shein.com/bff-api/', { status: 200, body: '{"code":"10111","msg":"risk"}' }],
   ], []);
   const cart = await readSharedCart({ groupId: '876543210' }, { fetchImpl });
-  assert.deepEqual(cart, { ok: false, attempts: ['html:403', 'bff:403'] });
+  assert.equal(cart.ok, false);
+  assert.deepEqual(cart.attempts, ['html:403', 'bff@m.shein.com:403', 'bff@www.shein.com:200:10111']);
+  assert.deepEqual(cart.debug.pages.map((p) => p.label), ['cart-page', 'cart-api@m.shein.com', 'cart-api@www.shein.com']);
+  assert.equal(cart.debug.pages[2].bodyPreview, '{"code":"10111","msg":"risk"}');
 });

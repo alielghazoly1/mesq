@@ -42,7 +42,8 @@ function createQuoter({ config, cache, usage, settings, fetchImpl = fetch, now =
   function recordLinkFailure(url, link) {
     const d = link.debug || {};
     const pages = d.pages || (d.html !== undefined ? [d] : []);
-    const head = (p) => `${p.label || 'page'}: status ${p.status ?? '-'} | final ${p.finalUrl || '-'}${p.offsite ? ' (outside shein.com)' : ''}`;
+    const head = (p) => `${p.label || 'page'}: status ${p.status ?? '-'}${p.error ? ` (${p.error})` : ''} | final ${p.finalUrl || '-'}${p.offsite ? ' (outside shein.com)' : ''}`;
+    const digest = (p) => (p.bodyPreview !== undefined ? `body: ${p.bodyPreview}` : summarizeHtml(p.html || '', 6000));
     lastLinkHtml = pages.map((p) => `===== ${head(p)}\n${p.html || ''}`).join('\n\n');
     lastLinkFailure = {
       at: new Date(now()).toISOString(),
@@ -53,7 +54,7 @@ function createQuoter({ config, cache, usage, settings, fetchImpl = fetch, now =
       hops: d.hops || [],
       offsite: Boolean(d.offsite),
       error: d.error || null,
-      summary: pages.map((p) => `--- ${head(p)}\n${summarizeHtml(p.html || '', 6000)}`).join('\n\n'),
+      summary: pages.map((p) => `--- ${head(p)}\n${digest(p)}`).join('\n\n'),
     };
     logEvent({ code: link.code, detail: `${d.status ?? d.error ?? '-'} ${url}` });
   }
@@ -148,14 +149,22 @@ function createQuoter({ config, cache, usage, settings, fetchImpl = fetch, now =
 
     if (link.kind === 'product') {
       const r = await getProduct(link.goodsId);
-      if (!r.ok) return { url, kind: 'product', ok: false, code: r.code, goodsId: link.goodsId };
-      const item = pricedItem({ ...r.product, inStock: !r.product.soldOut }, pricing);
+      if (!r.ok) return { url, kind: 'product', ok: false, code: r.code, goodsId: link.goodsId, name: link.name || '' };
+      const item = pricedItem({
+        ...r.product,
+        name: r.product.name || link.name,   // the share page's title/image when the API has none
+        image: r.product.image || link.image,
+        inStock: !r.product.soldOut,
+      }, pricing);
       return { url, kind: 'product', ok: true, items: [item] };
     }
 
     if (link.kind === 'cart') {
       const cart = await getCart(link);
-      if (!cart.ok) return { url, kind: 'cart', ok: false, code: 'CART_UNREADABLE' };
+      if (!cart.ok) {
+        recordLinkFailure(url, { code: 'CART_UNREADABLE', debug: cart.debug });
+        return { url, kind: 'cart', ok: false, code: 'CART_UNREADABLE' };
+      }
       const rows = cart.rows.slice(0, config.limits.cartItems);
       const items = await mapLimit(rows, 3, async (row) => {
         const base = { goodsId: row.goodsId, name: row.name, image: row.image, attrs: row.attrs, quantity: row.quantity, inStock: row.inStock };

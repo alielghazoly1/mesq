@@ -2,6 +2,7 @@
 
 const { hostIsShein, parseSheinUrl, parseSheinHtml } = require('./links');
 const { parsePrice } = require('./prices');
+const { readShareDocument } = require('./sharepage');
 
 const UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1';
 // Share links usually answer link-preview bots with a plain page (og:url, og:title…)
@@ -90,22 +91,58 @@ async function resolveLink(href, { fetchImpl = fetch, cache = null, timeoutMs = 
   const save = (r) => { cache?.set(cacheKey, r, LINK_CACHE_MS); return r; };
 
   const pages = [];
+  const visited = new Set();
   let lastError = null;
-  for (const [label, userAgent] of [['phone', UA], ['preview', PREVIEW_UA]]) {
+
+  const withMeta = (r, doc) => {
+    if (r.kind !== 'product') return r;
+    const out = { ...r };
+    if (!out.name && doc.title) out.name = doc.title;
+    if (!out.image && doc.image) out.image = doc.image;
+    return out;
+  };
+  const cartFrom = (doc) => ({ kind: 'cart', groupId: doc.cart.id, shc: direct.shc || doc.shc, country: doc.country });
+  const productFrom = (doc) => withMeta({ kind: 'product', goodsId: doc.product.id, country: doc.country }, doc);
+
+  // Opens one page and reads it; follows the web links a browser would follow
+  // (only on *.shein.com, at most a few pages in total).
+  async function visit(url, label, userAgent, depth) {
+    const key = `${userAgent}|${url}`;
+    if (visited.has(key) || depth > 2 || visited.size >= 6) return null;
+    visited.add(key);
     let page;
     try {
-      page = await fetchSheinPage(href, { fetchImpl, timeoutMs, userAgent });
+      page = await fetchSheinPage(url, { fetchImpl, timeoutMs, userAgent });
     } catch (err) {
       lastError = errName(err);
-      continue;
+      pages.push({ label, status: null, finalUrl: url, hops: [], offsite: false, html: '', error: lastError });
+      return null;
     }
-    const found = readSharePage(page, direct);
-    if (found) return save(found);
     pages.push({ label, status: page.status ?? null, finalUrl: page.finalUrl, hops: page.hops, offsite: Boolean(page.offsite), html: page.html || '' });
+
+    // Order of trust: where the redirects landed → the page's own data
+    // (deeplink / hidden inputs / JSON) → older text patterns → links to follow.
+    const doc = readShareDocument(page.html || '');
+    const landed = readLanding(page, direct);
+    if (landed) return withMeta(landed, doc);
+    if (doc.cart && doc.cart.strong) return cartFrom(doc);
+    if (doc.product && doc.product.strong) return productFrom(doc);
+    const legacy = readPageText(page, direct);
+    if (legacy) return withMeta(legacy, doc);
+    for (const next of doc.follow) {
+      const r = await visit(next, 'jump', UA, depth + 1);
+      if (r) return withMeta(r, doc);
+    }
+    if (doc.cart) return cartFrom(doc);
+    if (doc.product) return productFrom(doc);
+    return null;
   }
 
-  if (!pages.length) return { kind: 'error', code: 'LINK_FETCH_FAILED', detail: lastError, debug: { error: lastError } };
-  const first = pages[0];
+  const found = (await visit(href, 'phone', UA, 0)) || (await visit(href, 'preview', PREVIEW_UA, 0));
+  if (found) return save(found);
+
+  const first = pages.find((p) => !p.error);
+  if (!first) return { kind: 'error', code: 'LINK_FETCH_FAILED', detail: lastError, debug: { error: lastError, pages } };
   return {
     kind: 'error',
     code: 'LINK_UNREADABLE',
@@ -114,31 +151,34 @@ async function resolveLink(href, { fetchImpl = fetch, cache = null, timeoutMs = 
   };
 }
 
-/** What one fetched short-link page points to, or null. */
-function readSharePage(page, direct) {
-  const asCart = (info) => ({ kind: 'cart', groupId: info.groupId, shc: direct.shc || info.shc, country: info.country });
-  const asProduct = (info) => ({ kind: 'product', goodsId: info.goodsId, country: info.country });
+const asCartInfo = (info, direct) => ({ kind: 'cart', groupId: info.groupId, shc: direct.shc || info.shc, country: info.country });
+const asProductInfo = (info) => ({ kind: 'product', goodsId: info.goodsId, country: info.country });
 
-  // 0) A redirect that leaves SHEIN (app-store / deep-link service) is never
-  //    fetched, but its URL often carries the SHEIN target in the query string.
+/** Where the page's redirects landed (a product page, a shared cart, or an off-site URL carrying one). */
+function readLanding(page, direct) {
+  // A redirect that leaves SHEIN (app-store / deep-link service) is never
+  // fetched, but its URL often carries the SHEIN target in the query string.
   if (page.offsite) {
     let text = page.finalUrl;
     for (let i = 0; i < 3; i++) { try { text = decodeURIComponent(text); } catch { break; } }
     const fromUrl = parseSheinHtml(text);
-    if (fromUrl.groupId) return asCart(fromUrl);
-    if (fromUrl.goodsId) return asProduct(fromUrl);
+    if (fromUrl.groupId) return asCartInfo(fromUrl, direct);
+    if (fromUrl.goodsId) return asProductInfo(fromUrl);
   }
-
-  // 1) A redirect that already landed on a product page or a shared cart.
   for (const hop of [...page.hops].reverse()) {
     const p = parseSheinUrl(hop);
     if (p.kind === 'product') return p;
     if (p.kind === 'cart') return { ...p, shc: p.shc || direct.shc };
   }
+  return null;
+}
 
-  // 2) The 200 page itself (shareInfo / deeplink / goods_id inside the scripts).
-  //    A clear signal wins over a loose one (a generic page script may mention
-  //    "cart/share" or some other groupId while the link is really a product).
+/** Older text patterns over the raw page (shareInfo objects, escaped deeplinks, redirect hints). */
+function readPageText(page, direct) {
+  const asCart = (info) => asCartInfo(info, direct);
+  const asProduct = asProductInfo;
+  // A clear signal wins over a loose one (a generic page script may mention
+  // "cart/share" or some other groupId while the link is really a product).
   const info = parseSheinHtml(page.html || '');
   if (info.groupId && info.cartStrong) return asCart(info);
   if (info.goodsId && info.productStrong) return asProduct(info);
@@ -301,48 +341,62 @@ function extractCartRowsFromHtml(html) {
  */
 async function readSharedCart({ groupId, shc, country }, { fetchImpl = fetch, timeoutMs = 10000 } = {}) {
   const cc = (country || 'SA').toUpperCase();
-  const landing = new URL('https://m.shein.com/ar/cart/share/landing');
-  landing.searchParams.set('group_id', groupId);
-  if (shc) landing.searchParams.set('shc', shc);
-  landing.searchParams.set('local_country', cc);
-  landing.searchParams.set('cart_share', '1');
+  const landingOn = (host) => {
+    const u = new URL(`https://${host}/ar/cart/share/landing`);
+    u.searchParams.set('group_id', groupId);
+    if (shc) u.searchParams.set('shc', shc);
+    u.searchParams.set('local_country', cc);
+    u.searchParams.set('cart_share', '1');
+    return u.href;
+  };
   const attempts = [];
+  const pages = []; // kept for /admin when nothing could be read
 
+  // A) the share page itself (SHEIN sometimes renders the cart into the HTML)
+  const landing = landingOn('m.shein.com');
   try {
-    const page = await fetchSheinPage(landing.href, { fetchImpl, timeoutMs });
+    const page = await fetchSheinPage(landing, { fetchImpl, timeoutMs });
     const rows = extractCartRowsFromHtml(page.html || '');
     if (rows.length) return { ok: true, rows, source: 'html', country: cc };
     attempts.push(`html:${page.status ?? '-'}`);
+    pages.push({ label: 'cart-page', status: page.status ?? null, finalUrl: page.finalUrl, hops: page.hops, offsite: Boolean(page.offsite), html: page.html || '' });
   } catch (err) {
     attempts.push(`html:${errName(err)}`);
+    pages.push({ label: 'cart-page', status: null, finalUrl: landing, hops: [], html: '', error: errName(err) });
   }
 
-  try {
-    const res = await fetchImpl('https://m.shein.com/bff-api/order/cart/share/landing', {
-      method: 'POST',
-      redirect: 'manual',
-      headers: {
-        'user-agent': UA,
-        'content-type': 'application/json',
-        accept: 'application/json, text/plain, */*',
-        'accept-language': 'ar,en;q=0.8',
-        origin: 'https://m.shein.com',
-        referer: landing.href,
-      },
-      body: JSON.stringify({ groupId, localCountry: cc, ...(shc ? { shc } : {}) }),
-      signal: AbortSignal.timeout(timeoutMs),
-    });
-    const text = await readCapped(res, 3_000_000);
-    let json = null;
-    try { json = JSON.parse(text); } catch { /* not JSON (blocked / challenge page) */ }
-    const rows = json ? extractCartRows(json) : [];
-    if (rows.length) return { ok: true, rows, source: 'bff', country: cc };
-    attempts.push(`bff:${res.status}${json && json.code !== undefined ? `:${json.code}` : ''}`);
-  } catch (err) {
-    attempts.push(`bff:${errName(err)}`);
+  // B) the JSON endpoint the share page calls (mobile site, then www)
+  for (const host of ['m.shein.com', 'www.shein.com']) {
+    const endpoint = `https://${host}/bff-api/order/cart/share/landing`;
+    try {
+      const res = await fetchImpl(endpoint, {
+        method: 'POST',
+        redirect: 'manual',
+        headers: {
+          'user-agent': UA,
+          'content-type': 'application/json',
+          accept: 'application/json, text/plain, */*',
+          'accept-language': 'ar,en;q=0.8',
+          origin: `https://${host}`,
+          referer: landingOn(host),
+        },
+        body: JSON.stringify({ groupId, localCountry: cc, ...(shc ? { shc } : {}) }),
+        signal: AbortSignal.timeout(timeoutMs),
+      });
+      const text = await readCapped(res, 3_000_000);
+      let json = null;
+      try { json = JSON.parse(text); } catch { /* not JSON (blocked / challenge page) */ }
+      const rows = json ? extractCartRows(json) : [];
+      if (rows.length) return { ok: true, rows, source: 'bff', country: cc };
+      attempts.push(`bff@${host}:${res.status}${json && json.code !== undefined ? `:${json.code}` : ''}`);
+      pages.push({ label: `cart-api@${host}`, status: res.status, finalUrl: endpoint, hops: [endpoint], html: text, bodyPreview: text.slice(0, 1500) });
+    } catch (err) {
+      attempts.push(`bff@${host}:${errName(err)}`);
+      pages.push({ label: `cart-api@${host}`, status: null, finalUrl: endpoint, hops: [], html: '', error: errName(err) });
+    }
   }
 
-  return { ok: false, attempts };
+  return { ok: false, attempts, debug: { status: pages[0]?.status ?? null, finalUrl: landing, hops: pages[0]?.hops || [], pages } };
 }
 
 module.exports = {
