@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>لوحة الأسعار</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/admin.js" defer></script>
+</head>
+<body>
+  <main class="wrap">
+    <header class="hero">
+      <p class="eyebrow">لوحة الإدارة</p>
+      <h1>سعر الريال والطلبات</h1>
+    </header>
+
+    <form id="rate-form" class="card form" novalidate>
+      <label for="rate" class="label">الريال بكام جنيه؟</label>
+      <input id="rate" type="text" inputmode="decimal" autocomplete="off" placeholder="مثال: 15">
+      <label for="round" class="label mt-sm">التقريب لفوق لأقرب (جنيه)</label>
+      <input id="round" type="text" inputmode="numeric" autocomplete="off" placeholder="1">
+      <div class="actions">
+        <button type="submit" class="btn primary">احفظ</button>
+      </div>
+      <p id="rate-msg" class="hint"></p>
+    </form>
+
+    <section class="card form mt">
+      <p class="label">طلبات RapidAPI</p>
+      <p id="usage" class="lead"></p>
+      <p id="api" class="hint"></p>
+      <div class="actions">
+        <button type="button" id="clear-cache" class="btn ghost">امسح الكاش</button>
+        <button type="button" id="refresh" class="btn ghost">تحديث</button>
+      </div>
+      <p class="hint">الكاش بيوفّر الطلبات: نفس المنتج مش بيتسأل عليه تاني لحد ما المدة تخلص. امسحه بس لو عايز أسعار جديدة حالًا.</p>
+    </section>
+
+    <section class="card form mt">
+      <p class="label">آخر العمليات</p>
+      <ul id="events" class="events"></ul>
+    </section>
+
+    <details class="card manual mt">
+      <summary>آخر رد من الـ API (للمراجعة)</summary>
+      <pre id="last-api" class="raw" dir="ltr"></pre>
+    </details>
+  </main>
+</body>
+</html>

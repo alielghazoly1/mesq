@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>اعرف السعر بالمصري</title>
+  <meta name="description" content="الزق لينك المنتج أو لينك السلة واعرف السعر بالجنيه المصري على طول.">
+  <meta name="theme-color" content="#1f1a24">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <main class="wrap">
+    <header class="hero">
+      <p class="eyebrow">اعرف السعر في ثانية</p>
+      <h1 id="store-name">حاسبة الأسعار</h1>
+      <p class="lead">الزق لينك المنتج أو لينك السلة من شي إن، وهتعرف السعر بالجنيه المصري على طول.</p>
+    </header>
+
+    <form id="quote-form" class="card form" novalidate>
+      <label for="links" class="label">اللينك</label>
+      <textarea id="links" rows="4" dir="auto" autocomplete="off" spellcheck="false"
+        placeholder="الزق هنا اللينك أو الرسالة كلها اللي بتطلع من زرار المشاركة"></textarea>
+      <div class="actions">
+        <button type="button" id="paste-btn" class="btn ghost">لزق</button>
+        <button type="submit" id="submit-btn" class="btn primary">اعرف السعر</button>
+      </div>
+      <p class="hint">ينفع لينك منتج أو لينك سلة، أو كذا لينك مرة واحدة.</p>
+    </form>
+
+    <div id="notice" class="notice" role="status" hidden></div>
+
+    <section id="results" class="results" hidden aria-live="polite">
+      <ul id="items" class="items"></ul>
+      <ul id="problems" class="problems"></ul>
+      <div id="summary" class="card summary" hidden>
+        <div class="total-row">
+          <span>الإجمالي</span>
+          <strong id="total">0</strong>
+        </div>
+        <p id="total-note" class="fine" hidden></p>
+        <a id="order-btn" class="btn whatsapp" target="_blank" rel="noopener" hidden>اطلب على واتساب</a>
+        <p class="fine">الأسعار حسب سعر الموقع دلوقتي وممكن تتغير، والسعر النهائي بيتأكد وقت الطلب.</p>
+      </div>
+    </section>
+
+    <details class="card manual" id="manual">
+      <summary>عندك السعر بالريال؟ احسبه بنفسك</summary>
+      <div class="manual-row">
+        <label class="sr-only" for="manual-sar">السعر بالريال</label>
+        <input id="manual-sar" type="text" inputmode="decimal" autocomplete="off" placeholder="السعر بالريال">
+        <span class="arrow" aria-hidden="true">←</span>
+        <output id="manual-egp" for="manual-sar">—</output>
+      </div>
+    </details>
+
+    <footer class="foot">الموقع ده مش تابع لشي إن.</footer>
+  </main>
+
+  <template id="item-tpl">
+    <li class="item card">
+      <div class="thumb"><img alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></div>
+      <div class="info">
+        <p class="name"></p>
+        <p class="attrs"></p>
+        <p class="badges"></p>
+        <div class="price-row">
+          <div class="price">
+            <strong class="egp"></strong>
+            <s class="was"></s>
+            <span class="sar"></span>
+          </div>
+          <div class="qty" role="group" aria-label="الكمية">
+            <button type="button" class="qty-btn minus" aria-label="قلّل">−</button>
+            <span class="qty-val">1</span>
+            <button type="button" class="qty-btn plus" aria-label="زوّد">+</button>
+          </div>
+        </div>
+      </div>
+    </li>
+  </template>
+</body>
+</html>
