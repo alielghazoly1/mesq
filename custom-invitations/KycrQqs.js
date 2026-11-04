@@ -49,6 +49,10 @@ module.exports = {
   // سجل التهاني بيعرض التهاني لكل الضيوف (routes/invitations.js: /i/:shortId/wishes)
   publicWishes: true,
 
+  // زرار "أضف إلى التقويم" بيفتح /i/KycrQqs/calendar.ics (routes/invitations.js) — من غير
+  // السطر ده كان بيرجّع "Not found". الميعاد من بيانات الدعوة (الجمعة 13/11/2026 الساعة 7 مساءً).
+  calendar: { title: 'حفل زفاف محمد وإسراء', hours: 6 },
+
   share: {
     image: asset(`${DIR}share.jpg`),
     width: 1200,
