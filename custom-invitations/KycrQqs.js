@@ -18,7 +18,8 @@ const { escapeHtml } = require('../utils/sanitize');
 
 const SHORT = 'KycrQqs';
 const DIR = `/custom/${SHORT}/`;
-const DEFAULT_SONG = '/templates/pearl-peony/song.mp3';
+// أغنية الدعوة (اللينك اللي المالك بعته — اتحمّلت عندنا لأن الصفحة مابتشغّلش صوت من مواقع برّه)
+const DEFAULT_SONG = asset(`${DIR}song.mp3`);
 const FALLBACK_MAP = 'https://maps.app.goo.gl/DzExN2zKyepmvVoH6';
 
 let PAGE = null;

@@ -175,6 +175,17 @@ img{display:block;max-width:none;-webkit-user-select:none;user-select:none;-webk
 .sheet .msg{min-height:18px;margin:10px 0 0;font:400 12.5px/1.5 var(--ar);color:#a1283c}
 .sheet .done p{margin:10px 0 0;font:400 14px/1.7 var(--ar);color:var(--ink)}
 
+
+/* الحنة: تحت ميعاد الفرح في نفس الكارت */
+.henna{margin:calc(var(--u)*26) auto 0;width:calc(var(--u)*270)}
+.henna .orn{display:flex;align-items:center;justify-content:center;gap:calc(var(--u)*8);color:rgba(254,218,221,.55)}
+.henna .orn b{display:block;width:calc(var(--u)*46);height:1px;background:currentColor}
+.henna .orn i{display:block;width:calc(var(--u)*5);height:calc(var(--u)*5);transform:rotate(45deg);background:currentColor}
+.henna .ha{margin:calc(var(--u)*12) 0 0;font:600 calc(var(--u)*13.4)/1.85 var(--ar);color:var(--rose)}
+.henna .ha b{display:block;font:700 calc(var(--u)*16)/1.6 var(--ar)}
+.henna .he{margin:calc(var(--u)*2) 0 0;font:400 calc(var(--u)*11)/1.45 var(--en);color:var(--rose-dim);text-transform:uppercase;letter-spacing:.02em}
+/* حاجات صغننة بتنزل من فوق (بعد فتح الدعوة) */
+#fall{position:fixed;left:0;top:0;width:100%;height:100%;z-index:40;pointer-events:none}
 /* ===== شاشة الغلاف (ظرف Velvet Voice بطلب المالك): الضغط عليه → الختم يختفي والظرف يسقط لتحت ويختفي وتفتح الدعوة ===== */
 html.kc-lock,html.kc-lock body{overflow:hidden;height:100%}
 .kc{position:fixed;inset:0;z-index:100;overflow:hidden;background:#3a0d14;cursor:pointer;touch-action:none;transition:opacity .7s ease,background-color .9s ease}
@@ -320,6 +331,11 @@ html.kc-lock,html.kc-lock body{overflow:hidden;height:100%}
       <div class="bar"></div>
       <div class="r"><div class="d">13</div></div>
     </div>
+    <div class="henna">
+      <div class="orn" aria-hidden="true"><b></b><i></i><b></b></div>
+      <p class="ha"><b>الحنة</b>يوم الاثنين الموافق ٢٠٢٦/١١/٩ الساعة السادسة مساءً بقاعة الياسمين في تيره</p>
+      <p class="he" dir="ltr">Henna night: Monday, 9 November 2026 at 6:00 PM — Al Yasmeen Hall, Tera</p>
+    </div>
     <p class="cd-t"><span dir="ltr">Countdown</span> / <span class="a">العد التنازلي</span></p>
     <p class="cd-a" id="cdA">&nbsp;</p>
     <p class="cd-e" id="cdE">&nbsp;</p>
@@ -365,6 +381,7 @@ html.kc-lock,html.kc-lock body{overflow:hidden;height:100%}
   </div>
 </div>
 
+<canvas id="fall" aria-hidden="true"></canvas>
 <button type="button" class="music" id="music" aria-label="الموسيقى" aria-pressed="false">
   <svg class="note" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.6A4 4 0 1 0 14 17V7h4V3h-6z"/></svg>
   <span class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
@@ -398,9 +415,50 @@ html.kc-lock,html.kc-lock body{overflow:hidden;height:100%}
   var $ = function (s) { return document.querySelector(s); };
 
 
+
+  /* ---------- حاجات صغننة بتنزل من فوق: ورق ورد نبيتي/وردي ونقط دهب، خفيفة ومش بتعطّل حاجة ---------- */
+  window.__kcFall = function () {
+    var cv = $('#fall'); if (!cv || !cv.getContext) return;
+    if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var ctx = cv.getContext('2d'), W = 0, H = 0, R = Math.min(2, window.devicePixelRatio || 1), P = [], run = true;
+    function size() { W = innerWidth; H = innerHeight; cv.width = W * R; cv.height = H * R; ctx.setTransform(R, 0, 0, R, 0, 0); }
+    size(); addEventListener('resize', size);
+    var COL = ['#7a1f30', '#9b3448', '#c9727f', '#e6b3b8', '#d8b26a', '#e9cf95'];
+    function mk(top) {
+      var gold = Math.random() < 0.35;
+      return { x: Math.random() * W, y: top ? -10 - Math.random() * H * 0.3 : Math.random() * H, s: gold ? 1 + Math.random() * 1.6 : 2.2 + Math.random() * 2.6,
+        vy: 0.35 + Math.random() * 0.55, a: Math.random() * 6.28, va: 0.008 + Math.random() * 0.016, sw: 0.4 + Math.random() * 0.9,
+        r: Math.random() * 6.28, vr: (Math.random() - 0.5) * 0.04, c: gold ? COL[4 + (Math.random() * 2 | 0)] : COL[Math.random() * 4 | 0], g: gold, o: 0.55 + Math.random() * 0.4 };
+    }
+    var N = W < 600 ? 26 : 36;
+    for (var i = 0; i < N; i++) P.push(mk(false));
+    var last = performance.now();
+    function frame(now) {
+      if (!run) return;
+      var dt = Math.min(3, (now - last) / 16.7); last = now;
+      ctx.clearRect(0, 0, W, H);
+      for (var i = 0; i < P.length; i++) {
+        var p = P[i];
+        p.a += p.va * dt; p.y += p.vy * dt; p.x += Math.sin(p.a) * p.sw * 0.5 * dt; p.r += p.vr * dt;
+        if (p.y > H + 12) { P[i] = mk(true); continue; }
+        ctx.globalAlpha = p.o;
+        ctx.fillStyle = p.c;
+        if (p.g) { ctx.beginPath(); ctx.arc(p.x, p.y, p.s, 0, 6.283); ctx.fill(); }
+        else {
+          ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.scale(1, 0.55 + 0.45 * Math.abs(Math.sin(p.a * 1.3)));
+          ctx.beginPath(); ctx.ellipse(0, 0, p.s, p.s * 0.62, 0, 0, 6.283); ctx.fill(); ctx.restore();
+        }
+      }
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(frame);
+    }
+    document.addEventListener('visibilitychange', function () { var v = !document.hidden; if (v && !run) { run = true; last = performance.now(); requestAnimationFrame(frame); } else if (!v) run = false; });
+    requestAnimationFrame(frame);
+  };
+
   /* ---------- شاشة الغلاف: الظرف يسقط لتحت وتفتح الدعوة ---------- */
   (function () {
-    var kc = $('#kc'); if (!kc) return;
+    var kc = $('#kc'); if (!kc || getComputedStyle(kc).display === 'none') { setTimeout(function () { window.__kcFall && window.__kcFall(); }, 300); return; }
     function fit() { var k = Math.max(innerWidth / 705.75, innerHeight / 1254) || 1; kc.style.setProperty('--kk', k); }
     fit(); addEventListener('resize', fit);
     var dust = $('#kcDust');
@@ -416,6 +474,7 @@ html.kc-lock,html.kc-lock body{overflow:hidden;height:100%}
       kc.classList.add('go');                                   // الختم يختفي
       setTimeout(function () { kc.classList.add('drop'); }, 380); // الظرف يسقط
       setTimeout(function () { document.documentElement.classList.remove('kc-lock'); kc.classList.add('gone'); }, 1350);
+      setTimeout(function () { window.__kcFall && window.__kcFall(); }, 700);
       setTimeout(function () { kc.remove(); }, 2100);
     }
     kc.addEventListener('click', open);
