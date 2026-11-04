@@ -11,6 +11,7 @@ const { ensureVoicesToken } = require('../utils/voicesPage');
 
 const Invitation = require('../models/Invitation');
 const Rsvp = require('../models/Rsvp');
+const GuestWish = require('../models/GuestWish');
 const User = require('../models/User');
 const { sanitizeText } = require('../utils/sanitize');
 const { generateShortId } = require('../utils/idGenerator');
@@ -321,6 +322,43 @@ router.post('/i/:shortId/rsvp', ensureDeviceId, rsvpLimiter, async (req, res) =>
     return res.status(201).json({ ok: true });
   } catch (err) {
     console.error('Error saving RSVP:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر، حاول تاني بعد شوية.' });
+  }
+});
+
+// ===== سجل التهاني العام (الدعوات الكاستم اللي فيها publicWishes بس — زي KycrQqs) =====
+// الضيف بيكتب اسمه وتهنئته، والتهاني بتظهر لكل الضيوف تحت الفورم.
+function wishesEnabled(shortId) {
+  const custom = getCustomInvitation(shortId);
+  return !!(custom && custom.publicWishes);
+}
+
+router.get('/i/:shortId/wishes', async (req, res) => {
+  try {
+    if (!wishesEnabled(req.params.shortId)) return res.status(404).json({ error: 'not found' });
+    const list = await GuestWish.find({ shortId: req.params.shortId, hidden: { $ne: true } })
+      .sort({ createdAt: -1 }).limit(100).select('guestName message createdAt').lean();
+    res.set('Cache-Control', 'no-store');
+    return res.json({ wishes: list.map((w) => ({ name: w.guestName, message: w.message, at: w.createdAt })) });
+  } catch (err) {
+    console.error('Error listing wishes:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر، حاول تاني بعد شوية.' });
+  }
+});
+
+router.post('/i/:shortId/wishes', ensureDeviceId, rsvpLimiter, async (req, res) => {
+  try {
+    if (!wishesEnabled(req.params.shortId)) return res.status(404).json({ error: 'not found' });
+    const exists = await Invitation.exists({ shortId: req.params.shortId, status: { $ne: 'draft' } });
+    if (!exists) return res.status(404).json({ error: 'الدعوة دي مش موجودة.' });
+    const guestName = sanitizeText(req.body && req.body.guestName, 60);
+    const message = sanitizeText(req.body && req.body.message, 400);
+    if (!guestName) return res.status(400).json({ error: 'من فضلك اكتب اسمك.' });
+    if (!message) return res.status(400).json({ error: 'من فضلك اكتب تهنئتك.' });
+    const w = await GuestWish.create({ shortId: req.params.shortId, guestName, message, deviceId: req.deviceId || null });
+    return res.status(201).json({ ok: true, wish: { name: w.guestName, message: w.message, at: w.createdAt } });
+  } catch (err) {
+    console.error('Error saving wish:', err);
     return res.status(500).json({ error: 'حصل خطأ في السيرفر، حاول تاني بعد شوية.' });
   }
 });

@@ -619,6 +619,32 @@ const FIXES = [
     apply: (c) => ({ 'customizations.texts': { ...(c.texts || {}), lg20: 'مكان الحفل' } }),
   },
   {
+    // KycrQqs — دعوة محمد وإسراء (custom-invitations/KycrQqs.js بيعرض الصفحة كلها بطلب
+    // المالك). هنا بيانات الدعوة عشان لوحة العميل والعداد والخريطة: الجمعة 13/11/2026
+    // الساعة 7 مساءً، قاعة ريلز بطلخا (الموقف الجديد، أمام معهد الدلتا). بيتعمل بس لو لسه مسودة.
+    name: 'KycrQqs-mohamed-esraa',
+    shortId: 'KycrQqs',
+    select: '-__v',
+    when: (c, inv) => inv.groomName === 'Groom' && inv.brideName === 'Bride',
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: 'ar', occasionType: 'wedding',
+        hiddenSections: (inv.hiddenSections || []).filter((k) => k !== 'map'), timeline: inv.timeline, name: inv.name,
+        groomName: 'Mohamed', groomNameAr: 'محمد',
+        brideName: 'Esraa', brideNameAr: 'إسراء',
+        venueName: 'قاعة ريلز بطلخا', venueCity: 'طلخا',
+        venueAddress: 'الموقف الجديد — أمام معهد الدلتا',
+        venueMapQuery: 'https://maps.app.goo.gl/DzExN2zKyepmvVoH6',
+        weddingDate: '2026-11-13', weddingTime: '19:00',
+      }, { ownsTemplate: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.language = 'ar';
+      return set;
+    },
+  },
+  {
     // G1L8BxQ (Lily Garden بشكله — custom-invitations/G1L8BxQ.js) — أرجوان ود. محمد بطلب
     // المالك: الأسامي والتاريخ فوق إنجليزي وباقي الدعوة عربي. الكارت: دعوة خاصة / بقلوب
     // تملؤها المودة والحب / تتشرف عائلة الدكتور زيدان عبدالدائم بدعوتكم لحضور حفل زفاف
