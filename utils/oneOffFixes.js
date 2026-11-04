@@ -816,6 +816,30 @@ const FIXES = [
     when: (c, inv) => !((c.share || {}).title) && new Date(inv.updatedAt || 0) < new Date('2026-11-04T03:00:00Z'),
     apply: (c) => ({ 'customizations.share': { ...(c.share || {}), title: 'دعوة حفل زفاف عبدالشافي الغامدي' } }),
   },
+  {
+    // G1L8BxQ — المالك (2026-11-04): "أرجوان" في سطر لوحده وبخط أكبر تحت "بدعوتكم لحضور حفل
+    // زفاف ابنتهم" — السطر نفسه (g1b) بيتحط في custom-invitations/G1L8BxQ.js، وهنا بنشيل الاسم
+    // من آخر السطر اللي فوقه. بيتعمل بس لو السطر لسه زي ما احنا كاتبينه بالظبط.
+    name: 'G1L8BxQ-bride-own-line',
+    shortId: 'G1L8BxQ',
+    when: (c) => (c.texts || {}).lg41 === 'بدعوتكم لحضور حفل زفاف ابنتهم أرجوان',
+    apply: (c) => ({ 'customizations.texts': { ...(c.texts || {}), lg41: 'بدعوتكم لحضور حفل زفاف ابنتهم' } }),
+  },
+  {
+    // G1L8BxQ — المالك بعت لوكيشن صالة قلوريا للمناسبات الاجتماعية (2026-11-04). الدبوس القديم كان
+    // على نفس الإحداثيات بس من غير اسم الصالة، والاسم الوحيد اللي باين جنبه "قاعة فيدا". دلوقتي
+    // الخريطة هي تضمين المالك نفسه (المكان باسمه، الخريطة العادية مش القمر الصناعي، وبالعربي)،
+    // و"اعرف الطريق" بيفتح لينكه. بيتعمل بس لو الخريطة لسه على اللينك القديم.
+    name: 'G1L8BxQ-exact-map',
+    shortId: 'G1L8BxQ',
+    select: 'venueMapQuery venueMapEmbedSrc venueMapDirectLink',
+    when: (c, inv) => inv.venueMapDirectLink === 'https://maps.app.goo.gl/mx3Gfuy2yGDNfJz46',
+    apply: () => ({
+      venueMapQuery: 'https://maps.app.goo.gl/f5UXnL5iVY1Rf7xj9',
+      venueMapDirectLink: 'https://maps.app.goo.gl/f5UXnL5iVY1Rf7xj9',
+      venueMapEmbedSrc: 'https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d2062.5418673648164!2d13.2370507!3d32.8333614!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x13a893001038270b%3A0x153337343bc6a4ee!2z2LXYp9mE2Kkg2YLZhNmI2LHZitinINmE2YTZhdmG2KfYs9io2KfYqiDYp9mE2KfYrNiq2YXYp9i52YrYqQ!5e0!3m2!1sar!2sly!4v1793754680147!5m2!1sar!2sly',
+    }),
+  },
 ];
 
 let done = false;

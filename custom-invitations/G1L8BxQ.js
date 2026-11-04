@@ -5,11 +5,21 @@
 // - الكارت: الدعوة بس (الموعد والمكان في الصفحة اللي بعدها، من غير إنجليزي).
 // - تحت الخريطة على طول: "جنة الأطفال منازلهم" — صورة المالك زي ما هي.
 // - مفيش تأكيد حضور ولا صور ضيوف (hiddenSections في utils/oneOffFixes.js).
-// البيانات والنصوص نفسها في utils/oneOffFixes.js (G1L8BxQ-orjwan-mohammed).
+// (2026-11-04) بطلب المالك:
+// - "أرجوان" في سطر لوحده تحت "بدعوتكم لحضور حفل زفاف ابنتهم" — أكبر وبنفس خط "دعوة خاصة".
+// - "جنة الأطفال منازلهم": اتشالت "منعاً باتاً" من الصورة (الجملة في النص زي ما كانت).
+// - الأغنية: "مغرم" (نفس أغنية Blossom & Oud) بدل أغنية القالب.
+// - كارت لينك المشاركة: صورة الإيدين ومكتوب فوقها "دعوة خاصة"، والعنوان "دعوة زفاف أرجوان".
+// البيانات والنصوص نفسها في utils/oneOffFixes.js (G1L8BxQ-orjwan-mohammed، G1L8BxQ-bride-own-line،
+// G1L8BxQ-exact-map — الخريطة على صالة قلوريا باسمها).
 const { asset } = require('./_asset');
 
 const SHORT = 'G1L8BxQ';
 const DIR = `/custom/${SHORT}/`;
+
+// أغنية القالب → "مغرم" (Johny Abu Nassar، نفس الملف اللي Blossom & Oud بيشغّله)
+const TEMPLATE_SONG = 'https://pub-4dc8201144ca418fb604349c73e8c724.r2.dev/Forever%20and%20Ever%20and%20Always%20(The%20Wedding%20Song)%20-%20Ryan%20Mack%20(1).mp3';
+const SONG = 'https://pub-4dc8201144ca418fb604349c73e8c724.r2.dev/%D9%85%D8%BA%D8%B1%D9%85%20-%20Moghram%20(Guitar%20Cover)%20_%20Johny%20Abu%20Nassar%20%5Bz_RC48DJbU0%5D%20(1).mp3';
 
 function pageCss() {
   return `<link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
@@ -24,6 +34,8 @@ function pageCss() {
 #wg-invite #wg-invite-2 [data-elem-id="lg12"],#wg-invite #wg-invite-2 .end{display:none!important}
 #wg-invite.wg-rtl #wg-invite-2 .body{font-family:'Amiri',serif;font-size:5.3cqw;line-height:1.9;letter-spacing:0;font-weight:700;margin-top:8cqw}
 #wg-invite.wg-rtl #wg-invite-2 .fam{font-family:'Amiri',serif;font-size:5.4cqw;letter-spacing:0;margin-top:4cqw}
+/* "أرجوان" في سطر لوحده تحت "بدعوتكم لحضور حفل زفاف ابنتهم" — أكبر، بخط "دعوة خاصة" ولون الأسامي */
+#wg-invite #wg-invite-2 .g1-bride{display:block;margin:2.2cqw 0 0;font-family:'Aref Ruqaa','Amiri',serif;font-weight:700;font-size:10cqw;line-height:1.35;letter-spacing:0;text-align:center;color:var(--rose,#b9506a)}
 
 /* ===== الآية في ظرف الدانتيل (زي 5eO9JH5) ===== */
 #g1-verse{position:relative;width:100%;container-type:inline-size;overflow:hidden;background:#f6efdd;direction:ltr}
@@ -99,15 +111,20 @@ const VERSE = `<section id="g1-verse" aria-label="آية قرآنية">
 </section>`;
 
 const KIDS = `<section id="g1-kids" aria-label="جنة الأطفال منازلهم">
-  <img src="${asset(`${DIR}kids.webp`)}" alt="جنة الأطفال منازلهم — عذرًا إدارة الصالة تمنع اصطحاب الأطفال منعًا باتًا" width="1584" height="1536" loading="lazy" decoding="async">
+  <img src="${asset(`${DIR}kids.webp`)}" alt="جنة الأطفال منازلهم — عذرًا إدارة الصالة تمنع اصطحاب الأطفال" width="1584" height="1536" loading="lazy" decoding="async">
 </section>`;
 
 module.exports = {
   shortId: SHORT,
 
+  // كارت لينك المشاركة (2026-11-04): صورة الإيدين ومكتوب فوقها "دعوة خاصة" (1200×630)
   share: {
-    title: 'Orjwan & Dr. Mohammed — دعوة زفاف',
-    description: 'الخميس 12/11/2026 · الساعة 7:30 مساءً · قاعة قلوريا',
+    image: asset(`${DIR}share.jpg`),
+    width: 1200,
+    height: 630,
+    overrideImage: true,
+    title: 'دعوة زفاف أرجوان',
+    description: 'We invite you to the wedding party of Orjwan and Dr. Mohammed',
   },
 
   // مفيش غلاف خاص — ظرف القالب زي ما هو؛ التعديلات كلها في transform
@@ -116,6 +133,10 @@ module.exports = {
   transform(html) {
     let out = html;
     out = out.replace('data-elem-id="lg5" src="/templates/lily-garden/hands.webp"', `data-elem-id="lg5" src="${asset(`${DIR}hands.webp`)}"`);
+    // "أرجوان" سطر لوحده بعد "بدعوتكم لحضور حفل زفاف ابنتهم" (lg41) — بيتعدّل من المحرر (g1b)
+    out = out.replace(/<p[^>]*data-elem-id="lg41"[^>]*>[\s\S]*?<\/p>/, (m) => `${m}\n                            <p class="g1-bride" data-elem-id="g1b">أرجوان</p>`);
+    // الأغنية: "مغرم" — ولو العميل رفع أغنية من المحرر، بتاعته هي اللي بتشتغل زي أي دعوة
+    out = out.split(TEMPLATE_SONG).join(SONG);
     out = out.replace('<!-- ===== الصفحة 2 ===== -->', () => `${VERSE}\n                <!-- ===== الصفحة 2 ===== -->`);
     out = out.replace('<!-- ===== تأكيد الحضور ===== -->', () => `${KIDS}\n                <!-- ===== تأكيد الحضور ===== -->`);
     out = out.replace(/<\/head>/i, () => `${pageCss()}</head>`);
