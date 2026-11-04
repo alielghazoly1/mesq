@@ -79,6 +79,8 @@ module.exports = {
     }
     out = out.replace(/<head>/i, (m) => `${m}\n<script>window.MQ_ID = '${SHORT}';</script>`);
     if (editMode) {
+      // المحرر: من غير شاشة الغلاف
+      out = out.replace(/<\/head>/i, () => '<style>.kc{display:none!important}html.kc-lock,html.kc-lock body{overflow:visible!important;height:auto!important}</style></head>');
       out = out.replace(/<body[^>]*>/i, (m) => `${m}<div style="position:fixed;top:0;left:0;right:0;z-index:100;padding:10px 14px;background:#4a0b17;color:#fff;font:600 14px/1.5 Tajawal,Arial,sans-serif;text-align:center;direction:rtl">الدعوة دي معمولة مخصوص — لأي تعديل كلّمنا وهنعدّله لك</div>`);
     }
     return out;

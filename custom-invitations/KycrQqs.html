@@ -174,10 +174,64 @@ img{display:block;max-width:none;-webkit-user-select:none;user-select:none;-webk
 .sheet .x{position:absolute;top:8px;left:10px;width:34px;height:34px;border:0;background:none;font-size:24px;line-height:1;color:var(--wine);cursor:pointer}
 .sheet .msg{min-height:18px;margin:10px 0 0;font:400 12.5px/1.5 var(--ar);color:#a1283c}
 .sheet .done p{margin:10px 0 0;font:400 14px/1.7 var(--ar);color:var(--ink)}
+
+/* ===== شاشة الغلاف (ظرف Velvet Voice بطلب المالك): الضغط عليه → الختم يختفي والظرف يسقط لتحت ويختفي وتفتح الدعوة ===== */
+html.kc-lock,html.kc-lock body{overflow:hidden;height:100%}
+.kc{position:fixed;inset:0;z-index:100;overflow:hidden;background:#3a0d14;cursor:pointer;touch-action:none;transition:opacity .7s ease,background-color .9s ease}
+.kc .cvw{position:absolute;left:50%;top:50%;width:705.75px;height:1254px;transform:translate(-50%,-50%) scale(var(--kk,1));transform-origin:50% 50%}
+.kc .cvw > *{position:absolute;left:0;top:0;width:705.75px;height:1254px}
+.kc .bk2{background:url(/templates/velvet-voice/cover-bg.webp) 0 0/100% 100%;transition:opacity 1s ease .35s}
+.kc .bk2::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 62% 40% at 50% 48%,rgba(255,226,214,.10),transparent 70%),radial-gradient(ellipse 90% 75% at 50% 50%,transparent 45%,rgba(28,4,9,.55))}
+.kc .dust{pointer-events:none;overflow:hidden;transition:opacity .8s ease}
+.kc .dust i{position:absolute;bottom:-20px;width:var(--s);height:var(--s);border-radius:50%;background:radial-gradient(circle,rgba(255,236,190,.95),rgba(230,190,110,.5) 45%,transparent 70%);animation:kcDrift var(--t) linear var(--dl) infinite;opacity:0}
+@keyframes kcDrift{0%{transform:translate(0,0);opacity:0}12%{opacity:var(--o)}85%{opacity:var(--o)}100%{transform:translate(var(--x),-1300px);opacity:0}}
+.kc .grp{transform-origin:352.9px 975px;transform:translateY(-345px) scale(.87)}
+.kc .grp > *{position:absolute}
+.kc .lift{left:60px;top:780px;width:586px;height:400px;border-radius:14px;box-shadow:0 40px 70px rgba(18,2,6,.6),0 12px 22px rgba(18,2,6,.35)}
+.kc .inside{left:111px;top:770px;width:482px;height:40px;background:linear-gradient(#1c0408,#3a0c13)}
+.kc .front{left:47.94px;top:757.53px;width:609.86px;height:443.01px;background:url(/templates/velvet-voice/env-front.webp) 0 0/100% 100%}
+.kc .fshade{left:47.94px;top:769.99px;width:609.86px;height:264.7px;background:url(/templates/velvet-voice/env-flap-shadow.webp) 0 0/100% 100%;pointer-events:none}
+.kc .flap{left:47.94px;top:769.99px;width:609.86px;height:245.48px;background:url(/templates/velvet-voice/env-flap.webp) 0 0/100% 100%}
+.kc .seal{left:265.9px;top:891px;width:174px;height:181.8px;transition:transform .55s cubic-bezier(.2,.7,.2,1),opacity .4s ease,filter .5s ease}
+.kc .seal > img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.kc .seal > i{position:absolute;inset:0;background:url(/templates/velvet-voice/seal.webp) center/contain no-repeat;filter:brightness(1.45) saturate(1.1);pointer-events:none;-webkit-mask:linear-gradient(115deg,transparent 40%,#000 50%,transparent 60%) 110% 0/300% 100% no-repeat;mask:linear-gradient(115deg,transparent 40%,#000 50%,transparent 60%) 110% 0/300% 100% no-repeat;animation:kcGlint 4.2s ease-in-out 1.2s infinite}
+@keyframes kcGlint{0%{-webkit-mask-position:110% 0;mask-position:110% 0}40%,100%{-webkit-mask-position:-10% 0;mask-position:-10% 0}}
+.kc .seal::before{content:"";position:absolute;left:50%;top:48%;width:150px;height:150px;margin:-75px 0 0 -75px;border-radius:50%;pointer-events:none;border:1.5px solid rgba(240,205,135,.75);box-shadow:0 0 22px rgba(240,200,120,.35);animation:kcHalo 2.8s cubic-bezier(.2,.6,.3,1) infinite;opacity:0}
+@keyframes kcHalo{0%{transform:scale(.9);opacity:0}25%{opacity:.85}100%{transform:scale(1.7);opacity:0}}
+.kc .tap{top:880px;height:70px;display:flex;align-items:center;justify-content:center;direction:rtl;transition:opacity .35s ease,transform .45s ease;pointer-events:none}
+.kc .tap .pill{display:flex;align-items:center;gap:16px;height:60px;padding:0 34px 3px;border-radius:999px;background:linear-gradient(180deg,#fbf6f0,#efe3d8);border:1.5px solid rgba(214,176,140,.95);box-shadow:0 0 0 5px rgba(251,246,240,.14),0 12px 28px rgba(25,3,8,.5),inset 0 1px 0 #fff;font:400 27px/1 'Amiri','Noto Naskh Arabic',serif;color:#5b2229;white-space:nowrap;animation:kcBreathe 2.8s ease-in-out infinite}
+.kc .tap .pill i{display:block;width:6px;height:6px;transform:rotate(45deg);background:#c09a5c}
+@keyframes kcBreathe{50%{transform:scale(1.035)}}
+/* الفتح: الختم يختفي، والظرف يسقط لتحت (بتقل) ويختفي، والخلفية تروح والدعوة تبان */
+.kc.go{cursor:default;pointer-events:none}
+.kc.go .seal{transform:scale(1.3) translateY(-8px);opacity:0;filter:blur(2px) brightness(1.3)}
+.kc.go .seal::before{animation:none;opacity:0}
+.kc.go .tap{opacity:0;transform:translateY(16px)}
+.kc.go .dust{opacity:0}
+.kc.drop .grp{transform:translateY(1150px) scale(.87) rotate(4deg);transition:transform 1.25s cubic-bezier(.55,0,.85,.35)}
+.kc.drop .bk2{opacity:0}
+.kc.drop{background-color:rgba(58,13,20,0)}
+.kc.gone{opacity:0}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
+<div class="kc" id="kc" role="button" tabindex="0" aria-label="اضغط على الظرف لفتح الدعوة">
+  <div class="cvw">
+    <div class="bk2"></div>
+    <div class="dust" id="kcDust"></div>
+    <div class="grp">
+      <div class="lift"></div>
+      <div class="inside"></div>
+      <div class="front"></div>
+      <div class="fshade"></div>
+      <div class="flap"></div>
+      <div class="seal"><img src="/templates/velvet-voice/seal.webp" alt=""><i></i></div>
+    </div>
+    <div class="tap"><span class="pill"><i></i><span>اضغط على الظرف</span><i></i></span></div>
+  </div>
+</div>
+<script>document.documentElement.classList.add('kc-lock');</script>
 <div class="page" id="page">
 
   <!-- 1) الظرف والصورة -->
@@ -342,6 +396,32 @@ img{display:block;max-width:none;-webkit-user-select:none;user-select:none;-webk
   var ID = window.MQ_ID || '';
   var BASE = ID ? '/i/' + ID : '';
   var $ = function (s) { return document.querySelector(s); };
+
+
+  /* ---------- شاشة الغلاف: الظرف يسقط لتحت وتفتح الدعوة ---------- */
+  (function () {
+    var kc = $('#kc'); if (!kc) return;
+    function fit() { var k = Math.max(innerWidth / 705.75, innerHeight / 1254) || 1; kc.style.setProperty('--kk', k); }
+    fit(); addEventListener('resize', fit);
+    var dust = $('#kcDust');
+    for (var i = 0; i < 18; i++) {
+      var d = document.createElement('i');
+      d.style.cssText = 'left:' + (Math.random() * 100).toFixed(1) + '%;--s:' + (3 + Math.random() * 5).toFixed(1) + 'px;--t:' + (11 + Math.random() * 9).toFixed(1) + 's;--dl:' + (-Math.random() * 18).toFixed(1) + 's;--x:' + (Math.random() * 120 - 60).toFixed(0) + 'px;--o:' + (0.35 + Math.random() * 0.5).toFixed(2);
+      dust.appendChild(d);
+    }
+    var done = false;
+    function open() {
+      if (done) return; done = true;
+      window.scrollTo(0, 0);
+      kc.classList.add('go');                                   // الختم يختفي
+      setTimeout(function () { kc.classList.add('drop'); }, 380); // الظرف يسقط
+      setTimeout(function () { document.documentElement.classList.remove('kc-lock'); kc.classList.add('gone'); }, 1350);
+      setTimeout(function () { kc.remove(); }, 2100);
+    }
+    kc.addEventListener('click', open);
+    kc.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+    window.__kcOpen = open;
+  })();
 
   /* ---------- العداد: الجمعة 13 نوفمبر 2026 الساعة 7 مساءً (مصر) ---------- */
   var T = new Date('2026-11-13T19:00:00+02:00').getTime();
