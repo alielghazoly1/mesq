@@ -25,7 +25,8 @@ img{display:block;max-width:none;-webkit-user-select:none;user-select:none;-webk
 
 /* ===== أول الدعوة: الظرف والصورة والأسامي ===== */
 .hero{position:relative;height:calc(var(--u)*706)}
-.hero .bg{filter:contrast(1.18);position:absolute;left:0;top:calc(var(--u)*296);width:100%;height:calc(var(--u)*410);object-fit:cover;object-position:center top;pointer-events:none}
+/* القصر ورا الظرف مالي أول الشاشة كلها من فوق لتحت (طلب المالك) */
+.hero .bg{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;object-position:center bottom;pointer-events:none}
 .hero .kick{position:absolute;left:0;right:0;top:calc(var(--u)*60);margin:0;text-align:center;font:700 calc(var(--u)*13.5)/1.4 var(--ar);color:var(--wine)}
 .env{position:absolute;left:calc(var(--u)*60);top:calc(var(--u)*136);width:calc(var(--u)*270);height:calc(var(--u)*346)}
 .env svg.back,.env svg.front{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible}
@@ -181,7 +182,7 @@ img{display:block;max-width:none;-webkit-user-select:none;user-select:none;-webk
 
   <!-- 1) الظرف والصورة -->
   <section class="hero">
-    <img class="bg" src="assets/palace.webp" alt="" decoding="async">
+    <img class="bg" src="assets/palace-full.webp" alt="" decoding="async">
     <p class="kick">حفل زفافنا</p>
     <div class="env">
       <svg class="back" viewBox="0 0 270 346" preserveAspectRatio="none" aria-hidden="true">
