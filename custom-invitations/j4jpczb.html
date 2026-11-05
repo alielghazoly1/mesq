@@ -68,6 +68,19 @@ img{display:block;max-width:none;-webkit-user-select:none;user-select:none;-webk
 @keyframes ring{0%{transform:scale(.86);opacity:.9}100%{transform:scale(1.18);opacity:0}}
 .hint{position:absolute;left:0;right:0;top:calc(50% + var(--c)*96);margin:0;z-index:3;text-align:center;font:500 calc(var(--c)*10.5)/1 var(--cap);letter-spacing:.34em;padding-left:.34em;color:var(--gold-d);animation:hint 2.2s ease-in-out infinite;transition:opacity .4s ease}
 @keyframes hint{0%,100%{opacity:.55}50%{opacity:1}}
+/* لينك شخصي (?g=): اسم الضيف فوق الختم وعدد الأشخاص تحته */
+.cv-guest{position:absolute;left:0;right:0;top:calc(50% - var(--c)*214);z-index:3;margin:0;text-align:center;pointer-events:none;display:none;transition:opacity .5s ease}
+.cv.guest .cv-names{display:none}
+.cv.guest .cv-guest{display:block}
+.cv-guest .dear{display:block;font:500 calc(var(--c)*10.5)/1 var(--cap);letter-spacing:.34em;padding-left:.34em;color:var(--gold-d)}
+.cv-guest .gn{display:block;margin:calc(var(--c)*4 - .26em) auto -.2em;width:max-content;max-width:calc(var(--c)*330);white-space:nowrap;font:400 calc(var(--c)*40)/1.15 var(--script)}
+.cv-guest .gn.ar{font:700 calc(var(--c)*30)/1.55 'Aref Ruqaa',var(--ar)}
+.cv-guest .inv{display:block;margin-top:calc(var(--c)*8);font:italic 400 calc(var(--c)*15.5)/1.4 var(--serif);color:var(--muted)}
+.cv-seats{position:absolute;left:0;right:0;top:calc(50% + var(--c)*86);z-index:3;margin:0;text-align:center;display:none;font:500 calc(var(--c)*10)/1.6 var(--cap);letter-spacing:.22em;padding-left:.22em;color:var(--gold-d);transition:opacity .4s ease}
+.cv-seats b{font-weight:600;color:#7a5a28}
+.cv.guest .cv-seats{display:block}
+.cv.guest .hint{top:calc(50% + var(--c)*124)}
+.cv.open .cv-guest,.cv.open .cv-seats{opacity:0}
 /* الضغطة: الختم يكبر شوية — وبعدين البابين يتفتحوا من النص لبرّه */
 .cv.zoom .seal{transform:translate(-50%,-50%) scale(1.12)}
 .cv.zoom .seal::before{animation:none;opacity:0}
@@ -183,6 +196,13 @@ img{display:block;max-width:none;-webkit-user-select:none;user-select:none;-webk
 .ch button.on{background:linear-gradient(135deg,#b8945a,#957238);color:#fffaf0;border-color:#957238}
 .rs .send{width:100%;justify-content:center;margin-top:calc(var(--u)*22)}
 .rs .err{min-height:1.3em;margin:calc(var(--u)*10) 0 0;color:#9b3b2b;font:italic 400 calc(var(--u)*14)/1.3 var(--serif);text-align:center}
+.rs-seats{display:none;margin:calc(var(--u)*16) auto 0;max-width:calc(var(--u)*320);padding:calc(var(--u)*12) calc(var(--u)*14);text-align:center;font:italic 400 calc(var(--u)*16)/1.5 var(--serif);color:var(--ink)}
+.rs-seats b{font-style:normal;font-weight:600;color:var(--gold-d)}
+.rs-cnt{display:none;align-items:center;justify-content:space-between;gap:calc(var(--u)*10);margin-top:calc(var(--u)*14)}
+.rs-cnt .lbl{font:500 calc(var(--u)*9.5)/1.3 var(--cap);letter-spacing:.2em;color:var(--muted)}
+.rs-cnt .st{display:inline-flex;align-items:center;border:1px solid rgba(168,131,74,.55);background:rgba(255,253,248,.75)}
+.rs-cnt .st button{width:calc(var(--u)*38);height:calc(var(--u)*38);border:0;background:none;color:var(--gold-d);font:500 calc(var(--u)*20)/1 var(--serif);cursor:pointer}
+.rs-cnt .st span{min-width:calc(var(--u)*34);text-align:center;font:600 calc(var(--u)*19)/1 var(--serif);color:var(--gold-d)}
 .rs-done{display:none;margin-top:calc(var(--u)*24)}
 .rs-done .hrt{width:calc(var(--u)*46);height:auto;margin:0 auto;color:var(--gold)}
 .rs-done .t{margin:calc(var(--u)*10) 0 0;font:400 calc(var(--u)*38)/1.2 var(--script)}
@@ -221,6 +241,16 @@ img{display:block;max-width:none;-webkit-user-select:none;user-select:none;-webk
 /* دخول هادي للأقسام */
 .rv{opacity:0;transform:translateY(calc(var(--u)*22));transition:opacity 1s ease,transform 1.1s cubic-bezier(.2,.7,.2,1)}
 .rv.in{opacity:1;transform:none}
+/* الخط الذهبي (background-clip:text) بيترسم جوه صندوق العنصر بس — ذيول حرف S والحروف الطويلة
+   كانت بتطلع برّه فتتقص. مساحة زيادة حوالين الكلام، ونفس المسافة بالسالب عشان مكانه مايتغيّرش */
+.gold-text{padding:.26em .16em .2em}
+.card .c-ar{margin-top:-.26em}
+.card .c-names .nm{padding:.26em .16em .2em;margin:-.26em -.16em -.2em}
+.cv-names .n{margin:-.26em auto -.2em;width:max-content}
+.title{margin:calc(var(--u)*6 - .26em) auto -.2em;width:max-content;max-width:100%}
+.end .nm{margin:calc(var(--u)*6 - .26em) auto -.2em;width:max-content}
+.rs-done .t{margin:calc(var(--u)*10 - .26em) auto -.2em;width:max-content}
+.cd-done{margin:calc(var(--u)*24 - .26em) auto -.2em;width:max-content}
 @media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}.dr,.seal{transition-duration:.01ms!important}.seal::before,.hint{animation:none}}
 </style>
 </head>
@@ -245,6 +275,8 @@ img{display:block;max-width:none;-webkit-user-select:none;user-select:none;-webk
       <img class="lv tr" src="assets/leaves-tr.webp" alt=""><img class="lv bl" src="assets/leaves-bl.webp" alt="">
     </div></div>
     <p class="cv-names"><span class="n gold-text">Sari &amp; Sona</span><span class="d">05 · 12 · 2026</span></p>
+    <p class="cv-guest"><span class="dear">Dear</span><span class="gn gold-text" id="cvGn"></span><span class="inv">you are cordially invited to the wedding of Sari &amp; Sona</span></p>
+    <p class="cv-seats" id="cvSeats"></p>
     <div class="seal" id="seal"><img src="assets/seal.webp" alt="" fetchpriority="high"></div>
     <p class="hint">Tap to open</p>
   </div>
@@ -344,6 +376,7 @@ img{display:block;max-width:none;-webkit-user-select:none;user-select:none;-webk
     <p class="eyebrow">Kindly respond</p>
     <h2 class="title gold-text">Will You Join Us?</h2>
     <p class="lead">Your presence would make our day complete.</p>
+    <div class="rs-seats frame" id="rsSeats"></div>
     <form class="rs" id="rsf" novalidate>
       <label class="f" for="rsName">Your name</label>
       <input type="text" id="rsName" maxlength="80" autocomplete="name" placeholder="Full name">
@@ -352,6 +385,7 @@ img{display:block;max-width:none;-webkit-user-select:none;user-select:none;-webk
         <button type="button" data-v="yes" role="radio" aria-checked="false">Joyfully accepts</button>
         <button type="button" data-v="no" role="radio" aria-checked="false">Regretfully declines</button>
       </div>
+      <div class="rs-cnt" id="rsCnt"><span class="lbl">How many will attend?</span><span class="st"><button type="button" data-d="-1" aria-label="Less">−</button><span id="rsCntV">1</span><button type="button" data-d="1" aria-label="More">+</button></span></div>
       <label class="f" for="rsNote">A note for the couple <span style="letter-spacing:0;text-transform:none;font-family:var(--serif);font-style:italic">(optional)</span></label>
       <textarea id="rsNote" maxlength="200" placeholder="Your wishes…"></textarea>
       <button class="btn solid send" type="submit" id="rsSend">Send RSVP</button>
@@ -404,6 +438,31 @@ img{display:block;max-width:none;-webkit-user-select:none;user-select:none;-webk
   var BASE = ID ? '/i/' + ID : '';
   var EDIT = !!window.MQ_EDIT;
 
+  /* ---------- لينك شخصي (?g=): اسم الضيف وعدد الأشخاص ---------- */
+  var G = null;
+  var guestReady = (function () {
+    var m = /[?&]g=([A-Za-z0-9]{6,12})(?:&|$)/.exec(location.search);
+    if (!m || !BASE || !window.fetch) return Promise.resolve(null);
+    return fetch(BASE + '/guest/' + m[1]).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
+      .then(function (g) { if (g && g.name && g.seats) { G = g; personalize(g); } return g; });
+  })();
+  function seatsTxt(n) { return n === 1 ? '1 seat' : n + ' seats'; }
+  function personalize(g) {
+    var cv = document.getElementById('cv'), gn = document.getElementById('cvGn');
+    if (cv && gn) {
+      var ar = /[\u0600-\u06FF]/.test(g.name);
+      gn.textContent = g.name; gn.classList.toggle('ar', ar); gn.setAttribute('dir', ar ? 'rtl' : 'ltr');
+      if (g.name.length > 16) gn.style.fontSize = 'calc(var(--c) * ' + Math.max(22, Math.round((ar ? 30 : 40) * 16 / g.name.length)) + ')';
+      document.getElementById('cvSeats').innerHTML = '&#10022; <b>' + seatsTxt(g.seats).toUpperCase() + '</b> reserved in your honour &#10022;';
+      cv.classList.add('guest');
+    }
+    var box = document.getElementById('rsSeats');
+    box.innerHTML = 'Dear <b></b>, we have reserved <b>' + seatsTxt(g.seats) + '</b> in your honour.';
+    box.querySelector('b').textContent = g.name;
+    box.style.display = 'block';
+    var nm = document.getElementById('rsName'); if (nm && !nm.value) nm.value = g.name;
+  }
+
   /* ---------- الموسيقى ---------- */
   var au = $('#au'), mus = $('#mus');
   function setPlaying(p) { mus.classList.toggle('playing', p); }
@@ -433,6 +492,7 @@ img{display:block;max-width:none;-webkit-user-select:none;user-select:none;-webk
     var imgs = [].slice.call(cv.querySelectorAll('img')).filter(function (i) { return !i.complete; });
     var waits = imgs.map(function (i) { return new Promise(function (res) { i.addEventListener('load', res); i.addEventListener('error', res); }); });
     if (document.fonts && document.fonts.ready) waits.push(document.fonts.ready);
+    waits.push(guestReady);
     Promise.all(waits).then(show, show);
     setTimeout(show, 2500);
   })();
@@ -546,11 +606,18 @@ img{display:block;max-width:none;-webkit-user-select:none;user-select:none;-webk
   /* ---------- تأكيد الحضور (بيوصل للوحة العميل) ---------- */
   (function () {
     var form = $('#rsf'), att = '', btns = form.querySelectorAll('.ch button'), err = $('#rsErr'), send = $('#rsSend');
+    var cntBox = $('#rsCnt'), cntV = $('#rsCntV'), count = 1;
+    function showCount() { cntBox.style.display = G && G.seats > 1 && att === 'yes' ? 'flex' : 'none'; }
+    [].forEach.call(cntBox.querySelectorAll('button'), function (b) {
+      b.addEventListener('click', function () { if (!G) return; count = Math.max(1, Math.min(G.seats, count + parseInt(b.getAttribute('data-d'), 10))); cntV.textContent = count; });
+    });
+    guestReady.then(function () { if (G) { count = G.seats; cntV.textContent = count; } });
     [].forEach.call(btns, function (b) {
       b.addEventListener('click', function () {
         att = b.getAttribute('data-v');
         [].forEach.call(btns, function (x) { var on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-checked', on ? 'true' : 'false'); });
         err.textContent = '';
+        showCount();
       });
     });
     form.addEventListener('submit', function (e) {
@@ -560,7 +627,9 @@ img{display:block;max-width:none;-webkit-user-select:none;user-select:none;-webk
       if (!att) { err.textContent = 'Please let us know if you can attend.'; return; }
       if (EDIT || !BASE) { err.textContent = 'This is a preview — the reply was not sent.'; return; }
       send.disabled = true; send.textContent = 'Sending…'; err.textContent = '';
-      fetch(BASE + '/rsvp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ guestName: name, attending: att, note: note }) })
+      // لينك شخصي: العدد بيروح مع الرد (في الملاحظة) عشان العروسين يشوفوه في اللوحة
+      if (G) note = (att === 'yes' ? 'الحضور: ' + count + ' من ' + G.seats : 'معتذر — الدعوة لـ ' + G.seats) + (note ? ' — ' + note : '');
+      fetch(BASE + '/rsvp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ guestName: name, attending: att, note: note.slice(0, 200) }) })
         .then(function (r) { if (!r.ok) throw r; return r.json(); })
         .then(function () {
           form.style.display = 'none';

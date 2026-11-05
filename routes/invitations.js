@@ -12,6 +12,7 @@ const { ensureVoicesToken } = require('../utils/voicesPage');
 const Invitation = require('../models/Invitation');
 const Rsvp = require('../models/Rsvp');
 const GuestWish = require('../models/GuestWish');
+const GuestLink = require('../models/GuestLink');
 const User = require('../models/User');
 const { sanitizeText } = require('../utils/sanitize');
 const { generateShortId } = require('../utils/idGenerator');
@@ -408,6 +409,14 @@ router.get('/s/:token', async (req, res) => {
       const at = photoCount ? (invitation.albumToken || await ensureAlbumToken(invitation._id)) : null;
       stats.photos = { count: photoCount, list: photoList.map((p) => serializePhoto(p, null)), link: at ? `/a/${at}` : null };
     }
+    if (guestLinksEnabled(sid)) {
+      const list = await GuestLink.find({ shortId: sid }).sort({ _id: -1 }).limit(500).lean();
+      stats.guestLinks = {
+        base: `${req.protocol}://${req.get('host')}/i/${sid}`,
+        couple: [invitation.groomNameAr || invitation.groomName, invitation.brideNameAr || invitation.brideName].filter(Boolean).join(' و'),
+        list: list.map((g) => ({ code: g.code, name: g.name, seats: g.seats })),
+      };
+    }
     res.set('Content-Type', 'text/html; charset=utf-8');
     res.set('Cache-Control', 'no-store');
     return res.send(buildStatsPage(invitation, stats));
@@ -441,6 +450,82 @@ router.get('/i/:shortId/stats', async (req, res) => {
   } catch (err) {
     console.error('Error redirecting to stats page:', err);
     return res.status(500).send('حصل خطأ في السيرفر');
+  }
+});
+
+// ===== لينكات الدعوة الشخصية (الدعوات الكاستم اللي فيها guestLinks بس — زي j4jpczb) =====
+// صاحب الدعوة بيعمل من صفحة الإحصائيات لينك لكل ضيف باسمه وعدد الأشخاص المسموح لهم،
+// والضيف لما يفتح اللينك بيلاقي اسمه والعدد في الدعوة نفسها (/i/:shortId?g=code).
+function guestLinksEnabled(shortId) {
+  const custom = getCustomInvitation(shortId);
+  return !!(custom && custom.guestLinks);
+}
+const GUEST_CODE_RE = /^[A-Za-z0-9]{6,12}$/;
+const B62 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+function newGuestCode() {
+  const bytes = crypto.randomBytes(8);
+  let out = '';
+  for (let i = 0; i < 8; i += 1) out += B62[bytes[i] % 62];
+  return out;
+}
+
+// POST /s/:token/guest-links — لينك جديد {name, seats}
+router.post('/s/:token/guest-links', async (req, res) => {
+  try {
+    const token = String(req.params.token || '');
+    const invitation = token ? await Invitation.findOne({ statsToken: token }).select('shortId').lean() : null;
+    if (!invitation || !guestLinksEnabled(invitation.shortId)) return res.status(404).json({ error: 'not found' });
+    const name = sanitizeText(req.body && req.body.name, 60);
+    const seats = parseInt(req.body && req.body.seats, 10);
+    if (!name) return res.status(400).json({ error: 'اكتب اسم الضيف.' });
+    if (!(seats >= 1 && seats <= 20)) return res.status(400).json({ error: 'عدد الأشخاص من 1 لـ 20.' });
+    if (await GuestLink.countDocuments({ shortId: invitation.shortId }) >= 1000) {
+      return res.status(400).json({ error: 'وصلت لأقصى عدد لينكات للدعوة دي.' });
+    }
+    let doc = null;
+    for (let i = 0; i < 4 && !doc; i += 1) {
+      try {
+        doc = await GuestLink.create({ shortId: invitation.shortId, code: newGuestCode(), name, seats });
+      } catch (e) {
+        if (!(e && e.code === 11000)) throw e;
+      }
+    }
+    if (!doc) return res.status(500).json({ error: 'حصل خطأ، جرّب تاني.' });
+    return res.status(201).json({ code: doc.code, name: doc.name, seats: doc.seats });
+  } catch (err) {
+    console.error('Error creating guest link:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر، حاول تاني بعد شوية.' });
+  }
+});
+
+// DELETE /s/:token/guest-links/:code
+router.delete('/s/:token/guest-links/:code', async (req, res) => {
+  try {
+    const token = String(req.params.token || '');
+    const invitation = token ? await Invitation.findOne({ statsToken: token }).select('shortId').lean() : null;
+    if (!invitation || !guestLinksEnabled(invitation.shortId) || !GUEST_CODE_RE.test(String(req.params.code || ''))) {
+      return res.status(404).json({ error: 'not found' });
+    }
+    await GuestLink.deleteOne({ shortId: invitation.shortId, code: req.params.code });
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error('Error deleting guest link:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر، حاول تاني بعد شوية.' });
+  }
+});
+
+// GET /i/:shortId/guest/:code — الدعوة بتسأل عن اسم الضيف وعدده
+router.get('/i/:shortId/guest/:code', async (req, res) => {
+  try {
+    const { shortId, code } = req.params;
+    if (!guestLinksEnabled(shortId) || !GUEST_CODE_RE.test(String(code || ''))) return res.status(404).json({ error: 'not found' });
+    const g = await GuestLink.findOne({ shortId, code }).lean();
+    res.set('Cache-Control', 'no-store');
+    if (!g) return res.status(404).json({ error: 'not found' });
+    return res.json({ name: g.name, seats: g.seats });
+  } catch (err) {
+    console.error('Error reading guest link:', err);
+    return res.status(500).json({ error: 'server error' });
   }
 });
 

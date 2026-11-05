@@ -56,6 +56,9 @@ module.exports = {
     description: 'Saturday, 5 December 2026 · 7:30 PM · Daraj Al Yasmine, Dubai',
   },
 
+  // لينكات دعوة شخصية من صفحة الإحصائيات (/s/:token): اسم الضيف وعدد الأشخاص بيظهروا في الدعوة
+  guestLinks: true,
+
   // زرار "Add to calendar" (routes/invitations.js → /i/j4jpczb/calendar.ics)
   calendar: { title: 'Sari & Sona — Wedding', hours: 5 },
 

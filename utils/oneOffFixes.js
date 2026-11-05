@@ -897,6 +897,28 @@ const FIXES = [
       return set;
     },
   },
+  {
+    // j4jpczb — المالك (2026-11-05): الأغنية "ألف الصلاة وألف السلام" لحسين الجسمي من مكتبة
+    // الموسيقى (المالك رافعها من لوحة التحكم) — كأن العميل اختارها من تبويب الموسيقى في المحرر.
+    // بيتعمل بس لو مفيش أغنية متختارة، فلو العميل غيّرها بعد كده مابنرجّعهاش.
+    name: 'j4jpczb-song-aljasmi',
+    shortId: 'j4jpczb',
+    when: (c) => !c.audioUrl,
+    async apply() {
+      const Track = require('../models/Track');
+      const norm = (t) => String(t || '').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').toLowerCase();
+      const isSong = (t) => /الف\s*(ال)?صلا|صلاه\s*و\s*(ال)?سلام|alf\W*(a|e)?l?\W*sala/.test(norm(t.title));
+      const isJasmi = (t) => /جسمي|jas+mi/.test(norm(`${t.artist} ${t.title}`));
+      const tracks = await Track.find({ active: true }).sort({ createdAt: -1 }).select('title artist url').lean();
+      const pick = tracks.filter(isSong).sort((a, b) => Number(isJasmi(b)) - Number(isJasmi(a)))[0];
+      if (!pick || !/^https:\/\/res\.cloudinary\.com\//.test(pick.url)) {
+        console.log('[oneOffFix] j4jpczb-song-aljasmi: track not found in the library');
+        return { 'customizations.audioUrl': '' };
+      }
+      console.log(`[oneOffFix] j4jpczb-song-aljasmi: ${pick.title} — ${pick.artist} (${pick.url})`);
+      return { 'customizations.audioUrl': pick.url, 'customizations.audioStart': 0, 'customizations.audioEnd': 0 };
+    },
+  },
 ];
 
 let done = false;

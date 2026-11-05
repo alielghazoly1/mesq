@@ -96,6 +96,9 @@ function areaChart(series) {
  * @returns {string} HTML كامل
  */
 function buildStatsPage(invitation, stats) {
+  const guestLinks = stats.guestLinks || null;
+  const glSeats = (n) => (n === 1 ? 'شخص واحد' : n === 2 ? 'شخصين' : n <= 10 ? `${n} أشخاص` : `${n} شخص`);
+  const glRow = (g) => `<li class="gl" data-code="${escapeHtml(g.code)}" data-name="${escapeHtml(g.name)}"><div class="gl-t"><b>${escapeHtml(g.name)}</b><span>${glSeats(g.seats)}</span></div><div class="gl-a"><button type="button" class="btn" data-copy>نسخ اللينك</button><button type="button" class="btn" data-wa>واتساب</button><button type="button" class="gl-x" data-del aria-label="مسح">×</button></div></li>`;
   const rsvpYes = stats.rsvpYes || 0;
   const rsvpNo = stats.rsvpNo || 0;
   const rsvpList = stats.rsvpList || [];
@@ -210,6 +213,22 @@ function buildStatsPage(invitation, stats) {
   .search{flex:1;min-width:180px;position:relative}
   .search input{width:100%;border:1px solid var(--line);background:#fff;border-radius:999px;padding:10px 40px 10px 14px;font:16px 'Cairo',sans-serif;color:var(--ink);outline:none}
   .search input:focus{border-color:var(--gold)}
+  .gl-sub{margin:-4px 0 12px;font-size:13px;color:var(--dim)}
+  .gl-form{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .gl-in{flex:1;min-width:190px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:10px 14px;font:16px 'Cairo',sans-serif;color:var(--ink);outline:none}
+  .gl-in:focus{border-color:var(--gold)}
+  .gl-seats{display:inline-flex;align-items:center;gap:2px;border:1px solid var(--line);border-radius:999px;background:#fff;padding:3px}
+  .gl-seats button{width:32px;height:32px;border:0;border-radius:50%;background:rgba(176,141,87,.12);color:var(--ink);font:800 18px/1 'Cairo',sans-serif;cursor:pointer}
+  .gl-seats span{min-width:30px;text-align:center;font-weight:800}
+  .gl-err{min-height:1.2em;margin:8px 0 0;color:var(--no);font-size:13px;font-weight:700}
+  .gl-list{list-style:none;margin:6px 0 0;padding:0}
+  .gl{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;padding:10px 0;border-top:1px solid var(--line)}
+  .gl.new{animation:glin .6s ease}
+  @keyframes glin{from{background:rgba(176,141,87,.18)}to{background:transparent}}
+  .gl-t b{display:block;font-size:14.5px} .gl-t span{font-size:12.5px;color:var(--dim);font-weight:700}
+  .gl-a{display:flex;gap:6px;align-items:center}
+  .gl-a .btn{padding:7px 12px;font-size:12.5px}
+  .gl-x{width:30px;height:30px;border:0;border-radius:50%;background:rgba(162,70,94,.08);color:var(--no);font:700 18px/1 'Cairo',sans-serif;cursor:pointer}
   .search svg{position:absolute;inset-inline-start:14px;top:50%;transform:translateY(-50%);color:var(--dim)}
   ul{list-style:none;margin:0;padding:0}
   .glist{display:grid;gap:8px;max-height:560px;overflow:auto}
@@ -282,6 +301,18 @@ function buildStatsPage(invitation, stats) {
       return `<div><div class="b-h"><span>${label}</span><span>${nf.format(v)} · ${Math.round((v / srcTotal) * 100)}%</span></div><div class="b-t"><i style="width:${Math.max(3, (v / sources[0][1]) * 100)}%;background:${color}"></i></div></div>`;
     }).join('')}</div></section>` : ''}
 
+    ${guestLinks ? `<section class="card rise" data-glinks>
+      <h2>${svg('user', 16)} لينكات دعوة شخصية <span class="cnt" data-glcnt>${nf.format(guestLinks.list.length)}</span></h2>
+      <p class="gl-sub">اكتب اسم الضيف وعدد الأشخاص المسموح لهم — الضيف هيلاقي اسمه والعدد في الدعوة نفسها.</p>
+      <form class="gl-form" data-glf autocomplete="off">
+        <input class="gl-in" name="name" maxlength="60" placeholder="اسم الضيف (مثلاً: أ. أحمد وعائلته)">
+        <div class="gl-seats" aria-label="عدد الأشخاص"><button type="button" data-d="1" aria-label="زوّد">+</button><span data-seats>2</span><button type="button" data-d="-1" aria-label="قلّل">−</button></div>
+        <button class="btn btn-gold" type="submit">اعمل اللينك</button>
+      </form>
+      <p class="gl-err" data-glerr></p>
+      <ul class="gl-list" data-gllist>${guestLinks.list.map(glRow).join('')}</ul>
+    </section>` : ''}
+
     <section class="card rise" data-guests>
       <h2>${svg('user', 16)} الضيوف <span class="cnt">${nf.format(total)}</span></h2>
       ${total ? `<div class="tools">
@@ -314,6 +345,42 @@ function buildStatsPage(invitation, stats) {
   function apply(){ var n=0; items.forEach(function(li){ var ok=(f==='all'||li.getAttribute('data-a')===f)&&(!q||li.getAttribute('data-s').indexOf(q)!==-1); li.style.display=ok?'':'none'; if(ok)n++; }); if(none) none.hidden=n>0; }
   [].forEach.call(document.querySelectorAll('.seg button'),function(b){ b.addEventListener('click',function(){ [].forEach.call(document.querySelectorAll('.seg button'),function(x){x.classList.remove('on')}); b.classList.add('on'); f=b.getAttribute('data-f'); apply(); }); });
   var inp=document.querySelector('[data-q]'); if(inp) inp.addEventListener('input',function(){ q=inp.value.trim().toLowerCase(); apply(); });
+  (function(){
+    var box=document.querySelector('[data-glinks]'); if(!box) return;
+    var GL=${guestLinks ? JSON.stringify({ base: guestLinks.base, couple: guestLinks.couple }).replace(/</g, '\\u003c') : 'null'};
+    var api=location.pathname.replace(/\\/+$/,'')+'/guest-links';
+    var form=box.querySelector('[data-glf]'), list=box.querySelector('[data-gllist]'), err=box.querySelector('[data-glerr]'), sv=box.querySelector('[data-seats]'), cnt=box.querySelector('[data-glcnt]');
+    var seats=2;
+    function seatsTxt(n){ return n===1?'شخص واحد':n===2?'شخصين':n<=10?n+' أشخاص':n+' شخص'; }
+    function esc(t){ var d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
+    function link(code){ return GL.base+'?g='+code; }
+    function copy(t,btn){ var done=function(){ var o=btn.textContent; btn.textContent='اتنسخ ✓'; setTimeout(function(){ btn.textContent=o; },1600); };
+      if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done,function(){ fallback(); }); else fallback();
+      function fallback(){ var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); done(); }catch(e){} document.body.removeChild(ta); } }
+    [].forEach.call(box.querySelectorAll('[data-d]'),function(b){ b.addEventListener('click',function(){ seats=Math.max(1,Math.min(20,seats+parseInt(b.getAttribute('data-d'),10))); sv.textContent=seats; }); });
+    list.addEventListener('click',function(e){
+      var li=e.target.closest('.gl'); if(!li) return; var code=li.getAttribute('data-code'), name=li.getAttribute('data-name');
+      if(e.target.closest('[data-copy]')) copy(link(code), e.target.closest('[data-copy]'));
+      if(e.target.closest('[data-wa]')) window.open('https://wa.me/?text='+encodeURIComponent(name+'\\n'+'يسعدنا دعوتك لحفل زفاف '+GL.couple+' 🤍'+'\\n'+link(code)),'_blank');
+      if(e.target.closest('[data-del]')){ if(!confirm('تمسح لينك '+name+'؟')) return;
+        fetch(api+'/'+code,{method:'DELETE'}).then(function(r){ if(r.ok){ li.parentNode.removeChild(li); cnt.textContent=list.children.length; } }); }
+    });
+    form.addEventListener('submit',function(e){
+      e.preventDefault(); var name=form.name.value.trim(); err.textContent='';
+      if(!name){ err.textContent='اكتب اسم الضيف.'; form.name.focus(); return; }
+      var btn=form.querySelector('[type=submit]'); btn.disabled=true;
+      fetch(api,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:name,seats:seats})})
+        .then(function(r){ return r.json().then(function(j){ if(!r.ok) throw j; return j; }); })
+        .then(function(g){
+          var li=document.createElement('li'); li.className='gl new'; li.setAttribute('data-code',g.code); li.setAttribute('data-name',g.name);
+          li.innerHTML='<div class="gl-t"><b>'+esc(g.name)+'</b><span>'+seatsTxt(g.seats)+'</span></div><div class="gl-a"><button type="button" class="btn" data-copy>نسخ اللينك</button><button type="button" class="btn" data-wa>واتساب</button><button type="button" class="gl-x" data-del aria-label="مسح">×</button></div>';
+          list.insertBefore(li,list.firstChild); cnt.textContent=list.children.length; form.name.value='';
+          copy(link(g.code), li.querySelector('[data-copy]'));
+        })
+        .catch(function(j){ err.textContent=(j&&j.error)||'حصل خطأ، جرّب تاني.'; })
+        .then(function(){ btn.disabled=false; });
+    });
+  })();
   var cur=null, audio=new Audio();
   audio.addEventListener('timeupdate',function(){ if(cur&&audio.duration) cur.querySelector('.bar span').style.width=(audio.currentTime/audio.duration*100)+'%'; });
   audio.addEventListener('ended',function(){ if(cur){ cur.classList.remove('on'); cur.querySelector('.bar span').style.width='0'; } cur=null; });
