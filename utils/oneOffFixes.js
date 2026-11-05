@@ -826,6 +826,31 @@ const FIXES = [
     apply: (c) => ({ 'customizations.texts': { ...(c.texts || {}), lg41: 'بدعوتكم لحضور حفل زفاف ابنتهم' } }),
   },
   {
+    // DBywdm2 (custom-invitations/DBywdm2.js بيعرض الصفحة كلها) — دعوة "صدف" بطلب المالك
+    // (2026-11-05). هنا بيانات الدعوة عشان لوحة العميل وملف التقويم يبقوا زي الصفحة: نفس كلام
+    // التصميم (Cornelia & James) لحد ما المالك يبعت التعديلات. بيتعمل بس لو الدعوة لسه فاضية.
+    name: 'DBywdm2-mother-of-pearl',
+    shortId: 'DBywdm2',
+    select: '-__v',
+    when: (c, inv) => inv.groomName === 'Groom' && inv.brideName === 'Bride',
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: 'en', occasionType: 'wedding',
+        hiddenSections: inv.hiddenSections, timeline: inv.timeline, name: inv.name,
+        groomName: 'James', groomNameAr: 'James',
+        brideName: 'Cornelia', brideNameAr: 'Cornelia',
+        venueName: 'Villa Aurelia', venueCity: 'Rome, Italy',
+        venueMapQuery: 'https://www.google.com/maps/search/?api=1&query=Villa+Aurelia+Rome+Italy',
+        weddingDate: '2027-05-20', weddingTime: '16:30',
+      }, { ownsTemplate: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.language = 'en';
+      return set;
+    },
+  },
+  {
     // G1L8BxQ — المالك بعت لوكيشن صالة قلوريا للمناسبات الاجتماعية (2026-11-04). الدبوس القديم كان
     // على نفس الإحداثيات بس من غير اسم الصالة، والاسم الوحيد اللي باين جنبه "قاعة فيدا". دلوقتي
     // الخريطة هي تضمين المالك نفسه (المكان باسمه، الخريطة العادية مش القمر الصناعي، وبالعربي)،

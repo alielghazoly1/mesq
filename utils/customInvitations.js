@@ -26,6 +26,7 @@ const Dcx7Jny = require('../custom-invitations/Dcx7Jny');
 const e5O9JH5 = require('../custom-invitations/5eO9JH5');
 const G1L8BxQ = require('../custom-invitations/G1L8BxQ');
 const LD2AcAX = require('../custom-invitations/LD2AcAX');
+const DBywdm2 = require('../custom-invitations/DBywdm2');
 const KycrQqs = require('../custom-invitations/KycrQqs');
 const vma4JMh = require('../custom-invitations/vma4JMh');
 const qosQhk1 = require('../custom-invitations/qosQhk1');
@@ -49,6 +50,7 @@ const CUSTOM = { [QICmvQj.shortId]: QICmvQj, [GrpUVQq.shortId]: GrpUVQq, [vYsx7G
   [e5O9JH5.shortId]: e5O9JH5,
   [G1L8BxQ.shortId]: G1L8BxQ,
   [LD2AcAX.shortId]: LD2AcAX,
+  [DBywdm2.shortId]: DBywdm2,
   [KycrQqs.shortId]: KycrQqs,
   [kMRoREK.shortId]: kMRoREK,
   [vma4JMh.shortId]: vma4JMh,
