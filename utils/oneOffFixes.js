@@ -373,6 +373,36 @@ const FIXES = [
     },
   },
   {
+    // lcqdxr6 — بطلب المالك (2026-11-06): دعوة Imène & Hassan (إيمان وحسن) بالفرنساوي بدل نسخة
+    // ماجد ورنا — السبت 10 أبريل 2027 الساعة 16:30 (استقبال الضيوف)، Dar El Bahri — Tonnara في
+    // كاب زبيب بتونس بلينك الخريطة اللي بعته، والخريطة المضمّنة على القاعة نفسها (بالفرنساوي).
+    // الأسامي بالترتيب اللي العرسان كاتبينه (Imène الأول — زي MeqC70l)، ورفع صور الضيوف مقفول
+    // (الحفل ممنوع فيه التصوير)، وصورة كارت المشاركة القديمة (صورة ماجد ورنا) اتشالت.
+    // الشكل والكلام الفرنساوي في custom-invitations/lcqdxr6.js. بيتعمل بس لو لسه نسخة ماجد ورنا.
+    name: 'lcqdxr6-imene-hassan',
+    shortId: 'lcqdxr6',
+    select: '-__v',
+    when: (c, inv) => inv.templateId === 'sage-garden' && inv.groomName === 'Maged' && inv.brideName === 'Rana',
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const MAP = 'https://maps.google.com/maps/place//data=!4m2!3m1!1s0x12e2e70071433fd7:0x5cfa2322653db54d?entry=s&sa=X&ved=2ahUKEwigl73t3NyXAxVcKvsDHR_qDwEQ4kB6BAgcEAA&hl=fr';
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: inv.language, occasionType: inv.occasionType,
+        hiddenSections: [...new Set([...(inv.hiddenSections || []), 'guestPhotos'])], timeline: inv.timeline, name: inv.name,
+        groomName: 'Imène', groomNameAr: 'إيمان', brideName: 'Hassan', brideNameAr: 'حسن',
+        venueName: 'Dar El Bahri — Tonnara', venueCity: 'Cap Zebib, Tunisie',
+        venueMapQuery: MAP,
+        weddingDate: '2027-04-10', weddingTime: '16:30',
+      }, { ownsTemplate: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.venueMapDirectLink = MAP;
+      set.venueMapEmbedSrc = `https://www.google.com/maps?q=${encodeURIComponent('Dar El Bahri - Tonnara, Cap Zebib')}&ll=37.2641994,10.0669822&z=15&hl=fr&output=embed`;
+      set['customizations.share'] = { title: '', description: '', image: '' };
+      return set;
+    },
+  },
+  {
     // MeqC70l (Lily Garden عربي) — بطلب المالك: نسخة عربي من eJCypdA بكل تفاصيلها:
     // داليا و عمر، 21/11/2026 الساعة 5، بسم الله فوق، يوم الخطوبة، صورة الغلاف
     // والأغنية، جملة "قَدَّرَ اللهُ لَنَا لِقَاءً"، والمكان Pipe & Vibe Lounge في كراون

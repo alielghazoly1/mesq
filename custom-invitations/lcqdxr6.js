@@ -1,39 +1,38 @@
-// دعوة lcqdxr6 (Sage Garden) — بطلب المالك (2026-11-05): نسخة طبق الأصل من sXSBxjs
-// (ماجد ورنا) عشان نعدّل عليها لوحدها — نفس الكود ده، نفس الصور (custom/lcqdxr6/ نسخة
-// من custom/sXSBxjs/)، ونفس البيانات وتعديلات المحرر (oneOffFix lcqdxr6-copy-of-sXSBxjs).
-// أي تعديل هنا مابيلمسش sXSBxjs. تاريخ التصميم زي ما اتعمل لـ sXSBxjs:
-//
-// أول تعديل — غلاف جديد: ظرف ورق برسمة قلم رصاص (فيلا وسرو فوق، وبحيرة تحت) — صورة المالك
-// المربعة اتكمّلت لطولية (custom/lcqdxr6/top.webp + bottom.webp، الطيّة في النص
-// بالظبط)، وختم شمع زيتي بحروف MR (seal.webp) مكان ختم الصورة الأصلي.
-// الضغط: الختم بيعمل زوم بسيط ← الظرف بيتفتح من النص (النص اللي فوق يطلع لفوق،
-// واللي تحت ينزل لتحت) ← الدعوة تظهر. الدعوة نفسها زي ما هي.
-//
-// التنفيذ: transform() بيضيف الغلاف الجديد ويخلي الضغط عليه يشغّل openInvite بتاعة
-// القالب (نفس المزيكا والتوقيت). لو القالب اتغيّر ومالقاش الحتت → الغلاف العادي.
+// دعوة lcqdxr6 (Sage Garden) — Imène & Hassan (إيمان وحسن)، السبت 10 أبريل 2027، Dar El Bahri —
+// Tonnara، كاب زبيب، تونس. بطلب المالك (2026-11-06): النسخة الفرنساوي الكاملة (العربي هتبقى
+// على لينك تاني). اتبنت على نسخة sXSBxjs (ماجد ورنا — اتنسخت هنا 2026-11-05) واتغيّر فيها:
+//   - الختم اللي برّه برجندي بلون الدعوة جوه وعليه I&H (seal.webp — من ختم MR نفسه: الحروف
+//     اتمسحت، أرضية جديدة، حروف Cinzel محفورة بنفس الإضاءة، وبعدين اتلوّن برجندي)
+//   - كل الكلام فرنساوي — حتى المرسوم جوه صور الكولاج (SAVE THE DATE / The Details / CLICK TO
+//     RSVP / Rsvp CLICK HERE / Our Story): اتمسح من الصور (LaMa) واتكتب فوقها نص حقيقي بيتعدّل
+//   - صور ماجد ورنا اتشالت: البولارويد فيه صورة القوس بتاعة القالب (p-venue)، الكتاب من غير
+//     صورهم، والختام رجع طبق الدبل بتاع القالب. الكنيسة والفندق وملاحظة الأطفال اتشالوا
+//   - كارت الدعوة بكلام العيلتين بعد الكولاج، البرنامج 5 مواعيد، المكان بالخريطة (القسم
+//     الأصلي بتاع القالب)، و"ممنوع التصوير" مكان الدريس كود
+//   - العدّاد و"أضف للتقويم" بتوقيت تونس (UTC+1) مش مصر
+// البيانات (الأسامي والتاريخ والمكان والخريطة، ورفع صور الضيوف مقفول): oneOffFix
+// lcqdxr6-imene-hassan. لو القالب اتغيّر ومالقيناش الحتت → الصفحة العادية.
 const { asset } = require('./_asset');
+const { escapeHtml } = require('../utils/sanitize');
 
-const TOP = asset('/custom/lcqdxr6/top.webp');
-const BOTTOM = asset('/custom/lcqdxr6/bottom.webp');
-const SEAL = asset('/custom/lcqdxr6/seal.webp');
+const SHORT = 'lcqdxr6';
+const DIR = `/custom/${SHORT}/`;
+const TOP = asset(`${DIR}top.webp`);
+const BOTTOM = asset(`${DIR}bottom.webp`);
+const SEAL = asset(`${DIR}seal.webp`);
+const BUR = '#6b1d29';
 
-// ===== تاني تعديل: الكولاج (صورة المالك "Sophia & Daniel" متقطّعة قطع) =====
-// كل قطعة (custom/lcqdxr6/c/*.webp) مقصوصة على حدودها الحقيقية (SAM) والجزء اللي
-// كان مستخبي تحت قطعة تانية اتكمّل (مراية للكروت المتماثلة / LaMa) — scratch sx3/build.py.
-// كل قطعة في نفس مكانها بالظبط في الصورة (عرض 736 زي
-// كولاج القالب)، فلما يستقروا الشكل = الصورة؛ وكل قطعة بتدخل لوحدها بنفس حركة
-// القالب. الكلام اللي كان مرسوم (الأسامي، التاريخ، المكان، المونوجرام) اتشال من
-// الصورة وبقى كلام حقيقي بيتعدّل (sx10…) وبياخد من بيانات الدعوة (data-k).
-// الخلفية: لوحة الشجر والبحيرة باهتة (c/bg.webp). قطع القالب الأصلية مستخبية.
+// ===== الكولاج (قطع صورة التصميم في نفس أماكنها — lcqdxr6-pieces.json) =====
 const PIECES = require('./lcqdxr6-pieces.json');
-const C = (n) => asset(`/custom/lcqdxr6/c/${n}.webp`);
+const C = (n) => asset(`${DIR}c/${n}.webp`);
 const CH = 1404;
 const SWAY = { bq1: '70% 30%', bq2: '30% 20%', calla: '50% 0%', gyp: '90% 80%', bq3: '50% 0%' };
-// كلام فوق القطع — بإحداثيات الصورة الأصلية (بتتحوّل لمكانها جوه القطعة)
+// كلام فوق القطع — بإحداثيات الصورة الأصلية (بتتحوّل لمكانها جوه القطعة). ih1–ih7 مكان
+// الكلام الإنجليزي اللي كان مرسوم في الصور (نفس المكان والميل اللي اتقاسوا من الصور).
 const TEXTS = {
-  env: [['sx10', 'mono', 413, 318, 'MR']],
+  env: [['sx10', 'mono', 413, 318, 'IH']],
   card: [
-    ['sx11', 'inv', 277, 432, 'YOU ARE INVITED TO<br>THE WEDDING OF'],
+    ['sx11', 'inv', 277, 432, 'VOUS ÊTES INVITÉS<br>AU MARIAGE DE'],
     ['sx12', 'nm1', 277, 500, '', 'groom'],
     ['sx13', 'nm2', 277, 557, '', 'bride'],
     ['sx14', 'cdt', 277, 636, '', 'dateUp'],
@@ -41,6 +40,7 @@ const TEXTS = {
   ],
   pola: [['sx16', 'cap', 522, 561, '', 'pair']],
   std: [
+    ['ih1', 'se', 545, 713, 'RÉSERVEZ LA DATE'],
     ['sx17', 'sd', 548, 782, '', 'day'],
     ['sx18', 'sm', 548, 826, '', 'monthUp'],
     ['sx19', 'sd', 548, 873, '', 'year'],
@@ -48,13 +48,17 @@ const TEXTS = {
     ['sx21', 'sv', 548, 944, '', 'hallUp'],
     ['sx22', 'sv', 548, 960, '', 'cityUp'],
   ],
+  plate: [['ih2', 'pl', 288, 868, 'Le<br>programme'], ['ih3', 'plc', 299, 920, 'CLIQUEZ ICI']],
+  story: [['ih6', 'bk', 247, 1126, 'Livre<br>d’or'], ['ih7', 'bkc', 251, 1205, 'LAISSEZ UN MOT']],
+  renv: [['ih5', 'rv', 519, 1178, 'RÉPONDEZ ICI']],
+  rcard: [['ih4', 'rc', 443, 1275, 'CLIQUEZ ICI']],
 };
 const pieceHtml = (p) => {
   const cls = ['pc', 'sxp', `sxp-${p.n}`, p.go ? 'tap' : '', SWAY[p.n] ? 'sway' : ''].filter(Boolean).join(' ');
   const style = `--x:${p.x};--y:${p.y};--w:${p.w};--h:${p.h};--fx:${p.fx}px;--fy:${p.fy}px;--fr:${p.fr}deg;--d:${p.d}s${SWAY[p.n] ? `;--o:${SWAY[p.n]}` : ''}`;
   return `<div class="${cls}"${p.go ? ` data-go="${p.go}"` : ''} style="${style}"><img src="${C(p.n)}" alt="" draggable="false"></div>`;
 };
-// طبقة الكلام: نفس مقاس ومكان وحركة الكارت بتاعها، بس فوق كل القطع (عشان الورد مايغطّيش الكلام)
+// طبقة الكلام: نفس مقاس ومكان وحركة القطعة بتاعتها، بس فوق كل القطع (عشان الورد مايغطّيش الكلام)
 const textLayer = (p) => {
   const t = TEXTS[p.n];
   if (!t) return '';
@@ -66,7 +70,7 @@ const textLayer = (p) => {
 const COLLAGE = PIECES.map(pieceHtml).concat(PIECES.map(textLayer).filter(Boolean)).join('\n      ');
 
 const CSS = `
-/* ===== الكولاج الجديد ===== */
+/* ===== الكولاج ===== */
 #collage{aspect-ratio:736/${CH};background:#f6f3ee url(${C('bg')}) 0 0/100% 100% no-repeat}
 #collage > :not(.sxp){display:none!important}
 .sxp img{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;-webkit-user-drag:none}
@@ -80,7 +84,15 @@ const CSS = `
 .sxt-sd{font:500 calc(42*var(--u))/1 'Cormorant Garamond',serif;letter-spacing:.06em;color:#2b2522}
 .sxt-sm{font:500 calc(40*var(--u))/1 'Cormorant Garamond',serif;letter-spacing:.08em;color:#2b2522}
 .sxt-st,.sxt-sv{font:600 calc(11*var(--u))/1 'Cormorant Garamond',serif;letter-spacing:.16em;color:#4a2a2c}
-/* المونوجرام على الظرف الزيتي: MR جوه إكليل بيضاوي رفيع */
+/* الكلام اللي كان مرسوم في الصور — نفس اللون والمقاس والميل */
+.sxt-se{font:500 calc(13.5*var(--u))/1 'Cinzel','Cormorant Garamond',serif;letter-spacing:.1em;color:#2b2522}
+.sxt-pl{font:400 calc(23*var(--u))/1.05 'Pinyon Script',cursive;color:#7d2a37;rotate:1.3deg}
+.sxt-plc{font:500 calc(9.5*var(--u))/1 'Cinzel','Cormorant Garamond',serif;letter-spacing:.14em;color:#7d2a37;rotate:1.3deg}
+.sxt-bk{font:400 calc(31*var(--u))/1.08 'Pinyon Script',cursive;color:#ead7c1;text-shadow:0 1px 2px rgba(30,0,8,.45)}
+.sxt-bkc{font:500 calc(8.5*var(--u))/1 'Cinzel','Cormorant Garamond',serif;letter-spacing:.14em;color:#e2ccb3}
+.sxt-rv{font:500 calc(12.5*var(--u))/1 'Cinzel','Cormorant Garamond',serif;letter-spacing:.12em;color:#efd9cf;rotate:5.9deg;text-shadow:0 1px 1px rgba(40,0,10,.35)}
+.sxt-rc{font:500 calc(8*var(--u))/1 'Cinzel','Cormorant Garamond',serif;letter-spacing:.12em;color:#8d846f}
+/* المونوجرام على الظرف الزيتي: IH جوه إكليل بيضاوي رفيع */
 .sxt-mono{font:400 calc(36*var(--u))/1 'Pinyon Script',cursive;color:#d8c79c;padding:calc(10*var(--u)) calc(12*var(--u));
   text-shadow:0 1px 0 rgba(30,35,10,.45)}
 .sxt-mono::before{content:"";position:absolute;inset:calc(-6*var(--u)) calc(-2*var(--u));border:1px solid rgba(216,199,156,.7);border-radius:50%}
@@ -97,10 +109,10 @@ const CSS = `
 /* ضل خفيف تحت حافة النص اللي فوق (الطيّة) */
 .sx-top::after{content:"";position:absolute;left:0;right:0;bottom:-6px;height:6px;background:linear-gradient(rgba(70,60,40,.22),transparent)}
 .sx-seal{position:absolute;left:50%;top:50%;z-index:3;width:min(34vw,170px);aspect-ratio:520/527;transform:translate(-50%,-50%);
-  filter:drop-shadow(0 7px 9px rgba(40,45,20,.38)) drop-shadow(0 2px 2px rgba(40,45,20,.3))}
+  filter:drop-shadow(0 7px 9px rgba(60,10,20,.38)) drop-shadow(0 2px 2px rgba(60,10,20,.3))}
 .sx-seal img{display:block;width:100%;height:100%;animation:sxBreathe 2.6s ease-in-out infinite}
 @keyframes sxBreathe{0%,100%{transform:scale(1)}50%{transform:scale(1.025)}}
-.sx-seal::before{content:"";position:absolute;inset:-12%;border-radius:50%;border:1.5px solid rgba(122,130,70,.45);animation:sxRing 2.6s ease-out infinite}
+.sx-seal::before{content:"";position:absolute;inset:-12%;border-radius:50%;border:1.5px solid rgba(107,29,41,.4);animation:sxRing 2.6s ease-out infinite}
 @keyframes sxRing{0%{transform:scale(.85);opacity:.9}100%{transform:scale(1.25);opacity:0}}
 .sx-hint{position:absolute;left:0;right:0;bottom:calc(30px + env(safe-area-inset-bottom));z-index:3;text-align:center;
   font:italic 500 17px/1 'Cormorant Garamond',Georgia,serif;letter-spacing:.2em;color:#6d6650;transition:opacity .4s ease}
@@ -126,109 +138,82 @@ const CSS = `
 @media (prefers-reduced-motion:reduce){.sx-seal img,.sx-seal::before{animation:none}}
 `;
 
-const COVER = `<div class="sx-env" id="sx-env" role="button" tabindex="0" aria-label="Tap the seal to open">
+const COVER = `<div class="sx-env" id="sx-env" role="button" tabindex="0" aria-label="Touchez le sceau pour ouvrir">
     <div class="sx-half sx-top"></div>
     <div class="sx-half sx-bot"></div>
     <div class="sx-seal"><img src="${SEAL}" alt="" fetchpriority="high"></div>
-    <div class="sx-hint"><span><i></i><b data-elem-id="sx1">Tap to open</b><i></i></span></div>
+    <div class="sx-hint"><span><i></i><b data-elem-id="sx1">Touchez pour ouvrir</b><i></i></span></div>
   </div>
 `;
 
-// بيتحط في سكريبت القالب قبل "STATIC" — openInvite متعرّفة قبله
-const LOGIC = `
-  /* ---------- lcqdxr6: برنامج اليوم (مواعيد العروسين) + الزي وتأكيد الحضور اتشالوا ---------- */
-  {
-    const SCH = [['sg40', '5:00 PM', 'sg41', 'Church Ceremony'], ['sg42', '7:00 PM', 'sg43', 'Cocktails'], ['sg44', '8:00 PM', 'sg45', 'First dance & party'], ['sg46', '10:00 PM', 'sg47', 'Dinner & after-party']];
-    SCH.forEach(([t, tv, n, nv]) => { const a = byId(t), b = byId(n); if (a) a.textContent = tv; if (b) b.textContent = nv; });
-    // الرقصة قبل العشا: أيقونة المزيكا للتالت والشوكة والسكينة للرابع
-    const ics = $$('#schedule .tl .ic');
-    if (ics.length === 4) { const x = ics[2].innerHTML; ics[2].innerHTML = ics[3].innerHTML; ics[3].innerHTML = x; }
-    ['dress'].forEach((id) => { const e = document.getElementById(id); if (e) e.classList.add('off'); });
-    // تأكيد الحضور رجع (خامس تعديل) — ظاهر دايمًا فوق التهنئة الصوتية
-    { const r = document.getElementById('rsvp'); if (r) r.classList.remove('off'); }
-  }
-  /* ---------- lcqdxr6: تقويم Save the Date (الشهر بتاع الفرح، والقلب على يومه) ---------- */
-  {
-    const MN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    const mEl = document.querySelector('[data-elem-id="sx31"]'), yEl = document.querySelector('[data-elem-id="sx32"]');
-    if (mEl && !mEl.textContent.trim()) mEl.textContent = MN[M];
-    if (yEl && !yEl.textContent.trim()) yEl.textContent = String(Y);
-    const g = document.getElementById('sxcGrid');
-    if (g) {
-      const first = new Date(Y, M, 1).getDay(), days = new Date(Y, M + 1, 0).getDate();
-      let h = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'].map((d) => '<b>' + d + '</b>').join('');
-      for (let k = 0; k < first; k++) h += '<span></span>';
-      for (let d = 1; d <= days; d++) h += '<span' + (d === D ? ' class="wd"' : '') + '>' + d + '</span>';
-      g.innerHTML = h;
-    }
-    // Save the Date في الكولاج بيودّي على التقويم
-    GO.calendar = '#sxCal';
-  }
-  /* ---------- lcqdxr6: كلام الكولاج الجديد من بيانات الدعوة ---------- */
-  {
-    const up = (s) => String(s || '').toUpperCase();
-    const extra = {
-      dateUp: \`\${fields.day} \${up(fields.monthUp)} \${fields.year}\`,
-      cityUp: up(fields.city), hallUp: up(fields.hall),
-      pair: [fields.groom, fields.bride].filter(Boolean).join(' & '),
-    };
-    $$('#collage .sxt[data-k]').forEach((el) => { const v = extra[el.dataset.k]; if (v != null) el.textContent = v; });
-    // اسم طويل: بيصغر على قد الكارت
-    const fit = () => $$('#collage .sxt-nm1, #collage .sxt-nm2, #collage .sxt-cdt, #collage .sxt-sv, #collage .sxt-sm, #collage .sxt-sd').forEach((el) => {
-      el.style.scale = '';
-      const max = el.closest('.sxp').offsetWidth * (el.matches('.sxt-sv, .sxt-sm, .sxt-sd') ? 0.62 : 0.82);
-      if (el.offsetWidth > max) el.style.scale = (max / el.offsetWidth).toFixed(3);
-    });
-    fit(); addEventListener('resize', fit); if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
-  }
-  /* ---------- lcqdxr6: الظرف بيتفتح من النص ---------- */
-  {
-    const env = document.getElementById('sx-env');
-    let sxGo = false;
-    const sxOpen = () => {
-      if (sxGo) return; sxGo = true;
-      env.classList.add('sx-open');
-      // ورا النصين بتظهر الدعوة نفسها (مش لون الغلاف)
-      setTimeout(() => { cover.style.background = 'transparent'; }, 600);
-      // الدعوة بتبدأ تظهر والنصين بيتفتحوا (نفس openInvite بتاعة القالب: المزيكا والكولاج)
-      setTimeout(() => { try { openInvite(); } catch (_) {} }, 250);
-      setTimeout(() => cover.classList.add('sx-done'), 2000);
-    };
-    env.addEventListener('click', sxOpen);
-    env.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); sxOpen(); } });
-  }
-`;
-
-// ===== تالت تعديل: العد التنازلي بستايل "The celebration begins." + كارت Save the Date (تقويم) تحته =====
-const BUR = '#6b1d29';
-// غصن صغير (ورق دهبي + توت برجندي) — بيتكرر في الأربع أركان
-// غصن ركنة (للركن الشمال فوق) — فرعين ماشيين مع الحافتين، ورق دهبي وتوت برجندي؛ بيتقلب للأركان التانية
+// ===== الزخارف المشتركة (غصن الأركان + الفاصل) =====
 const _leaves = (pts) => pts.map(([x, y, r]) => `<ellipse cx="${x}" cy="${y}" rx="6" ry="2.4" transform="rotate(${r} ${x} ${y})"/>`).join('');
+// غصن ركنة (للركن الشمال فوق) — فرعين ماشيين مع الحافتين، ورق دهبي وتوت برجندي؛ بيتقلب للأركان التانية
 const SPRIG = `<svg viewBox="0 0 120 120" aria-hidden="true"><g fill="none" stroke="#b98c55" stroke-width="1.2" stroke-linecap="round">
   <path d="M6 6 C40 10 76 16 116 34"/><path d="M6 6 C10 40 16 76 34 116"/><path d="M40 12 C50 22 54 30 54 40"/><path d="M12 40 C22 50 30 54 40 54"/></g>
   <g fill="#c9a26b">${_leaves([[20,10,-25],[22,4,20],[34,13,-20],[36,7,25],[50,16,-15],[52,10,28],[66,20,-12],[68,14,30],[82,26,-8],[84,20,32],[98,31,0],[100,25,36],
     [10,20,-65],[4,22,-110],[13,34,-70],[7,36,-115],[16,50,-75],[10,52,-118],[20,66,-78],[14,68,-120],[26,82,-82],[20,84,-122],[31,98,-90],[25,100,-126],[48,26,60],[52,34,80],[26,48,30],[34,52,10]])}</g>
   <g fill="${BUR}">${[[112,34,3],[106,38,2.3],[116,28,2.2],[34,112,3],[38,106,2.3],[28,116,2.2],[56,42,2.6],[42,56,2.6],[60,46,2],[46,60,2]].map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}"/>`).join('')}</g></svg>`;
 const ORN = `<div class="sxc-orn" aria-hidden="true"><i></i><svg viewBox="0 0 24 24"><path d="M12 2l2.2 6.6L21 7l-4.8 5L21 17l-6.8-1.6L12 22l-2.2-6.6L3 17l4.8-5L3 7l6.8 1.6z" fill="#b98c55"/></svg><i></i></div>`;
-const CAL = `<section class="sxc-sec" id="sxCal" aria-label="Save the date">
+const CORNERS = `<span class="sxc-sp k1">${SPRIG}</span><span class="sxc-sp k2">${SPRIG}</span><span class="sxc-sp k3">${SPRIG}</span><span class="sxc-sp k4">${SPRIG}</span>`;
+
+// ===== كارت الدعوة: كلام العيلتين زي ما العرسان كاتبينه (بعد الكولاج) =====
+const LETTER = `<section class="ihl-sec" id="ihLetter" aria-label="Invitation">
+    <div class="ihl-card reveal">
+      ${CORNERS}
+      <p class="ihl-q" data-elem-id="ih10">Notre bonheur ne serait pas complet sans votre présence.</p>
+      ${ORN}
+      <p class="ihl-p" data-elem-id="ih11">Les familles Ben Ghorbel et Ettaieb ont l’honneur et la joie de vous inviter au mariage de leurs enfants</p>
+      <p class="ihl-nm"><span data-k="groom" data-elem-id="ih12"></span><span class="amp">&amp;</span><span data-k="bride" data-elem-id="ih13"></span></p>
+      <p class="ihl-p" data-elem-id="ih14">afin de partager avec vous ce jour exceptionnel et de célébrer ensemble un moment inoubliable.</p>
+      ${ORN}
+      <p class="ihl-d" data-k="dateLong" data-elem-id="ih15"></p>
+      ${ORN}
+      <p class="ihl-p" data-elem-id="ih16">Entourés de leurs familles et de leurs proches, ils seront heureux de partager avec vous cette journée remplie d’amour et de bonheur.</p>
+      <p class="ihl-s" data-elem-id="ih17">Votre présence sera leur plus beau cadeau.</p>
+    </div>
+  </section>`;
+
+// ===== العد التنازلي بستايل الدعوة + كارت "Réservez la date" (تقويم الشهر) تحته =====
+const CAL = `<section class="sxc-sec" id="sxCal" aria-label="Réservez la date">
   <div class="sxc-card reveal">
     <svg class="sxc-frame" viewBox="0 0 340 660" preserveAspectRatio="none" aria-hidden="true">
       <path d="M24 46 Q24 26 46 26 H140 Q160 26 170 8 Q180 26 200 26 H294 Q316 26 316 46 V614 Q316 634 294 634 H200 Q180 634 170 652 Q160 634 140 634 H46 Q24 634 24 614 Z" fill="#f7efe6" stroke="${BUR}" stroke-width="3" vector-effect="non-scaling-stroke"/>
       <path d="M33 52 Q33 35 52 35 H143 Q161 35 170 20 Q179 35 197 35 H288 Q307 35 307 52 V608 Q307 625 288 625 H197 Q179 625 170 640 Q161 625 143 625 H52 Q33 625 33 608 Z" fill="none" stroke="#b98c55" stroke-width="1.2" vector-effect="non-scaling-stroke"/>
     </svg>
-    <span class="sxc-sp k1">${SPRIG}</span><span class="sxc-sp k2">${SPRIG}</span><span class="sxc-sp k3">${SPRIG}</span><span class="sxc-sp k4">${SPRIG}</span>
+    ${CORNERS}
     <div class="sxc-in">
-      <p class="sxc-eye" data-elem-id="sx30">SAVE THE DATE</p>
+      <p class="sxc-eye" data-elem-id="sx30">RÉSERVEZ LA DATE</p>
       ${ORN}
       <p class="sxc-my"><span class="sxc-m" data-elem-id="sx31"></span> <span class="sxc-y" data-elem-id="sx32"></span></p>
       ${ORN}
       <div class="sxc-grid" id="sxcGrid" dir="ltr"></div>
       ${ORN}
-      <p class="sxc-foot" data-elem-id="sx33">WE CAN’T WAIT TO<br>CELEBRATE WITH YOU</p>
+      <p class="sxc-foot" data-elem-id="sx33">NOUS AVONS HÂTE DE<br>CÉLÉBRER AVEC VOUS</p>
       <div class="sxc-orn sxc-heart" aria-hidden="true"><i></i><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" fill="none" stroke="#b98c55" stroke-width="1.6"/></svg><i></i></div>
     </div>
   </div>
 </section>`;
+const COUNT_HEAD = `<p class="sxd-head" data-elem-id="sx29">Le grand jour approche</p>
+    <div class="sxd-orn" aria-hidden="true"><i></i><svg viewBox="0 0 40 20"><path d="M20 3c3 4 3 10 0 14-3-4-3-10 0-14zM20 10c4-4 10-4 14 0-4 4-10 4-14 0zM20 10c-4-4-10-4-14 0 4 4 10 4 14 0z" fill="none" stroke="#b98c55" stroke-width="1.2"/></svg><i></i></div>
+    `;
+
+// ===== برنامج اليوم: الصف الخامس (نهاية الحفل) بنفس شكل صفوف القالب =====
+const ICON = (d) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+const ARCH = ICON('<path d="M5 21V11a7 7 0 0 1 14 0v10"/><path d="M9 21v-7.5a3 3 0 0 1 6 0V21"/><path d="M3 21h18"/>');
+const MOON = ICON('<path d="M19.5 14.5A7.5 7.5 0 1 1 9.5 4.5a6 6 0 0 0 10 10z"/><path d="M17 3.5v3M15.5 5h3"/>');
+const ROW5 = `      <div class="tl reveal d3"><span class="t" data-elem-id="ih20"></span><span class="ic">${MOON}</span><span class="n" data-elem-id="ih21"></span></div>\n`;
+
+// ===== "ممنوع التصوير" مكان الدريس كود =====
+const NOPHOTO = `<section class="ihn-sec" id="ihNoPhoto" aria-label="Photos">
+    <div class="ihn-card reveal">
+      <span class="ihn-ic">${ICON('<path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13.5" r="3.5"/><path d="M3 3l18 18"/>')}</span>
+      <div class="ihn-t" data-elem-id="ih30">Une soirée sans photos</div>
+      <p class="ihn-p" data-elem-id="ih31">Afin de préserver l’intimité de chacun, nous vous prions de bien vouloir ne prendre ni photos ni vidéos durant la soirée.</p>
+      <div class="ihn-s" data-elem-id="ih32">Merci de votre compréhension</div>
+    </div>
+  </section>`;
+
 const CAL_CSS = `
 /* العد التنازلي — أرضية فاتحة وكتابة برجندي */
 .count-sec{background:#f7f1ea!important;padding:46px 14px 40px!important;text-align:center}
@@ -243,7 +228,7 @@ const CAL_CSS = `
 .count-sec .cd .cl{margin-top:12px!important;font:500 18px/1 'Cormorant Garamond',serif!important;letter-spacing:.02em!important;text-transform:none!important;color:#7c4a4f!important}
 .count-sec .btn-ghost{color:${BUR}!important;border-color:rgba(107,29,41,.45)!important}
 
-/* كارت Save the Date (تقويم الشهر) */
+/* كارت Réservez la date (تقويم الشهر) */
 .sxc-sec{background:#f7f1ea;padding:6px 16px 48px}
 .sxc-card{position:relative;max-width:380px;margin:0 auto;aspect-ratio:340/660;filter:drop-shadow(0 16px 26px rgba(70,25,30,.16))}
 .sxc-frame{position:absolute;inset:0;width:100%;height:100%}
@@ -271,39 +256,7 @@ const CAL_CSS = `
 .sxc-foot{margin:0;font:500 clamp(12px,3.6vw,15px)/1.45 'Cinzel','Cormorant Garamond',serif;letter-spacing:.06em;color:${BUR}}
 .sxc-heart{width:52%;margin-top:8px}.sxc-heart i::before{display:none}
 `;
-const COUNT_HEAD = `<p class="sxd-head" data-elem-id="sx29">The celebration begins.</p>
-    <div class="sxd-orn" aria-hidden="true"><i></i><svg viewBox="0 0 40 20"><path d="M20 3c3 4 3 10 0 14-3-4-3-10 0-14zM20 10c4-4 10-4 14 0-4 4-10 4-14 0zM20 10c-4-4-10-4-14 0 4 4 10 4 14 0z" fill="none" stroke="#b98c55" stroke-width="1.2"/></svg><i></i></div>
-    `;
 
-// ===== رابع تعديل: برجندي بدل الأخضر + المواعيد + مكانين بصورهم + Our love story =====
-const CHURCH = asset('/custom/lcqdxr6/church.webp');
-const HOTEL = asset('/custom/lcqdxr6/hotel.webp');
-const COUPLE = asset('/custom/lcqdxr6/couple.webp');
-const CHURCH_MAP = 'https://maps.app.goo.gl/yzFxLJwYCa1Du8kK7?g_st=ic';
-const HOTEL_MAP = 'https://maps.app.goo.gl/sNG2VyrC5vFGNMnt8?g_st=ic';
-const PIN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 21s-7-6.3-7-11.5A7 7 0 0 1 19 9.5C19 14.7 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>';
-const place = (kind, idK, idN, name, img, href, idB) => `<div class="sxv-place reveal">
-      <div class="sxv-kind" data-elem-id="${idK}">${kind}</div>
-      <div class="sxv-name" data-elem-id="${idN}">${name}</div>
-      <a class="sxv-photo" href="${href}" target="_blank" rel="noopener" aria-label="${name} — Google Maps"><img src="${img}" alt="${name}" loading="lazy"><span class="sxv-tag">${PIN}</span></a>
-      <a class="btn btn-sage sxv-btn" href="${href}" target="_blank" rel="noopener">${PIN}<span data-elem-id="${idB}">Open in Google Maps</span></a>
-    </div>`;
-const VENUE = `<section class="venue-sec" id="venue" data-section="venue">
-    <div class="eyebrow reveal" data-elem-id="sx50">Join us at</div>
-    <div class="h-script reveal d1" data-elem-id="sx51">Locations</div>
-    ${place('Church', 'sx52', 'sx53', 'St. Mary Church — East Abbasia', CHURCH, CHURCH_MAP, 'sx54')}
-    <div class="sxv-sep" aria-hidden="true"><i></i><b></b><i></i></div>
-    ${place('Venue', 'sx55', 'sx56', 'The Guard Hotel — La Luna', HOTEL, HOTEL_MAP, 'sx57')}
-    <iframe id="sgMap" hidden title="map"></iframe><a id="mapBtn" hidden></a>
-  </section>`;
-const LOVE = `<figure class="sxl-photo reveal"><img src="${COUPLE}" alt="" loading="lazy"></figure>
-    <div class="h-script reveal d1" data-elem-id="sx60">Our love story</div>
-    <p class="sxl-text reveal d2" data-elem-id="sx61">What began as childhood memories blossomed into a love so true.<br>From being little neighbors to saying “I do”.</p>
-    <div class="sxk reveal d3">
-      <div class="sxk-t" data-elem-id="sx62">A note about the kids</div>
-      <p class="sxk-p" data-elem-id="sx63">We look forward to celebrating together in a relaxed, adults-only gathering.</p>
-      <div class="sxk-s" data-elem-id="sx64">See you there!</div>
-    </div>`;
 const MORE_CSS = `
 /* الأخضر → برجندي في الدعوة كلها */
 :root{--sage:#8a3a46;--sage-d:#6b1d29;--sage-dd:#5a1822;--sage-l:#e3c3c6;--sage-ll:#f4e7e6}
@@ -315,40 +268,40 @@ const MORE_CSS = `
 .tl .ic{color:${BUR}!important;border-color:rgba(107,29,41,.45)!important}
 .timeline::before{background:linear-gradient(rgba(107,29,41,.25),rgba(107,29,41,.55))!important}
 .tl .t{color:${BUR}!important}
-/* الزي اتشال (تأكيد الحضور رجع بستايل برجندي — RSVP_CSS) */
 #dress{display:none!important}
-/* المكانين */
-.sxv-place{max-width:380px;margin:22px auto 0;text-align:center}
-.sxv-kind{font-family:'Cinzel','Cormorant Garamond',serif;font-size:13px;letter-spacing:.32em;text-transform:uppercase;color:#a07a4a}
-.sxv-name{margin:6px 0 14px;font:600 26px/1.25 'Cormorant Garamond',serif;color:${BUR}}
-.sxv-photo{position:relative;display:block;border-radius:14px;overflow:hidden;padding:6px;background:#fff;
-  box-shadow:0 0 0 1px rgba(107,29,41,.25),0 18px 34px -18px rgba(70,25,30,.6)}
-.sxv-photo img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:9px;transition:transform .8s cubic-bezier(.2,.7,.2,1)}
-.sxv-photo:hover img{transform:scale(1.03)}
-.sxv-tag{position:absolute;right:16px;bottom:16px;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:${BUR};color:#fbf3ec;box-shadow:0 8px 16px -8px rgba(0,0,0,.6)}
-.sxv-tag svg{width:20px;height:20px}
-.sxv-btn{margin-top:16px;display:inline-flex;align-items:center;gap:8px}
-.sxv-btn svg{width:18px;height:18px}
-.sxv-sep{display:flex;align-items:center;justify-content:center;gap:10px;width:200px;margin:34px auto 6px}
-.sxv-sep i{flex:1;height:1px;background:linear-gradient(90deg,transparent,#b98c55)}.sxv-sep i:last-child{transform:scaleX(-1)}
-.sxv-sep b{width:7px;height:7px;border:1px solid #b98c55;transform:rotate(45deg)}
-/* Our love story — آخر صفحة */
+.venue-sec{background:#fbf6ef}
+.venue-name{color:${BUR}}
 .closing{background:linear-gradient(180deg,#f7f1ea,#f1e1de)!important}
-.sxl-photo{margin:0 auto;max-width:300px;padding:8px;background:#fff;border-radius:160px 160px 14px 14px;
-  box-shadow:0 0 0 1px rgba(107,29,41,.28),0 24px 40px -22px rgba(70,25,30,.7)}
-.sxl-photo img{display:block;width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:152px 152px 9px 9px}
-.sxk{max-width:380px;margin:34px auto 0;padding:30px 22px 28px;border-radius:18px;text-align:center;
+.ihc-p{max-width:300px;margin:0 auto;font:italic 500 20px/1.5 'Cormorant Garamond',serif;color:${BUR}}
+
+/* كارت الدعوة (كلام العيلتين) */
+.ihl-sec{background:#f7f1ea;padding:54px 16px 26px}
+.ihl-card{position:relative;max-width:400px;margin:0 auto;padding:70px 26px 60px;background:#fbf6ef;text-align:center;
+  border:1.5px solid ${BUR};box-shadow:0 18px 34px -22px rgba(70,25,30,.45)}
+.ihl-card::before{content:"";position:absolute;inset:7px;border:1px solid #b98c55;pointer-events:none}
+.ihl-card .sxc-sp{width:21%}
+.ihl-card .sxc-sp.k1{left:12px;top:12px}.ihl-card .sxc-sp.k2{right:12px;top:12px}
+.ihl-card .sxc-sp.k3{left:12px;bottom:12px}.ihl-card .sxc-sp.k4{right:12px;bottom:12px}
+.ihl-card .sxc-orn{width:62%;margin:18px auto}
+.ihl-q{max-width:270px;margin:0 auto;font:italic 500 21px/1.45 'Cormorant Garamond',serif;color:${BUR}}
+.ihl-p{max-width:320px;margin:0 auto;font:500 18px/1.6 'Cormorant Garamond',serif;color:#3b1a1e}
+.ihl-nm{margin:12px 0 8px;font:400 clamp(36px,11vw,48px)/1.15 'Pinyon Script',cursive;color:${BUR};white-space:nowrap}
+.ihl-nm .amp{font:italic 500 .6em/1 'Cormorant Garamond',serif;color:#b98c55;margin:0 .22em;vertical-align:.12em}
+.ihl-d{margin:0;font:500 15px/1.4 'Cinzel','Cormorant Garamond',serif;letter-spacing:.12em;color:${BUR};text-transform:uppercase}
+.ihl-s{margin:16px auto 0;max-width:280px;font:400 29px/1.25 'Pinyon Script',cursive;color:#9a6b3e}
+
+/* ممنوع التصوير */
+.ihn-sec{background:#f7f1ea;padding:24px 16px 50px}
+.ihn-card{max-width:380px;margin:0 auto;padding:32px 24px 30px;border-radius:18px;text-align:center;
   background:linear-gradient(160deg,#7a2430,#5a1822);box-shadow:0 22px 40px -22px rgba(70,20,25,.75)}
-.sxk-t{font:400 34px/1.2 'Pinyon Script',cursive;color:#f6e7dc}
-.sxk-p{margin:12px auto 0;max-width:300px;font:500 18px/1.6 'Cormorant Garamond',serif;color:#f3e2d6}
-.sxk-s{margin-top:14px;font:400 32px/1 'Pinyon Script',cursive;color:#d8b07f}
-.sxl-text{max-width:330px;margin:10px auto 0;font:italic 500 21px/1.55 'Cormorant Garamond',serif;color:${BUR};text-align:center}
+.ihn-ic{width:54px;height:54px;margin:0 auto 12px;border-radius:50%;display:grid;place-items:center;color:#e9cf9f;border:1px solid rgba(233,207,159,.55)}
+.ihn-ic svg{width:26px;height:26px}
+.ihn-t{font:400 34px/1.2 'Pinyon Script',cursive;color:#f6e7dc}
+.ihn-p{max-width:300px;margin:12px auto 0;font:500 18px/1.6 'Cormorant Garamond',serif;color:#f3e2d6}
+.ihn-s{margin-top:14px;font:400 26px/1.2 'Pinyon Script',cursive;color:#d8b07f}
 `;
 
-// ===== خامس تعديل: تأكيد الحضور (الاسم + هيحضر ولا لأ + رسالة) فوق التهنئة الصوتية =====
-// نفس فورم القالب (بيوصل للوحة العميل). بطلب المالك: مربع بسيط شيك — إطار برجندي رفيع
-// بزوايا حادة، من غير زخارف ولا كلام زيادة جوه، زراير مستطيلة، والفورم ظاهر على طول
-// (حتى بعد الإرسال: سطر شكر صغير تحت الزرار بدل ما الفورم يستخبى).
+// ===== تأكيد الحضور: نفس مربع sXSBxjs (إطار برجندي رفيع، الفورم ظاهر على طول) =====
 const RSVP_CSS = `
 .rsvp{background:#f7f1ea!important;color:${BUR}!important;padding-bottom:56px!important}
 .rsvp .sprig{display:none!important}
@@ -377,45 +330,217 @@ const RSVP_CSS = `
 .rsvp-done p{color:#5a1822!important;font-size:17px!important}
 `;
 
+// ===== الكلام الفرنساوي =====
+// الكلام الثابت بتاع القالب (بيتحط بعد نسخة القالب الإنجليزي، ونصوص فورم الحضور من البانل بتكسب)
+const NB = ' '; // مسافة قبل ? و : و ! (قواعد الفرنساوي)
+const FR = {
+  sg1: 'Vous êtes invités', sg5: 'Touchez le sceau pour ouvrir',
+  sg13: 'Salle', sg16: 'Touchez pour voir', sg17: 'Mariage', sg18: 'détails', sg20: 'Le lieu', sg21: 'Rsvp', sg22: 'Touchez pour ouvrir', sg27: 'Notre', sg28: 'histoire',
+  sg33: 'Jours', sg34: 'Heures', sg35: 'Minutes', sg36: 'Secondes', sg37: 'Ajouter au calendrier',
+  sg39: 'Déroulement du mariage',
+  sg48: 'Plan d’accès', sg49: 'Le lieu', sg53: 'Ouvrir dans Google Maps',
+  sg57: 'Réponse souhaitée', sg58: `Serez-vous des nôtres${NB}?`, sg59: 'Confirmation', sg60: 'Merci de nous répondre dès que possible',
+  sg61: 'Votre nom', sg62: `Serez-vous présent(e)${NB}?`, sg63: 'Oui, avec joie', sg64: 'Non, à regret', sg65: 'Un mot pour les mariés', sg66: 'Envoyer ma réponse',
+  sg67: 'Merci — votre réponse a bien été reçue.', sg68: 'Modifier ma réponse',
+  sg69: 'Laissez-nous un mot doux', sg70: 'Livre d’or',
+  sg71: 'Enregistrez vos vœux', sg72: 'Jusqu’à une minute — les mariés le garderont précieusement', sg73: 'Touchez pour commencer l’enregistrement', sg74: 'Recommencer', sg75: 'Envoyer',
+  sg76: 'Partagez vos photos', sg77: 'Envoyez les moments capturés pendant la journée', sg78: 'Choisir des photos', sg79: 'JPG · PNG — autant que vous le souhaitez',
+  sg80: 'Vos photos sont envoyées uniquement aux mariés.',
+  sg82: 'Merci',
+};
+// رسايل الصفحة (الأماكن الفاضية، الأخطاء، الشكر) — L() بتاعة القالب بتعدّي عليها
+const FR_MSG = {
+  'Your full name': 'Votre nom complet', 'Optional': 'Facultatif', 'Your name': 'Votre nom',
+  'Please write your name': 'Merci d’indiquer votre nom',
+  'Please choose: accept or decline': `Merci de choisir${NB}: oui ou non`,
+  'Couldn’t send — please try again': 'Envoi impossible — merci de réessayer',
+  'Your name, so the couple knows who sent it': 'Votre nom, pour que les mariés sachent de qui il vient',
+  'Voice recording isn’t supported on this browser': 'L’enregistrement vocal n’est pas pris en charge par ce navigateur',
+  'Microphone is blocked — allow it to record': 'Le micro est bloqué — autorisez-le pour enregistrer',
+  'That was too short — try again': 'C’était trop court — réessayez',
+  'Recording': 'Enregistrement',
+  'Please write your name first': 'Merci d’écrire d’abord votre nom',
+  'Voice wishes work once the invitation is published': 'Les vœux vocaux fonctionnent une fois l’invitation publiée',
+  'Your voice wish was sent to the couple 🤍': 'Votre message vocal a bien été envoyé aux mariés 🤍',
+  'Network problem — check your connection': 'Problème de connexion — vérifiez votre réseau',
+  'Photo upload works once the invitation is published': 'L’envoi de photos fonctionne une fois l’invitation publiée',
+  'Upload failed — try again': 'Échec de l’envoi — réessayez',
+};
+const json = (v) => JSON.stringify(v).replace(/</g, '\\u003c');
+// بيتحط مكان L بتاعة القالب: نفس الرسايل بالفرنساوي (والرسايل اللي فيها اسم/رقم بالـ regex)
+const FR_FN = `  /* ---------- lcqdxr6: رسايل الصفحة بالفرنساوي ---------- */
+  const __FR = ${json(FR_MSG)};
+  const __fr = (s) => {
+    if (Object.prototype.hasOwnProperty.call(__FR, s)) return __FR[s];
+    let m = /^Thank you, (.*) — we can’t wait to celebrate with you 🤍$/.exec(s);
+    if (m) return 'Merci ' + m[1] + ' — nous avons hâte de célébrer avec vous 🤍';
+    m = /^Thank you, (.*) — you’ll be in our hearts that day 🤍$/.exec(s);
+    if (m) return 'Merci ' + m[1] + ' — vous serez dans nos cœurs ce jour-là 🤍';
+    m = /^Uploading (\\d+) of (\\d+)…$/.exec(s);
+    if (m) return 'Envoi ' + m[1] + ' sur ' + m[2] + '…';
+    m = /^Thank you! (\\d+) photos? sent to the couple 🤍$/.exec(s);
+    if (m) return 'Merci\\u00a0! ' + m[1] + (Number(m[1]) > 1 ? ' photos envoyées' : ' photo envoyée') + ' aux mariés 🤍';
+    return s;
+  };
+`;
+
+// بيتحط في سكريبت القالب قبل "STATIC" — كل حاجة القالب عرّفها (fields, START, RO…) متاحة هنا
+const LOGIC = `
+  /* ---------- lcqdxr6: الكلام الثابت بالفرنساوي (نصوص فورم الحضور من البانل بتكسب) ---------- */
+  {
+    const FR = ${json(FR)};
+    Object.keys(FR).forEach((id) => { const el = byId(id); if (el) el.textContent = FR[id]; });
+    Object.keys(RO_MAP).forEach((k) => { if (RO[k]) byId(RO_MAP[k]).textContent = RO[k]; });
+  }
+  /* ---------- lcqdxr6: التاريخ والوقت بالفرنساوي ---------- */
+  {
+    const MOIS = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+    const JOURS = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+    const wd = JOURS[new Date(Y, M, D).getDay()];
+    fields.monthUp = MOIS[M].toUpperCase();
+    fields.dateShort = D + ' ' + MOIS[M] + ' ' + Y;
+    fields.dateLong = wd.charAt(0).toUpperCase() + wd.slice(1) + ' ' + D + ' ' + MOIS[M] + ' ' + Y;
+    fields.t0 = H + ' h ' + String(MI).padStart(2, '0');
+    ['monthUp', 'dateShort', 'dateLong', 't0'].forEach((k) => $$('[data-k="' + k + '"]').forEach((el) => { el.textContent = fields[k]; }));
+    const s38 = byId('sg38'); if (s38) s38.textContent = fields.dateLong;
+    document.title = groom + ' & ' + bride + ' | Invitation de mariage';
+    // أضف للتقويم: بالفرنساوي ولحد آخر الحفل (11 بالليل) — الميعاد بتوقيت تونس (transform)
+    const z = (d) => d.toISOString().replace(/[-:]|\\.\\d{3}/g, '');
+    const where = [C.venueName, C.venueAddress || C.venueCity].filter(Boolean).join(', ');
+    const cal = document.getElementById('addCal');
+    if (cal) cal.href = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent('Mariage ' + groom + ' & ' + bride)
+      + '&dates=' + z(START) + '/' + z(new Date(START.getTime() + 6.5 * 3600e3)) + '&location=' + encodeURIComponent(where);
+  }
+  /* ---------- lcqdxr6: برنامج اليوم — 5 مواعيد (Déroulement du mariage) ---------- */
+  {
+    const SCH = [['sg40', '16 h 30', 'sg41', 'Accueil des invités'], ['sg42', '17 h 30', 'sg43', 'Cérémonie de mariage'], ['sg44', '19 h 00', 'sg45', 'Dîner'], ['sg46', '20 h 30', 'sg47', 'Soirée festive'], ['ih20', '23 h 00', 'ih21', 'Fin du mariage']];
+    SCH.forEach(([t, tv, n, nv]) => { const a = byId(t), b = byId(n); if (a) a.textContent = tv; if (b) b.textContent = nv; });
+    // الاستقبال: أيقونة القوس، والدبل للفرح نفسه (العشا والسهرة زي القالب)
+    const ics = $$('#schedule .tl .ic');
+    if (ics.length >= 2) { ics[1].innerHTML = ics[0].innerHTML; ics[0].innerHTML = ${json(ARCH)}; }
+    ['dress'].forEach((id) => { const e = document.getElementById(id); if (e) e.classList.add('off'); });
+    // تأكيد الحضور ظاهر دايمًا
+    { const r = document.getElementById('rsvp'); if (r) r.classList.remove('off'); }
+  }
+  /* ---------- lcqdxr6: تقويم "Réservez la date" (الأسبوع بيبدأ الاتنين، والقلب على يوم الفرح) ---------- */
+  {
+    const MN = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+    const mEl = document.querySelector('[data-elem-id="sx31"]'), yEl = document.querySelector('[data-elem-id="sx32"]');
+    if (mEl && !mEl.textContent.trim()) mEl.textContent = MN[M];
+    if (yEl && !yEl.textContent.trim()) yEl.textContent = String(Y);
+    const g = document.getElementById('sxcGrid');
+    if (g) {
+      const first = (new Date(Y, M, 1).getDay() + 6) % 7, days = new Date(Y, M + 1, 0).getDate();
+      let h = ['LUN', 'MAR', 'MER', 'JEU', 'VEN', 'SAM', 'DIM'].map((d) => '<b>' + d + '</b>').join('');
+      for (let k = 0; k < first; k++) h += '<span></span>';
+      for (let d = 1; d <= days; d++) h += '<span' + (d === D ? ' class="wd"' : '') + '>' + d + '</span>';
+      g.innerHTML = h;
+    }
+    // "Réservez la date" في الكولاج بيودّي على التقويم
+    GO.calendar = '#sxCal';
+  }
+  /* ---------- lcqdxr6: كلام الكولاج من بيانات الدعوة ---------- */
+  {
+    const up = (s) => String(s || '').toUpperCase();
+    const extra = {
+      dateUp: fields.day + ' ' + fields.monthUp + ' ' + fields.year,
+      cityUp: up(fields.city), hallUp: up(fields.hall),
+      pair: [fields.groom, fields.bride].filter(Boolean).join(' & '),
+    };
+    $$('#collage .sxt[data-k]').forEach((el) => { const v = extra[el.dataset.k]; if (v != null) el.textContent = v; });
+    // كلام طويل: بيصغر على قد الكارت
+    const fit = () => $$('#collage .sxt-nm1, #collage .sxt-nm2, #collage .sxt-cdt, #collage .sxt-sv, #collage .sxt-sm, #collage .sxt-sd, #collage .sxt-se, #collage .sxt-pl, #collage .sxt-bk').forEach((el) => {
+      el.style.scale = '';
+      const max = el.closest('.sxp').offsetWidth * (el.matches('.sxt-sv, .sxt-sm, .sxt-sd') ? 0.62 : el.matches('.sxt-pl') ? 0.3 : el.matches('.sxt-bk') ? 0.42 : 0.8);
+      if (el.offsetWidth > max) el.style.scale = (max / el.offsetWidth).toFixed(3);
+    });
+    fit(); addEventListener('resize', fit); if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+  }
+  /* ---------- lcqdxr6: الظرف بيتفتح من النص ---------- */
+  {
+    const env = document.getElementById('sx-env');
+    let sxGo = false;
+    const sxOpen = () => {
+      if (sxGo) return; sxGo = true;
+      env.classList.add('sx-open');
+      // ورا النصين بتظهر الدعوة نفسها (مش لون الغلاف)
+      setTimeout(() => { cover.style.background = 'transparent'; }, 600);
+      // الدعوة بتبدأ تظهر والنصين بيتفتحوا (نفس openInvite بتاعة القالب: المزيكا والكولاج)
+      setTimeout(() => { try { openInvite(); } catch (_) {} }, 250);
+      setTimeout(() => cover.classList.add('sx-done'), 2000);
+    };
+    env.addEventListener('click', sxOpen);
+    env.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); sxOpen(); } });
+  }
+`;
+
+// لازم يتلاقوا في القالب مرة واحدة بالظبط — غير كده الصفحة العادية
 const PATCHES = [
   ['    <div class="countdown">\n', `    ${COUNT_HEAD}<div class="countdown">\n`],
+  ['  <!-- ============ العد التنازلي ============ -->\n', `  ${LETTER}\n\n  <!-- ============ العد التنازلي ============ -->\n`],
   ['  <!-- ============ برنامج اليوم ============ -->\n', `  ${CAL}\n\n  <!-- ============ برنامج اليوم ============ -->\n`],
+  ['data-elem-id="sg47">First dance &amp; party</span></div>\n', `data-elem-id="sg47">First dance &amp; party</span></div>\n${ROW5}`],
+  ['  <!-- ============ تأكيد الحضور ============ -->\n', `  ${NOPHOTO}\n\n  <!-- ============ تأكيد الحضور ============ -->\n`],
+  // الختام: "Merci" + باقي جملة العرسان تحتها (طبق الدبل والأسامي والتاريخ زي القالب)
+  ['data-elem-id="sg82">We can’t wait to celebrate with you</div>\n', 'data-elem-id="sg82">Merci</div>\n    <p class="ihc-p reveal d1" data-elem-id="ih40">de partager avec nous cette journée inoubliable.</p>\n'],
   ['    <div class="collage" id="collage">\n', `    <div class="collage" id="collage">\n      ${COLLAGE}\n`],
   ['<div class="cover" id="coverScreen">\n', `<div class="cover" id="coverScreen">\n  ${COVER}`],
+  ['  const L = (en, ar) => (AR ? ar : en);\n', `${FR_FN}  const L = (en, ar) => (AR ? ar : __fr(en));\n`],
   ['  if (STATIC) {\n    // المحرر: الغلاف بيفضل موجود', `${LOGIC}\n  if (STATIC) {\n    // المحرر: الغلاف بيفضل موجود`],
 ];
 
+/** قيمة نصية من JSON الإعدادات اللي جوه صفحة القالب ("key":"...") */
+function configValue(html, key) {
+  const m = html.match(new RegExp(`"${key}":("(?:[^"\\\\]|\\\\.)*")`));
+  if (!m) return '';
+  try { return JSON.parse(m[1]) || ''; } catch (e) { return ''; }
+}
+
+/** لحظة الفرح بتوقيت تونس (UTC+1 طول السنة) بدل مصر — العدّاد و"أضف للتقويم" بيمشوا عليها */
+function tunisTime(html) {
+  const m = html.match(/"countdown":\{"year":(\d+),"monthIndex":(\d+),"day":(\d+),"hour":(\d+),"minute":(\d+)\}/);
+  if (!m) return html;
+  const [y, mo, d, h, mi] = m.slice(1).map(Number);
+  const iso = new Date(Date.UTC(y, mo, d, h - 1, mi)).toISOString();
+  return html.replace(/"weddingDateTimeISO":"[^"]*"/, () => `"weddingDateTimeISO":"${iso}"`);
+}
+
 module.exports = {
-  shortId: 'lcqdxr6',
+  shortId: SHORT,
+
+  share: {
+    image: asset(`${DIR}share.jpg`),
+    width: 1200,
+    height: 630,
+    overrideImage: true,
+    title: 'Imène & Hassan — Invitation de mariage',
+    description: 'Samedi 10 avril 2027 · Dar El Bahri — Tonnara, Cap Zebib',
+  },
 
   render() {
     return {
-      head: `<link rel="preload" as="image" href="${TOP}"><link rel="preload" as="image" href="${BOTTOM}"><link rel="preload" as="image" href="${SEAL}"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Cinzel:wght@500&family=Cormorant+Garamond:wght@500;600&display=swap"><style id="sx-style">${CSS}${CAL_CSS}${MORE_CSS}${RSVP_CSS}</style>`,
+      head: `<link rel="preload" as="image" href="${TOP}"><link rel="preload" as="image" href="${BOTTOM}"><link rel="preload" as="image" href="${SEAL}"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Cinzel:wght@500&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap"><style id="sx-style">${CSS}${CAL_CSS}${MORE_CSS}${RSVP_CSS}</style>`,
     };
   },
 
   transform(html) {
     const nl = html.includes('\r\n') ? '\r\n' : '\n';
     let out = html;
-    // قسم المكان كله بيتبدّل (مكانين بصورهم) — ولو مالقيناهوش الصفحة زي ما هي
-    const vs = out.indexOf('<section class="venue-sec" id="venue"');
-    const ve = vs < 0 ? -1 : out.indexOf('</section>', vs);
-    if (vs < 0 || ve < 0) { console.error('[custom lcqdxr6] venue section not found'); return html; }
-    out = out.slice(0, vs) + VENUE + out.slice(ve + '</section>'.length);
-    // الختام: صورة العروسين مكان طبق الدبل، و"Our love story" مكان الجملة
-    const PLATE = '<img class="plate reveal" src="/templates/sage-garden/c-rings-plate.webp" alt="">';
-    const ps = out.indexOf(PLATE);
-    const pe = ps < 0 ? -1 : out.indexOf('</div>', out.indexOf('data-elem-id="sg82"', ps));
-    if (ps < 0 || pe < 0) { console.error('[custom lcqdxr6] closing not found'); return html; }
-    out = out.slice(0, ps) + LOVE + out.slice(pe + '</div>'.length);
     for (const [find, repl] of PATCHES) {
       const f = find.replace(/\n/g, nl);
       if (out.split(f).length !== 2) {
-        console.error('[custom lcqdxr6] template changed — showing the normal cover');
+        console.error('[custom lcqdxr6] template changed — showing the normal page');
         return html;
       }
       out = out.replace(f, () => repl.replace(/\n/g, nl));
     }
-    return out;
+    // الخريطة: لينك القاعة نفسه من الأول بدل "مصر" (المتصفحات اللي بتتجاهل lazy)، ومن غير ما تتحمّل مرتين
+    const embed = configValue(out, 'venueMapEmbedSrc');
+    if (/^https:\/\//.test(embed)) {
+      out = out.replace('src="https://www.google.com/maps?q=Egypt&amp;output=embed"', () => `src="${escapeHtml(embed)}"`);
+      out = out.replace(`  else mapFrame.setAttribute('src', mapEmbed);${nl}`, () => `  else if (mapFrame.getAttribute('src') !== mapEmbed) mapFrame.setAttribute('src', mapEmbed);${nl}`);
+    }
+    out = tunisTime(out);
+    return out.replace(/<html([^>]*?)\blang="en"/i, (m, a) => `<html${a}lang="fr"`);
   },
 };
