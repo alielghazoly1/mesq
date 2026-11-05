@@ -840,6 +840,38 @@ const FIXES = [
       venueMapEmbedSrc: 'https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d2062.5418673648164!2d13.2370507!3d32.8333614!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x13a893001038270b%3A0x153337343bc6a4ee!2z2LXYp9mE2Kkg2YLZhNmI2LHZitinINmE2YTZhdmG2KfYs9io2KfYqiDYp9mE2KfYrNiq2YXYp9i52YrYqQ!5e0!3m2!1sar!2sly!4v1793754680147!5m2!1sar!2sly',
     }),
   },
+  {
+    // j4jpczb (custom-invitations/j4jpczb.js بيعرض الصفحة كلها) — دعوة ساري وسونا بطلب المالك
+    // (2026-11-05). هنا بيانات الدعوة عشان لوحة العميل والإحصائيات وتأكيد الحضور وملف التقويم:
+    // السبت 5/12/2026 الساعة 7:30 مساءً (وصول المعازيم)، مطعم درج الياسمين — عود ميثا، دبي،
+    // ورفع صور الضيوف شغال. بيتعمل بس لو الدعوة لسه فاضية (Groom & Bride).
+    name: 'j4jpczb-sari-sona',
+    shortId: 'j4jpczb',
+    select: '-__v',
+    when: (c, inv) => inv.groomName === 'Groom' && inv.brideName === 'Bride',
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const link = 'https://maps.app.goo.gl/Rnd2ugLWjWuqQxheA';
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: 'en', occasionType: 'wedding',
+        hiddenSections: inv.hiddenSections, timeline: inv.timeline, name: inv.name,
+        groomName: 'Sari', groomNameAr: 'ساري',
+        brideName: 'Sona', brideNameAr: 'سونا',
+        venueName: 'Daraj Al Yasmine Restaurant', venueCity: 'Dubai',
+        venueAddress: 'Metha Plaza, Oud Metha, Dubai',
+        venueMapQuery: link,
+        weddingDate: '2026-12-05', weddingTime: '19:30',
+      }, { ownsTemplate: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.language = 'en';
+      // لينك الآيفون (g_st=iw) مالوش إحداثيات — الخريطة على اسم المطعم نفسه (بتطلع كارته واسمه)
+      set.venueMapEmbedSrc = 'https://www.google.com/maps/embed?origin=mfe&pb=!1m3!2m1!1sDaraj+Al+Yasmine+Restaurant,+Oud+Metha,+Dubai!6i17';
+      set.venueMapDirectLink = link;
+      set['guestExtras.photos'] = true;
+      return set;
+    },
+  },
 ];
 
 let done = false;
