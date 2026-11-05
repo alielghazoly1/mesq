@@ -17,6 +17,35 @@ const { asset } = require('./_asset');
 const SHORT = 'G1L8BxQ';
 const DIR = `/custom/${SHORT}/`;
 
+// الخريطة (2026-11-05، بطلب المالك: "في ناس بيظهر لها خريطة مصر كلها"): القالب شايل في
+// الـ iframe لينك افتراضي "q=Egypt" وعليه loading="lazy"، والقالب بيحط اللينك الصح بعدين.
+// أي متصفح بيتجاهل lazy في الـ iframe (آيفونات قبل iOS 16.4 وبرامج جوه الموبايل) كان بيحمّل
+// خريطة مصر من أول لحظة، وتأجيل الخرايط (utils/templateFixes.js) كان بيشيل اللينك الصح
+// ويرجّعه بعدين — فالضيف يفضل شايف مصر لحد ما (أو لو ما) اتحمّلت الصح. دلوقتي: مفيش لينك
+// افتراضي خالص، والخريطة الصح بتتحمّل مرة واحدة (زي kMRoREK) — للضيوف بس، والمحرر زي ما هو.
+const MAP_LINE = 'if (fr) fr.src = C.venueMapEmbedSrc;';
+const MAP_FRAME = /<iframe src="https:\/\/www\.google\.com\/maps\?q=Egypt&amp;output=embed"[^>]*>/;
+const MAP_LOADER = `<script id="g1-map">
+window.g1Map = function (f, src) {
+  if (!f || !src) return;
+  var started = false;
+  function go() {
+    if (started) return;
+    started = true;
+    if (f.getAttribute('src') !== src) f.setAttribute('src', src);
+  }
+  if (document.readyState === 'complete') setTimeout(go, 800);
+  else window.addEventListener('load', function () { setTimeout(go, 800); });
+  setTimeout(go, 10000);
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (es) {
+      for (var i = 0; i < es.length; i++) if (es[i].isIntersecting) { io.disconnect(); go(); }
+    }, { rootMargin: '1500px' });
+    io.observe(f);
+  }
+};
+</script>`;
+
 // أغنية القالب → "مغرم" (Johny Abu Nassar، نفس الملف اللي Blossom & Oud بيشغّله)
 const TEMPLATE_SONG = 'https://pub-4dc8201144ca418fb604349c73e8c724.r2.dev/Forever%20and%20Ever%20and%20Always%20(The%20Wedding%20Song)%20-%20Ryan%20Mack%20(1).mp3';
 const SONG = 'https://pub-4dc8201144ca418fb604349c73e8c724.r2.dev/%D9%85%D8%BA%D8%B1%D9%85%20-%20Moghram%20(Guitar%20Cover)%20_%20Johny%20Abu%20Nassar%20%5Bz_RC48DJbU0%5D%20(1).mp3';
@@ -130,8 +159,20 @@ module.exports = {
   // مفيش غلاف خاص — ظرف القالب زي ما هو؛ التعديلات كلها في transform
   render() { return {}; },
 
-  transform(html) {
+  transform(html, { editMode } = {}) {
     let out = html;
+    // الخريطة من غير لينك "مصر" الافتراضي وبتتحمّل مرة واحدة (للضيوف بس)؛ لو القالب اتغيّر
+    // ومالقيناش السطرين دول، الخريطة بتفضل زي ما هي
+    const mapTag = out.match(MAP_FRAME);
+    if (!editMode && mapTag && out.split(MAP_LINE).length === 2) {
+      const frame = mapTag[0]
+        .replace(/\ssrc="[^"]*"/, '')
+        .replace(/\sloading="lazy"/, '')
+        .replace('<iframe ', '<iframe data-wda-map-deferred="1" ');
+      out = out.replace(MAP_FRAME, () => frame)
+        .replace(MAP_LINE, () => 'if (fr) { if (window.g1Map) window.g1Map(fr, C.venueMapEmbedSrc); else fr.src = C.venueMapEmbedSrc; }')
+        .replace(/<\/head>/i, () => `${MAP_LOADER}</head>`);
+    }
     out = out.replace('data-elem-id="lg5" src="/templates/lily-garden/hands.webp"', `data-elem-id="lg5" src="${asset(`${DIR}hands.webp`)}"`);
     // "أرجوان" سطر لوحده بعد "بدعوتكم لحضور حفل زفاف ابنتهم" (lg41) — بيتعدّل من المحرر (g1b)
     out = out.replace(/<p[^>]*data-elem-id="lg41"[^>]*>[\s\S]*?<\/p>/, (m) => `${m}\n                            <p class="g1-bride" data-elem-id="g1b">أرجوان</p>`);
