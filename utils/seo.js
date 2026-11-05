@@ -26,6 +26,8 @@ const PAGES = {
   },
   '/privacy': { title: 'سياسة الخصوصية | ميثاق', description: 'سياسة الخصوصية في ميثاق — إزاي بنتعامل مع بياناتك وبيانات ضيوفك.' },
   '/terms': { title: 'الشروط والأحكام | ميثاق', description: 'شروط استخدام موقع ميثاق للدعوات الإلكترونية.' },
+  '/refund': { title: 'سياسة الاسترجاع | ميثاق', description: 'سياسة الاسترجاع في ميثاق — إمتى تقدر تسترجع فلوسك، وإزاي تطلب ده، وإمتى الفلوس بترجعلك.' },
+  '/contact': { title: 'تواصل معانا | ميثاق', description: 'تواصل مع ميثاق للدعوات الإلكترونية — التليفون والواتساب والإيميل والعنوان.' },
 };
 
 function esc(s) {
@@ -125,6 +127,8 @@ function sitemapXml() {
     ...TEMPLATES.map((t) => ({ loc: `/preview-sample/${t.id}`, freq: 'monthly', pr: '0.7' })),
     { loc: '/privacy', freq: 'yearly', pr: '0.2' },
     { loc: '/terms', freq: 'yearly', pr: '0.2' },
+    { loc: '/refund', freq: 'yearly', pr: '0.2' },
+    { loc: '/contact', freq: 'yearly', pr: '0.3' },
   ];
   return '<?xml version="1.0" encoding="UTF-8"?>\n'
     + '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'

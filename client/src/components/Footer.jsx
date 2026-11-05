@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { MessageCircle, Palette } from 'lucide-react';
-import { whatsappLink, WHATSAPP_MESSAGES, phoneDisplay } from '../lib/contact.js';
+import { whatsappLink, WHATSAPP_MESSAGES, phoneDisplay, telLink, CONTACT_EMAIL, ADDRESS } from '../lib/contact.js';
 
 const SEO_LINKS = [
   ['/دعوة-زفاف-الكترونية', 'دعوة زفاف إلكترونية'],
@@ -88,17 +88,17 @@ export default function Footer() {
           <span className="h-3 w-px bg-line" />
           <Link to="/dashboard" className="hover:text-rose">{t('nav.dashboard')}</Link>
           <span className="h-3 w-px bg-line" />
-          <a href={whatsappLink(WHATSAPP_MESSAGES.help)} target="_blank" rel="noopener noreferrer" className="hover:text-rose">
-            {t('footer.contact')}
-          </a>
+          <Link to="/contact" className="hover:text-rose">{t('footer.contact')}</Link>
           <span className="h-3 w-px bg-line" />
-          <a href="mailto:mithaq@mithaq-invitation.com" className="hover:text-rose">
+          <a href={`mailto:${CONTACT_EMAIL}`} className="hover:text-rose">
             {t('footer.email')}
           </a>
           <span className="h-3 w-px bg-line" />
-          <Link to="/privacy" className="hover:text-rose">{i18n.language === 'ar' ? 'سياسة الخصوصية' : 'Privacy'}</Link>
+          <Link to="/terms" className="hover:text-rose">{i18n.language === 'ar' ? 'الشروط والأحكام' : 'Terms & Conditions'}</Link>
           <span className="h-3 w-px bg-line" />
-          <Link to="/terms" className="hover:text-rose">{i18n.language === 'ar' ? 'الشروط' : 'Terms'}</Link>
+          <Link to="/refund" className="hover:text-rose">{i18n.language === 'ar' ? 'سياسة الاسترجاع' : 'Refund Policy'}</Link>
+          <span className="h-3 w-px bg-line" />
+          <Link to="/privacy" className="hover:text-rose">{i18n.language === 'ar' ? 'سياسة الخصوصية' : 'Privacy'}</Link>
         </div>
 
         {/* سطر أعمال/إعلانات — هادي تحت خالص، للتواصل الاحترافي مش
@@ -106,12 +106,18 @@ export default function Footer() {
         <p className="mt-6 text-[11.5px] text-ink-dim/60">
           {t('footer.business')}{' '}
           <a
-            href="mailto:mithaq@mithaq-invitation.com"
+            href={`mailto:${CONTACT_EMAIL}`}
             dir="ltr"
             className="font-bold text-ink-dim hover:text-rose"
           >
-            mithaq@mithaq-invitation.com
+            {CONTACT_EMAIL}
           </a>
+        </p>
+        {/* العنوان والتليفون في مصر — بوابة الدفع والبنك المركزي طالبينهم ظاهرين في الموقع */}
+        <p className="mt-1.5 text-[11.5px] text-ink-dim/60" data-footer-address>
+          {i18n.language === 'ar' ? 'العنوان: ' : 'Address: '}{ADDRESS[i18n.language === 'ar' ? 'ar' : 'en']}
+          {' · '}
+          <a href={telLink} dir="ltr" className="font-bold text-ink-dim hover:text-rose">{phoneDisplay}</a>
         </p>
       </div>
     </footer>

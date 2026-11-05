@@ -127,6 +127,8 @@ export default function App() {
         <Route path="/checkout/:packageId" element={<Suspense fallback={<PageFallback />}><CheckoutPage /></Suspense>} />
         <Route path="/privacy" element={<Suspense fallback={<PageFallback />}><LegalPage kind="privacy" /></Suspense>} />
         <Route path="/terms" element={<Suspense fallback={<PageFallback />}><LegalPage kind="terms" /></Suspense>} />
+        <Route path="/refund" element={<Suspense fallback={<PageFallback />}><LegalPage kind="refund" /></Suspense>} />
+        <Route path="/contact" element={<Suspense fallback={<PageFallback />}><LegalPage kind="contact" /></Suspense>} />
         <Route path="/dashboard" element={<Suspense fallback={<PageFallback />}><DashboardPage /></Suspense>} />
         <Route path="/account" element={<Suspense fallback={<PageFallback />}><AccountPage /></Suspense>} />
         <Route path="/editor/:shortId" element={<Suspense fallback={<div className="min-h-screen bg-ivory" />}><EditorPage /></Suspense>} />

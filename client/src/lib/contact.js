@@ -9,6 +9,19 @@ const WHATSAPP_INTL = '2' + WHATSAPP_PHONE; // مصر
 
 /** الرقم بشكل يقراه الإنسان */
 export const phoneDisplay = WHATSAPP_PHONE;
+/** نفس الرقم بالكود الدولي (+20) — لصفحة "تواصل معانا" */
+export const phoneIntlDisplay = '+20 ' + WHATSAPP_PHONE.slice(1, 3) + ' ' + WHATSAPP_PHONE.slice(3, 7) + ' ' + WHATSAPP_PHONE.slice(7);
+/** لينك اتصال مباشر */
+export const telLink = 'tel:+' + WHATSAPP_INTL;
+
+export const CONTACT_EMAIL = 'mithaq@mithaq-invitation.com';
+
+// العنوان في مصر — بوابة الدفع (XPay) والبنك المركزي طالبين عنوان واضح
+// (المنطقة والمحافظة والبلد) في صفحة "تواصل معانا" وتحت في الموقع
+export const ADDRESS = {
+  ar: 'ابني بيتك 6، عمارات الربوة 11، عمارة رقم 160، شقة رقم 15 — أكتوبر الجديدة، محافظة الجيزة، جمهورية مصر العربية',
+  en: 'Apartment 15, Building 160, Al Rabwa Buildings 11, Ebny Beitak 6 — New October City, Giza Governorate, Egypt',
+};
 
 /**
  * لينك واتساب برسالة جاهزة.
