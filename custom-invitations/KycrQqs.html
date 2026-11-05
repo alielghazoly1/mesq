@@ -31,13 +31,22 @@ img{display:block;max-width:none;-webkit-user-select:none;user-select:none;-webk
 .env{position:absolute;left:calc(var(--u)*60);top:calc(var(--u)*136);width:calc(var(--u)*270);height:calc(var(--u)*346)}
 .env svg.back,.env svg.front{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible}
 .env svg.back{z-index:1}
-.env .photo{position:absolute;z-index:2;left:calc(var(--u)*94);top:calc(var(--u)*18);width:calc(var(--u)*170);height:calc(var(--u)*228);padding:calc(var(--u)*5.5);background:#fff;box-shadow:0 calc(var(--u)*3) calc(var(--u)*10) rgba(40,10,15,.28);transform-origin:50% 90%;transform:rotate(8deg);animation:photoRock 4.2s ease-in-out infinite}
-.env .photo img{width:100%;height:100%;object-fit:cover;object-position:50% 18%}
-@keyframes photoRock{0%,100%{transform:rotate(8deg) translateY(0)}50%{transform:rotate(5deg) translateY(calc(var(--u)*-4))}}
-.env svg.front{z-index:3;filter:drop-shadow(0 calc(var(--u)*-2) calc(var(--u)*3) rgba(30,5,10,.25))}
-.env .bouquet{position:absolute;z-index:4;left:calc(var(--u)*2);top:calc(var(--u)*4);width:calc(var(--u)*104);height:auto;transform-origin:50% 96%;animation:sway 5s ease-in-out infinite}
+/* الصورة والورد والختم بمقاسات وأماكن الفيديو بالظبط (اتقاسوا من الفيديو نفسه — SIFT):
+   الصورة مايلة 12° وبتنزل في الظرف وتطلع ببطء (10.75 في 3.7 ثانية) من غير ما تلف، والإطار
+   الأبيض بيقص الرسمة من اليمين (زي "عقد قران" المقصوصة في الفيديو) */
+.env .ph{position:absolute;z-index:2;left:calc(var(--u)*116.04);top:calc(var(--u)*11);width:calc(var(--u)*168.13);height:calc(var(--u)*247.85);animation:phFloat 3.7s cubic-bezier(.37,0,.63,1) infinite alternate}
+.env .photo{position:absolute;left:0;top:0;width:100%;height:100%;transform-origin:0 0;transform:rotate(12deg);background:#fff;overflow:hidden;box-shadow:0 calc(var(--u)*3) calc(var(--u)*10) rgba(40,10,15,.28)}
+.env .photo img{position:absolute;left:0;top:calc(var(--u)*-11.73);width:calc(var(--u)*194.63);height:calc(var(--u)*259.58)}
+.env .photo::after{content:"";position:absolute;left:0;top:0;right:0;bottom:0;border:calc(var(--u)*6.08) solid #fff;pointer-events:none}
+@keyframes phFloat{from{transform:translateY(0)}to{transform:translateY(calc(var(--u)*10.75))}}
+/* الورد مايل −17° وأكبر شوية، ورا قلابات الظرف اللي قدام (رجله مستخبية زي الفيديو)، وبيطلع وينزل أسرع */
+.env .flw{position:absolute;z-index:3;left:calc(var(--u)*-1.71);top:calc(var(--u)*-4.2);width:calc(var(--u)*110.66);height:calc(var(--u)*264.44);animation:flFloat 1.9s cubic-bezier(.37,0,.63,1) infinite alternate}
+.env .flw img{width:100%;height:100%;transform:rotate(-17.03deg)}
+@keyframes flFloat{from{transform:translateY(0)}to{transform:translateY(calc(var(--u)*7.25))}}
 @keyframes sway{0%,100%{transform:rotate(-2.2deg)}50%{transform:rotate(2.6deg)}}
-.env .seal{position:absolute;z-index:5;left:calc(var(--u)*110);top:calc(var(--u)*236);width:calc(var(--u)*48);height:auto;filter:drop-shadow(0 calc(var(--u)*2) calc(var(--u)*2.5) rgba(30,10,0,.45))}
+.env svg.front{z-index:4;filter:drop-shadow(0 calc(var(--u)*-2) calc(var(--u)*3) rgba(30,5,10,.25))}
+.env .seal{position:absolute;z-index:5;left:calc(var(--u)*108.2);top:calc(var(--u)*233.3);width:calc(var(--u)*48);height:auto;filter:drop-shadow(0 calc(var(--u)*3) calc(var(--u)*4) rgba(25,2,8,.6))}
+@media (prefers-reduced-motion:reduce){.env .ph,.env .flw{animation:none}}
 .names{position:absolute;left:0;right:0;top:calc(var(--u)*530);height:calc(var(--u)*140);text-align:center}
 .names .amp{position:absolute;left:50%;top:calc(var(--u)*28);transform:translateX(-50%);font:400 calc(var(--u)*84)/1 'Great Vibes',cursive;color:rgba(130,104,100,.32);pointer-events:none;direction:ltr}
 .names p{position:relative;margin:0;font:500 calc(var(--u)*33)/1 var(--ar);color:var(--wine);letter-spacing:.01em}
@@ -53,7 +62,8 @@ img{display:block;max-width:none;-webkit-user-select:none;user-select:none;-webk
 .invite .fl{right:calc(var(--u)*-58);top:calc(var(--u)*212)}
 .invite .ar{margin:calc(var(--u)*28) 0 0;font:500 calc(var(--u)*14.2)/1.9 var(--ar);color:var(--rose)}
 .invite .enp{margin:0;font:400 calc(var(--u)*13.4)/1.6 var(--en);color:var(--rose-dim)}
-.invite .nm{margin:calc(var(--u)*50) 0 0;font:500 calc(var(--u)*29)/1.3 var(--ar);color:var(--rose)}
+/* الأسامي بالإنجليزي بس (بطلب المالك) — نفس خط الـ & اللي بينهم */
+.invite .nm{margin:calc(var(--u)*44) 0 0;font:400 calc(var(--u)*52)/1.15 'Great Vibes',cursive;color:var(--rose);letter-spacing:0}
 .invite .lbl{margin:calc(var(--u)*32) 0 0;font:700 calc(var(--u)*8.6)/1 var(--en);letter-spacing:.06em;color:var(--rose-lbl);text-transform:uppercase}
 .invite .amp{margin:calc(var(--u)*30) 0 0;font:400 calc(var(--u)*34)/1 'Great Vibes',cursive;color:var(--rose)}
 .invite .nm.b{margin-top:calc(var(--u)*40)}
@@ -252,19 +262,32 @@ html.kc-lock,html.kc-lock body{overflow:hidden;height:100%}
     <div class="env">
       <svg class="back" viewBox="0 0 270 346" preserveAspectRatio="none" aria-hidden="true">
         <defs>
-          <linearGradient id="gb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3e0712"/><stop offset="1" stop-color="#4f0d1b"/></linearGradient>
-          <pattern id="lace" width="9" height="9" patternUnits="userSpaceOnUse"><circle cx="4.5" cy="4.5" r="2.3" fill="none" stroke="#2a030a" stroke-width="1"/><circle cx="0" cy="0" r="1.2" fill="#2a030a"/><circle cx="9" cy="9" r="1.2" fill="#2a030a"/></pattern>
+          <linearGradient id="envBack" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b0912"/><stop offset=".5" stop-color="#430b16"/><stop offset="1" stop-color="#4a0d1a"/></linearGradient>
+          <!-- بطانة دانتيل غامقة بورد صغير جوه القلابة المفتوحة (زي الفيديو) -->
+          <pattern id="envLace" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(-44)">
+            <g fill="none" stroke="#22020a" stroke-width=".7">
+              <circle cx="6" cy="3.3" r="1.35"/><circle cx="8.6" cy="5.2" r="1.35"/><circle cx="7.6" cy="8.2" r="1.35"/><circle cx="4.4" cy="8.2" r="1.35"/><circle cx="3.4" cy="5.2" r="1.35"/>
+              <path d="M0 0q2.2 1.3 0 3.2M12 0q-2.2 1.3 0 3.2M0 12q2.2-1.3 0-3.2M12 12q-2.2-1.3 0-3.2"/>
+            </g>
+            <circle cx="6" cy="6" r=".85" fill="#22020a"/>
+            <circle cx="0" cy="6" r=".6" fill="#22020a"/><circle cx="12" cy="6" r=".6" fill="#22020a"/><circle cx="6" cy="0" r=".6" fill="#22020a"/><circle cx="6" cy="12" r=".6" fill="#22020a"/>
+          </pattern>
+          <clipPath id="envFlap"><path d="M4 174 Q4 166 10 160 L135 32 L260 160 Q266 166 266 174 Z"/></clipPath>
         </defs>
-        <!-- ضهر الظرف والقلابة اللي فوق مفتوحة بحرف دانتيل -->
-        <path d="M4 168 L135 26 L266 168 L266 340 L4 340 Z" fill="url(#gb)"/>
-        <path d="M4 168 L135 26 L266 168" fill="none" stroke="url(#lace)" stroke-width="15" stroke-linejoin="round" opacity=".95"/>
-        <path d="M4 168 L135 26 L266 168" fill="none" stroke="#2a030a" stroke-width="1" opacity=".6"/>
+        <!-- ضهر الظرف والقلابة اللي فوق مفتوحة (ميلتها زي الفيديو) -->
+        <path d="M4 174 Q4 166 10 160 L135 32 L260 160 Q266 166 266 174 L266 340 L4 340 Z" fill="url(#envBack)"/>
+        <!-- الدانتيل مالي القلابة كلها (اللي باين منها شمال الصورة وفي الركن اليمين) -->
+        <path d="M4 174 Q4 166 10 160 L135 32 L260 160 Q266 166 266 174 Z" fill="url(#envLace)" opacity=".85"/>
+        <!-- حرف ساتان على حافة القلابة: خط فاتح ولمعة رفيعة -->
+        <path d="M5.5 165 L135 33.5 L264.5 165" fill="none" stroke="#6b2232" stroke-width="2.4" stroke-linejoin="round"/>
+        <path d="M5.5 164.2 L135 32.7 L264.5 164.2" fill="none" stroke="rgba(255,205,215,.5)" stroke-width=".7" stroke-dasharray="7 2.5" stroke-linejoin="round"/>
       </svg>
-      <div class="photo"><img src="assets/g3.webp" alt="محمد وإسراء" decoding="async"></div>
+      <div class="ph"><div class="photo"><img src="assets/g3.webp" alt="محمد وإسراء" decoding="async"></div></div>
+      <div class="flw"><img src="assets/flower.webp" alt="" decoding="async"></div>
       <svg class="front" viewBox="0 0 270 346" preserveAspectRatio="none" aria-hidden="true">
         <defs>
-          <linearGradient id="fl" x1="0" y1="0" x2="1" y2=".7"><stop offset="0" stop-color="#5e1527"/><stop offset=".6" stop-color="#521020"/><stop offset="1" stop-color="#480c1a"/></linearGradient>
-          <linearGradient id="fr" x1="1" y1="0" x2="0" y2=".7"><stop offset="0" stop-color="#5a1325"/><stop offset=".6" stop-color="#4d0e1d"/><stop offset="1" stop-color="#440b18"/></linearGradient>
+          <linearGradient id="fl" x1="0" y1="0" x2="1" y2=".7"><stop offset="0" stop-color="#5c1a28"/><stop offset=".6" stop-color="#4e111f"/><stop offset="1" stop-color="#470d1b"/></linearGradient>
+          <linearGradient id="fr" x1="1" y1="0" x2="0" y2=".7"><stop offset="0" stop-color="#470d1a"/><stop offset=".6" stop-color="#440c19"/><stop offset="1" stop-color="#400b17"/></linearGradient>
           <linearGradient id="fb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#521020"/><stop offset=".55" stop-color="#460b19"/><stop offset="1" stop-color="#3f0915"/></linearGradient>
           <filter id="velvet" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="4" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .07 0" result="g"/><feComposite in="g" in2="SourceGraphic" operator="in" result="gi"/><feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="gi"/></feMerge></filter>
         </defs>
@@ -281,7 +304,6 @@ html.kc-lock,html.kc-lock body{overflow:hidden;height:100%}
         <path d="M92 250 L178 250" stroke="rgba(25,2,8,.45)" stroke-width="1.2" fill="none"/>
         <path d="M7 169 L92 250 M263 169 L178 250" stroke="rgba(255,190,200,.12)" stroke-width="1" fill="none"/>
       </svg>
-      <img class="bouquet" src="assets/flower.webp" alt="" decoding="async">
       <img class="seal" src="assets/seal.webp" alt="" decoding="async">
     </div>
     <div class="names">
@@ -297,10 +319,10 @@ html.kc-lock,html.kc-lock body{overflow:hidden;height:100%}
     <h2><span class="a">قاعة ريلز</span> / REELS HALL</h2>
     <p class="ar">بوافر الحب نعلن أننا وجدنا الحب والأمان معًا، وأخيراً نختصر كل الأماني بكلمة 'معًا'، ونبدأ فصلاً جديداً من فصول العمر في ليلة تفيض بالحب، نتشرف بدعوتكم لحضور حفل زفافنا.</p>
     <p class="enp" dir="ltr">With abundant love, we announce that we have found love and safety together. At last, we capture all our wishes in one word, 'Together', as we begin a new chapter of our lives. On a night overflowing with love, we are honored to invite you to celebrate our wedding day.</p>
-    <p class="nm">محمد جمال محمود</p>
+    <p class="nm" dir="ltr">Mohamed</p>
     <p class="lbl" dir="ltr">/ &nbsp;GROOM</p>
     <p class="amp" aria-hidden="true">&amp;</p>
-    <p class="nm b">إسراء محمد المتولي</p>
+    <p class="nm b" dir="ltr">Esraa</p>
     <p class="lbl">BRIDE</p>
   </section>
 
