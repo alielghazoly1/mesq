@@ -31,6 +31,7 @@ const KycrQqs = require('../custom-invitations/KycrQqs');
 const vma4JMh = require('../custom-invitations/vma4JMh');
 const qosQhk1 = require('../custom-invitations/qosQhk1');
 const j4jpczb = require('../custom-invitations/j4jpczb');
+const lcqdxr6 = require('../custom-invitations/lcqdxr6');
 
 const CUSTOM = { [QICmvQj.shortId]: QICmvQj, [GrpUVQq.shortId]: GrpUVQq, [vYsx7Gn.shortId]: vYsx7Gn,
   [ab1yJIK9C.shortId]: ab1yJIK9C,
@@ -56,6 +57,7 @@ const CUSTOM = { [QICmvQj.shortId]: QICmvQj, [GrpUVQq.shortId]: GrpUVQq, [vYsx7G
   [vma4JMh.shortId]: vma4JMh,
   [qosQhk1.shortId]: qosQhk1,
   [j4jpczb.shortId]: j4jpczb,
+  [lcqdxr6.shortId]: lcqdxr6,
 };
 
 function getCustomInvitation(shortId) {

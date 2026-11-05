@@ -351,6 +351,28 @@ const FIXES = [
     },
   },
   {
+    // lcqdxr6 (Sage Garden كاستم — custom-invitations/lcqdxr6.js) — بطلب المالك (2026-11-05):
+    // نسخة طبق الأصل من sXSBxjs عشان نعدّل عليها لوحدها — نفس القالب والأسامي والتاريخ
+    // والمكان والخريطة والأغنية وكل تعديلات المحرر (نصوص/صور/أحجام/ألوان/مخفي/تأكيد
+    // الحضور/كارت المشاركة). اللي بيفضل بتاع lcqdxr6: صاحبها وباقتها ونشرها وإحصائياتها
+    // واسمها في اللوحة وردود ضيوفها. بيتعمل بس لو lcqdxr6 لسه مسودة (Groom / Bride).
+    name: 'lcqdxr6-copy-of-sXSBxjs',
+    shortId: 'lcqdxr6',
+    select: '-__v',
+    when: (c, inv) => inv.templateId === 'sage-garden' && inv.groomName === 'Groom' && inv.brideName === 'Bride',
+    async apply() {
+      const src = await Invitation.findOne({ shortId: 'sXSBxjs' }).lean();
+      if (!src || src.templateId !== 'sage-garden') throw new Error('sXSBxjs not found');
+      const set = {};
+      ['templateId', 'language', 'occasionType', 'hiddenSections', 'timeline', 'coverStyle', 'guestExtras',
+        'customizations', 'groomName', 'groomNameAr', 'brideName', 'brideNameAr', 'venueName', 'venueCity',
+        'venueMapQuery', 'venueMapEmbedSrc', 'venueMapDirectLink', 'venueAddress', 'contactName', 'contactPhone',
+        'weddingDateTime',
+      ].forEach((k) => { if (src[k] !== undefined) set[k] = src[k]; });
+      return set;
+    },
+  },
+  {
     // MeqC70l (Lily Garden عربي) — بطلب المالك: نسخة عربي من eJCypdA بكل تفاصيلها:
     // داليا و عمر، 21/11/2026 الساعة 5، بسم الله فوق، يوم الخطوبة، صورة الغلاف
     // والأغنية، جملة "قَدَّرَ اللهُ لَنَا لِقَاءً"، والمكان Pipe & Vibe Lounge في كراون
