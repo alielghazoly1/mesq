@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="google" content="notranslate">
-<title>Cornelia &amp; James — Wedding Invitation</title>
+<title>Ahmed &amp; Faten — Wedding Invitation</title>
 <link rel="preload" as="image" href="assets/poster.webp">
 <link rel="preload" as="image" href="assets/hero-frame.webp">
 <link rel="preload" as="font" type="font/woff2" href="assets/doulaise.woff2" crossorigin>
@@ -65,12 +65,15 @@ main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
 .hero-img{position:absolute;left:0;top:0;width:100%;height:100%;max-width:none;object-fit:cover;pointer-events:none}
 .hero-text{position:relative;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1 1 0%;text-align:center;padding:0 24px;opacity:0;transition:opacity 2000ms ease-out}
 .hero-text.on{opacity:1}
-.ht-with{font-family:var(--serif);font-size:17px;letter-spacing:.025em;line-height:1.375}
-.ht-with span{display:block}
+/* كلام الكارت بطلب المالك (2026-11-06) بنفس خطوط التصميم: THE WEDDING OF بخط ROME, ITALY القديم،
+   الأسامي زي ما هي، والباقي بخط "Together with their families" والتاريخ القديمين. المكان على سطرين
+   زي التصميم (Villa Aurelia / ROME, ITALY): في سطر واحد كان بيخبط في الإطار على الموبايلات الأصغر */
+.ht-of{font-size:11px;letter-spacing:.25em;line-height:1.5}
 .ht-names{margin-top:32px;display:flex;flex-direction:column;align-items:center}
 .ht-names h1{font-family:var(--script);font-weight:400;font-size:50px;line-height:.95}
 .ht-amp{font-family:var(--serif);font-size:18px;line-height:1;margin:10px 0}
-.ht-date{font-family:var(--serif);font-size:18px;line-height:28px;margin-top:24px;letter-spacing:.025em}
+.ht-with{font-family:var(--serif);font-size:17px;letter-spacing:.025em;line-height:1.375;margin-top:24px}
+.ht-date{font-family:var(--serif);font-size:18px;line-height:28px;margin-top:20px;letter-spacing:.025em}
 .ht-venue{margin-top:20px;display:flex;flex-direction:column;align-items:center}
 .ht-place{font-family:var(--serif);font-size:20px;letter-spacing:.025em;line-height:1.375}
 .ht-city{font-size:11px;letter-spacing:.25em;margin-top:4px}
@@ -91,12 +94,10 @@ main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
 .sc-bg{width:100%;height:auto}
 .sc-oval,.sc-ring{position:absolute;left:33%;top:25%;width:34.1%;height:50.2%;border-radius:50%}
 .sc-oval{overflow:hidden}
-.sc-under{position:absolute;left:0;top:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:var(--ivory) url(assets/nacre.webp) center/cover;visibility:hidden}
+/* تحت الخدش: صورة العرسان (المالك بعتها 2026-11-06) بنفس طريقة التصميم الأصلي — مالية الشكل البيضاوي */
+.sc-under{position:absolute;left:0;top:0;right:0;bottom:0;background:var(--ivory);visibility:hidden}
 .sc-under.ready{visibility:visible}
-.sc-under::before{content:"";position:absolute;left:0;top:0;right:0;bottom:0;background:rgba(255,253,250,.42)}
-.sc-under>*{position:relative}
-.sc-save{font-family:var(--script);font-size:7.4vw;line-height:1.02}
-.sc-date{font-family:var(--serif);font-size:4.2vw;letter-spacing:.06em;margin-top:2.6vw}
+.sc-photo{position:absolute;left:0;top:0;width:100%;height:100%;max-width:none;object-fit:cover;-webkit-user-select:none;user-select:none}
 .sc-canvas{position:absolute;left:0;top:0;width:100%;height:100%;cursor:pointer;touch-action:none;transition:opacity .7s}
 .sc-canvas.done{opacity:0;pointer-events:none}
 .sc-ring{pointer-events:none;box-shadow:0 0 0 3px hsl(40,45%,72%),0 0 0 5px hsl(40,30%,92%),0 0 0 6px hsl(40,40%,62%),0 0 0 12px hsla(40,30%,96%,.55),0 0 0 13px hsl(40,40%,66%),0 6px 18px hsla(212,22%,30%,.25),inset 0 0 10px hsla(40,40%,40%,.35)}
@@ -287,11 +288,12 @@ textarea.ri::placeholder{font-size:14px}
 /* ===== شاشات أكبر من الموبايل (نفس نقطة md في التصميم الأصلي) ===== */
 @media (min-width:768px){
   body{font-size:19px}
-  .ht-with{font-size:19px}
+  .ht-of{font-size:12px}
   .ht-names{margin-top:40px}
   .ht-names h1{font-size:64px}
   .ht-amp{font-size:20px;line-height:1;margin:14px 0}
-  .ht-date{font-size:20px;margin-top:32px}
+  .ht-with{font-size:19px;margin-top:32px}
+  .ht-date{font-size:20px;margin-top:24px}
   .ht-venue{margin-top:24px}
   .ht-place{font-size:24px}
   .ht-city{font-size:12px}
@@ -372,16 +374,17 @@ textarea.ri::placeholder{font-size:14px}
   <section class="hero">
     <img class="hero-img" src="assets/hero-frame.webp" alt="" aria-hidden="true" draggable="false">
     <div class="hero-text" id="heroText">
-      <p class="ht-with"><span>Together with</span><span>their families</span></p>
+      <p class="ht-of up">THE WEDDING OF</p>
       <div class="ht-names">
-        <h1>Cornelia</h1>
+        <h1>Ahmed</h1>
         <p class="ht-amp">&amp;</p>
-        <h1>James</h1>
+        <h1>Faten</h1>
       </div>
-      <p class="ht-date">20.05.2027</p>
+      <p class="ht-with">Together with their families,</p>
+      <p class="ht-date">THURSDAY, 03.12.2026</p>
       <div class="ht-venue">
-        <p class="ht-place">Villa Aurelia</p>
-        <p class="ht-city up">Rome, Italy</p>
+        <p class="ht-place">Royal Garden</p>
+        <p class="ht-city up">6th October city</p>
       </div>
     </div>
   </section>
@@ -409,8 +412,7 @@ textarea.ri::placeholder{font-size:14px}
       <img class="sc-bg" src="assets/welcome-families.webp" alt="Together with their families" loading="lazy" draggable="false">
       <div class="sc-oval">
         <div class="sc-under" id="scUnder">
-          <p class="sc-save">Save<br>the Date</p>
-          <p class="sc-date">20.05.2027</p>
+          <img class="sc-photo" src="assets/couple.webp" alt="Ahmed &amp; Faten" loading="lazy" decoding="async" draggable="false">
         </div>
         <canvas class="sc-canvas" id="scratch"></canvas>
       </div>
@@ -633,8 +635,8 @@ is our greatest gift.</p>
         <p class="cf-l">We are delighted that you will be celebrating with us.</p>
         <p class="cf-l">Thank you for being part of our story.</p>
         <p class="cf-s">We look forward to welcoming you on:</p>
-        <p class="cf-w">Thursday 20 May 2027</p>
-        <p class="cf-sig">— Cornelia &amp; James</p>
+        <p class="cf-w">Thursday 3 December 2026</p>
+        <p class="cf-sig">— Ahmed &amp; Faten</p>
         <div class="cf-b">
           <a id="cfCal" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>Add to Calendar</a>
           <a href="https://www.google.com/maps/search/?api=1&amp;query=Villa%20Aurelia%2C%20Rome%2C%20Italy" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>View on Map</a>
@@ -646,7 +648,7 @@ is our greatest gift.</p>
       <div class="cf-in cf-no">
         <h2>With Gratitude</h2>
         <p class="cf-l">We are sorry to learn that you are unable to join us. You will be in our thoughts on the day.</p>
-        <p class="cf-sig">— Cornelia &amp; James</p>
+        <p class="cf-sig">— Ahmed &amp; Faten</p>
       </div>
     </section>
   </div>
@@ -658,8 +660,8 @@ is our greatest gift.</p>
         <img class="ft-seal" src="assets/seal.webp" alt="C &amp; J" draggable="false">
         <p class="ft-w">We can't wait to celebrate with you.</p>
         <p class="ft-l">With love,</p>
-        <p class="ft-n">Cornelia <span>&amp;</span> James</p>
-        <p class="ft-d">20 May 2027</p>
+        <p class="ft-n">Ahmed <span>&amp;</span> Faten</p>
+        <p class="ft-d">3 December 2026</p>
       </div>
     </footer>
   </div>
@@ -679,13 +681,14 @@ is our greatest gift.</p>
   'use strict';
   /* بيانات الدعوة اللي الكود محتاجها — أي تعديل في الميعاد بيبقى هنا */
   var EVENT = {
-    // العدّاد: 20 مايو 2027 الساعة 12 الظهر بتوقيت إيطاليا (نفس التصميم الأصلي)
-    countdownTo: Date.UTC(2027, 4, 20, 10, 0, 0),
-    calendarTitle: 'Wedding Cornelia & James',
-    calendarDetails: 'Wedding of Cornelia and James',
-    calendarWhere: 'Villa Aurelia, Rome, Italy',
-    calendarDates: '20270520T163000/20270520T233000',
-    calendarZone: 'Europe/Rome'
+    // العدّاد: الخميس 3 ديسمبر 2026 الساعة 12 الظهر بتوقيت مصر (UTC+2) — نفس ساعة التصميم الأصلي
+    // لحد ما المالك يبعت ميعاد الفرح. التقويم 4:30–11:30 مساءً زي برنامج اليوم اللي في الصفحة.
+    countdownTo: Date.UTC(2026, 11, 3, 10, 0, 0),
+    calendarTitle: 'Wedding Ahmed & Faten',
+    calendarDetails: 'Wedding of Ahmed and Faten',
+    calendarWhere: 'Royal Garden, 6th October City, Egypt',
+    calendarDates: '20261203T163000/20261203T233000',
+    calendarZone: 'Africa/Cairo'
   };
   var ID = window.MQ_ID || '';
   var BASE = ID ? '/i/' + ID : '';
@@ -717,6 +720,21 @@ is our greatest gift.</p>
   /* ---------- 1. الفتح: الفيديوهين ورا بعض ثم الكارت ---------- */
   var cover = $('#cover'), v1 = $('#v1'), v2 = $('#v2'), heroText = $('#heroText');
   var state = 'idle', heroShown = false, v2Started = false, watchdog = 0, firstWatch = 0;
+
+  /* الكارت: صورة الإطار بتتعرض object-fit: cover، فبتصغر على الشاشات الأقصر/الأضيق. على أي شاشة إطارها
+     أصغر من إطار آيفون في سفاري (آيفون SE/ميني، أندرويد القصير) الكلام كله بيصغر بنفس نسبة الإطار
+     عشان يفضل جوه الإطار بنفس الشكل؛ الشاشات الأكبر بمقاسات التصميم زي ما هي. */
+  var heroBox = $('.hero'), heroImg = $('.hero-img');
+  function fitHero() {
+    var iw = heroImg.naturalWidth || 941, ih = heroImg.naturalHeight || 1672;
+    var w = heroBox.clientWidth, h = heroBox.clientHeight;
+    if (!w || !h) return;
+    var s = Math.min(1, Math.max(w / iw, h / ih) / 0.43);
+    heroText.style.transform = s < 0.995 ? 'scale(' + s.toFixed(4) + ')' : '';
+  }
+  fitHero();
+  window.addEventListener('resize', fitHero);
+  heroImg.addEventListener('load', fitHero);
 
   function unlock() { root.classList.remove('lock'); }
   function showHero() {

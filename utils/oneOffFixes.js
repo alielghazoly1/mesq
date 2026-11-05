@@ -903,6 +903,33 @@ const FIXES = [
     },
   },
   {
+    // DBywdm2 — المالك بعت كلام الكارت الأساسي (2026-11-06): Ahmed & Faten، الخميس 3/12/2026،
+    // Royal Garden · 6th October city. هنا نفس الأسامي والتاريخ والمكان عشان لوحة العميل وصفحة
+    // الإحصائيات وملف التقويم يبقوا زي الصفحة. الساعة لسه 4:30 مساءً (أول برنامج اليوم اللي في
+    // الصفحة) لحد ما المالك يبعت ميعاد الفرح. بيغيّر الحقول دي بس، ومش بيتعمل غير لو البيانات لسه
+    // بتاعة التصميم (James & Cornelia).
+    name: 'DBywdm2-ahmed-faten',
+    shortId: 'DBywdm2',
+    select: '-__v',
+    when: (c, inv) => inv.groomName === 'James' && inv.brideName === 'Cornelia',
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: 'en', occasionType: 'wedding',
+        hiddenSections: inv.hiddenSections, timeline: inv.timeline, name: inv.name,
+        groomName: 'Ahmed', groomNameAr: 'أحمد',
+        brideName: 'Faten', brideNameAr: 'فاتن',
+        venueName: 'Royal Garden', venueCity: '6th October city',
+        weddingDate: '2026-12-03', weddingTime: '16:30',
+      }, { ownsTemplate: true });
+      const set = {};
+      ['groomName', 'groomNameAr', 'brideName', 'brideNameAr', 'venueName', 'venueCity',
+        'venueMapQuery', 'venueMapEmbedSrc', 'venueMapDirectLink', 'weddingDateTime']
+        .forEach((k) => { set[k] = data[k]; });
+      return set;
+    },
+  },
+  {
     // G1L8BxQ — المالك بعت لوكيشن صالة قلوريا للمناسبات الاجتماعية (2026-11-04). الدبوس القديم كان
     // على نفس الإحداثيات بس من غير اسم الصالة، والاسم الوحيد اللي باين جنبه "قاعة فيدا". دلوقتي
     // الخريطة هي تضمين المالك نفسه (المكان باسمه، الخريطة العادية مش القمر الصناعي، وبالعربي)،

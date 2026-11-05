@@ -1,6 +1,8 @@
 // دعوة "صدف" (Mother of Pearl) — بطلب المالك (2026-11-05): نفس الدعوة اللي في الصورة الطويلة
 // بالظبط (motherofpearl.thedigitalyes.com)، مكان دعوة فاضية (Groom & Bride) — نفس اللينك واللوحة
 // والإحصائيات. الكلام لسه بتاع التصميم الأصلي (Cornelia & James) والمالك هيبعت التعديلات بعدين.
+// 2026-11-06: المالك بعت كلام الكارت الأساسي — Ahmed & Faten، الخميس 03.12.2026، Royal Garden ·
+// 6th October city — والأسامي والتاريخ اتغيروا في كل حتة بتتكرر فيها. باقي الأقسام لسه كلام التصميم.
 //
 // الصفحة نفسها في DBywdm2.html (كل النصوص هناك، والميعاد في EVENT أول السكريبت):
 //   1. الفتح: فيديو الظرف ثم فيديو الفيونكة (v1/v2) ثم الكارت
@@ -44,15 +46,15 @@ module.exports = {
   shortId: SHORT,
 
   // زرار "Add to Calendar" على الآيفون بيفتح /i/DBywdm2/calendar.ics (routes/invitations.js)
-  calendar: { title: 'Wedding Cornelia & James', hours: 7 },
+  calendar: { title: 'Wedding Ahmed & Faten', hours: 7 },
 
   share: {
     image: asset(`${DIR}share.jpg`),
     width: 1200,
     height: 630,
     overrideImage: true,
-    title: 'Cornelia & James — Wedding Invitation',
-    description: '20 May 2027 · Villa Aurelia, Rome, Italy',
+    title: 'Ahmed & Faten — Wedding Invitation',
+    description: 'Thursday, 03.12.2026 · Royal Garden · 6th October city',
   },
 
   render() {
