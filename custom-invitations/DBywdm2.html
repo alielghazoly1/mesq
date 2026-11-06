@@ -281,8 +281,10 @@ textarea.ri::placeholder{font-size:14px}
 .ft-seal{width:112px;height:auto;margin:-12px auto 32px;pointer-events:none;filter:drop-shadow(0 2px 6px rgba(0,0,0,.15))}
 .ft-w{font-family:var(--serif);font-size:20px;line-height:1.625;color:rgba(var(--fg-rgb),.8);margin-bottom:40px}
 .ft-l{font-family:var(--sans);font-weight:300;font-size:13px;color:rgba(var(--fg-rgb),.6);margin-bottom:12px}
-.ft-n{font-family:var(--script);font-size:60px;line-height:1.25;margin-bottom:16px}
-.ft-n span{font-size:30px;line-height:36px;color:rgba(var(--fg-rgb),.5)}
+/* الأسامي في سطر واحد زي التصميم: "Ahmed & Faten" بالخط ده أعرض من المساحة على موبايل 393 بـ 3px،
+   فبيصغر بس بالقدر اللي يخليه سطر واحد (59px على 393 بدل 60) — والشاشات الأعرض بمقاس التصميم */
+.ft-n{font-family:var(--script);font-size:60px;font-size:min(60px,calc((100vw - 48px) * .17));line-height:75px;margin-bottom:16px}
+.ft-n span{font-size:.5em;line-height:36px;color:rgba(var(--fg-rgb),.5)}
 .ft-d{font-family:var(--sans);font-weight:300;font-size:13px;letter-spacing:.025em;color:rgba(var(--fg-rgb),.5)}
 
 /* ===== شاشات أكبر من الموبايل (نفس نقطة md في التصميم الأصلي) ===== */
@@ -353,7 +355,7 @@ textarea.ri::placeholder{font-size:14px}
   .ft{padding-top:176px}
   .ft-seal{width:144px}
   .ft-w{font-size:30px}
-  .ft-n{font-size:72px}
+  .ft-n{font-size:72px;line-height:90px}
   .ft-n span{font-size:36px;line-height:40px}
 }
 @media (min-width:1024px){.cf-t{font-size:60px}}
