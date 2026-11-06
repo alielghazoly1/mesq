@@ -31,6 +31,9 @@ const siteConfigSchema = new mongoose.Schema({
   // البكسل اللي الـ Token اتحفظ له — لو البكسل اتغيّر في الكود، الـ Token القديم
   // مابيتبعتش (ميتا هترفضه) واللوحة بتطلب واحد جديد
   metaCapiPixel: { type: String, default: '' },
+  // الـ Token بيخلص إمتى (من ميتا وقت الحفظ) — الشخصي بيعيش 60 يوم، واللوحة بتنبّه قبلها
+  // بأسبوع. null = مابيخلصش أو مش معروف
+  metaCapiTokenExpiresAt: { type: Date, default: null },
   metaTestCode: { type: String, default: '', maxlength: 40 },
   // إمتى اتحفظ — الكود بيبطّل يأثر على الأحداث الحقيقية بعد ساعتين لوحده
   // (لو اتنسي، المبيعات كانت هتروح "تجربة" وميتا ماتحسبهاش للإعلانات)

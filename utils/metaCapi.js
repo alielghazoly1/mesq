@@ -174,4 +174,23 @@ async function checkToken(token) {
   }
 }
 
-module.exports = { tokenFor, PIXEL_ID, sendEvent, fire, contextFromReq, orderCustom, checkToken, config, clearConfigCache, API_VERSION };
+/**
+ * الـ Token بيخلص إمتى. البكسل الأساسي جوه حساب إعلانات شخصي (مش بيزنس)، فالـ Token
+ * بتاعه شخصي من أداة المطورين (Graph API Explorer ← Extend Access Token) وبيعيش 60 يوم
+ * — لازم المالك يتنبّه قبلها. expiresAt: null = مابيخلصش (Token من بيزنس).
+ */
+async function tokenExpiry(token) {
+  try {
+    const t = encodeURIComponent(token);
+    const r = await fetch(`https://graph.facebook.com/${API_VERSION}/debug_token?input_token=${t}&access_token=${t}`, { signal: AbortSignal.timeout(6000) });
+    const j = await r.json().catch(() => null);
+    const d = j && j.data;
+    if (!r.ok || !d) return { ok: false };
+    const exp = Number(d.expires_at) || 0;
+    return { ok: true, expiresAt: exp > 0 ? new Date(exp * 1000) : null };
+  } catch {
+    return { ok: false };
+  }
+}
+
+module.exports = { tokenFor, PIXEL_ID, sendEvent, fire, contextFromReq, orderCustom, checkToken, tokenExpiry, config, clearConfigCache, API_VERSION };

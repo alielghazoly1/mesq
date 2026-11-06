@@ -1943,9 +1943,16 @@ router.get('/admin/api/meta-tracking', requireAdminSession, async (req, res) => 
   try {
     const SiteConfig = require('../models/SiteConfig');
     const MetaEvent = require('../models/MetaEvent');
-    const doc = await SiteConfig.findOne({ key: 'default' }).select('+metaCapiToken metaCapiPixel metaTestCode metaTestCodeAt metaCapiEnabled').lean();
+    const doc = await SiteConfig.findOne({ key: 'default' }).select('+metaCapiToken metaCapiPixel metaCapiTokenExpiresAt metaTestCode metaTestCodeAt metaCapiEnabled').lean();
     // Token بتاع بكسل قديم = كأنه مش موجود (لازم واحد جديد للبكسل الحالي)
     const token = metaCapi.tokenFor(doc);
+    // Token اتحفظ قبل ما نسجّل تاريخ انتهائه: نسأل ميتا مرة واحدة ونحفظه
+    let tokenExpiresAt = doc ? doc.metaCapiTokenExpiresAt : null;
+    if (token && tokenExpiresAt === undefined) {
+      const exp = await metaCapi.tokenExpiry(token);
+      tokenExpiresAt = exp.ok ? exp.expiresAt : null;
+      await SiteConfig.updateOne({ key: 'default' }, { $set: { metaCapiTokenExpiresAt: tokenExpiresAt } });
+    }
     const since = new Date(Date.now() - 7 * 24 * 3600 * 1000);
     const [recent, agg] = await Promise.all([
       MetaEvent.find({}).sort({ $natural: -1 }).limit(40).lean(),
@@ -1963,6 +1970,7 @@ router.get('/admin/api/meta-tracking', requireAdminSession, async (req, res) => 
       pixelId: require('../utils/metaPixel').PIXEL_ID,
       hasToken: !!token,
       tokenHint: token ? '…' + token.slice(-4) : '',
+      tokenExpiresAt: token ? (tokenExpiresAt || null) : null,
       testCode: (doc && doc.metaTestCode) || '',
       // لسه بيأثر على الأحداث الحقيقية؟ (بيقف لوحده بعد ساعتين من الحفظ)
       testLiveUntil: doc && doc.metaTestCode && doc.metaTestCodeAt
@@ -1997,8 +2005,10 @@ router.put('/admin/api/meta-tracking', requireAdminSession, async (req, res) => 
       }
       set.metaCapiToken = token;
       set.metaCapiPixel = metaCapi.PIXEL_ID;
+      const exp = await metaCapi.tokenExpiry(token);
+      set.metaCapiTokenExpiresAt = exp.ok ? exp.expiresAt : null;
     }
-    if (b.clearToken === true) set.metaCapiToken = '';
+    if (b.clearToken === true) { set.metaCapiToken = ''; set.metaCapiTokenExpiresAt = null; }
     if (typeof b.testCode === 'string') {
       const tc = b.testCode.trim();
       if (tc && !/^[A-Za-z0-9]{3,40}$/.test(tc)) return res.status(400).json({ error: 'كود التجربة شكله مش مظبوط (زي TEST12345).' });

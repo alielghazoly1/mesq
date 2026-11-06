@@ -10,9 +10,10 @@ import { NavLink, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { useDispatch } from 'react-redux';
 import {
   LayoutDashboard, Users, Receipt, FileText, MessageSquare,
-  Settings, ScrollText, LogOut, Loader2, Menu, X, Music, Wallet, Banknote, Megaphone, LayoutTemplate, Tags, Bug, ShieldCheck, Eraser, MessageCircle, Target, ReceiptText, Activity, CalendarCheck, Radio, Pin, EyeOff,
+  Settings, ScrollText, LogOut, Loader2, Menu, X, Music, Wallet, Banknote, Megaphone, LayoutTemplate, Tags, Bug, ShieldCheck, Eraser, MessageCircle, Target, ReceiptText, Activity, CalendarCheck, Radio, Pin, EyeOff, KeyRound,
 } from 'lucide-react';
-import { adminApi, useGetOrdersAttentionQuery, useGetSupportUnreadQuery, useGetSecurityQuery, useGetPinsQuery } from '../../store/adminApi.js';
+import { adminApi, useGetOrdersAttentionQuery, useGetSupportUnreadQuery, useGetSecurityQuery, useGetPinsQuery, useGetMetaTrackingQuery } from '../../store/adminApi.js';
+import { metaTokenDaysLeft } from '../../components/admin/MetaTrackingPanel.jsx';
 import AdminLogin from './AdminLogin.jsx';
 import { LOCK_EVENT } from '../../lib/adminActivity.js';
 import OverviewPage from './OverviewPage.jsx';
@@ -82,6 +83,30 @@ function TwoFactorBanner() {
       <ShieldCheck size={18} className="shrink-0" />
       <span className="flex-1">التحقق بخطوتين مش مفعّل — أي حد يعرف كلمة السر يقدر يدخل اللوحة. فعّله دلوقتي (دقيقة واحدة).</span>
       <span className="shrink-0 rounded-full bg-error/30 px-3 py-1 text-[12px]">فعّله ←</span>
+    </NavLink>
+  );
+}
+
+/**
+ * Token ميتا الشخصي بيعيش 60 يوم — قبل ما يخلص بأسبوع (أو لو خلص) شريط فوق كل صفحة،
+ * عشان السيرفر مايبطّلش يبلّغ ميتا بالشراء من غير ما حد ياخد باله.
+ */
+function MetaTokenBanner() {
+  const { data } = useGetMetaTrackingQuery();
+  const left = data && data.hasToken ? metaTokenDaysLeft(data.tokenExpiresAt) : null;
+  if (left === null || left > 7) return null;
+  return (
+    <NavLink to="/admin/campaigns" data-meta-token-banner
+      className={`mb-4 flex items-center gap-3 rounded-2xl border px-4 py-3 text-[13px] font-bold ${left <= 0
+        ? 'border-error/50 bg-error/15 text-[#f3b4a8] hover:bg-error/20'
+        : 'border-brass/50 bg-brass/15 text-brass-soft hover:bg-brass/20'}`}>
+      <KeyRound size={18} className="shrink-0" />
+      <span className="flex-1">
+        {left <= 0
+          ? 'Token ميتا خلص — الموقع وقف يبلّغ ميتا بالشراء من السيرفر. اعمل واحد جديد (دقيقتين).'
+          : `Token ميتا هيخلص بعد ${left === 1 ? 'يوم واحد' : left === 2 ? 'يومين' : `${left} أيام`} — اعمل واحد جديد عشان تتبع الشراء مايقفش (دقيقتين).`}
+      </span>
+      <span className="shrink-0 rounded-full bg-ivory/10 px-3 py-1 text-[12px]">جدّده ←</span>
     </NavLink>
   );
 }
@@ -339,6 +364,7 @@ export default function AdminApp() {
           </button>
 
           <TwoFactorBanner />
+          <MetaTokenBanner />
           <Routes>
             <Route index element={<OverviewPage />} />
             <Route path="pinned" element={<PinnedPage />} />

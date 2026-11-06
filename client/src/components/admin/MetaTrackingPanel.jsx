@@ -20,6 +20,17 @@ const LABEL = {
 };
 const KEY_LABEL = { em: 'إيميل', ph: 'تليفون', fn: 'اسم', country: 'دولة', external_id: 'رقم الحساب', fbp: 'متصفح', fbc: 'جاي من إعلان', client_ip_address: 'IP' };
 
+/**
+ * فاضل كام يوم على انتهاء الـ Token (null = مابيخلصش/مش معروف). البكسل الأساسي جوه حساب
+ * إعلانات شخصي، فالـ Token بتاعه شخصي وبيعيش 60 يوم — AdminApp بيعرض شريط تنبيه كمان.
+ */
+export function metaTokenDaysLeft(expiresAt) {
+  if (!expiresAt) return null;
+  const t = new Date(expiresAt).getTime();
+  if (Number.isNaN(t)) return null;
+  return Math.ceil((t - Date.now()) / (24 * 3600 * 1000));
+}
+
 export default function MetaTrackingPanel() {
   const { data } = useGetMetaTrackingQuery(undefined, { pollingInterval: 60000 });
   const [save, saveState] = useSaveMetaTrackingMutation();
@@ -67,9 +78,22 @@ export default function MetaTrackingPanel() {
           onChange={() => { if (saveState.error || saveState.isSuccess) saveState.reset(); }}
           className="space-y-2.5 rounded-xl border border-line-lite p-3.5"
         >
-          <div className="flex items-center gap-2 text-[13px] font-bold text-ivory"><KeyRound size={15} className="text-brass-soft" /> Conversions API Token <span className="text-[11px] font-normal text-ivory/45">(اختياري)</span>
+          <div className="flex items-center gap-2 text-[13px] font-bold text-ivory"><KeyRound size={15} className="text-brass-soft" /> Conversions API Token <span className="text-[11px] font-normal text-ivory/45">(مهم لحملات الشراء)</span>
             {data.hasToken && <span className="font-mono text-[11.5px] font-normal text-ok" dir="ltr">✓ محفوظ {data.tokenHint}</span>}
           </div>
+          {data.hasToken && metaTokenDaysLeft(data.tokenExpiresAt) !== null && (() => {
+            const left = metaTokenDaysLeft(data.tokenExpiresAt);
+            const cls = left <= 0 ? 'bg-error/15 font-bold text-error' : left <= 7 ? 'bg-brass/15 font-bold text-brass-soft' : 'text-ivory/55';
+            return (
+              <div data-token-expiry className={`rounded-lg px-3 py-2 text-[12px] leading-relaxed ${cls}`}>
+                {left <= 0
+                  ? 'الـ Token خلص — السيرفر وقف يبلّغ ميتا بالتسجيل والدفع والشراء. اعمل واحد جديد بالخطوات اللي تحت والصقه هنا.'
+                  : left <= 7
+                    ? `الـ Token هيخلص بعد ${left === 1 ? 'يوم واحد' : left === 2 ? 'يومين' : `${left} أيام`} (${fmtDate(data.tokenExpiresAt)}) — اعمل واحد جديد بالخطوات اللي تحت والصقه هنا.`
+                    : `الـ Token بيخلص يوم ${fmtDate(data.tokenExpiresAt)} — هننبّهك هنا وفوق كل صفحات اللوحة قبلها بأسبوع.`}
+              </div>
+            );
+          })()}
           <Field
             type="password"
             dir="ltr"
@@ -93,11 +117,14 @@ export default function MetaTrackingPanel() {
           </div>
           <details className="text-[12px] leading-relaxed text-ivory/60">
             <summary className="cursor-pointer font-bold text-ivory/80">تجيب الـ Token منين (دقيقتين)</summary>
+            {/* البكسل جوه حساب إعلانات شخصي (مش بيزنس) — زرار Generate access token في Events
+                Manager مقفول له، فالـ Token شخصي من أداة المطورين وبيعيش 60 يوم */}
             <ol className="mt-2 list-decimal space-y-1 ps-5">
-              <li>افتح <a className="text-brass-soft underline" href={`${ds}/settings?act=${ACT}`} target="_blank" rel="noopener noreferrer">إعدادات البيكسل في ميتا</a>.</li>
-              <li>انزل لـ <b dir="ltr">Conversions API</b> ← تحت <b dir="ltr">Set up direct integration</b> اضغط <b dir="ltr">Generate access token</b>.</li>
-              <li>انسخ الكود الطويل والصقه في الخانة فوق ← احفظ. (ماتبعتهوش لحد في الشات.)</li>
+              <li>افتح <a className="text-brass-soft underline" href="https://developers.facebook.com/tools/explorer/" target="_blank" rel="noopener noreferrer">Graph API Explorer</a> — على اليمين: <b dir="ltr">Meta App</b> اختار تطبيق من تطبيقاتك (زي Business - Test1)، واختار <b dir="ltr">User Token</b>، وفي <b dir="ltr">Permissions</b> ضيف <b dir="ltr">ads_management</b> ← <b dir="ltr">Generate Access Token</b> ← وافق ← انسخ الكود.</li>
+              <li>افتح <a className="text-brass-soft underline" href="https://developers.facebook.com/tools/debug/accesstoken/" target="_blank" rel="noopener noreferrer">Access Token Debugger</a> ← الصق الكود ← <b dir="ltr">Debug</b> ← تحت اضغط <b dir="ltr">Extend Access Token</b> ← انسخ الكود الجديد (بيعيش 60 يوم).</li>
+              <li>الصقه في الخانة فوق ← احفظ. (ماتبعتهوش لحد ولا تصوّره.)</li>
             </ol>
+            <p className="mt-1.5 text-[11px] text-ivory/40">زرار <b dir="ltr">Generate access token</b> في Events Manager مقفول للبيكسل ده لأنه جوه حساب إعلانات شخصي مش بيزنس — عشان كده الطريقة دي.</p>
           </details>
         </form>
 
