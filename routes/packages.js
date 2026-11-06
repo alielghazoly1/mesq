@@ -161,7 +161,8 @@ router.get('/api/packages/status', requireAuth, async (req, res) => {
         orderId: String(reviewing._id), paymentProofAt: reviewing.paymentProofAt, ...pkgOf(reviewing),
       } : null,
       // price/currency: بيكسل ميتا في المتصفح بيبعت "اشترى" بالمبلغ لما العميل يشوف "باقتك اتفعّلت"
-      notice: notice ? { orderId: String(notice._id), type: notice.notice, price: notice.price, currency: notice.currency, ...pkgOf(notice) } : null,
+      // activatedAt: المتصفح مابيبعتهوش لو التفعيل قديم (السيرفر بعته وقتها، وميتا بتدمج الاتنين في 48 ساعة بس)
+      notice: notice ? { orderId: String(notice._id), type: notice.notice, price: notice.price, currency: notice.currency, activatedAt: notice.activatedAt || null, ...pkgOf(notice) } : null,
     });
   } catch (err) {
     console.error('Error reading order status:', err);

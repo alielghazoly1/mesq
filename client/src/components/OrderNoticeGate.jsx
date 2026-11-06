@@ -58,7 +58,10 @@ export default function OrderNoticeGate() {
       // بيكسل ميتا: الشراء اتأكد. السيرفر بعته لما الأدمن فعّل (نفس event_id) —
       // ده من متصفح العميل نفسه عشان ميتا تربطه بالإعلان اللي جه منه
       // أوردر من غير فلوس (هدية) مش شراء — ميتا بترفض Purchase من غير مبلغ
-      if (pixelValue(notice.price, notice.currency).value) pixelTrack('Purchase', {
+      // بس لو التفعيل من أقل من 24 ساعة: ميتا بتدمج حدث المتصفح مع حدث السيرفر في
+      // 48 ساعة بس — عميل رجع بعد كام يوم كان الشراء بيتحسب مرتين
+      const fresh = notice.activatedAt && Date.now() - new Date(notice.activatedAt).getTime() < 24 * 3600 * 1000;
+      if (fresh && pixelValue(notice.price, notice.currency).value) pixelTrack('Purchase', {
         ...pixelValue(notice.price, notice.currency),
         content_ids: [notice.packageId],
         content_type: 'product',
