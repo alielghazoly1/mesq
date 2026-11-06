@@ -216,8 +216,15 @@ const NOPHOTO = `<section class="ihn-sec" id="ihNoPhoto" aria-label="Mariage dé
     </div>
   </section>`;
 
-// ===== تأكيد الحضور: عدد الأشخاص (بيظهر لما الضيف يختار Oui، وبيوصل للوحة في أول الرسالة) =====
-const COUNT_FIELD = `<div class="field ih-cnt" id="ihCount" hidden><span class="lab" data-elem-id="ih60">Nombre de personnes</span><div class="ih-step"><button type="button" data-d="-1" aria-label="Moins">−</button><span id="ihCountV">1</span><button type="button" data-d="1" aria-label="Plus">+</button></div></div>
+// ===== تأكيد الحضور: عدد البالغين والأطفال (قوايم اختيار زي الصورة اللي العرسان بعتوها) =====
+// بيظهروا لما الضيف يختار Oui، والاتنين لازم يتختاروا، والعدد بيوصل للوحة في أول الرسالة.
+const opts = (from, to) => Array.from({ length: to - from + 1 }, (_, i) => `<option value="${from + i}">${from + i}</option>`).join('');
+const COUNT_FIELD = `<div class="field ih-cnt" id="ihCount" hidden>
+          <span class="ih-q" data-elem-id="ih60">Combien d’adultes seront présents ?</span>
+          <div class="ih-sel"><select id="ihAdults" aria-label="Adultes"><option value="" selected>Sélectionner</option>${opts(1, 10)}</select></div>
+          <span class="ih-q" data-elem-id="ih61">Combien d’enfants seront présents ?</span>
+          <div class="ih-sel"><select id="ihKids" aria-label="Enfants"><option value="" selected>Sélectionner</option>${opts(0, 10)}</select></div>
+        </div>
         `;
 
 // ===== ألبوم "Notre histoire" آخر الدعوة (صور العرسان — 2026-11-06) =====
@@ -276,7 +283,6 @@ html.ih-swap #stage{opacity:0}
 .ih-lang svg{width:17px;height:17px;flex:none}
 .ih-lang[data-to="fr"]{font:500 13px/1 'Cinzel','Cormorant Garamond',serif;letter-spacing:.06em}
 .ihl-bas{display:none;margin:0 auto 14px;font:700 clamp(21px,6.2vw,25px)/1.6 'Amiri',serif;color:${BUR}}
-.ih-step{direction:ltr}
 
 /* ===== النسخة العربي ===== */
 html.ih-ar{--serif:'Amiri',serif;--script:'Aref Ruqaa',serif;--sans:'El Messiri',sans-serif}
@@ -332,6 +338,8 @@ html.ih-ar .rsvp-card .field input,html.ih-ar .rsvp-card .field textarea{font-fa
 html.ih-ar .rsvp-card .choice [role=radio]{font-family:'Amiri',serif!important;font-size:clamp(15px,4.3vw,18px)!important}
 html.ih-ar .rsvp-card .btn,html.ih-ar .ex-card .btn{font-family:'El Messiri',sans-serif!important;font-size:15px!important}
 html.ih-ar .rsvp-done p{font-family:'Amiri',serif!important;font-size:18px!important}
+html.ih-ar .ih-q{font:400 19px/1.65 'Amiri',serif}
+html.ih-ar .ih-sel select{padding:12px 14px 12px 42px;background-position:left 15px center;font-family:'Amiri',serif}
 html.ih-ar .ex-card h4{font-family:'Amiri',serif;font-weight:700}
 html.ih-ar .ex-card p,html.ih-ar .rec-time{font-family:'Amiri',serif}
 /* الختام والألبوم */
@@ -442,12 +450,15 @@ const RSVP_CSS = `
 /* "Merci de confirmer votre présence avant le…" فوق الفورم */
 .rsvp-card .by{display:block!important;margin:0 auto 22px!important;max-width:290px;font:italic 500 17px/1.5 'Cormorant Garamond',serif!important;
   color:${BUR}!important;text-align:center!important;letter-spacing:0!important;text-transform:none!important}
-/* عدد الأشخاص */
+/* عدد البالغين والأطفال */
 .ih-cnt[hidden]{display:none!important}
-.ih-step{display:inline-flex;align-items:center;border:1px solid rgba(107,29,41,.25);background:#fff}
-.ih-step button{width:46px;height:44px;border:0;background:none;color:${BUR};font:500 24px/1 'Cormorant Garamond',serif;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.ih-step span{min-width:48px;text-align:center;font:500 22px/44px 'Cormorant Garamond',serif;font-variant-numeric:lining-nums;color:#3b1a1e;
-  border-left:1px solid rgba(107,29,41,.15);border-right:1px solid rgba(107,29,41,.15)}
+.ih-q{display:block;margin:2px 0 10px;font:500 18px/1.4 'Cormorant Garamond',serif;color:#3b1a1e;letter-spacing:0;text-transform:none}
+.ih-sel{display:block;max-width:220px;margin:0 0 20px}
+.ih-sel select{-webkit-appearance:none;appearance:none;width:100%;margin:0;padding:12px 42px 12px 14px;border:1px solid rgba(107,29,41,.28);border-radius:0;
+  background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 7'%3E%3Cpath d='M0 0h12L6 7z' fill='%236b1d29'/%3E%3C/svg%3E") right 15px center/11px 7px no-repeat;
+  font:500 18px/1.2 'Cormorant Garamond',serif;font-variant-numeric:lining-nums;color:#3b1a1e;cursor:pointer}
+.ih-sel select:focus{outline:none;border-color:${BUR}}
+.ih-sel select.empty{color:#8f7f7a}
 .rsvp-card .field{margin-bottom:20px!important}
 .rsvp-card .field .lab{color:#8a5a5e!important;font-size:10.5px!important;letter-spacing:.22em!important}
 .rsvp-card .field input,.rsvp-card .field textarea{border:1px solid rgba(107,29,41,.25)!important;border-radius:0!important;padding:11px 12px!important;
@@ -534,7 +545,7 @@ const AR_IDS = {
   ih32: 'سيتكفّل مصوّرنا بتخليد هذه الذكريات الثمينة ❤️',
   // تأكيد الحضور
   sg57: 'نرجو الرد', sg58: 'هل ستشاركوننا فرحتنا؟', sg59: 'تأكيد الحضور', sg60: 'يُرجى تأكيد حضوركم قبل 15 جانفي 2027.',
-  sg61: 'الاسم', sg62: 'هل ستحضرون؟', sg63: 'نعم، بكل سرور', sg64: 'للأسف، لن أتمكّن', ih60: 'عدد الأشخاص', sg65: 'كلمة للعروسين', sg66: 'إرسال الرد',
+  sg61: 'الاسم', sg62: 'هل ستحضرون؟', sg63: 'نعم، بكل سرور', sg64: 'للأسف، لن أتمكّن', ih60: 'كم عدد البالغين الذين سيحضرون؟', ih61: 'كم عدد الأطفال الذين سيحضرون؟', sg65: 'كلمة للعروسين', sg66: 'إرسال الرد',
   sg67: 'شكرًا — وصلنا ردّكم.', sg68: 'تعديل الرد',
   // التهاني الصوتية (وصور الضيوف — مقفولة للدعوة دي)
   sg69: 'اتركوا لنا كلمة جميلة', sg70: 'دفتر التهاني',
@@ -680,19 +691,24 @@ const LOGIC = `
     env.addEventListener('click', sxOpen);
     env.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); sxOpen(); } });
   }
-  /* ---------- lcqdxr6: عدد الأشخاص في تأكيد الحضور (بيظهر لما الضيف يختار Oui) ---------- */
+  /* ---------- lcqdxr6: عدد البالغين والأطفال في تأكيد الحضور (بيظهروا لما الضيف يختار Oui) ---------- */
   {
-    window.__ihCount = 1;
-    const box = document.getElementById('ihCount'), val = document.getElementById('ihCountV');
+    const box = document.getElementById('ihCount'), ad = document.getElementById('ihAdults'), kd = document.getElementById('ihKids');
     const yes = document.querySelector('#rsvpForm [data-a="yes"]');
-    if (box && val && yes) {
+    if (box && ad && kd && yes) {
       const sync = () => { box.hidden = !EDIT && yes.getAttribute('aria-checked') !== 'true'; };
       new MutationObserver(sync).observe(yes, { attributes: true, attributeFilter: ['aria-checked'] });
-      $$('button', box).forEach((b) => b.addEventListener('click', () => {
-        if (EDIT) return;
-        window.__ihCount = Math.max(1, Math.min(10, window.__ihCount + Number(b.dataset.d)));
-        val.textContent = window.__ihCount;
-      }));
+      const mark = () => [ad, kd].forEach((s) => s.classList.toggle('empty', s.value === ''));
+      [ad, kd].forEach((s) => s.addEventListener('change', () => { mark(); const e = document.getElementById('rErr'); if (e) e.textContent = ''; }));
+      mark();
+      // الاتنين لازم يتختاروا (الرسالة بلغة الصفحة)، والعدد بيتكتب في أول الرسالة اللي بتوصل للوحة
+      window.__ihCountErr = () => {
+        const ar = window.__ihLang === 'ar';
+        if (ad.value === '') return ar ? 'من فضلك اختر عدد البالغين' : 'Merci d’indiquer le nombre d’adultes';
+        if (kd.value === '') return ar ? 'من فضلك اختر عدد الأطفال' : 'Merci d’indiquer le nombre d’enfants';
+        return '';
+      };
+      window.__ihNote = (msg) => 'Adultes : ' + ad.value + ' · Enfants : ' + kd.value + (msg ? ' — ' + msg : '');
       sync();
     }
   }
@@ -781,6 +797,7 @@ const LOGIC = `
       const html = document.documentElement;
       html.lang = ar ? 'ar' : 'fr'; html.dir = ar ? 'rtl' : 'ltr'; html.classList.toggle('ih-ar', ar);
       Object.keys(PH[lang]).forEach((id) => { const e = document.getElementById(id); if (e) e.placeholder = PH[lang][id]; });
+      $$('#ihCount option[value=""]').forEach((o) => { o.textContent = ar ? 'اختر' : 'Sélectionner'; });
       ihCal(ar);
       const cal = document.getElementById('addCal'); if (cal) cal.href = ihCalLink(ar);
       // الخريطة بنفس اللغة
@@ -838,10 +855,13 @@ const PATCHES = [
   ['data-elem-id="sg82">We can’t wait to celebrate with you</div>\n', 'data-elem-id="sg82">Merci</div>\n    <p class="ihc-p reveal d1" data-elem-id="ih40">de partager avec nous cette journée inoubliable.</p>\n'],
   // الألبوم آخر حاجة في الدعوة (بعد الختام)
   ['</main>\n', `  ${ALBUM}\n</main>\n`],
-  // تأكيد الحضور: خانة عدد الأشخاص قبل الرسالة، والعدد بيتبعت في أول الرسالة (زي j4jpczb) عشان يظهر في لوحة العميل
+  // تأكيد الحضور: عدد البالغين والأطفال قبل الرسالة — لازم يتختاروا لو "Oui"، والعدد بيتبعت في أول
+  // الرسالة (زي j4jpczb) عشان يظهر في لوحة العميل: "Adultes : 2 · Enfants : 1 — …"
   ['        <div class="field" id="noteField">', `        ${COUNT_FIELD}<div class="field" id="noteField">`],
+  ["      if (attending === null) { err.textContent = L('Please choose: accept or decline', 'اختار: حاضر ولا معتذر'); return; }\n",
+    "      if (attending === null) { err.textContent = L('Please choose: accept or decline', 'اختار: حاضر ولا معتذر'); return; }\n      if (attending && window.__ihCountErr) { const ce = window.__ihCountErr(); if (ce) { err.textContent = ce; return; } }\n"],
   ["            body: JSON.stringify({ guestName: name, attending: attending ? 'yes' : 'no', note: noteIn.value.trim() }),\n",
-    "            body: JSON.stringify({ guestName: name, attending: attending ? 'yes' : 'no', note: (attending ? 'Personnes : ' + (window.__ihCount || 1) + (noteIn.value.trim() ? ' — ' + noteIn.value.trim() : '') : noteIn.value.trim()).slice(0, 200) }),\n"],
+    "            body: JSON.stringify({ guestName: name, attending: attending ? 'yes' : 'no', note: (attending && window.__ihNote ? window.__ihNote(noteIn.value.trim()) : noteIn.value.trim()).slice(0, 200) }),\n"],
   ['    <div class="collage" id="collage">\n', `    <div class="collage" id="collage">\n      ${COLLAGE}\n`],
   ['<div class="cover" id="coverScreen">\n', `<div class="cover" id="coverScreen">\n  ${COVER}`],
   ['  const L = (en, ar) => (AR ? ar : en);\n', `${FR_FN}  const L = (en, ar) => (AR ? ar : __fr(en));\n`],
