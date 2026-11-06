@@ -67,17 +67,29 @@ function contextFromReq(req) {
   };
 }
 
+/**
+ * بيانات العميل متشفّرة SHA-256 (إيميل/تليفون/دولة/رقم الحساب/الاسم الأول والأخير).
+ * نفس القيم بتروح للبيكسل في المتصفح كمان (/api/auth/me ← user.pixel) — فميتا بتلاقي
+ * نفس الشخص في أحداث المتصفح والسيرفر.
+ */
+function hashedUser(user) {
+  const h = {};
+  if (!user) return h;
+  if (user.email) h.em = sha(norm(user.email));
+  const ph = user.phone ? toWhatsAppNumber(user.phone, user.country) : '';
+  if (ph) h.ph = sha(ph);
+  if (user.country) h.country = sha(norm(user.country));
+  if (user._id || user.id) h.external_id = sha(String(user._id || user.id));
+  const parts = norm(user.name).split(/\s+/).filter(Boolean);
+  if (parts[0]) h.fn = sha(parts[0]);
+  // اسم العيلة (آخر كلمة) — ميتا بتطلبه في اقتراحات تحسين المطابقة
+  if (parts.length > 1) h.ln = sha(parts[parts.length - 1]);
+  return h;
+}
+
 function userData(user, ctx) {
   const u = {};
-  if (user) {
-    if (user.email) u.em = [sha(norm(user.email))];
-    const ph = user.phone ? toWhatsAppNumber(user.phone, user.country) : '';
-    if (ph) u.ph = [sha(ph)];
-    if (user.country) u.country = [sha(norm(user.country))];
-    if (user._id || user.id) u.external_id = [sha(String(user._id || user.id))];
-    const first = norm(String(user.name || '').split(/\s+/)[0]);
-    if (first) u.fn = [sha(first)];
-  }
+  Object.entries(hashedUser(user)).forEach(([k, v]) => { u[k] = [v]; });
   if (ctx) {
     if (ctx.ip) u.client_ip_address = ctx.ip;
     if (ctx.ua) u.client_user_agent = ctx.ua;
@@ -193,4 +205,4 @@ async function tokenExpiry(token) {
   }
 }
 
-module.exports = { tokenFor, PIXEL_ID, sendEvent, fire, contextFromReq, orderCustom, checkToken, tokenExpiry, config, clearConfigCache, API_VERSION };
+module.exports = { tokenFor, PIXEL_ID, sendEvent, fire, contextFromReq, orderCustom, checkToken, tokenExpiry, hashedUser, config, clearConfigCache, API_VERSION };

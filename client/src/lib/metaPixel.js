@@ -52,9 +52,14 @@ export function pixelUser(user) {
   if (!user || !user.id || matchedUser === user.id) return;
   if (!load()) return;
   matchedUser = user.id;
-  const data = { external_id: String(user.id) };
-  if (user.email) data.em = String(user.email).trim().toLowerCase();
-  if (user.country) data.country = String(user.country).trim().toLowerCase();
+  // نفس القيم المتشفّرة اللي السيرفر بيبعتها (/api/auth/me ← user.pixel): إيميل وتليفون
+  // ودولة ورقم الحساب والاسم — ميتا بتلاقي نفس الشخص في أحداث المتصفح والسيرفر
+  const p = user.pixel || {};
+  const data = {};
+  ['em', 'ph', 'fn', 'ln', 'country', 'external_id'].forEach((k) => { if (p[k]) data[k] = p[k]; });
+  if (!data.external_id) data.external_id = String(user.id);
+  if (!data.em && user.email) data.em = String(user.email).trim().toLowerCase();
+  if (!data.country && user.country) data.country = String(user.country).trim().toLowerCase();
   window.fbq('init', PIXEL_ID, data);
 }
 

@@ -288,8 +288,9 @@ router.post('/api/auth/logout', async (req, res) => {
 router.get('/api/auth/me', (req, res) => {
   // حالة مدة التعديل بتتحسب هنا في السيرفر وتتبعت جاهزة — الواجهة مبتحسبهاش
   // من ساعة جهاز العميل (ممكن تكون غلط)
+  // pixel: بيانات المطابقة لبيكسل ميتا متشفّرة جاهزة — نفس اللي السيرفر بيبعته بالظبط
   return res.json({
-    user: req.user ? { ...req.user, edit: editWindowInfo(req.user.subscription) } : null,
+    user: req.user ? { ...req.user, edit: editWindowInfo(req.user.subscription), pixel: metaCapi.hashedUser(req.user) } : null,
   });
 });
 

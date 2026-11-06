@@ -676,6 +676,8 @@ router.get('/preview-sample/:templateId', (req, res) => {
     if (!PREVIEW_BOT_RE.test(String(req.get('user-agent') || ''))) {
       metaCapi.fire('ViewContent', {
         eventId: vcId,
+        // عميل مسجّل بيتفرّج على تصميم: إيميله وتليفونه متشفّرين (ميتا كانت بتقترحهم لـ View content)
+        user: req.user || undefined,
         ctx: { ...metaCapi.contextFromReq(req), url: 'https://mithaq-invitation.com' + req.originalUrl.slice(0, 300) },
         custom: { content_ids: [template.id], content_name: template.name || template.id, content_type: 'product' },
       });
