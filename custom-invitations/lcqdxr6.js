@@ -49,7 +49,7 @@ const TEXTS = {
     ['sx22', 'sv', 548, 960, '', 'cityUp'],
   ],
   plate: [['ih2', 'pl', 288, 868, 'Le<br>programme'], ['ih3', 'plc', 299, 920, 'CLIQUEZ ICI']],
-  story: [['ih6', 'bk', 247, 1126, 'Livre<br>d’or'], ['ih7', 'bkc', 251, 1205, 'LAISSEZ UN MOT']],
+  story: [['ih6', 'bk', 247, 1126, 'Notre<br>histoire'], ['ih7', 'bkc', 251, 1205, 'DÉCOUVRIR']],
   renv: [['ih5', 'rv', 519, 1178, 'RÉPONDEZ ICI']],
   rcard: [['ih4', 'rc', 443, 1275, 'CLIQUEZ ICI']],
 };
@@ -213,6 +213,48 @@ const NOPHOTO = `<section class="ihn-sec" id="ihNoPhoto" aria-label="Photos">
       <div class="ihn-s" data-elem-id="ih32">Merci de votre compréhension</div>
     </div>
   </section>`;
+
+// ===== ألبوم "Notre histoire" آخر الدعوة (صور العرسان — 2026-11-06) =====
+// 52 صورة (custom/lcqdxr6/album/NN.webp + مصغّرة tNN.webp، المقاسات في lcqdxr6-album.json).
+// أول 12 ظاهرين و"Voir toutes les photos" بيظهر الباقي (بيتحمّلوا ساعتها بس)، والضغط على
+// صورة بيفتحها كبيرة (أسهم/سحب/Esc). كتاب "Notre histoire" في الكولاج بيودّي هنا.
+const ALBUM_ITEMS = require('./lcqdxr6-album.json');
+const ALBUM_SHOW = 12;
+const ALBUM_FULL = ALBUM_ITEMS.map((p) => asset(`${DIR}album/${p.n}.webp`));
+const ALBUM = `<section class="iha-sec" id="ihAlbum" aria-label="Notre histoire">
+    <div class="eyebrow reveal" data-elem-id="ih50">Nos souvenirs</div>
+    <div class="h-script reveal d1" data-elem-id="ih51">Notre histoire</div>
+    <div class="iha-grid" id="ihaGrid">
+      ${ALBUM_ITEMS.map((p, i) => {
+    const t = asset(`${DIR}album/t${p.n}.webp`);
+    return `<button type="button" class="iha-it${i >= ALBUM_SHOW ? ' iha-rest' : ''}" data-i="${i}" aria-label="Photo ${i + 1}"><img ${i < ALBUM_SHOW ? `src="${t}" loading="lazy"` : `data-src="${t}"`} decoding="async" alt=""></button>`;
+  }).join('\n      ')}
+    </div>
+    <div class="iha-btn" role="button" tabindex="0" id="ihaMore"><span data-elem-id="ih52">Voir toutes les photos</span><b>${ALBUM_ITEMS.length}</b></div>
+  </section>`;
+const ALBUM_CSS = `
+/* ألبوم الصور */
+.closing{padding-bottom:36px!important}
+.iha-sec{background:linear-gradient(180deg,#f1e1de,#f7f1ea);padding:24px 14px 110px;text-align:center}
+.iha-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:420px;margin:26px auto 0}
+.iha-it{position:relative;display:block;width:100%;aspect-ratio:3/4;padding:5px;border:0;border-radius:3px;background:#fff;cursor:zoom-in;
+  box-shadow:0 10px 22px -14px rgba(70,25,30,.55);-webkit-tap-highlight-color:transparent}
+.iha-it img{display:block;width:100%;height:100%;object-fit:cover;background:#efe4e0}
+.iha-it:nth-child(4n+1){rotate:-1.2deg}.iha-it:nth-child(4n+2){rotate:.9deg}.iha-it:nth-child(4n+3){rotate:.8deg}.iha-it:nth-child(4n){rotate:-.9deg}
+.iha-rest{display:none}
+.iha-grid.all .iha-rest{display:block}
+.iha-btn{display:inline-flex;align-items:center;gap:10px;margin-top:26px;padding:13px 22px;border:1px solid rgba(107,29,41,.45);background:#fffdf9;color:${BUR};
+  font:500 12px/1 'Cinzel','Cormorant Garamond',serif;letter-spacing:.16em;text-transform:uppercase;cursor:pointer}
+.iha-btn b{min-width:26px;padding:5px 7px;border-radius:999px;background:${BUR};color:#fbf3ec;font:600 12px/1 'Cormorant Garamond',serif;letter-spacing:0}
+.iha-lb{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;background:rgba(22,6,10,.94);opacity:0;transition:opacity .25s ease}
+.iha-lb.on{opacity:1}
+.iha-lb[hidden]{display:none!important}
+.iha-lb img{max-width:100vw;max-height:86vh;object-fit:contain;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.iha-x{position:absolute;top:calc(12px + env(safe-area-inset-top));right:12px;width:44px;height:44px;border:0;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;font:300 30px/44px Arial,sans-serif;cursor:pointer}
+.iha-nav{position:absolute;top:50%;translate:0 -50%;width:44px;height:64px;border:0;background:rgba(255,255,255,.12);color:#fff;font:300 40px/1 Arial,sans-serif;cursor:pointer}
+.iha-prev{left:6px;border-radius:0 8px 8px 0}.iha-next{right:6px;border-radius:8px 0 0 8px}
+.iha-n{position:absolute;bottom:calc(16px + env(safe-area-inset-bottom));left:0;right:0;text-align:center;color:#f3e2d6;font:500 13px/1 'Cinzel','Cormorant Garamond',serif;letter-spacing:.2em}
+`;
 
 const CAL_CSS = `
 /* العد التنازلي — أرضية فاتحة وكتابة برجندي */
@@ -472,6 +514,40 @@ const LOGIC = `
     env.addEventListener('click', sxOpen);
     env.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); sxOpen(); } });
   }
+  /* ---------- lcqdxr6: ألبوم الصور (Notre histoire) — كتاب الكولاج بيودّي عليه ---------- */
+  {
+    GO.album = '#ihAlbum';
+    const FULL = ${json(ALBUM_FULL)};
+    const grid = document.getElementById('ihaGrid'), more = document.getElementById('ihaMore');
+    if (grid) {
+      const showAll = () => {
+        $$('img[data-src]', grid).forEach((im) => { im.loading = 'lazy'; im.src = im.dataset.src; im.removeAttribute('data-src'); });
+        grid.classList.add('all'); if (more) more.remove();
+      };
+      if (more) onPress(more, showAll);
+      // الصورة كبيرة: أسهم وسحب يمين/شمال، Esc أو الضغط برّه بيقفل
+      const lb = document.createElement('div'); lb.className = 'iha-lb'; lb.hidden = true;
+      lb.innerHTML = '<img alt=""><button type="button" class="iha-x" aria-label="Fermer">×</button><button type="button" class="iha-nav iha-prev" aria-label="Photo précédente">‹</button><button type="button" class="iha-nav iha-next" aria-label="Photo suivante">›</button><div class="iha-n"></div>';
+      document.body.appendChild(lb);
+      const img = lb.querySelector('img'), cnt = lb.querySelector('.iha-n');
+      let cur = 0;
+      const show = (i) => {
+        cur = (i + FULL.length) % FULL.length; img.src = FULL[cur]; cnt.textContent = (cur + 1) + ' / ' + FULL.length;
+        [cur - 1, cur + 1].forEach((k) => { const p = new Image(); p.src = FULL[(k + FULL.length) % FULL.length]; });
+      };
+      const open = (i) => { show(i); lb.hidden = false; void lb.offsetWidth; lb.classList.add('on'); document.documentElement.style.overflow = 'hidden'; };
+      const close = () => { lb.classList.remove('on'); document.documentElement.style.overflow = ''; setTimeout(() => { lb.hidden = true; img.removeAttribute('src'); }, 250); };
+      grid.addEventListener('click', (e) => { const b = e.target.closest('.iha-it'); if (!b || EDIT) return; open(Number(b.dataset.i)); });
+      lb.querySelector('.iha-x').addEventListener('click', close);
+      lb.querySelector('.iha-prev').addEventListener('click', (e) => { e.stopPropagation(); show(cur - 1); });
+      lb.querySelector('.iha-next').addEventListener('click', (e) => { e.stopPropagation(); show(cur + 1); });
+      lb.addEventListener('click', (e) => { if (e.target === lb) close(); });
+      addEventListener('keydown', (e) => { if (lb.hidden) return; if (e.key === 'Escape') close(); else if (e.key === 'ArrowLeft') show(cur - 1); else if (e.key === 'ArrowRight') show(cur + 1); });
+      let x0 = null;
+      lb.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+      lb.addEventListener('touchend', (e) => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; x0 = null; if (Math.abs(dx) > 40) show(cur + (dx < 0 ? 1 : -1)); }, { passive: true });
+    }
+  }
 `;
 
 // لازم يتلاقوا في القالب مرة واحدة بالظبط — غير كده الصفحة العادية
@@ -483,6 +559,8 @@ const PATCHES = [
   ['  <!-- ============ تأكيد الحضور ============ -->\n', `  ${NOPHOTO}\n\n  <!-- ============ تأكيد الحضور ============ -->\n`],
   // الختام: "Merci" + باقي جملة العرسان تحتها (طبق الدبل والأسامي والتاريخ زي القالب)
   ['data-elem-id="sg82">We can’t wait to celebrate with you</div>\n', 'data-elem-id="sg82">Merci</div>\n    <p class="ihc-p reveal d1" data-elem-id="ih40">de partager avec nous cette journée inoubliable.</p>\n'],
+  // الألبوم آخر حاجة في الدعوة (بعد الختام)
+  ['</main>\n', `  ${ALBUM}\n</main>\n`],
   ['    <div class="collage" id="collage">\n', `    <div class="collage" id="collage">\n      ${COLLAGE}\n`],
   ['<div class="cover" id="coverScreen">\n', `<div class="cover" id="coverScreen">\n  ${COVER}`],
   ['  const L = (en, ar) => (AR ? ar : en);\n', `${FR_FN}  const L = (en, ar) => (AR ? ar : __fr(en));\n`],
@@ -519,7 +597,7 @@ module.exports = {
 
   render() {
     return {
-      head: `<link rel="preload" as="image" href="${TOP}"><link rel="preload" as="image" href="${BOTTOM}"><link rel="preload" as="image" href="${SEAL}"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Cinzel:wght@500&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap"><style id="sx-style">${CSS}${CAL_CSS}${MORE_CSS}${RSVP_CSS}</style>`,
+      head: `<link rel="preload" as="image" href="${TOP}"><link rel="preload" as="image" href="${BOTTOM}"><link rel="preload" as="image" href="${SEAL}"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Cinzel:wght@500&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap"><style id="sx-style">${CSS}${CAL_CSS}${MORE_CSS}${RSVP_CSS}${ALBUM_CSS}</style>`,
     };
   },
 
