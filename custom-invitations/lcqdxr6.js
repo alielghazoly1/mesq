@@ -204,15 +204,20 @@ const ARCH = ICON('<path d="M5 21V11a7 7 0 0 1 14 0v10"/><path d="M9 21v-7.5a3 3
 const MOON = ICON('<path d="M19.5 14.5A7.5 7.5 0 1 1 9.5 4.5a6 6 0 0 0 10 10z"/><path d="M17 3.5v3M15.5 5h3"/>');
 const ROW5 = `      <div class="tl reveal d3"><span class="t" data-elem-id="ih20"></span><span class="ic">${MOON}</span><span class="n" data-elem-id="ih21"></span></div>\n`;
 
-// ===== "ممنوع التصوير" مكان الدريس كود =====
-const NOPHOTO = `<section class="ihn-sec" id="ihNoPhoto" aria-label="Photos">
+// ===== "Mariage déconnecté" مكان الدريس كود (كلام العرسان — 2026-11-06) =====
+const NOPHOTO = `<section class="ihn-sec" id="ihNoPhoto" aria-label="Mariage déconnecté">
     <div class="ihn-card reveal">
-      <span class="ihn-ic">${ICON('<path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13.5" r="3.5"/><path d="M3 3l18 18"/>')}</span>
-      <div class="ihn-t" data-elem-id="ih30">Une soirée sans photos</div>
-      <p class="ihn-p" data-elem-id="ih31">Afin de préserver l’intimité de chacun, nous vous prions de bien vouloir ne prendre ni photos ni vidéos durant la soirée.</p>
-      <div class="ihn-s" data-elem-id="ih32">Merci de votre compréhension</div>
+      <span class="ihn-ic">${ICON('<rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M10.5 18.5h3"/><path d="M3 3l18 18"/>')}</span>
+      <div class="ihn-k" data-elem-id="ih33">🤍 MARIAGE DÉCONNECTÉ 🤍</div>
+      <div class="ihn-t" data-elem-id="ih30">Un mariage, de l’amour et de beaux moments à partager…</div>
+      <p class="ihn-p" data-elem-id="ih31">Si le cœur vous en dit, laissez vos téléphones de côté et profitez pleinement de l’instant présent avec nous !</p>
+      <div class="ihn-s" data-elem-id="ih32">Notre photographe se chargera d’immortaliser ces précieux souvenirs. ❤️</div>
     </div>
   </section>`;
+
+// ===== تأكيد الحضور: عدد الأشخاص (بيظهر لما الضيف يختار Oui، وبيوصل للوحة في أول الرسالة) =====
+const COUNT_FIELD = `<div class="field ih-cnt" id="ihCount" hidden><span class="lab" data-elem-id="ih60">Nombre de personnes</span><div class="ih-step"><button type="button" data-d="-1" aria-label="Moins">−</button><span id="ihCountV">1</span><button type="button" data-d="1" aria-label="Plus">+</button></div></div>
+        `;
 
 // ===== ألبوم "Notre histoire" آخر الدعوة (صور العرسان — 2026-11-06) =====
 // 52 صورة (custom/lcqdxr6/album/NN.webp + مصغّرة tNN.webp، المقاسات في lcqdxr6-album.json).
@@ -338,9 +343,10 @@ const MORE_CSS = `
   background:linear-gradient(160deg,#7a2430,#5a1822);box-shadow:0 22px 40px -22px rgba(70,20,25,.75)}
 .ihn-ic{width:54px;height:54px;margin:0 auto 12px;border-radius:50%;display:grid;place-items:center;color:#e9cf9f;border:1px solid rgba(233,207,159,.55)}
 .ihn-ic svg{width:26px;height:26px}
-.ihn-t{font:400 34px/1.2 'Pinyon Script',cursive;color:#f6e7dc}
+.ihn-k{font:500 15px/1.4 'Cinzel','Cormorant Garamond',serif;letter-spacing:.14em;color:#f6e7dc}
+.ihn-t{max-width:300px;margin:12px auto 0;font:italic 500 21px/1.45 'Cormorant Garamond',serif;color:#f6e7dc}
 .ihn-p{max-width:300px;margin:12px auto 0;font:500 18px/1.6 'Cormorant Garamond',serif;color:#f3e2d6}
-.ihn-s{margin-top:14px;font:400 26px/1.2 'Pinyon Script',cursive;color:#d8b07f}
+.ihn-s{max-width:300px;margin:14px auto 0;font:italic 500 18px/1.55 'Cormorant Garamond',serif;color:#e9cf9f}
 `;
 
 // ===== تأكيد الحضور: نفس مربع sXSBxjs (إطار برجندي رفيع، الفورم ظاهر على طول) =====
@@ -352,7 +358,16 @@ const RSVP_CSS = `
 .rsvp-card{-webkit-mask:none!important;mask:none!important;background:#fffdf9!important;border:1px solid rgba(107,29,41,.55);border-radius:0!important;
   padding:30px 24px 26px!important;box-shadow:none!important}
 .rsvp-card.reveal{opacity:1!important;transform:none!important}
-.rsvp-card h3,.rsvp-card .by{display:none!important}
+.rsvp-card h3{display:none!important}
+/* "Merci de confirmer votre présence avant le…" فوق الفورم */
+.rsvp-card .by{display:block!important;margin:0 auto 22px!important;max-width:290px;font:italic 500 17px/1.5 'Cormorant Garamond',serif!important;
+  color:${BUR}!important;text-align:center!important;letter-spacing:0!important;text-transform:none!important}
+/* عدد الأشخاص */
+.ih-cnt[hidden]{display:none!important}
+.ih-step{display:inline-flex;align-items:center;border:1px solid rgba(107,29,41,.25);background:#fff}
+.ih-step button{width:46px;height:44px;border:0;background:none;color:${BUR};font:500 24px/1 'Cormorant Garamond',serif;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.ih-step span{min-width:48px;text-align:center;font:500 22px/44px 'Cormorant Garamond',serif;font-variant-numeric:lining-nums;color:#3b1a1e;
+  border-left:1px solid rgba(107,29,41,.15);border-right:1px solid rgba(107,29,41,.15)}
 .rsvp-card .field{margin-bottom:20px!important}
 .rsvp-card .field .lab{color:#8a5a5e!important;font-size:10.5px!important;letter-spacing:.22em!important}
 .rsvp-card .field input,.rsvp-card .field textarea{border:1px solid rgba(107,29,41,.25)!important;border-radius:0!important;padding:11px 12px!important;
@@ -381,7 +396,7 @@ const FR = {
   sg33: 'Jours', sg34: 'Heures', sg35: 'Minutes', sg36: 'Secondes', sg37: 'Ajouter au calendrier',
   sg39: 'Déroulement du mariage',
   sg48: 'Plan d’accès', sg49: 'Le lieu', sg53: 'Ouvrir dans Google Maps',
-  sg57: 'Réponse souhaitée', sg58: `Serez-vous des nôtres${NB}?`, sg59: 'Confirmation', sg60: 'Merci de nous répondre dès que possible',
+  sg57: 'Réponse souhaitée', sg58: `Serez-vous des nôtres${NB}?`, sg59: 'Confirmation', sg60: 'Merci de confirmer votre présence avant le 15 janvier 2027.',
   sg61: 'Votre nom', sg62: `Serez-vous présent(e)${NB}?`, sg63: 'Oui, avec joie', sg64: 'Non, à regret', sg65: 'Un mot pour les mariés', sg66: 'Envoyer ma réponse',
   sg67: 'Merci — votre réponse a bien été reçue.', sg68: 'Modifier ma réponse',
   sg69: 'Laissez-nous un mot doux', sg70: 'Livre d’or',
@@ -455,9 +470,9 @@ const LOGIC = `
   }
   /* ---------- lcqdxr6: برنامج اليوم — 5 مواعيد (Déroulement du mariage) ---------- */
   {
-    const SCH = [['sg40', '16 h 30', 'sg41', 'Accueil des invités'], ['sg42', '17 h 30', 'sg43', 'Cérémonie de mariage'], ['sg44', '19 h 00', 'sg45', 'Dîner'], ['sg46', '20 h 30', 'sg47', 'Soirée festive'], ['ih20', '23 h 00', 'ih21', 'Fin du mariage']];
+    const SCH = [['sg40', '16 h 30', 'sg41', 'Entrée des mariés'], ['sg42', '17 h 30', 'sg43', 'Cérémonie de mariage'], ['sg44', '19 h 00', 'sg45', 'Dîner'], ['sg46', '20 h 30', 'sg47', 'Soirée festive'], ['ih20', '23 h 00', 'ih21', 'Fin du mariage']];
     SCH.forEach(([t, tv, n, nv]) => { const a = byId(t), b = byId(n); if (a) a.textContent = tv; if (b) b.textContent = nv; });
-    // الاستقبال: أيقونة القوس، والدبل للفرح نفسه (العشا والسهرة زي القالب)
+    // دخول العرسان: أيقونة القوس، والدبل للفرح نفسه (العشا والسهرة زي القالب)
     const ics = $$('#schedule .tl .ic');
     if (ics.length >= 2) { ics[1].innerHTML = ics[0].innerHTML; ics[0].innerHTML = ${json(ARCH)}; }
     ['dress'].forEach((id) => { const e = document.getElementById(id); if (e) e.classList.add('off'); });
@@ -514,6 +529,22 @@ const LOGIC = `
     env.addEventListener('click', sxOpen);
     env.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); sxOpen(); } });
   }
+  /* ---------- lcqdxr6: عدد الأشخاص في تأكيد الحضور (بيظهر لما الضيف يختار Oui) ---------- */
+  {
+    window.__ihCount = 1;
+    const box = document.getElementById('ihCount'), val = document.getElementById('ihCountV');
+    const yes = document.querySelector('#rsvpForm [data-a="yes"]');
+    if (box && val && yes) {
+      const sync = () => { box.hidden = !EDIT && yes.getAttribute('aria-checked') !== 'true'; };
+      new MutationObserver(sync).observe(yes, { attributes: true, attributeFilter: ['aria-checked'] });
+      $$('button', box).forEach((b) => b.addEventListener('click', () => {
+        if (EDIT) return;
+        window.__ihCount = Math.max(1, Math.min(10, window.__ihCount + Number(b.dataset.d)));
+        val.textContent = window.__ihCount;
+      }));
+      sync();
+    }
+  }
   /* ---------- lcqdxr6: ألبوم الصور (Notre histoire) — كتاب الكولاج بيودّي عليه ---------- */
   {
     GO.album = '#ihAlbum';
@@ -561,6 +592,10 @@ const PATCHES = [
   ['data-elem-id="sg82">We can’t wait to celebrate with you</div>\n', 'data-elem-id="sg82">Merci</div>\n    <p class="ihc-p reveal d1" data-elem-id="ih40">de partager avec nous cette journée inoubliable.</p>\n'],
   // الألبوم آخر حاجة في الدعوة (بعد الختام)
   ['</main>\n', `  ${ALBUM}\n</main>\n`],
+  // تأكيد الحضور: خانة عدد الأشخاص قبل الرسالة، والعدد بيتبعت في أول الرسالة (زي j4jpczb) عشان يظهر في لوحة العميل
+  ['        <div class="field" id="noteField">', `        ${COUNT_FIELD}<div class="field" id="noteField">`],
+  ["            body: JSON.stringify({ guestName: name, attending: attending ? 'yes' : 'no', note: noteIn.value.trim() }),\n",
+    "            body: JSON.stringify({ guestName: name, attending: attending ? 'yes' : 'no', note: (attending ? 'Personnes : ' + (window.__ihCount || 1) + (noteIn.value.trim() ? ' — ' + noteIn.value.trim() : '') : noteIn.value.trim()).slice(0, 200) }),\n"],
   ['    <div class="collage" id="collage">\n', `    <div class="collage" id="collage">\n      ${COLLAGE}\n`],
   ['<div class="cover" id="coverScreen">\n', `<div class="cover" id="coverScreen">\n  ${COVER}`],
   ['  const L = (en, ar) => (AR ? ar : en);\n', `${FR_FN}  const L = (en, ar) => (AR ? ar : __fr(en));\n`],

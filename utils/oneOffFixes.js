@@ -403,6 +403,26 @@ const FIXES = [
     },
   },
   {
+    // lcqdxr6 — بطلب المالك (2026-11-06): أغنية الدعوة "A Whole New World" من مكتبة الموسيقى
+    // (المالك رافعها من لوحة التحكم) — كأن العميل اختارها من تبويب الموسيقى في المحرر.
+    // بيتعمل بس لو مفيش أغنية متختارة، فلو العميل غيّرها بعد كده مابنرجّعهاش.
+    name: 'lcqdxr6-song-whole-new-world',
+    shortId: 'lcqdxr6',
+    when: (c) => !c.audioUrl,
+    async apply() {
+      const Track = require('../models/Track');
+      const { isAllowedMediaUrl } = require('./customizations');
+      const tracks = await Track.find({ active: true }).sort({ createdAt: -1 }).select('title artist url').lean();
+      const pick = tracks.find((t) => /whole\s*new\s*world/i.test(`${t.title} ${t.artist}`));
+      if (!pick || !isAllowedMediaUrl(pick.url)) {
+        console.log('[oneOffFix] lcqdxr6-song-whole-new-world: track not found in the library');
+        return { 'customizations.audioUrl': '' };
+      }
+      console.log(`[oneOffFix] lcqdxr6-song-whole-new-world: ${pick.title} — ${pick.artist} (${pick.url})`);
+      return { 'customizations.audioUrl': pick.url, 'customizations.audioStart': 0, 'customizations.audioEnd': 0 };
+    },
+  },
+  {
     // MeqC70l (Lily Garden عربي) — بطلب المالك: نسخة عربي من eJCypdA بكل تفاصيلها:
     // داليا و عمر، 21/11/2026 الساعة 5، بسم الله فوق، يوم الخطوبة، صورة الغلاف
     // والأغنية، جملة "قَدَّرَ اللهُ لَنَا لِقَاءً"، والمكان Pipe & Vibe Lounge في كراون
