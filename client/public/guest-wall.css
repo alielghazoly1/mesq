@@ -1,0 +1,89 @@
+/* رسايل الحبايب — آخر الدعوة (client/public/guest-wall.js). ألوان وخطوط القالب نفسه (متغيرات Sage Garden)
+   مع بدائل لو القالب مالوش نفس المتغيرات. */
+.gw{position:relative;text-align:center;padding:40px 18px 128px;
+  background:linear-gradient(180deg,var(--sage-ll,#e7eadf) 0,var(--ivory,#f8f4ec) 300px,var(--ivory,#f8f4ec) 100%);
+  --gw-card:#fffdf8;--gw-line:rgba(124,138,106,.18);--gw-shadow:0 18px 34px -26px rgba(40,50,30,.55)}
+.gw[hidden],.gw [hidden]{display:none!important}
+/* ضغطتين ورا بعض على زرار = ضغطتين (مش تكبير الصفحة) */
+.gw-play,.gw-more,.gw-tile,.gw-lb-x,.gw-lb-nav,.gw-vbar{touch-action:manipulation}
+html.gw-on section.closing{padding-bottom:44px}
+.gw-orn{display:flex;align-items:center;justify-content:center;gap:12px;color:var(--gold,#b49a6a);margin:0 auto 16px}
+.gw-orn i{display:block;width:64px;height:1px;background:linear-gradient(90deg,transparent,currentColor)}
+.gw-orn i:last-child{background:linear-gradient(90deg,currentColor,transparent)}
+.gw-orn svg{width:20px;height:20px}
+.gw .gw-title{margin-bottom:0}
+.gw-sub{font-family:var(--serif,serif);font-size:17px;line-height:1.7;color:var(--ink-2,#5c5a4b);margin:2px auto 0;max-width:330px}
+
+.gw-block{max-width:400px;margin:34px auto 0;text-align:start}
+.gw-bh{display:flex;align-items:center;gap:10px;margin:0 2px 14px}
+.gw-ic{width:38px;height:38px;border-radius:12px;background:var(--sage-ll,#e7eadf);color:var(--sage-d,#5f6c4f);display:grid;place-items:center;flex:none}
+.gw-ic svg{width:19px;height:19px}
+.gw-bh h4{flex:1;margin:0;font-family:var(--serif,serif);font-weight:500;font-size:22px;line-height:1.3;color:var(--sage-dd,#454f39)}
+.gw-count{font-family:var(--sans,sans-serif);font-size:12.5px;font-weight:600;color:var(--sage-d,#5f6c4f);background:var(--gw-card);border:1px solid var(--gw-line);border-radius:999px;padding:3px 11px;line-height:1.5}
+
+/* الرسايل — تحت بعض */
+.gw-msgs{display:flex;flex-direction:column;gap:12px;margin:0;padding:0;list-style:none}
+.gw-msg{position:relative;background:var(--gw-card);border:1px solid var(--gw-line);border-radius:20px;padding:22px 20px 16px;box-shadow:var(--gw-shadow)}
+.gw-q{position:absolute;top:-13px;inset-inline-start:18px;width:30px;height:26px;border-radius:9px;background:var(--gw-card);border:1px solid var(--gw-line);color:var(--gold,#b49a6a);display:grid;place-items:center}
+.gw-q svg{width:15px;height:15px}
+.gw-text{margin:2px 0 12px;font-family:var(--serif,serif);font-size:18.5px;line-height:1.85;color:var(--ink,#3b3a2f);white-space:pre-line;overflow-wrap:anywhere}
+.gw-name{display:flex;align-items:center;gap:8px;font-family:var(--sans,sans-serif);font-size:13.5px;font-weight:700;color:var(--gold,#b49a6a)}
+.gw-name::before{content:"";display:block;width:18px;height:1px;background:currentColor;opacity:.7}
+
+/* التهاني الصوتية */
+.gw-voices{display:flex;flex-direction:column;gap:10px;margin:0;padding:0;list-style:none}
+.gw-voice{display:flex;align-items:center;gap:12px;background:var(--gw-card);border:1px solid var(--gw-line);border-radius:18px;padding:12px 14px;box-shadow:var(--gw-shadow)}
+.gw-play{flex:none;width:46px;height:46px;border-radius:50%;border:0;padding:0;cursor:pointer;color:#fbf8f2;
+  background:var(--sage-d,#5f6c4f);box-shadow:0 10px 20px -12px rgba(69,79,57,.9);display:grid;place-items:center;-webkit-tap-highlight-color:transparent}
+.gw-play svg{width:18px;height:18px}
+.gw-play .i-pause{display:none}
+.gw-voice.playing .gw-play .i-play{display:none}
+.gw-voice.playing .gw-play .i-pause{display:block}
+.gw-vb{flex:1;min-width:0}
+.gw-vname{font-family:var(--sans,sans-serif);font-size:14.5px;font-weight:700;color:var(--sage-dd,#454f39);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:8px}
+.gw-vbar{position:relative;height:22px;cursor:pointer;touch-action:none}
+.gw-vbar .bars{position:absolute;inset:0;display:flex;align-items:center;gap:2px}
+.gw-vbar .bars b{flex:1;border-radius:2px;background:var(--sage-l,#c9d0bb);min-height:3px}
+.gw-vbar .fill{position:absolute;inset:0;display:flex;align-items:center;gap:2px;clip-path:inset(0 calc(100% - var(--p,0%)) 0 0)}
+html[dir="rtl"] .gw-vbar .fill{clip-path:inset(0 0 0 calc(100% - var(--p,0%)))}
+.gw-vbar .fill b{flex:1;border-radius:2px;background:var(--sage-d,#5f6c4f);min-height:3px}
+.gw-vtime{flex:none;font-family:var(--sans,sans-serif);font-size:12.5px;font-variant-numeric:tabular-nums;color:var(--dim,#8e8a78);min-width:34px;text-align:center}
+
+/* ألبوم الذكريات */
+.gw-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.gw-tile{position:relative;display:block;width:100%;border:0;padding:0;margin:0;cursor:zoom-in;border-radius:12px;overflow:hidden;
+  background:var(--sage-ll,#e7eadf);box-shadow:0 10px 18px -14px rgba(40,50,30,.6);-webkit-tap-highlight-color:transparent}
+.gw-tile::before{content:"";display:block;padding-top:100%}
+.gw-tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s ease}
+.gw-tile img.ok{opacity:1}
+.gw-tile:focus-visible{outline:2px solid var(--sage-d,#5f6c4f);outline-offset:2px}
+
+/* زرار "شوف أكتر" بستايل زراير القالب */
+.gw-more{display:flex;align-items:center;justify-content:center;gap:8px;margin:16px auto 0;padding:11px 22px;border-radius:999px;cursor:pointer;
+  border:1px solid var(--sage-l,#c9d0bb);background:rgba(255,253,248,.7);color:var(--sage-d,#5f6c4f);
+  font-family:var(--sans,sans-serif);font-size:14px;font-weight:700;-webkit-tap-highlight-color:transparent}
+.gw-more svg{width:15px;height:15px;transition:transform .3s}
+.gw-more.less svg{transform:rotate(180deg)}
+
+/* سطر صغير تحت خانة الرسالة في فورم الحضور */
+.gw-rnote{margin-top:7px;font-family:var(--sans,sans-serif);font-size:12px;line-height:1.6;color:var(--dim,#8e8a78)}
+
+/* عرض الصورة كبيرة */
+.gw-lb{position:fixed;inset:0;z-index:2147483000;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:rgba(22,25,18,.985);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);opacity:0;visibility:hidden;transition:opacity .25s ease,visibility .25s}
+.gw-lb.open{opacity:1;visibility:visible}
+.gw-lb-top{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:max(14px,env(safe-area-inset-top)) 16px 10px;direction:ltr}
+.gw-lb-count{font-family:var(--sans,sans-serif);font-size:14px;font-weight:600;color:rgba(255,255,255,.8);font-variant-numeric:tabular-nums}
+.gw-lb-x,.gw-lb-nav{border:0;cursor:pointer;color:#fff;background:rgba(255,255,255,.12);display:grid;place-items:center;-webkit-tap-highlight-color:transparent}
+.gw-lb-x{width:40px;height:40px;border-radius:50%}
+.gw-lb-x svg,.gw-lb-nav svg{width:20px;height:20px}
+.gw-lb-stage{position:relative;width:100%;height:calc(100% - 150px);display:flex;align-items:center;justify-content:center;touch-action:pan-y}
+.gw-lb-img{max-width:94vw;max-height:100%;object-fit:contain;border-radius:6px;box-shadow:0 20px 50px -20px #000;transition:opacity .25s ease,transform .25s ease;user-select:none;-webkit-user-drag:none}
+.gw-lb-img.loading{opacity:.25}
+.gw-lb-cap{position:absolute;bottom:max(22px,env(safe-area-inset-bottom));left:0;right:0;text-align:center;font-family:var(--sans,sans-serif);font-size:14px;color:rgba(255,255,255,.82);padding:0 70px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gw-lb-nav{position:absolute;top:50%;width:44px;height:44px;margin-top:-22px;border-radius:50%}
+.gw-lb-nav.prev{right:10px}.gw-lb-nav.next{left:10px}
+html[dir="ltr"] .gw-lb-nav.prev{right:auto;left:10px}html[dir="ltr"] .gw-lb-nav.next{left:auto;right:10px}
+html[dir="ltr"] .gw-lb-nav svg{transform:scaleX(-1)}
+@media (hover:none){.gw-lb-nav{background:rgba(255,255,255,.08)}}
+@media (prefers-reduced-motion:reduce){.gw-lb,.gw-lb-img,.gw-tile img{transition:none}}

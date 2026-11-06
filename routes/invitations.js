@@ -364,6 +364,55 @@ router.post('/i/:shortId/wishes', ensureDeviceId, rsvpLimiter, async (req, res) 
   }
 });
 
+// ===== رسايل الحبايب آخر الدعوة (الدعوات الكاستم اللي فيها guestWall بس — زي 7f7FjCL) =====
+// اللي الضيوف بعتوه من الدعوة: رسالة فورم الحضور (الاسم والرسالة بس — هيحضر ولا لأ مابيطلعش
+// من هنا خالص، ده لصاحب الدعوة في لوحته)، والتهاني الصوتية، والصور. الواجهة client/public/guest-wall.js.
+function wallEnabled(shortId) {
+  const custom = getCustomInvitation(shortId);
+  return !!(custom && custom.guestWall);
+}
+
+router.get('/i/:shortId/wall', async (req, res) => {
+  try {
+    const shortId = String(req.params.shortId || '');
+    if (!wallEnabled(shortId)) return res.status(404).json({ error: 'not found' });
+    const exists = await Invitation.exists({ shortId, status: { $ne: 'draft' } });
+    if (!exists) return res.status(404).json({ error: 'not found' });
+    const [rsvps, photos, voices] = await Promise.all([
+      Rsvp.find({ shortId, note: { $nin: ['', null] } }).sort({ createdAt: -1 }).limit(500)
+        .select('guestName note deviceId createdAt').lean(),
+      GuestPhoto.find({ shortId }).sort({ _id: -1 }).limit(1000).lean(),
+      GuestVoice.find({ shortId }).sort({ _id: -1 }).limit(300).lean(),
+    ]);
+    // الضيف اللي غيّر رده: رسالته الأخيرة بس (نفس الجهاز ونفس الاسم)
+    const seen = new Set();
+    const messages = [];
+    for (const r of rsvps) {
+      const text = String(r.note || '').trim();
+      if (!text) continue;
+      const key = `${r.deviceId || ''}|${String(r.guestName || '').replace(/\s+/g, ' ').trim().toLowerCase()}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      messages.push({ name: r.guestName || '', message: text, at: r.createdAt });
+    }
+    res.set('Cache-Control', 'no-store');
+    return res.json({
+      messages,
+      voices: voices.map((v) => {
+        const s = serializeVoice(v);
+        return { id: s.id, name: s.guestName, url: s.url, duration: s.duration, at: s.createdAt };
+      }),
+      photos: photos.map((p) => {
+        const s = serializePhoto(p, null);
+        return { id: s.id, name: s.guestName, thumb: s.thumb, large: s.large, w: s.width, h: s.height };
+      }),
+    });
+  } catch (err) {
+    console.error('Error listing wall:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر، حاول تاني بعد شوية.' });
+  }
+});
+
 
 // لأنها مش زيارة فعلية للدعوة نفسها)
 // GET /s/:token — صفحة إحصائيات الدعوة المشاركة (رابط سري). عامة عن قصد:
