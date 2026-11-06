@@ -930,6 +930,45 @@ const FIXES = [
     },
   },
   {
+    // DBywdm2 — المالك بعت لوكيشن القاعة على جوجل ماب (2026-11-06): Royal Garden، أكتوبر. نفس
+    // اللينك اللي على زرار Get Directions في الصفحة، وهنا عشان ملف التقويم ولوحة العميل. بيتعمل بس
+    // لو الخريطة لسه على البحث بالاسم اللي حطّه التعديل اللي فوق، فلو العميل غيّرها مابنلمسهاش.
+    name: 'DBywdm2-map-link',
+    shortId: 'DBywdm2',
+    select: 'venueName venueCity venueMapQuery venueMapEmbedSrc venueMapDirectLink',
+    when: (c, inv) => inv.venueMapQuery === 'Royal Garden, 6th October city',
+    async apply(c, inv) {
+      const { resolveMapInput } = require('./mapsLink');
+      const LINK = 'https://maps.app.goo.gl/9i2n8wZs99jj6ZMU8';
+      const { embedSrc, directLink } = await resolveMapInput({ raw: LINK, venueName: inv.venueName, venueCity: inv.venueCity });
+      return { venueMapQuery: LINK, venueMapEmbedSrc: embedSrc, venueMapDirectLink: directLink };
+    },
+  },
+  {
+    // DBywdm2 — المالك (2026-11-06): الأغنية "ميكس رهيب" من مكتبة الموسيقى — كأن العميل اختارها من
+    // تبويب الموسيقى في المحرر. بيتعمل بس لو مفيش أغنية متختارة، فلو اتغيّرت بعد كده مابنرجّعهاش.
+    // لو الاسم مش لاقيه بنسيب الموسيقى المؤقتة ونكتب في اللوج (ونحاول تاني مع كل تشغيل).
+    name: 'DBywdm2-song-mix-raheeb',
+    shortId: 'DBywdm2',
+    when: (c) => !c.audioUrl,
+    async apply() {
+      const Track = require('../models/Track');
+      const norm = (t) => String(t || '').replace(/[ً-ْـ]/g, '').replace(/[أإآ]/g, 'ا')
+        .replace(/ة/g, 'ه').replace(/ى/g, 'ي').toLowerCase().replace(/(.)\1+/g, '$1').replace(/\s+/g, ' ').trim();
+      const isMix = (t) => /ميكس ?رهيب|mix\W*rah[eia]?b/.test(norm(t));
+      const tracks = await Track.find({ active: true }).sort({ createdAt: -1 }).select('title artist mood url').lean();
+      const byTitle = tracks.filter((t) => isMix(t.title));
+      const pick = byTitle.find((t) => norm(t.title) === norm('ميكس رهيب')) || byTitle[0]
+        || tracks.find((t) => isMix(`${t.artist} ${t.mood}`));
+      if (!pick || !/^https:\/\//.test(pick.url)) {
+        console.log('[oneOffFix] DBywdm2-song-mix-raheeb: track not found in the library');
+        return { 'customizations.audioUrl': '' };
+      }
+      console.log(`[oneOffFix] DBywdm2-song-mix-raheeb: ${pick.title} — ${pick.artist} (${pick.url})`);
+      return { 'customizations.audioUrl': pick.url, 'customizations.audioStart': 0, 'customizations.audioEnd': 0 };
+    },
+  },
+  {
     // G1L8BxQ — المالك بعت لوكيشن صالة قلوريا للمناسبات الاجتماعية (2026-11-04). الدبوس القديم كان
     // على نفس الإحداثيات بس من غير اسم الصالة، والاسم الوحيد اللي باين جنبه "قاعة فيدا". دلوقتي
     // الخريطة هي تضمين المالك نفسه (المكان باسمه، الخريطة العادية مش القمر الصناعي، وبالعربي)،
