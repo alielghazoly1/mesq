@@ -113,6 +113,24 @@ function deviceOf(ua) {
   return 'desktop';
 }
 
+// fbclid: ميتا بتزوّده على لينك الإعلان (رقم الضغطة على الإعلان). التحويل لصفحة الهبوط كان
+// بيشيله، فالبيكسل مكانش بيعمل كوكي _fbc، والسيرفر مكانش بيبعت fbc مع الأحداث (metaCapi)
+// — وده أهم حاجة بتربط الشراء (اللي بيتأكد بعدين لما المالك يفعّل) بالضغطة على الإعلان.
+// دلوقتي بيفضل في اللينك، وبنكتب كوكي _fbc من السيرفر كمان بنفس شكل البيكسل
+// (fb.1.<وقت الإنشاء بالملي>.<fbclid> — 1 يعني mithaq-invitation.com) وعلى نفس الدومين،
+// فالبيكسل بيقراه ويكمّل عليه، وسفاري مابيقصّرش عمره زي الكوكي اللي بيتعمل بالجافاسكربت.
+const FBCLID_RE = /^[A-Za-z0-9_-]{8,500}$/;
+function keepClickId(req, res, landing) {
+  const fbclid = typeof req.query.fbclid === 'string' && FBCLID_RE.test(req.query.fbclid) ? req.query.fbclid : '';
+  if (!fbclid) return landing;
+  const host = String(req.hostname || '');
+  res.cookie('_fbc', `fb.1.${Date.now()}.${fbclid}`, {
+    httpOnly: false, sameSite: 'lax', secure: process.env.NODE_ENV === 'production', maxAge: 90 * 24 * 60 * 60 * 1000, path: '/',
+    ...(/(^|\.)mithaq-invitation\.com$/.test(host) ? { domain: 'mithaq-invitation.com' } : {}),
+  });
+  return `${landing}?fbclid=${encodeURIComponent(fbclid)}`;
+}
+
 router.get('/go/:code', ensureDeviceId, async (req, res) => {
   const code = String(req.params.code || '').toLowerCase().slice(0, 40);
   try {
@@ -138,7 +156,7 @@ router.get('/go/:code', ensureDeviceId, async (req, res) => {
         httpOnly: false, sameSite: 'lax', secure, maxAge: VERIFY_WINDOW_MS, path: '/',
       });
     }
-    return res.redirect(302, landing);
+    return res.redirect(302, keepClickId(req, res, landing));
   } catch (err) {
     console.error('Campaign link error:', err.message);
     return res.redirect(302, '/');
