@@ -945,28 +945,14 @@ const FIXES = [
     },
   },
   {
-    // DBywdm2 — المالك (2026-11-06): الأغنية "ميكس رهيب" من مكتبة الموسيقى — كأن العميل اختارها من
-    // تبويب الموسيقى في المحرر. بيتعمل بس لو مفيش أغنية متختارة، فلو اتغيّرت بعد كده مابنرجّعهاش.
-    // لو الاسم مش لاقيه بنسيب الموسيقى المؤقتة ونكتب في اللوج (ونحاول تاني مع كل تشغيل).
-    name: 'DBywdm2-song-mix-raheeb',
+    // DBywdm2 — المالك (2026-11-06) بعت الأغنية بنفسه (ملف) بدل "ميكس رهيب" اللي كانت من مكتبة
+    // الموسيقى (التعديل اللي كان حاططها اتشال). الأغنية دلوقتي ملف الدعوة نفسها
+    // (client/public/custom/DBywdm2/song.mp3، custom-invitations/DBywdm2.js)، فهنا بنشيل اختيار المكتبة
+    // بس لو لسه هو نفس الأغنية اللي احنا حاطينها — لو العميل اختار أغنية تانية بعد كده مابنلمسهاش.
+    name: 'DBywdm2-song-owner-file',
     shortId: 'DBywdm2',
-    when: (c) => !c.audioUrl,
-    async apply() {
-      const Track = require('../models/Track');
-      const norm = (t) => String(t || '').replace(/[ً-ْـ]/g, '').replace(/[أإآ]/g, 'ا')
-        .replace(/ة/g, 'ه').replace(/ى/g, 'ي').toLowerCase().replace(/(.)\1+/g, '$1').replace(/\s+/g, ' ').trim();
-      const isMix = (t) => /ميكس ?رهيب|mix\W*rah[eia]?b/.test(norm(t));
-      const tracks = await Track.find({ active: true }).sort({ createdAt: -1 }).select('title artist mood url').lean();
-      const byTitle = tracks.filter((t) => isMix(t.title));
-      const pick = byTitle.find((t) => norm(t.title) === norm('ميكس رهيب')) || byTitle[0]
-        || tracks.find((t) => isMix(`${t.artist} ${t.mood}`));
-      if (!pick || !/^https:\/\//.test(pick.url)) {
-        console.log('[oneOffFix] DBywdm2-song-mix-raheeb: track not found in the library');
-        return { 'customizations.audioUrl': '' };
-      }
-      console.log(`[oneOffFix] DBywdm2-song-mix-raheeb: ${pick.title} — ${pick.artist} (${pick.url})`);
-      return { 'customizations.audioUrl': pick.url, 'customizations.audioStart': 0, 'customizations.audioEnd': 0 };
-    },
+    when: (c) => c.audioUrl === 'https://res.cloudinary.com/dxtkmyscw/video/upload/v1790882611/mithaq/library/music/yioeqw9kekdxie32eu2a.mp3',
+    apply: () => ({ 'customizations.audioUrl': '' }),
   },
   {
     // G1L8BxQ — المالك بعت لوكيشن صالة قلوريا للمناسبات الاجتماعية (2026-11-04). الدبوس القديم كان
