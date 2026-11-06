@@ -161,6 +161,7 @@ const CORNERS = `<span class="sxc-sp k1">${SPRIG}</span><span class="sxc-sp k2">
 const LETTER = `<section class="ihl-sec" id="ihLetter" aria-label="Invitation">
     <div class="ihl-card reveal">
       ${CORNERS}
+      <p class="ihl-bas" data-elem-id="ih9" lang="ar">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
       <p class="ihl-q" data-elem-id="ih10">Notre bonheur ne serait pas complet sans votre présence.</p>
       ${ORN}
       <p class="ihl-p" data-elem-id="ih11">Les familles Ben Ghorbel et Ettaieb ont l’honneur et la joie de vous inviter au mariage de leurs enfants</p>
@@ -259,6 +260,85 @@ const ALBUM_CSS = `
 .iha-nav{position:absolute;top:50%;translate:0 -50%;width:44px;height:64px;border:0;background:rgba(255,255,255,.12);color:#fff;font:300 40px/1 Arial,sans-serif;cursor:pointer}
 .iha-prev{left:6px;border-radius:0 8px 8px 0}.iha-next{right:6px;border-radius:8px 0 0 8px}
 .iha-n{position:absolute;bottom:calc(16px + env(safe-area-inset-bottom));left:0;right:0;text-align:center;color:#f3e2d6;font:500 13px/1 'Cinzel','Cormorant Garamond',serif;letter-spacing:.2em}
+`;
+
+// ===== زرار اللغة + الخطوط العربي (html.ih-ar) =====
+const AR_CSS = `
+#stage{transition:opacity .22s ease}
+html.ih-swap #stage{opacity:0}
+.ih-lang{position:fixed;top:calc(12px + env(safe-area-inset-top));right:max(12px,calc(50vw - 218px));z-index:2147482000;display:inline-flex;align-items:center;gap:7px;
+  padding:9px 15px 9px 12px;border-radius:999px;border:1px solid rgba(185,140,85,.75);background:rgba(251,246,239,.93);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);color:${BUR};box-shadow:0 10px 24px -12px rgba(70,25,30,.6);
+  font:600 16px/1 'El Messiri','Amiri',sans-serif;cursor:pointer;-webkit-tap-highlight-color:transparent;
+  opacity:0;transform:translateY(-10px);pointer-events:none;transition:opacity .5s ease,transform .5s ease}
+.ih-lang.on{opacity:1;transform:none;pointer-events:auto}
+.ih-lang.wait{opacity:.6}
+.ih-lang svg{width:17px;height:17px;flex:none}
+.ih-lang[data-to="fr"]{font:500 13px/1 'Cinzel','Cormorant Garamond',serif;letter-spacing:.06em}
+.ihl-bas{display:none;margin:0 auto 14px;font:700 clamp(21px,6.2vw,25px)/1.6 'Amiri',serif;color:${BUR}}
+.ih-step{direction:ltr}
+
+/* ===== النسخة العربي ===== */
+html.ih-ar{--serif:'Amiri',serif;--script:'Aref Ruqaa',serif;--sans:'El Messiri',sans-serif}
+html.ih-ar body :not(#ih_):not(#ih__){letter-spacing:0!important}
+html.ih-ar .ihl-bas{display:block}
+/* الكولاج */
+html.ih-ar .sxt-inv{font:600 calc(13*var(--u))/1.65 'El Messiri',sans-serif}
+html.ih-ar .sxt-nm1,html.ih-ar .sxt-nm2{font:700 calc(44*var(--u))/1.45 'Aref Ruqaa',serif}
+html.ih-ar .sxt-nm1::after{content:" و"}
+html.ih-ar .sxt-cdt{font:600 calc(12.5*var(--u))/1.5 'El Messiri',sans-serif}
+html.ih-ar .sxt-cap{font:700 calc(15*var(--u))/1.3 'Aref Ruqaa',serif}
+html.ih-ar .sxt-sm{font:700 calc(38*var(--u))/1.35 'Aref Ruqaa',serif}
+html.ih-ar .sxt-sv{font:700 calc(12.5*var(--u))/1.4 'Amiri',serif}
+html.ih-ar .sxt-se{font:600 calc(16*var(--u))/1.4 'El Messiri',sans-serif}
+html.ih-ar .sxt-pl{font:700 calc(24*var(--u))/1.4 'Aref Ruqaa',serif}
+html.ih-ar .sxt-plc,html.ih-ar .sxt-rc,html.ih-ar .sxt-bkc{font-family:'El Messiri',sans-serif;font-weight:600;font-size:calc(10.5*var(--u));line-height:1.4}
+html.ih-ar .sxt-rv{font:600 calc(14*var(--u))/1.4 'El Messiri',sans-serif}
+html.ih-ar .sxt-bk{font:700 calc(36*var(--u))/1.35 'Aref Ruqaa',serif}
+html.ih-ar .sx-hint{font:600 17px/1.5 'El Messiri',sans-serif}
+/* كارت الدعوة */
+html.ih-ar .ihl-q{font:400 22px/1.75 'Amiri',serif}
+html.ih-ar .ihl-p{font:400 19px/1.95 'Amiri',serif}
+html.ih-ar .ihl-nm{font:700 clamp(34px,10vw,44px)/1.55 'Aref Ruqaa',serif}
+html.ih-ar .ihl-nm .amp{font:700 .72em/1 'Aref Ruqaa',serif;margin:0 .2em;vertical-align:0}
+html.ih-ar .ihl-d{font:600 17px/1.6 'El Messiri',sans-serif}
+html.ih-ar .ihl-s{font:700 27px/1.6 'Aref Ruqaa',serif}
+/* العدّاد والتقويم */
+html.ih-ar .sxd-head{font:700 40px/1.45 'Aref Ruqaa',serif}
+html.ih-ar .count-sec .countdown{direction:rtl!important}
+html.ih-ar .count-sec .cd + .cd::before{left:auto;right:-5px}
+html.ih-ar .count-sec .cd .cl{font:400 19px/1.2 'Amiri',serif!important}
+html.ih-ar .count-sec .btn-ghost{font-family:'El Messiri',sans-serif!important}
+html.ih-ar .sxc-eye{font:600 clamp(17px,5vw,21px)/1.4 'El Messiri',sans-serif}
+html.ih-ar .sxc-m{font:700 clamp(36px,11vw,52px)/1.35 'Aref Ruqaa',serif}
+html.ih-ar .sxc-y{margin-left:0;margin-right:4px}
+html.ih-ar .sxc-grid b{font:600 clamp(10px,2.9vw,12.5px)/2 'El Messiri',sans-serif}
+html.ih-ar .sxc-foot{font:600 clamp(13px,3.9vw,16px)/1.7 'El Messiri',sans-serif}
+/* عناوين القالب والبرنامج والمكان */
+html.ih-ar .eyebrow{font-family:'El Messiri',sans-serif;font-size:14px;font-weight:600}
+html.ih-ar .h-script{font-family:'Aref Ruqaa',serif;font-weight:700;line-height:1.5}
+html.ih-ar .tl .n{font:600 15px/1.5 'El Messiri',sans-serif}
+html.ih-ar .venue-name{font:700 30px/1.5 'Amiri',serif}
+html.ih-ar .venue-addr{font:500 15px/1.5 'El Messiri',sans-serif}
+/* زفاف بلا هواتف */
+html.ih-ar .ihn-k{font:600 17px/1.6 'El Messiri',sans-serif}
+html.ih-ar .ihn-t{font:400 21px/1.8 'Amiri',serif}
+html.ih-ar .ihn-p{font:400 19px/1.9 'Amiri',serif}
+html.ih-ar .ihn-s{font:400 19px/1.85 'Amiri',serif}
+/* تأكيد الحضور والتهاني */
+html.ih-ar .rsvp-card .by{font:400 18px/1.75 'Amiri',serif!important}
+html.ih-ar .rsvp-card .field .lab{font:600 13px/1.5 'El Messiri',sans-serif!important}
+html.ih-ar .rsvp-card .field input,html.ih-ar .rsvp-card .field textarea{font-family:'Amiri',serif!important}
+html.ih-ar .rsvp-card .choice [role=radio]{font-family:'Amiri',serif!important;font-size:clamp(15px,4.3vw,18px)!important}
+html.ih-ar .rsvp-card .btn,html.ih-ar .ex-card .btn{font-family:'El Messiri',sans-serif!important;font-size:15px!important}
+html.ih-ar .rsvp-done p{font-family:'Amiri',serif!important;font-size:18px!important}
+html.ih-ar .ex-card h4{font-family:'Amiri',serif;font-weight:700}
+html.ih-ar .ex-card p,html.ih-ar .rec-time{font-family:'Amiri',serif}
+/* الختام والألبوم */
+html.ih-ar .ihc-p{font:400 20px/1.85 'Amiri',serif}
+html.ih-ar .closing .c-names{font-family:'Aref Ruqaa',serif;font-weight:700}
+html.ih-ar .closing .foot{font:600 14px/1.5 'El Messiri',sans-serif}
+html.ih-ar .iha-btn{font:600 15px/1 'El Messiri',sans-serif}
 `;
 
 const CAL_CSS = `
@@ -423,26 +503,108 @@ const FR_MSG = {
   'Photo upload works once the invitation is published': 'L’envoi de photos fonctionne une fois l’invitation publiée',
   'Upload failed — try again': 'Échec de l’envoi — réessayez',
 };
+// ===== النسخة العربي (زرار "عربي" فوق على اليمين بعد فتح الظرف — بطلب المالك 2026-11-06) =====
+// كلام الكارت والبرنامج والختام هو النص العربي اللي العرسان بعتوه (بشهور تونس: أفريل، جانفي)؛
+// الباقي ترجمة. الخطوط: Aref Ruqaa (الأسامي والعناوين)، Amiri (الكلام والبسملة)، El Messiri
+// (العناوين الصغيرة والزراير) — بتتحمّل بس لما الضيف يدوس على الزرار أو لو جهازه عربي.
+const AR_IDS = {
+  // الغلاف والكولاج
+  sx1: 'اضغط لفتح الدعوة',
+  sx11: 'أنتم مدعوّون<br>لحضور حفل زفاف',
+  ih1: 'احفظوا التاريخ', ih2: 'برنامج<br>الحفل', ih3: 'اضغط هنا', ih4: 'اضغط هنا', ih5: 'أكّدوا حضوركم', ih6: 'حكايتنا', ih7: 'اكتشفوا',
+  // كارت الدعوة
+  ih10: 'لن تكتمل فرحتنا إلا بحضوركم ومشاركتكم سعادتنا.',
+  ih11: 'تتشرف عائلتا بن غربال والتايب بكل فخر وسرور بدعوتكم لحضور حفل زفاف ابنيهما',
+  ih14: 'ومشاركتهما فرحة هذا اليوم المميز، لتبقى هذه المناسبة ذكرى جميلة لا تُنسى.',
+  ih16: 'وبين الأهل والأحباب، تكتمل فرحتهما بحضوركم ومشاركتكم أجمل لحظات العمر.',
+  ih17: 'حضوركم أجمل هدية وأغلى فرحة لنا',
+  // العدّاد والتقويم
+  sx29: 'اقترب اليوم الموعود',
+  sg33: 'أيام', sg34: 'ساعات', sg35: 'دقائق', sg36: 'ثوانٍ', sg37: 'أضف إلى التقويم',
+  sx30: 'احفظوا التاريخ', sx33: 'بانتظاركم<br>لنحتفل معًا',
+  // البرنامج
+  sg39: 'برنامج حفل الزفاف',
+  sg40: '16:30', sg41: 'دخول العروسين', sg42: '17:30', sg43: 'حفل الزفاف', sg44: '19:00', sg45: 'العشاء', sg46: '20:30', sg47: 'سهرة احتفالية', ih20: '23:00', ih21: 'نهاية الحفل',
+  // المكان
+  sg48: 'خريطة الوصول', sg49: 'مكان الحفل', sg53: 'افتح الموقع على الخريطة',
+  // زفاف بلا هواتف
+  ih33: '🤍 زفاف بلا هواتف 🤍',
+  ih30: 'زفاف، وحبّ، ولحظات جميلة نتقاسمها معكم…',
+  ih31: 'إن رغبتم، ضعوا هواتفكم جانبًا واستمتعوا معنا بكل لحظة من هذا اليوم!',
+  ih32: 'سيتكفّل مصوّرنا بتخليد هذه الذكريات الثمينة ❤️',
+  // تأكيد الحضور
+  sg57: 'نرجو الرد', sg58: 'هل ستشاركوننا فرحتنا؟', sg59: 'تأكيد الحضور', sg60: 'يُرجى تأكيد حضوركم قبل 15 جانفي 2027.',
+  sg61: 'الاسم', sg62: 'هل ستحضرون؟', sg63: 'نعم، بكل سرور', sg64: 'للأسف، لن أتمكّن', ih60: 'عدد الأشخاص', sg65: 'كلمة للعروسين', sg66: 'إرسال الرد',
+  sg67: 'شكرًا — وصلنا ردّكم.', sg68: 'تعديل الرد',
+  // التهاني الصوتية (وصور الضيوف — مقفولة للدعوة دي)
+  sg69: 'اتركوا لنا كلمة جميلة', sg70: 'دفتر التهاني',
+  sg71: 'سجّلوا تهنئتكم بصوتكم', sg72: 'حتى دقيقة واحدة — سيحتفظ بها العروسان', sg73: 'اضغط لبدء التسجيل', sg74: 'سجّل من جديد', sg75: 'إرسال',
+  sg76: 'شاركونا صوركم', sg77: 'ارفعوا اللحظات التي التقطتموها', sg78: 'اختر الصور', sg79: 'JPG · PNG — بلا حدود', sg80: 'صوركم تصل إلى العروسين فقط.',
+  // الختام والألبوم
+  sg82: 'شكرًا', ih40: 'لمشاركتنا هذه المناسبة الجميلة التي لا تُنسى',
+  ih50: 'ذكرياتنا', ih51: 'حكايتنا', ih52: 'عرض كل الصور',
+};
+// الأسامي والمكان بالعربي (زي بيانات الدعوة: groomNameAr / brideNameAr)
+const AR_DATA = { groom: 'إيمان', bride: 'حسن', hall: 'دار البحري — التونارة', city: 'كاب زبيب، تونس' };
+const AR_MSG = {
+  'Your full name': 'الاسم الكامل', 'Optional': 'اختياري', 'Your name': 'الاسم',
+  'Please write your name': 'من فضلك اكتب اسمك',
+  'Please choose: accept or decline': 'من فضلك اختر: نعم أو لا',
+  'Couldn’t send — please try again': 'تعذّر الإرسال — حاول مرة أخرى',
+  'Your name, so the couple knows who sent it': 'اسمك، ليعرف العروسان صاحب التهنئة',
+  'Voice recording isn’t supported on this browser': 'المتصفح لا يدعم التسجيل الصوتي',
+  'Microphone is blocked — allow it to record': 'الميكروفون مقفول — اسمح به لتتمكّن من التسجيل',
+  'That was too short — try again': 'التسجيل قصير جدًا — حاول مرة أخرى',
+  'Recording': 'جارٍ التسجيل',
+  'Please write your name first': 'من فضلك اكتب اسمك أولًا',
+  'Voice wishes work once the invitation is published': 'التهاني الصوتية تعمل بعد نشر الدعوة',
+  'Your voice wish was sent to the couple 🤍': 'وصلت تهنئتك الصوتية إلى العروسين 🤍',
+  'Network problem — check your connection': 'مشكلة في الاتصال — تأكد من الإنترنت',
+  'Photo upload works once the invitation is published': 'رفع الصور يعمل بعد نشر الدعوة',
+  'Upload failed — try again': 'فشل الرفع — حاول مرة أخرى',
+};
+const AR_FONTS = 'https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@400;700&family=El+Messiri:wght@400..700&display=swap';
+
 const json = (v) => JSON.stringify(v).replace(/</g, '\\u003c');
-// بيتحط مكان L بتاعة القالب: نفس الرسايل بالفرنساوي (والرسايل اللي فيها اسم/رقم بالـ regex)
-const FR_FN = `  /* ---------- lcqdxr6: رسايل الصفحة بالفرنساوي ---------- */
+// بيتحط مكان L بتاعة القالب: نفس الرسايل بالفرنساوي أو بالعربي حسب زرار اللغة
+// (والرسايل اللي فيها اسم/رقم بالـ regex)
+const FR_FN = `  /* ---------- lcqdxr6: رسايل الصفحة بالفرنساوي / العربي ---------- */
   const __FR = ${json(FR_MSG)};
+  const __AR = ${json(AR_MSG)};
   const __fr = (s) => {
-    if (Object.prototype.hasOwnProperty.call(__FR, s)) return __FR[s];
+    const ar = window.__ihLang === 'ar', T = ar ? __AR : __FR;
+    if (Object.prototype.hasOwnProperty.call(T, s)) return T[s];
     let m = /^Thank you, (.*) — we can’t wait to celebrate with you 🤍$/.exec(s);
-    if (m) return 'Merci ' + m[1] + ' — nous avons hâte de célébrer avec vous 🤍';
+    if (m) return ar ? 'شكرًا ' + m[1] + ' — بانتظاركم لنحتفل معًا 🤍' : 'Merci ' + m[1] + ' — nous avons hâte de célébrer avec vous 🤍';
     m = /^Thank you, (.*) — you’ll be in our hearts that day 🤍$/.exec(s);
-    if (m) return 'Merci ' + m[1] + ' — vous serez dans nos cœurs ce jour-là 🤍';
+    if (m) return ar ? 'شكرًا ' + m[1] + ' — ستكونون في قلوبنا ذلك اليوم 🤍' : 'Merci ' + m[1] + ' — vous serez dans nos cœurs ce jour-là 🤍';
     m = /^Uploading (\\d+) of (\\d+)…$/.exec(s);
-    if (m) return 'Envoi ' + m[1] + ' sur ' + m[2] + '…';
+    if (m) return ar ? 'جارٍ رفع ' + m[1] + ' من ' + m[2] + '…' : 'Envoi ' + m[1] + ' sur ' + m[2] + '…';
     m = /^Thank you! (\\d+) photos? sent to the couple 🤍$/.exec(s);
-    if (m) return 'Merci\\u00a0! ' + m[1] + (Number(m[1]) > 1 ? ' photos envoyées' : ' photo envoyée') + ' aux mariés 🤍';
+    if (m) return ar ? 'شكرًا! وصلت ' + m[1] + ' صورة إلى العروسين 🤍' : 'Merci\\u00a0! ' + m[1] + (Number(m[1]) > 1 ? ' photos envoyées' : ' photo envoyée') + ' aux mariés 🤍';
     return s;
   };
 `;
 
 // بيتحط في سكريبت القالب قبل "STATIC" — كل حاجة القالب عرّفها (fields, START, RO…) متاحة هنا
 const LOGIC = `
+  /* ---------- lcqdxr6: حاجات مشتركة بين اللغتين (التقويم ولينك "أضف للتقويم") ---------- */
+  const ihCal = (ar) => {
+    const g = document.getElementById('sxcGrid'); if (!g) return;
+    const first = (new Date(Y, M, 1).getDay() + 6) % 7, days = new Date(Y, M + 1, 0).getDate();
+    let h = (ar ? ['إثن', 'ثلا', 'أرب', 'خمي', 'جمع', 'سبت', 'أحد'] : ['LUN', 'MAR', 'MER', 'JEU', 'VEN', 'SAM', 'DIM']).map((d) => '<b>' + d + '</b>').join('');
+    for (let k = 0; k < first; k++) h += '<span></span>';
+    for (let d = 1; d <= days; d++) h += '<span' + (d === D ? ' class="wd"' : '') + '>' + d + '</span>';
+    g.innerHTML = h; g.dir = ar ? 'rtl' : 'ltr';
+  };
+  // لحد آخر الحفل (11 بالليل) — الميعاد بتوقيت تونس (transform)
+  const ihCalLink = (ar) => {
+    const z = (d) => d.toISOString().replace(/[-:]|\\.\\d{3}/g, '');
+    const title = ar ? 'زفاف ${AR_DATA.groom} و ${AR_DATA.bride}' : 'Mariage ' + groom + ' & ' + bride;
+    const where = ar ? '${AR_DATA.hall}، ${AR_DATA.city}' : [C.venueName, C.venueAddress || C.venueCity].filter(Boolean).join(', ');
+    return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent(title)
+      + '&dates=' + z(START) + '/' + z(new Date(START.getTime() + 6.5 * 3600e3)) + '&location=' + encodeURIComponent(where);
+  };
   /* ---------- lcqdxr6: الكلام الثابت بالفرنساوي (نصوص فورم الحضور من البانل بتكسب) ---------- */
   {
     const FR = ${json(FR)};
@@ -461,12 +623,8 @@ const LOGIC = `
     ['monthUp', 'dateShort', 'dateLong', 't0'].forEach((k) => $$('[data-k="' + k + '"]').forEach((el) => { el.textContent = fields[k]; }));
     const s38 = byId('sg38'); if (s38) s38.textContent = fields.dateLong;
     document.title = groom + ' & ' + bride + ' | Invitation de mariage';
-    // أضف للتقويم: بالفرنساوي ولحد آخر الحفل (11 بالليل) — الميعاد بتوقيت تونس (transform)
-    const z = (d) => d.toISOString().replace(/[-:]|\\.\\d{3}/g, '');
-    const where = [C.venueName, C.venueAddress || C.venueCity].filter(Boolean).join(', ');
     const cal = document.getElementById('addCal');
-    if (cal) cal.href = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent('Mariage ' + groom + ' & ' + bride)
-      + '&dates=' + z(START) + '/' + z(new Date(START.getTime() + 6.5 * 3600e3)) + '&location=' + encodeURIComponent(where);
+    if (cal) cal.href = ihCalLink(false);
   }
   /* ---------- lcqdxr6: برنامج اليوم — 5 مواعيد (Déroulement du mariage) ---------- */
   {
@@ -485,14 +643,7 @@ const LOGIC = `
     const mEl = document.querySelector('[data-elem-id="sx31"]'), yEl = document.querySelector('[data-elem-id="sx32"]');
     if (mEl && !mEl.textContent.trim()) mEl.textContent = MN[M];
     if (yEl && !yEl.textContent.trim()) yEl.textContent = String(Y);
-    const g = document.getElementById('sxcGrid');
-    if (g) {
-      const first = (new Date(Y, M, 1).getDay() + 6) % 7, days = new Date(Y, M + 1, 0).getDate();
-      let h = ['LUN', 'MAR', 'MER', 'JEU', 'VEN', 'SAM', 'DIM'].map((d) => '<b>' + d + '</b>').join('');
-      for (let k = 0; k < first; k++) h += '<span></span>';
-      for (let d = 1; d <= days; d++) h += '<span' + (d === D ? ' class="wd"' : '') + '>' + d + '</span>';
-      g.innerHTML = h;
-    }
+    ihCal(false);
     // "Réservez la date" في الكولاج بيودّي على التقويم
     GO.calendar = '#sxCal';
   }
@@ -579,6 +730,101 @@ const LOGIC = `
       lb.addEventListener('touchend', (e) => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; x0 = null; if (Math.abs(dx) > 40) show(cur + (dx < 0 ? 1 : -1)); }, { passive: true });
     }
   }
+  /* ---------- lcqdxr6: زرار عربي / Français (فوق على اليمين، بيظهر بعد فتح الظرف) ---------- */
+  {
+    const AR_IDS = ${json(AR_IDS)};
+    const A = ${json(AR_DATA)};
+    const AM = ['جانفي', 'فيفري', 'مارس', 'أفريل', 'ماي', 'جوان', 'جويلية', 'أوت', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+    const AD = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+    const p2 = (n) => String(n).padStart(2, '0');
+    const wdA = AD[new Date(Y, M, D).getDay()] + ' ' + D + ' ' + AM[M] + ' ' + Y;
+    const ARK = {
+      groom: A.groom, bride: A.bride, conn: 'و', pair: A.groom + ' و ' + A.bride,
+      day: p2(D), monthUp: AM[M], year: String(Y), t0: H + ':' + p2(MI),
+      hall: A.hall, hallUp: A.hall, city: A.city, cityUp: A.city, address: A.city,
+      dateShort: D + ' ' + AM[M] + ' ' + Y, dateUp: p2(D) + ' ' + AM[M] + ' ' + Y, dateLong: 'يوم ' + wdA,
+    };
+    const PH = {
+      fr: { rName: 'Votre nom complet', rNote: 'Facultatif', vName: 'Votre nom, pour que les mariés sachent de qui il vient', pName: 'Votre nom' },
+      ar: { rName: 'الاسم الكامل', rNote: 'اختياري', vName: 'اسمك، ليعرف العروسان صاحب التهنئة', pName: 'الاسم' },
+    };
+    // الكلام الفرنساوي (حتى تعديلات المحرر) بيتحفظ قبل ما يتبدّل، وبيرجع زي ما هو
+    const SNAP = new Map();
+    const put = (el, html) => { if (!el) return; if (!SNAP.has(el)) SNAP.set(el, el.innerHTML); el.innerHTML = html; };
+    const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+    // الخطوط العربي بتتحمّل مرة واحدة — والتحويل بيستنى لحد ما تجهز (بحد أقصى ثانيتين)
+    let fontsP = null;
+    const fonts = () => fontsP || (fontsP = new Promise((res) => {
+      const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = ${json(AR_FONTS)};
+      l.onload = l.onerror = () => res(); document.head.appendChild(l);
+    }).then(() => (document.fonts && document.fonts.load
+      ? Promise.race([Promise.all(['700 24px "Aref Ruqaa"', '400 20px Amiri', '600 16px "El Messiri"'].map((f) => document.fonts.load(f, 'عربي'))), new Promise((r) => setTimeout(r, 2000))])
+      : null)).catch(() => {}));
+    const btn = document.createElement('div');
+    btn.className = 'ih-lang'; btn.setAttribute('role', 'button'); btn.tabIndex = 0;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.7 2.9 2.7 15.1 0 18M12 3c-2.7 2.9-2.7 15.1 0 18"/></svg><span></span>';
+    const btnT = btn.querySelector('span');
+    const label = (ar) => { btn.dataset.to = ar ? 'fr' : 'ar'; btnT.textContent = ar ? 'Français' : 'عربي'; btn.setAttribute('aria-label', ar ? 'Version française' : 'النسخة العربية'); };
+    const setLang = (lang) => {
+      const ar = lang === 'ar';
+      if (ar === (window.__ihLang === 'ar')) return;
+      window.__ihLang = lang;
+      if (ar) {
+        $$('[data-k]').forEach((el) => { const v = ARK[el.dataset.k]; if (v != null) put(el, esc(v)); });
+        Object.keys(AR_IDS).forEach((id) => put(byId(id), AR_IDS[id]));
+        $$('.ihl-nm .amp').forEach((el) => put(el, 'و'));
+        put(byId('sg38'), esc(wdA));
+        put(byId('sx31'), esc(AM[M]));
+      } else {
+        SNAP.forEach((h, el) => { el.innerHTML = h; }); SNAP.clear();
+      }
+      const html = document.documentElement;
+      html.lang = ar ? 'ar' : 'fr'; html.dir = ar ? 'rtl' : 'ltr'; html.classList.toggle('ih-ar', ar);
+      Object.keys(PH[lang]).forEach((id) => { const e = document.getElementById(id); if (e) e.placeholder = PH[lang][id]; });
+      ihCal(ar);
+      const cal = document.getElementById('addCal'); if (cal) cal.href = ihCalLink(ar);
+      // الخريطة بنفس اللغة
+      const mf = document.getElementById('sgMap');
+      if (mf) ['src', 'data-wda-map-src'].forEach((a) => { const v = mf.getAttribute(a); if (v && /[?&]hl=(fr|ar)(&|$)/.test(v)) mf.setAttribute(a, v.replace(/([?&]hl=)(fr|ar)(?=&|$)/, '$1' + lang)); });
+      document.title = ar ? A.groom + ' و ' + A.bride + ' | دعوة زفاف' : groom + ' & ' + bride + ' | Invitation de mariage';
+      label(ar);
+      try { localStorage.setItem('ih_lang_' + (C.shortId || ''), lang); } catch (_) {}
+      dispatchEvent(new Event('resize'));
+    };
+    // التحويل: الصفحة بتختفي لحظة، الكلام بيتبدّل، والجزء اللي قدام الضيف بيفضل قدامه
+    let busy = false;
+    const swap = async (lang) => {
+      if (busy) return; busy = true; btn.classList.add('wait');
+      if (lang === 'ar') await fonts();
+      const anchor = $$('#stage > section').find((s) => s.getBoundingClientRect().bottom > 90);
+      const off = anchor ? anchor.getBoundingClientRect().top : 0;
+      document.documentElement.classList.add('ih-swap');
+      setTimeout(() => {
+        setLang(lang);
+        if (anchor) window.scrollTo(0, window.scrollY + anchor.getBoundingClientRect().top - off);
+        setTimeout(() => document.documentElement.classList.remove('ih-swap'), 30);
+        btn.classList.remove('wait'); busy = false;
+      }, 230);
+    };
+    label(false);
+    if (!EDIT) {
+      document.body.appendChild(btn);
+      onPress(btn, () => swap(btn.dataset.to));
+      const showBtn = () => btn.classList.add('on');
+      const envEl = document.getElementById('sx-env');
+      // الجهاز العربي غالبًا هيدوس على الزرار — الخطوط بتتحمّل من بدري
+      const arDevice = (navigator.languages || [navigator.language || '']).some((l) => /^ar/i.test(l || ''));
+      if (envEl && !STATIC) {
+        const opened = () => { setTimeout(showBtn, 2300); if (arDevice) setTimeout(fonts, 1500); };
+        envEl.addEventListener('click', opened);
+        envEl.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') opened(); });
+      } else showBtn();
+      // اللغة من الأول: ?lang=ar في اللينك، أو آخر اختيار للضيف ده
+      let start = '';
+      try { start = new URLSearchParams(location.search).get('lang') || localStorage.getItem('ih_lang_' + (C.shortId || '')) || ''; } catch (_) {}
+      if (start === 'ar') { fonts(); setLang('ar'); }
+    }
+  }
 `;
 
 // لازم يتلاقوا في القالب مرة واحدة بالظبط — غير كده الصفحة العادية
@@ -632,7 +878,7 @@ module.exports = {
 
   render() {
     return {
-      head: `<link rel="preload" as="image" href="${TOP}"><link rel="preload" as="image" href="${BOTTOM}"><link rel="preload" as="image" href="${SEAL}"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Cinzel:wght@500&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap"><style id="sx-style">${CSS}${CAL_CSS}${MORE_CSS}${RSVP_CSS}${ALBUM_CSS}</style>`,
+      head: `<link rel="preload" as="image" href="${TOP}"><link rel="preload" as="image" href="${BOTTOM}"><link rel="preload" as="image" href="${SEAL}"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Cinzel:wght@500&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap"><style id="sx-style">${CSS}${CAL_CSS}${MORE_CSS}${RSVP_CSS}${ALBUM_CSS}${AR_CSS}</style>`,
     };
   },
 
