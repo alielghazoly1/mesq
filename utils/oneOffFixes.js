@@ -403,6 +403,33 @@ const FIXES = [
     },
   },
   {
+    // xVSjgue (Blossom & Oud) — بطلب المالك (2026-11-07): وطية إيمان (حنّة Imène — نفس عيلة
+    // lcqdxr6)، الجمعة 9 أفريل 2027 الساعة 18:00، Hacienda Events في أريانة بلينك المالك،
+    // والخريطة المضمّنة على الـ plus code بتاع القاعة (W4HP+43J). الكلام بالعربي والفرنساوي في
+    // custom-invitations/xVSjgue.js. بيتعمل بس لو الدعوة لسه مسودة (Groom / Bride).
+    name: 'xVSjgue-outya-imene',
+    shortId: 'xVSjgue',
+    select: '-__v',
+    when: (c, inv) => inv.templateId === 'blossom-oud' && inv.groomName === 'Groom' && inv.brideName === 'Bride',
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const MAP = 'https://maps.app.goo.gl/aioMKkkMzo141y6m7?g_st=ic';
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: inv.language, occasionType: inv.occasionType,
+        hiddenSections: inv.hiddenSections, timeline: inv.timeline, name: inv.name,
+        groomName: 'Outya', groomNameAr: 'وطيّة', brideName: 'Imène', brideNameAr: 'إيمان',
+        venueName: 'Hacienda Events', venueCity: 'Ariana, Tunisie',
+        venueMapQuery: MAP,
+        weddingDate: '2027-04-09', weddingTime: '18:00',
+      }, { ownsTemplate: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.venueMapDirectLink = MAP;
+      set.venueMapEmbedSrc = `https://www.google.com/maps?q=${encodeURIComponent('W4HP+43J Ariana, Tunisie')}&z=15&hl=fr&output=embed`;
+      return set;
+    },
+  },
+  {
     // lcqdxr6 — بطلب المالك (2026-11-06): أغنية الدعوة "A Whole New World" من مكتبة الموسيقى
     // (المالك رافعها من لوحة التحكم) — كأن العميل اختارها من تبويب الموسيقى في المحرر.
     // بيتعمل بس لو مفيش أغنية متختارة، فلو العميل غيّرها بعد كده مابنرجّعهاش.
