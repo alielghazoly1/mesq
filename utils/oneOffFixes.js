@@ -975,6 +975,20 @@ const FIXES = [
     apply: () => ({ 'customizations.audioUrl': '' }),
   },
   {
+    // DBywdm2 — المالك كتب ميعاد الفرح في الختام (2026-11-07): الساعة 6:00 مساءً. البيانات كانت على 4:30
+    // (أول برنامج اليوم اللي كان في التصميم)؛ هنا عشان لوحة العميل والإحصائيات يبقوا زي الدعوة. التاريخ
+    // بيتبني بتوقيت السيرفر زي buildInvitationDataFromRequest بالظبط. بيتعمل بس لو لسه 4:30.
+    name: 'DBywdm2-time-6pm',
+    shortId: 'DBywdm2',
+    select: 'groomName weddingDateTime',
+    when: (c, inv) => {
+      if (inv.groomName !== 'Ahmed' || !inv.weddingDateTime) return false;
+      const d = new Date(inv.weddingDateTime);
+      return d.getFullYear() === 2026 && d.getMonth() === 11 && d.getDate() === 3 && d.getHours() === 16 && d.getMinutes() === 30;
+    },
+    apply: () => ({ weddingDateTime: new Date(2026, 11, 3, 18, 0, 0) }),
+  },
+  {
     // G1L8BxQ — المالك بعت لوكيشن صالة قلوريا للمناسبات الاجتماعية (2026-11-04). الدبوس القديم كان
     // على نفس الإحداثيات بس من غير اسم الصالة، والاسم الوحيد اللي باين جنبه "قاعة فيدا". دلوقتي
     // الخريطة هي تضمين المالك نفسه (المكان باسمه، الخريطة العادية مش القمر الصناعي، وبالعربي)،

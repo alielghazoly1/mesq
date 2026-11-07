@@ -13,6 +13,10 @@
 <style>
 @font-face{font-family:'Monsieur La Doulaise Local';font-style:normal;font-weight:400;font-display:swap;src:url(assets/doulaise.woff2) format('woff2')}
 @font-face{font-family:'Cormorant Garamond';font-style:normal;font-weight:300 700;font-display:swap;src:url(assets/cormorant.woff2) format('woff2')}
+/* الكلام العربي في الختام: أميري للفقرات، وعارف رقعة للسطر الأول (نفس روح الختم) — ملفات متقطّعة على
+   حروف العربي بس */
+@font-face{font-family:'Amiri Ar Local';font-style:normal;font-weight:400;font-display:swap;src:url(assets/amiri-ar.woff2) format('woff2')}
+@font-face{font-family:'Aref Ruqaa Ar Local';font-style:normal;font-weight:400;font-display:swap;src:url(assets/arefruqaa-ar.woff2) format('woff2')}
 @font-face{font-family:'Jost';font-style:normal;font-weight:100 900;font-display:swap;src:url(assets/jost.woff2) format('woff2')}
 :root{
   --bg:#f7f5f3;--fg:#4c5f76;--bg-rgb:247,245,243;--fg-rgb:76,95,118;--ivory:#e9e3dd;
@@ -121,24 +125,6 @@ main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
 .loc-img img{width:100%;height:auto;pointer-events:none}
 .loc .btn{margin-top:40px}
 
-/* ===== 5. برنامج اليوم بين الستاير ===== */
-.day{position:relative;padding:80px 24px min(60vw,460px)}
-.day-cur{position:absolute;top:0;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:768px;pointer-events:none;border-style:solid;border-color:transparent;border-width:min(128vw,985px) 0 min(70vw,538px) 0;border-image-source:url(assets/curtain.webp);border-image-slice:55% 0 30% 0 fill;border-image-repeat:stretch}
-.day-in{position:relative;max-width:672px;margin:0 auto}
-.day-head{text-align:center;margin:96px 0 32px;position:relative}
-.day-t{position:relative;z-index:10;transform:translateX(-16px);font-family:var(--script);font-size:60px;line-height:.9}
-.day-p{color:rgba(var(--fg-rgb),.7);font-family:var(--sans);font-weight:300;font-size:13px;line-height:1.625;margin-top:16px}
-.tl{position:relative;max-width:170px;margin:0 auto}
-.tl-line{position:absolute;left:5.5px;top:12px;bottom:12px;width:1px;background:rgba(var(--fg-rgb),.5)}
-.tl-i{position:relative;display:grid;grid-template-columns:12px minmax(0,1fr);column-gap:20px;text-align:left}
-.tl-i+.tl-i{margin-top:40px}
-.tl-i>img{margin-top:6px;width:12px;height:12px;border-radius:50%;box-shadow:0 1px 2px rgba(var(--fg-rgb),.3)}
-.tl-x{line-height:1.375}
-.tl-h{display:block;font-family:var(--serif);font-size:24px;line-height:1}
-.tl-h small{margin-left:4px;font-size:.5em;letter-spacing:.1em}
-.tl-l{display:block;margin-top:8px;font-size:14px;line-height:20px;letter-spacing:.2em}
-.tl-d{display:block;margin-top:4px;font-family:var(--sans);font-weight:300;color:rgba(var(--fg-rgb),.7);font-size:12px;line-height:1.625}
-
 /* ===== 6. الدريس كود ===== */
 .dr{width:100%;padding:64px 24px}
 .dr-wrap{position:relative}
@@ -159,7 +145,11 @@ main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
    معمولة بعد قسم الـ RSVP الأزرق، فاتظبطت على إيقاع باقي الأقسام */
 .ft{position:relative;padding:64px 24px 80px;text-align:center}
 .ft-seal{width:112px;height:auto;margin:-12px auto 32px;pointer-events:none;filter:drop-shadow(0 2px 6px rgba(0,0,0,.15))}
-.ft-w{font-family:var(--serif);font-size:20px;line-height:1.625;color:rgba(var(--fg-rgb),.8);margin-bottom:40px}
+.ft-ar{font-family:'Amiri Ar Local','Amiri',serif;font-size:18px;line-height:2;color:rgba(var(--fg-rgb),.8);max-width:330px;margin:0 auto}
+.ft-ar+.ft-ar{margin-top:10px}
+.ft-ar-h{font-family:'Aref Ruqaa Ar Local','Aref Ruqaa',serif;font-size:30px;line-height:1.7;color:var(--fg);margin-bottom:12px}
+.ft-ar+.ft-l{margin-top:40px}
+.ft-t{margin-top:4px}
 .ft-l{font-family:var(--sans);font-weight:300;font-size:13px;color:rgba(var(--fg-rgb),.6);margin-bottom:12px}
 /* الأسامي في سطر واحد زي التصميم: "Ahmed & Faten" بالخط ده أعرض من المساحة على موبايل 393 بـ 3px،
    فبيصغر بس بالقدر اللي يخليه سطر واحد (59px على 393 بدل 60) — والشاشات الأعرض بمقاس التصميم */
@@ -187,14 +177,6 @@ main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
   .loc-c{font-size:18px;line-height:28px}
   .loc-p{font-size:13px}
   .loc-img{width:60%}
-  .day{padding-top:112px}
-  .day-head{margin-top:112px}
-  .day-t{font-size:96px}
-  .day-p{font-size:15px}
-  .tl{max-width:200px}
-  .tl-i+.tl-i{margin-top:48px}
-  .tl-h{font-size:30px}
-  .tl-d{font-size:13px}
   .dr{padding:96px 24px}
   .dr-box{width:100%;left:0;transform:none;max-width:465px;margin:0 auto}
   .dr-t{font-size:67px}
@@ -204,7 +186,8 @@ main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
   .dr-d{font-size:13px}
   .ft{padding-top:72px}
   .ft-seal{width:144px}
-  .ft-w{font-size:30px}
+  .ft-ar{font-size:21px;max-width:440px}
+  .ft-ar-h{font-size:40px}
   .ft-n{font-size:72px;line-height:90px}
   .ft-n span{font-size:36px;line-height:40px}
 }
@@ -287,44 +270,6 @@ main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
     </section>
   </div>
 
-  <!-- 5. برنامج اليوم -->
-  <div class="rv sec">
-    <section class="day">
-      <div class="day-cur" aria-hidden="true"></div>
-      <div class="day-in">
-        <div class="rv day-head">
-          <h2 class="day-t">The<br>Day</h2>
-          <p class="day-p">A day to celebrate,<br>from the first hello to the last dance.</p>
-        </div>
-        <div class="tl">
-          <div class="tl-line"></div>
-          <div>
-            <div class="rv tl-i" style="--d:.5s">
-              <img src="assets/pearl-dot.webp" alt="">
-              <div class="tl-x"><span class="tl-h">4:30<small>PM</small></span><span class="tl-l up">Welcome</span><span class="tl-d">Drinks in the villa gardens.</span></div>
-            </div>
-            <div class="rv tl-i" style="--d:.5s;--dl:.08s">
-              <img src="assets/pearl-dot.webp" alt="">
-              <div class="tl-x"><span class="tl-h">5:00<small>PM</small></span><span class="tl-l up">Ceremony</span><span class="tl-d">We say “I do” at sunset.</span></div>
-            </div>
-            <div class="rv tl-i" style="--d:.5s;--dl:.16s">
-              <img src="assets/pearl-dot.webp" alt="">
-              <div class="tl-x"><span class="tl-h">6:00<small>PM</small></span><span class="tl-l up">Cocktail Hour</span><span class="tl-d">Aperitivo on the terrace.</span></div>
-            </div>
-            <div class="rv tl-i" style="--d:.5s;--dl:.24s">
-              <img src="assets/pearl-dot.webp" alt="">
-              <div class="tl-x"><span class="tl-h">8:00<small>PM</small></span><span class="tl-l up">Dinner</span><span class="tl-d">Dinner under the stars.</span></div>
-            </div>
-            <div class="rv tl-i" style="--d:.5s;--dl:.32s">
-              <img src="assets/pearl-dot.webp" alt="">
-              <div class="tl-x"><span class="tl-h">10:30<small>PM</small></span><span class="tl-l up">Dancing</span><span class="tl-d">Dancing until late.</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  </div>
-
   <!-- 6. الدريس كود -->
   <div class="rv sec">
     <section class="dr">
@@ -349,10 +294,14 @@ main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
       <div class="rv" style="--y:0px;--d:.8s">
         <!-- الختم: مونوجرام المالك بالخط العربي أ + ف (2026-11-06 — نفس ختم الفيديو والغلاف) -->
         <img class="ft-seal" src="assets/seal.webp" alt="Ahmed &amp; Faten" draggable="false">
-        <p class="ft-w">We can't wait to celebrate with you.</p>
-        <p class="ft-l">With love,</p>
+        <!-- كلام الختام من المالك (2026-11-07) -->
+        <p class="ft-ar ft-ar-h" dir="rtl" lang="ar">ولأن الفرحة لا تكتمل إلا بكم…</p>
+        <p class="ft-ar" dir="rtl" lang="ar">وجودكم معانا مش مجرد حضور، ده جزء من فرحتنا، ومن أجمل الذكريات اللي هنبدأ بيها حياتنا سوا</p>
+        <p class="ft-ar" dir="rtl" lang="ar">نتمنى نشوفكم ونشارك معاكم أول لحظات حكايتنا الجديدة.</p>
+        <p class="ft-l">With all our love,</p>
         <p class="ft-n">Ahmed <span>&amp;</span> Faten</p>
-        <p class="ft-d">3 December 2026</p>
+        <p class="ft-d">03.12.2026</p>
+        <p class="ft-d ft-t">At 6:00PM</p>
       </div>
     </footer>
   </div>
@@ -372,9 +321,8 @@ main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
   'use strict';
   /* بيانات الدعوة اللي الكود محتاجها — أي تعديل في الميعاد بيبقى هنا */
   var EVENT = {
-    // العدّاد: الخميس 3 ديسمبر 2026 الساعة 12 الظهر بتوقيت مصر (UTC+2) — نفس ساعة التصميم الأصلي
-    // لحد ما المالك يبعت ميعاد الفرح.
-    countdownTo: Date.UTC(2026, 11, 3, 10, 0, 0)
+    // العدّاد: الخميس 3 ديسمبر 2026 الساعة 6 المسا بتوقيت مصر (UTC+2) — الميعاد اللي المالك كتبه في الختام
+    countdownTo: Date.UTC(2026, 11, 3, 16, 0, 0)
   };
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
