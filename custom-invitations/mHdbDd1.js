@@ -2,8 +2,8 @@
 // دعوة Champagne Lace بغلاف جديد بطلب المالك (2026-11-08): الباب الأبيض اللي
 // عليه زنبق الكالا البارز والختم الدهبي في النص — الصورة اللي بعتها بالظبط.
 //
-// الضغط: الختم بيعمل زوم بسيط ويختفي، وبعدين الضلفتين بيتفتحوا من النص لجوه
-// بهدوء (نور دافي بيطلع من الفتحة والكاميرا بتقرّب سنة)، والدعوة بتبان وراهم.
+// الضغط: الختم بيعمل زوم بسيط ويختفي، وبعدين الضلفتين بيتفتحوا من النص
+// لبره ناحية الضيف بهدوء (نور دافي من الفتحة والكاميرا بتقرّب سنة)، والدعوة بتبان وراهم.
 // وفي نفس الضغطة بندوس على ختم القالب المستخبي (الموسيقى + فتح الدعوة).
 //
 // الصور في client/public/custom/mHdbDd1/ (scratch mh/: up.py ESRGAN 2x، clean.py
@@ -34,17 +34,17 @@ html.mh-lock,html.mh-lock body{overflow:hidden!important;height:100%}
 #mh-cover{position:fixed;inset:0;z-index:2147483000;overflow:hidden;cursor:pointer;background:#e7e1d7;-webkit-tap-highlight-color:transparent;outline:none;-webkit-user-select:none;user-select:none;touch-action:manipulation}
 /* الشاشات العريضة: نفس الباب مغبّش على الجنبين */
 #mh-cover .bk{position:absolute;inset:-60px;background:url(${L}) center/cover no-repeat;filter:blur(30px) brightness(.97);opacity:.85}
-#mh-cover .st{position:absolute;left:50%;top:50%;width:max(100vw,${WMIN}vh);aspect-ratio:1128/2604;transform:translate(-50%,-50%);perspective:1500px;perspective-origin:50% 47%}
+#mh-cover .st{position:absolute;left:50%;top:50%;width:max(100vw,${WMIN}vh);aspect-ratio:1128/2604;transform:translate(-50%,-50%);perspective:1150px;perspective-origin:50% 47%}
 #mh-cover .cam{position:absolute;inset:0;transform-style:preserve-3d;transform-origin:50% 49%}
 /* نور دافي ورا الضلفتين — بيبان من الفتحة */
 #mh-cover .glow{position:absolute;inset:0;opacity:0;transform:translateZ(-900px) scale(1.6);background:radial-gradient(ellipse 34% 40% at 50% 49%,rgba(255,251,240,.95),rgba(255,238,206,.5) 50%,rgba(255,230,190,0) 80%)}
 #mh-cover .lf{position:absolute;top:0;width:50%;height:100%;transform-style:preserve-3d;backface-visibility:hidden;-webkit-backface-visibility:hidden;will-change:transform}
-#mh-cover .lf img{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;-webkit-user-drag:none}
+#mh-cover .lf img{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;-webkit-user-drag:none;backface-visibility:hidden;-webkit-backface-visibility:hidden}
 #mh-cover .lf.l{left:0;transform-origin:0 50%}
 #mh-cover .lf.r{left:50%;transform-origin:100% 50%}
 #mh-cover .lf i{position:absolute;inset:0;opacity:0;pointer-events:none}
-#mh-cover .lf.l i{background:linear-gradient(90deg,rgba(70,55,35,.04),rgba(70,55,35,.42))}
-#mh-cover .lf.r i{background:linear-gradient(270deg,rgba(70,55,35,.04),rgba(70,55,35,.42))}
+#mh-cover .lf.l i{background:linear-gradient(90deg,rgba(70,55,35,.34),rgba(70,55,35,.08))}
+#mh-cover .lf.r i{background:linear-gradient(270deg,rgba(70,55,35,.34),rgba(70,55,35,.08))}
 /* الموبايل: الباب بعرض الشاشة دايمًا (الشاشات القصيرة بيتقص من فوق وتحت سنة).
    الشاشات العريضة/اللابتوب: الباب كله بطول الشاشة في النص والجنبين مغبّشين */
 @media (min-aspect-ratio:3/4){#mh-cover .st{width:${WMAX}vh}}
@@ -65,11 +65,12 @@ html.mh-lock,html.mh-lock body{overflow:hidden!important;height:100%}
   100%{transform:scale(1.2);opacity:0;filter:drop-shadow(0 12px 18px rgba(90,70,40,0)) blur(4px)}}
 #mh-cover.go .line{animation:mhLine 1s ease-out .7s forwards}
 @keyframes mhLine{0%{opacity:0}35%{opacity:1}100%{opacity:0}}
-#mh-cover.go .lf.l{animation:mhL 2.6s cubic-bezier(.62,.02,.16,1) .9s forwards}
-#mh-cover.go .lf.r{animation:mhR 2.6s cubic-bezier(.62,.02,.16,1) .9s forwards}
-@keyframes mhL{0%{transform:rotateY(0)}100%{transform:rotateY(94deg)}}
-@keyframes mhR{0%{transform:rotateY(0)}100%{transform:rotateY(-94deg)}}
-#mh-cover.go .lf i{animation:mhShade 2.6s ease-in .9s forwards}
+/* الضلفتين بيتفتحوا لبره (ناحية الضيف) — بداية هادية ونهاية ناعمة طويلة */
+#mh-cover.go .lf.l{animation:mhL 2.8s cubic-bezier(.5,0,.18,1) .9s forwards}
+#mh-cover.go .lf.r{animation:mhR 2.8s cubic-bezier(.5,0,.18,1) .9s forwards}
+@keyframes mhL{0%{transform:rotateY(0)}100%{transform:rotateY(-96deg)}}
+@keyframes mhR{0%{transform:rotateY(0)}100%{transform:rotateY(96deg)}}
+#mh-cover.go .lf i{animation:mhShade 2.4s ease-in-out .9s forwards}
 @keyframes mhShade{to{opacity:1}}
 #mh-cover.go .glow{animation:mhGlow 2.6s ease-in-out .85s forwards}
 @keyframes mhGlow{0%{opacity:0}35%{opacity:1}100%{opacity:0}}
@@ -121,8 +122,8 @@ const SCRIPT = `<script>
     // الكارت الأول يبدأ يظهر والضلفتين بيتفتحوا
     setTimeout(function () { var h = document.getElementById('hv-hero'); if (h) h.classList.add('hv--play'); }, 1500);
     var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
-    setTimeout(function () { cov.classList.add('out'); }, reduce ? 0 : 3100);
-    setTimeout(finish, reduce ? 650 : 3700);
+    setTimeout(function () { cov.classList.add('out'); }, reduce ? 0 : 3300);
+    setTimeout(finish, reduce ? 650 : 3900);
   }
   cov.addEventListener('click', open);
   cov.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
