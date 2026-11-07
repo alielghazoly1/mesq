@@ -52,7 +52,7 @@ module.exports = {
     width: 1200,
     height: 630,
     overrideImage: true,
-    title: 'Sari & Sona — Wedding Invitation',
+    title: 'Sary & Sona — Wedding Invitation',
     description: 'Saturday, 5 December 2026 · 7:30 PM · Daraj Al Yasmine, Dubai',
   },
 
@@ -60,7 +60,7 @@ module.exports = {
   guestLinks: true,
 
   // زرار "Add to calendar" (routes/invitations.js → /i/j4jpczb/calendar.ics)
-  calendar: { title: 'Sari & Sona — Wedding', hours: 5 },
+  calendar: { title: 'Sary & Sona — Wedding', hours: 5 },
 
   render() {
     return {};

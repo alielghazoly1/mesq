@@ -1084,6 +1084,17 @@ const FIXES = [
       return { 'customizations.audioUrl': pick.url, 'customizations.audioStart': 0, 'customizations.audioEnd': 0 };
     },
   },
+  {
+    // j4jpczb — العريس بيتكتب Sary مش Sari (بطلب المالك 2026-11-07). الصفحة نفسها في
+    // custom-invitations/j4jpczb.html؛ ده الاسم في اللوحة والإحصائيات وعنوان اللينك.
+    name: 'j4jpczb-sary',
+    shortId: 'j4jpczb',
+    select: 'customizations groomName',
+    when: (c, inv) => inv.groomName === 'Sari',
+    async apply() {
+      return { groomName: 'Sary' };
+    },
+  },
 ];
 
 let done = false;

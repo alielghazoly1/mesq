@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Sari &amp; Sona — Wedding Invitation</title>
+<title>Sary &amp; Sona — Wedding Invitation</title>
 <meta name="theme-color" content="#efe7d9">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -93,7 +93,8 @@ img{display:block;max-width:none;-webkit-user-select:none;user-select:none;-webk
 @keyframes settle{from{transform:scale(1.06)}to{transform:none}}
 
 /* ===================== الكارت (التصميم نفسه) ===================== */
-.card{position:relative;width:100%;aspect-ratio:1024/1536;container-type:inline-size;overflow:hidden}
+/* الكارت كله بيبان في أول شاشة بعد الفتح حتى على الموبايلات القصيرة (أو جوه إنستجرام/واتساب) — بيصغر شوية بدل ما يتقص من تحت */
+.card{position:relative;width:min(100%,calc(100vh * 1024 / 1536));width:min(100%,calc(100svh * 1024 / 1536));margin:0 auto;aspect-ratio:1024/1536;container-type:inline-size;overflow:hidden}
 .card *{--k:calc(100cqw / 1024)}
 .card .bg{position:absolute;inset:0;width:100%;height:100%;z-index:2}
 .card .ph{position:absolute;z-index:1;left:calc(var(--k)*347.15);top:calc(var(--k)*349.95);width:calc(var(--k)*321.5);height:calc(var(--k)*413.1);background:#2b2018}
@@ -274,8 +275,8 @@ img{display:block;max-width:none;-webkit-user-select:none;user-select:none;-webk
       <img class="fl t" src="assets/orn-fleur.webp" alt=""><img class="fl b" src="assets/orn-fleur.webp" alt="">
       <img class="lv tr" src="assets/leaves-tr.webp" alt=""><img class="lv bl" src="assets/leaves-bl.webp" alt="">
     </div></div>
-    <p class="cv-names"><span class="n gold-text">Sari &amp; Sona</span><span class="d">05 · 12 · 2026</span></p>
-    <p class="cv-guest"><span class="dear">Dear</span><span class="gn gold-text" id="cvGn"></span><span class="inv">you are cordially invited to the wedding of Sari &amp; Sona</span></p>
+    <p class="cv-names"><span class="n gold-text">Sary &amp; Sona</span><span class="d">05 · 12 · 2026</span></p>
+    <p class="cv-guest"><span class="dear">Dear</span><span class="gn gold-text" id="cvGn"></span><span class="inv">you are cordially invited to the wedding of Sary &amp; Sona</span></p>
     <p class="cv-seats" id="cvSeats"></p>
     <div class="seal" id="seal"><img src="assets/seal.webp" alt="" fetchpriority="high"></div>
     <p class="hint">Tap to open</p>
@@ -285,13 +286,12 @@ img{display:block;max-width:none;-webkit-user-select:none;user-select:none;-webk
 <div class="page" id="page">
 
   <!-- 1) الكارت: نفس التصميم بالظبط -->
-  <section class="card" aria-label="Wedding invitation of Sari and Sona">
-    <div class="ph"><img src="assets/oval.webp" alt="Sari and Sona" decoding="async"></div>
+  <section class="card" aria-label="Wedding invitation of Sary and Sona">
+    <div class="ph"><img src="assets/oval.webp" alt="Sary and Sona" decoding="async"></div>
     <img class="bg" src="assets/card.webp" alt="" decoding="async">
-    <p class="c-ar gold-text">ساري و سونا</p>
     <p class="c-inv">You are invited</p>
     <p class="c-inv2">to celebrate our wedding</p>
-    <p class="c-names"><span class="nm gold-text">Sari</span><svg viewBox="0 0 48 44" fill="none" stroke="#a8834a" stroke-width="1.6" aria-hidden="true"><path d="M24 40 C 9 29, 3 20, 6 12 C 9 4, 19 4, 24 12 C 29 4, 39 4, 42 12 C 45 20, 39 29, 24 40 Z"/><path d="M24 33 C 15 26, 12 20, 14 15 C 16 11, 21 11, 24 16 C 27 11, 32 11, 34 15 C 36 20, 33 26, 24 33 Z" stroke-width="1.1"/></svg><span class="nm gold-text">Sona</span></p>
+    <p class="c-names"><span class="nm gold-text">Sary</span><svg viewBox="0 0 48 44" fill="none" stroke="#a8834a" stroke-width="1.6" aria-hidden="true"><path d="M24 40 C 9 29, 3 20, 6 12 C 9 4, 19 4, 24 12 C 29 4, 39 4, 42 12 C 45 20, 39 29, 24 40 Z"/><path d="M24 33 C 15 26, 12 20, 14 15 C 16 11, 21 11, 24 16 C 27 11, 32 11, 34 15 C 36 20, 33 26, 24 33 Z" stroke-width="1.1"/></svg><span class="nm gold-text">Sona</span></p>
     <p class="c-date">Saturday<i>•</i>5 December 2026</p>
     <p class="c-time">At<i>•</i>7:30 PM</p>
     <p class="c-venue">Daraj Al Yasmine</p>
@@ -321,7 +321,7 @@ img{display:block;max-width:none;-webkit-user-select:none;user-select:none;-webk
     <div class="fam">
       <div><div class="who">Father of the Groom</div><p class="nm">فريد عربي</p></div>
       <div class="amp">&amp;</div>
-      <div><div class="who">Father of the Bride</div><p class="nm">ناطر طربيه</p></div>
+      <div><div class="who">Father of the Bride</div><p class="nm">ناصر طربيه</p></div>
     </div>
     <img class="orn div" src="assets/orn-divider.webp" alt="" loading="lazy">
   </section>
@@ -347,11 +347,11 @@ img{display:block;max-width:none;-webkit-user-select:none;user-select:none;-webk
     <h2 class="title gold-text">Captured Love</h2>
     <div class="gal" id="gal">
       <div class="gtrack" id="gtrack">
-        <figure class="gitem on" style="margin:0"><img src="assets/g1.webp" alt="Sari and Sona" loading="lazy" decoding="async"></figure>
-        <figure class="gitem" style="margin:0"><img src="assets/g2.webp" alt="Sari and Sona" loading="lazy" decoding="async"></figure>
-        <figure class="gitem" style="margin:0"><img src="assets/g3.webp" alt="Sari and Sona" loading="lazy" decoding="async"></figure>
-        <figure class="gitem" style="margin:0"><img src="assets/g4.webp" alt="Sari and Sona" loading="lazy" decoding="async"></figure>
-        <figure class="gitem wide" style="margin:0"><img src="assets/g5.webp" alt="Sari and Sona" loading="lazy" decoding="async"></figure>
+        <figure class="gitem on" style="margin:0"><img src="assets/g1.webp" alt="Sary and Sona" loading="lazy" decoding="async"></figure>
+        <figure class="gitem" style="margin:0"><img src="assets/g2.webp" alt="Sary and Sona" loading="lazy" decoding="async"></figure>
+        <figure class="gitem" style="margin:0"><img src="assets/g3.webp" alt="Sary and Sona" loading="lazy" decoding="async"></figure>
+        <figure class="gitem" style="margin:0"><img src="assets/g4.webp" alt="Sary and Sona" loading="lazy" decoding="async"></figure>
+        <figure class="gitem wide" style="margin:0"><img src="assets/g5.webp" alt="Sary and Sona" loading="lazy" decoding="async"></figure>
       </div>
       <button class="garr p" type="button" aria-label="Previous photo" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg></button>
       <button class="garr n" type="button" aria-label="Next photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg></button>
@@ -403,7 +403,7 @@ img{display:block;max-width:none;-webkit-user-select:none;user-select:none;-webk
   <section class="sec rv" id="photos">
     <p class="eyebrow">Share your moments</p>
     <h2 class="title gold-text">Capture the Night</h2>
-    <p class="lead">Took photos at the wedding? Upload them here — they go straight to Sari &amp; Sona.</p>
+    <p class="lead">Took photos at the wedding? Upload them here — they go straight to Sary &amp; Sona.</p>
     <div id="gx-anchor"></div>
     <img class="orn div" src="assets/orn-divider.webp" alt="" loading="lazy">
   </section>
@@ -412,7 +412,7 @@ img{display:block;max-width:none;-webkit-user-select:none;user-select:none;-webk
   <section class="sec end rv">
     <img class="mono" src="assets/seal.webp" alt="" loading="lazy">
     <p class="w">With all our love,</p>
-    <p class="nm gold-text">Sari &amp; Sona</p>
+    <p class="nm gold-text">Sary &amp; Sona</p>
     <p class="dt">05 · 12 · 2026</p>
     <img class="orn fleur" src="assets/orn-bottom.webp" alt="" loading="lazy" style="width:calc(var(--u)*120);margin-top:calc(var(--u)*22)">
   </section>
@@ -422,7 +422,7 @@ img{display:block;max-width:none;-webkit-user-select:none;user-select:none;-webk
 <div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Photo">
   <button class="x" type="button" aria-label="Close">×</button>
   <button class="pv" type="button" aria-label="Previous">‹</button>
-  <img alt="Sari and Sona">
+  <img alt="Sary and Sona">
   <button class="nx" type="button" aria-label="Next">›</button>
   <div class="cnt"></div>
 </div>
