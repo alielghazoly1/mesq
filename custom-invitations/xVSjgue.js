@@ -5,7 +5,7 @@
 // تصميم القالب (Tilda) هو هو: الستاير والقصر، كارت القوس، العدّاد، البرنامج (4 مواعيد بالظبط)،
 // المكان، الخريطة، والختام — كلامهم بيتبدّل باللغة (FR / AR تحت). الأقسام الجديدة بنفس ألوان
 // وخطوط القالب: كلام العيلة كامل بعد كارت القوس، "ممنوع التصوير" مكان الدريس كود، تأكيد حضور
-// فيه عدد البالغين والأطفال (مكان فورم القالب — بيوصل للوحة العميل)، والآيات قبل الختام.
+// فيه عدد البالغين والأطفال (مكان فورم القالب — بيوصل للوحة العميل)، والآيات تحت كارت البسملة.
 // البيانات (الأسامي والتاريخ والمكان والخريطة): oneOffFix xVSjgue-outya-imene.
 const SHORT = 'xVSjgue';
 const GOLD = '#866739';
@@ -64,7 +64,7 @@ const LETTER = `<section class="xv-sec xv-letter" id="xvLetter">
 const NOPHOTO = `<section class="xv-sec" id="xvNoPhoto">
   <div class="xv-card xv-dark">
     <div class="xv-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13.5" r="3.5"/><path d="M3 3l18 18"/></svg></div>
-    ${T('🚫 PHOTOS ET VIDÉOS INTERDITES', '🚫 يُمنع التصوير والتسجيل بالفيديو', 'p', 'xv-k')}
+    ${T('Photos et vidéos interdites', '🚫 يُمنع التصوير والتسجيل بالفيديو', 'p', 'xv-k')}
     ${T('Afin de préserver l’intimité de la mariée et des invités, nous vous prions de respecter notre souhait de ne prendre aucune photo ni vidéo durant la soirée.', 'حرصًا منا على خصوصية هذه المناسبة وجمال لحظاتها، نرجو منكم احترام رغبتنا في عدم التقاط أي صور أو تسجيل أي مقاطع فيديو طوال السهرة.', 'p', 'xv-p')}
     ${T('Nous souhaitons que ces souvenirs restent gravés dans nos cœurs et non dans les écrans.', 'نرغب في أن تبقى هذه الذكريات محفورة في قلوبنا، لا في شاشات هواتفنا.', 'p', 'xv-p xv-i')}
     ${T('Merci pour votre compréhension, votre discrétion et votre bienveillance.', 'شكرًا جزيلًا لتفهمكم، واحترامكم، ولباقتكم.', 'p', 'xv-p')}
@@ -108,46 +108,45 @@ const VERSES = `<section class="xv-sec xv-verses" id="xvVerses" dir="rtl" lang="
 </section>`;
 
 const CSS = `
-.xv-sec{position:relative;z-index:5;background:#f9e6d4;padding:30px 18px 34px;text-align:center;font-family:'Cormorant Garamond',serif;color:${INK}}
+.xv-sec{position:relative;z-index:5;background:#f9e6d4;padding:26px 30px 30px;text-align:center;color:#2a2a2a;font-variant-numeric:lining-nums}
+.xv-sec *{font-variant-numeric:lining-nums}
 html:not(.xv-arabic) .xv-ar{display:none!important}
 html.xv-arabic .xv-fr{display:none!important}
-.xv-card{max-width:400px;margin:0 auto;padding:30px 24px;background:#fdf6ee;border:1px solid rgba(134,103,57,.45);box-shadow:0 18px 34px -24px rgba(90,60,20,.5);border-radius:6px;position:relative}
-.xv-card::before{content:"";position:absolute;inset:6px;border:1px solid rgba(134,103,57,.25);border-radius:4px;pointer-events:none}
-.xv-h,.xv-title{margin:0;font:500 40px/1.35 'newtemplate','Pinyon Script',cursive;color:${GOLD}}
-.xv-p{margin:12px auto 0;max-width:330px;font:500 18px/1.6 'Cormorant Garamond',serif;color:${INK}}
+/* نفس شكل القالب: من غير كروت ولا خلفيات — عنوان بخط القالب وكلام زي أوصاف القالب */
+.xv-card{max-width:380px;margin:0 auto}
+.xv-h,.xv-title{margin:0;font:500 41px/64px 'newtemplate','Pinyon Script',cursive;color:${GOLD}}
+.xv-p{margin:14px auto 0;max-width:340px;font:500 21px/1.35 'Cormorant Garamond',serif;color:#2a2a2a}
 .xv-i{font-style:italic}
-.xv-date{margin:0;font:600 15px/1.5 'Cinzel','Cormorant Garamond',serif;letter-spacing:.12em;color:${GOLD};text-transform:uppercase}
-.xv-orn{display:flex;align-items:center;justify-content:center;gap:10px;width:180px;margin:16px auto}
+.xv-date{margin:0;font:400 23px/1.4 'Cormorant Garamond',serif;color:${GOLD}}
+.xv-orn{display:flex;align-items:center;justify-content:center;gap:10px;width:160px;margin:14px auto}
 .xv-orn i{flex:1;height:1px;background:linear-gradient(90deg,transparent,${GOLD})}.xv-orn i:last-child{transform:scaleX(-1)}
-.xv-orn b{width:7px;height:7px;border:1px solid ${GOLD};transform:rotate(45deg)}
-.xv-dark{background:linear-gradient(160deg,#7c6a48,#5b4a2e);border-color:transparent;color:#fbf2e6}
-.xv-dark::before{border-color:rgba(255,240,215,.3)}
-.xv-dark .xv-p{color:#fbf2e6}
-.xv-ic{width:52px;height:52px;margin:0 auto 10px;border-radius:50%;display:grid;place-items:center;color:#f3dfb8;border:1px solid rgba(243,223,184,.55)}
-.xv-ic svg{width:25px;height:25px}
-.xv-k{margin:0;font:600 15px/1.5 'Cinzel','Cormorant Garamond',serif;letter-spacing:.12em;color:#f3dfb8}
-.xv-s{margin:14px 0 0;font:700 22px/1.5 'Aref Ruqaa',serif;color:#f3dfb8}
-.xv-form{max-width:380px;margin:18px auto 0;padding:26px 22px;background:#fffaf4;border:1px solid rgba(134,103,57,.4);text-align:start}
-.xv-dl{margin:0 0 18px;text-align:center;font:italic 500 17px/1.5 'Cormorant Garamond',serif;color:${GOLD}}
-.xv-lab,.xv-q{display:block;margin:0 0 8px;font:500 17px/1.4 'Cormorant Garamond',serif;color:${INK}}
-.xv-form input,.xv-form textarea{display:block;width:100%;box-sizing:border-box;margin:0 0 18px;padding:11px 12px;border:1px solid rgba(134,103,57,.35);border-radius:0;background:#fff;font:500 18px/1.3 'Cormorant Garamond',serif;color:${INK}}
+.xv-orn b{width:6px;height:6px;border:1px solid ${GOLD};transform:rotate(45deg)}
+.xv-ic{display:none}
+.xv-k{margin:0;font:500 38px/1.35 'newtemplate','Pinyon Script',cursive;color:${GOLD}}
+.xv-s{margin:16px 0 0;font:700 24px/1.5 'Aref Ruqaa',serif;color:${GOLD}}
+.xv-form{max-width:340px;margin:16px auto 0;text-align:start}
+.xv-dl{margin:0 0 18px;text-align:center;font:400 19px/24px 'Cormorant Garamond',serif;color:${GOLD}}
+.xv-lab,.xv-q{display:block;margin:0 0 8px;font:400 17px/1.35 'Cormorant Garamond',serif;color:#2a2a2a}
+.xv-form input,.xv-form textarea{display:block;width:100%;box-sizing:border-box;margin:0 0 16px;padding:10px 12px;border:1px solid rgba(42,42,42,.18);border-radius:4px;background:#fff;font:400 17px/1.3 'Cormorant Garamond',serif;color:#2a2a2a}
 .xv-form input:focus,.xv-form textarea:focus,.xv-sel select:focus{outline:none;border-color:${GOLD}}
-.xv-choice{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 18px}
-.xv-choice button{padding:12px 4px;border:1px solid rgba(134,103,57,.35);background:#fff;color:${INK};font:500 16px/1.2 'Cormorant Garamond',serif;cursor:pointer}
+.xv-choice{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 16px}
+.xv-choice button{padding:10px 4px;border:1px solid rgba(42,42,42,.18);border-radius:4px;background:#fff;color:#2a2a2a;font:400 15px/1.2 'Cormorant Garamond',serif;cursor:pointer}
 .xv-choice button.on{background:#747b54;border-color:#747b54;color:#fff}
 .xv-cnt[hidden]{display:none!important}
-.xv-sel{max-width:220px;margin:0 0 18px}
-.xv-sel select{-webkit-appearance:none;appearance:none;width:100%;padding:12px 40px 12px 14px;border:1px solid rgba(134,103,57,.35);border-radius:0;
-  background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 7'%3E%3Cpath d='M0 0h12L6 7z' fill='%23866739'/%3E%3C/svg%3E") right 15px center/11px 7px no-repeat;
-  font:500 18px/1.2 'Cormorant Garamond',serif;color:${INK};cursor:pointer}
-.xv-sel select.empty{color:#9a8a76}
-.xv-send{display:block;width:100%;padding:14px;border:0;background:#747b54;color:#fff;font:600 13px/1 'Cinzel','Cormorant Garamond',serif;letter-spacing:.2em;cursor:pointer}
+.xv-sel{max-width:200px;margin:0 0 16px}
+.xv-sel select{-webkit-appearance:none;appearance:none;width:100%;padding:10px 38px 10px 12px;border:1px solid rgba(42,42,42,.18);border-radius:4px;
+  background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 7'%3E%3Cpath d='M0 0h12L6 7z' fill='%23866739'/%3E%3C/svg%3E") right 14px center/11px 7px no-repeat;
+  font:400 17px/1.2 'Cormorant Garamond',serif;color:#2a2a2a;cursor:pointer}
+.xv-sel select.empty{color:#8f8576}
+.xv-send{display:block;margin:4px auto 0;padding:11px 34px;border:0;border-radius:4px;background:#747b54;color:#fff;font:400 15px/1 'Cormorant Garamond',serif;cursor:pointer}
 .xv-send:disabled{opacity:.6}
-.xv-msg{min-height:1.4em;margin:12px 0 0;text-align:center;font:italic 500 16px/1.5 'Cormorant Garamond',serif;color:${GOLD}}
-.xv-msg.err{color:#9b3b2e;font-style:normal}
-.xv-verses{padding:26px 22px 10px}
-.xv-v{max-width:360px;margin:10px auto 0;font:400 22px/2 'Amiri',serif;color:${GOLD}}
-.xv-ref{margin:2px 0 10px;font:500 13px/1.4 'El Messiri','Amiri',sans-serif;color:#9a8a76}
+.xv-msg{min-height:1.4em;margin:12px 0 0;text-align:center;font:400 17px/1.4 'Cormorant Garamond',serif;color:${GOLD}}
+.xv-msg.err{color:#9b3b2e}
+.xv-verses{padding:20px 28px 6px}
+.xv-v{max-width:350px;margin:8px auto 0;font:400 22px/2 'Amiri',serif;color:${GOLD}}
+.xv-ref{margin:0 0 8px;font:400 13px/1.4 'Amiri',serif;color:#8f8576}
+/* خانات القالب اللي فيها é / î / À بالفرنساوي */
+html:not(.xv-arabic) #rec2355511493 [field^="tn_text_17807605546"],html:not(.xv-arabic) #rec2339662063 [field="tn_text_1779626065755000001"],html:not(.xv-arabic) #rec2339662113 [field="tn_text_1779545032699000001"]{font-family:'Cormorant Garamond',serif!important;font-weight:500!important;font-variant-numeric:lining-nums!important}
 /* زرار اللغة */
 .xv-lang{position:fixed;top:calc(12px + env(safe-area-inset-top));right:max(12px,calc(50vw - 218px));z-index:2147482000;display:inline-flex;align-items:center;gap:7px;
   padding:9px 15px 9px 12px;border-radius:999px;border:1px solid rgba(134,103,57,.7);background:rgba(253,246,238,.94);color:${GOLD};
@@ -186,10 +185,10 @@ const SCRIPT = `<script id="xv-script">(function () {
     var after = function (id, html) { var r = document.getElementById(id); if (r && !document.getElementById(html.id)) r.insertAdjacentHTML('afterend', html.markup); };
     var before = function (id, html) { var r = document.getElementById(id); if (r && !document.getElementById(html.id)) r.insertAdjacentHTML('beforebegin', html.markup); };
     after('rec2339662083', { id: 'xvLetter', markup: ${JSON.stringify(LETTER)} });
+    after('rec2339662083', { id: 'xvVerses', markup: ${JSON.stringify(VERSES)} });
     ['rec2355542373', 'rec2355574603', 'rec2339662123'].forEach(function (id) { var r = document.getElementById(id); if (r) r.style.display = 'none'; });
     before('rec2355542373', { id: 'xvNoPhoto', markup: ${JSON.stringify(NOPHOTO)} });
     before('rec2339662123', { id: 'xvRsvp', markup: ${JSON.stringify(RSVP)} });
-    before('rec2339662163', { id: 'xvVerses', markup: ${JSON.stringify(VERSES)} });
   }
   function texts() {
     var ar = lang === 'ar';
