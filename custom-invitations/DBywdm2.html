@@ -13,8 +13,8 @@
 <style>
 @font-face{font-family:'Monsieur La Doulaise Local';font-style:normal;font-weight:400;font-display:swap;src:url(assets/doulaise.woff2) format('woff2')}
 @font-face{font-family:'Cormorant Garamond';font-style:normal;font-weight:300 700;font-display:swap;src:url(assets/cormorant.woff2) format('woff2')}
-/* الكلام العربي في الختام: أميري للفقرات، وعارف رقعة للسطر الأول (نفس روح الختم) — ملفات متقطّعة على
-   حروف العربي بس */
+/* الكلام العربي (المكان والختام): أميري للفقرات، وعارف رقعة لأول سطر في الختام (نفس روح الختم) — ملفات
+   متقطّعة على حروف العربي + الشَرطة "–" والخط "|" اللي في كلام المكان */
 @font-face{font-family:'Amiri Ar Local';font-style:normal;font-weight:400;font-display:swap;src:url(assets/amiri-ar.woff2) format('woff2')}
 @font-face{font-family:'Aref Ruqaa Ar Local';font-style:normal;font-weight:400;font-display:swap;src:url(assets/arefruqaa-ar.woff2) format('woff2')}
 @font-face{font-family:'Jost';font-style:normal;font-weight:100 900;font-display:swap;src:url(assets/jost.woff2) format('woff2')}
@@ -112,15 +112,38 @@ main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
 .btn>span>span{display:block;border:1px solid rgba(var(--fg-rgb),.2);padding:12px 40px;transition:background-color .5s,color .5s}
 .btn b{display:block;font-weight:300;font-family:var(--sans);font-size:10px;letter-spacing:.32em;text-transform:uppercase}
 @media (hover:hover){.btn:hover>span{border-color:rgba(var(--fg-rgb),.7)}.btn:hover>span>span{background:var(--fg);color:var(--bg)}}
+/* زرار الخريطة بطلب المالك (2026-11-07): بقى مليان بأزرق التصميم (نفس لون الـ hover في التصميم الأصلي) والكلام
+   عاجي، والإطار المزدوج زي ما هو. جواه "موقع الحفل | View Location 📍": العربي على اليمين بخط أميري (من غير
+   تباعد حروف — التباعد بيقطّع العربي)، والإنجليزي بخط الزرار القديم، والدبوس جنبه على الشمال */
+.btn-map>span{border-color:rgba(var(--fg-rgb),.5)}
+.btn-map>span>span{background:var(--fg);color:var(--bg);border-color:var(--fg);padding:12px clamp(16px,6.5vw,30px)}
+.btn-map b{display:flex;align-items:center;justify-content:center;direction:rtl;white-space:nowrap;line-height:20px}
+.btn-map .b-ar{font-family:'Amiri Ar Local','Amiri',serif;font-size:16px;font-weight:400;letter-spacing:0;text-transform:none;line-height:20px;transform:translateY(-1px)}
+.btn-map .b-sep{letter-spacing:0;margin:0 12px;opacity:.55}
+.btn-map .b-en{direction:ltr;margin-right:-.32em}
+.btn-map .b-pin{font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif;font-size:13px;letter-spacing:0;line-height:20px;margin-right:7px}
+@media (hover:hover){.btn-map:hover>span{border-color:rgba(var(--fg-rgb),.8)}.btn-map:hover>span>span{background:#3e4f63;color:var(--bg)}}
 
 /* ===== 4. المكان ===== */
+/* كلام المالك (2026-11-07): The Venue / WHERE WE CELEBRATE / Royal Garden بخطوط التصميم، وبعدها العنوان والميعاد
+   والكلام بالعربي بأميري (نفس فقرات الختام)، و"We would love to have you with us." بخط التصميم */
 .loc{padding:128px 24px 80px}
 .loc-in{max-width:448px;margin:0 auto;text-align:center;mix-blend-mode:multiply}
 .loc-t{font-family:var(--serif);font-size:48px;line-height:1}
-.loc-s{font-family:var(--script);font-size:38px;line-height:1;margin-top:24px}
-.loc-c{color:rgba(var(--fg-rgb),.7);font-size:16px;line-height:24px;margin-top:16px;letter-spacing:.15em}
-.loc-p{font-family:var(--sans);font-weight:300;color:rgba(var(--fg-rgb),.8);font-size:12px;line-height:1.625;margin-top:32px}
-.loc-p+.loc-p{margin-top:16px}
+.loc-k{font-size:11px;letter-spacing:.3em;line-height:1.5;color:rgba(var(--fg-rgb),.7);margin-top:16px}
+.loc-s{font-family:var(--script);font-size:38px;line-height:1;margin-top:22px}
+.loc-ar{font-family:'Amiri Ar Local','Amiri',serif;letter-spacing:0}
+.loc-addr{font-size:20px;line-height:1.8;color:rgba(var(--fg-rgb),.85);margin-top:14px}
+.loc-when{font-size:17px;line-height:1.8;color:rgba(var(--fg-rgb),.7)}
+.loc-when i{font-style:normal;margin:0 .2em;color:rgba(var(--fg-rgb),.45)}
+.loc-txt{font-size:18px;line-height:2;color:rgba(var(--fg-rgb),.8);max-width:330px;margin:28px auto 0}
+.loc-txt+.loc-txt{margin-top:10px}
+/* كل جملة (لحد الفاصلة) كتلة واحدة: لو السطر مش واسع كفاية الجملة كلها بتنزل سطر جديد، فمفيش كلمة لوحدها
+   في الآخر زي "بمن نحب." أو "الأبد." على الموبايل */
+.loc-txt .cl{display:inline-block}
+.loc-en{font-family:var(--serif);font-size:20px;line-height:1.5;color:rgba(var(--fg-rgb),.8);margin-top:24px}
+/* أصغر الموبايلات (320): الخط يصغر سنة عشان أطول جملة و"We would love to have you with us." يفضلوا سطر واحد */
+@media (max-width:340px){.loc-txt{font-size:15.5px}.loc-en{font-size:18px}}
 .loc-img{position:relative;left:50%;transform:translateX(-50%);width:70%;max-width:none;margin-top:32px}
 .loc-img img{width:100%;height:auto;pointer-events:none}
 .loc .btn{margin-top:40px}
@@ -173,9 +196,12 @@ main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
   .cd-l{margin-top:12px;font-size:12px;line-height:16px}
   .loc{padding:176px 24px 112px}
   .loc-t{font-size:72px}
+  .loc-k{font-size:12px}
   .loc-s{font-size:50px}
-  .loc-c{font-size:18px;line-height:28px}
-  .loc-p{font-size:13px}
+  .loc-addr{font-size:23px}
+  .loc-when{font-size:19px}
+  .loc-txt{font-size:21px;max-width:440px}
+  .loc-en{font-size:24px;margin-top:28px}
   .loc-img{width:60%}
   .dr{padding:96px 24px}
   .dr-box{width:100%;left:0;transform:none;max-width:465px;margin:0 auto}
@@ -254,18 +280,21 @@ main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
     </section>
   </div>
 
-  <!-- 4. المكان -->
+  <!-- 4. المكان — كلام المالك (2026-11-07) -->
   <div class="rv sec">
     <section class="loc">
       <div class="rv loc-in">
-        <h2 class="loc-t">Location</h2>
+        <h2 class="loc-t">The Venue</h2>
+        <p class="loc-k up">WHERE WE CELEBRATE</p>
         <p class="loc-s">Royal Garden</p>
-        <p class="loc-c up">6th October city</p>
-        <p class="loc-p">Set in one of Rome's most beautiful corners, Villa Aurelia will be the setting for our celebration, surrounded by historic gardens and overlooking the Eternal City.</p>
-        <p class="loc-p">We recommend arriving a little early to settle in and enjoy the surroundings before the celebration begins.</p>
+        <p class="loc-ar loc-addr" dir="rtl" lang="ar">نادي المهندسين – مدينة ٦ أكتوبر</p>
+        <p class="loc-ar loc-when" dir="rtl" lang="ar">الخميس ٣ ديسمبر <i>|</i> ٦ مساءً</p>
+        <p class="loc-ar loc-txt" dir="rtl" lang="ar"><span class="cl">هناك لحظات لا تكفيها الكلمات،</span> <span class="cl">وفرحة لا تكتمل إلا بمن نحب.</span></p>
+        <p class="loc-ar loc-txt" dir="rtl" lang="ar"><span class="cl">وبكل الحب،</span> <span class="cl">يسعدنا أن تشاركونا بداية فصل جديد من حكايتنا،</span> <span class="cl">وأن تكونوا جزءًا من ذكرى ستبقى في قلوبنا إلى الأبد.</span></p>
+        <p class="loc-en">We would love to have you with us.</p>
         <div class="loc-img"><img loading="lazy" decoding="async" src="assets/venue.webp" alt="Illustration of the venue" draggable="false"></div>
-        <!-- لوكيشن القاعة على جوجل ماب من المالك (2026-11-06): Royal Garden، أكتوبر -->
-        <a class="btn" href="https://maps.app.goo.gl/9i2n8wZs99jj6ZMU8" target="_blank" rel="noopener noreferrer"><span><span><b>Get Directions</b></span></span></a>
+        <!-- لوكيشن القاعة على جوجل ماب من المالك (2026-11-06): Royal Garden، أكتوبر — لون الزرار وكلامه (2026-11-07) -->
+        <a class="btn btn-map" href="https://maps.app.goo.gl/9i2n8wZs99jj6ZMU8" target="_blank" rel="noopener noreferrer" aria-label="موقع الحفل | View Location"><span><span><b><span class="b-ar" lang="ar">موقع الحفل</span><span class="b-sep" aria-hidden="true">|</span><span class="b-en">View Location</span><span class="b-pin" aria-hidden="true">📍</span></b></span></span></a>
       </div>
     </section>
   </div>
