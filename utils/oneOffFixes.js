@@ -1199,6 +1199,15 @@ const FIXES = [
       };
     },
   },
+  {
+    // mHdbDd1 — المالك (2026-11-08) بعت الأغنية بنفسه (ملف) مكان الأغنية اللي كانت مرفوعة من المحرر.
+    // الأغنية دلوقتي ملف الدعوة نفسها (client/public/custom/mHdbDd1/song.mp3، custom-invitations/mHdbDd1.js)،
+    // فهنا بنشيل الأغنية المرفوعة بس لو لسه هي نفسها — لو العميل اختار أغنية تانية بعد كده مابنلمسهاش.
+    name: 'mHdbDd1-song-owner-file',
+    shortId: 'mHdbDd1',
+    when: (c) => c.audioUrl === 'https://res.cloudinary.com/dxtkmyscw/video/upload/v1794101504/mithaq/users/6ac259d576f8e4b7f5938280/audio/ylm93quecw8riucddzau.mp3',
+    apply: () => ({ 'customizations.audioUrl': '', 'customizations.audioStart': 0, 'customizations.audioEnd': 0 }),
+  },
 ];
 
 let done = false;

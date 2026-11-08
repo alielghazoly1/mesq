@@ -272,6 +272,13 @@ function moveVenueFlower(html) {
   return cut.slice(0, e2) + m[0] + cut.slice(e2);
 }
 
+// ===== الأغنية (بطلب المالك 2026-11-08) =====
+// الملف اللي المالك بعته (Video_Project_9.m4a من Clipchamp، 1:37) اتحوّل لـ MP3 128k
+// (song.mp3، 1.5MB) مكان أغنية القالب. الأغنية اللي كانت مرفوعة من المحرر اتشالت من البيانات
+// (utils/oneOffFixes.js: mHdbDd1-song-owner-file) — ولو العميل اختار أغنية تانية من المحرر بعد كده،
+// سكريبت التخصيصات بيحط audioUrl بتاعها فوق ده فهي اللي بتشتغل.
+const SONG_TAG = '<source src="/templates/champagne-lace/song.mp3" type="audio/mpeg">';
+
 module.exports = {
   shortId: SHORT,
 
@@ -298,6 +305,7 @@ module.exports = {
     let out = noFlowers(short || html);
     const moved = moveVenueFlower(out);
     out = moved || out;
+    out = out.replace(SONG_TAG, () => `<source src="${asset(`${DIR}song.mp3`)}" type="audio/mpeg">`);
     out = out.replace(/<\/head>/i, () => `${HERO_CSS}${short ? NO_SCRATCH_CSS : ''}${DATE_CSS}${NO_FLOWERS_CSS}${moved ? VN_FL_CSS : ''}</head>`);
     const end = out.lastIndexOf('</body>');
     return end === -1 ? out : out.slice(0, end) + DATE_SCRIPT + out.slice(end);
