@@ -136,4 +136,14 @@ module.exports = {
     if (editMode) return {};
     return { head: css(), bodyStart: cover(), bodyEnd: SCRIPT };
   },
+
+  // كارت الآية فيه دعاء "بارك الله لكما..." (كلام كارت العيلة — utils/oneOffFixes.js:
+  // mHdbDd1-sameh-sara) مش آية، فالأقواس القرآنية ﴿ ﴾ وسطر "سورة الروم - الآية ٢١"
+  // بيتشالوا (في الدعوة والمحرر)
+  transform(html) {
+    return html
+      .replace('<span style="color:#a48c69;">﴿</span>', '')
+      .replace('<span style="color:#a48c69;">﴾</span>', '')
+      .replace("<div class='tn-atom' field='tn_text_1705235414678'>سورة الروم - الآية ٢١</div>", "<div class='tn-atom' field='tn_text_1705235414678'></div>");
+  },
 };

@@ -1095,6 +1095,49 @@ const FIXES = [
       return { groomName: 'Sary' };
     },
   },
+  {
+    // mHdbDd1 (Champagne Lace، غلاف الباب في custom-invitations/mHdbDd1.js) — بطلب المالك
+    // (2026-11-08) كلام كارت العيلة: عربي، سامح وسارة، الجمعة 25/12/2026 الساعة 8 مساءً،
+    // قاعة التوليب — دار الدفاع الجوي، مصر الجديدة (الخريطة على دار الدفاع الجوي، شارع
+    // النزهة). "السعدوني" مش "السعدوفي" زي ما المالك قال. الأسامي بالألقاب في الكارت بس
+    // (cl3/cl5) — اسم الدعوة وعنوان اللينك "سامح و سارة".
+    // بيتعمل بس لو الدعوة لسه بأسامي المسودة ومحدش كتب في الكارت.
+    name: 'mHdbDd1-sameh-sara',
+    shortId: 'mHdbDd1',
+    select: '-__v',
+    when: (c, inv) => inv.templateId === 'champagne-lace' && inv.groomName === 'Groom'
+      && inv.brideName === 'Bride' && !((c.texts || {}).cl1),
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: 'ar', occasionType: inv.occasionType,
+        hiddenSections: inv.hiddenSections, timeline: inv.timeline, name: inv.name,
+        groomName: 'سامح', groomNameAr: 'سامح',
+        brideName: 'سارة', brideNameAr: 'سارة',
+        venueName: 'قاعة التوليب', venueCity: 'دار الدفاع الجوي - مصر الجديدة',
+        venueMapQuery: '30.0759354,31.3379696',
+        weddingDate: '2026-12-25', weddingTime: '20:00',
+      }, { ownsTemplate: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set['customizations.texts'] = {
+        ...(c.texts || {}),
+        cl1: 'يتشرف عقيد مهندس عبد الله عزازي وعقيد ياسر السعدوني',
+        cl2: 'بدعوتكم لمشاركتهم فرحة زفاف نجليهما',
+        cl3: 'دكتور مهندس سامح',
+        cl5: 'دكتورة سارة',
+        cl9: 'يوم الجمعة',
+        cl10: 'في تمام الساعة الثامنة مساءً',
+        cl13: 'بمشاركتكم لنا فرحتنا، تكتمل سعادتنا',
+        cl14: 'وتزداد حياتنا بهجةً وسرورًا',
+        // قسم الآية بقى الدعاء اللي في أول الكارت (الأقواس القرآنية بتتشال في mHdbDd1.js)
+        cl91: 'بَارَكَ اللَّهُ لَكُمَا',
+        cl92: 'وَبَارَكَ عَلَيْكُمَا',
+        cl93: 'وَجَمَعَ بَيْنَكُمَا فِي خَيْرٍ',
+      };
+      return set;
+    },
+  },
 ];
 
 let done = false;
