@@ -7,6 +7,8 @@
 // وخطوط القالب: كلام العيلة كامل بعد كارت القوس، "ممنوع التصوير" مكان الدريس كود، تأكيد حضور
 // فيه عدد البالغين والأطفال (مكان فورم القالب — بيوصل للوحة العميل)، والآيات تحت كارت البسملة.
 // البيانات (الأسامي والتاريخ والمكان والخريطة): oneOffFix xVSjgue-outya-imene.
+const { asset } = require('./_asset');
+
 const SHORT = 'xVSjgue';
 const GOLD = '#866739';
 const INK = '#3a3226';
@@ -273,7 +275,15 @@ function tunisTime(html) {
 module.exports = {
   shortId: SHORT,
 
+  // كارت لينك المشاركة (واتساب/إنستجرام/فيسبوك) 1200×630 — بطلب المالك (2026-11-08): ستاير
+  // القصر على الجنبين (من فيديو القالب) وفي النص ختم البسملة الدهبي و"Outya Iman" بخط القالب
+  // و"وطيّة إيمان" والتاريخ والقاعة — كله في المربع اللي في النص (x 285–915) عشان واتساب بيقص
+  // مربع من النص. اتعمل في scratch xv/share.js. asset() بيغيّر البصمة لو الصورة اتغيّرت.
   share: {
+    image: asset(`/custom/${SHORT}/share.jpg`),
+    width: 1200,
+    height: 630,
+    overrideImage: true,
     title: 'Outya Iman — وطيّة إيمان',
     description: 'Vendredi 9 avril 2027 · 18h00 · Hacienda Events, Ariana',
   },
