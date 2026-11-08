@@ -1162,6 +1162,31 @@ const FIXES = [
       return { hiddenSections: [...(inv.hiddenSections || []), 'album'] };
     },
   },
+  {
+    // mHdbDd1 — المالك (2026-11-08): الأسامي في أول كارت بالإنجليزي زي الدعوة الإنجليزي
+    // (Dr. Eng. Sameh & Dr. Sara — الشكل في custom-invitations/mHdbDd1.js)، والعدّاد بقى
+    // كارت التاريخ بخط كبير (cl30 فوق "يوم زفافنا"، cl41 الساعة تحت التاريخ)، وقسم
+    // "أكّد حضورك" اتشال بمفتاح إخفاء القسم بتاع المحرر (hiddenSections: 'rsvp').
+    // بيتعمل بس لو الأسامي لسه بالعربي اللي حطّه التعديل الأول ومحدش غيّرها.
+    name: 'mHdbDd1-english-names-datecard',
+    shortId: 'mHdbDd1',
+    select: 'customizations hiddenSections',
+    when: (c) => (c.texts || {}).cl3 === 'دكتور مهندس سامح' && (c.texts || {}).cl5 === 'دكتورة سارة',
+    apply(c, inv) {
+      const hidden = inv.hiddenSections || [];
+      return {
+        'customizations.texts': {
+          ...(c.texts || {}),
+          cl3: 'Dr. Eng. Sameh',
+          cl4: '&',
+          cl5: 'Dr. Sara',
+          cl30: 'نتشرف بحضوركم',
+          cl41: 'في تمام الساعة الثامنة مساءً',
+        },
+        hiddenSections: hidden.includes('rsvp') ? hidden : [...hidden, 'rsvp'],
+      };
+    },
+  },
 ];
 
 let done = false;

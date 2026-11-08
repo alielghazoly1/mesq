@@ -130,10 +130,95 @@ const SCRIPT = `<script>
 })();
 </script>`;
 
+// ===== أول كارت =====
+// - سطر العيلتين (cl1/cl2) أصغر (بطلب المالك) عشان الكلام يكفي الورق من غير ما fitHeroCard
+//   يرفع الكارت لفوق ويدخل على الورد.
+// - الأسامي بالإنجليزي زي الدعوة الإنجليزي (Dr. Eng. Sameh & Dr. Sara — النصوص في
+//   utils/oneOffFixes.js): خط Pinyon Script وعلامة & بخط Cormorant. القالب العربي بيحط
+//   .hv-names--ar دايمًا، فهنا بنرجّع مقاسات الإنجليزي (أصغر شوية من 48).
+// مقاس من المحرر على السطر نفسه بيكسب، لأن ده على الفقرة/العنوان مش على السطر.
 const HERO_CSS = `<style id="mh-hero-css">
 body.cl-ar #hv-hero .hv-card .hv-eyebrow{font-size:12.5px!important;line-height:1.75;max-width:262px;margin-left:auto;margin-right:auto;text-wrap:balance}
-#hv-hero .hv-card .hv-names.hv-names--ar{font-size:33px;line-height:1.5}
+#hv-hero .hv-card .hv-names.hv-names--ar{font-size:42px;line-height:1.08;-webkit-text-stroke:.35px currentColor;direction:ltr;unicode-bidi:isolate}
+#hv-hero .hv-card .hv-names.hv-names--ar .hv-amp{margin:-2px 0 3px}
 </style>`;
+
+// ===== من غير "التاريخ — امسح لتكتشف" (بطلب المالك) =====
+// قسم الخربشة جزء من أول بلوك (Tilda، طوله ثابت 1162 والخربشة من 782 لتحت). مش بنخبيه
+// بس (كان هيسيب فراغ) — البلوك نفسه بيقصر لـ HERO_H، والتدرّج اللي بيدوّب الكتان في لون
+// الصفحة بيطلع لفوق عشان يخلص عند الحرف الجديد. الورد اللي تحت (لحد ~804) مابيتقصّش.
+// لو القالب اتغيّر ومالقيناش أي حاجة من دول بالظبط، الصفحة بتفضل زي ما هي (والخربشة كمان).
+const HERO_H = 810;
+const HERO_REC = '<div id="rec2442650993"';
+const HERO_AB = 'data-artboard-recid="2442650993" data-artboard-screens="320,480,640,960,1200" data-artboard-height="1162"';
+const HERO_FH = 'data-field-height-value="1162"';
+const HV_BOX = 'position: relative; width: 440px; height: 1162px; overflow: hidden;';
+const NO_SCRATCH_CSS = `<style id="mh-noscratch-css">
+#hv-hero .hv-reveal{display:none!important}
+#hv-hero .hv-wash{top:${HERO_H - 125}px!important}
+</style>`;
+function shrinkHero(html) {
+  const a = html.indexOf(HERO_REC);
+  const b = a === -1 ? -1 : html.indexOf(HERO_AB, a);
+  const c = b === -1 ? -1 : html.indexOf(HERO_FH, b);
+  const d = html.indexOf(HV_BOX);
+  if (a === -1 || b === -1 || c === -1 || d === -1 || d < c || html.indexOf(HV_BOX, d + 1) !== -1) return null;
+  const block = html.slice(a, b);
+  if ((block.match(/height: 1162px;/g) || []).length !== 4) return null;
+  return html.slice(0, a)
+    + block.replace(/height: 1162px;/g, `height: ${HERO_H}px;`)
+    + HERO_AB.replace('"1162"', `"${HERO_H}"`)
+    + html.slice(b + HERO_AB.length, c)
+    + `data-field-height-value="${HERO_H}"`
+    + html.slice(c + HERO_FH.length, d)
+    + HV_BOX.replace('1162px', `${HERO_H}px`)
+    + html.slice(d + HV_BOX.length);
+}
+
+// ===== التاريخ بخط كبير مكان العدّاد (بطلب المالك) =====
+// نفس كارت العدّاد بورده وورقه — الأرقام اللي بتعد والتاريخ الصغير بيستخبوا، ومكانهم
+// اليوم والتاريخ كبير (ديسمبر | 25 | 2026 زي أول كارت) وتحتهم الساعة (cl41)، وزرار
+// "احفظ الموعد" زي ما هو. التاريخ بيتقري من بيانات الدعوة، فلو اتغيّر من المحرر بيتغيّر هنا.
+// الكلاس mh-datecard بيتحط بس لما التاريخ يتبني — غير كده العدّاد بيفضل زي ما هو.
+const DATE_CSS = `<style id="mh-datecard-css">
+#cd-countdown.mh-datecard .cd-units,#cd-countdown.mh-datecard .cd-date,#cd-countdown.mh-datecard .cd-done{display:none!important}
+#cd-countdown.mh-datecard .cd-note{display:block!important;top:286px;font-style:normal!important;font-size:17px!important;line-height:1.5!important}
+#cd-countdown .mh-bd{position:absolute;left:0;right:0;top:166px;text-align:center;color:var(--cd-ink)}
+#cd-countdown .mh-bd__wd{font:700 21px/1.5 'Amiri',serif;color:var(--cd-soft)}
+#cd-countdown .mh-bd__row{display:grid;grid-template-columns:1fr 96px 1fr;align-items:center;margin-top:4px}
+#cd-countdown .mh-bd__d{font:500 64px/1.05 'Cormorant Garamond','Times New Roman',serif;font-variant-numeric:lining-nums;border-left:1px solid var(--cd-rule);border-right:1px solid var(--cd-rule);direction:ltr}
+#cd-countdown .mh-bd__m,#cd-countdown .mh-bd__y{font:400 21px/1 'Cormorant Garamond','Times New Roman',serif;letter-spacing:.12em;font-variant-numeric:lining-nums}
+#cd-countdown .mh-bd__m{justify-self:end;padding-inline-end:16px}
+#cd-countdown .mh-bd__y{justify-self:start;padding-inline-start:16px}
+body.cl-ar #cd-countdown .mh-bd__m{font:700 22px/1.2 'Amiri',serif;letter-spacing:0}
+</style>`;
+const DATE_SCRIPT = `<script id="mh-datecard-js">
+(function () {
+  var root = document.getElementById('cd-countdown');
+  var card = root && root.querySelector('.cd-card');
+  if (!card || card.querySelector('.mh-bd')) return;
+  var C = window.WEDDING_CONFIG || {}, cd = C.countdown || {};
+  if (cd.year == null || cd.monthIndex == null || !cd.day) return;
+  var ar = (C.language || 'ar') === 'ar';
+  var M = ar ? ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر']
+    : ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'];
+  var D = ar ? ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت']
+    : ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  var wd = new Date(Date.UTC(cd.year, cd.monthIndex, cd.day)).getUTCDay();
+  var el = document.createElement('div');
+  el.className = 'mh-bd';
+  el.innerHTML = '<p class="mh-bd__wd"></p><div class="mh-bd__row"><span class="mh-bd__m"></span><span class="mh-bd__d"></span><span class="mh-bd__y"></span></div>';
+  el.querySelector('.mh-bd__wd').textContent = D[wd];
+  el.querySelector('.mh-bd__m').textContent = M[cd.monthIndex];
+  el.querySelector('.mh-bd__d').textContent = String(cd.day);
+  el.querySelector('.mh-bd__y').textContent = String(cd.year);
+  el.setAttribute('aria-label', D[wd] + ' ' + cd.day + ' ' + M[cd.monthIndex] + ' ' + cd.year);
+  var orn = card.querySelector('.cd-orn');
+  card.insertBefore(el, orn ? orn.nextSibling : null);
+  root.classList.add('mh-datecard');
+  root.setAttribute('aria-label', el.getAttribute('aria-label'));
+})();
+</script>`;
 
 module.exports = {
   shortId: SHORT,
@@ -155,11 +240,12 @@ module.exports = {
     return { head: css(), bodyStart: cover(), bodyEnd: SCRIPT };
   },
 
-  // أول كارت (بطلب المالك): سطر العيلتين (cl1/cl2) والأسامي بالألقاب (cl3/cl5) أصغر،
-  // عشان الكلام يكفي الورق من غير ما fitHeroCard يرفع الكارت لفوق ويدخل على الورد —
-  // فالكارت بيفضل في مكانه الطبيعي تحت. في الدعوة والمحرر. (مقاس من المحرر على السطر
-  // نفسه بيكسب، لأن ده على الفقرة/العنوان مش على السطر)
+  // أول كارت + الخربشة + كارت التاريخ (في الدعوة والمحرر) — شوف الشرح فوق
   transform(html) {
-    return html.replace(/<\/head>/i, () => `${HERO_CSS}</head>`);
+    const short = shrinkHero(html);
+    let out = short || html;
+    out = out.replace(/<\/head>/i, () => `${HERO_CSS}${short ? NO_SCRATCH_CSS : ''}${DATE_CSS}</head>`);
+    const end = out.lastIndexOf('</body>');
+    return end === -1 ? out : out.slice(0, end) + DATE_SCRIPT + out.slice(end);
   },
 };
