@@ -241,17 +241,19 @@ function noFlowers(html) {
 // ===== وردة "مكان الحفل" تحت على الشمال (بطلب المالك) =====
 // في القالب الوردة (cl55) نازلة من ركن الخريطة اللي فوق على اليمين. هنا بتتنقل للركن اللي
 // تحت على الشمال — مقلوبة 180° (نفس التصميم معكوس بالقطر): التقل بتاعها تحت في الركن
-// والفرع طالع لفوق جنب الخريطة. مكانها اللي المالك علّم عليه نازل لحد عنوان "في انتظاركم"،
-// وقسم المكان بيقص اللي بره (overflow:hidden وفيه المسرح 440 أعرض من الموبايل) — فالوردة بتطلع
-// من القسم وتتحط جنبه جوه #venue (الصفحة LTR ومفيش حاجة بتطلع يمين فمفيش سكرول بالعرض)،
-// و#venue فوق القسم اللي بعده عشان الورق بتاعه مايغطيش عليها.
+// والفرع طالع لفوق جنب الخريطة. المالك رفعها (top 474→395): بتغطي حتة من شمال الخريطة،
+// وتقلها قاعد على ركن الخريطة وطالع عنه سنة لبره وتحت (لحد ~573 من 600).
+// الوردة بره القسم جوه #venue (القسم بيقص — overflow:hidden والمسرح 440 أعرض من الموبايل):
+// كده بنثبّت حرفها الشمال جوه الشاشة على الموبايلات الضيقة (max 4px)، ولو نزلت تاني تحت
+// القسم مش هتتقص. الصفحة LTR ومفيش حاجة بتطلع يمين فمفيش سكرول بالعرض، و#venue فوق القسم
+// اللي بعده عشان الورق بتاعه مايغطيش عليها.
 // نفس العنصر (cl55) فالمحرر شغال عليه زي ما هو. لو القالب اتغيّر ومالقيناش الوردة أو القسم
 // بالظبط، الوردة بتفضل مكانها الأصلي.
 const VN_FL_RE = /\n[ \t]*<div class="vn-fl" aria-hidden="true"><div class="vn-fl__sway"><img data-elem-id="cl55"[^>]*><\/div><\/div>/;
 const VN_SEC = '<section class="vn" id="vn-venue"';
 const VN_FL_CSS = `<style id="mh-vnfl-css">
 #venue{position:relative;z-index:2}
-#venue>.vn-fl{position:absolute;left:max(4px,calc(50% - 194px));top:474px;width:112px;z-index:3;pointer-events:none}
+#venue>.vn-fl{position:absolute;left:max(4px,calc(50% - 194px));top:395px;width:112px;z-index:3;pointer-events:none}
 #venue>.vn-fl .vn-fl__sway{transform-origin:22% 92%;filter:drop-shadow(0 5px 7px rgba(62,48,32,.2))}
 #venue>.vn-fl img{filter:none;transform:rotate(180deg)}
 #vn-venue[style*="none"]~.vn-fl{display:none!important}
