@@ -22,8 +22,10 @@ const FIELDS = [
   [R('rec2339662063', 'tn_text_1779566247730000003'), '', ''],
   [R('rec2339662063', 'tn_text_1779626065755000001'), '', ''],
   [R('rec2339662083', 'tn_text_1779624381838000001'),
-    'Outya Iman<br><br>Avec amour et joie, nous vous invitons au henné de notre chère fille<br><br>le vendredi 9 avril 2027<br>à partir de 18h00<br><br>à',
-    'وطيّة إيمان<br><br>بكل حب وفرحة، يشرّفنا دعوتكم لحنّة بنتنا الغالية<br><br>يوم الجمعة 9 أفريل 2027<br>ابتداءً من الساعة 18:00<br><br>في'],
+    // جملة العيلة بكلام المالك (2026-11-08) بالفرنساوي والعربي. الفرنساوي أطول فخطه أصغر سنة
+    // (CSS تحت: .xv-archfr) ومن غير السطر الفاضي قبل "à" — عشان مايركبش على اسم القاعة
+    'Outya Iman<br><br>La famille de Saïd Ben Mhemed Ettaieb a l’honneur et le plaisir de vous convier à la cérémonie du henné de leur chère fille.<br><br>le vendredi 9 avril 2027<br>à partir de 18h00<br>à',
+    'وطيّة إيمان<br><br>تتشرف عائلة سعيد بن محمد التايب<br>بدعوتكم لحضور حفل حنّة<br>ابنتهم الغالية.<br><br>يوم الجمعة 9 أفريل 2027<br>ابتداءً من الساعة 18:00<br><br>في'],
   [R('rec2339662083', 'tn_text_1779472210551000005'), 'Hacienda Events', 'Hacienda Events'],
   [R('rec2339662093', 'tn_text_1771277026942000001'), 'La soirée approche', 'اقتربت السهرة'],
   [R('rec2355511493', 'tn_text_1771277026942000001'), 'Déroulement de la soirée', 'برنامج السهرة'],
@@ -106,6 +108,8 @@ const VERSES = `<section class="xv-sec xv-verses" id="xvVerses" dir="rtl" lang="
 </section>`;
 
 const CSS = `
+/* كارت القوس بالفرنساوي: جملة العيلة طويلة — الخط أصغر سنة (22→19.5) عشان "à" مايركبش على اسم القاعة */
+html:not(.xv-arabic) #rec2339662083 [field="tn_text_1779624381838000001"]{font-size:19.5px!important}
 .xv-sec{position:relative;z-index:5;background:#f9e6d4;padding:26px 30px 30px;text-align:center;color:#2a2a2a;font-variant-numeric:lining-nums}
 .xv-sec *{font-variant-numeric:lining-nums}
 html:not(.xv-arabic) .xv-ar{display:none!important}
