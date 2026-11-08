@@ -136,10 +136,14 @@ const SCRIPT = `<script>
 // - الأسامي بالإنجليزي زي الدعوة الإنجليزي (Dr. Eng. Sameh & Dr. Sara — النصوص في
 //   utils/oneOffFixes.js): خط Pinyon Script وعلامة & بخط Cormorant. القالب العربي بيحط
 //   .hv-names--ar دايمًا، فهنا بنرجّع مقاسات الإنجليزي (أصغر شوية من 48).
+// - المالك (2026-11-08): نفس ستايل الخط بس الحروف تتقري — Pinyon كان الـS فيه شبه I
+//   (Iameh / Iara). بقى Great Vibes (أقرب خط ليه، نفس الكوبربليت) وأصغر شوية (42 → 36).
 // مقاس من المحرر على السطر نفسه بيكسب، لأن ده على الفقرة/العنوان مش على السطر.
-const HERO_CSS = `<style id="mh-hero-css">
+const HERO_CSS = `<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap">
+<style id="mh-hero-css">
 body.cl-ar #hv-hero .hv-card .hv-eyebrow{font-size:12.5px!important;line-height:1.75;max-width:262px;margin-left:auto;margin-right:auto;text-wrap:balance}
-#hv-hero .hv-card .hv-names.hv-names--ar{font-size:42px;line-height:1.08;-webkit-text-stroke:.35px currentColor;direction:ltr;unicode-bidi:isolate}
+#hv-hero .hv-card .hv-names.hv-names--ar{font-size:36px;line-height:1.1;-webkit-text-stroke:.35px currentColor;direction:ltr;unicode-bidi:isolate}
+#hv-hero .hv-card .hv-names>span:not(.hv-amp){font-family:'Great Vibes','Pinyon Script',cursive}
 #hv-hero .hv-card .hv-names.hv-names--ar .hv-amp{margin:-2px 0 3px}
 </style>`;
 
@@ -279,6 +283,10 @@ function moveVenueFlower(html) {
 // سكريبت التخصيصات بيحط audioUrl بتاعها فوق ده فهي اللي بتشتغل.
 const SONG_TAG = '<source src="/templates/champagne-lace/song.mp3" type="audio/mpeg">';
 
+// المالك (2026-11-08): "في انتظاركم!" تحت اللوكيشن على طول — من غير علامة التعجب.
+// (القالب بيكتبها بالـJS في عنصر Tilda 1710522265387 من L.hope)
+const HOPE_AR = "hope: 'في انتظاركم!'";
+
 module.exports = {
   shortId: SHORT,
 
@@ -306,6 +314,7 @@ module.exports = {
     const moved = moveVenueFlower(out);
     out = moved || out;
     out = out.replace(SONG_TAG, () => `<source src="${asset(`${DIR}song.mp3`)}" type="audio/mpeg">`);
+    out = out.replace(HOPE_AR, () => "hope: 'في انتظاركم'");
     out = out.replace(/<\/head>/i, () => `${HERO_CSS}${short ? NO_SCRATCH_CSS : ''}${DATE_CSS}${NO_FLOWERS_CSS}${moved ? VN_FL_CSS : ''}</head>`);
     const end = out.lastIndexOf('</body>');
     return end === -1 ? out : out.slice(0, end) + DATE_SCRIPT + out.slice(end);
