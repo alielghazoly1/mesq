@@ -130,6 +130,11 @@ const SCRIPT = `<script>
 })();
 </script>`;
 
+const HERO_CSS = `<style id="mh-hero-css">
+body.cl-ar #hv-hero .hv-card .hv-eyebrow{font-size:12.5px!important;line-height:1.75;max-width:262px;margin-left:auto;margin-right:auto;text-wrap:balance}
+#hv-hero .hv-card .hv-names.hv-names--ar{font-size:33px;line-height:1.5}
+</style>`;
+
 module.exports = {
   shortId: SHORT,
   render({ editMode } = {}) {
@@ -137,13 +142,11 @@ module.exports = {
     return { head: css(), bodyStart: cover(), bodyEnd: SCRIPT };
   },
 
-  // كارت الآية فيه دعاء "بارك الله لكما..." (كلام كارت العيلة — utils/oneOffFixes.js:
-  // mHdbDd1-sameh-sara) مش آية، فالأقواس القرآنية ﴿ ﴾ وسطر "سورة الروم - الآية ٢١"
-  // بيتشالوا (في الدعوة والمحرر)
+  // أول كارت (بطلب المالك): سطر العيلتين (cl1/cl2) والأسامي بالألقاب (cl3/cl5) أصغر،
+  // عشان الكلام يكفي الورق من غير ما fitHeroCard يرفع الكارت لفوق ويدخل على الورد —
+  // فالكارت بيفضل في مكانه الطبيعي تحت. في الدعوة والمحرر. (مقاس من المحرر على السطر
+  // نفسه بيكسب، لأن ده على الفقرة/العنوان مش على السطر)
   transform(html) {
-    return html
-      .replace('<span style="color:#a48c69;">﴿</span>', '')
-      .replace('<span style="color:#a48c69;">﴾</span>', '')
-      .replace("<div class='tn-atom' field='tn_text_1705235414678'>سورة الروم - الآية ٢١</div>", "<div class='tn-atom' field='tn_text_1705235414678'></div>");
+    return html.replace(/<\/head>/i, () => `${HERO_CSS}</head>`);
   },
 };
