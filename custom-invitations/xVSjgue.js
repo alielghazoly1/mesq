@@ -1,4 +1,4 @@
-// دعوة xVSjgue (Blossom & Oud) — وطية إيمان (حنّة Imène — نفس عيلة lcqdxr6)، الجمعة 9 أفريل 2027
+// دعوة xVSjgue (Blossom & Oud) — وطية إيمان (حنّة Iman — بالفرنساوي Iman مش Imène من 2026-11-08 — نفس عيلة lcqdxr6)، الجمعة 9 أفريل 2027
 // الساعة 18:00، Hacienda Events في أريانة (تونس). بطلب المالك (2026-11-07): فرنساوي وعربي بزرار
 // "عربي" / "Français" فوق على اليمين بيظهر بعد فتح الظرف (زي lcqdxr6). الغلاف بختم البسملة زي ما هو.
 //
@@ -15,12 +15,14 @@ const INK = '#3a3226';
 const R = (rec, f) => `#${rec} [field="${f}"]`;
 const FIELDS = [
   [R('rec2339662043', 'tn_text_1777183175514000001'), 'Touchez pour ouvrir', 'اضغط للفتح'],
-  [R('rec2339662063', 'tn_text_1779566247730000001'), 'Outya<br><br><br>Imène', 'وطيّة<br><br><br>إيمان'],
-  [R('rec2339662063', 'tn_text_1779566247730000004'), 'd’', ''],
-  [R('rec2339662063', 'tn_text_1779566247730000003'), 'Vendredi 9 avril 2027', 'الجمعة 9 أفريل 2027'],
-  [R('rec2339662063', 'tn_text_1779626065755000001'), 'À partir de 18h00', 'ابتداءً من الساعة 18:00'],
+  // أول صفحة (الستاير): "Outya Iman" بس — من غير d’ ولا التاريخ والساعة (بطلب المالك 2026-11-08؛
+  // التاريخ والساعة في كارت القوس وكلام العيلة)
+  [R('rec2339662063', 'tn_text_1779566247730000001'), 'Outya<br><br><br>Iman', 'وطيّة<br><br><br>إيمان'],
+  [R('rec2339662063', 'tn_text_1779566247730000004'), '', ''],
+  [R('rec2339662063', 'tn_text_1779566247730000003'), '', ''],
+  [R('rec2339662063', 'tn_text_1779626065755000001'), '', ''],
   [R('rec2339662083', 'tn_text_1779624381838000001'),
-    'Outya Imène<br><br>Avec amour et joie, nous vous invitons au henné de notre chère fille<br><br>le vendredi 9 avril 2027<br>à partir de 18h00<br><br>à',
+    'Outya Iman<br><br>Avec amour et joie, nous vous invitons au henné de notre chère fille<br><br>le vendredi 9 avril 2027<br>à partir de 18h00<br><br>à',
     'وطيّة إيمان<br><br>بكل حب وفرحة، يشرّفنا دعوتكم لحنّة بنتنا الغالية<br><br>يوم الجمعة 9 أفريل 2027<br>ابتداءً من الساعة 18:00<br><br>في'],
   [R('rec2339662083', 'tn_text_1779472210551000005'), 'Hacienda Events', 'Hacienda Events'],
   [R('rec2339662093', 'tn_text_1771277026942000001'), 'La soirée approche', 'اقتربت السهرة'],
@@ -49,7 +51,7 @@ const ORN = '<div class="xv-orn" aria-hidden="true"><i></i><b></b><i></i></div>'
 // ===== كلام العيلة كامل (بعد كارت القوس) =====
 const LETTER = `<section class="xv-sec xv-letter" id="xvLetter">
   <div class="xv-card">
-    ${T('Outya Imène', 'وطيّة إيمان', 'h2', 'xv-h')}
+    ${T('Outya Iman', 'وطيّة إيمان', 'h2', 'xv-h')}
     ${ORN}
     ${T('C’est avec beaucoup d’amour et de joie que nous avons le plaisir de vous inviter à partager avec nous le henné de notre chère fille. ❤️', 'بكل حب وفرحة، يشرّفنا ويفرحنا دعوتكم باش تشاركونا فرحة حنّة بنتنا الغالية ❤️', 'p', 'xv-p')}
     ${T('Une soirée exceptionnelle, placée sous le signe de l’amour et du bonheur, où nous célébrerons nos plus belles traditions entourés de notre famille et de nos proches.', 'سهرة استثنائية، تجمعنا على المحبّة والفرحة، ونحتفلوا فيها بأجمل عاداتنا وتقاليدنا، وسط العائلة والأحباب.', 'p', 'xv-p')}
@@ -63,8 +65,8 @@ const LETTER = `<section class="xv-sec xv-letter" id="xvLetter">
 // ===== ممنوع التصوير (مكان الدريس كود) =====
 const NOPHOTO = `<section class="xv-sec" id="xvNoPhoto">
   <div class="xv-card xv-dark">
-    <div class="xv-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13.5" r="3.5"/><path d="M3 3l18 18"/></svg></div>
-    ${T('Photos et vidéos interdites', '🚫 يُمنع التصوير والتسجيل بالفيديو', 'p', 'xv-k')}
+    <div class="xv-emo" role="img" aria-label="📵">📵</div>
+    ${T('Photos et vidéos interdites', 'يُمنع التصوير والتسجيل بالفيديو', 'p', 'xv-k')}
     ${T('Afin de préserver l’intimité de la mariée et des invités, nous vous prions de respecter notre souhait de ne prendre aucune photo ni vidéo durant la soirée.', 'حرصًا منا على خصوصية هذه المناسبة وجمال لحظاتها، نرجو منكم احترام رغبتنا في عدم التقاط أي صور أو تسجيل أي مقاطع فيديو طوال السهرة.', 'p', 'xv-p')}
     ${T('Nous souhaitons que ces souvenirs restent gravés dans nos cœurs et non dans les écrans.', 'نرغب في أن تبقى هذه الذكريات محفورة في قلوبنا، لا في شاشات هواتفنا.', 'p', 'xv-p xv-i')}
     ${T('Merci pour votre compréhension, votre discrétion et votre bienveillance.', 'شكرًا جزيلًا لتفهمكم، واحترامكم، ولباقتكم.', 'p', 'xv-p')}
@@ -95,15 +97,11 @@ const RSVP = `<section class="xv-sec" id="xvRsvp">
   </form>
 </section>`;
 
-// ===== الآيات قبل الختام =====
+// ===== الآية تحت كارت البسملة — آية سورة الروم بس (بطلب المالك 2026-11-08) =====
 const VERSES = `<section class="xv-sec xv-verses" id="xvVerses" dir="rtl" lang="ar">
   ${ORN}
   <p class="xv-v">وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنْفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً ۚ إِنَّ فِي ذَٰلِكَ لَآيَاتٍ لِّقَوْمٍ يَتَفَكَّرُونَ</p>
   <p class="xv-ref">سورة الروم · 21</p>
-  <p class="xv-v">رَبَّنَا هَبْ لَنَا مِنْ أَزْوَاجِنَا وَذُرِّيَّاتِنَا قُرَّةَ أَعْيُنٍ وَاجْعَلْنَا لِلْمُتَّقِينَ إِمَامًا</p>
-  <p class="xv-ref">سورة الفرقان · 74</p>
-  <p class="xv-v">وَأَنْكِحُوا الْأَيَامَىٰ مِنْكُمْ وَالصَّالِحِينَ مِنْ عِبَادِكُمْ وَإِمَائِكُمْ</p>
-  <p class="xv-ref">سورة النور · 32</p>
   ${ORN}
 </section>`;
 
@@ -121,7 +119,7 @@ html.xv-arabic .xv-fr{display:none!important}
 .xv-orn{display:flex;align-items:center;justify-content:center;gap:10px;width:160px;margin:14px auto}
 .xv-orn i{flex:1;height:1px;background:linear-gradient(90deg,transparent,${GOLD})}.xv-orn i:last-child{transform:scaleX(-1)}
 .xv-orn b{width:6px;height:6px;border:1px solid ${GOLD};transform:rotate(45deg)}
-.xv-ic{display:none}
+.xv-emo{margin:0 0 6px;font-size:46px;line-height:1.15;font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif}
 .xv-k{margin:0;font:500 38px/1.35 'newtemplate','Pinyon Script',cursive;color:${GOLD}}
 .xv-s{margin:16px 0 0;font:700 24px/1.5 'Aref Ruqaa',serif;color:${GOLD}}
 .xv-form{max-width:340px;margin:16px auto 0;text-align:start}
@@ -195,7 +193,7 @@ const SCRIPT = `<script id="xv-script">(function () {
     FIELDS.forEach(function (f) { var el = $(f[0]); if (el) el.innerHTML = ar ? f[2] : f[1]; });
     ['days', 'hours', 'minutes', 'seconds'].forEach(function (k, i) { var n = document.getElementById(k); if (n && n.nextElementSibling) n.nextElementSibling.textContent = CD[lang][i]; });
     [].forEach.call(document.querySelectorAll('#xvCount option[value=""]'), function (o) { o.textContent = ar ? 'اختر' : 'Sélectionner'; });
-    document.title = ar ? 'وطيّة إيمان | دعوة حنّة' : 'Outya Imène | Invitation au henné';
+    document.title = ar ? 'وطيّة إيمان | دعوة حنّة' : 'Outya Iman | Invitation au henné';
     document.documentElement.classList.toggle('xv-arabic', ar);
   }
   var fontsOn = false;
@@ -272,7 +270,7 @@ module.exports = {
   shortId: SHORT,
 
   share: {
-    title: 'Outya Imène — وطيّة إيمان',
+    title: 'Outya Iman — وطيّة إيمان',
     description: 'Vendredi 9 avril 2027 · 18h00 · Hacienda Events, Ariana',
   },
 

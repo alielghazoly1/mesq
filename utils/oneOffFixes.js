@@ -430,6 +430,18 @@ const FIXES = [
     },
   },
   {
+    // xVSjgue — المالك (2026-11-08): الاسم بالفرنساوي Iman مش Imène (الصفحة نفسها في
+    // custom-invitations/xVSjgue.js؛ ده الاسم في البيانات — اللوحة والإحصائيات). بيتعمل بس لو
+    // الاسم لسه Imène.
+    name: 'xVSjgue-iman',
+    shortId: 'xVSjgue',
+    select: 'customizations brideName',
+    when: (c, inv) => inv.brideName === 'Imène',
+    apply() {
+      return { brideName: 'Iman' };
+    },
+  },
+  {
     // lcqdxr6 — بطلب المالك (2026-11-06): أغنية الدعوة "A Whole New World" من مكتبة الموسيقى
     // (المالك رافعها من لوحة التحكم) — كأن العميل اختارها من تبويب الموسيقى في المحرر.
     // بيتعمل بس لو مفيش أغنية متختارة، فلو العميل غيّرها بعد كده مابنرجّعهاش.
