@@ -238,6 +238,38 @@ function noFlowers(html) {
   return out;
 }
 
+// ===== وردة "مكان الحفل" تحت على الشمال (بطلب المالك) =====
+// في القالب الوردة (cl55) نازلة من ركن الخريطة اللي فوق على اليمين. هنا بتتنقل للركن اللي
+// تحت على الشمال — مقلوبة 180° (نفس التصميم معكوس بالقطر): التقل بتاعها تحت في الركن
+// والفرع طالع لفوق جنب الخريطة. مكانها اللي المالك علّم عليه نازل لحد عنوان "في انتظاركم"،
+// وقسم المكان بيقص اللي بره (overflow:hidden وفيه المسرح 440 أعرض من الموبايل) — فالوردة بتطلع
+// من القسم وتتحط جنبه جوه #venue (الصفحة LTR ومفيش حاجة بتطلع يمين فمفيش سكرول بالعرض)،
+// و#venue فوق القسم اللي بعده عشان الورق بتاعه مايغطيش عليها.
+// نفس العنصر (cl55) فالمحرر شغال عليه زي ما هو. لو القالب اتغيّر ومالقيناش الوردة أو القسم
+// بالظبط، الوردة بتفضل مكانها الأصلي.
+const VN_FL_RE = /\n[ \t]*<div class="vn-fl" aria-hidden="true"><div class="vn-fl__sway"><img data-elem-id="cl55"[^>]*><\/div><\/div>/;
+const VN_SEC = '<section class="vn" id="vn-venue"';
+const VN_FL_CSS = `<style id="mh-vnfl-css">
+#venue{position:relative;z-index:2}
+#venue>.vn-fl{position:absolute;left:max(4px,calc(50% - 194px));top:474px;width:112px;z-index:3;pointer-events:none}
+#venue>.vn-fl .vn-fl__sway{transform-origin:22% 92%;filter:drop-shadow(0 5px 7px rgba(62,48,32,.2))}
+#venue>.vn-fl img{filter:none;transform:rotate(180deg)}
+#vn-venue[style*="none"]~.vn-fl{display:none!important}
+#vn-venue.vn--armed:not(.vn--in)~.vn-fl{opacity:0}
+#vn-venue.vn--in~.vn-fl{animation:vn-rise 1.1s cubic-bezier(.2,.7,.2,1) .9s both}
+@media (prefers-reduced-motion:reduce){#venue>.vn-fl,#venue>.vn-fl *{animation:none!important;opacity:1!important}}
+</style>`;
+function moveVenueFlower(html) {
+  const m = html.match(VN_FL_RE);
+  const s = html.indexOf(VN_SEC);
+  if (!m || s === -1 || m.index < s || html.indexOf(VN_SEC, s + 1) !== -1) return null;
+  const e = html.indexOf('</section>', s);
+  if (e === -1 || m.index > e) return null;
+  const cut = html.slice(0, m.index) + html.slice(m.index + m[0].length);
+  const e2 = e - m[0].length + '</section>'.length;
+  return cut.slice(0, e2) + m[0] + cut.slice(e2);
+}
+
 module.exports = {
   shortId: SHORT,
 
@@ -262,7 +294,9 @@ module.exports = {
   transform(html) {
     const short = shrinkHero(html);
     let out = noFlowers(short || html);
-    out = out.replace(/<\/head>/i, () => `${HERO_CSS}${short ? NO_SCRATCH_CSS : ''}${DATE_CSS}${NO_FLOWERS_CSS}</head>`);
+    const moved = moveVenueFlower(out);
+    out = moved || out;
+    out = out.replace(/<\/head>/i, () => `${HERO_CSS}${short ? NO_SCRATCH_CSS : ''}${DATE_CSS}${NO_FLOWERS_CSS}${moved ? VN_FL_CSS : ''}</head>`);
     const end = out.lastIndexOf('</body>');
     return end === -1 ? out : out.slice(0, end) + DATE_SCRIPT + out.slice(end);
   },
