@@ -1148,6 +1148,20 @@ const FIXES = [
       return { 'customizations.texts': texts };
     },
   },
+  {
+    // mHdbDd1 — المالك (2026-11-08) شال قسم ألبوم الصور ("ذكرياتنا" — صور القالب الافتراضية،
+    // تلات صور ظاهرين). نفس مفتاح "إخفاء قسم" بتاع المحرر (hiddenSections: 'album')، فصاحبها
+    // يقدر يرجّعه. بيتعمل بس لو الألبوم لسه ظاهر وبصور القالب (محدش رفع صور cl62–cl65) —
+    // لو رجّعه بصوره هو مابنلمسوش.
+    name: 'mHdbDd1-no-album',
+    shortId: 'mHdbDd1',
+    select: 'customizations hiddenSections templateId',
+    when: (c, inv) => inv.templateId === 'champagne-lace' && !(inv.hiddenSections || []).includes('album')
+      && !['cl62', 'cl63', 'cl64', 'cl65'].some((id) => (c.images || {})[id]),
+    apply(c, inv) {
+      return { hiddenSections: [...(inv.hiddenSections || []), 'album'] };
+    },
+  },
 ];
 
 let done = false;

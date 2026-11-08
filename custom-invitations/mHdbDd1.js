@@ -137,6 +137,19 @@ body.cl-ar #hv-hero .hv-card .hv-eyebrow{font-size:12.5px!important;line-height:
 
 module.exports = {
   shortId: SHORT,
+
+  // كارت لينك المشاركة (واتساب/إنستجرام/فيسبوك) 1200×630: الباب الكالا موارب على الجنبين
+  // وفي النص الختم و"سامح و سارة" والتاريخ والقاعة — كله جوه المربع اللي في النص
+  // (x 285–915) عشان واتساب بيقص مربع من النص. اتعمل في scratch mh/share.js.
+  // لو اتغيّر: asset() بيغيّر البصمة (?v=) فواتساب يجيب الجديد.
+  share: {
+    image: asset(`${DIR}share.jpg`),
+    width: 1200,
+    height: 630,
+    overrideImage: true,
+    title: 'سامح و سارة — دعوة زفاف',
+    description: 'الجمعة ٢٥ ديسمبر ٢٠٢٦ · الساعة ٨ مساءً · قاعة التوليب — دار الدفاع الجوي، مصر الجديدة',
+  },
   render({ editMode } = {}) {
     if (editMode) return {};
     return { head: css(), bodyStart: cover(), bodyEnd: SCRIPT };
