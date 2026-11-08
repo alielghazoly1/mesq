@@ -27,7 +27,7 @@ const FIELDS = [
     // جملة العيلة بكلام المالك (2026-11-08) بالفرنساوي والعربي. الفرنساوي أطول فخطه أصغر سنة
     // (CSS تحت: .xv-archfr) ومن غير السطر الفاضي قبل "à" — عشان مايركبش على اسم القاعة
     'Outya Iman<br><br>La famille de Saïd Ben Mhemed Ettaieb a l’honneur et le plaisir de vous convier à la cérémonie du henné de leur chère fille.<br><br>le vendredi 9 avril 2027<br>à partir de 18h00<br>à',
-    'وطيّة إيمان<br><br>تتشرف عائلة سعيد بن محمد التايب<br>بدعوتكم لحضور حفل حنّة<br>ابنتهم الغالية.<br><br>يوم الجمعة 9 أفريل 2027<br>ابتداءً من الساعة 18:00<br><br>في'],
+    'السلام عليكم<br>ورحمة الله تعالى وبركاته<br><br>تتشرف عائلة سعيد بن امحمد التايب<br>بدعوتكم لحضور<br>حفل زفاف ابنتهم.<br><br>يوم الجمعة 9 أفريل 2027<br>ابتداءً من الساعة 18:00<br><br>في'],
   [R('rec2339662083', 'tn_text_1779472210551000005'), 'Hacienda Events', 'Hacienda Events'],
   [R('rec2339662093', 'tn_text_1771277026942000001'), 'La soirée approche', 'اقتربت السهرة'],
   [R('rec2355511493', 'tn_text_1771277026942000001'), 'Déroulement de la soirée', 'برنامج السهرة'],
@@ -52,15 +52,14 @@ const CD = { fr: ['Jours', 'Heures', 'Minutes', 'Secondes'], ar: ['أيام', '�
 const T = (fr, ar, tag = 'span', cls = '') => `<${tag} class="xv-fr ${cls}">${fr}</${tag}><${tag} class="xv-ar ${cls}" dir="rtl" lang="ar">${ar}</${tag}>`;
 const ORN = '<div class="xv-orn" aria-hidden="true"><i></i><b></b><i></i></div>';
 
-// ===== كلام العيلة كامل (بعد كارت القوس) — العربي بالكلام اللي المالك بعته 2026-11-08 =====
+// ===== كلام العيلة كامل (بعد كارت القوس) — العربي بآخر نص بعته المالك (2026-11-08، 3 فقرات) =====
 const LETTER = `<section class="xv-sec xv-letter" id="xvLetter">
   <div class="xv-card">
     ${T('Outya Iman', 'وطيّة إيمان', 'h2', 'xv-h')}
     ${ORN}
-    ${T('C’est avec beaucoup d’amour et de joie que nous avons le plaisir de vous inviter à partager avec nous le henné de notre chère fille. ❤️', 'بكل حب وفرحة، يشرفنا ويفرحنا إنكم تشاركونا فرحة حنّة بنتنا الغالية ❤️', 'p', 'xv-p')}
-    ${T('Une soirée exceptionnelle, placée sous le signe de l’amour et du bonheur, où nous célébrerons nos plus belles traditions entourés de notre famille et de nos proches.', 'سهرة استثنائية، تجمعنا على المحبّة والفرحة، ونحتفلوا فيها بأجمل عاداتنا وتقاليدنا، وسط العائلة والأحباب.', 'p', 'xv-p')}
-    ${T('Votre présence à nos côtés donnera encore plus de valeur et de joie à ce moment, et en fera un merveilleux souvenir inoubliable.', 'وجودكم معانا يزيد اللحظة قيمة وفرحة، ويخلّيها ذكرى جميلة ما تتنساش.', 'p', 'xv-p')}
-    <p class="xv-ar xv-p" dir="rtl" lang="ar">نتمنّوا نعيشوا معاكم السهرة الحلوة هاذي، ونتقاسموا أجمل اللحظات ونصنعوا ذكريات تبقى في القلب ديما.</p>
+    ${T('C’est avec beaucoup d’amour et de joie que nous avons le plaisir de vous inviter à partager avec nous le henné de notre chère fille. ❤️', 'بكل حب وفرحة، يشرفنا ويسعدنا دعوتكم لمشاركتنا فرحة زفاف ابنتنا إيمان ❤️', 'p', 'xv-p')}
+    ${T('Une soirée exceptionnelle, placée sous le signe de l’amour et du bonheur, où nous célébrerons nos plus belles traditions entourés de notre famille et de nos proches.', 'سهرة تجمعنا على المحبة والفرحة، ونحتفل فيها بأجمل عاداتنا وتقاليدنا، وسط العائلة والأحباب.', 'p', 'xv-p')}
+    ${T('Votre présence à nos côtés donnera encore plus de valeur et de joie à ce moment, et en fera un merveilleux souvenir inoubliable.', 'وجودكم معنا يزيد هذه اللحظات قيمةً وفرحةً، ويجعل منها ذكرى جميلة.', 'p', 'xv-p')}
     ${ORN}
     ${T('Vendredi 9 avril 2027', 'الجمعة 9 أفريل 2027', 'p', 'xv-date')}
   </div>
@@ -295,7 +294,12 @@ module.exports = {
     };
   },
 
+  // الأغنية: "A Whole New World" (كمان — Daniel Jang، 85 ثانية) اللي المالك بعتها (2026-11-08)
+  // مكان "مغرم" بتاعة القالب. بس لو الدعوة لسه على أغنية القالب — أغنية يختارها العميل من
+  // المحرر بتكسب (سكريبت التخصيصات بيحط audioUrl بتاعه فوق ده).
   transform(html) {
-    return tunisTime(html);
+    const out = html.replace('<source src="https://pub-4dc8201144ca418fb604349c73e8c724.r2.dev/%D9%85%D8%BA%D8%B1%D9%85%20-%20Moghram%20(Guitar%20Cover)%20_%20Johny%20Abu%20Nassar%20%5Bz_RC48DJbU0%5D%20(1).mp3" type="audio/mp3">',
+      () => `<source src="${asset(`/custom/${SHORT}/song.mp3`)}" type="audio/mpeg">`);
+    return tunisTime(out);
   },
 };
