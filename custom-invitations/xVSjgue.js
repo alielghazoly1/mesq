@@ -48,15 +48,15 @@ const CD = { fr: ['Jours', 'Heures', 'Minutes', 'Secondes'], ar: ['أيام', '�
 const T = (fr, ar, tag = 'span', cls = '') => `<${tag} class="xv-fr ${cls}">${fr}</${tag}><${tag} class="xv-ar ${cls}" dir="rtl" lang="ar">${ar}</${tag}>`;
 const ORN = '<div class="xv-orn" aria-hidden="true"><i></i><b></b><i></i></div>';
 
-// ===== كلام العيلة كامل (بعد كارت القوس) =====
+// ===== كلام العيلة كامل (بعد كارت القوس) — العربي بالكلام اللي المالك بعته 2026-11-08 =====
 const LETTER = `<section class="xv-sec xv-letter" id="xvLetter">
   <div class="xv-card">
     ${T('Outya Iman', 'وطيّة إيمان', 'h2', 'xv-h')}
     ${ORN}
-    ${T('C’est avec beaucoup d’amour et de joie que nous avons le plaisir de vous inviter à partager avec nous le henné de notre chère fille. ❤️', 'بكل حب وفرحة، يشرّفنا ويفرحنا دعوتكم باش تشاركونا فرحة حنّة بنتنا الغالية ❤️', 'p', 'xv-p')}
+    ${T('C’est avec beaucoup d’amour et de joie que nous avons le plaisir de vous inviter à partager avec nous le henné de notre chère fille. ❤️', 'بكل حب وفرحة، يشرفنا ويفرحنا إنكم تشاركونا فرحة حنّة بنتنا الغالية ❤️', 'p', 'xv-p')}
     ${T('Une soirée exceptionnelle, placée sous le signe de l’amour et du bonheur, où nous célébrerons nos plus belles traditions entourés de notre famille et de nos proches.', 'سهرة استثنائية، تجمعنا على المحبّة والفرحة، ونحتفلوا فيها بأجمل عاداتنا وتقاليدنا، وسط العائلة والأحباب.', 'p', 'xv-p')}
     ${T('Votre présence à nos côtés donnera encore plus de valeur et de joie à ce moment, et en fera un merveilleux souvenir inoubliable.', 'وجودكم معانا يزيد اللحظة قيمة وفرحة، ويخلّيها ذكرى جميلة ما تتنساش.', 'p', 'xv-p')}
-    <p class="xv-ar xv-p" dir="rtl" lang="ar">يسعدنا برشا نعيشوا معاكم السهرة الحلوة هاذي، ونتقاسموا أجمل اللحظات ونصنعوا ذكريات تبقى في القلب ديما. 🤍</p>
+    <p class="xv-ar xv-p" dir="rtl" lang="ar">نتمنّوا نعيشوا معاكم السهرة الحلوة هاذي، ونتقاسموا أجمل اللحظات ونصنعوا ذكريات تبقى في القلب ديما.</p>
     ${ORN}
     ${T('Vendredi 9 avril 2027', 'الجمعة 9 أفريل 2027', 'p', 'xv-date')}
   </div>
