@@ -1238,6 +1238,48 @@ const FIXES = [
       return set;
     },
   },
+  {
+    // G55weuy (Pearl Peony + custom-invitations/G55weuy.js) — خطوبة خلود البغدادي وبلال صبري بطلب المالك
+    // (2026-11-09، عميلة من السعودية): عربي، خطوبة، السبت 12/12/2026، منتجع أوراق 2 — ديراب، الرياض،
+    // وتأكيد الحضور + التهنئة الصوتية + رفع صور الضيوف. الساعة لسه مش متبعتة (20:00 مؤقتًا ومستخبية في الدعوة).
+    // الأسامي الكبيرة "خلود و بلال" بترتيب المالك (خلود الأول)، وتحتها الأسامي كاملة.
+    // البرنامج ولوحة ألوان اللبس مستخبيين (مفيش تفاصيل). بيتعمل بس لو الدعوة لسه فاضية (Groom & Bride).
+    name: 'G55weuy-kholoud-bilal',
+    shortId: 'G55weuy',
+    select: '-__v',
+    when: (c, inv) => inv.groomName === 'Groom' && inv.brideName === 'Bride',
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const link = 'https://maps.app.goo.gl/wQsYe26vbVgvdrTY6';
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: 'ar', occasionType: 'engagement',
+        hiddenSections: ['timeline', 'dressCode'], timeline: inv.timeline, name: inv.name,
+        groomName: 'Bilal', groomNameAr: 'بلال صبري',
+        brideName: 'Kholoud', brideNameAr: 'خلود البغدادي',
+        venueName: 'منتجع أوراق ٢', venueCity: 'ديراب، الرياض',
+        venueAddress: 'ديراب، الرياض',
+        venueMapQuery: link,
+        weddingDate: '2026-12-12', weddingTime: '20:00',
+      }, { ownsTemplate: true, skipMapNetwork: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.language = 'ar';
+      set.occasionType = 'engagement';
+      set.hiddenSections = ['timeline', 'dressCode'];
+      set.venueMapEmbedSrc = 'https://www.google.com/maps/embed?origin=mfe&pb=!1m3!2m1!1s%D9%85%D9%86%D8%AA%D8%AC%D8%B9+%D8%A3%D9%88%D8%B1%D8%A7%D9%82%D8%8C+%D8%AF%D9%8A%D8%B1%D8%A7%D8%A8,+Riyadh!6i16';
+      set.venueMapDirectLink = link;
+      set['guestExtras.voice'] = true;
+      set['guestExtras.photos'] = true;
+      // الأسامي على الظرف وجوه الدعوة: خلود الأول (زي ما المالك كتبها)، والأسامي كاملة تحتها
+      set['customizations.texts.pp2'] = 'خلود';
+      set['customizations.texts.pp62'] = 'بلال';
+      set['customizations.texts.pp7'] = 'خلود';
+      set['customizations.texts.pp63'] = 'بلال';
+      set['customizations.texts.pp8'] = 'خلود البغدادي  ·  بلال صبري';
+      set['customizations.texts.pp56'] = 'كلمة للخطيبين — اختياري';
+      return set;
+    },
+  },
 ];
 
 let done = false;

@@ -52,6 +52,8 @@
     aQ: 'Will you attend?', aYes: 'Yes, I’ll be there', aNo: 'Sorry, I can’t make it', needAttend: 'Please tell us if you’ll attend first',
   };
 
+  // دعوة بعينها ممكن تغيّر أي جملة (O.t) — زي دعوة خطوبة بالفصحى بدل العامية المصرية
+  if (O.t && typeof O.t === 'object') Object.keys(O.t).forEach(function (k) { T[k] = O.t[k]; });
   var NAME_KEY = 'mithaq_guest_name';
   var store = {
     get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
