@@ -592,14 +592,22 @@ router.get('/i/:shortId/calendar.ics', async (req, res) => {
     }
     const isAr = String(invitation.language || 'ar').toLowerCase() === 'ar';
     const pageUrl = `${req.protocol}://${req.get('host')}/i/${invitation.shortId}`;
-    const map = invitation.venueMapDirectLink || '';
+    // دعوة فيها أكتر من مناسبة (زي lqxsipV: كتب الكتاب والفرح): ?e=<key> بيختار مناسبة من
+    // custom.calendar.events {title, start:'YYYY-MM-DDTHH:mm', hours, location, map}. من غيره زي الأول.
+    const events = custom.calendar.events || null;
+    const evKey = typeof req.query.e === 'string' ? req.query.e : '';
+    const ev = events && evKey && Object.prototype.hasOwnProperty.call(events, evKey) ? events[evKey] : null;
+    const evStart = ev && /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(String(ev.start || ''));
+    const map = ev ? (ev.map || '') : (invitation.venueMapDirectLink || '');
     const ics = buildEventIcs({
-      uid: `${invitation.shortId}@${req.get('host')}`,
-      title: custom.calendar.title,
+      uid: ev ? `${invitation.shortId}-${evKey}@${req.get('host')}` : `${invitation.shortId}@${req.get('host')}`,
+      title: ev ? ev.title : custom.calendar.title,
       // نفس الساعة اللي في الدعوة والعداد (utils/dateFormatter.js)
-      start: buildDisplayFields(new Date(invitation.weddingDateTime)).countdown,
-      hours: custom.calendar.hours || 6,
-      location: [invitation.venueName, invitation.venueCity].filter(Boolean).join(isAr ? '، ' : ', '),
+      start: evStart
+        ? { year: +evStart[1], monthIndex: +evStart[2] - 1, day: +evStart[3], hour: +evStart[4], minute: +evStart[5] }
+        : buildDisplayFields(new Date(invitation.weddingDateTime)).countdown,
+      hours: (ev && ev.hours) || custom.calendar.hours || 6,
+      location: ev ? (ev.location || '') : [invitation.venueName, invitation.venueCity].filter(Boolean).join(isAr ? '، ' : ', '),
       description: [
         map ? `${isAr ? 'الموقع على الخريطة' : 'Map'}: ${map}` : '',
         `${isAr ? 'الدعوة' : 'Invitation'}: ${pageUrl}`,
@@ -608,7 +616,7 @@ router.get('/i/:shortId/calendar.ics', async (req, res) => {
     });
     res.set('Content-Type', 'text/calendar; charset=utf-8');
     // inline مش attachment: سفاري الآيفون بيعرض "إضافة إلى التقويم" بدل ما ينزّل الملف
-    res.set('Content-Disposition', 'inline; filename="wedding.ics"');
+    res.set('Content-Disposition', `inline; filename="${evStart ? evKey.replace(/[^a-z0-9-]/gi, '') || 'event' : 'wedding'}.ics"`);
     res.set('Cache-Control', 'no-store');
     return res.send(ics);
   } catch (err) {

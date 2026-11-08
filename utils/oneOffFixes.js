@@ -1208,6 +1208,36 @@ const FIXES = [
     when: (c) => c.audioUrl === 'https://res.cloudinary.com/dxtkmyscw/video/upload/v1794101504/mithaq/users/6ac259d576f8e4b7f5938280/audio/ylm93quecw8riucddzau.mp3',
     apply: () => ({ 'customizations.audioUrl': '', 'customizations.audioStart': 0, 'customizations.audioEnd': 0 }),
   },
+  {
+    // lqxsipV (custom-invitations/lqxsipV.js بيعرض الصفحة كلها) — دعوة هاجر ونور بطلب المالك
+    // (2026-11-08). هنا بيانات الدعوة عشان لوحة العميل والإحصائيات وتأكيد الحضور وعنوان اللينك:
+    // الفرح السبت 12/12/2026 الساعة 5 مساءً في هيلتون بيراميدز جولف (كتب الكتاب 4/12 في الصفحة نفسها).
+    // بيتعمل بس لو الدعوة لسه فاضية (Groom & Bride).
+    name: 'lqxsipV-hagar-nour',
+    shortId: 'lqxsipV',
+    select: '-__v',
+    when: (c, inv) => inv.groomName === 'Groom' && inv.brideName === 'Bride',
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const link = 'https://maps.app.goo.gl/x86DDYn19JRmv48b9';
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: 'en', occasionType: 'wedding',
+        hiddenSections: inv.hiddenSections, timeline: inv.timeline, name: inv.name,
+        groomName: 'Nour', groomNameAr: 'نور',
+        brideName: 'Hagar', brideNameAr: 'هاجر',
+        venueName: 'Hilton Pyramids Golf', venueCity: '6th of October',
+        venueAddress: 'El Wahat Road, 6th of October City, Giza',
+        venueMapQuery: link,
+        weddingDate: '2026-12-12', weddingTime: '17:00',
+      }, { ownsTemplate: true, skipMapNetwork: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.language = 'en';
+      set.venueMapEmbedSrc = 'https://www.google.com/maps/embed?origin=mfe&pb=!1m3!2m1!1sHilton+Pyramids+Golf,+6th+of+October!6i16';
+      set.venueMapDirectLink = link;
+      return set;
+    },
+  },
 ];
 
 let done = false;
