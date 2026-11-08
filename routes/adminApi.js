@@ -877,6 +877,9 @@ router.patch('/admin/api/users/:id/block', requireAdminSession, async (req, res)
     if (blocked) {
       const result = await Session.deleteMany({ userId: user._id });
       killedSessions = result.deletedCount || 0;
+    } else {
+      // رفع الحظر بيرجّع أجهزته كمان (حظر الجهاز في utils/banGate.js)
+      try { await require('../utils/banGate').clearBansFor(user._id); } catch (e) { console.error('[ban] clear failed:', e.message); }
     }
 
     logAdminAction(req, blocked ? 'user.block' : 'user.unblock', {

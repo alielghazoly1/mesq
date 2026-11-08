@@ -14,6 +14,7 @@ const { sendWelcomeMessage } = require('../utils/welcomeMessage');
 const { editWindowInfo } = require('../utils/editWindow');
 const { verifyGoogleIdToken, signPending, readPending, getGoogleConfig } = require('../utils/googleAuth');
 const metaCapi = require('../utils/metaCapi');
+const { markIfBanned } = require('../utils/banGate');
 
 const router = express.Router();
 
@@ -161,6 +162,7 @@ router.post('/api/auth/login', async (req, res) => {
     // بنقولّه السبب بوضوح (مش نفس رسالة الباسورد الغلط): هو أثبت إنه
     // صاحب الحساب فعلًا، فالغموض هنا مش بيحمي حاجة.
     if (user.isBlocked) {
+      await markIfBanned(req, res, user._id);
       return res.status(403).json({ error: 'الحساب ده متوقف. كلّمنا لو محتاج تفاصيل.' });
     }
 
@@ -203,6 +205,7 @@ router.post('/api/auth/google', async (req, res) => {
     if (!user) user = await User.findOne({ email: g.email });
     if (user) {
       if (user.isBlocked) {
+        await markIfBanned(req, res, user._id);
         return res.status(403).json({ error: 'الحساب ده متوقف. كلّمنا لو محتاج تفاصيل.' });
       }
       // أول مرة يدخل بجوجل على حساب قديم بنفس الإيميل — بنربطهم (جوجل أكّدت إن الإيميل بتاعه)
@@ -237,7 +240,7 @@ router.post('/api/auth/google/complete', async (req, res) => {
     // ممكن يكون اتعمل حساب بنفس الإيميل/جوجل في الدقايق اللي فاتت (تابين مفتوحين)
     const existing = await User.findOne({ $or: [{ googleId: p.sub }, { email: p.email }] });
     if (existing) {
-      if (existing.isBlocked) return res.status(403).json({ error: 'الحساب ده متوقف. كلّمنا لو محتاج تفاصيل.' });
+      if (existing.isBlocked) { await markIfBanned(req, res, existing._id); return res.status(403).json({ error: 'الحساب ده متوقف. كلّمنا لو محتاج تفاصيل.' }); }
       if (!existing.googleId) await User.updateOne({ _id: existing._id, googleId: { $exists: false } }, { $set: { googleId: p.sub } });
       await createSession(res, existing._id);
       return res.json({ user: publicUser(existing) });

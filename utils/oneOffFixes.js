@@ -1341,6 +1341,7 @@ async function runOneOffFixes() {
   await runSiteConfigFixes();
   await runPaymentFixes();
   await runSupportFixes();
+  try { await require('./banGate').runBanSeeds(); } catch (err) { console.error('[ban] seeds failed:', err.message); }
   for (const fix of FIXES) {
     try {
       // select: التعديلات اللي محتاجة حقول الدعوة نفسها (مش التخصيصات بس)

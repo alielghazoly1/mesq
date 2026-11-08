@@ -165,5 +165,5 @@ async function recordDeviceDay(req, { vid, userId, path, ref, utm, prevAnaAt, no
 }
 
 module.exports = {
-  recordDeviceDay, shouldWrite, anaAtUpdate, cairoClock, sectionOf, sourceOf, browserOf, deviceKeyOf, isOwnerReq,
+  recordDeviceDay, shouldWrite, anaAtUpdate, cairoClock, sectionOf, sourceOf, browserOf, deviceKeyOf, isOwnerReq, ipHashOf,
 };

@@ -149,6 +149,8 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '20kb' }));
 app.use(cookieParser());
+// أجهزة محظورة بطلب المالك (utils/banGate.js) — صفحات الدعوات ولوحة التحكم مابتتقفلش
+app.use(require('./utils/banGate').banGate);
 // ?_ad=<كود> — الشخص خرج من متصفح إنستجرام لكروم/سفاري: نفس الإعلان يفضل متعلّم
 app.use(campaignsRouter.carryAdCookie);
 
