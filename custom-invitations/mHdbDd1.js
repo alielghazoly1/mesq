@@ -220,6 +220,24 @@ const DATE_SCRIPT = `<script id="mh-datecard-js">
 })();
 </script>`;
 
+// ===== من غير الورد (بطلب المالك) =====
+// الورد اللي حوالين أول كارت (cl16 فوق شمال، cl17 فوق يمين، cl18/cl19 تحت) وحوالين كارت
+// التاريخ (cl44/cl45) بيستخبى. ظل الورد اللي فوق على الشمال كان مرسوم جوه صورة الخلفية
+// نفسها، فلو شلنا الورد بس كان هيفضل ظل رمادي من غير ورد — فالخلفية هنا نسخة من غير الظل
+// (scratch mh/deshadow.py: نسيج الكتان من الجزء النضيف من نفس الحيطة، وورق الظرف من جزء
+// نضيف منه، والإضاءة متملية ناعمة من الحروف؛ الكارت ماتلمسش).
+// loading=lazy على صور الورد المستخبية عشان الموبايل مايحمّلهاش على الفاضي.
+const BG_TAG = '<img class="hv-bg" data-elem-id="cl15" src="/templates/champagne-lace/hero-background-extended.webp"';
+const FLOWER_TAGS = ['<img class="hv-rose" data-elem-id="cl16"', '<img data-elem-id="cl17"', '<img data-elem-id="cl18"', '<img data-elem-id="cl19"'];
+const NO_FLOWERS_CSS = `<style id="mh-noflowers-css">
+#hv-hero .hv-rose,#hv-hero .hv-fl,#cd-countdown .cd-fl{display:none!important}
+</style>`;
+function noFlowers(html) {
+  let out = html.replace(BG_TAG, () => `<img class="hv-bg" data-elem-id="cl15" src="${asset(`${DIR}hero-bg.webp`)}"`);
+  for (const t of FLOWER_TAGS) out = out.replace(t, () => t.replace('<img ', '<img loading="lazy" '));
+  return out;
+}
+
 module.exports = {
   shortId: SHORT,
 
@@ -240,11 +258,11 @@ module.exports = {
     return { head: css(), bodyStart: cover(), bodyEnd: SCRIPT };
   },
 
-  // أول كارت + الخربشة + كارت التاريخ (في الدعوة والمحرر) — شوف الشرح فوق
+  // أول كارت + الخربشة + كارت التاريخ + الورد (في الدعوة والمحرر) — شوف الشرح فوق
   transform(html) {
     const short = shrinkHero(html);
-    let out = short || html;
-    out = out.replace(/<\/head>/i, () => `${HERO_CSS}${short ? NO_SCRATCH_CSS : ''}${DATE_CSS}</head>`);
+    let out = noFlowers(short || html);
+    out = out.replace(/<\/head>/i, () => `${HERO_CSS}${short ? NO_SCRATCH_CSS : ''}${DATE_CSS}${NO_FLOWERS_CSS}</head>`);
     const end = out.lastIndexOf('</body>');
     return end === -1 ? out : out.slice(0, end) + DATE_SCRIPT + out.slice(end);
   },
