@@ -98,6 +98,18 @@ img{display:block;max-width:none;-webkit-user-select:none;user-select:none;-webk
 /* الكارت كله بيبان في أول شاشة بعد الفتح حتى على الموبايلات القصيرة (أو جوه إنستجرام/واتساب) — بيصغر شوية بدل ما يتقص من تحت */
 .card{position:relative;width:min(100%,calc(100vh * 1024 / 1536));width:min(100%,calc(100svh * 1024 / 1536));margin:0 auto;aspect-ratio:1024/1536;container-type:inline-size;overflow:hidden}
 .card *{--k:calc(100cqw / 1024)}
+/* أول شاشة بعد الفتح = الشاشة كلها بالظبط (بطلب المالك 2026-11-08): الكارت في النص بأكبر مقاس — الحافة اللي برّه الإطار
+   الدهبي بتتقص شوية على الجناب لو لازم (الإطار والكلام والصورة مابيتقصّوش) — وحوافه بتدوب في ورق بنفس لونه فوق وتحت */
+.hero1{position:relative;display:flex;align-items:center;justify-content:center;height:100vh;height:100svh;min-height:calc(var(--u)*420);overflow:hidden;
+  background:radial-gradient(120% 70% at 50% 48%,#e9dfd0 0%,#e3d7c6 60%,#ddd0bd 100%)}
+/* فوق وتحت الكارت: نفس الكارت مكبّر ومغبّش (ملمس الورق والدامسك بيكمل بدل لون سادة) */
+.hero1::before{content:"";position:absolute;inset:-40px;z-index:0;pointer-events:none;background:url(assets/card.webp) center/cover no-repeat;filter:blur(14px) saturate(.9);opacity:.55}
+.hero1::after{content:"";position:absolute;left:0;right:0;bottom:0;height:9%;z-index:0;pointer-events:none;background:linear-gradient(to bottom,rgba(243,236,224,0),#f3ece0)}
+.hero1 .card{flex:none;z-index:1;margin:0;width:min(calc(100cqw * 1024 / 904),calc(100vh * 1024 / 1536));width:min(calc(100cqw * 1024 / 904),calc(100svh * 1024 / 1536));
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 3.4%,#000 96.6%,transparent 100%),linear-gradient(to right,transparent 0,#000 4.5%,#000 95.5%,transparent 100%);
+  -webkit-mask-composite:source-in;
+  mask-image:linear-gradient(to bottom,transparent 0,#000 3.4%,#000 96.6%,transparent 100%),linear-gradient(to right,transparent 0,#000 4.5%,#000 95.5%,transparent 100%);
+  mask-composite:intersect}
 .card .bg{position:absolute;inset:0;width:100%;height:100%;z-index:2}
 .card .ph{position:absolute;z-index:1;left:calc(var(--k)*347.15);top:calc(var(--k)*349.95);width:calc(var(--k)*321.5);height:calc(var(--k)*413.1);background:#2b2018}
 .card .ph img{width:100%;height:100%;object-fit:cover}
@@ -281,6 +293,7 @@ img{display:block;max-width:none;-webkit-user-select:none;user-select:none;-webk
 <div class="page" id="page">
 
   <!-- 1) الكارت: نفس التصميم بالظبط -->
+  <div class="hero1">
   <section class="card" aria-label="Wedding invitation of Sary and Sona">
     <div class="ph"><img src="assets/oval.webp" alt="Sary and Sona" decoding="async"></div>
     <img class="bg" src="assets/card.webp" alt="" decoding="async">
@@ -292,6 +305,7 @@ img{display:block;max-width:none;-webkit-user-select:none;user-select:none;-webk
     <p class="c-venue">Daraj Al Yasmine</p>
     <p class="c-city">Dubai, UAE</p>
   </section>
+  </div>
 
   <div class="secs">
   <!-- 2) العد التنازلي -->
