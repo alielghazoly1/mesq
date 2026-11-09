@@ -2,7 +2,9 @@
 // (2026-11-09): عميلة من السعودية. على قالب Pearl Peony العربي، بألوان الخطوبة اللي بعتها:
 //   Ivory #FAF5EE خلفية · Blush/Peach/Deep peach للشريطة والزراير · Champagne · Gold #C9A26B للخطوط والختم ·
 //   Cocoa #3B2E2A للنصوص · Walnut #986A4F للعناوين الصغيرة.
-// - الظرف: زي القالب الأصلي بالظبط (الشريطة الخضرا والختم العاجي بالحروف K&B) — بطلب المالك بعد ما جرّبنا شريطة خوخي.
+// - شاشة الظرف (2026-11-09): نفس شكل الصورة اللي بعتها المالك — شريطة خوخي، فاوانيا وردي، دانتيل، ختم عاجي بـ K&B.
+//   الصورة اتشال منها الكلام (LaMa) واتكبّرت، واتقسمت لخلفية (فيها فتحة مكان الظرف) وظرف لوحده — عشان الظرف ينزل زي القالب.
+//   مكان "خلود و بلال" على الظرف: مونوجرام "خ ب" (الصورة اللي بعتها المالك) بلون كلام التصميم، وتحته التاريخ.
 // - الدبوس (مكان الحفل) خوخي بدل الأخضر، والزخارف الخضرا كلها دهبي.
 // - الخطوط: عربي Aref Ruqaa (الأسامي والعناوين) + Amiri (النص) + Reem Kufi (الكلام الصغير)، إنجليزي Cormorant Garamond.
 // - تاريخ هجري تحت الميلادي (٣ رجب ١٤٤٨ هـ).
@@ -47,9 +49,14 @@ const CSS = `<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fami
 :root{--paper:#faf5ee;--ink:#3b2e2a;--green:#8c5a4b;--sage:#c9a26b;--sage-d:#b08a57;--line:#dcc6a3;--soft:#7a675f;--pearl:#fffaf5}
 html{background:#f3e9e1}
 body{background-color:#faf5ee}
-#coverScreen{background:#f6ede6}
-.env-names{color:#5b3b33}
-.env-date{color:#6a5048}
+#coverScreen{background:#f3e6dc}
+/* الأسامي على الظرف → المونوجرام "خ ب" */
+.env-names{display:none!important}
+/* (.env img بيمدّ أي صورة على الظرف كله — هنا مقاس ومكان المونوجرام بالظبط) */
+.env .kb-mono-art{position:absolute;inset:auto;left:50%;top:27.4%;width:31cqw;height:auto;transform:translateX(-50%);pointer-events:none}
+.env-date{color:#85544a}
+.cv-top{color:#7e4a3f}
+.cv-hint{color:#61372a}
 .h{font-family:'Aref Ruqaa',var(--ar);color:#8c5a4b;font-weight:700}
 .p,.bism,.bye{color:#3b2e2a}
 .names{color:#7a4a3e}
@@ -119,6 +126,11 @@ module.exports = {
   transform(html) {
     let out = html;
     out = out.split('/templates/pearl-peony/pin.webp').join(asset(`${DIR}pin.webp`));
+    out = out.split('/templates/pearl-peony/cover-bg.webp').join(asset(`${DIR}cover-bg.webp`));
+    out = out.split('/templates/pearl-peony/envelope.webp').join(asset(`${DIR}envelope.webp`));
+    // المونوجرام مكان الأسامي على الظرف (جوه .env عشان ينزل معاه)
+    out = out.replace(/(<div class="env-t env-names[^"]*">[\s\S]*?<\/div>)/, (m) => `${m}
+      <img class="kb-mono-art" src="${asset(`${DIR}mono.webp`)}" alt="خ ب">`);
     for (const [g, c] of Object.entries(GREENS)) out = out.split(g).join(c);
     // التاريخ الهجري تحت سطر التاريخ الميلادي
     out = out.replace(/(<p class="date-line[^"]*"[^>]*data-elem-id="pp10"[^>]*><\/p>)/, (m) => `${m}\n    <p class="kb-hijri r d2">${HIJRI}</p>`);

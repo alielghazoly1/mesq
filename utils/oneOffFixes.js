@@ -1239,6 +1239,14 @@ const FIXES = [
     },
   },
   {
+    // G55weuy — بطلب المالك (2026-11-09): تحت الاسم الكبير "خلود و بلال" تتكتب أسامي العيلتين بدل الأسامي كاملة.
+    // بس لو السطر لسه زي ما اتحط أول مرة (لو العميلة غيّرته من المحرر مابنلمسوش).
+    name: 'G55weuy-family-names',
+    shortId: 'G55weuy',
+    when: (c) => !!(c.texts && c.texts.pp8 === 'خلود البغدادي  ·  بلال صبري'),
+    apply: () => ({ 'customizations.texts.pp8': 'عائلة البغدادي  ·  عائلة صبري' }),
+  },
+  {
     // MslhLFz (Pearl Peony EN) — بطلب المالك (2026-11-09): "Kindly let us know at your earliest convenience."
     // كانت سطر وتحته كلمة واحدة لوحدها ("convenience.") — بقت سطرين: "Kindly let us know" / "at your earliest
     // convenience." (السطر الجديد \n بيتعرض pre-wrap — utils/customizations.js setTextOn). بس لو النص لسه زي ما العميل كتبه.
