@@ -2,7 +2,7 @@
 // (2026-11-09): عميلة من السعودية. على قالب Pearl Peony العربي، بألوان الخطوبة اللي بعتها:
 //   Ivory #FAF5EE خلفية · Blush/Peach/Deep peach للشريطة والزراير · Champagne · Gold #C9A26B للخطوط والختم ·
 //   Cocoa #3B2E2A للنصوص · Walnut #986A4F للعناوين الصغيرة.
-// - الظرف: الشريطة بقت خوخي بدل الأخضر، والختم دهبي محفور عليه "خ و ب" بخط الرقعة (client/public/custom/G55weuy/).
+// - الظرف: زي القالب الأصلي بالظبط (الشريطة الخضرا والختم العاجي بالحروف K&B) — بطلب المالك بعد ما جرّبنا شريطة خوخي.
 // - الدبوس (مكان الحفل) خوخي بدل الأخضر، والزخارف الخضرا كلها دهبي.
 // - الخطوط: عربي Aref Ruqaa (الأسامي والعناوين) + Amiri (النص) + Reem Kufi (الكلام الصغير)، إنجليزي Cormorant Garamond.
 // - تاريخ هجري تحت الميلادي (٣ رجب ١٤٤٨ هـ).
@@ -50,8 +50,6 @@ body{background-color:#faf5ee}
 #coverScreen{background:#f6ede6}
 .env-names{color:#5b3b33}
 .env-date{color:#6a5048}
-/* الحروف محفورة في الختم الدهبي نفسه */
-.env-mono{display:none!important}
 .h{font-family:'Aref Ruqaa',var(--ar);color:#8c5a4b;font-weight:700}
 .p,.bism,.bye{color:#3b2e2a}
 .names{color:#7a4a3e}
@@ -104,7 +102,7 @@ body{background-color:#faf5ee}
 module.exports = {
   shortId: SHORT,
 
-  // كارت لينك المشاركة: الظرف الخوخي والختم الدهبي والأسامي (1200×630)
+  // كارت لينك المشاركة: الظرف والأسامي والتاريخين والمكان (1200×630)
   share: {
     image: asset(`${DIR}share.jpg`),
     width: 1200,
@@ -120,7 +118,6 @@ module.exports = {
 
   transform(html) {
     let out = html;
-    out = out.split('/templates/pearl-peony/envelope.webp').join(asset(`${DIR}envelope.webp`));
     out = out.split('/templates/pearl-peony/pin.webp').join(asset(`${DIR}pin.webp`));
     for (const [g, c] of Object.entries(GREENS)) out = out.split(g).join(c);
     // التاريخ الهجري تحت سطر التاريخ الميلادي
