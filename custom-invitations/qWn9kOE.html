@@ -1,0 +1,584 @@
+<!doctype html>
+<html lang="en" dir="ltr" translate="no" style="color-scheme:light only">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="google" content="notranslate">
+<title>Abdallah &amp; Hoda — Wedding Invitation</title>
+<link rel="preload" as="image" href="assets/poster.webp">
+<link rel="preload" as="image" href="assets/hero-frame.webp">
+<link rel="preload" as="font" type="font/woff2" href="assets/doulaise.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="assets/cormorant.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="assets/jost.woff2" crossorigin>
+<style>
+@font-face{font-family:'Monsieur La Doulaise Local';font-style:normal;font-weight:400;font-display:swap;src:url(assets/doulaise.woff2) format('woff2')}
+@font-face{font-family:'Cormorant Garamond';font-style:normal;font-weight:300 700;font-display:swap;src:url(assets/cormorant.woff2) format('woff2')}
+/* الكلام العربي (المكان والختام): أميري للفقرات، وعارف رقعة لأول سطر في الختام (نفس روح الختم) — ملفات
+   متقطّعة على حروف العربي + الشَرطة "–" والخط "|" اللي في كلام المكان */
+@font-face{font-family:'Amiri Ar Local';font-style:normal;font-weight:400;font-display:swap;src:url(assets/amiri-ar.woff2) format('woff2')}
+@font-face{font-family:'Aref Ruqaa Ar Local';font-style:normal;font-weight:400;font-display:swap;src:url(assets/arefruqaa-ar.woff2) format('woff2')}
+@font-face{font-family:'Jost';font-style:normal;font-weight:100 900;font-display:swap;src:url(assets/jost.woff2) format('woff2')}
+:root{
+  --bg:#f7f5f3;--fg:#4c5f76;--bg-rgb:247,245,243;--fg-rgb:76,95,118;--ivory:#e9e3dd;
+  --serif:'Cormorant Garamond',serif;--script:'Monsieur La Doulaise Local',cursive;--sans:'Jost','Helvetica Neue',Arial,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;border:0 solid}
+html{line-height:1.5;-webkit-text-size-adjust:100%;font-family:var(--sans);-webkit-tap-highlight-color:transparent}
+html.lock,html.lock body{overflow:hidden;overscroll-behavior:none}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--serif);font-size:17px;line-height:1.55}
+h1,h2,h3,p,ul{margin:0;padding:0;font-size:inherit;font-weight:inherit}
+h1,h2,h3{font-family:var(--serif);font-weight:400}
+ul{list-style:none}
+a{color:inherit;text-decoration:inherit}
+img,video,canvas{display:block}
+img,video{max-width:100%;height:auto}
+button,input,textarea{font-family:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}
+button{background:transparent;cursor:pointer;-webkit-appearance:button;appearance:button}
+img{-webkit-user-select:none;user-select:none;-webkit-user-drag:none}
+main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
+.up{text-transform:uppercase;font-family:var(--sans);font-weight:300}
+
+/* ظهور الأقسام وهي بتدخل الشاشة */
+.rv{opacity:0;transform:translateY(var(--y,20px));transition:opacity var(--d,.6s) var(--e,cubic-bezier(.42,0,.58,1)) var(--dl,0s),transform var(--d,.6s) var(--e,cubic-bezier(.42,0,.58,1)) var(--dl,0s)}
+.rv.in{opacity:1;transform:none}
+.sec{--y:40px;--d:.9s;--e:cubic-bezier(.22,1,.36,1)}
+@media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}}
+
+/* ===== 1. الفتح: الظرف ثم الفيونكة (فيديوهين ورا بعض) ===== */
+.cover{position:fixed;left:0;top:0;right:0;bottom:0;z-index:50;cursor:pointer;background:var(--bg);opacity:1;transition:opacity 2s cubic-bezier(.42,0,.58,1);touch-action:none;overscroll-behavior:none}
+.cover.fade{opacity:0;pointer-events:none}
+.cover img,.cover video{position:absolute;left:0;top:0;width:100%;height:100%;max-width:none;object-fit:cover}
+#v1{opacity:0;transition:opacity 150ms linear,filter 1100ms ease-in-out}
+#v1.on{opacity:1}
+#v1.warm{filter:brightness(1.1) saturate(.97)}
+#v2{opacity:0;transition:opacity 800ms ease-in-out}
+#v2.on{opacity:1}
+
+/* ===== زرار الصوت ===== */
+.mute{position:fixed;bottom:20px;right:20px;z-index:40;border-radius:9999px;border:1px solid rgba(var(--fg-rgb),.3);padding:3px;background:rgba(var(--bg-rgb),.7);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);transition:border-color .5s,opacity .5s 1.5s,transform .5s 1.5s;opacity:0;transform:scale(.8);pointer-events:none}
+.mute.on{opacity:1;transform:none;pointer-events:auto}
+.mute span{display:flex;width:40px;height:40px;align-items:center;justify-content:center;border-radius:9999px;color:rgba(var(--fg-rgb),.85);border:1px solid rgba(var(--fg-rgb),.15)}
+.mute svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.25;stroke-linecap:round;stroke-linejoin:round}
+.mute .i-off{display:none}
+.mute.muted .i-on{display:none}
+.mute.muted .i-off{display:block}
+@media (hover:hover){.mute:hover{border-color:rgba(var(--fg-rgb),.6)}}
+
+/* ===== 2. الكارت الأساسي ===== */
+.hero{position:relative;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.hero-img{position:absolute;left:0;top:0;width:100%;height:100%;max-width:none;object-fit:cover;pointer-events:none}
+.hero-text{position:relative;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1 1 0%;text-align:center;padding:0 24px;opacity:0;transition:opacity 2000ms ease-out}
+.hero-text.on{opacity:1}
+/* كلام الكارت بطلب المالك (2026-11-06) بنفس خطوط التصميم: THE WEDDING OF بخط ROME, ITALY القديم،
+   الأسامي زي ما هي، والباقي بخط "Together with their families" والتاريخ القديمين. المكان على سطرين
+   زي التصميم (Villa Aurelia / ROME, ITALY): في سطر واحد كان بيخبط في الإطار على الموبايلات الأصغر */
+.ht-of{font-size:11px;letter-spacing:.25em;line-height:1.5}
+.ht-names{margin-top:32px;display:flex;flex-direction:column;align-items:center}
+.ht-names h1{font-family:var(--script);font-weight:400;font-size:50px;line-height:.95}
+.ht-amp{font-family:var(--serif);font-size:18px;line-height:1;margin:10px 0}
+.ht-with{font-family:var(--serif);font-size:17px;letter-spacing:.025em;line-height:1.375;margin-top:24px}
+.ht-date{font-family:var(--serif);font-size:18px;line-height:28px;margin-top:20px;letter-spacing:.025em}
+.ht-venue{margin-top:20px;display:flex;flex-direction:column;align-items:center}
+.ht-place{font-family:var(--serif);font-size:20px;letter-spacing:.025em;line-height:1.375}
+.ht-city{font-size:11px;letter-spacing:.25em;margin-top:4px}
+
+/* ===== 3. العدّاد ===== */
+.cd{position:relative;width:100%;overflow:hidden}
+.cd-box{position:relative;width:100%;aspect-ratio:1920/1126}
+.cd-box img{position:absolute;left:0;top:0;width:100%;height:100%;max-width:none;object-fit:cover;pointer-events:none}
+.cd-title{position:absolute;left:0;right:0;top:9%;text-align:center;font-family:var(--serif);font-size:7vw;line-height:1;color:#f5f0e8}
+.cd-grid{position:absolute;left:17%;right:17%;top:33%;bottom:34%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:center}
+.cd-grid>div{display:flex;min-width:0;flex-direction:column;align-items:center}
+.cd-n{font-family:var(--serif);font-size:6.5vw;line-height:1;font-variant-numeric:tabular-nums}
+.cd-l{margin-top:4px;font-size:2vw;letter-spacing:.15em}
+.cd-soon{position:absolute;left:0;right:0;bottom:7%;text-align:center;font-family:var(--script);font-size:8vw;line-height:1;color:#f5f0e8}
+
+/* ===== كارت الخدش على الصدف ===== */
+.sc{position:relative;width:100%}
+.sc-bg{width:100%;height:auto}
+.sc-oval,.sc-ring{position:absolute;left:33%;top:25%;width:34.1%;height:50.2%;border-radius:50%}
+.sc-oval{overflow:hidden}
+/* تحت الخدش: صورة العرسان (المالك بعتها 2026-11-06) بنفس طريقة التصميم الأصلي — مالية الشكل البيضاوي */
+.sc-under{position:absolute;left:0;top:0;right:0;bottom:0;background:var(--ivory);visibility:hidden}
+.sc-under.ready{visibility:visible}
+/* تحت الخدش: التاريخ بخطوط التصميم (مفيش صورة للعرسان في الدعوة دي) */
+.sc-date{position:absolute;left:0;top:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:radial-gradient(ellipse at 50% 40%,#fbf8f3,#ece4d8)}
+.sc-d1{font-family:var(--script);font-size:clamp(20px,6vw,34px);line-height:1;color:var(--fg)}
+.sc-d2{font-family:var(--serif);font-size:clamp(20px,6.2vw,36px);line-height:1.2;letter-spacing:.04em;margin-top:6px;color:var(--fg)}
+.sc-d3{font-family:var(--sans);font-weight:300;font-size:clamp(8px,2.2vw,12px);letter-spacing:.25em;text-transform:uppercase;margin-top:6px;color:rgba(var(--fg-rgb),.7)}
+.sc-canvas{position:absolute;left:0;top:0;width:100%;height:100%;cursor:pointer;touch-action:none;transition:opacity .7s}
+.sc-canvas.done{opacity:0;pointer-events:none}
+.sc-ring{pointer-events:none;box-shadow:0 0 0 3px hsl(40,45%,72%),0 0 0 5px hsl(40,30%,92%),0 0 0 6px hsl(40,40%,62%),0 0 0 12px hsla(40,30%,96%,.55),0 0 0 13px hsl(40,40%,66%),0 6px 18px hsla(212,22%,30%,.25),inset 0 0 10px hsla(40,40%,40%,.35)}
+
+/* ===== زرار الإطار المزدوج ===== */
+.btn{display:inline-flex;flex-direction:column;align-items:center;color:var(--fg)}
+.btn>span{position:relative;display:block;border:1px solid rgba(var(--fg-rgb),.4);padding:3px;transition:border-color .5s}
+.btn>span>span{display:block;border:1px solid rgba(var(--fg-rgb),.2);padding:12px 40px;transition:background-color .5s,color .5s}
+.btn b{display:block;font-weight:300;font-family:var(--sans);font-size:10px;letter-spacing:.32em;text-transform:uppercase}
+@media (hover:hover){.btn:hover>span{border-color:rgba(var(--fg-rgb),.7)}.btn:hover>span>span{background:var(--fg);color:var(--bg)}}
+/* زرار الخريطة بطلب المالك (2026-11-07): بقى مليان بأزرق التصميم (نفس لون الـ hover في التصميم الأصلي) والكلام
+   عاجي، والإطار المزدوج زي ما هو. جواه "موقع الحفل | View Location 📍": العربي على اليمين بخط أميري (من غير
+   تباعد حروف — التباعد بيقطّع العربي)، والإنجليزي بخط الزرار القديم، والدبوس جنبه على الشمال */
+.btn-map>span{border-color:rgba(var(--fg-rgb),.5)}
+.btn-map>span>span{background:var(--fg);color:var(--bg);border-color:var(--fg);padding:12px clamp(16px,6.5vw,30px)}
+.btn-map b{display:flex;align-items:center;justify-content:center;direction:rtl;white-space:nowrap;line-height:20px}
+.btn-map .b-ar{font-family:'Amiri Ar Local','Amiri',serif;font-size:16px;font-weight:400;letter-spacing:0;text-transform:none;line-height:20px;transform:translateY(-1px)}
+.btn-map .b-sep{letter-spacing:0;margin:0 12px;opacity:.55}
+.btn-map .b-en{direction:ltr;margin-right:-.32em}
+.btn-map .b-pin{font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif;font-size:13px;letter-spacing:0;line-height:20px;margin-right:7px}
+@media (hover:hover){.btn-map:hover>span{border-color:rgba(var(--fg-rgb),.8)}.btn-map:hover>span>span{background:#3e4f63;color:var(--bg)}}
+
+/* ===== 4. المكان ===== */
+/* كلام المالك: The Venue / WHERE WE CELEBRATE / The Palace بخطوط التصميم، وبعدها العنوان والميعاد
+   والكلام بالعربي بأميري (نفس فقرات الختام)، و"We would love to have you with us." بخط التصميم */
+.loc{padding:128px 24px 80px}
+.loc-in{max-width:448px;margin:0 auto;text-align:center;mix-blend-mode:multiply}
+.loc-t{font-family:var(--serif);font-size:48px;line-height:1}
+.loc-k{font-size:11px;letter-spacing:.3em;line-height:1.5;color:rgba(var(--fg-rgb),.7);margin-top:16px}
+.loc-s{font-family:var(--script);font-size:38px;line-height:1;margin-top:22px}
+.loc-ar{font-family:'Amiri Ar Local','Amiri',serif;letter-spacing:0}
+.loc-addr{font-size:20px;line-height:1.8;color:rgba(var(--fg-rgb),.85);margin-top:14px}
+.loc-when{font-size:17px;line-height:1.8;color:rgba(var(--fg-rgb),.7)}
+.loc-when i{font-style:normal;margin:0 .2em;color:rgba(var(--fg-rgb),.45)}
+.loc-txt{font-size:18px;line-height:2;color:rgba(var(--fg-rgb),.8);max-width:330px;margin:28px auto 0}
+.loc-txt+.loc-txt{margin-top:10px}
+/* كل جملة (لحد الفاصلة) كتلة واحدة: لو السطر مش واسع كفاية الجملة كلها بتنزل سطر جديد، فمفيش كلمة لوحدها
+   في الآخر زي "بمن نحب." أو "الأبد." على الموبايل */
+.loc-txt .cl{display:inline-block}
+.loc-en{font-family:var(--serif);font-size:20px;line-height:1.5;color:rgba(var(--fg-rgb),.8);margin-top:24px}
+/* أصغر الموبايلات (320): الخط يصغر سنة عشان أطول جملة و"We would love to have you with us." يفضلوا سطر واحد */
+@media (max-width:340px){.loc-txt{font-size:15.5px}.loc-en{font-size:18px}}
+.loc-img{position:relative;left:50%;transform:translateX(-50%);width:70%;max-width:none;margin-top:32px}
+.loc-img img{width:100%;height:auto;pointer-events:none}
+.loc .btn{margin-top:40px}
+
+/* ===== 6. الدريس كود ===== */
+.dr{width:100%;padding:64px 24px}
+.dr-wrap{position:relative}
+.dr-box{position:relative;z-index:10;background:var(--bg);left:50%;transform:translateX(-50%);width:calc(88% + 4px)}
+.dr-frame{position:relative;width:100%;aspect-ratio:726/1265}
+.dr-frame img{position:absolute;left:-.661%;top:-.3856%;width:101.322%;height:100.7463%;max-width:none;pointer-events:none}
+.dr-seal{position:absolute;right:2%;bottom:4%;width:26%;height:auto;aspect-ratio:1/1;transform:rotate(24deg);filter:drop-shadow(0 2px 3px rgba(var(--fg-rgb),.15));z-index:20;pointer-events:none}
+.dr-in{position:absolute;left:0;top:0;right:0;bottom:0;transform:translateY(-5px);display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:0 26% 7%;pointer-events:none}
+.dr-t{font-family:var(--serif);font-size:43px;line-height:1}
+.dr-s{font-family:var(--script);font-size:30px;line-height:1;white-space:nowrap;margin-top:8px}
+.dr-pic{margin:30px 0 9px;width:100%}
+.dr-pic div{position:relative;margin:0 auto;width:120px;height:150px;flex-shrink:0}
+.dr-pic img{position:absolute;left:-13.75%;top:-10.2%;width:127.5%;height:128%;max-width:none}
+.dr-d{color:rgba(var(--fg-rgb),.8);font-family:var(--sans);font-weight:300;font-size:11px;line-height:1.375;margin:30px -12% 0}
+
+/* ===== 11. الختام ===== */
+/* الختام بقى بعد الدريس كود على طول (المالك شال الأقسام اللي كانت بينهم): المسافة اللي فوق كانت
+   معمولة بعد قسم الـ RSVP الأزرق، فاتظبطت على إيقاع باقي الأقسام */
+.ft{position:relative;padding:64px 24px 80px;text-align:center}
+.ft-seal{width:112px;height:auto;margin:-12px auto 32px;pointer-events:none;filter:drop-shadow(0 2px 6px rgba(0,0,0,.15))}
+.ft-ar{font-family:'Amiri Ar Local','Amiri',serif;font-size:18px;line-height:2;color:rgba(var(--fg-rgb),.8);max-width:330px;margin:0 auto}
+.ft-ar+.ft-ar{margin-top:10px}
+.ft-ar-h{font-family:'Aref Ruqaa Ar Local','Aref Ruqaa',serif;font-size:30px;line-height:1.7;color:var(--fg);margin-bottom:12px}
+.ft-ar+.ft-l{margin-top:40px}
+.ft-t{margin-top:4px}
+.ft-l{font-family:var(--sans);font-weight:300;font-size:13px;color:rgba(var(--fg-rgb),.6);margin-bottom:12px}
+/* الأسامي في سطر واحد زي التصميم: "Abdallah & Hoda" أطول من الاسمين اللي اتعمل عليهم التصميم، فبيصغر بالقدر
+   اللي يخليه سطر واحد على الموبايل — والشاشات الأعرض بمقاس التصميم */
+.ft-n{font-family:var(--script);font-size:60px;font-size:min(60px,calc((100vw - 48px) * .145));line-height:75px;margin-bottom:16px}
+.ft-n span{font-size:.5em;line-height:36px;color:rgba(var(--fg-rgb),.5)}
+.ft-d{font-family:var(--sans);font-weight:300;font-size:13px;letter-spacing:.025em;color:rgba(var(--fg-rgb),.5)}
+
+/* ===== شاشات أكبر من الموبايل (نفس نقطة md في التصميم الأصلي) ===== */
+@media (min-width:768px){
+  body{font-size:19px}
+  .ht-of{font-size:12px}
+  .ht-names{margin-top:40px}
+  .ht-names h1{font-size:64px}
+  .ht-amp{font-size:20px;line-height:1;margin:14px 0}
+  .ht-with{font-size:19px;margin-top:32px}
+  .ht-date{font-size:20px;margin-top:24px}
+  .ht-venue{margin-top:24px}
+  .ht-place{font-size:24px}
+  .ht-city{font-size:12px}
+  .cd-title,.cd-n,.cd-soon{font-size:60px}
+  .cd-l{margin-top:12px;font-size:12px;line-height:16px}
+  .loc{padding:176px 24px 112px}
+  .loc-t{font-size:72px}
+  .loc-k{font-size:12px}
+  .loc-s{font-size:50px}
+  .loc-addr{font-size:23px}
+  .loc-when{font-size:19px}
+  .loc-txt{font-size:21px;max-width:440px}
+  .loc-en{font-size:24px;margin-top:28px}
+  .loc-img{width:60%}
+  .dr{padding:96px 24px}
+  .dr-box{width:100%;left:0;transform:none;max-width:465px;margin:0 auto}
+  .dr-t{font-size:67px}
+  .dr-s{font-size:36px;margin-top:12px}
+  .dr-pic{margin:33px 0}
+  .dr-pic div{width:216px;height:270px}
+  .dr-d{font-size:13px}
+  .ft{padding-top:72px}
+  .ft-seal{width:144px}
+  .ft-ar{font-size:21px;max-width:440px}
+  .ft-ar-h{font-size:40px}
+  .ft-n{font-size:72px;line-height:90px}
+  .ft-n span{font-size:36px;line-height:40px}
+}
+</style>
+</head>
+<body>
+
+<!-- 1. الفتح: الضيف بيدوس → فيديو الظرف → فيديو الفيونكة → الكارت -->
+<div class="cover" id="cover" role="button" aria-label="Open the invitation">
+  <img src="assets/poster.webp" alt="" draggable="false">
+  <video id="v1" src="assets/v1.mp4" poster="assets/poster.webp" muted playsinline webkit-playsinline preload="auto"></video>
+  <video id="v2" src="assets/v2.mp4" muted playsinline webkit-playsinline preload="auto"></video>
+</div>
+
+<main>
+
+  <!-- 2. الكارت الأساسي -->
+  <section class="hero">
+    <img class="hero-img" src="assets/hero-frame.webp" alt="" aria-hidden="true" draggable="false">
+    <div class="hero-text" id="heroText">
+      <p class="ht-of up">THE WEDDING OF</p>
+      <div class="ht-names">
+        <h1>Abdallah</h1>
+        <p class="ht-amp">&amp;</p>
+        <h1>Hoda</h1>
+      </div>
+      <p class="ht-with">Together with their families,</p>
+      <p class="ht-date">WEDNESDAY, 25.11.2026</p>
+      <div class="ht-venue">
+        <p class="ht-place">The Palace</p>
+        <p class="ht-city up">Agouza, Giza</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. العدّاد -->
+  <div class="rv sec">
+    <section class="cd" id="countdown">
+      <div class="cd-box">
+        <img loading="lazy" decoding="async" src="assets/countdown-frame.webp" alt="" draggable="false">
+        <h2 class="cd-title">Countdown</h2>
+        <div class="cd-grid">
+          <div><span class="cd-n" id="cdD">00</span><span class="cd-l up">Days</span></div>
+          <div><span class="cd-n" id="cdH">00</span><span class="cd-l up">Hours</span></div>
+          <div><span class="cd-n" id="cdM">00</span><span class="cd-l up">Minutes</span></div>
+          <div><span class="cd-n" id="cdS">00</span><span class="cd-l up">Seconds</span></div>
+        </div>
+        <p class="cd-soon">See you soon!</p>
+      </div>
+    </section>
+  </div>
+
+  <!-- كارت الخدش على خلفية الصدف -->
+  <div class="rv sec">
+    <section class="sc">
+      <img class="sc-bg" src="assets/welcome-families.webp" alt="Together with their families" loading="lazy" draggable="false">
+      <div class="sc-oval">
+        <div class="sc-under" id="scUnder">
+          <div class="sc-date"><span class="sc-d1">Save the date</span><span class="sc-d2">25.11.2026</span><span class="sc-d3">From 7 PM</span></div>
+        </div>
+        <canvas class="sc-canvas" id="scratch"></canvas>
+      </div>
+      <div class="sc-ring" aria-hidden="true"></div>
+    </section>
+  </div>
+
+  <!-- 4. المكان — كلام المالك (2026-11-07) -->
+  <div class="rv sec">
+    <section class="loc">
+      <div class="rv loc-in">
+        <h2 class="loc-t">The Venue</h2>
+        <p class="loc-k up">WHERE WE CELEBRATE</p>
+        <p class="loc-s">The Palace</p>
+        <p class="loc-ar loc-addr" dir="rtl" lang="ar">العجوزة – الجيزة</p>
+        <p class="loc-ar loc-when" dir="rtl" lang="ar">الأربعاء ٢٥ نوفمبر <i>|</i> من ٧ مساءً حتى ١٢ منتصف الليل</p>
+        <p class="loc-ar loc-txt" dir="rtl" lang="ar"><span class="cl">هناك لحظات لا تكفيها الكلمات،</span> <span class="cl">وفرحة لا تكتمل إلا بمن نحب.</span></p>
+        <p class="loc-ar loc-txt" dir="rtl" lang="ar"><span class="cl">وبكل الحب،</span> <span class="cl">يسعدنا أن تشاركونا بداية فصل جديد من حكايتنا،</span> <span class="cl">وأن تكونوا جزءًا من ذكرى ستبقى في قلوبنا إلى الأبد.</span></p>
+        <p class="loc-en">We would love to have you with us.</p>
+        <div class="loc-img"><img loading="lazy" decoding="async" src="assets/venue.webp" alt="Illustration of the venue" draggable="false"></div>
+        <!-- لوكيشن القاعة على جوجل ماب من المالك (2026-11-10): The Palace — العجوزة -->
+        <a class="btn btn-map" href="https://maps.app.goo.gl/nGBXegvuafb3CZD57" target="_blank" rel="noopener noreferrer" aria-label="موقع الحفل | View Location"><span><span><b><span class="b-ar" lang="ar">موقع الحفل</span><span class="b-sep" aria-hidden="true">|</span><span class="b-en">View Location</span><span class="b-pin" aria-hidden="true">📍</span></b></span></span></a>
+      </div>
+    </section>
+  </div>
+
+  <!-- 6. الدريس كود -->
+  <div class="rv sec">
+    <section class="dr">
+      <div class="rv dr-wrap">
+        <div class="dr-box">
+          <div class="dr-frame"><img loading="lazy" decoding="async" src="assets/dress-frame.webp" alt="" draggable="false"></div>
+          <img class="dr-seal" src="assets/seal.webp" alt="" aria-hidden="true" draggable="false">
+          <div class="dr-in">
+            <p class="dr-t">Dress Code</p>
+            <p class="dr-s">Formal Attire</p>
+            <div class="dr-pic"><div><img loading="lazy" decoding="async" src="assets/attire.webp" alt="Wedding suit and dress illustration" draggable="false"></div></div>
+            <p class="dr-d">We'd love for our guests to embrace the occasion with elegant evening attire.<br>Dress beautifully, feel comfortable,<br>and come ready to celebrate<br>with us.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 11. الختام -->
+  <div class="rv sec">
+    <footer class="ft">
+      <div class="rv" style="--y:0px;--d:.8s">
+        <!-- الختم: لوجو المالك ع + ه بالخط العربي (2026-11-10 — نفس ختم الفيديو والغلاف) -->
+        <img class="ft-seal" src="assets/seal.webp" alt="Abdallah &amp; Hoda" draggable="false">
+        <!-- كلام الختام من المالك (2026-11-07) -->
+        <p class="ft-ar ft-ar-h" dir="rtl" lang="ar">ولأن الفرحة لا تكتمل إلا بكم…</p>
+        <p class="ft-ar" dir="rtl" lang="ar">وجودكم معانا مش مجرد حضور، ده جزء من فرحتنا، ومن أجمل الذكريات اللي هنبدأ بيها حياتنا سوا</p>
+        <p class="ft-ar" dir="rtl" lang="ar">نتمنى نشوفكم ونشارك معاكم أول لحظات حكايتنا الجديدة.</p>
+        <p class="ft-l">With all our love,</p>
+        <p class="ft-n">Abdallah <span>&amp;</span> Hoda</p>
+        <p class="ft-d">25.11.2026</p>
+        <p class="ft-d ft-t">From 7:00PM to 12:00AM</p>
+      </div>
+    </footer>
+  </div>
+</main>
+
+<!-- زرار الصوت -->
+<button type="button" class="mute" id="muteBtn" aria-label="Mute">
+  <span>
+    <svg class="i-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/></svg>
+    <svg class="i-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><line x1="22" x2="16" y1="9" y2="15"/><line x1="16" x2="22" y1="9" y2="15"/></svg>
+  </span>
+</button>
+<audio id="song" src="__SONG__" loop preload="none"></audio>
+
+<script>
+(function () {
+  'use strict';
+  /* بيانات الدعوة اللي الكود محتاجها — أي تعديل في الميعاد بيبقى هنا */
+  var EVENT = {
+    // العدّاد: الأربعاء 25 نوفمبر 2026 الساعة 7 المسا بتوقيت مصر (UTC+2)
+    countdownTo: Date.UTC(2026, 10, 25, 17, 0, 0)
+  };
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var root = document.documentElement;
+
+  /* ---------- الموسيقى ---------- */
+  var song = $('#song'), mute = $('#muteBtn'), musicStarted = false, pausedByHide = false;
+  try { song.volume = 0.5; } catch (e) {}
+  function startMusic() {
+    if (musicStarted) return;
+    musicStarted = true;
+    var p;
+    try { p = song.play(); } catch (e) { p = null; }
+    if (p && p.catch) p.catch(function () { musicStarted = false; });
+  }
+  song.addEventListener('play', function () { mute.classList.add('on'); });
+  mute.addEventListener('click', function () {
+    song.muted = !song.muted;
+    mute.classList.toggle('muted', song.muted);
+    mute.setAttribute('aria-label', song.muted ? 'Unmute' : 'Mute');
+  });
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) { if (!song.paused) { pausedByHide = true; song.pause(); } }
+    else if (pausedByHide) { pausedByHide = false; song.play().catch(function () {}); }
+  });
+
+  /* ---------- 1. الفتح: الفيديوهين ورا بعض ثم الكارت ---------- */
+  var cover = $('#cover'), v1 = $('#v1'), v2 = $('#v2'), heroText = $('#heroText');
+  var state = 'idle', heroShown = false, v2Started = false, watchdog = 0, firstWatch = 0;
+
+  /* الكارت: صورة الإطار بتتعرض object-fit: cover، فبتصغر على الشاشات الأقصر/الأضيق. على أي شاشة إطارها
+     أصغر من إطار آيفون في سفاري (آيفون SE/ميني، أندرويد القصير) الكلام كله بيصغر بنفس نسبة الإطار
+     عشان يفضل جوه الإطار بنفس الشكل؛ الشاشات الأكبر بمقاسات التصميم زي ما هي. */
+  var heroBox = $('.hero'), heroImg = $('.hero-img');
+  function fitHero() {
+    var iw = heroImg.naturalWidth || 941, ih = heroImg.naturalHeight || 1672;
+    var w = heroBox.clientWidth, h = heroBox.clientHeight;
+    if (!w || !h) return;
+    var s = Math.min(1, Math.max(w / iw, h / ih) / 0.43);
+    heroText.style.transform = s < 0.995 ? 'scale(' + s.toFixed(4) + ')' : '';
+  }
+  fitHero();
+  window.addEventListener('resize', fitHero);
+  heroImg.addEventListener('load', fitHero);
+
+  function unlock() { root.classList.remove('lock'); }
+  function showHero() {
+    if (heroShown) return;
+    heroShown = true;
+    unlock();
+    setTimeout(function () { heroText.classList.add('on'); }, 800);
+    // باقي صور الدعوة تتحمّل في الخلفية عشان تبقى جاهزة مع السكرول
+    $$('img[loading=lazy]').forEach(function (i) { i.loading = 'eager'; });
+  }
+  function removeCover() {
+    if (state === 'done') return;
+    state = 'done';
+    unlock();
+    try { v1.pause(); v2.pause(); } catch (e) {}
+    if (cover.parentNode) cover.parentNode.removeChild(cover);
+  }
+  function fadeCover() {
+    showHero();
+    if (state === 'fading' || state === 'done') return;
+    state = 'fading';
+    clearTimeout(watchdog); clearTimeout(firstWatch);
+    cover.classList.add('fade');
+    cover.addEventListener('transitionend', function (e) { if (e.target === cover && e.propertyName === 'opacity') removeCover(); });
+    setTimeout(removeCover, 2400);
+  }
+  function startV2() {
+    if (v2Started) return;
+    v2Started = true;
+    v2.classList.add('on');
+    try { v2.currentTime = 0; } catch (e) {}
+    var p;
+    try { p = v2.play(); } catch (e) { p = null; }
+    if (p && p.catch) p.catch(fadeCover);
+  }
+  v1.addEventListener('timeupdate', function () {
+    if (v1.currentTime > 0.05) { v1.classList.add('on'); clearTimeout(firstWatch); }
+    if (!v1.duration) return;
+    var left = v1.duration - v1.currentTime;
+    if (left < 1.2) v1.classList.add('warm');
+    if (left < 0.1) startV2();
+  });
+  v1.addEventListener('ended', startV2);
+  v1.addEventListener('error', function () { if (state === 'envelope') fadeCover(); });
+  v2.addEventListener('timeupdate', function () {
+    if (!v2Started || !v2.duration) return;
+    var left = v2.duration - v2.currentTime;
+    if (left < 1.8) showHero();
+    if (left < 1) fadeCover();
+  });
+  v2.addEventListener('ended', fadeCover);
+  v2.addEventListener('error', function () { if (v2Started) fadeCover(); });
+  // الضيف خرج من الموبايل في نص الفتح ورجع: الفيديو يكمّل مكان ما وقف
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden || state !== 'envelope') return;
+    var cur = v2Started ? v2 : v1;
+    if (cur.paused && !cur.ended) { var p = cur.play(); if (p && p.catch) p.catch(function () {}); }
+  });
+
+  function openInvitation() {
+    if (state !== 'idle') return;
+    state = 'envelope';
+    startMusic();
+    // نفس الضغطة بتجهّز الفيديو التاني عشان يشتغل لوحده بعد الأول (آيفون في توفير الطاقة)
+    try {
+      var pv = v2.play();
+      if (pv && pv.then) pv.then(function () { if (!v2Started) { v2.pause(); try { v2.currentTime = 0; } catch (e) {} } }).catch(function () {});
+    } catch (e) {}
+    var p;
+    try { p = v1.play(); } catch (e) { p = null; }
+    if (p && p.catch) p.catch(fadeCover);
+    // لو النت وقف الفيديو: الضيف مايستناش كتير
+    firstWatch = setTimeout(function () { if (v1.currentTime <= 0.05) fadeCover(); }, 9000);
+    watchdog = setTimeout(fadeCover, 30000);
+  }
+  if (cover) {
+    if (window.MQ_EDIT) {
+      if (cover.parentNode) cover.parentNode.removeChild(cover);
+      state = 'done'; heroShown = true; heroText.classList.add('on');
+    } else {
+      root.classList.add('lock');
+      try { history.scrollRestoration = 'manual'; } catch (e) {}
+      window.scrollTo(0, 0);
+      cover.addEventListener('click', openInvitation);
+      cover.addEventListener('touchmove', function (e) { e.preventDefault(); }, { passive: false });
+    }
+  }
+
+  /* ---------- ظهور الأقسام ---------- */
+  function reveal() {
+    var els = $$('.rv');
+    if (!('IntersectionObserver' in window)) { els.forEach(function (e) { e.classList.add('in'); }); return; }
+    var inner = new IntersectionObserver(function (es, o) {
+      es.forEach(function (x) { if (x.isIntersecting) { x.target.classList.add('in'); o.unobserve(x.target); } });
+    }, { threshold: 0 });
+    var outer = new IntersectionObserver(function (es, o) {
+      es.forEach(function (x) { if (x.isIntersecting) { x.target.classList.add('in'); o.unobserve(x.target); } });
+    }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+    els.forEach(function (e) { (e.classList.contains('sec') ? outer : inner).observe(e); });
+  }
+  reveal();
+
+  /* ---------- 3. العدّاد ---------- */
+  var cdEls = [$('#cdD'), $('#cdH'), $('#cdM'), $('#cdS')];
+  function pad(n) { return n < 10 ? '0' + n : String(n); }
+  function tick() {
+    var ms = Math.max(0, EVENT.countdownTo - Date.now());
+    var v = [Math.floor(ms / 864e5), Math.floor(ms / 36e5 % 24), Math.floor(ms / 6e4 % 60), Math.floor(ms / 1e3 % 60)];
+    for (var i = 0; i < 4; i++) { var t = pad(v[i]); if (cdEls[i].textContent !== t) cdEls[i].textContent = t; }
+  }
+  tick();
+  setInterval(tick, 1000);
+
+  /* ---------- كارت الخدش ---------- */
+  (function () {
+    var cv = $('#scratch'), under = $('#scUnder');
+    if (!cv) return;
+    var drawing = false, last = null, finished = false, drawn = false;
+    function draw() {
+      var r = cv.getBoundingClientRect();
+      if (r.width < 20 || r.height < 20 || drawn) return;
+      drawn = true;
+      var dpr = window.devicePixelRatio || 1;
+      cv.width = r.width * dpr; cv.height = r.height * dpr;
+      var c = cv.getContext('2d');
+      c.scale(dpr, dpr);
+      var g = r.width, x = r.height;
+      c.fillStyle = 'rgb(235,227,215)';
+      c.fillRect(0, 0, g, x);
+      under.classList.add('ready');
+      var img = new Image();
+      img.onload = function () {
+        var ready = (document.fonts && document.fonts.load) ? document.fonts.load('40px "Monsieur La Doulaise Local"') : Promise.resolve();
+        ready.catch(function () {}).then(function () {
+          // لو الضيف لحق خدش قبل ما الصورة تخلص، مانرسمش فوق الخدش
+          if (last || finished) return;
+          var k = Math.max(g / img.width, x / img.height), w = img.width * k, h = img.height * k;
+          c.drawImage(img, (g - w) / 2, (x - h) / 2, w, h);
+          c.fillStyle = 'hsla(212, 22%, 38%, 0.85)';
+          c.textAlign = 'center';
+          c.textBaseline = 'middle';
+          c.font = Math.max(18, g * 0.17) + 'px "Monsieur La Doulaise Local", cursive';
+          c.fillText('Scratch', g / 2, x / 2 - g * 0.09);
+          c.fillText('to reveal', g / 2, x / 2 + g * 0.09);
+        });
+      };
+      img.src = cv.getAttribute('data-paper') || 'assets/paper.webp';
+    }
+    if ('ResizeObserver' in window) new ResizeObserver(draw).observe(cv);
+    window.addEventListener('load', draw);
+    draw();
+    function pos(e) { var r = cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+    function scratch(e) {
+      if (!drawing) return;
+      var c = cv.getContext('2d'), p = pos(e), w = cv.getBoundingClientRect().width * 0.09;
+      c.globalCompositeOperation = 'destination-out';
+      c.lineCap = 'round'; c.lineJoin = 'round'; c.lineWidth = w * 2;
+      c.beginPath();
+      var from = last || p;
+      c.moveTo(from.x, from.y); c.lineTo(p.x, p.y); c.stroke();
+      last = p;
+    }
+    function check() {
+      if (finished) return;
+      var d = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height).data, u = 0, f = 0;
+      for (var i = 3; i < d.length; i += 64) { f++; if (d[i] === 0) u++; }
+      if (u / f > 0.55) { finished = true; cv.classList.add('done'); }
+    }
+    cv.addEventListener('pointerdown', function (e) {
+      drawing = true; last = null;
+      try { cv.setPointerCapture(e.pointerId); } catch (x) {}
+      scratch(e);
+    });
+    cv.addEventListener('pointermove', scratch);
+    cv.addEventListener('pointerup', function () { drawing = false; last = last || { x: 0, y: 0 }; check(); });
+    cv.addEventListener('pointercancel', function () { drawing = false; });
+  })();
+
+})();
+</script>
+</body>
+</html>

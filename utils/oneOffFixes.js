@@ -1326,6 +1326,34 @@ const FIXES = [
       return set;
     },
   },
+  {
+    // qWn9kOE (custom-invitations/qWn9kOE.js بيعرض الصفحة كلها — نسخة من دعوة "صدف" DBywdm2) — بطلب المالك
+    // (2026-11-10): Abdallah & Hoda، الأربعاء 25/11/2026 الساعة 7 المسا (لحد 12)، The Palace — العجوزة،
+    // بلينك الخريطة اللي بعته. هنا البيانات عشان لوحة العميل والإحصائيات. بس لو الدعوة لسه فاضية.
+    name: 'qWn9kOE-abdallah-hoda',
+    shortId: 'qWn9kOE',
+    select: '-__v',
+    when: (c, inv) => inv.groomName === 'Groom' && inv.brideName === 'Bride' && inv.venueName === 'Venue',
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const link = 'https://maps.app.goo.gl/nGBXegvuafb3CZD57';
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: 'en', occasionType: 'wedding',
+        hiddenSections: inv.hiddenSections, timeline: inv.timeline, name: inv.name,
+        groomName: 'Abdallah', groomNameAr: 'عبدالله', brideName: 'Hoda', brideNameAr: 'هدى',
+        venueName: 'The Palace', venueCity: 'Agouza, Giza',
+        venueMapQuery: link,
+        weddingDate: '2026-11-25', weddingTime: '19:00',
+      }, { ownsTemplate: true, skipMapNetwork: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.language = 'en';
+      set.venueMapDirectLink = link;
+      // الدبوس على القاعة نفسها (Plus Code 8G2H3632+WXG من لينك المالك)
+      set.venueMapEmbedSrc = 'https://www.google.com/maps?q=30.0548125,31.2024531&z=16&output=embed';
+      return set;
+    },
+  },
 ];
 
 let done = false;
