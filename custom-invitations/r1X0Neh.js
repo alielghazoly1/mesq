@@ -19,16 +19,19 @@ const NAMES = {
 
 // خانات القالب: [السيلكتور، عربي، إنجليزي]
 const R = (rec, f) => `#${rec} [field="${f}"]`;
+// أسامي الخط اليدوي (صور المالك 2026-11-09): متقصوصة من غير خلفية، متكبّرة 4x ودهبي زي كلام الدعوة (scratch r1/cal/cut.py)
+const IMG_MO = `<img class="r1-ni r1-ni-mo" src="${asset(`/custom/${SHORT}/mohamed.webp`)}" alt="محمد" decoding="async">`;
+const IMG_MA = `<img class="r1-ni r1-ni-ma" src="${asset(`/custom/${SHORT}/mayada.webp`)}" alt="ميادة" decoding="async">`;
 const FIELDS = [
   [R('rec2339662043', 'tn_text_1777183175514000001'), 'اضغط لفتح الدعوة', 'Tap to open'],
   // أول صفحة (الستاير): الاسمين وبينهم "و" / "&"، وتحتهم التاريخ والساعة
-  [R('rec2339662063', 'tn_text_1779566247730000001'), `<span class="r1-n">${NAMES.ar[0]}</span><span class="r1-and">وَ</span><span class="r1-n">${NAMES.ar[1]}</span>`, `<span class="r1-n">${NAMES.en[0]}</span><span class="r1-and">&amp;</span><span class="r1-n">${NAMES.en[1]}</span>`],
+  [R('rec2339662063', 'tn_text_1779566247730000001'), `<span class="r1-n">${IMG_MO}</span><span class="r1-and">وَ</span><span class="r1-n">${IMG_MA}</span>`, `<span class="r1-n">${NAMES.en[0]}</span><span class="r1-and">&amp;</span><span class="r1-n">${NAMES.en[1]}</span>`],
   [R('rec2339662063', 'tn_text_1779566247730000004'), '', ''],
   [R('rec2339662063', 'tn_text_1779566247730000003'), 'الاثنين ٢٣ نوفمبر ٢٠٢٦', '23 November 2026'],
   [R('rec2339662063', 'tn_text_1779626065755000001'), 'الساعة السابعة مساءً', 'Monday · 7:00 PM'],
   // كارت القوس (تحت ختم البسملة)
   [R('rec2339662083', 'tn_text_1779624381838000001'),
-    `<span class="r1-arch-n">${NAMES.ar[0]} و${NAMES.ar[1]}</span><br><br>يتشرفان بدعوتكم<br>لحضور حفل زفافهما<br><br>يوم الاثنين<br>٢٣ نوفمبر ٢٠٢٦<br>الساعة السابعة مساءً<br><br>في`,
+    `<span class="r1-arch-n">${IMG_MO.replace('r1-ni ', 'r1-ai ')}<b>وَ</b>${IMG_MA.replace('r1-ni ', 'r1-ai ')}</span><br><br>يتشرفان بدعوتكم<br>لحضور حفل زفافهما<br><br>يوم الاثنين<br>٢٣ نوفمبر ٢٠٢٦<br>الساعة السابعة مساءً<br><br>في`,
     `${NAMES.en[0]} &amp; ${NAMES.en[1]}<br><br>request the pleasure<br>of your company<br>at their wedding<br><br>on Monday<br>23 November 2026<br>at 7:00 PM<br><br>at`],
   [R('rec2339662083', 'tn_text_1779472210551000005'), 'بيراميدز بالاس', 'Pyramids Palace'],
   [R('rec2339662093', 'tn_text_1771277026942000001'), 'اقترب موعد الفرح', 'The Celebration Begins'],
@@ -143,7 +146,12 @@ html.r1-arabic .r1-n{display:block;font:700 70px/1.32 'Aref Ruqaa',serif;white-s
 html.r1-arabic .r1-and{display:block;font:700 34px/1.1 'Aref Ruqaa',serif;margin:-6px 0 -4px}
 html.r1-arabic #rec2339662063 [field="tn_text_1779566247730000003"],html.r1-arabic #rec2339662063 [field="tn_text_1779626065755000001"]{font-size:20px!important;line-height:1.4!important;font-weight:700!important;transform:translateY(var(--r1-dy,62px))}
 html.r1-arabic #rec2339662083 [field="tn_text_1779624381838000001"]{font-size:20px!important;line-height:1.6!important;font-weight:400!important}
-html.r1-arabic .r1-arch-n{font:700 34px/1.7 'Aref Ruqaa',serif;color:${GOLD}}
+html.r1-arabic .r1-arch-n{display:inline-flex;align-items:center;justify-content:center;gap:10px;direction:rtl;font:700 26px/1 'Aref Ruqaa',serif;color:${GOLD};margin:4px 0}
+.r1-ai{display:block;width:auto}.r1-ai.r1-ni-mo{height:44px}.r1-ai.r1-ni-ma{height:56px}
+/* صور الأسامي على الستاير */
+html.r1-arabic .r1-n{line-height:0!important}
+.r1-ni{display:block;margin:0 auto;width:auto;max-width:78vw;filter:drop-shadow(0 1px 0 rgba(255,250,240,.55))}
+.r1-ni-mo{height:98px}.r1-ni-ma{height:138px}
 html.r1-arabic #rec2339662083 [field="tn_text_1779472210551000005"]{font-weight:700!important}
 html.r1-arabic #rec2355542373 [field="tn_text_1779544773135"],html.r1-arabic #rec2355574603 [field="tn_text_1780767449362000001"],html.r1-arabic #rec2355574603 [field="tn_text_1780767518772000005"]{font-size:19px!important;line-height:1.55!important}
 html.r1-arabic #venueOpenMapLink{font-family:'El Messiri','Amiri',sans-serif!important;letter-spacing:0!important}
