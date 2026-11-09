@@ -1297,6 +1297,35 @@ const FIXES = [
       return set;
     },
   },
+  {
+    // r1X0Neh (Blossom & Oud + custom-invitations/r1X0Neh.js) — بطلب المالك (2026-11-09): الفرح الاتنين
+    // 23/11/2026 الساعة 7 مساءً (العدّاد والتقويم عليها)، Pyramids Palace Venue — كفر الجبل، الهرم، الجيزة،
+    // بلينك الخريطة اللي بعته. العريس محمد والعروسة ميادة. جدول المواعيد مستخبي (مفيش تفاصيل لسه).
+    // بيتعمل بس لو الدعوة لسه فاضية (Groom & Bride في قاعة Venue).
+    name: 'r1X0Neh-pyramids-palace',
+    shortId: 'r1X0Neh',
+    select: '-__v',
+    when: (c, inv) => inv.templateId === 'blossom-oud' && inv.groomName === 'Groom' && inv.brideName === 'Bride' && inv.venueName === 'Venue',
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const link = 'https://maps.app.goo.gl/FgC7U2m9YBkvynqR6';
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: inv.language, occasionType: inv.occasionType,
+        hiddenSections: ['timeline'], timeline: inv.timeline, name: inv.name,
+        groomName: 'Mohamed', groomNameAr: 'محمد', brideName: 'Mayada', brideNameAr: 'ميادة',
+        venueName: 'Pyramids Palace Venue', venueCity: 'Kafr El Gabal, Haram, Giza',
+        venueMapQuery: link,
+        weddingDate: '2026-11-23', weddingTime: '19:00',
+      }, { ownsTemplate: true, skipMapNetwork: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.hiddenSections = ['timeline'];
+      set.venueMapDirectLink = link;
+      // الدبوس على القاعة نفسها (Plus Code 7GXHX42V+QMX من لينك المالك)
+      set.venueMapEmbedSrc = 'https://www.google.com/maps?q=29.9519875,31.1442344&z=16&hl=ar&output=embed';
+      return set;
+    },
+  },
 ];
 
 let done = false;
