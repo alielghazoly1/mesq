@@ -1239,6 +1239,15 @@ const FIXES = [
     },
   },
   {
+    // MslhLFz (Pearl Peony EN) — بطلب المالك (2026-11-09): "Kindly let us know at your earliest convenience."
+    // كانت سطر وتحته كلمة واحدة لوحدها ("convenience.") — بقت سطرين: "Kindly let us know" / "at your earliest
+    // convenience." (السطر الجديد \n بيتعرض pre-wrap — utils/customizations.js setTextOn). بس لو النص لسه زي ما العميل كتبه.
+    name: 'MslhLFz-rsvp-intro-two-lines',
+    shortId: 'MslhLFz',
+    when: (c) => !!(c.texts && c.texts.pp52 === 'Kindly let us know at your earliest convenience.'),
+    apply: () => ({ 'customizations.texts.pp52': 'Kindly let us know\nat your earliest convenience.' }),
+  },
+  {
     // G55weuy (Pearl Peony + custom-invitations/G55weuy.js) — خطوبة خلود البغدادي وبلال صبري بطلب المالك
     // (2026-11-09، عميلة من السعودية): عربي، خطوبة، السبت 12/12/2026، منتجع أوراق 2 — ديراب، الرياض،
     // وتأكيد الحضور + التهنئة الصوتية + رفع صور الضيوف. الساعة لسه مش متبعتة (20:00 مؤقتًا ومستخبية في الدعوة).
