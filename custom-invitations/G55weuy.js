@@ -27,6 +27,7 @@ const GREENS = {
 };
 
 const HIJRI = 'السبت ٣ رجب ١٤٤٨ هـ';
+const FLOWERS = ['fl-b', 'fl-c', 'fl-d', 'fl-e', 'fl-f', 'fl-g', 'fl-gm', 'fl-hm'];
 
 // التهنئة الصوتية ورفع الصور جوه قسم تأكيد الحضور — بالفصحى (العميلة من السعودية) وبكلام الخطوبة
 const EXTRAS_OPTS = `<script>window.MITHAQ_EXTRAS_OPTS = { anchor: '#mithaq-rsvp', lang: 'ar', attend: false, t: {
@@ -128,6 +129,8 @@ module.exports = {
     out = out.split('/templates/pearl-peony/pin.webp').join(asset(`${DIR}pin.webp`));
     out = out.split('/templates/pearl-peony/cover-bg.webp').join(asset(`${DIR}cover-bg.webp`));
     out = out.split('/templates/pearl-peony/envelope.webp').join(asset(`${DIR}envelope.webp`));
+    // ورد الدعوة من جوه وردي زي فاوانيا الظرف (نفس الصور، اللون بس — scratch kb2/pinkfl.py)
+    for (const f of FLOWERS) out = out.split(`/templates/pearl-peony/${f}.webp`).join(asset(`${DIR}${f}.webp`));
     // المونوجرام مكان الأسامي على الظرف (جوه .env عشان ينزل معاه)
     out = out.replace(/(<div class="env-t env-names[^"]*">[\s\S]*?<\/div>)/, (m) => `${m}
       <img class="kb-mono-art" src="${asset(`${DIR}mono.webp`)}" alt="خ ب">`);
