@@ -31,12 +31,12 @@ const FIELDS = [
   [R('rec2339662063', 'tn_text_1779626065755000001'), 'الساعة السابعة مساءً', 'Monday · 7:00 PM'],
   // كارت القوس (تحت ختم البسملة)
   [R('rec2339662083', 'tn_text_1779624381838000001'),
-    `<span class="r1-arch-n">${IMG_MO.replace('r1-ni ', 'r1-ai ')}<b>وَ</b>${IMG_MA.replace('r1-ni ', 'r1-ai ')}</span><br><br>يتشرفان بدعوتكم<br>لحضور حفل زفافهما<br><br>يوم الاثنين<br>٢٣ نوفمبر ٢٠٢٦<br>الساعة السابعة مساءً<br><br>في`,
-    `${NAMES.en[0]} &amp; ${NAMES.en[1]}<br><br>request the pleasure<br>of your company<br>at their wedding<br><br>on Monday<br>23 November 2026<br>at 7:00 PM<br><br>at`],
-  [R('rec2339662083', 'tn_text_1779472210551000005'), 'بيراميدز بالاس', 'Pyramids Palace'],
+    `<span class="r1-arch-n">${IMG_MO.replace('r1-ni ', 'r1-ai ')}<b>وَ</b>${IMG_MA.replace('r1-ni ', 'r1-ai ')}</span><br><br>يتشرفان بدعوتكم<br>لحضور حفل زفافهما<br><br>يوم الاثنين<br>٢٣ نوفمبر ٢٠٢٦<br>الساعة السابعة مساءً<br>في`,
+    `${NAMES.en[0]} &amp; ${NAMES.en[1]}<br><br>request the pleasure<br>of your company<br>at their wedding<br><br>on Monday<br>23 November 2026<br>at 7:00 PM<br>at`],
+  [R('rec2339662083', 'tn_text_1779472210551000005'), 'Pyramids Palace', 'Pyramids Palace'],
   [R('rec2339662093', 'tn_text_1771277026942000001'), 'اقترب موعد الفرح', 'The Celebration Begins'],
   [R('rec2339662113', 'tn_text_1771277026942000001'), 'مكان الحفل', 'The Venue'],
-  [R('rec2339662113', 'tn_text_1779544773135'), 'قاعة بيراميدز بالاس', 'Pyramids Palace Venue'],
+  [R('rec2339662113', 'tn_text_1779544773135'), 'Pyramids Palace Venue', 'Pyramids Palace Venue'],
   [R('rec2339662113', 'tn_text_1779545032699000001'), 'كفر الجبل، الهرم، الجيزة', 'Kafr El Gabal, Haram, Giza'],
   // الدريس كود
   [R('rec2355542373', 'tn_text_1771277026942000001'), 'الزي المقترح', 'Dress Code'],
@@ -82,14 +82,11 @@ const RUQAA = [
 ];
 const AMIRI = [
   '#rec2339662043 [field]', '#rec2339662063 [field="tn_text_1779566247730000003"]', '#rec2339662063 [field="tn_text_1779626065755000001"]',
-  '#rec2339662083 [field="tn_text_1779624381838000001"]', '#rec2339662083 [field="tn_text_1779472210551000005"]',
-  '#rec2339662113 [field="tn_text_1779544773135"]', '#rec2339662113 [field="tn_text_1779545032699000001"]',
+  '#rec2339662083 [field="tn_text_1779624381838000001"]',
+  '#rec2339662113 [field="tn_text_1779545032699000001"]',
   '#rec2355542373 [field="tn_text_1779544773135"]', '#rec2355574603 [field="tn_text_1780767449362000001"]', '#rec2355574603 [field="tn_text_1780767518772000005"]',
 ];
 const ar = (list, extra = '') => list.map((s) => `html.r1-arabic ${s}${extra}`).join(',');
-
-// دواير الألوان (4 أزواج حلقة + لون): أحمر، أسود، برجندي — والرابعة مستخبية والتلاتة متسنترين
-const SW = { '1780767598424000008': '#b3121c', '1780767598425000011': '#121212', '1780767598425000014': '#6e1426' };
 
 const CSS = `
 html,body{overflow-anchor:none}
@@ -112,15 +109,16 @@ html.r1-arabic .r1-en{display:none!important}
 .r1-send:disabled{opacity:.6}
 .r1-msg{min-height:1.4em;margin:12px 0 0;text-align:center;font:400 17px/1.4 'Cormorant Garamond',serif;color:${GOLD}}
 .r1-msg.err{color:#9b3b2e}
-.r1-no{display:inline-block;margin-top:6px;font-weight:600;color:#8a1c24}
+.r1-no{display:inline-block;margin-top:6px;font-weight:600;color:${GOLD}}
 /* كلام الرجالة 3 سطور (آخرها: من غير بدلة بيضا) — القسم أطول شوية عشان مايتقصّش */
 #rec2355574603 .t396__artboard,#rec2355574603 .t396__carrier,#rec2355574603 .t396__filter{height:300px!important}
-/* دواير الألوان */
-${Object.entries(SW).map(([id, c]) => `#rec2355542373 [data-elem-id="${id}"] .tn-atom{background-color:${c}!important}`).join('\n')}
-#rec2355542373 [data-elem-id="1780767598425000016"],#rec2355542373 [data-elem-id="1780767598425000017"]{display:none!important}
-#rec2355542373 [data-elem-id="1780767598424000007"],#rec2355542373 [data-elem-id="1780767598424000008"],
-#rec2355542373 [data-elem-id="1780767598425000010"],#rec2355542373 [data-elem-id="1780767598425000011"],
-#rec2355542373 [data-elem-id="1780767598425000013"],#rec2355542373 [data-elem-id="1780767598425000014"]{margin-left:34.5px!important}
+/* دواير الألوان وعنوانها اتشالوا (بطلب المالك) — والقسم أقصر عشان مايفضلش مكانهم فاضي */
+#rec2355542373 [data-elem-id^="17807675984"],#rec2355542373 [data-elem-id="1780768374065000001"]{display:none!important}
+#rec2355542373 .t396__artboard,#rec2355542373 .t396__carrier,#rec2355542373 .t396__filter{height:440px!important}
+/* آخر جملة بالإنجليزي (سطرين): مساحة فوق وتحت — الخط أصغر سنة، والزخرفة اللي تحتها نازلة */
+html:not(.r1-arabic) #rec2339662163 [field="tn_text_1763405219328"]{font-size:38px!important;line-height:1.3!important;transform:translateY(-10px)}
+html:not(.r1-arabic) #rec2339662163 [data-elem-id="1779625933115000001"],html:not(.r1-arabic) #rec2339662163 [data-elem-id="1779625933115000002"]{transform:translateY(34px)}
+html:not(.r1-arabic) #rec2339662163 .t396__artboard,html:not(.r1-arabic) #rec2339662163 .t396__carrier,html:not(.r1-arabic) #rec2339662163 .t396__filter{height:410px!important}
 /* زرار اللغة — فوق على اليمين */
 .r1-lang{position:fixed;top:calc(12px + env(safe-area-inset-top));right:max(12px,calc(50vw - 218px));z-index:2147482000;display:inline-flex;align-items:center;gap:7px;
   padding:9px 15px 9px 12px;border-radius:999px;border:1px solid rgba(134,103,57,.7);background:rgba(253,246,238,.94);color:${GOLD};
@@ -151,8 +149,7 @@ html.r1-arabic .r1-arch-n{display:inline-flex;align-items:center;justify-content
 /* صور الأسامي على الستاير */
 html.r1-arabic .r1-n{line-height:0!important}
 .r1-ni{display:block;margin:0 auto;width:auto;max-width:78vw;filter:drop-shadow(0 1px 0 rgba(255,250,240,.55))}
-.r1-ni-mo{height:98px}.r1-ni-ma{height:138px}
-html.r1-arabic #rec2339662083 [field="tn_text_1779472210551000005"]{font-weight:700!important}
+.r1-ni-mo{height:72px}.r1-ni-ma{height:100px}
 html.r1-arabic #rec2355542373 [field="tn_text_1779544773135"],html.r1-arabic #rec2355574603 [field="tn_text_1780767449362000001"],html.r1-arabic #rec2355574603 [field="tn_text_1780767518772000005"]{font-size:19px!important;line-height:1.55!important}
 html.r1-arabic #venueOpenMapLink{font-family:'El Messiri','Amiri',sans-serif!important;letter-spacing:0!important}
 html.r1-arabic .r1-sec [lang="ar"],html.r1-arabic .r1-form{direction:rtl}
