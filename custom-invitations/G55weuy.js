@@ -75,12 +75,30 @@ body{background-color:#faf5ee}
 .sent b{color:#8c5a4b}
 /* مفيش ساعة لسه — السطر مستخبّي */
 [data-elem-id="pp15"]{display:none!important}
-/* التهنئة الصوتية ورفع الصور: بنفس ألوان الدعوة وخطوطها */
-#mithaq-extras.gx{--gx-ink:#3b2e2a;--gx-soft:#7a675f;--gx-gold:#c9a26b;--gx-gold2:#e3ab9d;--gx-line:rgba(59,46,42,.22);--gx-paper:#fffaf5;--gx-card:#fdf6f1;
-  --gx-disp:'Aref Ruqaa','Amiri',serif;--gx-body:'Amiri','Times New Roman',serif;--gx-caps:'Reem Kufi','Amiri',serif;margin:10cqw 6cqw 0}
-#mithaq-extras .gx-card{border-radius:4cqw}
-#mithaq-extras .gx-title{color:#8c5a4b}
+/* زرار الموسيقى بألوان الدعوة */
+#music{color:#a8685a;border-color:#dcc6a3}
+/* بعد "بانتظاركم بكل محبة" مفيش فراغ كبير (قسم ألوان اللبس مستخبّي) */
+[data-elem-id="pp45"]{margin-top:8cqw!important}
+/* التهنئة الصوتية ورفع الصور: جزء من الدعوة نفسها (نفس الورق والخطوط والمقاسات) — مش بلوك أبيض منفصل */
+#mithaq-extras.gx{--gx-ink:#3b2e2a;--gx-soft:#7a675f;--gx-gold:#c9a26b;--gx-gold2:#e3ab9d;--gx-line:rgba(59,46,42,.22);--gx-paper:transparent;--gx-card:rgba(255,250,245,.62);
+  --gx-disp:'Aref Ruqaa','Amiri',serif;--gx-body:'Amiri','Times New Roman',serif;--gx-caps:'Reem Kufi','Amiri',serif;
+  background:transparent;padding:4cqw 0 2cqw;margin:0}
+#mithaq-extras .gx-orn{margin-bottom:7cqw}
+#mithaq-extras .gx-card{max-width:none;padding:8cqw 5.5cqw 7cqw;border-radius:3cqw;border:1px solid #dcc6a3;box-shadow:0 1.4cqw 4cqw rgba(120,80,60,.08)}
+#mithaq-extras .gx-card::before{inset:1.6cqw;border-radius:2cqw;border-color:rgba(201,162,107,.45)}
+#mithaq-extras .gx-card + .gx-card{margin-top:7cqw}
+#mithaq-extras .gx-eyebrow{font:500 3.7cqw/1.4 'Reem Kufi',var(--ar);color:#986a4f;letter-spacing:0}
+#mithaq-extras .gx-title{margin-top:1.6cqw;font:700 8.6cqw/1.45 'Aref Ruqaa',var(--ar);color:#8c5a4b;-webkit-text-stroke:0;white-space:nowrap}
+#mithaq-extras .gx-sub{margin-top:1.4cqw;font:400 4.4cqw/1.85 'Amiri',serif;color:#6a5048}
+#mithaq-extras .gx-rec{margin-top:6cqw}
+#mithaq-extras .gx-idle,#mithaq-extras .gx-slide{font-size:4.3cqw}
+#mithaq-extras .gx-label{font:500 3.8cqw/1.4 'Reem Kufi',var(--ar);color:#5b3b33;letter-spacing:0}
+#mithaq-extras .gx-input{font:400 4.6cqw/1.4 'Amiri',serif;color:#3b2e2a}
 #mithaq-extras .gx-btn,#mithaq-extras .gx-mic{background:linear-gradient(#e7b3a5,#cf9483);border-color:#c48676;color:#fff}
+#mithaq-extras .gx-btn{border-radius:99px;font:700 4.6cqw/1 'Amiri',serif;letter-spacing:0;height:12cqw;min-height:44px;box-shadow:0 1cqw 2.6cqw rgba(160,95,80,.28)}
+#mithaq-extras .gx-note{font:400 3.7cqw/1.7 'Amiri',serif;color:#7a675f}
+#mithaq-extras .gx-sent-t{font:700 6.4cqw/1.4 'Aref Ruqaa',var(--ar);color:#8c5a4b}
+#mithaq-extras .gx-sent-n,#mithaq-extras .gx-status,#mithaq-extras .gx-toast,#mithaq-extras .gx-err{font-family:'Amiri',serif;font-size:4cqw}
 </style>`;
 
 module.exports = {
