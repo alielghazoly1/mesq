@@ -1363,6 +1363,37 @@ const FIXES = [
     apply: () => ({ venueCity: '6th of October City', venueMapDirectLink: 'https://maps.app.goo.gl/aXFeeiKDkyhHy9jp8' }),
   },
   {
+    // cPcTTdw (قالب Mother of Pearl عربي + custom-invitations/cPcTTdw.js) — بطلب المالك (2026-11-10): النسخة العربي
+    // من دعوة عبدالله وهدى (qWn9kOE الأصل): نفس الأسامي والميعاد (الأربعاء 25/11/2026 من 7 لـ 12) والمكان
+    // (The Palace — مدينة ٦ أكتوبر) ولينك الخريطة، وسطور الوقت "من ٧ مساءً حتى ١٢ منتصف الليل" زي الأصل.
+    // بيتعمل بس لو الدعوة لسه فاضية (العريس/العروسة في Venue).
+    name: 'cPcTTdw-abdallah-hoda-ar',
+    shortId: 'cPcTTdw',
+    select: '-__v',
+    when: (c, inv) => inv.templateId === 'mother-of-pearl' && inv.groomNameAr === 'العريس' && inv.brideNameAr === 'العروسة' && inv.venueName === 'Venue',
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const link = 'https://maps.app.goo.gl/aXFeeiKDkyhHy9jp8';
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: 'ar', occasionType: 'wedding',
+        hiddenSections: inv.hiddenSections || [], timeline: inv.timeline, name: inv.name,
+        groomName: 'Abdallah', groomNameAr: 'عبدالله', brideName: 'Hoda', brideNameAr: 'هدى',
+        venueName: 'The Palace', venueCity: 'مدينة ٦ أكتوبر',
+        venueMapQuery: link,
+        weddingDate: '2026-11-25', weddingTime: '19:00',
+      }, { ownsTemplate: true, skipMapNetwork: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.language = 'ar';
+      set.venueMapDirectLink = link;
+      set.venueMapEmbedSrc = 'https://www.google.com/maps?q=30.0548125,31.2024531&z=16&output=embed';
+      // الوقت زي الأصل: من 7 لحد 12
+      set['customizations.texts.mp25'] = 'الأربعاء ٢٥ نوفمبر  |  من ٧ مساءً حتى ١٢ منتصف الليل';
+      set['customizations.texts.mp53'] = 'من ٧ مساءً حتى ١٢ منتصف الليل';
+      return set;
+    },
+  },
+  {
     // MjTf28R (Pearl Peony) — المالك (2026-11-10): صورة خلفية الظرف "اتمسحت" — الحقيقة إنها اتبدّلت من المحرر بصورة
     // الآية (gxk79tq = خلفية الظرف). بنرجّع الخلفية الأصلية (القيمة الفاضية بتتشال وقت العرض). الآية نفسها بقت
     // فوق الظرف في custom-invitations/MjTf28R.js. بس لو لسه نفس الصورة دي.
