@@ -166,6 +166,22 @@ main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
 .dr-pic div{position:relative;margin:0 auto;width:120px;height:150px;flex-shrink:0}
 .dr-pic img{position:absolute;left:-13.75%;top:-10.2%;width:127.5%;height:128%;max-width:none}
 .dr-d{color:rgba(var(--fg-rgb),.8);font-family:var(--sans);font-weight:300;font-size:11px;line-height:1.375;margin:30px -12% 0}
+/* الألوان اللي مش عايزينها (المالك 2026-11-10): خط رفيع بلون الدعوة بمعين في النص، و"Avoided Colors" بخط "Dress Code" */
+/* الدعوة دي فيها سطور أكتر تحت الصورة: الكلام كله أعلى سنة وأصغر سنة عشان يخلص قبل الختم */
+.qw-dr{padding:0 24% 31%!important}
+.qw-dr .dr-pic{margin:16px 0 6px}
+.qw-dr .dr-pic div{width:104px;height:130px}
+.dr-av{width:100%;margin-top:4px;display:flex;flex-direction:column;align-items:center}
+.dr-line{display:flex;align-items:center;justify-content:center;gap:9px;width:118%}
+.dr-line i{flex:1;height:1px;background:linear-gradient(90deg,rgba(var(--fg-rgb),0),rgba(var(--fg-rgb),.55))}
+.dr-line i:last-child{transform:scaleX(-1)}
+.dr-line b{width:6px;height:6px;border:1px solid rgba(var(--fg-rgb),.6);transform:rotate(45deg);flex-shrink:0}
+.dr-at{font-family:var(--serif);font-size:24px;line-height:1.1;margin-top:12px;white-space:nowrap}
+.dr-ak{color:rgba(var(--fg-rgb),.8);font-family:var(--sans);font-weight:300;font-size:10.5px;line-height:1.45;margin:6px -16% 0;white-space:nowrap}
+.dr-ac{font-family:var(--serif);font-size:16px;letter-spacing:.05em;line-height:1.3;margin-top:6px;white-space:nowrap}
+.dr-ac span{color:rgba(var(--fg-rgb),.45);margin:0 .25em}
+/* أصغر الموبايلات (آيفون SE): الإطار أصغر فالكلام يصغر سنة ويطلع لفوق عشان "Gold" مايقربش من الختم */
+@media (max-width:360px){.qw-dr{padding-bottom:37%!important}.qw-dr .dr-pic{margin:12px 0 4px}.qw-dr .dr-pic div{width:92px;height:115px}.dr-at{font-size:21px;margin-top:9px}.dr-ac{font-size:14px}.dr-ak{font-size:10px}}
 
 /* ===== 11. الختام ===== */
 /* الختام بقى بعد الدريس كود على طول (المالك شال الأقسام اللي كانت بينهم): المسافة اللي فوق كانت
@@ -176,6 +192,11 @@ main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
 .ft-ar+.ft-ar{margin-top:10px}
 .ft-ar-h{font-family:'Aref Ruqaa Ar Local','Aref Ruqaa',serif;font-size:30px;line-height:1.7;color:var(--fg);margin-bottom:12px}
 .ft-ar+.ft-l{margin-top:40px}
+/* الختام بالإنجليزي (المالك 2026-11-10) */
+.ft-en-h{font-family:var(--script);font-size:38px;font-size:min(38px,calc((100vw - 40px) * .11));white-space:nowrap;line-height:1.25;color:var(--fg);margin:0 auto 10px;max-width:340px}
+.ft-en{font-family:var(--serif);font-size:20px;line-height:1.55;letter-spacing:.01em;color:rgba(var(--fg-rgb),.85);max-width:340px;margin:0 auto}
+.ft-en-2{margin-top:16px;font-style:italic}
+.ft-en+.ft-l{margin-top:40px}
 .ft-t{margin-top:4px}
 .ft-l{font-family:var(--sans);font-weight:300;font-size:13px;color:rgba(var(--fg-rgb),.6);margin-bottom:12px}
 /* الأسامي في سطر واحد زي التصميم: "Abdallah & Hoda" أطول من الاسمين اللي اتعمل عليهم التصميم، فبيصغر بالقدر
@@ -214,10 +235,18 @@ main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
   .dr-pic{margin:33px 0}
   .dr-pic div{width:216px;height:270px}
   .dr-d{font-size:13px}
+  .dr-av{margin-top:6px}
+  .dr-at{font-size:32px;margin-top:16px}
+  .dr-ak{font-size:12px}
+  .dr-ac{font-size:19px}
+  .qw-dr .dr-pic{margin:22px 0 10px}
+  .qw-dr .dr-pic div{width:180px;height:225px}
   .ft{padding-top:72px}
   .ft-seal{width:144px}
   .ft-ar{font-size:21px;max-width:440px}
   .ft-ar-h{font-size:40px}
+  .ft-en-h{font-size:48px;max-width:460px}
+  .ft-en{font-size:23px;max-width:460px}
   .ft-n{font-size:72px;line-height:90px}
   .ft-n span{font-size:36px;line-height:40px}
 }
@@ -310,11 +339,17 @@ main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
         <div class="dr-box">
           <div class="dr-frame"><img loading="lazy" decoding="async" src="assets/dress-frame.webp" alt="" draggable="false"></div>
           <img class="dr-seal" src="assets/seal.webp" alt="" aria-hidden="true" draggable="false">
-          <div class="dr-in">
+          <div class="dr-in qw-dr">
             <p class="dr-t">Dress Code</p>
             <p class="dr-s">Formal Attire</p>
             <div class="dr-pic"><div><img loading="lazy" decoding="async" src="assets/attire.webp" alt="Wedding suit and dress illustration" draggable="false"></div></div>
-            <p class="dr-d">We'd love for our guests to embrace the occasion with elegant evening attire.<br>Dress beautifully, feel comfortable,<br>and come ready to celebrate<br>with us.</p>
+            <!-- بطلب المالك (2026-11-10): مكان الكلام القديم — خط شيك بلون الدعوة، وتحته الألوان اللي مش عايزينها -->
+            <div class="dr-av">
+              <div class="dr-line" aria-hidden="true"><i></i><b></b><i></i></div>
+              <p class="dr-at">Avoided Colors</p>
+              <p class="dr-ak">Kindly avoid wearing the following colors</p>
+              <p class="dr-ac">Beige <span>•</span> Silver <span>•</span> Gold</p>
+            </div>
           </div>
         </div>
       </div>
@@ -327,10 +362,10 @@ main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
       <div class="rv" style="--y:0px;--d:.8s">
         <!-- الختم: لوجو المالك ع + ه بالخط العربي (2026-11-10 — نفس ختم الفيديو والغلاف) -->
         <img class="ft-seal" src="assets/seal.webp" alt="Abdallah &amp; Hoda" draggable="false">
-        <!-- كلام الختام من المالك (2026-11-07) -->
-        <p class="ft-ar ft-ar-h" dir="rtl" lang="ar">ولأن الفرحة لا تكتمل إلا بكم…</p>
-        <p class="ft-ar" dir="rtl" lang="ar">وجودكم معانا مش مجرد حضور، ده جزء من فرحتنا، ومن أجمل الذكريات اللي هنبدأ بيها حياتنا سوا</p>
-        <p class="ft-ar" dir="rtl" lang="ar">نتمنى نشوفكم ونشارك معاكم أول لحظات حكايتنا الجديدة.</p>
+        <!-- كلام الختام من المالك (2026-11-10) بالإنجليزي مكان العربي: أول سطر بخط التصميم السكريبت والباقي بخطه السيريف -->
+        <p class="ft-en-h">With hearts full of love and joy,</p>
+        <p class="ft-en">we invite you to witness<br>the beginning of our forever.</p>
+        <p class="ft-en ft-en-2">Your presence would make<br>our day even more special.</p>
         <p class="ft-l">With all our love,</p>
         <p class="ft-n">Abdallah <span>&amp;</span> Hoda</p>
         <p class="ft-d">25.11.2026</p>
