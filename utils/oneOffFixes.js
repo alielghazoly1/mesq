@@ -1354,6 +1354,15 @@ const FIXES = [
       return set;
     },
   },
+  {
+    // MjTf28R (Pearl Peony) — المالك (2026-11-10): صورة خلفية الظرف "اتمسحت" — الحقيقة إنها اتبدّلت من المحرر بصورة
+    // الآية (gxk79tq = خلفية الظرف). بنرجّع الخلفية الأصلية (القيمة الفاضية بتتشال وقت العرض). الآية نفسها بقت
+    // فوق الظرف في custom-invitations/MjTf28R.js. بس لو لسه نفس الصورة دي.
+    name: 'MjTf28R-cover-bg-back',
+    shortId: 'MjTf28R',
+    when: (c) => !!(c.images && /p820gdobz2pugjbagpqd/.test(c.images.gxk79tq || '')),
+    apply: () => ({ 'customizations.images.gxk79tq': '' }),
+  },
 ];
 
 let done = false;
