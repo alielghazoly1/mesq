@@ -28,11 +28,11 @@ const FIELDS = [
   [R('rec2339662063', 'tn_text_1779566247730000001'), `<span class="r1-n">${IMG_MO}</span><span class="r1-and">وَ</span><span class="r1-n">${IMG_MA}</span>`, `<span class="r1-n">${NAMES.en[0]}</span><span class="r1-and">&amp;</span><span class="r1-n">${NAMES.en[1]}</span>`],
   [R('rec2339662063', 'tn_text_1779566247730000004'), '', ''],
   [R('rec2339662063', 'tn_text_1779566247730000003'), 'الاثنين ٢٣ نوفمبر ٢٠٢٦', '23 November 2026'],
-  [R('rec2339662063', 'tn_text_1779626065755000001'), 'الساعة السابعة مساءً', 'Monday · 7:00 PM'],
+  [R('rec2339662063', 'tn_text_1779626065755000001'), 'الساعة الخامسة مساءً', 'Monday · 5:00 PM'],
   // كارت القوس (تحت ختم البسملة)
   [R('rec2339662083', 'tn_text_1779624381838000001'),
-    `<span class="r1-arch-n">${IMG_MO.replace('r1-ni ', 'r1-ai ')}<b>وَ</b>${IMG_MA.replace('r1-ni ', 'r1-ai ')}</span><br><br>يتشرفان بدعوتكم<br>لحضور حفل زفافهما<br><br>يوم الاثنين<br>٢٣ نوفمبر ٢٠٢٦<br>الساعة السابعة مساءً<br>في`,
-    `${NAMES.en[0]} &amp; ${NAMES.en[1]}<br><br>request the pleasure<br>of your company<br>at their wedding<br><br>on Monday<br>23 November 2026<br>at 7:00 PM<br>at`],
+    `<span class="r1-arch-n">${IMG_MO.replace('r1-ni ', 'r1-ai ')}<b>وَ</b>${IMG_MA.replace('r1-ni ', 'r1-ai ')}</span><br><br>يتشرفان بدعوتكم<br>لحضور حفل زفافهما<br><br>يوم الاثنين<br>٢٣ نوفمبر ٢٠٢٦<br>الساعة الخامسة مساءً<br>في`,
+    `${NAMES.en[0]} &amp; ${NAMES.en[1]}<br><br>request the pleasure<br>of your company<br>at their wedding<br><br>on Monday<br>23 November 2026<br>at 5:00 PM<br>at`],
   [R('rec2339662083', 'tn_text_1779472210551000005'), 'Pyramids Palace', 'Pyramids Palace'],
   [R('rec2339662093', 'tn_text_1771277026942000001'), 'اقترب موعد الفرح', 'The Celebration Begins'],
   [R('rec2339662113', 'tn_text_1771277026942000001'), 'مكان الحفل', 'The Venue'],
@@ -275,7 +275,7 @@ module.exports = {
     height: 630,
     overrideImage: true,
     title: 'دعوة زفاف محمد وميادة 🤍',
-    description: 'الاثنين ٢٣ نوفمبر ٢٠٢٦ — الساعة السابعة مساءً · قاعة بيراميدز بالاس، الهرم',
+    description: 'الاثنين ٢٣ نوفمبر ٢٠٢٦ — الساعة الخامسة مساءً · قاعة بيراميدز بالاس، الهرم',
   },
 
   render() {

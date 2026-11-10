@@ -1363,6 +1363,15 @@ const FIXES = [
     apply: () => ({ venueCity: '6th of October City', venueMapDirectLink: 'https://maps.app.goo.gl/aXFeeiKDkyhHy9jp8' }),
   },
   {
+    // r1X0Neh — المالك (2026-11-10، مستعجل): الفرح الساعة 5 مساءً مش 7 (العدّاد والتقويم عليها) — نفس اليوم 23/11/2026.
+    // بس لو لسه الساعة 7.
+    name: 'r1X0Neh-time-5pm',
+    shortId: 'r1X0Neh',
+    select: 'customizations weddingDateTime',
+    when: (c, inv) => !!inv.weddingDateTime && new Date(inv.weddingDateTime).toISOString() === '2026-11-23T19:00:00.000Z',
+    apply: () => ({ weddingDateTime: new Date('2026-11-23T17:00:00.000Z') }),
+  },
+  {
     // cPcTTdw (قالب Mother of Pearl عربي + custom-invitations/cPcTTdw.js) — بطلب المالك (2026-11-10): النسخة العربي
     // من دعوة عبدالله وهدى (qWn9kOE الأصل): نفس الأسامي والميعاد (الأربعاء 25/11/2026 من 7 لـ 12) والمكان
     // (The Palace — مدينة ٦ أكتوبر) ولينك الخريطة، وسطور الوقت "من ٧ مساءً حتى ١٢ منتصف الليل" زي الأصل.
