@@ -43,7 +43,7 @@ const FIELDS = [
   [R('rec2339662113', 'tn_text_1779544773135'), 'Hacienda Events', 'Hacienda Events'],
   [R('rec2339662113', 'tn_text_1779545032699000001'), 'Ariana, Tunisie', 'أريانة، تونس'],
   [R('rec2339662133', 'tn_text_1771277026942000001'), 'Plan d’accès', 'خريطة الوصول'],
-  [R('rec2339662163', 'tn_text_1763405219328'), 'Avec tout notre amour', 'بكل المحبة والتقدير'],
+  [R('rec2339662163', 'tn_text_1763405219328'), 'Avec tout notre amour', 'كل المحبة والتقدير'],
   ['#venueOpenMapLink', 'Ouvrir dans Google Maps', 'اضغط هنا للوصول إلى قاعة الحفل'],
 ];
 const CD = { fr: ['Jours', 'Heures', 'Minutes', 'Secondes'], ar: ['أيام', 'ساعات', 'دقائق', 'ثوانٍ'] };
