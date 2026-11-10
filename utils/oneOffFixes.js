@@ -1364,11 +1364,15 @@ const FIXES = [
   },
   {
     // r1X0Neh — المالك (2026-11-10، مستعجل): الفرح الساعة 5 مساءً مش 7 (العدّاد والتقويم عليها) — نفس اليوم 23/11/2026.
-    // بس لو لسه الساعة 7.
+    // أي ساعة تانية في نفس اليوم (اللايف كان 6 مش 7) → 5. بعد ما تتظبط الشرط مابيتحققش تاني.
     name: 'r1X0Neh-time-5pm',
     shortId: 'r1X0Neh',
     select: 'customizations weddingDateTime',
-    when: (c, inv) => !!inv.weddingDateTime && new Date(inv.weddingDateTime).toISOString() === '2026-11-23T19:00:00.000Z',
+    when: (c, inv) => {
+      if (!inv.weddingDateTime) return false;
+      const iso = new Date(inv.weddingDateTime).toISOString();
+      return iso.slice(0, 10) === '2026-11-23' && iso !== '2026-11-23T17:00:00.000Z';
+    },
     apply: () => ({ weddingDateTime: new Date('2026-11-23T17:00:00.000Z') }),
   },
   {
