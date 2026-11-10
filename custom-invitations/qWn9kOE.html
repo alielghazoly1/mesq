@@ -152,6 +152,38 @@ main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
 .loc-img img{width:100%;height:auto;pointer-events:none}
 .loc .btn{margin-top:40px}
 
+/* ===== تأكيد الحضور (المالك 2026-11-10) — تحت المكان، بخطوط وألوان التصميم: العنوان زي "The Venue"، خانات بخط
+   تحتها بس، نعم/لا بإطار رفيع، وزرار Send بنفس الإطار المزدوج المليان بتاع زرار الخريطة. بيوصل للوحة العميل ===== */
+.rs{padding:24px 24px 72px}
+.rs-in{max-width:400px;margin:0 auto;text-align:center}
+.rs-t{font-family:var(--serif);font-size:48px;line-height:1}
+.rs-k{font-size:11px;letter-spacing:.3em;line-height:1.5;color:rgba(var(--fg-rgb),.7);margin-top:16px}
+.rs-s{font-family:var(--script);font-size:30px;line-height:1.2;margin-top:18px}
+.rs-f{margin-top:30px;text-align:left}
+.rs-l{display:block;font-family:var(--sans);font-weight:300;font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:rgba(var(--fg-rgb),.75);margin:0 0 8px}
+.rs-f input,.rs-f textarea{display:block;width:100%;border:0;border-bottom:1px solid rgba(var(--fg-rgb),.35);background:transparent;border-radius:0;padding:8px 2px 10px;font-family:var(--serif);font-size:19px;line-height:1.4;color:var(--fg);outline:none;transition:border-color .3s;-webkit-appearance:none;appearance:none}
+.rs-f textarea{resize:none;min-height:96px;border:1px solid rgba(var(--fg-rgb),.3);padding:12px 14px;background:rgba(255,255,255,.35)}
+.rs-f input:focus,.rs-f textarea:focus{border-color:var(--fg)}
+.rs-f input::placeholder,.rs-f textarea::placeholder{color:rgba(var(--fg-rgb),.38);font-style:italic}
+.rs-row{margin-bottom:28px}
+.rs-ch{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.rs-ch button{border:1px solid rgba(var(--fg-rgb),.35);padding:3px;background:transparent;transition:border-color .3s}
+.rs-ch button span{display:block;border:1px solid rgba(var(--fg-rgb),.15);padding:11px 6px;font-family:var(--serif);font-size:18px;line-height:1.2;transition:background-color .35s,color .35s}
+.rs-ch button.on{border-color:var(--fg)}
+.rs-ch button.on span{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.rs-cnt{display:block;text-align:right;font-family:var(--sans);font-weight:300;font-size:10px;letter-spacing:.1em;color:rgba(var(--fg-rgb),.45);margin-top:6px}
+.rs-go{text-align:center;margin-top:8px}
+.rs-go .btn{min-width:180px}
+.rs-go .btn>span{border-color:rgba(var(--fg-rgb),.5)}
+.rs-go .btn>span>span{background:var(--fg);color:var(--bg);border-color:var(--fg);padding:13px 52px}
+.rs-go .btn[disabled]{opacity:.6;pointer-events:none}
+.rs-msg{min-height:1.5em;margin-top:16px;text-align:center;font-family:var(--serif);font-size:17px;color:#9b3b2e}
+.rs-done{display:none;margin-top:30px;text-align:center}
+.rs-done p:first-child{font-family:var(--script);font-size:46px;line-height:1.2}
+.rs-done p+p{font-family:var(--serif);font-size:19px;line-height:1.5;color:rgba(var(--fg-rgb),.8);margin-top:8px}
+.rs.sent .rs-f{display:none}
+.rs.sent .rs-done{display:block}
+
 /* ===== 6. الدريس كود ===== */
 .dr{width:100%;padding:64px 24px}
 .dr-wrap{position:relative}
@@ -228,6 +260,10 @@ main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
   .loc-txt{font-size:21px;max-width:440px}
   .loc-en{font-size:24px;margin-top:28px}
   .loc-img{width:60%}
+  .rs{padding:40px 24px 96px}
+  .rs-t{font-size:72px}
+  .rs-k{font-size:12px}
+  .rs-s{font-size:38px}
   .dr{padding:96px 24px}
   .dr-box{width:100%;left:0;transform:none;max-width:465px;margin:0 auto}
   .dr-t{font-size:67px}
@@ -328,6 +364,38 @@ main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
         <div class="loc-img"><img loading="lazy" decoding="async" src="assets/venue.webp" alt="Illustration of the venue" draggable="false"></div>
         <!-- لوكيشن القاعة على جوجل ماب من المالك (2026-11-10): The Palace — العجوزة -->
         <a class="btn btn-map" href="https://maps.app.goo.gl/nGBXegvuafb3CZD57" target="_blank" rel="noopener noreferrer" aria-label="موقع الحفل | View Location"><span><span><b><span class="b-ar" lang="ar">موقع الحفل</span><span class="b-sep" aria-hidden="true">|</span><span class="b-en">View Location</span><span class="b-pin" aria-hidden="true">📍</span></b></span></span></a>
+      </div>
+    </section>
+  </div>
+
+  <!-- تأكيد الحضور (المالك 2026-11-10) -->
+  <div class="rv sec">
+    <section class="rs" id="rsvp">
+      <div class="rv rs-in">
+        <h2 class="rs-t">RSVP</h2>
+        <p class="rs-k up">KINDLY RESPOND</p>
+        <p class="rs-s">We hope to see you there</p>
+        <form class="rs-f" id="rsForm" novalidate>
+          <div class="rs-row">
+            <label class="rs-l" for="rsName">Your Name</label>
+            <input id="rsName" name="name" maxlength="80" autocomplete="name" placeholder="Full name">
+          </div>
+          <div class="rs-row">
+            <span class="rs-l" id="rsQ">Will you be attending our day?</span>
+            <div class="rs-ch" role="radiogroup" aria-labelledby="rsQ">
+              <button type="button" role="radio" aria-checked="false" data-a="yes"><span>Yes, with joy</span></button>
+              <button type="button" role="radio" aria-checked="false" data-a="no"><span>Sadly, no</span></button>
+            </div>
+          </div>
+          <div class="rs-row">
+            <label class="rs-l" for="rsNote">Write your congratulations</label>
+            <textarea id="rsNote" name="note" maxlength="200" rows="4" placeholder="Your message to the couple…"></textarea>
+            <span class="rs-cnt" id="rsCnt">0 / 200</span>
+          </div>
+          <div class="rs-go"><button type="submit" class="btn" id="rsSend"><span><span><b>Send</b></span></span></button></div>
+          <p class="rs-msg" id="rsMsg" aria-live="polite"></p>
+        </form>
+        <div class="rs-done" id="rsDone" aria-live="polite"><p>Thank you!</p><p id="rsDoneTxt"></p></div>
       </div>
     </section>
   </div>
@@ -613,6 +681,42 @@ main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
     cv.addEventListener('pointercancel', function () { drawing = false; });
   })();
 
+})();
+</script>
+
+<script>
+/* تأكيد الحضور → /i/:id/rsvp (بيظهر في لوحة العميل) */
+(function () {
+  'use strict';
+  var form = document.getElementById('rsForm'); if (!form) return;
+  var sec = document.getElementById('rsvp'), msg = document.getElementById('rsMsg'), send = document.getElementById('rsSend');
+  var name = document.getElementById('rsName'), note = document.getElementById('rsNote'), cnt = document.getElementById('rsCnt');
+  var att = null, btns = [].slice.call(form.querySelectorAll('.rs-ch button'));
+  btns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      att = b.getAttribute('data-a') === 'yes';
+      btns.forEach(function (x) { var on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-checked', on ? 'true' : 'false'); });
+      msg.textContent = '';
+    });
+  });
+  note.addEventListener('input', function () { cnt.textContent = note.value.length + ' / 200'; });
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var n = name.value.trim().replace(/\s+/g, ' ');
+    if (n.length < 2) { msg.textContent = 'Please write your name.'; name.focus(); return; }
+    if (att === null) { msg.textContent = 'Please let us know if you will be attending.'; return; }
+    if (window.MQ_EDIT) { msg.textContent = 'Preview only.'; return; }
+    send.disabled = true; msg.textContent = '';
+    fetch('/i/' + encodeURIComponent(window.MQ_ID) + '/rsvp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin',
+      body: JSON.stringify({ guestName: n, attending: att ? 'yes' : 'no', note: note.value.trim().slice(0, 200) }) })
+      .then(function (r) { if (!r.ok) throw 0; })
+      .then(function () {
+        var first = n.split(' ')[0];
+        document.getElementById('rsDoneTxt').textContent = att ? 'We can\u2019t wait to celebrate with you, ' + first + '.' : 'You will be missed, ' + first + ' \u2014 thank you for your kind wishes.';
+        sec.classList.add('sent');
+      })
+      .catch(function () { msg.textContent = 'Something went wrong \u2014 please try again.'; send.disabled = false; });
+  });
 })();
 </script>
 </body>
