@@ -1355,6 +1355,14 @@ const FIXES = [
     },
   },
   {
+    // qWn9kOE — المالك (2026-11-10): مكان القاعة "The Palace — 6 أكتوبر" (مش العجوزة) بلينكه الجديد. بس لو لسه العجوزة.
+    name: 'qWn9kOE-palace-october',
+    shortId: 'qWn9kOE',
+    select: 'customizations venueCity',
+    when: (c, inv) => inv.venueCity === 'Agouza, Giza',
+    apply: () => ({ venueCity: '6th of October City', venueMapDirectLink: 'https://maps.app.goo.gl/aXFeeiKDkyhHy9jp8' }),
+  },
+  {
     // MjTf28R (Pearl Peony) — المالك (2026-11-10): صورة خلفية الظرف "اتمسحت" — الحقيقة إنها اتبدّلت من المحرر بصورة
     // الآية (gxk79tq = خلفية الظرف). بنرجّع الخلفية الأصلية (القيمة الفاضية بتتشال وقت العرض). الآية نفسها بقت
     // فوق الظرف في custom-invitations/MjTf28R.js. بس لو لسه نفس الصورة دي.

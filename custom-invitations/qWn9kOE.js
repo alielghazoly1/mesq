@@ -1,5 +1,5 @@
 // دعوة qWn9kOE — بطلب المالك (2026-11-10): نسخة من دعوة "صدف" (DBywdm2، Mother of Pearl) بكل تفاصيلها، مكان دعوة
-// فاضية (Groom & Bride): Abdallah & Hoda، الأربعاء 25/11/2026 من 7 المسا لـ 12 بالليل، The Palace (العجوزة، الجيزة).
+// فاضية (Groom & Bride): Abdallah & Hoda، الأربعاء 25/11/2026 من 7 المسا لـ 12 بالليل، The Palace (6 أكتوبر — بطلب المالك).
 // الختم: لوجو المالك ع + ه (أبيض على أسود) بارز في الشمع في فيديو الظرف (v1.mp4 — نفس طريقة أ + ف في DBywdm2:
 // تتبّع الختم فريم فريم وإعادة بناء وشه، scratch qw/)، وصورة الغلاف (poster.webp)، وختم اللؤلؤ (seal.webp).
 // تحت كارت الخدش: التاريخ (مفيش صورة للعرسان). الأغنية والدريس كود وكلام المكان والختام بالعربي زي DBywdm2.
@@ -44,7 +44,7 @@ module.exports = {
     height: 630,
     overrideImage: true,
     title: 'Abdallah & Hoda — Wedding Invitation 🤍',
-    description: 'Wednesday, 25.11.2026 · 7 PM – 12 AM · The Palace, Agouza',
+    description: 'Wednesday, 25.11.2026 · 7 PM – 12 AM · The Palace, 6th of October',
   },
 
   render() {
