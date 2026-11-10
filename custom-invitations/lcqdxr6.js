@@ -162,16 +162,18 @@ const LETTER = `<section class="ihl-sec" id="ihLetter" aria-label="Invitation">
     <div class="ihl-card reveal">
       ${CORNERS}
       <p class="ihl-bas" data-elem-id="ih9" lang="ar">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
-      <p class="ihl-q" data-elem-id="ih10">Notre bonheur ne serait pas complet sans votre présence.</p>
+      <!-- كلام الكارت بطلب المالك (2026-11-10) — بالفرنساوي وبالعربي زي ما بعته بالظبط (Hassan & Iman / حسان و إيمان) -->
+      <p class="ihl-q" data-elem-id="ih10">Notre bonheur ne serait pas complet sans vous à nos côtés.</p>
       ${ORN}
-      <p class="ihl-p" data-elem-id="ih11">Les familles Ben Ghorbel et Ettaieb ont l’honneur et la joie de vous inviter au mariage de leurs enfants</p>
-      <p class="ihl-nm"><span data-k="groom" data-elem-id="ih12"></span><span class="amp">&amp;</span><span data-k="bride" data-elem-id="ih13"></span></p>
-      <p class="ihl-p" data-elem-id="ih14">afin de partager avec vous ce jour exceptionnel et de célébrer ensemble un moment inoubliable.</p>
+      <p class="ihl-dua" lang="ar" dir="rtl"><span class="cl">بَارَكَ اللَّهُ لَكُمَا، وَبَارَكَ عَلَيْكُمَا،</span> <span class="cl">وَجَمَعَ بَيْنَكُمَا فِي خَيْرٍ.</span></p>
+      <p class="ihl-dua" lang="ar" dir="rtl"><span class="cl">اللَّهُمَّ اجْعَلْ بَيْنَهُمَا مَوَدَّةً وَرَحْمَةً،</span> <span class="cl">وَارْزُقْهُمَا حَيَاةً مَلِيئَةً</span> <span class="cl">بِالْحُبِّ وَالسَّكِينَةِ وَالْبَرَكَةِ.</span></p>
+      <div class="ihl-dua-orn" aria-hidden="true">${ORN}</div>
+      <p class="ihl-p" data-elem-id="ih11">C’est avec une immense joie que nous vous convions à notre mariage.</p>
+      <p class="ihl-nm"><span data-elem-id="ih12">Hassan</span><span class="amp">&amp;</span><span data-elem-id="ih13">Iman</span></p>
       ${ORN}
       <p class="ihl-d" data-k="dateLong" data-elem-id="ih15"></p>
       ${ORN}
-      <p class="ihl-p" data-elem-id="ih16">Entourés de leurs familles et de leurs proches, ils seront heureux de partager avec vous cette journée remplie d’amour et de bonheur.</p>
-      <p class="ihl-s" data-elem-id="ih17">Votre présence sera leur plus beau cadeau.</p>
+      <p class="ihl-p" data-elem-id="ih16">Nous vous donnons rendez-vous pour célébrer notre union et partager ensemble une journée placée sous le signe de l’amour, du bonheur et de l’émotion.</p>
     </div>
   </section>`;
 
@@ -304,6 +306,12 @@ html.ih-ar .sxt-bk{font:700 calc(36*var(--u))/1.35 'Aref Ruqaa',serif}
 html.ih-ar .sx-hint{font:600 17px/1.5 'El Messiri',sans-serif}
 /* كارت الدعوة */
 html.ih-ar .ihl-q{font:400 22px/1.75 'Amiri',serif}
+/* الدعاءين (العربي بس) — أميري مشكّل، بنفس لون العنوان */
+.ihl-dua,.ihl-dua-orn{display:none}
+html.ih-ar .ihl-dua{display:block;max-width:330px;margin:0 auto 10px;font:400 20px/2 'Amiri',serif;color:${BUR}}
+html.ih-ar .ihl-dua-orn{display:block;margin:0}
+/* كل جملة لحد الفاصلة كتلة واحدة — مفيش كلمة لوحدها في آخر السطر (زي "خَيْرٍ") */
+.ihl-dua .cl{display:inline-block}
 html.ih-ar .ihl-p{font:400 19px/1.95 'Amiri',serif}
 html.ih-ar .ihl-nm{font:700 clamp(34px,10vw,44px)/1.55 'Aref Ruqaa',serif}
 html.ih-ar .ihl-nm .amp{font:700 .72em/1 'Aref Ruqaa',serif;margin:0 .2em;vertical-align:0}
@@ -524,11 +532,11 @@ const AR_IDS = {
   sx11: 'أنتم مدعوّون<br>لحضور حفل زفاف',
   ih1: 'احفظوا التاريخ', ih2: 'برنامج<br>الحفل', ih3: 'اضغط هنا', ih4: 'اضغط هنا', ih5: 'أكّدوا حضوركم', ih6: 'حكايتنا', ih7: 'اكتشفوا',
   // كارت الدعوة
-  ih10: 'لن تكتمل فرحتنا إلا بحضوركم ومشاركتكم سعادتنا.',
-  ih11: 'تتشرف عائلتا بن غربال والتايب بكل فخر وسرور بدعوتكم لحضور حفل زفاف ابنيهما',
-  ih14: 'ومشاركتهما فرحة هذا اليوم المميز، لتبقى هذه المناسبة ذكرى جميلة لا تُنسى.',
-  ih16: 'وبين الأهل والأحباب، تكتمل فرحتهما بحضوركم ومشاركتكم أجمل لحظات العمر.',
-  ih17: 'حضوركم أجمل هدية وأغلى فرحة لنا',
+  // كلام المالك (2026-11-10): السلام، والدعاءين (.ihl-dua — بيظهروا في العربي بس)، والدعوة، والأسامي، والتاريخ
+  ih10: 'السلام عليكم<br>ورحمة الله تعالى وبركاته',
+  ih11: 'نتشرف بدعوتكم لحضور حفل زفاف',
+  ih12: 'حسان', ih13: 'إيمان',
+  ih16: 'يسرّنا مشاركتكم فرحتنا، وقضاء يوم مميز يجمعنا على الحب والمودة وأجمل المشاعر.',
   // العدّاد والتقويم
   sx29: 'اقترب اليوم الموعود',
   sg33: 'أيام', sg34: 'ساعات', sg35: 'دقائق', sg36: 'ثوانٍ', sg37: 'أضف إلى التقويم',
