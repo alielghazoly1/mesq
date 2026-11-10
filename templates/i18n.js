@@ -24,6 +24,10 @@ const TEMPLATE_TEXT = {
     ar: { description: 'ظرف بختم قلب دهبي بيتفتح على كولاج كامل بيتركّب قدامك — دانتيل وورد أبيض وصور العرسان وطبق الدبل — عدّاد، برنامج اليوم، خريطة، ألوان الزي، تأكيد حضور، تهنئة صوتية وصور الضيوف' },
     en: { description: 'A gold heart-sealed envelope that opens onto a collage assembling itself — lace, white flowers, your photos and a ring tray — with countdown, schedule, map, dress-code colours, RSVP, voice wishes and guest photos' },
   },
+  'mother-of-pearl': {
+    ar: { description: 'ظرف صدف بختم شمع عليه قلب بيتفتح في فيديو وبعده فيونكة الكارت — عدّاد، 4 صور بتتقلب، المكان والخريطة، تأكيد الحضور، والزي المقترح' },
+    en: { description: 'A mother-of-pearl envelope with a heart wax seal that opens on video, then a ribbon reveals the card — countdown, a 4-photo carousel, venue and map, RSVP and dress code' },
+  },
   'lily-garden': {
     ar: { description: 'ظرف بختم شمع وزنبق وردي ينفتح — عدّاد تنازلي، تأكيد حضور، وألبوم يرفع فيه الضيوف صور الفرح' },
     en: { description: 'A wax-sealed envelope of pink lilies that opens — countdown, RSVP, and an album where guests upload their photos' },
@@ -42,6 +46,7 @@ const SECTION_LABELS = {
   verse: { ar: 'الآية الكريمة', en: 'Quran verse' },
   saveTheDate: { ar: 'احفظ الموعد (التقويم)', en: 'Save the date (calendar)' },
   story: { ar: 'صوركم وحكايتكم', en: 'Your photos & story' },
+  gallery: { ar: 'صوركم (بتتقلب يمين وشمال)', en: 'Photo carousel' },
   families: { ar: 'الأهل والعائلات', en: 'Families' },
   venue: { ar: 'القاعة والمكان', en: 'Venue' },
   voice: { ar: 'التهاني الصوتية من الضيوف', en: 'Guest voice greetings' },

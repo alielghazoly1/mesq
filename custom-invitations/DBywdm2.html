@@ -380,7 +380,7 @@ main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
 
   /* ---------- 1. الفتح: الفيديوهين ورا بعض ثم الكارت ---------- */
   var cover = $('#cover'), v1 = $('#v1'), v2 = $('#v2'), heroText = $('#heroText');
-  var state = 'idle', heroShown = false, v2Started = false, watchdog = 0, firstWatch = 0;
+  var state = 'idle', heroShown = false, v2Started = false, watchdog = 0, firstWatch = 0, stallT = 0;
 
   /* الكارت: صورة الإطار بتتعرض object-fit: cover، فبتصغر على الشاشات الأقصر/الأضيق. على أي شاشة إطارها
      أصغر من إطار آيفون في سفاري (آيفون SE/ميني، أندرويد القصير) الكلام كله بيصغر بنفس نسبة الإطار
@@ -417,10 +417,22 @@ main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
     showHero();
     if (state === 'fading' || state === 'done') return;
     state = 'fading';
-    clearTimeout(watchdog); clearTimeout(firstWatch);
+    clearTimeout(watchdog); clearTimeout(firstWatch); clearInterval(stallT);
     cover.classList.add('fade');
     cover.addEventListener('transitionend', function (e) { if (e.target === cover && e.propertyName === 'opacity') removeCover(); });
     setTimeout(removeCover, 2400);
+  }
+  // مراقبة الحركة (2026-11-10 — الفيونكة كانت بتعلق ساعات): الفيديو الشغّال لو وقف 1.5 ثانية → الكارت يظهر
+  function watchStall(vid) {
+    clearInterval(stallT);
+    var last = -1, still = 0;
+    stallT = setInterval(function () {
+      if (state !== 'envelope' || document.hidden) return;
+      var t = vid.currentTime;
+      if (t > last + 0.01) { last = t; still = 0; return; }
+      still += 250;
+      if (still >= 1500 && t > 0.05) fadeCover();
+    }, 250);
   }
   function startV2() {
     if (v2Started) return;
@@ -430,6 +442,17 @@ main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
     var p;
     try { p = v2.play(); } catch (e) { p = null; }
     if (p && p.catch) p.catch(fadeCover);
+    watchStall(v2);
+    // الفيونكة مابدأتش خلال ثانيتين ونص → الكارت على طول بدل ما الضيف يستنى
+    setTimeout(function () { if (state === 'envelope' && v2.currentTime < 0.05) fadeCover(); }, 2500);
+  }
+  // الفيديوهين بيتحمّلوا كاملين في الخلفية من أول ما الصفحة تفتح — لو خلصوا قبل الضغطة الفتح بيبقى من الذاكرة
+  function preloadVid(vid) {
+    var url = vid.getAttribute('src');
+    if (!url || !window.fetch || !window.URL || !URL.createObjectURL) return;
+    fetch(url).then(function (r) { if (!r.ok) throw 0; return r.blob(); }).then(function (b) {
+      if (state === 'idle' && b && b.size > 1000) { vid.src = URL.createObjectURL(b); try { vid.load(); } catch (e) {} }
+    }).catch(function () {});
   }
   v1.addEventListener('timeupdate', function () {
     if (v1.currentTime > 0.05) { v1.classList.add('on'); clearTimeout(firstWatch); }
@@ -467,6 +490,7 @@ main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
     var p;
     try { p = v1.play(); } catch (e) { p = null; }
     if (p && p.catch) p.catch(fadeCover);
+    watchStall(v1);
     // لو النت وقف الفيديو: الضيف مايستناش كتير
     firstWatch = setTimeout(function () { if (v1.currentTime <= 0.05) fadeCover(); }, 9000);
     watchdog = setTimeout(fadeCover, 30000);
@@ -479,6 +503,7 @@ main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
       root.classList.add('lock');
       try { history.scrollRestoration = 'manual'; } catch (e) {}
       window.scrollTo(0, 0);
+      preloadVid(v1); preloadVid(v2);
       cover.addEventListener('click', openInvitation);
       cover.addEventListener('touchmove', function (e) { e.preventDefault(); }, { passive: false });
     }

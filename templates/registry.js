@@ -267,6 +267,30 @@ const TEMPLATES = [
     isNew: true,
     isPremium: true,
   },
+  {
+    id: 'mother-of-pearl',
+    name: 'Mother of Pearl',
+    description: 'ظرف صدف بختم شمع عليه قلب بيتفتح في فيديو وبعده فيونكة الكارت — كارت بإطار ورد بارز، عدّاد، 4 صور بتتقلب يمين وشمال، المكان وزرار الخريطة، تأكيد الحضور، الزي المقترح، والختام بختم اللؤلؤ',
+    file: 'mother-of-pearl.html',
+    languages: SUPPORTED_LANGUAGES,
+    occasionTypes: SUPPORTED_OCCASIONS,
+    // الإخفاء في views/mother-of-pearl.html (data-section). الكارت الأساسي والختام ثابتين.
+    optionalSections: [
+      { key: 'countdown', label: 'العداد التنازلي' },
+      { key: 'gallery', label: 'صوركم (4 صور بتتقلب)' },
+      { key: 'venue', label: 'مكان الحفل وزرار الخريطة' },
+      { key: 'rsvp', label: 'تأكيد الحضور (RSVP)' },
+      { key: 'dressCode', label: 'الزي المقترح (Dress Code)' },
+    ],
+    timelineStages: [],
+    extraFields: [
+      { key: 'venueAddress', label: 'عنوان القاعة (بيظهر تحت اسمها — اختياري)', maxlength: 200 },
+    ],
+    // نسختين: إنجليزي (التصميم الأصلي — المعاينة للزوار) وعربي
+    designLanguages: ['en', 'ar'],
+    isNew: true,
+    isPremium: true,
+  },
 ];
 
 function getTemplate(templateId) {

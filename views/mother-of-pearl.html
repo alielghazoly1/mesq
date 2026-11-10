@@ -1,0 +1,916 @@
+<!doctype html>
+<html lang="en" dir="ltr" translate="no" style="color-scheme:light only">
+<!--
+  MOTHER OF PEARL — قالب Mithaq (views/mother-of-pearl.html) — اتبنى من scratch mop2/build.py
+  ─────────────────────────────────────────────
+  • نسختين: إنجليزي وعربي (C.language). الفتح: فيديو الظرف (ختم الشمع بقلب) ← فيديو الفيونكة ← الكارت.
+  • الفيديوهين بيتحمّلوا كاملين قبل الضغطة، وأي وقفة 1.5 ثانية بتظهر الدعوة على طول (مافيش تعليق).
+  • كل جملة عليها data-elem-id (mp1…mp53) → المحرر بيعدّلها. الأسامي/التاريخ/الساعة/القاعة من بيانات
+    الدعوة (data-f) وتعديل صاحب الدعوة بيغلب. الصور الأربعة + رسمة القاعة + رسمة اللبس بتتغيّر.
+  • زرار الخريطة (#mapBtn) لينكه من C.venueMapDirectLink — المحرر بيغيّر المكان منه.
+  • الأقسام (data-section): countdown gallery venue rsvp dressCode
+-->
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="google" content="notranslate">
+<title>Mother of Pearl</title>
+<script>window.WEDDING_CONFIG = __INVITATION_CONFIG_JSON__;</script>
+<script>
+  // اللغة والاتجاه قبل أول رسمة (مفيش ومضة)
+  (function () { var C = window.WEDDING_CONFIG || {}; if (C.language !== 'en') { document.documentElement.lang = 'ar'; document.documentElement.dir = 'rtl'; var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = 'https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@400;700&display=swap'; document.head.appendChild(l); } })();
+</script>
+<link rel="icon" type="image/png" href="/img/favicon.png">
+<link rel="preload" as="image" href="/templates/mother-of-pearl/poster.webp">
+<link rel="preload" as="image" href="/templates/mother-of-pearl/hero-frame.webp">
+<link rel="preload" as="font" type="font/woff2" href="/templates/mother-of-pearl/doulaise.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/templates/mother-of-pearl/cormorant.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/templates/mother-of-pearl/jost.woff2" crossorigin>
+<style>
+@font-face{font-family:'Monsieur La Doulaise Local';font-style:normal;font-weight:400;font-display:swap;src:url(/templates/mother-of-pearl/doulaise.woff2) format('woff2')}
+@font-face{font-family:'Cormorant Garamond';font-style:normal;font-weight:300 700;font-display:swap;src:url(/templates/mother-of-pearl/cormorant.woff2) format('woff2')}
+/* الكلام العربي (المكان والختام): أميري للفقرات، وعارف رقعة لأول سطر في الختام (نفس روح الختم) — ملفات
+   متقطّعة على حروف العربي + الشَرطة "–" والخط "|" اللي في كلام المكان */
+@font-face{font-family:'Amiri Ar Local';font-style:normal;font-weight:400;font-display:swap;src:url(/templates/mother-of-pearl/amiri-ar.woff2) format('woff2')}
+@font-face{font-family:'Aref Ruqaa Ar Local';font-style:normal;font-weight:400;font-display:swap;src:url(/templates/mother-of-pearl/arefruqaa-ar.woff2) format('woff2')}
+@font-face{font-family:'Jost';font-style:normal;font-weight:100 900;font-display:swap;src:url(/templates/mother-of-pearl/jost.woff2) format('woff2')}
+:root{
+  --bg:#f7f5f3;--fg:#4c5f76;--bg-rgb:247,245,243;--fg-rgb:76,95,118;--ivory:#e9e3dd;
+  --serif:'Cormorant Garamond',serif;--script:'Monsieur La Doulaise Local',cursive;--sans:'Jost','Helvetica Neue',Arial,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;border:0 solid}
+html{line-height:1.5;-webkit-text-size-adjust:100%;font-family:var(--sans);-webkit-tap-highlight-color:transparent}
+html.lock,html.lock body{overflow:hidden;overscroll-behavior:none}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--serif);font-size:17px;line-height:1.55}
+h1,h2,h3,p,ul{margin:0;padding:0;font-size:inherit;font-weight:inherit}
+h1,h2,h3{font-family:var(--serif);font-weight:400}
+ul{list-style:none}
+a{color:inherit;text-decoration:inherit}
+img,video,canvas{display:block}
+img,video{max-width:100%;height:auto}
+button,input,textarea{font-family:inherit;font-size:100%;font-weight:inherit;line-height:inherit;letter-spacing:inherit;color:inherit;margin:0;padding:0}
+button{background:transparent;cursor:pointer;-webkit-appearance:button;appearance:button}
+img{-webkit-user-select:none;user-select:none;-webkit-user-drag:none}
+main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
+.up{text-transform:uppercase;font-family:var(--sans);font-weight:300}
+
+/* ظهور الأقسام وهي بتدخل الشاشة */
+.rv{opacity:0;transform:translateY(var(--y,20px));transition:opacity var(--d,.6s) var(--e,cubic-bezier(.42,0,.58,1)) var(--dl,0s),transform var(--d,.6s) var(--e,cubic-bezier(.42,0,.58,1)) var(--dl,0s)}
+.rv.in{opacity:1;transform:none}
+.sec{--y:40px;--d:.9s;--e:cubic-bezier(.22,1,.36,1)}
+@media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}}
+
+/* ===== 1. الفتح: الظرف ثم الفيونكة (فيديوهين ورا بعض) ===== */
+.cover{position:fixed;left:0;top:0;right:0;bottom:0;z-index:50;cursor:pointer;background:var(--bg);opacity:1;transition:opacity 2s cubic-bezier(.42,0,.58,1);touch-action:none;overscroll-behavior:none}
+.cover.fade{opacity:0;pointer-events:none}
+.cover img,.cover video{position:absolute;left:0;top:0;width:100%;height:100%;max-width:none;object-fit:cover}
+#v1{opacity:0;transition:opacity 150ms linear,filter 1100ms ease-in-out}
+#v1.on{opacity:1}
+#v1.warm{filter:brightness(1.1) saturate(.97)}
+#v2{opacity:0;transition:opacity 800ms ease-in-out}
+#v2.on{opacity:1}
+
+/* ===== زرار الصوت ===== */
+.mute{position:fixed;bottom:20px;right:20px;z-index:40;border-radius:9999px;border:1px solid rgba(var(--fg-rgb),.3);padding:3px;background:rgba(var(--bg-rgb),.7);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);transition:border-color .5s,opacity .5s 1.5s,transform .5s 1.5s;opacity:0;transform:scale(.8);pointer-events:none}
+.mute.on{opacity:1;transform:none;pointer-events:auto}
+.mute span{display:flex;width:40px;height:40px;align-items:center;justify-content:center;border-radius:9999px;color:rgba(var(--fg-rgb),.85);border:1px solid rgba(var(--fg-rgb),.15)}
+.mute svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.25;stroke-linecap:round;stroke-linejoin:round}
+.mute .i-off{display:none}
+.mute.muted .i-on{display:none}
+.mute.muted .i-off{display:block}
+@media (hover:hover){.mute:hover{border-color:rgba(var(--fg-rgb),.6)}}
+
+/* ===== 2. الكارت الأساسي ===== */
+.hero{position:relative;min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.hero-img{position:absolute;left:0;top:0;width:100%;height:100%;max-width:none;object-fit:cover;pointer-events:none}
+.hero-text{position:relative;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1 1 0%;text-align:center;padding:0 24px;opacity:0;transition:opacity 2000ms ease-out}
+.hero-text.on{opacity:1}
+/* كلام الكارت بطلب المالك (2026-11-06) بنفس خطوط التصميم: THE WEDDING OF بخط ROME, ITALY القديم،
+   الأسامي زي ما هي، والباقي بخط "Together with their families" والتاريخ القديمين. المكان على سطرين
+   زي التصميم (Villa Aurelia / ROME, ITALY): في سطر واحد كان بيخبط في الإطار على الموبايلات الأصغر */
+.ht-of{font-size:11px;letter-spacing:.25em;line-height:1.5}
+.ht-names{margin-top:32px;display:flex;flex-direction:column;align-items:center}
+.ht-names h1{font-family:var(--script);font-weight:400;font-size:50px;line-height:.95}
+.ht-amp{font-family:var(--serif);font-size:18px;line-height:1;margin:10px 0}
+.ht-with{font-family:var(--serif);font-size:17px;letter-spacing:.025em;line-height:1.375;margin-top:24px}
+.ht-date{font-family:var(--serif);font-size:18px;line-height:28px;margin-top:20px;letter-spacing:.025em}
+.ht-venue{margin-top:20px;display:flex;flex-direction:column;align-items:center}
+.ht-place{font-family:var(--serif);font-size:20px;letter-spacing:.025em;line-height:1.375}
+.ht-city{font-size:11px;letter-spacing:.25em;margin-top:4px}
+
+/* ===== 3. العدّاد ===== */
+.cd{position:relative;width:100%;overflow:hidden}
+.cd-box{position:relative;width:100%;aspect-ratio:1920/1126}
+.cd-box img{position:absolute;left:0;top:0;width:100%;height:100%;max-width:none;object-fit:cover;pointer-events:none}
+.cd-title{position:absolute;left:0;right:0;top:9%;text-align:center;font-family:var(--serif);font-size:7vw;line-height:1;color:#f5f0e8}
+.cd-grid{position:absolute;left:17%;right:17%;top:33%;bottom:34%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:center}
+.cd-grid>div{display:flex;min-width:0;flex-direction:column;align-items:center}
+.cd-n{font-family:var(--serif);font-size:6.5vw;line-height:1;font-variant-numeric:tabular-nums}
+.cd-l{margin-top:4px;font-size:2vw;letter-spacing:.15em}
+.cd-soon{position:absolute;left:0;right:0;bottom:7%;text-align:center;font-family:var(--script);font-size:8vw;line-height:1;color:#f5f0e8}
+
+/* ===== كارت الخدش على الصدف ===== */
+.sc{position:relative;width:100%}
+.sc-bg{width:100%;height:auto}
+.sc-oval,.sc-ring{position:absolute;left:33%;top:25%;width:34.1%;height:50.2%;border-radius:50%}
+.sc-oval{overflow:hidden}
+/* تحت الخدش: صورة العرسان (المالك بعتها 2026-11-06) بنفس طريقة التصميم الأصلي — مالية الشكل البيضاوي */
+.sc-under{position:absolute;left:0;top:0;right:0;bottom:0;background:var(--ivory);visibility:hidden}
+.sc-under.ready{visibility:visible}
+/* تحت الخدش: التاريخ بخطوط التصميم (مفيش صورة للعرسان في الدعوة دي) */
+.sc-date{position:absolute;left:0;top:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:radial-gradient(ellipse at 50% 40%,#fbf8f3,#ece4d8)}
+.sc-d1{font-family:var(--script);font-size:clamp(20px,6vw,34px);line-height:1;color:var(--fg)}
+.sc-d2{font-family:var(--serif);font-size:clamp(20px,6.2vw,36px);line-height:1.2;letter-spacing:.04em;margin-top:6px;color:var(--fg)}
+.sc-d3{font-family:var(--sans);font-weight:300;font-size:clamp(8px,2.2vw,12px);letter-spacing:.25em;text-transform:uppercase;margin-top:6px;color:rgba(var(--fg-rgb),.7)}
+.sc-canvas{position:absolute;left:0;top:0;width:100%;height:100%;cursor:pointer;touch-action:none;transition:opacity .7s}
+.sc-canvas.done{opacity:0;pointer-events:none}
+.sc-ring{pointer-events:none;box-shadow:0 0 0 3px hsl(40,45%,72%),0 0 0 5px hsl(40,30%,92%),0 0 0 6px hsl(40,40%,62%),0 0 0 12px hsla(40,30%,96%,.55),0 0 0 13px hsl(40,40%,66%),0 6px 18px hsla(212,22%,30%,.25),inset 0 0 10px hsla(40,40%,40%,.35)}
+
+/* ===== زرار الإطار المزدوج ===== */
+.btn{display:inline-flex;flex-direction:column;align-items:center;color:var(--fg)}
+.btn>span{position:relative;display:block;border:1px solid rgba(var(--fg-rgb),.4);padding:3px;transition:border-color .5s}
+.btn>span>span{display:block;border:1px solid rgba(var(--fg-rgb),.2);padding:12px 40px;transition:background-color .5s,color .5s}
+.btn b{display:block;font-weight:300;font-family:var(--sans);font-size:10px;letter-spacing:.32em;text-transform:uppercase}
+@media (hover:hover){.btn:hover>span{border-color:rgba(var(--fg-rgb),.7)}.btn:hover>span>span{background:var(--fg);color:var(--bg)}}
+/* زرار الخريطة بطلب المالك (2026-11-07): بقى مليان بأزرق التصميم (نفس لون الـ hover في التصميم الأصلي) والكلام
+   عاجي، والإطار المزدوج زي ما هو. جواه "موقع الحفل | View Location 📍": العربي على اليمين بخط أميري (من غير
+   تباعد حروف — التباعد بيقطّع العربي)، والإنجليزي بخط الزرار القديم، والدبوس جنبه على الشمال */
+.btn-map>span{border-color:rgba(var(--fg-rgb),.5)}
+.btn-map>span>span{background:var(--fg);color:var(--bg);border-color:var(--fg);padding:12px clamp(16px,6.5vw,30px)}
+.btn-map b{display:flex;align-items:center;justify-content:center;direction:rtl;white-space:nowrap;line-height:20px}
+.btn-map .b-ar{font-family:'Amiri Ar Local','Amiri',serif;font-size:16px;font-weight:400;letter-spacing:0;text-transform:none;line-height:20px;transform:translateY(-1px)}
+.btn-map .b-sep{letter-spacing:0;margin:0 12px;opacity:.55}
+.btn-map .b-en{direction:ltr;margin-right:-.32em}
+.btn-map .b-pin{font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif;font-size:13px;letter-spacing:0;line-height:20px;margin-right:7px}
+@media (hover:hover){.btn-map:hover>span{border-color:rgba(var(--fg-rgb),.8)}.btn-map:hover>span>span{background:#3e4f63;color:var(--bg)}}
+
+/* ===== 4. المكان ===== */
+/* كلام المالك: The Venue / WHERE WE CELEBRATE / The Palace بخطوط التصميم، وبعدها العنوان والميعاد
+   والكلام بالعربي بأميري (نفس فقرات الختام)، و"We would love to have you with us." بخط التصميم */
+.loc{padding:128px 24px 80px}
+.loc-in{max-width:448px;margin:0 auto;text-align:center;mix-blend-mode:multiply}
+.loc-t{font-family:var(--serif);font-size:48px;line-height:1}
+.loc-k{font-size:11px;letter-spacing:.3em;line-height:1.5;color:rgba(var(--fg-rgb),.7);margin-top:16px}
+.loc-s{font-family:var(--script);font-size:38px;line-height:1;margin-top:22px}
+.loc-ar{font-family:'Amiri Ar Local','Amiri',serif;letter-spacing:0}
+.loc-addr{font-size:20px;line-height:1.8;color:rgba(var(--fg-rgb),.85);margin-top:14px}
+.loc-when{font-size:17px;line-height:1.8;color:rgba(var(--fg-rgb),.7)}
+.loc-when i{font-style:normal;margin:0 .2em;color:rgba(var(--fg-rgb),.45)}
+.loc-txt{font-size:18px;line-height:2;color:rgba(var(--fg-rgb),.8);max-width:330px;margin:28px auto 0}
+.loc-txt+.loc-txt{margin-top:10px}
+/* كل جملة (لحد الفاصلة) كتلة واحدة: لو السطر مش واسع كفاية الجملة كلها بتنزل سطر جديد، فمفيش كلمة لوحدها
+   في الآخر زي "بمن نحب." أو "الأبد." على الموبايل */
+.loc-txt .cl{display:inline-block}
+.loc-en{font-family:var(--serif);font-size:20px;line-height:1.5;color:rgba(var(--fg-rgb),.8);margin-top:24px;font-style:italic}
+/* أصغر الموبايلات (320): الخط يصغر سنة عشان أطول جملة و"We would love to have you with us." يفضلوا سطر واحد */
+@media (max-width:340px){.loc-txt{font-size:15.5px}.loc-en{font-size:18px}}
+.loc-img{position:relative;left:50%;transform:translateX(-50%);width:70%;max-width:none;margin-top:32px}
+.loc-img img{width:100%;height:auto;pointer-events:none}
+.loc .btn{margin-top:40px}
+
+/* ===== صورهم (المالك 2026-11-10) — مكان كارت الخدش: كروت بالإطار المزدوج بتاع التصميم، بتتقلب بالسحب
+   (scroll-snap)، الكارت اللي في النص كامل واللي جنبه باهت شوية وأصغر، ونقط تحت + أسهم ===== */
+.gl{padding:72px 0 56px;overflow:hidden}
+.gl-head{text-align:center;padding:0 24px}
+.gl-t{font-family:var(--script);font-size:44px;line-height:1.1}
+.gl-k{font-size:11px;letter-spacing:.3em;line-height:1.5;color:rgba(var(--fg-rgb),.7);margin-top:10px}
+.gl-track{display:flex;gap:16px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;
+  padding:30px calc((100vw - min(72vw,340px)) / 2) 26px;overscroll-behavior-x:contain}
+.gl-track::-webkit-scrollbar{display:none}
+.gl-card{flex:0 0 min(72vw,340px);margin:0;scroll-snap-align:center;transition:transform .5s cubic-bezier(.22,1,.36,1),opacity .5s ease;transform:scale(.9);opacity:.55}
+.gl-card.on{transform:none;opacity:1}
+.gl-fr{position:relative;aspect-ratio:2/3;padding:6px;border:1px solid rgba(var(--fg-rgb),.4);background:#fbf9f6;box-shadow:0 18px 34px -20px rgba(var(--fg-rgb),.55)}
+.gl-fr::before{content:"";position:absolute;inset:3px;border:1px solid rgba(var(--fg-rgb),.18);pointer-events:none;z-index:1}
+.gl-fr img{width:100%;height:100%;max-width:none;object-fit:cover;object-position:50% 35%}
+.gl-nav{display:flex;align-items:center;justify-content:center;gap:18px}
+.gl-ar{width:38px;height:38px;border-radius:50%;border:1px solid rgba(var(--fg-rgb),.35);display:grid;place-items:center;color:var(--fg);transition:background-color .3s,color .3s,opacity .3s}
+.gl-ar svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+.gl-ar:disabled{opacity:.3}
+@media (hover:hover){.gl-ar:not(:disabled):hover{background:var(--fg);color:var(--bg)}}
+.gl-dots{display:flex;gap:9px}
+.gl-dots button{width:7px;height:7px;border-radius:50%;background:rgba(var(--fg-rgb),.25);transition:background-color .3s,transform .3s}
+.gl-dots button.on{background:var(--fg);transform:scale(1.25)}
+.gl-hint{text-align:center;font-size:10px;letter-spacing:.32em;color:rgba(var(--fg-rgb),.5);margin-top:14px;transition:opacity .6s}
+.gl-hint.off{opacity:0}
+
+/* ===== تأكيد الحضور (المالك 2026-11-10) — تحت المكان، بخطوط وألوان التصميم: العنوان زي "The Venue"، خانات بخط
+   تحتها بس، نعم/لا بإطار رفيع، وزرار Send بنفس الإطار المزدوج المليان بتاع زرار الخريطة. بيوصل للوحة العميل ===== */
+.rs{padding:24px 24px 72px}
+.rs-in{max-width:400px;margin:0 auto;text-align:center}
+.rs-t{font-family:var(--serif);font-size:48px;line-height:1}
+.rs-k{font-size:11px;letter-spacing:.3em;line-height:1.5;color:rgba(var(--fg-rgb),.7);margin-top:16px}
+.rs-s{font-family:var(--script);font-size:30px;line-height:1.2;margin-top:18px}
+.rs-f{margin-top:30px;text-align:left}
+.rs-l{display:block;font-family:var(--sans);font-weight:300;font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:rgba(var(--fg-rgb),.75);margin:0 0 8px}
+.rs-f input,.rs-f textarea{display:block;width:100%;border:0;border-bottom:1px solid rgba(var(--fg-rgb),.35);background:transparent;border-radius:0;padding:8px 2px 10px;font-family:var(--serif);font-size:19px;line-height:1.4;color:var(--fg);outline:none;transition:border-color .3s;-webkit-appearance:none;appearance:none}
+.rs-f textarea{resize:none;min-height:96px;border:1px solid rgba(var(--fg-rgb),.3);padding:12px 14px;background:rgba(255,255,255,.35)}
+.rs-f input:focus,.rs-f textarea:focus{border-color:var(--fg)}
+.rs-f input::placeholder,.rs-f textarea::placeholder{color:rgba(var(--fg-rgb),.38);font-style:italic}
+.rs-row{margin-bottom:28px}
+.rs-ch{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.rs-ch button{border:1px solid rgba(var(--fg-rgb),.35);padding:3px;background:transparent;transition:border-color .3s}
+.rs-ch button span{display:block;border:1px solid rgba(var(--fg-rgb),.15);padding:11px 6px;font-family:var(--serif);font-size:18px;line-height:1.2;transition:background-color .35s,color .35s}
+.rs-ch button.on{border-color:var(--fg)}
+.rs-ch button.on span{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.rs-cnt{display:block;text-align:right;font-family:var(--sans);font-weight:300;font-size:10px;letter-spacing:.1em;color:rgba(var(--fg-rgb),.45);margin-top:6px}
+.rs-go{text-align:center;margin-top:8px}
+.rs-go .btn{min-width:180px}
+.rs-go .btn>span{border-color:rgba(var(--fg-rgb),.5)}
+.rs-go .btn>span>span{background:var(--fg);color:var(--bg);border-color:var(--fg);padding:13px 52px}
+.rs-go .btn[disabled]{opacity:.6;pointer-events:none}
+.rs-msg{min-height:1.5em;margin-top:16px;text-align:center;font-family:var(--serif);font-size:17px;color:#9b3b2e}
+.rs-done{display:none;margin-top:30px;text-align:center}
+.rs-done p:first-child{font-family:var(--script);font-size:46px;line-height:1.2}
+.rs-done p+p{font-family:var(--serif);font-size:19px;line-height:1.5;color:rgba(var(--fg-rgb),.8);margin-top:8px}
+.rs.sent .rs-f{display:none}
+.rs.sent .rs-done{display:block}
+
+/* ===== 6. الدريس كود ===== */
+.dr{width:100%;padding:64px 24px}
+.dr-wrap{position:relative}
+.dr-box{position:relative;z-index:10;background:var(--bg);left:50%;transform:translateX(-50%);width:calc(88% + 4px)}
+.dr-frame{position:relative;width:100%;aspect-ratio:726/1265}
+.dr-frame img{position:absolute;left:-.661%;top:-.3856%;width:101.322%;height:100.7463%;max-width:none;pointer-events:none}
+.dr-seal{position:absolute;right:2%;bottom:4%;width:26%;height:auto;aspect-ratio:1/1;transform:rotate(24deg);filter:drop-shadow(0 2px 3px rgba(var(--fg-rgb),.15));z-index:20;pointer-events:none}
+.dr-in{position:absolute;left:0;top:0;right:0;bottom:0;transform:translateY(-5px);display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:0 26% 7%;pointer-events:none}
+.dr-t{font-family:var(--serif);font-size:43px;line-height:1}
+.dr-s{font-family:var(--script);font-size:30px;line-height:1;white-space:nowrap;margin-top:8px}
+.dr-pic{margin:30px 0 9px;width:100%}
+.dr-pic div{position:relative;margin:0 auto;width:120px;height:150px;flex-shrink:0}
+.dr-pic img{position:absolute;left:-13.75%;top:-10.2%;width:127.5%;height:128%;max-width:none}
+.dr-d{color:rgba(var(--fg-rgb),.8);font-family:var(--sans);font-weight:300;font-size:11px;line-height:1.375;margin:30px -12% 0}
+/* الألوان اللي مش عايزينها (المالك 2026-11-10): خط رفيع بلون الدعوة بمعين في النص، و"Avoided Colors" بخط "Dress Code" */
+/* الدعوة دي فيها سطور أكتر تحت الصورة: الكلام كله أعلى سنة وأصغر سنة عشان يخلص قبل الختم */
+.qw-dr{padding:0 24% 31%!important}
+.qw-dr .dr-pic{margin:16px 0 6px}
+.qw-dr .dr-pic div{width:104px;height:130px}
+.dr-av{width:100%;margin-top:4px;display:flex;flex-direction:column;align-items:center}
+.dr-line{display:flex;align-items:center;justify-content:center;gap:9px;width:118%}
+.dr-line i{flex:1;height:1px;background:linear-gradient(90deg,rgba(var(--fg-rgb),0),rgba(var(--fg-rgb),.55))}
+.dr-line i:last-child{transform:scaleX(-1)}
+.dr-line b{width:6px;height:6px;border:1px solid rgba(var(--fg-rgb),.6);transform:rotate(45deg);flex-shrink:0}
+.dr-at{font-family:var(--serif);font-size:24px;line-height:1.1;margin-top:12px;white-space:nowrap}
+.dr-ak{color:rgba(var(--fg-rgb),.8);font-family:var(--sans);font-weight:300;font-size:10.5px;line-height:1.45;margin:6px -16% 0;white-space:nowrap}
+.dr-ac{font-family:var(--serif);font-size:16px;letter-spacing:.05em;line-height:1.3;margin-top:6px;white-space:nowrap}
+.dr-ac span{color:rgba(var(--fg-rgb),.45);margin:0 .25em}
+/* أصغر الموبايلات (آيفون SE): الإطار أصغر فالكلام يصغر سنة ويطلع لفوق عشان "Gold" مايقربش من الختم */
+@media (max-width:360px){.qw-dr{padding-bottom:37%!important}.qw-dr .dr-pic{margin:12px 0 4px}.qw-dr .dr-pic div{width:92px;height:115px}.dr-at{font-size:21px;margin-top:9px}.dr-ac{font-size:14px}.dr-ak{font-size:10px}}
+
+/* ===== 11. الختام ===== */
+/* الختام بقى بعد الدريس كود على طول (المالك شال الأقسام اللي كانت بينهم): المسافة اللي فوق كانت
+   معمولة بعد قسم الـ RSVP الأزرق، فاتظبطت على إيقاع باقي الأقسام */
+.ft{position:relative;padding:64px 24px 80px;text-align:center}
+.ft-seal{width:112px;height:auto;margin:-12px auto 32px;pointer-events:none;filter:drop-shadow(0 2px 6px rgba(0,0,0,.15))}
+.ft-ar{font-family:'Amiri Ar Local','Amiri',serif;font-size:18px;line-height:2;color:rgba(var(--fg-rgb),.8);max-width:330px;margin:0 auto}
+.ft-ar+.ft-ar{margin-top:10px}
+.ft-ar-h{font-family:'Aref Ruqaa Ar Local','Aref Ruqaa',serif;font-size:30px;line-height:1.7;color:var(--fg);margin-bottom:12px}
+.ft-ar+.ft-l{margin-top:40px}
+/* الختام بالإنجليزي (المالك 2026-11-10) */
+.ft-en-h{font-family:var(--script);font-size:38px;font-size:min(38px,calc((100vw - 40px) * .11));white-space:nowrap;line-height:1.25;color:var(--fg);margin:0 auto 10px;max-width:340px}
+.ft-en{font-family:var(--serif);font-size:20px;line-height:1.55;letter-spacing:.01em;color:rgba(var(--fg-rgb),.85);max-width:340px;margin:0 auto}
+.ft-en-2{margin-top:16px;font-style:italic}
+.ft-en+.ft-l{margin-top:40px}
+.ft-t{margin-top:4px}
+.ft-l{font-family:var(--sans);font-weight:300;font-size:13px;color:rgba(var(--fg-rgb),.6);margin-bottom:12px}
+/* الأسامي في سطر واحد زي التصميم: الأسامي الطويلة أطول من الاسمين اللي اتعمل عليهم التصميم، فبيصغر بالقدر
+   اللي يخليه سطر واحد على الموبايل — والشاشات الأعرض بمقاس التصميم */
+.ft-n{font-family:var(--script);font-size:60px;font-size:min(60px,calc((100vw - 48px) * .145));line-height:75px;margin-bottom:16px}
+.ft-n span{font-size:.5em;line-height:36px;color:rgba(var(--fg-rgb),.5)}
+.ft-d{font-family:var(--sans);font-weight:300;font-size:13px;letter-spacing:.025em;color:rgba(var(--fg-rgb),.5)}
+
+/* ===== شاشات أكبر من الموبايل (نفس نقطة md في التصميم الأصلي) ===== */
+@media (min-width:768px){
+  body{font-size:19px}
+  .ht-of{font-size:12px}
+  .ht-names{margin-top:40px}
+  .ht-names h1{font-size:64px}
+  .ht-amp{font-size:20px;line-height:1;margin:14px 0}
+  .ht-with{font-size:19px;margin-top:32px}
+  .ht-date{font-size:20px;margin-top:24px}
+  .ht-venue{margin-top:24px}
+  .ht-place{font-size:24px}
+  .ht-city{font-size:12px}
+  .cd-title,.cd-n,.cd-soon{font-size:60px}
+  .cd-l{margin-top:12px;font-size:12px;line-height:16px}
+  .loc{padding:176px 24px 112px}
+  .loc-t{font-size:72px}
+  .loc-k{font-size:12px}
+  .loc-s{font-size:50px}
+  .loc-addr{font-size:23px}
+  .loc-when{font-size:19px}
+  .loc-txt{font-size:21px;max-width:440px}
+  .loc-en{font-size:24px;margin-top:28px}
+  .loc-img{width:60%}
+  .gl{padding:96px 0 72px}
+  .gl-t{font-size:60px}
+  .gl-k{font-size:12px}
+  .gl-track{gap:24px;padding-left:calc((100vw - 340px) / 2);padding-right:calc((100vw - 340px) / 2)}
+  .rs{padding:40px 24px 96px}
+  .rs-t{font-size:72px}
+  .rs-k{font-size:12px}
+  .rs-s{font-size:38px}
+  .dr{padding:96px 24px}
+  .dr-box{width:100%;left:0;transform:none;max-width:465px;margin:0 auto}
+  .dr-t{font-size:67px}
+  .dr-s{font-size:36px;margin-top:12px}
+  .dr-pic{margin:33px 0}
+  .dr-pic div{width:216px;height:270px}
+  .dr-d{font-size:13px}
+  .dr-av{margin-top:6px}
+  .dr-at{font-size:32px;margin-top:16px}
+  .dr-ak{font-size:12px}
+  .dr-ac{font-size:19px}
+  .qw-dr .dr-pic{margin:22px 0 10px}
+  .qw-dr .dr-pic div{width:180px;height:225px}
+  .ft{padding-top:72px}
+  .ft-seal{width:144px}
+  .ft-ar{font-size:21px;max-width:440px}
+  .ft-ar-h{font-size:40px}
+  .ft-en-h{font-size:48px;max-width:460px}
+  .ft-en{font-size:23px;max-width:460px}
+  .ft-n{font-size:72px;line-height:90px}
+  .ft-n span{font-size:36px;line-height:40px}
+}
+
+/* ===== القالب العام (Mother of Pearl) ===== */
+[data-section].off,#noteField.off{display:none!important}
+/* رسمة القاعة ورسمة اللبس صور بتتغيّر من المحرر (الأصل كانت مقفولة على الضغط) */
+.loc-img img,.dr-pic img{pointer-events:auto}
+[hidden]{display:none!important}
+.cover{display:block}
+.cv-hint{position:absolute;left:0;right:0;bottom:calc(5.5% + env(safe-area-inset-bottom));z-index:3;margin:0;text-align:center;color:var(--fg);
+  font:300 11px/1 var(--sans);letter-spacing:.32em;text-transform:uppercase;text-shadow:0 0 8px #fbf7f1,0 0 16px #fbf7f1,0 0 3px #fff;animation:mpHint 2.4s ease-in-out infinite;pointer-events:none;transition:opacity .4s}
+@keyframes mpHint{0%,100%{opacity:.45}50%{opacity:1}}
+.cover.go .cv-hint{opacity:0;animation:none}
+/* الأسامي: بتصغر لوحدها لو طويلة (fitAll) */
+.ht-names h1{font-size:calc(50px*var(--fit,1));white-space:nowrap}
+.ht-amp{min-height:1em}
+.loc-s{white-space:nowrap;font-size:calc(38px*var(--fit,1))}
+.ft-n{white-space:nowrap}
+.ft-n .ft-nm{font-size:calc(1em*var(--fit,1));line-height:inherit;color:inherit}
+.ft-n .ft-amp{font-size:.5em;line-height:36px;color:rgba(var(--fg-rgb),.5)}
+.btn-map .b-txt{font-family:var(--sans);font-weight:300;letter-spacing:.32em}
+html[dir=rtl] .btn-map .b-txt{font-family:'Amiri','Amiri Ar Local',serif;font-size:16px;letter-spacing:0;text-transform:none}
+.btn-map b{direction:inherit}
+.btn-map .b-pin{margin:0 0 0 9px}
+html[dir=rtl] .btn-map .b-pin{margin:0 9px 0 0}
+.rs.sent .rs-f{display:none}
+.rs.sent .rs-done,.rs.mp-show-done .rs-done{display:block}
+.mp-edit .rs-done{margin-top:34px;padding-top:18px;border-top:1px dashed rgba(var(--fg-rgb),.25)}
+.mp-static .hero{min-height:844px}
+@media (min-width:768px){.ht-names h1{font-size:calc(64px*var(--fit,1))}.loc-s{font-size:calc(50px*var(--fit,1))}}
+/* ===== النسخة العربي ===== */
+html[dir=rtl] body{font-family:'Amiri','Amiri Ar Local',var(--serif)}
+html[dir=rtl] .ht-names h1,html[dir=rtl] .ft-n,html[dir=rtl] .loc-s,html[dir=rtl] .cd-soon,html[dir=rtl] .gl-t,html[dir=rtl] .rs-s,html[dir=rtl] .ft-en-h,html[dir=rtl] .dr-s,html[dir=rtl] .rs-done p:first-child{font-family:'Aref Ruqaa','Aref Ruqaa Ar Local',var(--script);letter-spacing:0}
+html[dir=rtl] .ht-names h1{line-height:1.5}
+html[dir=rtl] .ht-amp,html[dir=rtl] .ft-n .ft-amp{font-family:'Aref Ruqaa','Aref Ruqaa Ar Local',var(--serif)}
+html[dir=rtl] .ht-of,html[dir=rtl] .ht-city,html[dir=rtl] .gl-k,html[dir=rtl] .loc-k,html[dir=rtl] .rs-k,html[dir=rtl] .cd-l,html[dir=rtl] .rs-l,html[dir=rtl] .dr-ak,html[dir=rtl] .ft-l,html[dir=rtl] .gl-hint,html[dir=rtl] .cv-hint{font-family:'Amiri','Amiri Ar Local',var(--sans);letter-spacing:0;text-transform:none}
+html[dir=rtl] .ht-of{font-size:15px}
+html[dir=rtl] .ht-city,html[dir=rtl] .gl-k,html[dir=rtl] .loc-k,html[dir=rtl] .rs-k{font-size:15px}
+html[dir=rtl] .cd-l{font-size:2.8vw}
+html[dir=rtl] .rs-l{font-size:15px}
+html[dir=rtl] .dr-ak{font-size:12px}
+html[dir=rtl] .ft-l{font-size:16px}
+html[dir=rtl] .cv-hint{font-size:16px}
+html[dir=rtl] .ht-with,html[dir=rtl] .ht-date,html[dir=rtl] .ht-place,html[dir=rtl] .cd-title,html[dir=rtl] .loc-t,html[dir=rtl] .loc-addr,html[dir=rtl] .loc-when,html[dir=rtl] .loc-en,html[dir=rtl] .rs-t,html[dir=rtl] .dr-t,html[dir=rtl] .dr-at,html[dir=rtl] .dr-ac,html[dir=rtl] .ft-en,html[dir=rtl] .rs-ch button span,html[dir=rtl] .rs-done p+p,html[dir=rtl] .rs-f input,html[dir=rtl] .rs-f textarea,html[dir=rtl] .rs-msg{font-family:'Amiri','Amiri Ar Local',var(--serif);letter-spacing:0;font-style:normal}
+html[dir=rtl] .loc-t,html[dir=rtl] .rs-t{font-size:40px;line-height:1.4}
+html[dir=rtl] .dr-t{font-size:34px;line-height:1.3}
+html[dir=rtl] .dr-at{font-size:21px}
+html[dir=rtl] .rs-f{text-align:right}
+html[dir=rtl] .loc-img{left:auto;right:50%;transform:translateX(50%)}
+html[dir=rtl] .rs-cnt{text-align:left}
+html[dir=rtl] .ft-en-h{font-size:30px;line-height:1.6}
+</style>
+</head>
+<body>
+
+<!-- 1) الفتح: الضغط على الظرف ← فيديو الظرف (الختم بالقلب) ← فيديو الفيونكة ← الكارت -->
+<div class="cover" id="coverScreen" role="button" tabindex="0" aria-label="Open the invitation">
+  <img src="/templates/mother-of-pearl/poster.webp" alt="" draggable="false">
+  <video id="v1" poster="/templates/mother-of-pearl/poster.webp" muted playsinline webkit-playsinline preload="auto" data-src="/templates/mother-of-pearl/v1.mp4"></video>
+  <video id="v2" muted playsinline webkit-playsinline preload="auto" data-src="/templates/mother-of-pearl/v2.mp4"></video>
+  <p class="cv-hint" id="cvHint"></p>
+</div>
+
+<main>
+
+  <!-- 2) الكارت الأساسي -->
+  <section class="hero">
+    <img class="hero-img" src="/templates/mother-of-pearl/hero-frame.webp" alt="" aria-hidden="true" draggable="false">
+    <div class="hero-text" id="heroText">
+      <p class="ht-of up" data-elem-id="mp1"></p>
+      <div class="ht-names">
+        <h1 data-elem-id="mp2" data-f="groom"></h1>
+        <p class="ht-amp" data-f="amp"></p>
+        <h1 data-elem-id="mp3" data-f="bride"></h1>
+      </div>
+      <p class="ht-with" data-elem-id="mp4"></p>
+      <p class="ht-date" data-elem-id="mp5" data-f="dateUp" data-wda-live></p>
+      <div class="ht-venue">
+        <p class="ht-place" data-elem-id="mp6" data-f="hall" dir="auto"></p>
+        <p class="ht-city up" data-elem-id="mp7" data-f="city" dir="auto"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3) العدّاد -->
+  <div class="rv sec" data-section="countdown">
+    <section class="cd" id="countdown">
+      <div class="cd-box">
+        <img loading="lazy" decoding="async" src="/templates/mother-of-pearl/countdown-frame.webp" alt="" draggable="false">
+        <h2 class="cd-title" data-elem-id="mp8"></h2>
+        <div class="cd-grid">
+          <div><span class="cd-n" id="cdD" data-wda-live>00</span><span class="cd-l up" data-elem-id="mp9"></span></div>
+          <div><span class="cd-n" id="cdH" data-wda-live>00</span><span class="cd-l up" data-elem-id="mp10"></span></div>
+          <div><span class="cd-n" id="cdM" data-wda-live>00</span><span class="cd-l up" data-elem-id="mp11"></span></div>
+          <div><span class="cd-n" id="cdS" data-wda-live>00</span><span class="cd-l up" data-elem-id="mp12"></span></div>
+        </div>
+        <p class="cd-soon" data-elem-id="mp13"></p>
+      </div>
+    </section>
+  </div>
+
+  <!-- 4) الصور: بتتقلب يمين وشمال (كل صورة بتتغيّر من المحرر) -->
+  <div class="rv sec" data-section="gallery">
+    <section class="gl" id="gallery" aria-label="Photos">
+      <div class="gl-head">
+        <h2 class="gl-t" data-elem-id="mp14"></h2>
+        <p class="gl-k up" data-elem-id="mp15"></p>
+      </div>
+      <div class="gl-track" id="glTrack" dir="ltr">
+        <figure class="gl-card"><div class="gl-fr"><img data-elem-id="mp16" src="/templates/mother-of-pearl/g1.webp" alt="" loading="lazy" decoding="async" draggable="false"></div></figure>
+        <figure class="gl-card"><div class="gl-fr"><img data-elem-id="mp17" src="/templates/mother-of-pearl/g2.webp" alt="" loading="lazy" decoding="async" draggable="false"></div></figure>
+        <figure class="gl-card"><div class="gl-fr"><img data-elem-id="mp18" src="/templates/mother-of-pearl/g3.webp" alt="" loading="lazy" decoding="async" draggable="false"></div></figure>
+        <figure class="gl-card"><div class="gl-fr"><img data-elem-id="mp19" src="/templates/mother-of-pearl/g4.webp" alt="" loading="lazy" decoding="async" draggable="false"></div></figure>
+      </div>
+      <div class="gl-nav" dir="ltr">
+        <button type="button" class="gl-ar" id="glPrev" aria-label="Previous photo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <div class="gl-dots" id="glDots" role="tablist"></div>
+        <button type="button" class="gl-ar" id="glNext" aria-label="Next photo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+      </div>
+      <p class="gl-hint up" id="glHint" data-elem-id="mp20"></p>
+    </section>
+  </div>
+
+  <!-- 5) المكان + زرار الخريطة (المكان بيتغيّر من المحرر) -->
+  <div class="rv sec" data-section="venue">
+    <section class="loc">
+      <div class="rv loc-in">
+        <h2 class="loc-t" data-elem-id="mp21"></h2>
+        <p class="loc-k up" data-elem-id="mp22"></p>
+        <p class="loc-s" data-elem-id="mp23" data-f="hall" dir="auto"></p>
+        <p class="loc-addr" data-elem-id="mp24" data-f="city" dir="auto"></p>
+        <p class="loc-when" data-elem-id="mp25" data-f="whenLine" data-wda-live></p>
+        <p class="loc-en" data-elem-id="mp26"></p>
+        <div class="loc-img"><img data-elem-id="mp27" loading="lazy" decoding="async" src="/templates/mother-of-pearl/venue.webp" alt="" draggable="false"></div>
+        <a class="btn btn-map" id="mapBtn" href="https://www.google.com/maps" target="_blank" rel="noopener noreferrer"><span><span><b><span class="b-txt" data-elem-id="mp28"></span><span class="b-pin" aria-hidden="true">📍</span></b></span></span></a>
+      </div>
+    </section>
+  </div>
+
+  <!-- 6) تأكيد الحضور (بيوصل للوحة العميل) -->
+  <div class="rv sec" data-section="rsvp">
+    <section class="rs" id="mithaq-rsvp">
+      <div class="rv rs-in">
+        <h2 class="rs-t" data-elem-id="mp29"></h2>
+        <p class="rs-k up" data-elem-id="mp30"></p>
+        <p class="rs-s" data-elem-id="mp31"></p>
+        <form class="rs-f" id="rsForm" novalidate>
+          <div class="rs-row">
+            <label class="rs-l" for="rsName" data-elem-id="mp32"></label>
+            <input id="rsName" name="name" maxlength="80" autocomplete="name">
+          </div>
+          <div class="rs-row">
+            <span class="rs-l" id="rsQ" data-elem-id="mp33"></span>
+            <div class="rs-ch" role="radiogroup" aria-labelledby="rsQ">
+              <button type="button" role="radio" aria-checked="false" data-a="yes"><span data-elem-id="mp34"></span></button>
+              <button type="button" role="radio" aria-checked="false" data-a="no"><span data-elem-id="mp35"></span></button>
+            </div>
+          </div>
+          <div class="rs-row" id="noteField">
+            <label class="rs-l" for="rsNote" data-elem-id="mp36"></label>
+            <textarea id="rsNote" name="note" maxlength="200" rows="4"></textarea>
+            <span class="rs-cnt" id="rsCnt" dir="ltr">0 / 200</span>
+          </div>
+          <div class="rs-go"><button type="submit" class="btn" id="rsSend"><span><span><b data-elem-id="mp37"></b></span></span></button></div>
+          <p class="rs-msg" id="rsMsg" aria-live="polite"></p>
+        </form>
+        <div class="rs-done" id="rsDone" aria-live="polite"><p data-elem-id="mp38"></p><p id="rsDoneTxt" data-elem-id="mp39"></p></div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 7) الدريس كود -->
+  <div class="rv sec" data-section="dressCode">
+    <section class="dr">
+      <div class="rv dr-wrap">
+        <div class="dr-box">
+          <div class="dr-frame"><img loading="lazy" decoding="async" src="/templates/mother-of-pearl/dress-frame.webp" alt="" draggable="false"></div>
+          <img class="dr-seal" src="/templates/mother-of-pearl/seal.webp" alt="" aria-hidden="true" draggable="false">
+          <div class="dr-in qw-dr">
+            <p class="dr-t" data-elem-id="mp40"></p>
+            <p class="dr-s" data-elem-id="mp41"></p>
+            <div class="dr-pic"><div><img data-elem-id="mp42" loading="lazy" decoding="async" src="/templates/mother-of-pearl/attire.webp" alt="" draggable="false"></div></div>
+            <div class="dr-av">
+              <div class="dr-line" aria-hidden="true"><i></i><b></b><i></i></div>
+              <p class="dr-at" data-elem-id="mp43"></p>
+              <p class="dr-ak" data-elem-id="mp44"></p>
+              <p class="dr-ac" data-elem-id="mp45"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 8) الختام -->
+  <div class="rv sec">
+    <footer class="ft">
+      <div class="rv" style="--y:0px;--d:.8s">
+        <img class="ft-seal" src="/templates/mother-of-pearl/seal.webp" alt="" draggable="false">
+        <p class="ft-en-h" data-elem-id="mp46"></p>
+        <p class="ft-en" data-elem-id="mp47"></p>
+        <p class="ft-en ft-en-2" data-elem-id="mp48"></p>
+        <p class="ft-l" data-elem-id="mp49"></p>
+        <p class="ft-n"><span class="ft-nm" data-elem-id="mp50" data-f="groom"></span> <span class="ft-amp" data-f="amp"></span> <span class="ft-nm" data-elem-id="mp51" data-f="bride"></span></p>
+        <p class="ft-d" data-elem-id="mp52" data-f="dateDots" data-wda-live dir="ltr"></p>
+        <p class="ft-d ft-t" data-elem-id="mp53" data-f="timeLine" data-wda-live></p>
+      </div>
+    </footer>
+  </div>
+</main>
+
+<!-- زرار الصوت -->
+<button type="button" class="mute" id="muteBtn" aria-label="Mute">
+  <span>
+    <svg class="i-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/></svg>
+    <svg class="i-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><line x1="22" x2="16" y1="9" y2="15"/><line x1="16" x2="22" y1="9" y2="15"/></svg>
+  </span>
+</button>
+<audio id="invitation-audio" src="/templates/mother-of-pearl/song.mp3" loop preload="none" playsinline></audio>
+<script>
+(function () {
+  'use strict';
+  var C = window.WEDDING_CONFIG || {};
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var byId = function (id) { return document.querySelector('[data-elem-id="' + id + '"]'); };
+  var root = document.documentElement;
+
+  // المحرر / المعاينة الثابتة (كروت المعرض): من غير الفيديوهات — الدعوة كلها ظاهرة على طول
+  var STATIC = !!C.autoOpen;
+  var EDIT = STATIC && /[?&]edit=1(&|$)/.test(location.search);
+  var AR = C.language !== 'en';
+  var ENGAGED = C.occasionType === 'engagement';
+  if (STATIC) document.body.classList.add('mp-static');
+  if (EDIT) document.body.classList.add('mp-edit');
+
+  /* ---------- الأقسام اللي صاحب الدعوة شالها ---------- */
+  var HIDDEN = Array.isArray(C.hiddenSections) ? C.hiddenSections : [];
+  $$('[data-section]').forEach(function (s) { if (HIDDEN.indexOf(s.getAttribute('data-section')) !== -1) s.classList.add('off'); });
+
+  /* ---------- الكلام الافتراضي (عربي / إنجليزي) — أي سطر صاحب الدعوة عدّله بيغلب ---------- */
+  var COPY = AR ? {
+    mp1: ENGAGED ? 'خطوبة' : 'حفل زفاف',
+    mp4: 'بحضور الأهل والأحباب،',
+    mp8: 'العدّ التنازلي', mp9: 'يوم', mp10: 'ساعة', mp11: 'دقيقة', mp12: 'ثانية', mp13: 'نراكم قريبًا',
+    mp14: 'لحظاتنا', mp15: 'معًا للأبد', mp20: 'اسحب للمزيد',
+    mp21: 'مكان الحفل', mp22: 'هنا نحتفل', mp26: 'يسعدنا أن تكونوا معنا.', mp28: 'موقع الحفل',
+    mp29: 'تأكيد الحضور', mp30: 'نرجو الرد', mp31: 'نتمنى أن نراكم',
+    mp32: 'الاسم', mp33: 'هل ستشاركوننا فرحتنا؟', mp34: 'بكل سرور', mp35: 'للأسف، لن أتمكّن',
+    mp36: 'اكتبوا لنا تهنئتكم', mp37: 'إرسال', mp38: 'شكرًا لكم', mp39: 'وصلنا ردّكم — لكم منّا كل المحبة.',
+    mp40: 'الزي المقترح', mp41: 'رسمي وأنيق',
+    mp43: 'ألوان نرجو تجنّبها', mp44: 'يُرجى عدم ارتداء الألوان التالية', mp45: 'البيج • الفضي • الذهبي',
+    mp46: 'بقلوبٍ يملؤها الحب والفرح،',
+    mp47: 'ندعوكم لتشهدوا<br>بداية حكايتنا للأبد.',
+    mp48: 'وحضوركم يجعل يومنا<br>أجمل وأكثر تميّزًا.',
+    mp49: 'مع كل المحبة،'
+  } : {
+    mp1: ENGAGED ? 'THE ENGAGEMENT OF' : 'THE WEDDING OF',
+    mp4: 'Together with their families,',
+    mp8: 'Countdown', mp9: 'Days', mp10: 'Hours', mp11: 'Minutes', mp12: 'Seconds', mp13: 'See you soon!',
+    mp14: 'Our Moments', mp15: 'TOGETHER, ALWAYS', mp20: 'Swipe',
+    mp21: 'The Venue', mp22: 'WHERE WE CELEBRATE', mp26: 'We would love to have you with us.', mp28: 'View Location',
+    mp29: 'RSVP', mp30: 'KINDLY RESPOND', mp31: 'We hope to see you there',
+    mp32: 'Your Name', mp33: 'Will you be attending our day?', mp34: 'Yes, with joy', mp35: 'Sadly, no',
+    mp36: 'Write your congratulations', mp37: 'Send', mp38: 'Thank you!', mp39: 'Your reply has been received — all our love.',
+    mp40: 'Dress Code', mp41: 'Formal Attire',
+    mp43: 'Avoided Colors', mp44: 'Kindly avoid wearing the following colors', mp45: 'Beige • Silver • Gold',
+    mp46: 'With hearts full of love and joy,',
+    mp47: 'we invite you to witness<br>the beginning of our forever.',
+    mp48: 'Your presence would make<br>our day even more special.',
+    mp49: 'With all our love,'
+  };
+  Object.keys(COPY).forEach(function (id) { var el = byId(id); if (el) el.innerHTML = COPY[id]; });
+  $('#cvHint').textContent = AR ? 'اضغط لفتح الدعوة' : 'Tap to open';
+  $('#rsName').placeholder = AR ? 'الاسم بالكامل' : 'Full name';
+  $('#rsNote').placeholder = AR ? 'رسالتكم للعروسين…' : 'Your message to the couple…';
+
+  /* ---------- تعديلات فورم الحضور من البانل (rsvpOverrides) ---------- */
+  var RO = C.rsvpOverrides || {};
+  var RO_MAP = { title: 'mp29', intro: 'mp31', nameLabel: 'mp32', yesLabel: 'mp34', noLabel: 'mp35', foodLabel: 'mp36', submit: 'mp37' };
+  Object.keys(RO_MAP).forEach(function (k) { if (RO[k]) byId(RO_MAP[k]).textContent = RO[k]; });
+  if (RO.deadline) byId('mp31').textContent = RO.deadline;
+  if (RO.hideFood) $('#noteField').classList.add('off');
+
+  /* ---------- بيانات الدعوة: الأسامي والتاريخ والساعة والمكان ---------- */
+  var AD = '٠١٢٣٤٥٦٧٨٩';
+  var dg = function (s) { s = String(s); return AR ? s.replace(/\d/g, function (c) { return AD[c]; }) : s; };
+  var MONTHS = AR
+    ? ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر']
+    : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  var DAYS = AR ? ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت']
+    : ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  var cd0 = C.countdown || {};
+  var now0 = new Date();
+  var num = function (v, d) { return typeof v === 'number' && isFinite(v) ? v : d; };
+  var Y = num(cd0.year, now0.getFullYear()), M = num(cd0.monthIndex, now0.getMonth()), D = num(cd0.day, now0.getDate());
+  var H = num(cd0.hour, 19), MI = num(cd0.minute, 0);
+  // لحظة الفرح الحقيقية (السيرفر حاسبها بتوقيت مصر) — العدّاد عليها
+  var START = (function () { var d = C.weddingDateTimeISO ? new Date(C.weddingDateTimeISO) : null; return d && !isNaN(d) ? d : new Date(Y, M, D, H, MI); })();
+  var WD = DAYS[new Date(Y, M, D).getDay()];
+  var pad2 = function (n) { return (n < 10 ? '0' : '') + n; };
+  var clock = function (mins) {
+    var t = ((mins % 1440) + 1440) % 1440, h = Math.floor(t / 60), m = t % 60;
+    var hm = (h % 12 || 12) + ':' + pad2(m);
+    return AR ? dg(hm) + ' ' + (h < 12 ? 'صباحًا' : 'مساءً') : hm + ' ' + (h < 12 ? 'AM' : 'PM');
+  };
+  var base = H * 60 + MI;
+  var F = {
+    groom: C.groomName || '', bride: C.brideName || '', amp: AR ? 'و' : '&',
+    dateUp: AR ? WD + ' ' + dg(D) + ' ' + MONTHS[M] + ' ' + dg(Y) : WD.toUpperCase() + ', ' + pad2(D) + '.' + pad2(M + 1) + '.' + Y,
+    dateDots: pad2(D) + '.' + pad2(M + 1) + '.' + Y,
+    whenLine: AR ? WD + ' ' + dg(D) + ' ' + MONTHS[M] + '  |  ' + clock(base) : WD + ', ' + D + ' ' + MONTHS[M] + '  |  ' + clock(base),
+    timeLine: AR ? 'الساعة ' + clock(base) : 'At ' + clock(base),
+    hall: C.venueName || '', city: C.venueAddress || C.venueCity || ''
+  };
+  $$('[data-f]').forEach(function (el) { var v = F[el.getAttribute('data-f')]; if (v != null) el.textContent = v; });
+  if (F.groom || F.bride) document.title = AR ? (F.groom + ' و ' + F.bride + ' | ' + (ENGAGED ? 'دعوة خطوبة' : 'دعوة زفاف')) : (F.groom + ' & ' + F.bride + ' | ' + (ENGAGED ? 'Engagement Invitation' : 'Wedding Invitation'));
+
+  /* ---------- الخريطة ---------- */
+  var mapBtn = $('#mapBtn');
+  mapBtn.href = C.venueMapDirectLink || ('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent([C.venueName, C.venueAddress || C.venueCity].filter(Boolean).join(', ') || 'Egypt'));
+  // في المحرر اللينك مايفتحش (الضغط = اختيار للتعديل / تغيير المكان)
+  if (EDIT) mapBtn.addEventListener('click', function (e) { e.preventDefault(); });
+
+  /* ---------- الموسيقى ---------- */
+  var song = $('#invitation-audio'), mute = $('#muteBtn'), musicStarted = false, pausedByHide = false;
+  try { song.volume = 0.6; } catch (e) {}
+  function startMusic() {
+    if (musicStarted || !song.getAttribute('src')) return;
+    musicStarted = true;
+    var p;
+    try { p = song.play(); } catch (e) { p = null; }
+    if (p && p.catch) p.catch(function () { musicStarted = false; mute.classList.add('on', 'muted'); });
+  }
+  song.addEventListener('play', function () { mute.classList.add('on'); mute.classList.remove('muted'); });
+  mute.addEventListener('click', function () {
+    if (song.paused) { song.muted = false; song.play().catch(function () {}); musicStarted = true; return; }
+    song.muted = !song.muted;
+    mute.classList.toggle('muted', song.muted);
+    mute.setAttribute('aria-label', song.muted ? 'Unmute' : 'Mute');
+  });
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) { if (!song.paused) { pausedByHide = true; song.pause(); } }
+    else if (pausedByHide) { pausedByHide = false; song.play().catch(function () {}); }
+  });
+
+  /* ---------- الكارت: الكلام بيصغر مع الإطار على الشاشات الأصغر ---------- */
+  var heroText = $('#heroText'), heroBox = $('.hero'), heroImg = $('.hero-img');
+  function fitHero() {
+    var iw = heroImg.naturalWidth || 941, ih = heroImg.naturalHeight || 1672;
+    var w = heroBox.clientWidth, h = heroBox.clientHeight;
+    if (!w || !h) return;
+    var s = Math.min(1, Math.max(w / iw, h / ih) / 0.43);
+    var t = s < 0.995 ? 'scale(' + s.toFixed(4) + ')' : '';
+    if (heroText.style.transform !== t) heroText.style.transform = t;
+  }
+  fitHero();
+  window.addEventListener('resize', fitHero);
+  heroImg.addEventListener('load', fitHero);
+
+  /* ---------- الأسامي الطويلة بتصغر لحد ما تدخل مكانها (كتابة بس لو القيمة اتغيّرت) ---------- */
+  function fitOne(el) {
+    var avail = el.clientWidth;
+    var cur = parseFloat(el.style.getPropertyValue('--fit')) || 1;
+    var w = el.scrollWidth;
+    if (cur < 1 && w <= avail + 1) { el.style.removeProperty('--fit'); cur = 1; w = el.scrollWidth; }
+    var natural = w / cur;
+    var want = avail > 0 && natural > avail + 1 ? Math.max(0.45, (avail / natural) * 0.97) : 1;
+    if (Math.abs(want - cur) < 0.01) return;
+    if (want === 1) el.style.removeProperty('--fit'); else el.style.setProperty('--fit', want.toFixed(3));
+  }
+  var fitEls = $$('.ht-names h1, .ft-n, .loc-s');
+  function fitAll() { fitEls.forEach(fitOne); }
+  var fitT = 0, fitSoon = function () { clearTimeout(fitT); fitT = setTimeout(fitAll, 60); };
+  fitAll();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitAll);
+  addEventListener('resize', fitSoon);
+  var lastTexts = '';
+  var onText = function () { var now = fitEls.map(function (el) { return el.textContent; }).join('|'); if (now !== lastTexts) { lastTexts = now; fitSoon(); } };
+  fitEls.forEach(function (el) { new MutationObserver(onText).observe(el, { subtree: true, characterData: true, childList: true }); });
+
+  /* ---------- الفتح: فيديو الظرف ثم الفيونكة ثم الكارت ----------
+     الفيديوهين بيتحمّلوا كاملين من أول ما الصفحة تفتح (قبل الضغطة) — كده الفيونكة ماتقفش في نصّها
+     على النت البطيء. ولو أي فيديو وقف (مابيتحرّكش) ثانية ونص، الدعوة بتظهر على طول بدل ما الضيف يستنى. */
+  var cover = $('#coverScreen'), v1 = $('#v1'), v2 = $('#v2');
+  var state = 'idle', heroShown = false, v2Started = false, watchdog = 0, firstWatch = 0, stallT = 0;
+  function unlock() { root.classList.remove('lock'); }
+  function showHero() {
+    if (heroShown) return;
+    heroShown = true;
+    unlock();
+    setTimeout(function () { heroText.classList.add('on'); }, 800);
+    $$('img[loading=lazy]').forEach(function (i) { i.loading = 'eager'; });
+  }
+  function removeCover() {
+    if (state === 'done') return;
+    state = 'done';
+    unlock();
+    clearInterval(stallT);
+    try { v1.pause(); v2.pause(); } catch (e) {}
+    if (cover && cover.parentNode) cover.parentNode.removeChild(cover);
+  }
+  function fadeCover() {
+    showHero();
+    if (state === 'fading' || state === 'done') return;
+    state = 'fading';
+    clearTimeout(watchdog); clearTimeout(firstWatch); clearInterval(stallT);
+    cover.classList.add('fade');
+    cover.addEventListener('transitionend', function (e) { if (e.target === cover && e.propertyName === 'opacity') removeCover(); });
+    setTimeout(removeCover, 2400);
+  }
+  // مراقبة الحركة: الفيديو الشغّال لو وقف 1.5 ثانية → الدعوة تظهر
+  function watchStall(vid) {
+    clearInterval(stallT);
+    var last = -1, still = 0;
+    stallT = setInterval(function () {
+      if (state !== 'envelope' || document.hidden) return;
+      var t = vid.currentTime;
+      if (t > last + 0.01) { last = t; still = 0; return; }
+      still += 250;
+      if (still >= 1500 && t > 0.05) fadeCover();
+    }, 250);
+  }
+  function startV2() {
+    if (v2Started) return;
+    v2Started = true;
+    v2.classList.add('on');
+    try { v2.currentTime = 0; } catch (e) {}
+    var p;
+    try { p = v2.play(); } catch (e) { p = null; }
+    if (p && p.catch) p.catch(fadeCover);
+    watchStall(v2);
+    // الفيونكة مابدأتش خلال ثانيتين ونص → الدعوة على طول
+    setTimeout(function () { if (state === 'envelope' && v2.currentTime < 0.05) fadeCover(); }, 2500);
+  }
+  function openInvitation() {
+    if (state !== 'idle') return;
+    state = 'envelope';
+    startMusic();
+    // نفس الضغطة بتجهّز الفيديو التاني عشان يشتغل لوحده بعد الأول (آيفون في توفير الطاقة)
+    try {
+      var pv = v2.play();
+      if (pv && pv.then) pv.then(function () { if (!v2Started) { v2.pause(); try { v2.currentTime = 0; } catch (e) {} } }).catch(function () {});
+    } catch (e) {}
+    var p;
+    try { p = v1.play(); } catch (e) { p = null; }
+    if (p && p.catch) p.catch(fadeCover);
+    watchStall(v1);
+    firstWatch = setTimeout(function () { if (v1.currentTime <= 0.05) fadeCover(); }, 6000);
+    watchdog = setTimeout(fadeCover, 20000);
+  }
+  // تحميل الفيديوهين كاملين في الخلفية (blob) — لو التحميل خلص قبل الضغطة، الفتح بيبقى من الذاكرة
+  function preload(vid) {
+    var url = vid.getAttribute('data-src');
+    vid.src = url;
+    if (!window.fetch || !window.URL || !URL.createObjectURL) return;
+    fetch(url).then(function (r) { if (!r.ok) throw 0; return r.blob(); }).then(function (b) {
+      // لسه ماشتغلش؟ نبدّله بالنسخة اللي في الذاكرة
+      if (state === 'idle' && b && b.size > 1000) { vid.src = URL.createObjectURL(b); try { vid.load(); } catch (e) {} }
+    }).catch(function () {});
+  }
+
+  if (STATIC) {
+    if (cover && cover.parentNode) cover.parentNode.removeChild(cover);
+    state = 'done'; heroShown = true; heroText.classList.add('on');
+    // المحرر/المعاينة: كل الصور تتحمّل على طول (الصورة اللي لسه ماتحمّلتش طولها صفر والمحرر بيتجاهلها)
+    $$('img[loading=lazy]').forEach(function (i) { i.loading = 'eager'; });
+  } else if (cover) {
+    v1.addEventListener('timeupdate', function () {
+      if (v1.currentTime > 0.05) { v1.classList.add('on'); clearTimeout(firstWatch); }
+      if (!v1.duration) return;
+      var left = v1.duration - v1.currentTime;
+      if (left < 1.2) v1.classList.add('warm');
+      if (left < 0.1) startV2();
+    });
+    v1.addEventListener('ended', startV2);
+    v1.addEventListener('error', function () { if (state === 'envelope') fadeCover(); });
+    v2.addEventListener('timeupdate', function () {
+      if (!v2Started || !v2.duration) return;
+      var left = v2.duration - v2.currentTime;
+      if (left < 1.8) showHero();
+      if (left < 1) fadeCover();
+    });
+    v2.addEventListener('ended', fadeCover);
+    v2.addEventListener('error', function () { if (v2Started) fadeCover(); });
+    // الضيف خرج من الموبايل في نص الفتح ورجع: الفيديو يكمّل مكان ما وقف
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden || state !== 'envelope') return;
+      var cur = v2Started ? v2 : v1;
+      if (cur.paused && !cur.ended) { var pp = cur.play(); if (pp && pp.catch) pp.catch(fadeCover); }
+    });
+    root.classList.add('lock');
+    try { history.scrollRestoration = 'manual'; } catch (e) {}
+    window.scrollTo(0, 0);
+    preload(v1); preload(v2);
+    cover.addEventListener('click', openInvitation);
+    cover.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openInvitation(); } });
+    cover.addEventListener('touchmove', function (e) { e.preventDefault(); }, { passive: false });
+  }
+
+  /* ---------- ظهور الأقسام ---------- */
+  (function reveal() {
+    var els = $$('.rv');
+    if (STATIC || !('IntersectionObserver' in window)) { els.forEach(function (e) { e.classList.add('in'); }); return; }
+    var inner = new IntersectionObserver(function (es, o) { es.forEach(function (x) { if (x.isIntersecting) { x.target.classList.add('in'); o.unobserve(x.target); } }); }, { threshold: 0 });
+    var outer = new IntersectionObserver(function (es, o) { es.forEach(function (x) { if (x.isIntersecting) { x.target.classList.add('in'); o.unobserve(x.target); } }); }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+    els.forEach(function (e) { (e.classList.contains('sec') ? outer : inner).observe(e); });
+  })();
+
+  /* ---------- العدّاد ---------- */
+  var cdEls = [$('#cdD'), $('#cdH'), $('#cdM'), $('#cdS')];
+  function tick() {
+    var ms = Math.max(0, START - Date.now());
+    var v = [Math.floor(ms / 864e5), Math.floor(ms / 36e5 % 24), Math.floor(ms / 6e4 % 60), Math.floor(ms / 1e3 % 60)];
+    for (var i = 0; i < 4; i++) { var t = dg(pad2(v[i])); if (cdEls[i].textContent !== t) cdEls[i].textContent = t; }
+  }
+  tick(); setInterval(tick, 1000);
+
+  /* ---------- الصور: الكارت اللي في النص "on" والنقط والأسهم بتتحرك معاه ---------- */
+  (function () {
+    var tr = $('#glTrack'); if (!tr) return;
+    var cards = $$('.gl-card', tr), dots = $('#glDots'), prev = $('#glPrev'), next = $('#glNext'), hint = $('#glHint');
+    var cur = -1;
+    cards.forEach(function (c, i) {
+      var d = document.createElement('button'); d.type = 'button'; d.setAttribute('role', 'tab'); d.setAttribute('aria-label', 'Photo ' + (i + 1));
+      d.addEventListener('click', function () { go(i); }); dots.appendChild(d);
+    });
+    var dl = [].slice.call(dots.children);
+    function go(i) { i = Math.max(0, Math.min(cards.length - 1, i)); var c = cards[i]; tr.scrollTo({ left: c.offsetLeft - (tr.clientWidth - c.offsetWidth) / 2, behavior: 'smooth' }); }
+    function upd() {
+      var mid = tr.scrollLeft + tr.clientWidth / 2, best = 0, bd = 1e9;
+      cards.forEach(function (c, i) { var d = Math.abs(c.offsetLeft + c.offsetWidth / 2 - mid); if (d < bd) { bd = d; best = i; } });
+      if (best === cur) return; cur = best;
+      cards.forEach(function (c, i) { c.classList.toggle('on', i === best); });
+      dl.forEach(function (d, i) { d.classList.toggle('on', i === best); d.setAttribute('aria-selected', i === best ? 'true' : 'false'); });
+      prev.disabled = best === 0; next.disabled = best === cards.length - 1;
+      if (best > 0 && hint) hint.classList.add('off');
+    }
+    var raf = 0;
+    tr.addEventListener('scroll', function () { if (!raf) raf = requestAnimationFrame(function () { raf = 0; upd(); }); }, { passive: true });
+    prev.addEventListener('click', function () { go(cur - 1); });
+    next.addEventListener('click', function () { go(cur + 1); });
+    window.addEventListener('resize', upd);
+    upd();
+  })();
+
+  /* ---------- تأكيد الحضور ---------- */
+  (function () {
+    var form = $('#rsForm'); if (!form) return;
+    var sec = $('#mithaq-rsvp'), msg = $('#rsMsg'), send = $('#rsSend');
+    var name = $('#rsName'), note = $('#rsNote'), cnt = $('#rsCnt');
+    var sid = C.shortId || '';
+    var SENT_KEY = 'mithaq_rsvp_' + (sid || 'preview');
+    var store = { get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+    var att = null, btns = $$('.rs-ch button', form);
+    btns.forEach(function (b) {
+      b.addEventListener('click', function () {
+        att = b.getAttribute('data-a') === 'yes';
+        btns.forEach(function (x) { var on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-checked', on ? 'true' : 'false'); });
+        msg.textContent = '';
+      });
+    });
+    note.addEventListener('input', function () { cnt.textContent = note.value.length + ' / 200'; });
+    function done() { sec.classList.add('sent'); }
+    // في المحرر: رسالة الشكر ظاهرة تحت الفورم عشان تتعدّل
+    if (EDIT) sec.classList.add('mp-show-done');
+    if (!STATIC && sid && store.get(SENT_KEY)) done();
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (EDIT) return;
+      var n = name.value.trim().replace(/\s+/g, ' ');
+      if (n.length < 2) { msg.textContent = AR ? 'من فضلك اكتب اسمك' : 'Please write your name.'; name.focus(); return; }
+      if (att === null) { msg.textContent = AR ? 'من فضلك اختار هتحضر ولا لأ' : 'Please let us know if you will be attending.'; return; }
+      if (!sid) { done(); return; }
+      send.disabled = true; msg.textContent = '';
+      fetch('/i/' + encodeURIComponent(sid) + '/rsvp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin',
+        body: JSON.stringify({ guestName: n, attending: att ? 'yes' : 'no', note: $('#noteField').classList.contains('off') ? '' : note.value.trim().slice(0, 200) }) })
+        .then(function (r) { if (!r.ok) throw 0; store.set(SENT_KEY, '1'); store.set('mithaq_guest_name', n); done(); })
+        .catch(function () { msg.textContent = AR ? 'الرد ماوصلش — جرّب تاني بعد لحظة' : 'Something went wrong — please try again.'; send.disabled = false; });
+    });
+  })();
+})();
+</script>
+</body>
+</html>

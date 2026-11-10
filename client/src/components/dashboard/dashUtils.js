@@ -1,7 +1,7 @@
 // أدوات صغيرة مشتركة بين أجزاء لوحة العميل
 
 // القوالب اللي ليها صورة مختلفة لكل لغة
-const LANG_THUMBS = new Set(['champagne-lace', 'lily-garden', 'velvet-voice', 'pearl-peony']);
+const LANG_THUMBS = new Set(['champagne-lace', 'lily-garden', 'velvet-voice', 'pearl-peony', 'mother-of-pearl']);
 
 /** صورة القالب (نفس صور المعرض) */
 export function thumbFor(templateId, lang) {
