@@ -16,8 +16,11 @@ const { escapeHtml } = require('../utils/sanitize');
 
 const SHORT = 'j4jpczb';
 const DIR = `/custom/${SHORT}/`;
-// موسيقى هادية (بيانو كلاسيك — نفس ملف Pearl Peony) لو العميل مااختارش أغنية من المحرر
-const DEFAULT_SONG = '/templates/pearl-peony/song.mp3';
+// الأغنية: "Can't Help Falling In Love" (موسيقى بس — Wedding March) — الملف اللي المالك بعته (2026-11-10)،
+// صوتها متظبط وآخرها بيخفت عشان التكرار. بتشتغل بدل أغنية الجسمي اللي كانت متحطوطة من مكتبة الموسيقى
+// (j4jpczb-song-aljasmi)؛ لو العميل اختار أغنية تانية من المحرر هي اللي بتشتغل.
+const DEFAULT_SONG = asset(`${DIR}song.mp3`);
+const OLD_LIBRARY_SONG = /puvkqehdp7yxojiy7s8m/;
 const FALLBACK_LINK = 'https://maps.app.goo.gl/Rnd2ugLWjWuqQxheA';
 const FALLBACK_EMBED = 'https://www.google.com/maps/embed?origin=mfe&pb=!1m3!2m1!1sDaraj+Al+Yasmine+Restaurant,+Oud+Metha,+Dubai!6i17';
 
@@ -76,7 +79,7 @@ module.exports = {
     const mapEmbed = /^https:\/\/www\.google\.com\/maps/.test(embed) && !/q=Venue/.test(embed) ? embed : FALLBACK_EMBED;
     out = out.split('__MAP_LINK__').join(escapeHtml(mapLink))
       .split('__MAP_EMBED__').join(escapeHtml(mapEmbed))
-      .split('__SONG__').join(escapeHtml(okUrl(song) ? song : DEFAULT_SONG));
+      .split('__SONG__').join(escapeHtml(okUrl(song) && !OLD_LIBRARY_SONG.test(song) ? song : DEFAULT_SONG));
     const tags = shareTags(templateHtml);
     if (tags) {
       out = out.replace(/<title>[^<]*<\/title>\s*/i, '');
