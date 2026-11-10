@@ -378,6 +378,9 @@ html[dir=rtl] .dr-t{font-size:34px;line-height:1.3}
 html[dir=rtl] .dr-at{font-size:21px}
 html[dir=rtl] .rs-f{text-align:right}
 html[dir=rtl] .loc-img{left:auto;right:50%;transform:translateX(50%)}
+html[dir=rtl] .dr-box{left:auto;right:50%;transform:translateX(50%)}
+@media (min-width:768px){html[dir=rtl] .dr-box{right:0;transform:none}}
+.mp-edit .cd-grid{cursor:pointer}
 html[dir=rtl] .rs-cnt{text-align:left}
 html[dir=rtl] .ft-en-h{font-size:30px;line-height:1.6}
 </style>
@@ -419,11 +422,12 @@ html[dir=rtl] .ft-en-h{font-size:30px;line-height:1.6}
       <div class="cd-box">
         <img loading="lazy" decoding="async" src="/templates/mother-of-pearl/countdown-frame.webp" alt="" draggable="false">
         <h2 class="cd-title" data-elem-id="mp8"></h2>
-        <div class="cd-grid">
-          <div><span class="cd-n" id="cdD" data-wda-live>00</span><span class="cd-l up" data-elem-id="mp9"></span></div>
-          <div><span class="cd-n" id="cdH" data-wda-live>00</span><span class="cd-l up" data-elem-id="mp10"></span></div>
-          <div><span class="cd-n" id="cdM" data-wda-live>00</span><span class="cd-l up" data-elem-id="mp11"></span></div>
-          <div><span class="cd-n" id="cdS" data-wda-live>00</span><span class="cd-l up" data-elem-id="mp12"></span></div>
+        <!-- العدّاد كله عنصر واحد "حي": في المحرر الضغط في أي حتة عليه بيفتح تاريخ وساعة الفرح -->
+        <div class="cd-grid" data-elem-id="mp54" data-wda-live>
+          <div><span class="cd-n" id="cdD">00</span><span class="cd-l up" data-cdl="0"></span></div>
+          <div><span class="cd-n" id="cdH">00</span><span class="cd-l up" data-cdl="1"></span></div>
+          <div><span class="cd-n" id="cdM">00</span><span class="cd-l up" data-cdl="2"></span></div>
+          <div><span class="cd-n" id="cdS">00</span><span class="cd-l up" data-cdl="3"></span></div>
         </div>
         <p class="cd-soon" data-elem-id="mp13"></p>
       </div>
@@ -573,7 +577,7 @@ html[dir=rtl] .ft-en-h{font-size:30px;line-height:1.6}
   var COPY = AR ? {
     mp1: ENGAGED ? 'خطوبة' : 'حفل زفاف',
     mp4: 'بحضور الأهل والأحباب،',
-    mp8: 'العدّ التنازلي', mp9: 'يوم', mp10: 'ساعة', mp11: 'دقيقة', mp12: 'ثانية', mp13: 'نراكم قريبًا',
+    mp8: 'العدّ التنازلي', mp13: 'نراكم قريبًا',
     mp14: 'لحظاتنا', mp15: 'معًا للأبد', mp20: 'اسحب للمزيد',
     mp21: 'مكان الحفل', mp22: 'هنا نحتفل', mp26: 'يسعدنا أن تكونوا معنا.', mp28: 'موقع الحفل',
     mp29: 'تأكيد الحضور', mp30: 'نرجو الرد', mp31: 'نتمنى أن نراكم',
@@ -588,7 +592,7 @@ html[dir=rtl] .ft-en-h{font-size:30px;line-height:1.6}
   } : {
     mp1: ENGAGED ? 'THE ENGAGEMENT OF' : 'THE WEDDING OF',
     mp4: 'Together with their families,',
-    mp8: 'Countdown', mp9: 'Days', mp10: 'Hours', mp11: 'Minutes', mp12: 'Seconds', mp13: 'See you soon!',
+    mp8: 'Countdown', mp13: 'See you soon!',
     mp14: 'Our Moments', mp15: 'TOGETHER, ALWAYS', mp20: 'Swipe',
     mp21: 'The Venue', mp22: 'WHERE WE CELEBRATE', mp26: 'We would love to have you with us.', mp28: 'View Location',
     mp29: 'RSVP', mp30: 'KINDLY RESPOND', mp31: 'We hope to see you there',
@@ -602,6 +606,9 @@ html[dir=rtl] .ft-en-h{font-size:30px;line-height:1.6}
     mp49: 'With all our love,'
   };
   Object.keys(COPY).forEach(function (id) { var el = byId(id); if (el) el.innerHTML = COPY[id]; });
+  // كلمات العدّاد (جزء من العنصر الحي — بتتغيّر مع لغة الدعوة)
+  var CDL = AR ? ['يوم', 'ساعة', 'دقيقة', 'ثانية'] : ['Days', 'Hours', 'Minutes', 'Seconds'];
+  $$('[data-cdl]').forEach(function (el) { el.textContent = CDL[+el.getAttribute('data-cdl')]; });
   $('#cvHint').textContent = AR ? 'اضغط لفتح الدعوة' : 'Tap to open';
   $('#rsName').placeholder = AR ? 'الاسم بالكامل' : 'Full name';
   $('#rsNote').placeholder = AR ? 'رسالتكم للعروسين…' : 'Your message to the couple…';
