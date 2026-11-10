@@ -1,4 +1,5 @@
 // أدوات صغيرة مشتركة بين أجزاء لوحة العميل
+import { templateThumb } from '../../lib/thumbs.js';
 
 // القوالب اللي ليها صورة مختلفة لكل لغة
 const LANG_THUMBS = new Set(['champagne-lace', 'lily-garden', 'velvet-voice', 'pearl-peony', 'mother-of-pearl']);
@@ -7,7 +8,7 @@ const LANG_THUMBS = new Set(['champagne-lace', 'lily-garden', 'velvet-voice', 'p
 export function thumbFor(templateId, lang) {
   if (!templateId) return '/img/template-thumbs/ivory-swans.jpg';
   const suffix = LANG_THUMBS.has(templateId) ? `-${lang === 'en' ? 'en' : 'ar'}` : '';
-  return `/img/template-thumbs/${templateId}${suffix}.jpg`;
+  return templateThumb(templateId, suffix);
 }
 
 /** كام يوم فاضل على تاريخ (سالب = عدّى) */

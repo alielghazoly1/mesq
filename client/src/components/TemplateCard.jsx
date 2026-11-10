@@ -8,6 +8,7 @@ import { isEditOpen } from '../lib/editWindow.js';
 import DesignLanguagePicker from './DesignLanguagePicker.jsx';
 import ShareDesignButton from './ShareDesignButton.jsx';
 import { rememberPreviewFrom } from '../lib/homeScroll.js';
+import { templateThumb } from '../lib/thumbs.js';
 
 // كارت تصميم في المعرض.
 //
@@ -102,7 +103,7 @@ export default function TemplateCard({ template, index }) {
             </div>
           ) : (
             <img
-              src={`/img/template-thumbs/${template.id}.jpg`}
+              src={templateThumb(template.id)}
               alt={`معاينة تصميم ${template.name}`}
               loading="lazy"
               className="h-full w-full object-cover object-center"

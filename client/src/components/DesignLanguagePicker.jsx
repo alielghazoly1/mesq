@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
+import { templateThumb } from '../lib/thumbs.js';
 import { X, Check, Eye, Wand2, Loader2, Languages } from 'lucide-react';
 
 const LABELS = {
@@ -80,10 +81,10 @@ export default function DesignLanguagePicker({ template, busy, error, onPick, on
                 >
                   <span className="relative block aspect-[9/14] w-full overflow-hidden rounded-[14px] border-[3px] border-[#050b08] bg-[#050b08]">
                     <img
-                      src={`/img/template-thumbs/${template.id}-${lang}.jpg`}
+                      src={templateThumb(template.id, `-${lang}`)}
                       alt={t(`gallery.${LABELS[lang].name}`)}
                       className="h-full w-full object-cover object-top transition duration-500 group-hover:scale-[1.03]"
-                      onError={(e) => { e.currentTarget.src = `/img/template-thumbs/${template.id}.jpg`; }}
+                      onError={(e) => { e.currentTarget.src = templateThumb(template.id); }}
                     />
                   </span>
                   <span className={`mt-2.5 text-[15px] font-extrabold ${on ? 'text-ink' : 'text-ink/80'}`}>
