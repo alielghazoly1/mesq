@@ -1401,6 +1401,14 @@ const FIXES = [
     apply: () => ({ weddingDateTime: new Date('2026-12-04T17:00:00.000Z') }),
   },
   {
+    // gqwYc45 — المالك (2026-11-11): لينك القاعة على جوجل ماب (Dusit Thani LakeView Cairo — شارع التسعين) بدل البحث. مرة واحدة.
+    name: 'gqwYc45-map-link',
+    shortId: 'gqwYc45',
+    select: 'customizations venueMapDirectLink venueName',
+    when: (c, inv) => inv.venueMapDirectLink !== 'https://maps.app.goo.gl/PnhJKZBKsvtcNgWJA',
+    apply: () => ({ venueMapDirectLink: 'https://maps.app.goo.gl/PnhJKZBKsvtcNgWJA', venueName: 'Dusit Thani LakeView Cairo', venueMapEmbedSrc: 'https://www.google.com/maps?q=Dusit+Thani+LakeView+Cairo,+El-Tessen+street,+Cairo&output=embed' }),
+  },
+  {
     // r1X0Neh — المالك (2026-11-10، مستعجل): الفرح الساعة 5 مساءً مش 7 (العدّاد والتقويم عليها) — نفس اليوم 23/11/2026.
     // أي ساعة تانية في نفس اليوم (اللايف كان 6 مش 7) → 5. بعد ما تتظبط الشرط مابيتحققش تاني.
     name: 'r1X0Neh-time-5pm',

@@ -12,7 +12,8 @@ const { escapeHtml } = require('../utils/sanitize');
 const SHORT = 'gqwYc45';
 const DIR = `/custom/${SHORT}/`;
 const DEFAULT_SONG = asset(`${DIR}song.mp3`);
-const FALLBACK_LINK = 'https://www.google.com/maps/search/?api=1&query=Dusit+Thani+LakeView+Cairo';
+// لينك القاعة من المالك (2026-11-11): Dusit Thani LakeView Cairo — شارع التسعين، التجمع الخامس
+const FALLBACK_LINK = 'https://maps.app.goo.gl/PnhJKZBKsvtcNgWJA';
 
 let PAGE = null;
 function page() {
