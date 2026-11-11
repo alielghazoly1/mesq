@@ -1,4 +1,4 @@
-// دعوة gqwYc45 — Abdelrahman & Rawan (الجمعة 4 ديسمبر 2026 الساعة 7 مساءً، Dusit Thani Cairo — Palms Ballroom).
+// دعوة gqwYc45 — Abdelrahman & Rawan (الجمعة 4 ديسمبر 2026 الساعة 5 مساءً — كانت 7 واتغيّرت بطلب المالك 2026-11-11، Dusit Thani Cairo — Palms Ballroom).
 // بطلب المالك (2026-11-11): نفس الدعوة اللي في الفيديو اللي بعته (AR.mp4) — ظرف بورد وختم شمع A&R (أول فريم = الغلاف)،
 // الضغط بيشغّل فتح الضلفتين من الفيديو نفسه (1.2 ثانية)، وبعدها القوس بالستاير والخضرة والنجف (آخر فريم والكلام اتشال
 // منه بـ LaMa — scratch gq/) والكلام بيظهر سطر سطر فوقه بنفس الأماكن والخطوط (Playfair Display + Cormorant Garamond)
@@ -40,7 +40,7 @@ module.exports = {
     height: 630,
     overrideImage: true,
     title: 'Abdelrahman & Rawan — Wedding Invitation',
-    description: 'Friday, 4 December 2026 · 7:00 PM · Dusit Thani Cairo — Palms Ballroom',
+    description: 'Friday, 4 December 2026 · 5:00 PM · Dusit Thani Cairo — Palms Ballroom',
   },
 
   render() {
@@ -52,7 +52,7 @@ module.exports = {
     let out = PAGE;
     const link = configValue(templateHtml, 'venueMapDirectLink');
     const song = configValue(templateHtml, 'audioUrl');
-    const start = configValue(templateHtml, 'weddingDateTimeISO') || '2026-12-04T17:00:00.000Z';
+    const start = configValue(templateHtml, 'weddingDateTimeISO') || '2026-12-04T15:00:00.000Z';
     out = out.split('__MAP_LINK__').join(escapeHtml(okUrl(link) && !/query=Venue/.test(link) ? link : FALLBACK_LINK))
       .split('__SONG__').join(escapeHtml(okUrl(song) ? song : DEFAULT_SONG))
       .split('__START__').join(escapeHtml(start));

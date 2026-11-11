@@ -8,7 +8,7 @@
 <title>Abdelrahman &amp; Rawan — Wedding Invitation</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="assets/cover.webp">
 <link rel="preload" as="image" href="assets/card-bg.webp">
 <style>
@@ -89,6 +89,13 @@ h1,h2,p{margin:0;font-weight:inherit}
 .fx{opacity:0;transform:translateY(22px);transition:opacity .9s ease,transform .9s cubic-bezier(.22,.8,.3,1)}
 .fx.in{opacity:1;transform:none}
 .static .fx{opacity:1;transform:none}
+/* الآية */
+.verse{padding-top:56px;padding-bottom:34px}
+.verse .bsm{font:400 26px/1.9 'Amiri Quran','Amiri',serif;color:var(--ink);margin-top:4px}
+.verse .ay{font:400 23px/2.25 'Amiri Quran','Amiri',serif;color:var(--ink);margin:10px auto 0;max-width:380px}
+.verse .sr{font:400 15px/1.6 'Amiri Quran','Amiri',serif;color:var(--ink2);opacity:.8;margin-top:8px}
+.verse .tr{font:italic 500 17px/1.55 var(--serif);color:var(--ink2);margin:14px auto 0;max-width:340px}
+.verse+.sec{padding-top:34px}
 /* العدّاد */
 .cd{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:26px}
 .cd div{padding:14px 0 12px;border:1px solid rgba(107,60,6,.28);background:rgba(255,248,238,.45);position:relative}
@@ -181,7 +188,7 @@ h1,h2,p{margin:0;font-weight:inherit}
       <p class="t cap rv" style="top:78.95%;left:40.75%;right:auto;transform:translate(-50%,-50%);font-size:1.98cqw;font-weight:500;letter-spacing:.2em;--d:3.85s">Palms Ballroom</p>
       <i class="vl rv" style="left:57.64%;top:74.8%;height:4.9%;--d:3.9s" aria-hidden="true"></i>
       <img class="ic rv" src="assets/clock.webp" alt="" style="left:68.06%;top:74.8%;width:4.58%;--d:4s">
-      <p class="t cap rv" style="top:77.4%;left:68%;right:auto;transform:translate(-50%,-50%);font-size:2.62cqw;letter-spacing:.06em;padding-left:.06em;--d:4.1s"><span class="dg">7:00</span> PM</p>
+      <p class="t cap rv" style="top:77.4%;left:68%;right:auto;transform:translate(-50%,-50%);font-size:2.62cqw;letter-spacing:.06em;padding-left:.06em;--d:4.1s"><span class="dg">5:00</span> PM</p>
       <i class="hl rv" style="top:82.23%;--d:4.35s" aria-hidden="true"></i><img class="orn rv" src="assets/orn.webp" alt="" style="top:82.23%;width:34.24%;--d:4.35s">
       <p class="t kid rv" style="top:84.34%;--d:4.6s">We wish your kids a good night sleep</p>
     </div>
@@ -189,6 +196,16 @@ h1,h2,p{margin:0;font-weight:inherit}
   </section>
 
   <div class="page">
+    <!-- الآية (بطلب المالك 2026-11-11): سورة الروم 21 فوق العدّاد — رسم عثماني بالتشكيل والأقواس، والترجمة تحتها -->
+    <section class="sec verse fx" lang="ar">
+      <img class="ornimg" src="assets/orn.webp" alt="">
+      <p class="bsm" dir="rtl">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
+      <p class="ay" dir="rtl">﴿ وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً ۚ إِنَّ فِي ذَٰلِكَ لَآيَاتٍ لِّقَوْمٍ يَتَفَكَّرُونَ ﴾</p>
+      <p class="sr" dir="rtl">سورة الروم · ٢١</p>
+      <p class="tr" lang="en">“And among His signs is that He created for you spouses from among yourselves, that you may find tranquillity in them; and He placed between you affection and mercy.”</p>
+      <img class="ornimg" src="assets/orn.webp" alt="">
+    </section>
+
     <!-- 3) العدّاد -->
     <section class="sec fx">
       <h2 class="h">Counting down</h2>
@@ -210,7 +227,7 @@ h1,h2,p{margin:0;font-weight:inherit}
       <img class="pin" src="assets/pin.webp" alt="">
       <p class="vn">Dusit Thani Cairo</p>
       <p class="vh">Palms Ballroom</p>
-      <p class="vw">Friday, <span class="dg">4</span> December <span class="dg">2026</span> · <span class="dg">7:00</span> PM</p>
+      <p class="vw">Friday, <span class="dg">4</span> December <span class="dg">2026</span> · <span class="dg">5:00</span> PM</p>
       <a class="btn" href="__MAP_LINK__" target="_blank" rel="noopener noreferrer"><span><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5a7 7 0 0 0-7 7c0 5 7 12 7 12s7-7 7-12a7 7 0 0 0-7-7Zm0 9.6a2.6 2.6 0 1 1 0-5.2 2.6 2.6 0 0 1 0 5.2Z"/></svg>View location</span></a>
     </section>
 

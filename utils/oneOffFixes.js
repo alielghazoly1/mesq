@@ -1389,6 +1389,18 @@ const FIXES = [
     },
   },
   {
+    // gqwYc45 — المالك (2026-11-11): الفرح الساعة 5 مساءً مش 7 (العدّاد والبيانات) — نفس اليوم 4/12/2026. مرة واحدة.
+    name: 'gqwYc45-time-5pm',
+    shortId: 'gqwYc45',
+    select: 'customizations weddingDateTime',
+    when: (c, inv) => {
+      if (!inv.weddingDateTime) return false;
+      const iso = new Date(inv.weddingDateTime).toISOString();
+      return iso.slice(0, 10) === '2026-12-04' && iso !== '2026-12-04T17:00:00.000Z';
+    },
+    apply: () => ({ weddingDateTime: new Date('2026-12-04T17:00:00.000Z') }),
+  },
+  {
     // r1X0Neh — المالك (2026-11-10، مستعجل): الفرح الساعة 5 مساءً مش 7 (العدّاد والتقويم عليها) — نفس اليوم 23/11/2026.
     // أي ساعة تانية في نفس اليوم (اللايف كان 6 مش 7) → 5. بعد ما تتظبط الشرط مابيتحققش تاني.
     name: 'r1X0Neh-time-5pm',
