@@ -33,4 +33,9 @@ supportMessageSchema.index({ userId: 1, createdAt: 1 });
 // عدّ اللي مستنيك في اللوحة (من غير ما نلف على كل الرسايل)
 supportMessageSchema.index({ from: 1, readByAdmin: 1 });
 
+// أي رسالة جديدة أو تغيير (قراءة/تعديل) بيمسح قايمة الدعم من كاش اللوحة (utils/microCache.js)،
+// فالمالك بيشوف رسالة العميل على طول من غير ما اللوحة تحسب القايمة كل 5 ثواني.
+const dropSupportCache = () => { try { require('../utils/microCache').drop(/^http:\/admin\/api\/support/); } catch (e) { /* الكاش اختياري */ } };
+['save', 'insertMany', 'updateMany', 'updateOne', 'deleteMany', 'deleteOne', 'findOneAndUpdate'].forEach((h) => supportMessageSchema.post(h, dropSupportCache));
+
 module.exports = mongoose.model('SupportMessage', supportMessageSchema);

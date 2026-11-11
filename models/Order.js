@@ -47,5 +47,7 @@ const orderSchema = new mongoose.Schema({
 });
 
 orderSchema.index({ createdAt: -1 });
+// أرباح النهارده/الفترة: الطلبات المفعّلة من تاريخ معيّن — من غير ما يلفّ على كل الطلبات المفعّلة
+orderSchema.index({ status: 1, activatedAt: -1 });
 
 module.exports = mongoose.model('Order', orderSchema);

@@ -195,6 +195,8 @@ invitationSchema.index({ brideNameAr: 1 });
 invitationSchema.index({ groomNameAr: 1 });
 invitationSchema.index({ venueName: 1 });
 invitationSchema.index({ createdAt: -1 });
+// "دعوات اتنشرت النهارده" بيتسأل كل كام ثانية من اللوحة — كان بيلفّ على كل الدعوات المنشورة
+invitationSchema.index({ publishedAt: -1 });
 // distinct('creatorDeviceId', ...) بيتنادى في كل مرة الكاش بتاع الإحصائيات
 // العامة بينتهي، وكمان من غير أي كاش في لوحة التحكم — من غير فهرس، ده
 // بيبقى full collection scan مع تزايد عدد الدعوات (وده فعلاً بيهم مع

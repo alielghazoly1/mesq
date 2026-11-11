@@ -7,6 +7,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 
+const { cached } = require('../utils/microCache');
 const Invitation = require('../models/Invitation');
 const User = require('../models/User');
 const Order = require('../models/Order');
@@ -197,7 +198,8 @@ router.get('/admin/api/overview', requireAdminSession, async (req, res) => {
       Invitation.countDocuments({ status: 'draft' }),
       Invitation.countDocuments({ isPremium: true, status: { $ne: 'draft' } }),
 
-      Invitation.aggregate([{ $group: { _id: null, total: { $sum: '$viewCount' } } }]),
+      // إجماليات من أول يوم بتلفّ على كل الدعوات/العملاء — بتتحسب مرة كل 5 دقايق (utils/microCache.js)
+      cached('ov:views', 300000, () => Invitation.aggregate([{ $group: { _id: null, total: { $sum: '$viewCount' } } }])),
       Rsvp.countDocuments({}),
       Order.countDocuments({ status: 'pending' }),
 
@@ -233,18 +235,18 @@ router.get('/admin/api/overview', requireAdminSession, async (req, res) => {
         dailyGroup('createdAt', { yes: { $sum: { $cond: ['$attending', 1, 0] } } }),
       ]),
 
-      Invitation.aggregate([
+      cached('ov:byTemplate', 300000, () => Invitation.aggregate([
         { $match: { templateId: { $ne: null }, status: { $ne: 'draft' } } },
         { $group: { _id: '$templateId', count: { $sum: 1 } } },
         { $sort: { count: -1 } },
-      ]),
+      ])),
       Order.aggregate([
         { $match: { status: 'activated' } },
         { $group: { _id: '$packageId', count: { $sum: 1 }, egp: { $sum: { $cond: [{ $eq: ['$currency', 'EGP'] }, '$price', 0] } }, usd: { $sum: { $cond: [{ $eq: ['$currency', 'USD'] }, '$price', 0] } }, sar: { $sum: { $cond: [{ $eq: ['$currency', 'SAR'] }, '$price', 0] } }, eur: { $sum: { $cond: [{ $eq: ['$currency', 'EUR'] }, '$price', 0] } } } },
         { $sort: { count: -1 } },
       ]),
       // العملاء حسب الدولة: كام واحد مسجّل، وكام منهم دفع
-      User.aggregate([
+      cached('ov:byCountry', 300000, () => User.aggregate([
         {
           $group: {
             _id: '$country',
@@ -253,7 +255,7 @@ router.get('/admin/api/overview', requireAdminSession, async (req, res) => {
           },
         },
         { $sort: { count: -1, _id: 1 } },
-      ]),
+      ])),
       SiteTotals.findOne({ key: 'default' }).lean(),
 
       // نفس التوزيعين بس جوه الفترة المختارة — عشان المالك يشوف جنب كل

@@ -28,6 +28,8 @@ const invitationDaySchema = new mongoose.Schema({
 }, { versionKey: false });
 
 invitationDaySchema.index({ shortId: 1, day: 1 }, { unique: true });
+// صفحة التحليلات بتجمع مشاهدات كل الدعوات في يوم/أيام — من غير الفهرس ده كانت بتلفّ على الجدول كله
+invitationDaySchema.index({ day: 1 });
 
 module.exports = mongoose.model('InvitationDay', invitationDaySchema);
 module.exports.SOURCES = SOURCES;

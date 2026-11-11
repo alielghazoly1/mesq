@@ -34,6 +34,8 @@ const siteDeviceDaySchema = new mongoose.Schema({
 });
 
 siteDeviceDaySchema.index({ day: 1, device: 1 }, { unique: true });
+// أجهزة عميل معيّن (صفحة طلبات اليوم) — كانت بتلفّ على كل الأجهزة
+siteDeviceDaySchema.index({ userId: 1, lastSeen: -1 });
 // سنة وشوية بيانات تفصيلية كفاية — بعدها بتتمسح لوحدها
 siteDeviceDaySchema.index({ firstSeen: 1 }, { expireAfterSeconds: 400 * 24 * 3600 });
 

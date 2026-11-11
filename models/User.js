@@ -87,6 +87,8 @@ const userSchema = new mongoose.Schema({
 userSchema.index({ createdAt: -1 });
 // فلتر "الأكثر زيارة" في لوحة التحكم
 userSchema.index({ visitCount: -1 });
+// "مين فتح الموقع النهارده" بيتسأل كل كام ثانية من اللوحة — كان بيلفّ على كل العملاء
+userSchema.index({ lastSeenAt: -1 });
 userSchema.index({ 'subscription.packageId': 1 });
 
 // رقم التليفون فريد — بس لما يكون مكتوب فعلًا. partialFilterExpression

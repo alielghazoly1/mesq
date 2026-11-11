@@ -313,6 +313,8 @@ app.use('/admin/api', adminApiLimiter);
 // حارس عام: كل /admin/api محتاج جلسة أدمن — حتى لو مسار جديد اتنسى عليه
 // requireAdminSession، مايبقاش مفتوح (طبقة حماية تانية فوق حارس كل مسار)
 app.use('/admin/api', requireAdminSession);
+// الأسئلة اللي اللوحة بتكررها كل كام ثانية بتتقدّم من كاش صغير (utils/microCache.js) — بعد التحقق من الجلسة
+app.use('/admin/api', require('./utils/microCache').adminMicroCache);
 
 // 4) تسجيل/دخول: حد صارم عشان يصعب تخمين باسورد حساب حد (brute force)
 //    أو عمل حسابات وهمية بالجملة.
