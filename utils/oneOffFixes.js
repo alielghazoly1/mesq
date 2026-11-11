@@ -1363,6 +1363,32 @@ const FIXES = [
     apply: () => ({ venueCity: '6th of October City', venueMapDirectLink: 'https://maps.app.goo.gl/aXFeeiKDkyhHy9jp8' }),
   },
   {
+    // gqwYc45 (custom-invitations/gqwYc45.js بيعرض الصفحة كلها — نسخة من فيديو المالك AR.mp4) — بطلب المالك (2026-11-11):
+    // Abdelrahman & Rawan، الجمعة 4/12/2026 الساعة 7 مساءً، Dusit Thani Cairo — Palms Ballroom. هنا البيانات عشان لوحة العميل
+    // والعدّاد. بس لو الدعوة لسه فاضية (Groom & Bride).
+    name: 'gqwYc45-abdelrahman-rawan',
+    shortId: 'gqwYc45',
+    select: '-__v',
+    when: (c, inv) => inv.groomName === 'Groom' && inv.brideName === 'Bride',
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const link = 'https://www.google.com/maps/search/?api=1&query=Dusit+Thani+LakeView+Cairo';
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: 'en', occasionType: 'wedding',
+        hiddenSections: inv.hiddenSections || [], timeline: inv.timeline, name: inv.name,
+        groomName: 'Abdelrahman', groomNameAr: 'عبدالرحمن', brideName: 'Rawan', brideNameAr: 'روان',
+        venueName: 'Dusit Thani Cairo', venueCity: 'Palms Ballroom',
+        venueMapQuery: link,
+        weddingDate: '2026-12-04', weddingTime: '19:00',
+      }, { ownsTemplate: true, skipMapNetwork: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.language = 'en';
+      set.venueMapDirectLink = link;
+      return set;
+    },
+  },
+  {
     // r1X0Neh — المالك (2026-11-10، مستعجل): الفرح الساعة 5 مساءً مش 7 (العدّاد والتقويم عليها) — نفس اليوم 23/11/2026.
     // أي ساعة تانية في نفس اليوم (اللايف كان 6 مش 7) → 5. بعد ما تتظبط الشرط مابيتحققش تاني.
     name: 'r1X0Neh-time-5pm',
