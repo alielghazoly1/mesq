@@ -1398,16 +1398,16 @@ const FIXES = [
     apply: () => ({ groomName: 'Hassan', groomNameAr: 'حسان', brideName: 'Iman', brideNameAr: 'إيمان' }),
   },
   {
-    // gqwYc45 — المالك (2026-11-11): الفرح الساعة 5 مساءً مش 7 (العدّاد والبيانات) — نفس اليوم 4/12/2026. مرة واحدة.
-    name: 'gqwYc45-time-5pm',
+    // gqwYc45 — المالك (2026-11-11): الفرح الساعة 5 مساءً مش 7، وبعدها (نفس اليوم) 5:30 مساءً — العدّاد والبيانات. نفس اليوم 4/12/2026. مرة واحدة.
+    name: 'gqwYc45-time-530pm',
     shortId: 'gqwYc45',
     select: 'customizations weddingDateTime',
     when: (c, inv) => {
       if (!inv.weddingDateTime) return false;
       const iso = new Date(inv.weddingDateTime).toISOString();
-      return iso.slice(0, 10) === '2026-12-04' && iso !== '2026-12-04T17:00:00.000Z';
+      return iso.slice(0, 10) === '2026-12-04' && iso !== '2026-12-04T17:30:00.000Z';
     },
-    apply: () => ({ weddingDateTime: new Date('2026-12-04T17:00:00.000Z') }),
+    apply: () => ({ weddingDateTime: new Date('2026-12-04T17:30:00.000Z') }),
   },
   {
     // gqwYc45 — المالك (2026-11-11): لينك القاعة على جوجل ماب (Dusit Thani LakeView Cairo — شارع التسعين) بدل البحث. مرة واحدة.
