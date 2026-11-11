@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="google" content="notranslate">
 <meta name="theme-color" content="#ebe3da">
-<title>Hagar &amp; Nour — The Wedding Day</title>
+<title>Nour &amp; Hagar — The Wedding Day</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Playfair+Display:wght@400&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
@@ -113,7 +113,7 @@ h1,h2,h3,p{margin:0;font-weight:inherit}
 .btn.f{background:var(--wine);color:#fff7ef}
 .ev.katb .btn{border-color:var(--moss);color:var(--fern)}.ev.katb .btn.f{background:var(--moss);color:#fff7ef}
 .btn svg{width:14px;height:14px}
-.ev.katb{margin-top:26px}
+.ev + .ev{margin-top:26px}
 .ev.katb h3{font-size:34px}
 .ev.katb .ar{font:700 22px/1.6 'Amiri',serif;color:var(--fern);margin-top:2px}
 /* الختام */
@@ -143,9 +143,9 @@ h1,h2,h3,p{margin:0;font-weight:inherit}
     <div class="cv-in">
       <p class="cv-g"><span class="d">Dear</span><span class="gn" id="cvGn"></span><span class="st" id="cvSeats"></span></p>
       <p class="cv-k">The Wedding of</p>
-      <p class="cv-n">Hagar</p>
+      <p class="cv-n">Nour</p>
       <p class="cv-amp">&amp;</p>
-      <p class="cv-n" style="margin-top:0">Nour</p>
+      <p class="cv-n" style="margin-top:0">Hagar</p>
       <span class="cv-line" aria-hidden="true"></span>
       <p class="cv-d">12 · 12 · 2026</p>
     </div>
@@ -161,12 +161,12 @@ h1,h2,h3,p{margin:0;font-weight:inherit}
       <img class="bg" src="assets/lace-bg.webp" alt="" draggable="false">
       <div class="hc">
         <p class="k w" style="--d:.2s">Together<br>with their families</p>
-        <h1 class="nm w" style="--d:.8s;margin-top:4.5cqw">Hagar</h1>
+        <h1 class="nm w" style="--d:.8s;margin-top:4.5cqw">Nour</h1>
         <p class="amp w" style="--d:1.5s">&amp;</p>
-        <p class="nm w" style="--d:1.9s">Nour</p>
+        <p class="nm w" style="--d:1.9s">Hagar</p>
         <p class="inv w" style="--d:2.7s">request the pleasure of your company<br>at their wedding</p>
         <div class="date w" style="--d:3.5s"><span class="s">Saturday</span><span class="b">12</span><span class="s">December<br><span class="dg" style="letter-spacing:.18em">2026</span></span></div>
-        <p class="tm w" style="--d:4.3s">at <span class="dg">5:00</span> PM</p>
+        <p class="tm w" style="--d:4.3s">at <span class="dg">4:00</span> PM</p>
         <p class="vn w" style="--d:4.9s">Hilton Pyramids Golf</p>
         <p class="vc w" style="--d:5.4s">6th of October City</p>
       </div>
@@ -190,19 +190,7 @@ h1,h2,h3,p{margin:0;font-weight:inherit}
 
     <!-- 4) الفرح -->
     <section class="sec fx" style="padding-top:20px">
-      <div class="ev">
-        <span class="tag">The Wedding</span>
-        <h3>Wedding Celebration</h3>
-        <p class="when">Saturday · <span class="dg">12</span> December <span class="dg">2026</span><br><span class="dg">5:00</span> PM</p>
-        <p class="where">Hilton Pyramids Golf</p>
-        <p class="addr">El Wahat Road, 6th of October City</p>
-        <div class="btns">
-          <a class="btn f" href="https://maps.app.goo.gl/x86DDYn19JRmv48b9" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5a7 7 0 0 0-7 7c0 5 7 12 7 12s7-7 7-12a7 7 0 0 0-7-7Zm0 9.6a2.6 2.6 0 1 1 0-5.2 2.6 2.6 0 0 1 0 5.2Z"/></svg>Location</a>
-          <a class="btn" id="calW" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg>Save the date</a>
-        </div>
-      </div>
-
-      <!-- 5) كتب الكتاب — معلومة تانية تحت -->
+      <!-- كتب الكتاب الأول (بطلب المالك 2026-11-12) وبعده الفرح -->
       <div class="ev katb">
         <span class="tag">Before the wedding</span>
         <h3>Katb El Ketab</h3>
@@ -215,13 +203,25 @@ h1,h2,h3,p{margin:0;font-weight:inherit}
           <a class="btn" id="calK" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg>Save the date</a>
         </div>
       </div>
+
+      <div class="ev">
+        <span class="tag">The Wedding</span>
+        <h3>Wedding Celebration</h3>
+        <p class="when">Saturday · <span class="dg">12</span> December <span class="dg">2026</span><br><span class="dg">4:00</span> PM</p>
+        <p class="where">Hilton Pyramids Golf</p>
+        <p class="addr">El Wahat Road, 6th of October City</p>
+        <div class="btns">
+          <a class="btn f" href="https://maps.app.goo.gl/x86DDYn19JRmv48b9" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5a7 7 0 0 0-7 7c0 5 7 12 7 12s7-7 7-12a7 7 0 0 0-7-7Zm0 9.6a2.6 2.6 0 1 1 0-5.2 2.6 2.6 0 0 1 0 5.2Z"/></svg>Location</a>
+          <a class="btn" id="calW" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg>Save the date</a>
+        </div>
+      </div>
     </section>
 
     <!-- 6) الختام -->
     <section class="sec end fx">
       <div class="ln" aria-hidden="true"><i></i><b></b><i></i></div>
       <p class="sk">with love</p>
-      <p class="nms">Hagar<i>&amp;</i>Nour</p>
+      <p class="nms">Nour<i>&amp;</i>Hagar</p>
       <p class="dt">12 · 12 · 2026</p>
     </section>
   </div>
@@ -241,7 +241,7 @@ h1,h2,h3,p{margin:0;font-weight:inherit}
   var ID = window.MQ_ID || '', BASE = ID ? '/i/' + ID : '';
   var EDIT = !!window.MQ_EDIT;
   var root = document.documentElement, hero = $('#hero'), cv = $('#cv');
-  var WEDDING = new Date('2026-12-12T15:00:00Z'); // 5 مساءً بتوقيت القاهرة
+  var WEDDING = new Date('2026-12-12T14:00:00Z'); // 4 مساءً بتوقيت القاهرة (المالك 2026-11-12)
 
   /* ---------- لينك شخصي (?g=): اسم الضيف وعدد الأشخاص على الغلاف ---------- */
   (function () {

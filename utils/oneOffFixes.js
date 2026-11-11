@@ -1398,6 +1398,18 @@ const FIXES = [
     apply: () => ({ groomName: 'Hassan', groomNameAr: 'حسان', brideName: 'Iman', brideNameAr: 'إيمان' }),
   },
   {
+    // lqxsipV — المالك (2026-11-12): الفرح الساعة 4 مساءً مش 5 (العدّاد والبيانات ولوحة العميل) — نفس اليوم 12/12/2026. مرة واحدة.
+    name: 'lqxsipV-time-4pm',
+    shortId: 'lqxsipV',
+    select: 'customizations weddingDateTime',
+    when: (c, inv) => {
+      if (!inv.weddingDateTime) return false;
+      const iso = new Date(inv.weddingDateTime).toISOString();
+      return iso.slice(0, 10) === '2026-12-12' && iso !== '2026-12-12T16:00:00.000Z';
+    },
+    apply: () => ({ weddingDateTime: new Date('2026-12-12T16:00:00.000Z') }),
+  },
+  {
     // gqwYc45 — المالك (2026-11-11): الفرح الساعة 5 مساءً مش 7، وبعدها (نفس اليوم) 5:30 مساءً — العدّاد والبيانات. نفس اليوم 4/12/2026. مرة واحدة.
     name: 'gqwYc45-time-530pm',
     shortId: 'gqwYc45',

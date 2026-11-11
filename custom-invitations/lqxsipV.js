@@ -59,8 +59,8 @@ module.exports = {
     width: 1200,
     height: 630,
     overrideImage: true,
-    title: 'Hagar & Nour — The Wedding Day 🤍',
-    description: 'Saturday, 12 December 2026 · 5:00 PM · Hilton Pyramids Golf',
+    title: 'Nour & Hagar — The Wedding Day 🤍',
+    description: 'Saturday, 12 December 2026 · 4:00 PM · Hilton Pyramids Golf',
   },
 
   // لينكات دعوة شخصية من صفحة الإحصائيات (/s/:token): اسم الضيف وعدد الأشخاص بيظهروا في الدعوة
@@ -68,19 +68,19 @@ module.exports = {
 
   // زرار "Save the date" لكل مناسبة: /i/lqxsipV/calendar.ics?e=katb أو ?e=wedding
   calendar: {
-    title: 'Hagar & Nour — The Wedding',
+    title: 'Nour & Hagar — The Wedding',
     hours: 5,
     events: {
       katb: {
-        title: 'Hagar & Nour — Katb El Ketab',
+        title: 'Nour & Hagar — Katb El Ketab',
         start: '2026-12-04T15:00',
         hours: 2,
         location: 'Police Mosque, El Orouba Axis, New Cairo',
         map: 'https://maps.app.goo.gl/LfFn98PUECzj4g5r7',
       },
       wedding: {
-        title: 'Hagar & Nour — The Wedding',
-        start: '2026-12-12T17:00',
+        title: 'Nour & Hagar — The Wedding',
+        start: '2026-12-12T16:00',
         hours: 5,
         location: 'Hilton Pyramids Golf, El Wahat Road, 6th of October City',
         map: 'https://maps.app.goo.gl/x86DDYn19JRmv48b9',
