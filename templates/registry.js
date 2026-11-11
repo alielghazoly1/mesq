@@ -291,6 +291,31 @@ const TEMPLATES = [
     isNew: true,
     isPremium: true,
   },
+  {
+    id: 'golden-calla',
+    name: 'Golden Calla',
+    description: 'باب عاجي بزهور الكالا البارزة وختم شمع دهبي بحروف العروسين بيتفتح على كارت بإطار دهبي وصورتكم في برواز بيضاوي — عدّاد، العائلتين، برنامج الحفل، ألبوم صور، المكان والخريطة، وتأكيد الحضور',
+    file: 'golden-calla.html',
+    languages: SUPPORTED_LANGUAGES,
+    occasionTypes: SUPPORTED_OCCASIONS,
+    // الإخفاء في views/golden-calla.html (data-section). الكارت الأساسي والختام ثابتين.
+    optionalSections: [
+      { key: 'countdown', label: 'العداد التنازلي' },
+      { key: 'families', label: 'الأهل والعائلات' },
+      { key: 'timeline', label: 'برنامج الحفل' },
+      { key: 'gallery', label: 'صوركم (بتتقلب يمين وشمال)' },
+      { key: 'venue', label: 'مكان الحفل والخريطة' },
+      { key: 'rsvp', label: 'تأكيد الحضور (RSVP)' },
+    ],
+    timelineStages: [],
+    extraFields: [
+      { key: 'venueAddress', label: 'عنوان القاعة (بيظهر تحت اسمها — اختياري)', maxlength: 200 },
+    ],
+    // نسختين: إنجليزي (التصميم الأصلي — المعاينة للزوار) وعربي
+    designLanguages: ['en', 'ar'],
+    isNew: true,
+    isPremium: true,
+  },
 ];
 
 function getTemplate(templateId) {

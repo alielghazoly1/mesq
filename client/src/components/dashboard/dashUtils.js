@@ -2,7 +2,7 @@
 import { templateThumb } from '../../lib/thumbs.js';
 
 // القوالب اللي ليها صورة مختلفة لكل لغة
-const LANG_THUMBS = new Set(['champagne-lace', 'lily-garden', 'velvet-voice', 'pearl-peony', 'mother-of-pearl']);
+const LANG_THUMBS = new Set(['champagne-lace', 'lily-garden', 'velvet-voice', 'pearl-peony', 'mother-of-pearl', 'golden-calla']);
 
 /** صورة القالب (نفس صور المعرض) */
 export function thumbFor(templateId, lang) {

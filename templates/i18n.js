@@ -28,6 +28,10 @@ const TEMPLATE_TEXT = {
     ar: { description: 'ظرف صدف بختم شمع عليه قلب بيتفتح في فيديو وبعده فيونكة الكارت — عدّاد، 4 صور بتتقلب، المكان والخريطة، تأكيد الحضور، والزي المقترح' },
     en: { description: 'A mother-of-pearl envelope with a heart wax seal that opens on video, then a ribbon reveals the card — countdown, a 4-photo carousel, venue and map, RSVP and dress code' },
   },
+  'golden-calla': {
+    ar: { description: 'باب عاجي بزهور الكالا البارزة وختم شمع دهبي بحروف العروسين بيتفتح على كارت بإطار دهبي وصورتكم في برواز بيضاوي — عدّاد، العائلتين، برنامج الحفل، ألبوم صور، المكان والخريطة، وتأكيد الحضور' },
+    en: { description: 'Ivory doors of sculpted calla lilies with a gold wax seal of your initials open onto a gold-framed card with your photo in an oval frame — countdown, families, programme, photo album, venue map and RSVP' },
+  },
   'lily-garden': {
     ar: { description: 'ظرف بختم شمع وزنبق وردي ينفتح — عدّاد تنازلي، تأكيد حضور، وألبوم يرفع فيه الضيوف صور الفرح' },
     en: { description: 'A wax-sealed envelope of pink lilies that opens — countdown, RSVP, and an album where guests upload their photos' },
