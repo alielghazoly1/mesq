@@ -1,759 +1,324 @@
 <!doctype html>
-<html lang="en" dir="ltr">
+<html lang="en" dir="ltr" translate="no" style="color-scheme:light only">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Hagar &amp; Nour — Wedding Invitation</title>
-<meta name="theme-color" content="#76819d">
+<meta name="google" content="notranslate">
+<meta name="theme-color" content="#ebe3da">
+<title>Hagar &amp; Nour — The Wedding Day</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Parisienne&family=Rochester&family=Montserrat:wght@500;600&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
-<link rel="preload" as="image" href="assets/stripes.webp">
-<link rel="preload" as="image" href="assets/env-flap.webp">
-<link rel="preload" as="image" href="assets/env-body.webp">
-<link rel="preload" as="image" href="assets/seal.webp">
+<link href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Playfair+Display:wght@400&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="assets/lace-card.webp">
+<link rel="preload" as="image" href="assets/lace-bg.webp">
 <style>
-/* هاجر ونور — كل المقاسات بنسبة عرض الدعوة (390 = موبايل). ثيم صور المالك: شرايط حمرا وقلوب، ورق بلش/كريمي، خطوط أزرق×كريمي، وظرف وردي فولك */
-:root{--red:#9b2420;--red-d:#7c1218;--ink:#7c1218;--rose:#d98587;--rose-l:#f2c6c1;--blush:#f3d8c6;--cream:#fff8f0;--card:#fffaf3;--blue:#76819d;--muted:#9a5b52;
-  --script:'Parisienne','Snell Roundhand',cursive;--retro:'Rochester','Parisienne',cursive;--caps:'Montserrat','Helvetica Neue',Arial,sans-serif;--serif:'Cormorant Garamond','Times New Roman',serif}
+/* هاجر ونور — بطلب المالك (2026-11-11): الغلاف كارت الدانتيل النبيتي (صورته)، والضغطة بتفتح على الورقة البيضا
+   بالدانتيل النبيتي في الركنين (صورته التانية) والكلام بيتكتب سطر سطر (زي الفيديو اللي بعته). الأساس الفرح
+   (السبت 12/12) والعدّاد ليه بس؛ كتب الكتاب معلومة تانية تحت بلوكيشن. ألوان الفرح: Wine / Fig plum / Moss / Fern / Apricot. */
+:root{--wine:#6b1f2a;--wine-d:#521620;--plum:#5a3848;--moss:#6b7a5f;--fern:#4a5c2d;--apricot:#e8895a;--peach:#d9846b;
+  --paper:#f4efe8;--cream:#f7eadf;--script:'Pinyon Script',cursive;--serif:'Cormorant Garamond','Times New Roman',serif;--num:'Playfair Display',serif}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0}
-html{background:#76819d url(assets/stripes.webp) 50% 0/640px auto repeat}
-/* سفاري الجديد بيمسك في عنصر بيتحرك (القلوب الطايرة) ويزحلق الصفحة معاه — من غير "مرساة" الصفحة بتفضل مكانها */
-html,body{overflow-anchor:none}
-html.lock,html.lock body{overflow:hidden;height:100%}
-body{color:var(--red);font-family:var(--serif);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden}
+html{background:#ebe3da}
+html.lock,html.lock body{overflow:hidden;height:100%;overscroll-behavior:none}
+body{color:var(--wine);font-family:var(--serif);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden;background:#ebe3da}
 img{display:block;max-width:none;-webkit-user-select:none;user-select:none;-webkit-user-drag:none}
-button,input,textarea{font:inherit;color:inherit}
-.pg{position:relative;width:100%;max-width:480px;margin:0 auto;container-type:inline-size;overflow:hidden;box-shadow:0 0 40px rgba(40,40,70,.25)}
-.pg *{--u:calc(100cqw / 390)}
-.paper-c{background:url(assets/paper.webp) 0 0/320px auto repeat,#fff8f0}
-.paper-b{background:url(assets/paper.webp) 0 0/320px auto repeat,#f3d8c6}
-.stripes{background:#76819d url(assets/stripes.webp) 50% 0/calc(var(--u) * 640) auto repeat}
-.caps{font-family:var(--caps);font-weight:600;text-transform:uppercase;letter-spacing:.28em}
-.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+h1,h2,h3,p{margin:0;font-weight:inherit}
+.dg{font-family:var(--num);font-variant-numeric:lining-nums}
 
-/* ===================== الغلاف: الظرف على الخطوط ===================== */
-.cv{position:fixed;inset:0;z-index:1000;cursor:pointer;outline:none;-webkit-user-select:none;user-select:none;overflow:hidden;
-  --ew:min(300px,74vw,calc(46vh / 1.157));--eh:calc(var(--ew) * 1.15675);--sw:calc(var(--ew) * 2.228)}
-.cv-st{position:absolute;inset:0;background:#76819d url(assets/stripes.webp) 50% 0/var(--sw) auto repeat;transition:opacity .9s ease}
-.cv-in{position:absolute;inset:0;opacity:0;transition:opacity .7s ease}
-.cv.ready .cv-in{opacity:1}
-.env{position:absolute;left:50%;top:calc(46% - var(--eh) / 2);width:var(--ew);height:var(--eh);margin-left:calc(var(--ew) / -2);
-  transition:transform 1s cubic-bezier(.55,0,.35,1),opacity .8s ease .15s;transform-origin:50% 22%}
-.env-f{position:absolute;inset:0;animation:float 3.4s ease-in-out infinite alternate}
-@keyframes float{from{transform:translateY(0)}to{transform:translateY(calc(var(--ew) * -.02))}}
-.env-f>img{position:absolute;left:0;top:0;width:100%;height:100%}
-.env-flap{z-index:1}
-.env-body{z-index:3;filter:drop-shadow(0 -1px 1.5px rgba(90,25,35,.28))}
-.letter{position:absolute;z-index:2;left:9%;right:9%;top:43%;height:52%;background:#fffaf3;border-radius:2px;
-  box-shadow:inset 0 0 0 calc(var(--ew) * .016) #fffaf3,inset 0 0 0 calc(var(--ew) * .02) rgba(155,36,32,.75),0 1px 3px rgba(90,30,30,.2);
-  transition:transform 1.2s cubic-bezier(.22,.9,.28,1)}
-.lt-in{position:absolute;left:0;right:0;top:9%;text-align:center}
-.lt-h{display:block;width:calc(var(--ew) * .07);height:calc(var(--ew) * .062);margin:0 auto;background:url(assets/heart-mark.webp) center/contain no-repeat}
-.lt-n{display:block;margin-top:calc(var(--ew) * .012);font:400 calc(var(--ew) * .112)/1.15 var(--script);color:var(--red);white-space:nowrap}
-.lt-d{display:block;margin-top:calc(var(--ew) * .016);font:600 calc(var(--ew) * .03)/1 var(--caps);letter-spacing:.26em;padding-left:.26em;color:var(--red-d)}
-.seal{position:absolute;z-index:4;left:42.58%;top:-1.6%;width:14.92%;transition:transform .7s cubic-bezier(.4,0,.6,1),opacity .55s ease .15s}
-.seal img{width:100%;height:auto;animation:beat 1.6s ease-in-out infinite;transform-origin:50% 60%;filter:drop-shadow(0 2px 3px rgba(80,10,20,.35))}
-@keyframes beat{0%,100%{transform:scale(1)}14%{transform:scale(1.14)}28%{transform:scale(1)}42%{transform:scale(1.09)}56%{transform:scale(1)}}
-.seal::after{content:"";position:absolute;left:50%;top:52%;width:150%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%) scale(.6);
-  border:1.5px solid rgba(255,248,240,.9);animation:ring 1.6s ease-out infinite;pointer-events:none}
-@keyframes ring{0%{transform:translate(-50%,-50%) scale(.55);opacity:.95}100%{transform:translate(-50%,-50%) scale(1.35);opacity:0}}
-.burst{position:absolute;z-index:5;left:50%;top:5%;width:0;height:0;pointer-events:none}
-.burst i{position:absolute;left:0;top:0;width:calc(var(--ew) * .05);height:calc(var(--ew) * .045);margin:calc(var(--ew) * -.0225) 0 0 calc(var(--ew) * -.025);
-  background:url(assets/heart-mark.webp) center/contain no-repeat;opacity:0}
-.tag{position:absolute;left:50%;top:calc(46% + var(--eh) / 2 + var(--ew) * .085);width:calc(var(--ew) * 1.02);transform:translateX(-50%);
-  padding:calc(var(--ew) * .045) calc(var(--ew) * .04) calc(var(--ew) * .05);text-align:center;background:#fffaf3;border-radius:calc(var(--ew) * .03);
-  box-shadow:inset 0 0 0 calc(var(--ew) * .012) #fffaf3,inset 0 0 0 calc(var(--ew) * .016) rgba(155,36,32,.7),0 calc(var(--ew) * .012) calc(var(--ew) * .04) rgba(40,45,80,.25);
-  transition:opacity .45s ease,transform .45s ease}
-.tag p{margin:0}
-.tg-k{font:italic 500 calc(var(--ew) * .05)/1.2 var(--serif);color:var(--muted)}
-.tg-n{margin-top:calc(var(--ew) * .006)!important;font:400 calc(var(--ew) * .1)/1.12 var(--script);color:var(--red);white-space:nowrap}
-.tg-h{margin-top:calc(var(--ew) * .022)!important;font:600 calc(var(--ew) * .029)/1 var(--caps);letter-spacing:.3em;padding-left:.3em;text-transform:uppercase;color:var(--red-d);animation:hint 2.2s ease-in-out infinite}
-@keyframes hint{0%,100%{opacity:.5}50%{opacity:1}}
-.tg-dear,.tg-seats{display:none}
-.cv.guest .tg-dear{display:block;font:600 calc(var(--ew) * .03)/1 var(--caps);letter-spacing:.3em;padding-left:.3em;color:var(--red-d)}
-.cv.guest .tg-gn{display:block;margin:calc(var(--ew) * .012) auto 0!important;max-width:100%;white-space:nowrap;font:400 calc(var(--ew) * .1)/1.15 var(--script);color:var(--red)}
-.cv.guest .tg-gn.ar{font:700 calc(var(--ew) * .078)/1.5 'Amiri','Times New Roman',serif}
-.tg-gn{display:none}
-.cv.guest .tg-k{margin-top:calc(var(--ew) * .006)!important}
-.cv.guest .tg-seats{display:block;margin-top:calc(var(--ew) * .018)!important;font:600 calc(var(--ew) * .029)/1.5 var(--caps);letter-spacing:.2em;padding-left:.2em;text-transform:uppercase;color:var(--red-d)}
-.cv.guest .tg-seats b{font-weight:600}
-/* الفتح */
-.cv.tap{cursor:default}
-.cv.tap .tag{opacity:0;transform:translate(-50%,calc(var(--ew) * .05))}
-.cv.tap .seal{transform:translateY(-150%) scale(.55) rotate(-16deg);opacity:0}
-.cv.tap .seal img{animation:pop .3s ease-out forwards}
-@keyframes pop{0%{transform:scale(1)}60%{transform:scale(1.32)}100%{transform:scale(1.2)}}
-.cv.tap .seal::after{display:none}
-.cv.open .letter{transform:translateY(-82%)}
-.cv.open .env-f{animation-play-state:paused}
-.cv.zoom .env{transform:scale(2.3) translateY(4%);opacity:0}
-.cv.zoom .cv-st{opacity:0}
-.cv.zoom{pointer-events:none}
+/* ===== الغلاف: كارت الدانتيل النبيتي ===== */
+.cv{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:#ebe3da;cursor:pointer;outline:none;touch-action:manipulation;
+  transition:opacity .9s ease .55s}
+.cv.go{opacity:0;pointer-events:none}
+.cv-card{position:relative;flex:none;width:min(150vw,90vh,860px);aspect-ratio:736/920;container-type:inline-size;transition:transform 1.3s cubic-bezier(.6,0,.2,1),filter 1.1s ease}
+.cv.go .cv-card{transform:scale(1.55) translateY(-2%);filter:blur(2px)}
+.cv-card>img{position:absolute;inset:0;width:100%;height:100%}
+.cv-in{position:absolute;left:30%;right:30%;top:27%;bottom:28%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--cream);transition:opacity .5s}
+.cv.go .cv-in{opacity:0}
+.cv-k{font:600 2.35cqw/1.4 var(--serif);letter-spacing:.32em;padding-left:.32em;text-transform:uppercase;opacity:.9}
+.cv-n{font:400 10.8cqw/1.05 var(--script);margin-top:3.5cqw;white-space:nowrap}
+.cv-amp{font:400 6.5cqw/1 var(--script);margin:.6cqw 0;opacity:.85}
+.cv-d{font:500 3.2cqw/1 var(--num);letter-spacing:.24em;padding-left:.24em;margin-top:4cqw}
+.cv-line{width:16cqw;height:1px;background:rgba(247,234,223,.55);margin-top:3.2cqw}
+.cv-g{display:none;margin-bottom:3cqw}
+.cv.guest .cv-g{display:block}
+.cv-g .d{display:block;font:600 2.1cqw/1.4 var(--serif);letter-spacing:.3em;padding-left:.3em;text-transform:uppercase;opacity:.85}
+.cv-g .gn{display:block;font:400 6.4cqw/1.2 var(--script);white-space:nowrap}
+.cv-g .gn.ar{font:700 5cqw/1.6 'Amiri',serif}
+.cv-g .st{display:block;font:600 2cqw/1.5 var(--serif);letter-spacing:.18em;padding-left:.18em;text-transform:uppercase;opacity:.85;margin-top:.6cqw}
+.cv-hint{position:absolute;left:0;right:0;bottom:calc(7% + env(safe-area-inset-bottom));text-align:center;font:600 14px/1 var(--serif);letter-spacing:.34em;padding-left:.34em;text-transform:uppercase;color:var(--wine);animation:pulse 2.4s ease-in-out infinite}
+.cv.go .cv-hint{opacity:0;animation:none}
+@keyframes pulse{0%,100%{opacity:.45}50%{opacity:1}}
 
-/* ===================== دخول الأقسام ===================== */
-.rv{opacity:0;transform:translateY(calc(var(--u) * 26));transition:opacity 1s ease,transform 1.1s cubic-bezier(.2,.75,.25,1)}
-.rv.in{opacity:1;transform:none}
-.rv.d1{transition-delay:.12s}.rv.d2{transition-delay:.24s}.rv.d3{transition-delay:.36s}
+/* ===== الكارت الأساسي: الورقة بالدانتيل — الكلام بيتكتب ===== */
+.hero{position:relative;height:100vh;height:100svh;overflow:hidden;background:#f1ebe4}
+.hero .bk{position:absolute;inset:-40px;background:url(assets/lace-bg.webp) center/cover;filter:blur(22px);opacity:.75}
+.hero .st{position:absolute;left:50%;top:50%;width:max(100vw,56.27svh);aspect-ratio:736/1308;transform:translate(-50%,-50%);container-type:inline-size}
+@media (min-aspect-ratio:3/4){.hero .st{width:56.27svh}}
+.hero .bg{position:absolute;inset:0;width:100%;height:100%}
+.hc{position:absolute;left:12%;right:12%;top:19%;bottom:27%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--wine)}
+.k{font:600 2.7cqw/1.5 var(--serif);letter-spacing:.2em;padding-left:.2em;text-transform:uppercase;color:var(--plum)}
+.nm{font:400 15.5cqw/1.02 var(--script);color:var(--wine);white-space:nowrap}
+.amp{font:400 8cqw/1 var(--script);color:var(--moss);margin:.5cqw 0}
+.inv{font:italic 500 4.2cqw/1.4 var(--serif);color:var(--plum);margin-top:3.4cqw}
+.date{display:flex;align-items:center;justify-content:center;gap:4cqw;margin-top:4cqw}
+.date .s{font:600 3cqw/1.3 var(--serif);letter-spacing:.24em;text-transform:uppercase;color:var(--wine);width:24cqw}
+.date .s:first-child{text-align:right}.date .s:last-child{text-align:left}
+.date .b{font:400 13cqw/1 var(--num);color:var(--wine);padding:0 4.4cqw;border-left:1px solid rgba(107,31,42,.45);border-right:1px solid rgba(107,31,42,.45)}
+.tm{font:600 3.4cqw/1.4 var(--serif);letter-spacing:.24em;padding-left:.24em;color:var(--wine);margin-top:3.4cqw}
+.vn{font:600 3.4cqw/1.35 var(--serif);letter-spacing:.1em;padding-left:.1em;text-transform:uppercase;color:var(--wine);margin-top:2.6cqw}
+.vc{font:500 2.9cqw/1.4 var(--serif);letter-spacing:.2em;padding-left:.2em;text-transform:uppercase;color:var(--moss);margin-top:.6cqw}
+.orn{width:34cqw;height:auto;margin-top:4cqw}
+/* الكتابة: كل سطر بيطلع من الضباب ويتكتب من الشمال لليمين */
+.w{opacity:0}
+.on .w{animation:write 1.15s cubic-bezier(.3,.6,.25,1) var(--d,0s) forwards}
+@keyframes write{0%{opacity:0;filter:blur(7px);clip-path:inset(-20% 100% -20% 0);transform:translateY(2px)}35%{opacity:.6}100%{opacity:1;filter:blur(0);clip-path:inset(-20% -5% -20% 0);transform:none}}
+.static .w{opacity:1;animation:none}
+.cue{position:absolute;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:3;width:32px;height:32px;border-radius:50%;border:1px solid rgba(107,31,42,.35);
+  display:grid;place-items:center;color:var(--wine);background:rgba(247,240,233,.7);opacity:0;transition:opacity .8s 7s}
+.on .cue{opacity:1}
+.cue svg{width:14px;height:14px;animation:cue 1.8s ease-in-out infinite}
+@keyframes cue{0%,100%{transform:translateY(-2px)}50%{transform:translateY(3px)}}
 
-/* ===================== قلوب طايرة ===================== */
-.flt{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
-.flt i{position:absolute;bottom:-6%;width:calc(var(--u) * 12);height:calc(var(--u) * 11);background:url(assets/heart-mark.webp) center/contain no-repeat;opacity:0;
-  animation:rise linear infinite;animation-play-state:paused}
-.flt.on i{animation-play-state:running}
-@keyframes rise{0%{transform:translate(0,0) rotate(-12deg) scale(var(--s,1));opacity:0}10%{opacity:var(--o,.55)}50%{transform:translate(calc(var(--dx,14) * 1px),-55vh) rotate(10deg) scale(var(--s,1))}90%{opacity:var(--o,.55)}100%{transform:translate(0,-110vh) rotate(-8deg) scale(var(--s,1));opacity:0}}
-.tapheart{position:fixed;z-index:1500;width:22px;height:20px;margin:-10px 0 0 -11px;pointer-events:none;background:url(assets/heart-mark.webp) center/contain no-repeat;animation:th 1.1s ease-out forwards}
-@keyframes th{0%{transform:translate(0,0) scale(.3);opacity:0}20%{opacity:1;transform:translate(calc(var(--x) * .3),calc(var(--y) * .3)) scale(1.05)}100%{transform:translate(var(--x),var(--y)) scale(.7) rotate(var(--r));opacity:0}}
-
-/* ===================== الهيرو: القلب والفيونكة ===================== */
-.hero{position:relative;display:flex;align-items:center;justify-content:center;height:100vh;height:100svh;min-height:calc(var(--u) * 380);padding:calc(var(--u) * 8) 0;box-sizing:border-box}
-.hh{position:relative;z-index:1;flex:none;width:min(100%,calc((100vh - var(--u) * 16) * 735 / 1029));width:min(100%,calc((100svh - var(--u) * 16) * 735 / 1029));min-width:calc(var(--u) * 250);aspect-ratio:735/1029;container-type:inline-size}
-.hh *{--o:calc(100cqw / 735)}
-.hh-art{position:absolute;left:0;top:0;width:100%;height:auto}
-.pc{position:absolute;height:auto}
-.hh .ani{opacity:0}
-.reveal .hh-art{animation:artIn 1.6s cubic-bezier(.2,.7,.25,1) .1s both}
-@keyframes artIn{0%{opacity:0;transform:scale(.94);filter:blur(3px)}60%{filter:blur(0)}100%{opacity:1;transform:none;filter:none}}
-.reveal .pc{animation:pcIn 1s cubic-bezier(.3,1.4,.5,1) both,var(--idle) 3.2s ease-in-out 2.2s infinite alternate}
-@keyframes pcIn{0%{opacity:0;transform:scale(.4)}100%{opacity:1;transform:none}}
-@keyframes bobL{from{transform:translate(0,0) rotate(0)}to{transform:translate(-4.6%,-5%) rotate(-4deg)}}
-@keyframes bobR{from{transform:translate(0,0) rotate(0)}to{transform:translate(4.6%,-5%) rotate(4deg)}}
-@keyframes pulse{0%{transform:scale(1)}100%{transform:scale(1.16)}}
-.hh-cv{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;pointer-events:none}
-.hh-cv text{font-family:var(--serif);font-style:italic;font-weight:500;font-size:24px;fill:#a2352d;letter-spacing:.6px}
-.reveal .hh-cv text{animation:fade 1.4s ease 1.1s both}
-@keyframes fade{from{opacity:0}to{opacity:1}}
-.hh-nm{position:absolute;left:0;right:0;top:calc(var(--o) * 262);margin:0;text-align:center;font-weight:400;color:#a2352d;font-family:var(--script);pointer-events:none}
-.hh-nm span{display:block;white-space:nowrap;line-height:1}
-.hh-nm .n1{font-size:calc(var(--o) * 112);transform:translateX(calc(var(--o) * -30))}
-.hh-nm .n2{font-size:calc(var(--o) * 112);margin-top:calc(var(--o) * -12);transform:translateX(calc(var(--o) * 20))}
-.hh-nm .n2 i{font-style:normal;font-size:.8em;margin-right:.12em}
-.reveal .hh-nm span{animation:write 1.5s cubic-bezier(.45,.05,.3,1) both}
-.reveal .hh-nm .n1{animation-delay:.75s}.reveal .hh-nm .n2{animation-delay:1.35s}
-@keyframes write{0%{clip-path:inset(-20% 100% -30% -10%);opacity:.2}12%{opacity:1}100%{clip-path:inset(-20% -10% -30% -10%);opacity:1}}
-.hh-l{position:absolute;left:0;right:0;margin:0;text-align:center;pointer-events:none}
-.hh-l1{top:calc(var(--o) * 806);font:400 calc(var(--o) * 44)/1 var(--retro);color:#a2352d}
-.hh-l2{top:calc(var(--o) * 874);font:600 calc(var(--o) * 19)/1 var(--caps);letter-spacing:.3em;padding-left:.3em;color:#8d2a24}
-.hh-l3{top:calc(var(--o) * 948);font:italic 500 calc(var(--o) * 25)/1 var(--serif);color:var(--muted)}
-.hh-l3 i{display:block;width:calc(var(--o) * 18);height:calc(var(--o) * 18);margin:calc(var(--o) * 10) auto 0;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);animation:chev 1.8s ease-in-out infinite}
-@keyframes chev{0%,100%{transform:translateY(0) rotate(45deg);opacity:.5}50%{transform:translateY(44%) rotate(45deg);opacity:1}}
-.reveal .hh-l1{animation:up 1.1s ease 1.9s both}.reveal .hh-l2{animation:up 1.1s ease 2.1s both}.reveal .hh-l3{animation:up 1.1s ease 2.4s both}
-@keyframes up{from{opacity:0;transform:translateY(calc(var(--o) * 18))}to{opacity:1;transform:none}}
-
-/* ===================== احفظوا التاريخين: التقويم + العد ===================== */
-.std{position:relative;padding:calc(var(--u) * 54) calc(var(--u) * 20) calc(var(--u) * 58)}
-.lace{position:relative;padding:calc(var(--u) * 8);
-  background:radial-gradient(circle,#f6cdc8 0 54%,#c75a52 57% 63%,transparent 66%) 0 0/calc(var(--u) * 16) calc(var(--u) * 16) round;
-  filter:drop-shadow(0 calc(var(--u) * 6) calc(var(--u) * 10) rgba(30,35,70,.28))}
-.lace>.in{position:relative;background:url(assets/paper.webp) 0 0/320px auto repeat,var(--card);border-radius:calc(var(--u) * 2);
-  box-shadow:inset 0 0 0 calc(var(--u) * 6) var(--card),inset 0 0 0 calc(var(--u) * 7.2) rgba(155,36,32,.7);
-  padding:calc(var(--u) * 30) calc(var(--u) * 20) calc(var(--u) * 28);text-align:center}
-.ttl{margin:0;font:400 calc(var(--u) * 46)/1.05 var(--script);color:var(--red)}
-.sub{margin:calc(var(--u) * 8) 0 0;font-size:calc(var(--u) * 10.5);color:var(--red-d)}
-.cal{margin:calc(var(--u) * 20) auto 0;max-width:calc(var(--u) * 290);position:relative}
-.cal-w,.cal-g{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
-.cal-w span{font:600 calc(var(--u) * 9.5)/1 var(--caps);letter-spacing:.08em;color:var(--muted);padding-bottom:calc(var(--u) * 10)}
-.cal-g span{position:relative;display:flex;align-items:center;justify-content:center;min-width:0;height:calc(var(--u) * 36);font:600 calc(var(--u) * 17)/1 var(--serif);color:#6f4038}
-.cal-g span.x{color:#b88b7f;font-weight:500}
-.cal-g span.hd{color:#fff8f0;z-index:2}
-.cal-g span.hd::before{content:"";position:absolute;left:50%;top:52%;width:118%;height:118%;transform:translate(-50%,-50%) scale(0);
-  background:url(assets/heart-mark.webp) center/contain no-repeat;z-index:-1;transition:transform .7s cubic-bezier(.3,1.6,.5,1)}
-.cal.in .cal-g span.hd::before{transform:translate(-50%,-50%) scale(1)}
-.cal.in .cal-g span.hd.e2::before{transition-delay:.9s}
-.cal.in .cal-g span.hd.e1::before{transition-delay:.25s}
-.cal.in .cal-g span.hd{animation:evBeat 2.4s ease-in-out 2.2s infinite}
-@keyframes evBeat{0%,100%{transform:scale(1)}12%{transform:scale(1.12)}24%{transform:scale(1)}}
-.cal svg{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:1}
-.cal svg path{fill:none;stroke:#b53a33;stroke-width:1.4;stroke-dasharray:3 4;stroke-linecap:round;opacity:.85}
-.cal-leg{display:flex;justify-content:center;gap:calc(var(--u) * 26);margin-top:calc(var(--u) * 18)}
-.cal-leg div{text-align:center}
-.cal-leg b{display:block;font:italic 600 calc(var(--u) * 19)/1.1 var(--serif);color:var(--red)}
-.cal-leg span{display:block;margin-top:calc(var(--u) * 5);font:600 calc(var(--u) * 9)/1.3 var(--caps);letter-spacing:.2em;padding-left:.2em;text-transform:uppercase;color:var(--red-d)}
-.cdw{margin-top:calc(var(--u) * 34)}
-.cd-k{margin:0;font:400 calc(var(--u) * 24)/1.1 var(--retro);color:var(--red)}
-.cd-ev{margin:calc(var(--u) * 6) 0 0;font-size:calc(var(--u) * 11.5);color:var(--red-d)}
-.cd{display:flex;justify-content:center;align-items:flex-start;gap:calc(var(--u) * 6);margin-top:calc(var(--u) * 18)}
-.cd>div{width:calc(var(--u) * 62)}
-.cd b{display:block;font:600 calc(var(--u) * 42)/1 var(--serif);color:var(--red);font-variant-numeric:lining-nums tabular-nums}
-.cd span{display:block;margin-top:calc(var(--u) * 6);font:600 calc(var(--u) * 8.5)/1 var(--caps);letter-spacing:.22em;padding-left:.22em;color:var(--muted)}
-.cd i{width:calc(var(--u) * 9);height:calc(var(--u) * 8);margin-top:calc(var(--u) * 16);background:url(assets/heart-mark.webp) center/contain no-repeat;opacity:.8}
-.cd-next{margin:calc(var(--u) * 18) 0 0;font:italic 500 calc(var(--u) * 17)/1.35 var(--serif);color:var(--muted)}
-.cd-done{display:none;margin:calc(var(--u) * 14) 0 0;font:400 calc(var(--u) * 30)/1.2 var(--script);color:var(--red)}
-
-/* ===================== المناسبتين ===================== */
-.evs{position:relative;padding:calc(var(--u) * 50) 0 calc(var(--u) * 40)}
-.evs-h{position:relative;z-index:1;text-align:center;padding:0 calc(var(--u) * 24)}
-.evs-h p{margin:calc(var(--u) * 10) auto 0;max-width:calc(var(--u) * 300);font:italic 500 calc(var(--u) * 18)/1.4 var(--serif);color:var(--muted)}
-.ev{position:relative;z-index:1;margin-top:calc(var(--u) * 26);text-align:center}
-.ev-hb{position:relative;width:calc(var(--u) * 372);height:calc(var(--u) * 356.6);margin:0 auto}
-.ev-hb>img{position:absolute;left:0;top:0;width:100%;height:auto}
-.ev.rv .ev-hb>img{clip-path:circle(0% at 50% 45%);transition:clip-path 1.8s cubic-bezier(.3,.6,.2,1)}
-.ev.rv.in .ev-hb>img{clip-path:circle(75% at 50% 45%)}
-.ev-in{position:absolute;left:0;right:0;top:calc(var(--u) * 112)}
-.ev-n{margin:0;font:400 calc(var(--u) * 37)/1.05 var(--script);color:var(--red-d)}
-.ev-dt{display:flex;align-items:center;justify-content:center;gap:calc(var(--u) * 12);margin-top:calc(var(--u) * 10)}
-.ev-dt .side{width:calc(var(--u) * 70);padding:calc(var(--u) * 7) 0;border-top:1px solid rgba(124,18,24,.55);border-bottom:1px solid rgba(124,18,24,.55);font:600 calc(var(--u) * 9.5)/1 var(--caps);letter-spacing:.24em;padding-left:.24em;text-transform:uppercase;color:var(--red-d)}
-.ev-dt .day{font:600 calc(var(--u) * 44)/1 var(--serif);color:var(--red-d);font-variant-numeric:lining-nums}
-.ev-mo{margin:calc(var(--u) * 7) 0 0;font-size:calc(var(--u) * 10.5);color:var(--red-d)}
-.ev-tm{margin:calc(var(--u) * 6) 0 0;font:italic 600 calc(var(--u) * 19)/1 var(--serif);color:var(--red-d)}
-.ev-pl{position:relative;margin:calc(var(--u) * 6) auto 0;padding:0 calc(var(--u) * 24)}
-.ev-at{margin:0;font:400 calc(var(--u) * 21)/1 var(--retro);color:var(--muted)}
-.ev-vn{margin:calc(var(--u) * 6) 0 0;font:600 calc(var(--u) * 25)/1.15 var(--serif);color:var(--red-d)}
-.ev-ad{margin:calc(var(--u) * 5) 0 0;font:italic 500 calc(var(--u) * 16)/1.35 var(--serif);color:var(--muted)}
-.map{position:relative;display:block;margin:calc(var(--u) * 16) auto 0;height:calc(var(--u) * 190);border-radius:calc(var(--u) * 14);overflow:hidden;
-  background:#ead2c4;box-shadow:0 0 0 calc(var(--u) * 5) var(--card),0 0 0 calc(var(--u) * 6.2) rgba(155,36,32,.6),0 calc(var(--u) * 8) calc(var(--u) * 18) rgba(90,40,30,.18)}
-.map iframe{position:absolute;inset:0;width:100%;height:100%;border:0;pointer-events:none}
-.map .pin{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:500 calc(var(--u) * 10)/1 var(--caps);letter-spacing:.2em;color:var(--red-d);opacity:.7}
-.btns{display:flex;justify-content:center;gap:calc(var(--u) * 10);margin-top:calc(var(--u) * 20)}
-.btn{border:0;display:inline-flex;align-items:center;justify-content:center;gap:calc(var(--u) * 7);min-width:calc(var(--u) * 148);height:calc(var(--u) * 44);padding:0 calc(var(--u) * 14);border-radius:999px;
-  font:600 calc(var(--u) * 10)/1 var(--caps);letter-spacing:.18em;text-transform:uppercase;text-decoration:none;cursor:pointer;transition:transform .2s ease,box-shadow .2s ease}
-.btn:active{transform:scale(.96)}
-.btn.f{background:var(--red-d);color:#fff8f0;box-shadow:0 calc(var(--u) * 6) calc(var(--u) * 14) rgba(124,18,24,.28)}
-.btn.o{background:rgba(255,250,243,.7);color:var(--red-d);box-shadow:inset 0 0 0 1.5px var(--red-d)}
-.btn svg{width:calc(var(--u) * 14);height:calc(var(--u) * 14);flex:none}
-.and{position:relative;z-index:1;margin:calc(var(--u) * 44) auto calc(var(--u) * 4);text-align:center}
-.and img{width:calc(var(--u) * 150);height:auto;margin:0 auto}
-.and p{margin:calc(var(--u) * 6) 0 0;font:400 calc(var(--u) * 26)/1 var(--retro);color:var(--muted)}
-
-/* ===================== تأكيد الحضور ===================== */
-.rs{position:relative;padding:calc(var(--u) * 54) calc(var(--u) * 22) calc(var(--u) * 52);text-align:center}
-.rs .ttl{position:relative;z-index:1}
-.rs form,.rs-done{position:relative;z-index:1;margin:calc(var(--u) * 22) auto 0;max-width:calc(var(--u) * 340);text-align:left}
-.rs-seats{display:none;margin:calc(var(--u) * 14) auto 0;max-width:calc(var(--u) * 320);font:italic 500 calc(var(--u) * 17)/1.4 var(--serif);color:var(--muted);text-align:center}
-.rs-seats b{color:var(--red-d);font-weight:600}
-.fl{display:block;margin-top:calc(var(--u) * 20);font:600 calc(var(--u) * 9.5)/1 var(--caps);letter-spacing:.24em;text-transform:uppercase;color:var(--red-d)}
-.in-t{display:block;width:100%;margin-top:calc(var(--u) * 6);padding:calc(var(--u) * 10) calc(var(--u) * 2);border:0;border-bottom:1.5px solid rgba(124,18,24,.45);background:transparent;
-  font:500 calc(var(--u) * 19)/1.3 var(--serif);color:var(--red-d);outline:none;border-radius:0;-webkit-appearance:none;appearance:none}
-textarea.in-t{resize:none;min-height:calc(var(--u) * 74)}
-.in-t:focus{border-bottom-color:var(--red-d)}
-.in-t::placeholder{color:#b9897e;font-style:italic}
-.ch{display:grid;grid-template-columns:1fr 1fr;gap:calc(var(--u) * 9);margin-top:calc(var(--u) * 10)}
-.ch button{position:relative;min-height:calc(var(--u) * 50);padding:calc(var(--u) * 8) calc(var(--u) * 10);border:0;border-radius:calc(var(--u) * 12);background:rgba(255,250,243,.75);
-  box-shadow:inset 0 0 0 1.2px rgba(124,18,24,.4);font:500 calc(var(--u) * 16.5)/1.15 var(--serif);color:var(--red-d);cursor:pointer;transition:background .25s ease,box-shadow .25s ease,color .25s ease,transform .2s ease}
-.ch button small{display:block;margin-top:calc(var(--u) * 3);font:600 calc(var(--u) * 8.5)/1 var(--caps);letter-spacing:.16em;text-transform:uppercase;opacity:.75}
-.ch button.on{background:var(--red-d);color:#fff8f0;box-shadow:0 calc(var(--u) * 5) calc(var(--u) * 12) rgba(124,18,24,.25)}
-.ch button:active{transform:scale(.97)}
-.cnt{display:none;align-items:center;justify-content:center;gap:calc(var(--u) * 16);margin-top:calc(var(--u) * 14)}
-.cnt span{font:500 calc(var(--u) * 9.5)/1 var(--caps);letter-spacing:.2em;text-transform:uppercase;color:var(--red-d)}
-.cnt button{width:calc(var(--u) * 34);height:calc(var(--u) * 34);border:0;border-radius:50%;background:transparent;box-shadow:inset 0 0 0 1.3px var(--red-d);color:var(--red-d);font:600 calc(var(--u) * 18)/1 var(--serif);cursor:pointer}
-.cnt b{min-width:calc(var(--u) * 26);text-align:center;font:600 calc(var(--u) * 24)/1 var(--serif);color:var(--red-d)}
-.rs-err{min-height:calc(var(--u) * 20);margin:calc(var(--u) * 12) 0 0;text-align:center;font:italic 500 calc(var(--u) * 15)/1.3 var(--serif);color:#b3261e}
-.send{display:flex;width:100%;margin-top:calc(var(--u) * 6)}
-.send:disabled{opacity:.6}
-.rs-done{display:none;text-align:center}
-.rs-done .dh{width:calc(var(--u) * 42);height:calc(var(--u) * 38);margin:0 auto;background:url(assets/heart-mark.webp) center/contain no-repeat;animation:evBeat 2s ease-in-out infinite}
-.rs-done h3{margin:calc(var(--u) * 14) 0 0;font:400 calc(var(--u) * 36)/1.15 var(--script);color:var(--red)}
-.rs-done p{margin:calc(var(--u) * 8) 0 0;font:italic 500 calc(var(--u) * 18)/1.4 var(--serif);color:var(--muted)}
-
-/* ===================== الختام ===================== */
-.end{position:relative;padding:calc(var(--u) * 46) calc(var(--u) * 24) calc(var(--u) * 64);text-align:center}
-.end .bow{position:relative;z-index:1;width:calc(var(--u) * 190);height:auto;margin:0 auto}
-.end .wl{position:relative;z-index:1;margin:calc(var(--u) * 14) 0 0;font:400 calc(var(--u) * 26)/1.1 var(--retro);color:var(--muted)}
-.end .nm{position:relative;z-index:1;margin:calc(var(--u) * 8) 0 0;font:400 calc(var(--u) * 52)/1.15 var(--script);color:var(--red);white-space:nowrap;cursor:pointer}
-.end .dt{position:relative;z-index:1;margin:calc(var(--u) * 12) 0 0;font-size:calc(var(--u) * 11);color:var(--red-d)}
-.end .ty{position:relative;z-index:1;margin:calc(var(--u) * 22) auto 0;max-width:calc(var(--u) * 300);font:italic 500 calc(var(--u) * 18)/1.45 var(--serif);color:var(--muted)}
-.foot{height:calc(var(--u) * 46)}
-
-/* ===================== الموسيقى ===================== */
-.mus{position:fixed;left:max(14px,calc(50% - 226px));bottom:calc(16px + env(safe-area-inset-bottom));z-index:900;width:48px;height:48px;border:0;border-radius:50%;padding:0;cursor:pointer;
-  background:#fffaf3;box-shadow:inset 0 0 0 1.5px var(--red-d),0 6px 16px rgba(60,20,30,.25);color:var(--red-d);display:none;align-items:center;justify-content:center}
-.mus.on{display:flex;animation:fade .6s ease both}
-.mus .eq{display:none;gap:3px;align-items:flex-end;height:16px}
-.mus .eq i{width:3px;background:currentColor;border-radius:2px;animation:eq 1s ease-in-out infinite}
-.mus .eq i:nth-child(2){animation-delay:.25s}.mus .eq i:nth-child(3){animation-delay:.5s}
-@keyframes eq{0%,100%{height:5px}50%{height:16px}}
-.mus.playing .eq{display:flex}
-.mus.playing .nt{display:none}
-.mus .nt{width:20px;height:20px}
-.auto{position:fixed;right:max(14px,calc(50% - 226px));bottom:calc(16px + env(safe-area-inset-bottom));z-index:900;width:44px;height:44px;border:0;border-radius:50%;padding:0;cursor:pointer;
-  background:#fffaf3;box-shadow:inset 0 0 0 1.5px var(--red-d),0 6px 16px rgba(60,20,30,.25);color:var(--red-d);display:none;align-items:center;justify-content:center;opacity:.85}
-.auto.on{display:flex;animation:fade .6s ease both}
-.auto svg{width:18px;height:18px}
-.auto .ps{display:none}
-.auto.run .ps{display:block}
-.auto.run .dn{display:none}
-.auto.run{opacity:1}
-.edit-bar{position:fixed;top:0;left:0;right:0;z-index:2000;padding:10px 14px;background:#7c1218;color:#fff;font:600 14px/1.5 Tahoma,Arial,sans-serif;text-align:center;direction:rtl}
-
-@media (prefers-reduced-motion:reduce){
-  .flt,.env-f,.seal img,.seal::after{animation:none!important}
-  .flt{display:none}
-}
+/* ===== باقي الدعوة ===== */
+.page{position:relative;background:var(--paper);overflow:hidden}
+.page::before{content:"";position:absolute;inset:0;background:url(assets/lace-bg.webp) center 45%/240% auto;opacity:.22;pointer-events:none;-webkit-mask-image:linear-gradient(transparent,#000 30%,#000 70%,transparent);mask-image:linear-gradient(transparent,#000 30%,#000 70%,transparent)}
+.sec{position:relative;max-width:440px;margin:0 auto;padding:62px 26px;text-align:center}
+.h{font:400 46px/1.1 var(--script);color:var(--wine)}
+.sk{font:600 12px/1.6 var(--serif);letter-spacing:.32em;padding-left:.32em;text-transform:uppercase;color:var(--moss);margin-top:8px}
+.ln{display:flex;align-items:center;justify-content:center;gap:10px;margin:18px auto}
+.ln i{width:70px;height:1px;background:linear-gradient(90deg,transparent,rgba(107,31,42,.55))}
+.ln i:last-child{transform:scaleX(-1)}
+.ln b{width:7px;height:7px;border:1px solid var(--wine);transform:rotate(45deg)}
+.fx{opacity:0;transform:translateY(22px);transition:opacity .9s ease,transform .9s cubic-bezier(.22,.8,.3,1)}
+.fx.in{opacity:1;transform:none}
+.static .fx{opacity:1;transform:none}
+/* العدّاد */
+.cd{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:22px}
+.cd div{padding:15px 0 12px;background:var(--wine);color:#f7eadf;border-radius:3px;position:relative;box-shadow:0 10px 22px -16px rgba(82,22,32,.8)}
+.cd div::before{content:"";position:absolute;inset:4px;border:1px solid rgba(247,234,223,.25);border-radius:2px}
+.cd b{display:block;font:400 30px/1 var(--num);font-variant-numeric:lining-nums tabular-nums}
+.cd span{display:block;margin-top:8px;font:600 10px/1 var(--serif);letter-spacing:.24em;padding-left:.24em;text-transform:uppercase;opacity:.85}
+/* كروت المناسبات */
+.ev{position:relative;margin-top:6px;padding:30px 22px 28px;background:rgba(255,252,248,.8);border:1px solid rgba(107,31,42,.22)}
+.ev::before{content:"";position:absolute;inset:5px;border:1px solid rgba(107,31,42,.12);pointer-events:none}
+.ev .tag{display:inline-block;font:700 11px/1 var(--serif);letter-spacing:.3em;padding:7px 12px 7px calc(12px + .3em);text-transform:uppercase;color:#fff7ef;background:var(--wine);border-radius:2px}
+.ev.katb .tag{background:var(--moss)}
+.ev h3{font:400 40px/1.15 var(--script);color:var(--wine);margin-top:14px}
+.ev .when{font:600 15px/1.5 var(--serif);letter-spacing:.16em;text-transform:uppercase;color:var(--wine);margin-top:10px}
+.ev .where{font:600 19px/1.4 var(--serif);color:var(--plum);margin-top:12px}
+.ev .addr{font:500 15px/1.45 var(--serif);color:var(--moss);margin-top:2px}
+.btns{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:20px}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 18px;border:1px solid var(--wine);text-decoration:none;font:700 11px/1 var(--serif);letter-spacing:.24em;text-transform:uppercase;color:var(--wine);background:transparent;border-radius:2px}
+.btn.f{background:var(--wine);color:#fff7ef}
+.ev.katb .btn{border-color:var(--moss);color:var(--fern)}.ev.katb .btn.f{background:var(--moss);color:#fff7ef}
+.btn svg{width:14px;height:14px}
+.ev.katb{margin-top:26px}
+.ev.katb h3{font-size:34px}
+.ev.katb .ar{font:700 22px/1.6 'Amiri',serif;color:var(--fern);margin-top:2px}
+/* الختام */
+.end{padding-bottom:84px}
+.end .nms{font:400 54px/1.05 var(--script);color:var(--wine);margin-top:6px}
+.end .nms i{display:block;font-style:normal;font-size:.55em;color:var(--moss);margin:2px 0}
+.end .dt{font:500 15px/1.6 var(--num);letter-spacing:.26em;padding-left:.26em;color:var(--plum);margin-top:12px}
+.corner{position:absolute;width:46%;height:auto;opacity:.95;pointer-events:none}
+.corner.tl{left:0;top:0}
+.corner.br{right:0;bottom:0;transform:rotate(180deg)}
+/* زرار الصوت */
+.mute{position:fixed;bottom:calc(18px + env(safe-area-inset-bottom));right:16px;z-index:40;width:44px;height:44px;border-radius:50%;border:1px solid rgba(107,31,42,.35);
+  background:rgba(247,240,233,.85);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:grid;place-items:center;color:var(--wine);cursor:pointer;opacity:0;pointer-events:none;transition:opacity .5s}
+.mute.on{opacity:1;pointer-events:auto}
+.mute svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.mute .off{display:none}.mute.muted .on-i{display:none}.mute.muted .off{display:block}
+.edit-bar{position:fixed;top:0;left:0;right:0;z-index:200;padding:10px 14px;background:var(--wine);color:#fff;font:600 14px/1.5 Tahoma,Arial,sans-serif;text-align:center;direction:rtl}
+@media (prefers-reduced-motion:reduce){.w,.fx{opacity:1!important;transform:none!important;filter:none!important;animation:none!important;clip-path:none!important}}
 </style>
 </head>
 <body>
-<script>document.documentElement.classList.add('lock');</script>
 
-<!-- ===== الغلاف ===== -->
-<div class="cv" id="cv" role="button" tabindex="0" aria-label="Open the invitation">
-  <div class="cv-st"></div>
-  <div class="cv-in">
-    <div class="env" id="env">
-      <div class="env-f">
-        <img class="env-flap" src="assets/env-flap.webp" alt="" width="900" height="1041">
-        <div class="letter"><div class="lt-in">
-          <i class="lt-h"></i>
-          <span class="lt-n">Hagar &amp; Nour</span>
-          <span class="lt-d">04 · 12 &amp; 12 · 12 · 2026</span>
-        </div></div>
-        <img class="env-body" src="assets/env-body.webp" alt="" width="900" height="1041">
-        <div class="seal"><img src="assets/seal.webp" alt="" width="134" height="131"></div>
-        <div class="burst" id="burst"></div>
-      </div>
-    </div>
-    <div class="tag" id="tag">
-      <p class="tg-dear">Dear</p>
-      <p class="tg-gn" id="cvGn"></p>
-      <p class="tg-k">you're invited to the wedding of</p>
-      <p class="tg-n">Hagar &amp; Nour</p>
-      <p class="tg-seats" id="cvSeats"></p>
-      <p class="tg-h">Tap the heart to open</p>
+<!-- 1) الغلاف: كارت الدانتيل — الضغط بيفتح -->
+<div class="cv" id="cv" role="button" tabindex="0" aria-label="Tap to open the invitation">
+  <div class="cv-card">
+    <img src="assets/lace-card.webp" alt="" draggable="false">
+    <div class="cv-in">
+      <p class="cv-g"><span class="d">Dear</span><span class="gn" id="cvGn"></span><span class="st" id="cvSeats"></span></p>
+      <p class="cv-k">The Wedding of</p>
+      <p class="cv-n">Hagar</p>
+      <p class="cv-amp">&amp;</p>
+      <p class="cv-n" style="margin-top:0">Nour</p>
+      <span class="cv-line" aria-hidden="true"></span>
+      <p class="cv-d">12 · 12 · 2026</p>
     </div>
   </div>
+  <p class="cv-hint">Tap to open</p>
 </div>
 
-<main class="pg" id="pg">
-  <!-- ===== الهيرو ===== -->
-  <section class="hero paper-c" id="hero">
-    <div class="flt" data-n="9"></div>
-    <div class="hh">
-      <img class="hh-art" src="assets/hero-heart.webp" alt="" width="1200" height="1680">
-      <img class="pc" src="assets/pc-arrl.webp" alt="" width="176" height="194" style="left:calc(var(--o) * 44.1);top:calc(var(--o) * 567.79);width:calc(var(--o) * 107.8);--idle:bobL;animation-delay:1.0s,2.40s">
-      <img class="pc" src="assets/pc-arrr.webp" alt="" width="176" height="194" style="left:calc(var(--o) * 583.1);top:calc(var(--o) * 567.79);width:calc(var(--o) * 107.8);--idle:bobR;animation-delay:1.15s,2.55s">
-      <img class="pc" src="assets/pc-htl.webp" alt="" width="130" height="133" style="left:calc(var(--o) * 43.49);top:calc(var(--o) * 66.76);width:calc(var(--o) * 79.62);--idle:pulse;animation-delay:1.3s,2.70s">
-      <img class="pc" src="assets/pc-htr.webp" alt="" width="130" height="134" style="left:calc(var(--o) * 615.56);top:calc(var(--o) * 66.76);width:calc(var(--o) * 79.62);--idle:pulse;animation-delay:1.45s,2.85s">
-      <img class="pc" src="assets/pc-htop.webp" alt="" width="72" height="73" style="left:calc(var(--o) * 345.45);top:calc(var(--o) * 39.81);width:calc(var(--o) * 44.1);--idle:pulse;animation-delay:1.6s,3.00s">
-      <img class="pc" src="assets/pc-hnotch.webp" alt="" width="50" height="53" style="left:calc(var(--o) * 351.58);top:calc(var(--o) * 172.11);width:calc(var(--o) * 30.62);--idle:pulse;animation-delay:1.75s,3.15s">
-      <svg class="hh-cv" viewBox="0 0 735 1029" aria-hidden="true">
-        <path id="cL" d="M146 318 C 168 262, 222 222, 318 214" fill="none"/>
-        <path id="cR" d="M392 644 C 446 610, 488 562, 508 496" fill="none"/>
-        <text><textPath href="#cL" startOffset="50%" text-anchor="middle">join us to celebrate</textPath></text>
-        <text><textPath href="#cR" startOffset="50%" text-anchor="middle">as they tie the knot</textPath></text>
-      </svg>
-      <h1 class="hh-nm"><span class="n1">Hagar</span><span class="n2"><i>&amp;</i>Nour</span></h1>
-      <p class="hh-l hh-l1">two dates, one forever</p>
-      <p class="hh-l hh-l2">04 · 12 &amp; 12 · 12 · 2026</p>
-      <p class="hh-l hh-l3">scroll down<i></i></p>
+<main>
+  <!-- 2) الكارت الأساسي: الفرح — الكلام بيتكتب -->
+  <section class="hero" id="hero" aria-label="The Wedding">
+    <div class="bk" aria-hidden="true"></div>
+    <div class="st">
+      <img class="bg" src="assets/lace-bg.webp" alt="" draggable="false">
+      <div class="hc">
+        <p class="k w" style="--d:.2s">Together<br>with their families</p>
+        <h1 class="nm w" style="--d:.8s;margin-top:4.5cqw">Hagar</h1>
+        <p class="amp w" style="--d:1.5s">&amp;</p>
+        <p class="nm w" style="--d:1.9s">Nour</p>
+        <p class="inv w" style="--d:2.7s">request the pleasure of your company<br>at their wedding</p>
+        <div class="date w" style="--d:3.5s"><span class="s">Saturday</span><span class="b">12</span><span class="s">December<br><span class="dg" style="letter-spacing:.18em">2026</span></span></div>
+        <p class="tm w" style="--d:4.3s">at <span class="dg">5:00</span> PM</p>
+        <p class="vn w" style="--d:4.9s">Hilton Pyramids Golf</p>
+        <p class="vc w" style="--d:5.4s">6th of October City</p>
+      </div>
     </div>
+    <div class="cue" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 9l6 6 6-6"/></svg></div>
   </section>
 
-  <!-- ===== احفظوا التاريخين ===== -->
-  <section class="std stripes" id="dates">
-    <div class="lace rv"><div class="in">
-      <h2 class="ttl">Save the Dates</h2>
-      <p class="sub caps">December 2026</p>
-      <div class="cal" id="cal">
-        <div class="cal-w"><span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span></div>
-        <div class="cal-g" id="calG"></div>
-        <svg aria-hidden="true"><path id="calP" d=""/></svg>
+  <div class="page">
+    <!-- 3) العدّاد (للفرح بس) -->
+    <section class="sec fx">
+      <h2 class="h">Counting down</h2>
+      <p class="sk">to our wedding day</p>
+      <div class="ln" aria-hidden="true"><i></i><b></b><i></i></div>
+      <div class="cd" dir="ltr">
+        <div><b id="cdD">00</b><span>Days</span></div>
+        <div><b id="cdH">00</b><span>Hours</span></div>
+        <div><b id="cdM">00</b><span>Minutes</span></div>
+        <div><b id="cdS">00</b><span>Seconds</span></div>
       </div>
-      <div class="cal-leg">
-        <div><b>Katb El Ketab</b><span>Fri 4 · 3:00 PM</span></div>
-        <div><b>The Wedding</b><span>Sat 12 · 5:00 PM</span></div>
-      </div>
-      <div class="cdw">
-        <p class="cd-k">counting down to</p>
-        <p class="cd-ev caps" id="cdEv">Katb El Ketab</p>
-        <div class="cd" id="cd">
-          <div><b id="cdD">00</b><span>Days</span></div><i></i>
-          <div><b id="cdH">00</b><span>Hours</span></div><i></i>
-          <div><b id="cdM">00</b><span>Mins</span></div><i></i>
-          <div><b id="cdS">00</b><span>Secs</span></div>
-        </div>
-        <p class="cd-next" id="cdNext">and eight days later, the wedding</p>
-        <p class="cd-done" id="cdDone">Happily ever after</p>
-      </div>
-    </div></div>
-  </section>
+    </section>
 
-  <!-- ===== المناسبتين ===== -->
-  <section class="evs paper-b" id="events">
-    <div class="flt" data-n="7"></div>
-    <div class="evs-h rv">
-      <h2 class="ttl">Join Us</h2>
-      <p>for two days we will treasure forever</p>
-    </div>
-
-    <article class="ev rv" id="ev-katb">
-      <div class="ev-hb">
-        <img src="assets/ribbon-heart.webp" alt="" width="1100" height="1054" loading="lazy">
-        <div class="ev-in">
-          <h3 class="ev-n">Katb El Ketab</h3>
-          <div class="ev-dt"><span class="side">Friday</span><span class="day">04</span><span class="side">2026</span></div>
-          <p class="ev-mo caps">December</p>
-          <p class="ev-tm">at 3:00 PM</p>
-        </div>
-      </div>
-      <div class="ev-pl">
-        <p class="ev-at">at</p>
-        <h4 class="ev-vn">Police Mosque</h4>
-        <p class="ev-ad">El Orouba Axis, New Cairo</p>
-        <a class="map" href="https://maps.app.goo.gl/LfFn98PUECzj4g5r7" target="_blank" rel="noopener" aria-label="Police Mosque on Google Maps"><span class="pin">Map</span><iframe data-src="https://www.google.com/maps/embed?origin=mfe&amp;pb=!1m3!2m1!1sPolice+Mosque,+Orouba+Axis,+New+Cairo!6i16" title="Police Mosque map" loading="lazy" tabindex="-1" referrerpolicy="no-referrer-when-downgrade"></iframe></a>
+    <!-- 4) الفرح -->
+    <section class="sec fx" style="padding-top:20px">
+      <div class="ev">
+        <span class="tag">The Wedding</span>
+        <h3>Wedding Celebration</h3>
+        <p class="when">Saturday · <span class="dg">12</span> December <span class="dg">2026</span><br><span class="dg">5:00</span> PM</p>
+        <p class="where">Hilton Pyramids Golf</p>
+        <p class="addr">El Wahat Road, 6th of October City</p>
         <div class="btns">
-          <a class="btn f" href="https://maps.app.goo.gl/LfFn98PUECzj4g5r7" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg>Directions</a>
-          <a class="btn o addcal" href="#" data-e="katb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Save the date</a>
+          <a class="btn f" href="https://maps.app.goo.gl/x86DDYn19JRmv48b9" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5a7 7 0 0 0-7 7c0 5 7 12 7 12s7-7 7-12a7 7 0 0 0-7-7Zm0 9.6a2.6 2.6 0 1 1 0-5.2 2.6 2.6 0 0 1 0 5.2Z"/></svg>Location</a>
+          <a class="btn" id="calW" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg>Save the date</a>
         </div>
       </div>
-    </article>
 
-    <div class="and rv"><img src="assets/bow.webp" alt="" width="500" height="157" loading="lazy"><p>and then…</p></div>
-
-    <article class="ev rv" id="ev-wed">
-      <div class="ev-hb">
-        <img src="assets/ribbon-heart.webp" alt="" width="1100" height="1054" loading="lazy">
-        <div class="ev-in">
-          <h3 class="ev-n">The Wedding</h3>
-          <div class="ev-dt"><span class="side">Saturday</span><span class="day">12</span><span class="side">2026</span></div>
-          <p class="ev-mo caps">December</p>
-          <p class="ev-tm">at 5:00 PM</p>
-        </div>
-      </div>
-      <div class="ev-pl">
-        <p class="ev-at">at</p>
-        <h4 class="ev-vn">Hilton Pyramids Golf</h4>
-        <p class="ev-ad">El Wahat Road, 6th of October City</p>
-        <a class="map" href="https://maps.app.goo.gl/x86DDYn19JRmv48b9" target="_blank" rel="noopener" aria-label="Hilton Pyramids Golf on Google Maps"><span class="pin">Map</span><iframe data-src="https://www.google.com/maps/embed?origin=mfe&amp;pb=!1m3!2m1!1sHilton+Pyramids+Golf,+6th+of+October!6i16" title="Hilton Pyramids Golf map" loading="lazy" tabindex="-1" referrerpolicy="no-referrer-when-downgrade"></iframe></a>
+      <!-- 5) كتب الكتاب — معلومة تانية تحت -->
+      <div class="ev katb">
+        <span class="tag">Before the wedding</span>
+        <h3>Katb El Ketab</h3>
+        <p class="ar" dir="rtl" lang="ar">كتب الكتاب</p>
+        <p class="when">Friday · <span class="dg">4</span> December <span class="dg">2026</span><br><span class="dg">3:00</span> PM</p>
+        <p class="where">Police Mosque</p>
+        <p class="addr">El Orouba Axis, New Cairo</p>
         <div class="btns">
-          <a class="btn f" href="https://maps.app.goo.gl/x86DDYn19JRmv48b9" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg>Directions</a>
-          <a class="btn o addcal" href="#" data-e="wedding"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Save the date</a>
+          <a class="btn f" href="https://maps.app.goo.gl/LfFn98PUECzj4g5r7" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5a7 7 0 0 0-7 7c0 5 7 12 7 12s7-7 7-12a7 7 0 0 0-7-7Zm0 9.6a2.6 2.6 0 1 1 0-5.2 2.6 2.6 0 0 1 0 5.2Z"/></svg>Location</a>
+          <a class="btn" id="calK" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg>Save the date</a>
         </div>
       </div>
-    </article>
-  </section>
+    </section>
 
-  <!-- ===== تأكيد الحضور ===== -->
-  <section class="rs paper-c" id="rsvp">
-    <div class="flt" data-n="5"></div>
-    <h2 class="ttl rv">Will you join us?</h2>
-    <p class="sub caps rv d1">Kindly let us know</p>
-    <p class="rs-seats" id="rsSeats"></p>
-    <form id="rsf" class="rv d2" novalidate>
-      <label class="fl" for="rsName">Your name</label>
-      <input class="in-t" id="rsName" name="name" type="text" maxlength="80" autocomplete="name" placeholder="Write your name">
-      <span class="fl">I'll be there for</span>
-      <div class="ch" role="radiogroup" aria-label="Attendance">
-        <button type="button" role="radio" aria-checked="false" data-v="both">Both days<small>4 &amp; 12 Dec</small></button>
-        <button type="button" role="radio" aria-checked="false" data-v="katb">Katb El Ketab<small>Fri 4 Dec</small></button>
-        <button type="button" role="radio" aria-checked="false" data-v="wed">The Wedding<small>Sat 12 Dec</small></button>
-        <button type="button" role="radio" aria-checked="false" data-v="no">Sadly, I can't<small>with love</small></button>
-      </div>
-      <div class="cnt" id="rsCnt"><span>Guests</span><button type="button" data-d="-1" aria-label="Less">−</button><b id="rsCntV">1</b><button type="button" data-d="1" aria-label="More">+</button></div>
-      <label class="fl" for="rsNote">A note for the couple</label>
-      <textarea class="in-t" id="rsNote" name="note" maxlength="160" rows="3" placeholder="Optional"></textarea>
-      <p class="rs-err" id="rsErr" role="alert"></p>
-      <button class="btn f send" id="rsSend" type="submit">Send my reply</button>
-    </form>
-    <div class="rs-done" id="rsDone"><div class="dh"></div><h3 id="rsDoneT">Thank you!</h3><p id="rsDoneM"></p></div>
-  </section>
-
-  <!-- ===== الختام ===== -->
-  <section class="end paper-b" id="end">
-    <div class="flt" data-n="8"></div>
-    <img class="bow rv" src="assets/bow.webp" alt="" width="500" height="157" loading="lazy">
-    <p class="wl rv d1">with all our love,</p>
-    <p class="nm rv d2" id="endNm">Hagar &amp; Nour</p>
-    <p class="dt caps rv d3">04 · 12 &amp; 12 · 12 · 2026</p>
-    <p class="ty rv d3">Your presence is the sweetest gift — we can't wait to celebrate with you.</p>
-  </section>
-  <div class="foot stripes"></div>
+    <!-- 6) الختام -->
+    <section class="sec end fx">
+      <div class="ln" aria-hidden="true"><i></i><b></b><i></i></div>
+      <p class="sk">with love</p>
+      <p class="nms">Hagar<i>&amp;</i>Nour</p>
+      <p class="dt">12 · 12 · 2026</p>
+    </section>
+  </div>
 </main>
 
-<audio id="au" src="__SONG__" loop preload="none" playsinline></audio>
-<button class="auto" id="autoBtn" type="button" aria-label="Auto scroll"><svg class="dn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 6l5 5 5-5M7 13l5 5 5-5"/></svg><svg class="ps" viewBox="0 0 24 24" fill="currentColor"><rect x="7" y="5" width="3.4" height="14" rx="1"/><rect x="13.6" y="5" width="3.4" height="14" rx="1"/></svg></button>
-<button class="mus" id="mus" type="button" aria-label="Music"><svg class="nt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg><span class="eq"><i></i><i></i><i></i></span></button>
+<button type="button" class="mute" id="muteBtn" aria-label="Mute">
+  <svg class="on-i" viewBox="0 0 24 24"><path d="M11 4.7 6.4 8.6H3v6.8h3.4L11 19.3z"/><path d="M15.5 9a5 5 0 0 1 0 6"/><path d="M18.4 6.2a9 9 0 0 1 0 11.6"/></svg>
+  <svg class="off" viewBox="0 0 24 24"><path d="M11 4.7 6.4 8.6H3v6.8h3.4L11 19.3z"/><path d="M22 9l-6 6M16 9l6 6"/></svg>
+</button>
+<audio id="au" src="__SONG__" loop preload="metadata" playsinline></audio>
 
 <script>
 (function () {
+  'use strict';
   var $ = function (s) { return document.querySelector(s); };
-  var ID = window.MQ_ID || '';
-  var BASE = ID ? '/i/' + ID : '';
+  var $$ = function (s) { return [].slice.call(document.querySelectorAll(s)); };
+  var ID = window.MQ_ID || '', BASE = ID ? '/i/' + ID : '';
   var EDIT = !!window.MQ_EDIT;
-  var REDUCED = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var root = document.documentElement, hero = $('#hero'), cv = $('#cv');
+  var WEDDING = new Date('2026-12-12T15:00:00Z'); // 5 مساءً بتوقيت القاهرة
 
-  /* ---------- لينك شخصي (?g=): اسم الضيف وعدد الأشخاص ---------- */
-  var G = null;
-  var guestReady = (function () {
+  /* ---------- لينك شخصي (?g=): اسم الضيف وعدد الأشخاص على الغلاف ---------- */
+  (function () {
     var m = /[?&]g=([A-Za-z0-9]{6,12})(?:&|$)/.exec(location.search);
-    if (!m || !BASE || !window.fetch) return Promise.resolve(null);
-    return fetch(BASE + '/guest/' + m[1]).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
-      .then(function (g) { if (g && g.name && g.seats) { G = g; personalize(g); } return g; });
-  })();
-  function seatsTxt(n) { return n === 1 ? '1 seat' : n + ' seats'; }
-  function personalize(g) {
-    var cv = $('#cv'), gn = $('#cvGn');
-    if (cv && gn) {
-      var ar = /[؀-ۿ]/.test(g.name);
+    if (!m || !BASE || !window.fetch) return;
+    fetch(BASE + '/guest/' + m[1]).then(function (r) { return r.ok ? r.json() : null; }).then(function (g) {
+      if (!g || !g.name) return;
+      var gn = $('#cvGn'), ar = /[؀-ۿ]/.test(g.name);
       gn.textContent = g.name; gn.classList.toggle('ar', ar); gn.setAttribute('dir', ar ? 'rtl' : 'ltr');
-      if (g.name.length > 16) gn.style.fontSize = 'calc(var(--ew) * ' + (Math.max(0.055, (ar ? 0.078 : 0.1) * 16 / g.name.length)).toFixed(3) + ')';
-      $('#cvSeats').innerHTML = '<b>' + seatsTxt(g.seats).toUpperCase() + '</b> reserved in your honour';
+      if (g.seats) $('#cvSeats').textContent = (g.seats === 1 ? '1 seat' : g.seats + ' seats') + ' reserved in your honour';
       cv.classList.add('guest');
-    }
-    var box = $('#rsSeats');
-    box.innerHTML = 'Dear <b></b>, we have reserved <b>' + seatsTxt(g.seats) + '</b> in your honour.';
-    box.querySelector('b').textContent = g.name;
-    box.style.display = 'block';
-    var nm = $('#rsName'); if (nm && !nm.value) nm.value = g.name;
-  }
+    }).catch(function () {});
+  })();
 
-  /* ---------- الموسيقى ---------- */
-  var au = $('#au'), mus = $('#mus');
-  function setPlaying(p) { mus.classList.toggle('playing', p); }
-  function play() { try { var pr = au.play(); if (pr && pr.then) pr.then(function () { setPlaying(true); }).catch(function () { setPlaying(false); }); else setPlaying(true); } catch (e) { setPlaying(false); } }
-  mus.addEventListener('click', function (e) { e.stopPropagation(); if (au.paused) play(); else { au.pause(); setPlaying(false); } });
-  au.addEventListener('pause', function () { setPlaying(false); });
-  au.addEventListener('playing', function () { setPlaying(true); });
-  document.addEventListener('visibilitychange', function () { if (document.hidden && !au.paused) { au.pause(); au._auto = true; } else if (!document.hidden && au._auto) { au._auto = false; play(); } });
-
-  /* ---------- نزول تلقائي بالراحة بعد الفتح — بيقف أول ما الضيف يلمس الشاشة، والزرار بيرجّعه ---------- */
-  var autoBtn = $('#autoBtn'), autoOn = false, autoRaf = 0, autoLast = 0, autoPos = 0, userTook = false, autoTimer = 0;
-  function autoSpeed() { return Math.max(42, Math.min(75, (window.innerHeight || 700) * 0.065)); }
-  function maxY() { return document.documentElement.scrollHeight - window.innerHeight; }
-  function autoStep(t) {
-    if (!autoOn) return;
-    if (!autoLast) autoLast = t;
-    var dt = Math.min(0.25, (t - autoLast) / 1000);
-    autoLast = t;
-    // مكان مطلق (مش scrollBy): سفاري ساعات بيرجّع النزول الصغير اللي بيتعمل جوه الفريم
-    autoPos = Math.min(maxY(), autoPos + autoSpeed() * dt);
-    var y = Math.round(autoPos);
-    if (y !== Math.round(window.pageYOffset)) window.scrollTo(0, y);
-    if (autoPos >= maxY() - 1) { stopAuto(); return; }
-    autoRaf = requestAnimationFrame(autoStep);
+  /* ---------- الموسيقى (أغنية المحرر بتغلب، ومن الثانية اللي اتحددت) ---------- */
+  var au = $('#au'), mute = $('#muteBtn'), started = false;
+  var A0 = +'__A_START__' || 0, A1 = +'__A_END__' || 0;
+  if (A0 || A1) {
+    var seek0 = function () { try { au.currentTime = A0; } catch (e) {} };
+    ['loadedmetadata', 'canplay', 'play', 'playing'].forEach(function (ev) { au.addEventListener(ev, function () { if (A0 && au.currentTime < A0 - 0.5) seek0(); }); });
+    au.addEventListener('timeupdate', function () { if (A1 && au.currentTime >= A1) seek0(); });
   }
-  function startAuto() {
-    if (autoOn) return;
-    if (window.pageYOffset >= maxY() - 1) window.scrollTo(0, 0);
-    autoOn = true; autoLast = 0; autoPos = window.pageYOffset;
-    autoBtn.classList.add('run');
-    autoRaf = requestAnimationFrame(autoStep);
+  function startSong() {
+    if (started) return; started = true;
+    try { au.volume = 0.7; } catch (e) {}
+    var p; try { p = au.play(); } catch (e) { p = null; }
+    if (p && p.catch) p.catch(function () { started = false; mute.classList.add('on', 'muted'); });
   }
-  function stopAuto() { autoOn = false; cancelAnimationFrame(autoRaf); autoBtn.classList.remove('run'); }
-  autoBtn.addEventListener('click', function (e) {
-    e.stopPropagation();
-    clearTimeout(autoTimer);
-    if (autoOn) { userTook = true; stopAuto(); } else { userTook = false; startAuto(); }
+  au.addEventListener('play', function () { mute.classList.add('on'); mute.classList.remove('muted'); });
+  mute.addEventListener('click', function () {
+    if (au.paused) { au.muted = false; au.play().catch(function () {}); started = true; return; }
+    au.muted = !au.muted; mute.classList.toggle('muted', au.muted);
   });
-  ['touchstart', 'wheel', 'mousedown', 'keydown'].forEach(function (ev) {
-    window.addEventListener(ev, function (e) {
-      if (!document.body.classList.contains('reveal')) return;
-      if (e.target && e.target.closest && e.target.closest('#autoBtn')) return;
-      userTook = true;
-      clearTimeout(autoTimer);
-      if (autoOn) stopAuto();
-    }, { passive: true });
+  var hid = false;
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) { if (!au.paused) { hid = true; au.pause(); } } else if (hid) { hid = false; au.play().catch(function () {}); }
   });
 
-  /* ---------- قلوب طايرة في الخلفية ---------- */
-  function hearts(box) {
-    var n = parseInt(box.getAttribute('data-n'), 10) || 6, h = '';
-    for (var i = 0; i < n; i++) {
-      var left = (6 + Math.random() * 88).toFixed(1), dur = (11 + Math.random() * 9).toFixed(1), del = (-Math.random() * 20).toFixed(1);
-      var s = (0.6 + Math.random() * 0.9).toFixed(2), dx = Math.round(-24 + Math.random() * 48), o = (0.25 + Math.random() * 0.4).toFixed(2);
-      h += '<i style="left:' + left + '%;animation-duration:' + dur + 's;animation-delay:' + del + 's;--s:' + s + ';--dx:' + dx + ';--o:' + o + '"></i>';
-    }
-    box.innerHTML = h;
-  }
-  var flts = [].slice.call(document.querySelectorAll('.flt'));
-  if (!REDUCED) {
-    flts.forEach(hearts);
-    if ('IntersectionObserver' in window) {
-      var fio = new IntersectionObserver(function (es) { es.forEach(function (e) { e.target.classList.toggle('on', e.isIntersecting); }); });
-      flts.forEach(function (f) { fio.observe(f); });
-    } else flts.forEach(function (f) { f.classList.add('on'); });
-  }
-
-  /* ---------- قلوب مع اللمس ---------- */
-  function burstAt(x, y, n, spread) {
-    for (var i = 0; i < n; i++) {
-      var el = document.createElement('i'); el.className = 'tapheart';
-      var a = -Math.PI / 2 + (Math.random() - 0.5) * (spread || 1.6), d = 50 + Math.random() * 60;
-      el.style.left = x + 'px'; el.style.top = y + 'px';
-      el.style.setProperty('--x', Math.round(Math.cos(a) * d) + 'px'); el.style.setProperty('--y', Math.round(Math.sin(a) * d - 20) + 'px');
-      el.style.setProperty('--r', Math.round(-30 + Math.random() * 60) + 'deg');
-      el.style.animationDelay = (i * 0.05) + 's';
-      document.body.appendChild(el);
-      setTimeout(function (e) { return function () { if (e.parentNode) e.parentNode.removeChild(e); }; }(el), 1500);
-    }
-  }
-  document.addEventListener('click', function (e) {
-    if (REDUCED || !document.body.classList.contains('reveal')) return;
-    if (e.target.closest && e.target.closest('a,button,input,textarea,label,form,.map,iframe')) return;
-    burstAt(e.clientX, e.clientY, e.target.closest && e.target.closest('#endNm') ? 9 : 4);
-  });
-
-  /* ---------- الغلاف: القلب يطير، الجواب يطلع من الظرف، وبعدين ندخل جوه الجواب ---------- */
-  var cv = $('#cv'), opened = false;
-  function reveal() {
-    document.documentElement.classList.remove('lock');
-    document.body.classList.add('reveal');
-    mus.classList.add('on');
-    autoBtn.classList.add('on');
-    observe();
-    if (!EDIT && !REDUCED) { clearTimeout(autoTimer); autoTimer = setTimeout(function () { if (!userTook) startAuto(); }, 4200); }
-  }
-  function sealBurst() {
-    var b = $('#burst'); if (!b || REDUCED) return;
-    var h = '';
-    for (var i = 0; i < 12; i++) h += '<i></i>';
-    b.innerHTML = h;
-    [].forEach.call(b.children, function (el, i) {
-      var a = (i / 12) * Math.PI * 2 + Math.random() * 0.4, d = 0.16 + Math.random() * 0.14, s = 0.6 + Math.random() * 0.8;
-      el.animate([
-        { transform: 'translate(0,0) scale(.2)', opacity: 0 },
-        { transform: 'translate(calc(var(--ew) * ' + (Math.cos(a) * d * 0.5).toFixed(3) + '), calc(var(--ew) * ' + (Math.sin(a) * d * 0.5).toFixed(3) + ')) scale(' + s + ')', opacity: 1, offset: 0.35 },
-        { transform: 'translate(calc(var(--ew) * ' + (Math.cos(a) * d).toFixed(3) + '), calc(var(--ew) * ' + (Math.sin(a) * d - 0.08).toFixed(3) + ')) scale(' + (s * 0.7).toFixed(2) + ') rotate(' + Math.round(-40 + Math.random() * 80) + 'deg)', opacity: 0 }
-      ], { duration: 1100 + Math.random() * 400, easing: 'cubic-bezier(.2,.7,.3,1)', fill: 'forwards' });
-    });
-  }
-  function openCover() {
+  /* ---------- الفتح: الكارت بيكبر ويختفي ← الورقة والكلام بيتكتب ---------- */
+  var opened = false;
+  function open() {
     if (opened) return; opened = true;
-    play();
-    cv.classList.add('tap');
-    try { sealBurst(); } catch (e) {}
-    setTimeout(function () { cv.classList.add('open'); }, 280);
-    setTimeout(function () { cv.classList.add('zoom'); reveal(); }, 1650);
-    setTimeout(function () { if (cv.parentNode) cv.parentNode.removeChild(cv); }, 2700);
+    startSong();
+    cv.classList.add('go');
+    setTimeout(function () { root.classList.remove('lock'); hero.classList.add('on'); }, 950);
+    setTimeout(function () { if (cv.parentNode) cv.parentNode.removeChild(cv); }, 1700);
   }
-  (function () {
-    if (!cv) return;
-    var shown = false;
-    function show() { if (shown) return; shown = true; cv.classList.add('ready'); }
-    var imgs = [].slice.call(cv.querySelectorAll('img')).filter(function (i) { return !i.complete; });
-    var waits = imgs.map(function (i) { return new Promise(function (res) { i.addEventListener('load', res); i.addEventListener('error', res); }); });
-    if (document.fonts && document.fonts.ready) waits.push(document.fonts.ready);
-    waits.push(guestReady);
-    Promise.all(waits).then(show, show);
-    setTimeout(show, 2500);
-  })();
-  if (EDIT || !cv) { if (cv && cv.parentNode) cv.parentNode.removeChild(cv); reveal(); }
+  if (EDIT) { if (cv.parentNode) cv.parentNode.removeChild(cv); document.body.classList.add('static'); hero.classList.add('on'); }
   else {
-    cv.addEventListener('click', openCover);
-    cv.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openCover(); } });
+    root.classList.add('lock');
+    try { history.scrollRestoration = 'manual'; } catch (e) {}
+    scrollTo(0, 0);
+    cv.addEventListener('click', open);
+    cv.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+    cv.addEventListener('touchmove', function (e) { e.preventDefault(); }, { passive: false });
   }
 
-  /* ---------- دخول الأقسام ---------- */
-  function observe() {
-    var els = document.querySelectorAll('.rv,#cal');
-    if (!('IntersectionObserver' in window)) { for (var i = 0; i < els.length; i++) els[i].classList.add('in'); calPath(); return; }
-    var io = new IntersectionObserver(function (es) {
-      es.forEach(function (e) {
-        if (!e.isIntersecting) return;
-        e.target.classList.add('in'); io.unobserve(e.target);
-        if (e.target.id === 'cal') setTimeout(calPath, 50);
-      });
-    }, { threshold: 0.15 });
-    for (var j = 0; j < els.length; j++) io.observe(els[j]);
-  }
+  /* ---------- ظهور الأقسام ---------- */
+  var fx = $$('.fx');
+  if ('IntersectionObserver' in window && !EDIT) {
+    var io = new IntersectionObserver(function (es) { es.forEach(function (x) { if (x.isIntersecting) { x.target.classList.add('in'); io.unobserve(x.target); } }); }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    fx.forEach(function (e) { io.observe(e); });
+  } else fx.forEach(function (e) { e.classList.add('in'); });
 
-  /* ---------- تقويم ديسمبر 2026: قلب على 4 و 12 وخط بينهم ---------- */
-  (function () {
-    var g = $('#calG'), h = '';
-    var first = new Date(2026, 11, 1).getDay();
-    for (var i = 0; i < first; i++) h += '<span class="x">' + (30 - first + 1 + i) + '</span>';
-    for (var d = 1; d <= 31; d++) h += '<span' + (d === 4 ? ' class="hd e1"' : d === 12 ? ' class="hd e2"' : '') + '>' + d + '</span>';
-    var tail = (7 - ((first + 31) % 7)) % 7;
-    for (var k = 1; k <= tail; k++) h += '<span class="x">' + k + '</span>';
-    g.innerHTML = h;
-  })();
-  function calPath() {
-    var cal = $('#cal'), p = $('#calP'); if (!cal || !p) return;
-    var a = cal.querySelector('.e1'), b = cal.querySelector('.e2');
-    var r = cal.getBoundingClientRect(), ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
-    var x1 = ra.left - r.left + ra.width * 0.82, y1 = ra.top - r.top + ra.height * 0.72;
-    var x2 = rb.left - r.left + rb.width * 0.2, y2 = rb.top - r.top + rb.height * 0.3;
-    var mx = (x1 + x2) / 2 + ra.width * 0.9, my = (y1 + y2) / 2 - ra.height * 0.1;
-    p.setAttribute('d', 'M' + x1.toFixed(1) + ' ' + y1.toFixed(1) + ' Q ' + mx.toFixed(1) + ' ' + my.toFixed(1) + ' ' + x2.toFixed(1) + ' ' + y2.toFixed(1));
-    if (REDUCED || !p.animate || p._shown) return;
-    p._shown = true;
-    p.animate([{ opacity: 0 }, { opacity: 0.85 }], { duration: 900, delay: 700, fill: 'both' });
-  }
-  window.addEventListener('resize', function () { if ($('#cal').classList.contains('in')) calPath(); });
-
-  /* ---------- العد التنازلي (القاهرة +2): كتب الكتاب، وبعده الفرح ---------- */
-  var KATB = Date.parse('2026-12-04T15:00:00+02:00'), WED = Date.parse('2026-12-12T17:00:00+02:00');
-  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  /* ---------- العدّاد (الفرح) ---------- */
+  var cd = [$('#cdD'), $('#cdH'), $('#cdM'), $('#cdS')];
+  var pad = function (n) { return (n < 10 ? '0' : '') + n; };
   function tick() {
-    var now = Date.now(), T, label;
-    if (now < KATB) { T = KATB; label = 'Katb El Ketab'; }
-    else if (now < WED) { T = WED; label = 'The Wedding'; $('#cdNext').style.display = 'none'; }
-    else { $('#cd').style.display = 'none'; $('#cdNext').style.display = 'none'; $('#cdEv').style.display = 'none'; $('.cd-k').style.display = 'none'; $('#cdDone').style.display = 'block'; return; }
-    $('#cdEv').textContent = label;
-    var s = Math.floor((T - now) / 1000), d = Math.floor(s / 86400); s -= d * 86400;
-    var h = Math.floor(s / 3600); s -= h * 3600; var m = Math.floor(s / 60); s -= m * 60;
-    $('#cdD').textContent = pad(d); $('#cdH').textContent = pad(h); $('#cdM').textContent = pad(m); $('#cdS').textContent = pad(s);
-    setTimeout(tick, 1000 - (Date.now() % 1000) + 5);
+    var ms = Math.max(0, WEDDING - Date.now());
+    var x = [Math.floor(ms / 864e5), Math.floor(ms / 36e5) % 24, Math.floor(ms / 6e4) % 60, Math.floor(ms / 1e3) % 60];
+    for (var i = 0; i < 4; i++) { var t = pad(x[i]); if (cd[i].textContent !== t) cd[i].textContent = t; }
   }
-  tick();
+  tick(); setInterval(tick, 1000);
 
-  /* ---------- احفظ الميعاد: ملف تقويم لكل مناسبة (الآيفون → تقويم أبل) ---------- */
-  (function () {
-    var ua = navigator.userAgent || '';
-    var ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-    var notSafari = !/Safari\//.test(ua) || /Instagram|FBAN|FBAV|FB_IAB|FBIOS|Messenger|musical_ly|TikTok|Snapchat|Line\/|LinkedInApp|Twitter|GSA\/|CriOS|FxiOS|EdgiOS|OPiOS|DuckDuckGo/i.test(ua);
-    [].forEach.call(document.querySelectorAll('.addcal'), function (a) {
-      var url = location.origin + BASE + '/calendar.ics?e=' + a.getAttribute('data-e');
-      a.setAttribute('href', url);
-      if (!BASE) { a.addEventListener('click', function (e) { e.preventDefault(); }); return; }
-      if (!ios) { a.setAttribute('download', (a.getAttribute('data-e') === 'katb' ? 'katb-el-ketab' : 'wedding') + '.ics'); return; }
-      a.addEventListener('click', function (e) { e.preventDefault(); location.href = notSafari ? 'x-safari-' + url : url; });
-    });
-  })();
-
-  /* ---------- الخرايط: كل واحدة بتتحمّل لما الضيف يقرّب منها ---------- */
-  (function () {
-    var fs = [].slice.call(document.querySelectorAll('.map iframe'));
-    function go(f) { if (f._on) return; f._on = true; var s = f.getAttribute('data-src'); if (s) f.setAttribute('src', s); }
-    if (!('IntersectionObserver' in window)) { setTimeout(function () { fs.forEach(go); }, 3000); return; }
-    var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { io.unobserve(e.target); go(e.target); } }); }, { rootMargin: '600px 0px' });
-    fs.forEach(function (f) { io.observe(f); });
-  })();
-
-  /* ---------- تأكيد الحضور (بيوصل للوحة العميل) ---------- */
-  (function () {
-    var form = $('#rsf'), att = '', btns = form.querySelectorAll('.ch button'), err = $('#rsErr'), send = $('#rsSend');
-    var cntBox = $('#rsCnt'), cntV = $('#rsCntV'), count = 1;
-    var LABEL = { both: 'كتب الكتاب + الفرح', katb: 'كتب الكتاب بس', wed: 'الفرح بس' };
-    function showCount() { cntBox.style.display = G && G.seats > 1 && att && att !== 'no' ? 'flex' : 'none'; }
-    [].forEach.call(cntBox.querySelectorAll('button'), function (b) {
-      b.addEventListener('click', function () { if (!G) return; count = Math.max(1, Math.min(G.seats, count + parseInt(b.getAttribute('data-d'), 10))); cntV.textContent = count; });
-    });
-    guestReady.then(function () { if (G) { count = G.seats; cntV.textContent = count; } });
-    [].forEach.call(btns, function (b) {
-      b.addEventListener('click', function () {
-        att = b.getAttribute('data-v');
-        [].forEach.call(btns, function (x) { var on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-checked', on ? 'true' : 'false'); });
-        err.textContent = '';
-        showCount();
-      });
-    });
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var name = $('#rsName').value.trim(), note = $('#rsNote').value.trim();
-      if (!name) { err.textContent = 'Please write your name.'; $('#rsName').focus(); return; }
-      if (!att) { err.textContent = 'Please choose which day you can join us.'; return; }
-      if (EDIT || !BASE) { err.textContent = 'This is a preview — the reply was not sent.'; return; }
-      var yes = att !== 'no';
-      var parts = [];
-      if (yes) parts.push('الحضور: ' + LABEL[att]);
-      if (G) parts.push(yes ? 'العدد: ' + count + ' من ' + G.seats : 'معتذر — الدعوة لـ ' + G.seats);
-      if (note) parts.push(note);
-      send.disabled = true; send.textContent = 'Sending…'; err.textContent = '';
-      fetch(BASE + '/rsvp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ guestName: name, attending: yes ? 'yes' : 'no', note: parts.join(' — ').slice(0, 200) }) })
-        .then(function (r) { if (!r.ok) throw r; return r.json(); })
-        .then(function () {
-          form.style.display = 'none';
-          $('#rsDoneT').textContent = yes ? 'Thank you, ' + name.split(' ')[0] + '!' : 'Thank you for letting us know';
-          $('#rsDoneM').textContent = yes ? "We can't wait to celebrate with you." : 'You will be missed — thank you for your kind wishes.';
-          $('#rsDone').style.display = 'block';
-          var r = $('#rsDone').getBoundingClientRect(); if (yes && !REDUCED) burstAt(r.left + r.width / 2, r.top + 20, 8, 2.4);
-        })
-        .catch(function (r) {
-          send.disabled = false; send.textContent = 'Send my reply';
-          err.textContent = r && r.status === 429 ? 'Too many tries — please try again in a little while.' : 'Something went wrong — please try again.';
-        });
-    });
-  })();
+  /* ---------- حفظ في التقويم (لكل مناسبة) ---------- */
+  if (BASE) { $('#calW').href = BASE + '/calendar.ics?e=wedding'; $('#calK').href = BASE + '/calendar.ics?e=katb'; }
+  if (EDIT) $$('a').forEach(function (a) { a.addEventListener('click', function (e) { e.preventDefault(); }); });
 })();
 </script>
 </body>

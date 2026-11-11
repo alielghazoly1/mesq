@@ -1,3 +1,5 @@
+// 2026-11-11 (بطلب المالك): اتعملت من جديد — الغلاف كارت الدانتيل النبيتي، والضغطة بتفتح على الورقة بالدانتيل والكلام
+// بيتكتب سطر سطر. الأساس الفرح (العدّاد ليه بس) وكتب الكتاب معلومة تحت بلوكيشن. من غير تأكيد حضور. ألوان: Wine/Plum/Moss.
 // دعوة هاجر ونور (كتب الكتاب الجمعة 4/12/2026 الساعة 3 العصر في مسجد الشرطة — التجمع الخامس،
 // والفرح السبت 12/12/2026 الساعة 5 في هيلتون بيراميدز جولف — 6 أكتوبر) — بطلب المالك (2026-11-08):
 // دعوة جديدة بالكامل بثيم الصور اللي بعتها، مكان دعوة Sage Garden كانت فاضية — نفس اللينك واللوحة والإحصائيات.
@@ -40,6 +42,12 @@ function configValue(html, key) {
   try { return JSON.parse(m[1]) || ''; } catch (e) { return ''; }
 }
 
+/** رقم من بيانات التخصيصات ("audioStart":12) */
+function numValue(html, key) {
+  const m = html.match(new RegExp(`"${key}":(\\d+(?:\\.\\d+)?)`));
+  const n = m ? Number(m[1]) : 0;
+  return Number.isFinite(n) && n >= 0 && n < 3600 ? n : 0;
+}
 const okUrl = (u) => /^https:\/\//.test(u) || /^\/[a-z]/.test(u);
 
 module.exports = {
@@ -51,8 +59,8 @@ module.exports = {
     width: 1200,
     height: 630,
     overrideImage: true,
-    title: 'Hagar & Nour — Wedding Invitation',
-    description: 'Katb El Ketab · Friday 4 December 2026 · The Wedding · Saturday 12 December 2026',
+    title: 'Hagar & Nour — The Wedding Day 🤍',
+    description: 'Saturday, 12 December 2026 · 5:00 PM · Hilton Pyramids Golf',
   },
 
   // لينكات دعوة شخصية من صفحة الإحصائيات (/s/:token): اسم الضيف وعدد الأشخاص بيظهروا في الدعوة
@@ -88,7 +96,9 @@ module.exports = {
     if (!PAGE) PAGE = page();
     let out = PAGE;
     const song = configValue(templateHtml, 'audioUrl');
-    out = out.split('__SONG__').join(escapeHtml(okUrl(song) ? song : DEFAULT_SONG));
+    out = out.split('__SONG__').join(escapeHtml(okUrl(song) ? song : DEFAULT_SONG))
+      .split('__A_START__').join(String(numValue(templateHtml, 'audioStart')))
+      .split('__A_END__').join(String(numValue(templateHtml, 'audioEnd')));
     const tags = shareTags(templateHtml);
     if (tags) {
       out = out.replace(/<title>[^<]*<\/title>\s*/i, '');
