@@ -1,4 +1,4 @@
-// دعوة lcqdxr6 (Sage Garden) — Imène & Hassan (إيمان وحسن)، السبت 10 أبريل 2027، Dar El Bahri —
+// دعوة lcqdxr6 (Sage Garden) — Hassan & Iman (حسان وإيمان — العريس الأول، بطلب المالك 2026-11-11)، السبت 10 أبريل 2027، Dar El Bahri —
 // Tonnara، كاب زبيب، تونس. بطلب المالك (2026-11-06): النسخة الفرنساوي الكاملة (العربي هتبقى
 // على لينك تاني). اتبنت على نسخة sXSBxjs (ماجد ورنا — اتنسخت هنا 2026-11-05) واتغيّر فيها:
 //   - الختم اللي برّه برجندي بلون الدعوة جوه وعليه I&H (seal.webp — من ختم MR نفسه: الحروف
@@ -30,7 +30,7 @@ const SWAY = { bq1: '70% 30%', bq2: '30% 20%', calla: '50% 0%', gyp: '90% 80%', 
 // كلام فوق القطع — بإحداثيات الصورة الأصلية (بتتحوّل لمكانها جوه القطعة). ih1–ih7 مكان
 // الكلام الإنجليزي اللي كان مرسوم في الصور (نفس المكان والميل اللي اتقاسوا من الصور).
 const TEXTS = {
-  env: [['sx10', 'mono', 413, 318, 'IH']],
+  env: [['sx10', 'mono', 413, 318, 'HI']],
   card: [
     ['sx11', 'inv', 277, 432, 'VOUS ÊTES INVITÉS<br>AU MARIAGE DE'],
     ['sx12', 'nm1', 277, 500, '', 'groom'],
@@ -564,7 +564,7 @@ const AR_IDS = {
   ih50: 'ذكرياتنا', ih51: 'حكايتنا', ih52: 'عرض كل الصور',
 };
 // الأسامي والمكان بالعربي (زي بيانات الدعوة: groomNameAr / brideNameAr)
-const AR_DATA = { groom: 'إيمان', bride: 'حسن', hall: 'دار البحري — التونارة', city: 'كاب زبيب، تونس' };
+const AR_DATA = { groom: 'حسان', bride: 'إيمان', hall: 'دار البحري — التونارة', city: 'كاب زبيب، تونس' };
 const AR_MSG = {
   'Your full name': 'الاسم الكامل', 'Optional': 'اختياري', 'Your name': 'الاسم',
   'Please write your name': 'من فضلك اكتب اسمك',
@@ -900,7 +900,7 @@ module.exports = {
     width: 1200,
     height: 630,
     overrideImage: true,
-    title: 'Imène & Hassan — Invitation de mariage',
+    title: 'Hassan & Iman — Invitation de mariage',
     description: 'Samedi 10 avril 2027 · Dar El Bahri — Tonnara, Cap Zebib',
   },
 

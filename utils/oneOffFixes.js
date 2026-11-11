@@ -1389,6 +1389,15 @@ const FIXES = [
     },
   },
   {
+    // lcqdxr6 — المالك (2026-11-11): العريس حسان (Hassan — مش حسن) والعروسة إيمان (Iman — مش Imène)، والعريس الأول
+    // (كانت إيمان في خانة العريس عشان تطلع الأول). بيتعمل بس لو لسه Imène / Hassan.
+    name: 'lcqdxr6-hassan-iman',
+    shortId: 'lcqdxr6',
+    select: 'customizations groomName brideName',
+    when: (c, inv) => inv.groomName === 'Imène' && inv.brideName === 'Hassan',
+    apply: () => ({ groomName: 'Hassan', groomNameAr: 'حسان', brideName: 'Iman', brideNameAr: 'إيمان' }),
+  },
+  {
     // gqwYc45 — المالك (2026-11-11): الفرح الساعة 5 مساءً مش 7 (العدّاد والبيانات) — نفس اليوم 4/12/2026. مرة واحدة.
     name: 'gqwYc45-time-5pm',
     shortId: 'gqwYc45',
