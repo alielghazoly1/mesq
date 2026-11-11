@@ -263,7 +263,7 @@ h1,h2,p{margin:0;font-weight:inherit}
   <svg class="on-i" viewBox="0 0 24 24"><path d="M11 4.7 6.4 8.6H3v6.8h3.4L11 19.3z"/><path d="M15.5 9a5 5 0 0 1 0 6"/><path d="M18.4 6.2a9 9 0 0 1 0 11.6"/></svg>
   <svg class="off" viewBox="0 0 24 24"><path d="M11 4.7 6.4 8.6H3v6.8h3.4L11 19.3z"/><path d="M22 9l-6 6M16 9l6 6"/></svg>
 </button>
-<audio id="song" src="__SONG__" loop preload="none" playsinline></audio>
+<audio id="song" src="__SONG__" loop preload="metadata" playsinline></audio>
 
 <script>
 (function () {
@@ -277,6 +277,15 @@ h1,h2,p{margin:0;font-weight:inherit}
   /* ---------- الموسيقى ---------- */
   var song = $('#song'), mute = $('#muteBtn'), started = false;
   try { song.volume = 0.7; } catch (e) {}
+  // الأغنية اللي اتختارت من تبويب الموسيقى في المحرر: بتبدأ من الثانية اللي اتحددت وترجع لها لما توصل للنهاية المحددة
+  var A0 = +'__A_START__' || 0, A1 = +'__A_END__' || 0;
+  if (A0 || A1) {
+    var seek0 = function () { try { song.currentTime = A0; } catch (e) {} };
+    ['loadedmetadata', 'canplay', 'play', 'playing'].forEach(function (ev) {
+      song.addEventListener(ev, function () { if (A0 && song.currentTime < A0 - 0.5) seek0(); });
+    });
+    song.addEventListener('timeupdate', function () { if (A1 && song.currentTime >= A1) seek0(); });
+  }
   function startSong() {
     if (started) return; started = true;
     var p; try { p = song.play(); } catch (e) { p = null; }

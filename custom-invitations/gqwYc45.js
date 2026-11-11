@@ -30,6 +30,12 @@ function configValue(html, key) {
   if (!m) return '';
   try { return JSON.parse(m[1]) || ''; } catch (e) { return ''; }
 }
+/** رقم من بيانات التخصيصات ("audioStart":12) */
+function numValue(html, key) {
+  const m = html.match(new RegExp(`"${key}":(\\d+(?:\\.\\d+)?)`));
+  const n = m ? Number(m[1]) : 0;
+  return Number.isFinite(n) && n >= 0 && n < 3600 ? n : 0;
+}
 const okUrl = (u) => /^https:\/\//.test(u) || /^\/[a-z]/.test(u);
 
 module.exports = {
@@ -40,8 +46,8 @@ module.exports = {
     width: 1200,
     height: 630,
     overrideImage: true,
-    title: 'Abdelrahman & Rawan — Wedding Invitation',
-    description: 'Friday, 4 December 2026 · 5:00 PM · Dusit Thani Cairo — Palms Ballroom',
+    title: 'Abdelrahman & Rawan — Wedding Invitation 🤍',
+    description: 'Friday, 4 December 2026 · 5:00 PM · Dusit Thani LakeView Cairo — Palms Ballroom',
   },
 
   render() {
@@ -56,7 +62,10 @@ module.exports = {
     const start = configValue(templateHtml, 'weddingDateTimeISO') || '2026-12-04T15:00:00.000Z';
     out = out.split('__MAP_LINK__').join(escapeHtml(okUrl(link) && !/query=Venue/.test(link) ? link : FALLBACK_LINK))
       .split('__SONG__').join(escapeHtml(okUrl(song) ? song : DEFAULT_SONG))
-      .split('__START__').join(escapeHtml(start));
+      .split('__START__').join(escapeHtml(start))
+      // قص الأغنية من المحرر (تبويب الموسيقى: تبدأ من / تخلص عند)
+      .split('__A_START__').join(String(numValue(templateHtml, 'audioStart')))
+      .split('__A_END__').join(String(numValue(templateHtml, 'audioEnd')));
     const tags = shareTags(templateHtml);
     if (tags) {
       out = out.replace(/<title>[^<]*<\/title>\s*/i, '');
