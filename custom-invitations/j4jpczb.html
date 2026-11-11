@@ -461,6 +461,7 @@ img{display:block;max-width:none;-webkit-user-select:none;user-select:none;-webk
   })();
   function seatsTxt(n) { return n === 1 ? '1 seat' : n + ' seats'; }
   function personalize(g) {
+    window.__j4G = g;
     var cv = document.getElementById('cv'), gn = document.getElementById('cvGn');
     if (cv && gn) {
       var ar = /[\u0600-\u06FF]/.test(g.name);
@@ -474,6 +475,7 @@ img{display:block;max-width:none;-webkit-user-select:none;user-select:none;-webk
     box.querySelector('b').textContent = g.name;
     box.style.display = 'block';
     var nm = document.getElementById('rsName'); if (nm && !nm.value) nm.value = g.name;
+    if (window.__j4Seats) window.__j4Seats();
   }
 
   /* ---------- الموسيقى ---------- */
@@ -659,6 +661,187 @@ img{display:block;max-width:none;-webkit-user-select:none;user-select:none;-webk
         });
     });
   })();
+})();
+</script>
+
+<!-- زرار اللغة (بطلب المالك 2026-11-11): English افتراضي، و"العربية" فوق على اليمين بتقلب الدعوة كلها عربي
+     (الكلام والخطوط والاتجاه) وترجع. الترجمة بقاموس على الكلام نفسه — أي كلام بيظهر بعدين (الرد، صور الضيوف) بيتترجم هو كمان. -->
+<style>
+.lng{position:fixed;top:calc(12px + env(safe-area-inset-top));right:12px;z-index:3000;display:inline-flex;align-items:center;gap:7px;padding:8px 14px 8px 11px;
+  border-radius:999px;border:1px solid rgba(168,131,74,.6);background:rgba(250,245,236,.9);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  color:#7f602f;font:600 13px/1 'Cinzel','Times New Roman',serif;letter-spacing:.08em;cursor:pointer;box-shadow:0 8px 22px -12px rgba(90,68,38,.55);-webkit-tap-highlight-color:transparent}
+.lng svg{width:15px;height:15px;flex:none}
+.lng[data-to="ar"] span{font:700 15px/1 'Amiri',serif;letter-spacing:0}
+html.ar{--cap:'Amiri','Times New Roman',serif;--serif:'Amiri','Times New Roman',serif;--script:'Aref Ruqaa','Amiri',serif}
+html.ar .page,html.ar .cv-gbox,html.ar .lb{direction:rtl}
+html.ar .page *,html.ar .cv-gbox *{letter-spacing:0!important;text-transform:none!important;font-style:normal!important}
+html.ar .page .ev .a,html.ar .page .vn-ar{display:none}
+html.ar .card .c-inv,html.ar .card .c-inv2{font-weight:700}
+html.ar .card .c-names .nm{font-weight:700;font-size:calc(var(--k)*104)}
+html.ar .card .c-date,html.ar .card .c-time{font-weight:700}
+html.ar .title{font-weight:700;line-height:1.5}
+html.ar .eyebrow,html.ar .who,html.ar .f,html.ar .cd .l,html.ar .dear,html.ar .cv-seats{font-weight:700}
+html.ar .end .nm{font-weight:700}
+html.ar .tl{text-align:right}
+/* العربي: الكلام الصغير (كان بحروف كابيتال إنجليزي) أكبر شوية عشان يتقري */
+html.ar .card .c-inv{font-size:calc(var(--k)*33);line-height:1.2}
+html.ar .card .c-inv2{font-size:calc(var(--k)*30);line-height:1.2}
+html.ar .card .c-date{font-size:calc(var(--k)*34);line-height:1.2}
+html.ar .card .c-time{font-size:calc(var(--k)*28);line-height:1.2}
+html.ar .card .c-venue{font-size:calc(var(--k)*32);line-height:1.2}
+html.ar .card .c-city{font-size:calc(var(--k)*26);line-height:1.2}
+html.ar .eyebrow{font-size:calc(var(--u)*15)}
+html.ar .cd .l{font-size:calc(var(--u)*12)}
+html.ar .who{font-size:calc(var(--u)*12.5)}
+html.ar .ev .n{font-size:calc(var(--u)*15)}
+html.ar .vn-name{font-size:calc(var(--u)*16)}
+html.ar .f{font-size:calc(var(--u)*13.5)}
+html.ar .lead,html.ar .fam-inv,html.ar .rs-done .m,html.ar .end .w{font-size:calc(var(--u)*17.5);line-height:1.7}
+html.ar .end .dt{direction:ltr;font-family:'Cinzel','Times New Roman',serif}
+html.ar .cv-guest .gn:not(.ar){font-family:'Great Vibes',cursive!important}
+html.ar .cv-guest .dear{font-size:calc(var(--c)*13)}
+html.ar .cv-guest .inv{font-size:calc(var(--c)*16);line-height:1.6}
+html.ar .cv-seats{font-size:calc(var(--c)*12)}
+html.ar .rs{text-align:right}
+html.ar .page input,html.ar .page textarea{direction:rtl}
+</style>
+<script>
+(function () {
+  'use strict';
+  var EDIT = !!window.MQ_EDIT;
+  var KEY = 'j4_lang';
+  var D = {
+    'Dear': 'عزيزنا',
+    'you are cordially invited to the wedding of Sary & Sona': 'يسعدنا دعوتكم لحضور حفل زفاف ساري وسونا',
+    'You are invited': 'ندعوكم بكل حب',
+    'to celebrate our wedding': 'لمشاركتنا فرحة زفافنا',
+    'Sary': 'ساري', 'Sona': 'سونا',
+    'Saturday': 'السبت', '5 December 2026': '٥ ديسمبر ٢٠٢٦',
+    'At': 'الساعة', '7:30 PM': '٧:٣٠ مساءً', '8:30 PM': '٨:٣٠ مساءً', '9:30 PM': '٩:٣٠ مساءً',
+    'Daraj Al Yasmine': 'درج الياسمين', 'Dubai, UAE': 'دبي، الإمارات',
+    'Counting down': 'العدّ التنازلي', 'To Our Forever': 'إلى يومنا الأجمل',
+    'Days': 'يوم', 'Hours': 'ساعة', 'Minutes': 'دقيقة', 'Seconds': 'ثانية',
+    'Today we say “I do”': 'اليوم يوم فرحتنا',
+    'Add to calendar': 'أضف الموعد إلى التقويم',
+    'With the blessing of our families': 'بمباركة عائلتينا',
+    'Father of the Groom': 'والد العريس', 'Father of the Bride': 'والد العروس',
+    'The Groom': 'العريس', 'The Bride': 'العروس',
+    'request the pleasure of your company': 'يتشرفان بدعوتكم',
+    'at the wedding of their children': 'لحضور حفل زفاف نجليهما',
+    'The celebration': 'برنامج الحفل', 'Wedding Day': 'يوم الزفاف',
+    'Guests Arrival': 'وصول الضيوف', "The Couple's Entrance": 'دخول العروسين', 'Dinner': 'العشاء',
+    'Our moments': 'لحظاتنا', 'Captured Love': 'حبٌّ في صور',
+    'The venue': 'مكان الحفل', 'Metha Plaza · Oud Metha · Dubai': 'ميثا بلازا · عود ميثاء · دبي',
+    'Open in Google Maps': 'افتح الموقع على خرائط جوجل',
+    'Kindly respond': 'نرجو الرد', 'Will You Join Us?': 'هل ستشاركوننا فرحتنا؟',
+    'Your presence would make our day complete.': 'حضوركم يكمل فرحتنا.',
+    'Your name': 'الاسم', 'Will you attend?': 'هل ستحضرون؟',
+    'Joyfully accepts': 'نعم، بكل سرور', 'Regretfully declines': 'أعتذر عن الحضور',
+    'How many will attend?': 'كم عدد الحضور؟',
+    'A note for the couple': 'كلمة للعروسين', '(optional)': '(اختياري)',
+    'Send RSVP': 'إرسال الرد', 'Sending…': 'جارٍ الإرسال…',
+    'Thank you!': 'شكرًا لكم!', 'Thank you for letting us know': 'شكرًا لإبلاغنا',
+    "We can't wait to celebrate with you.": 'بانتظاركم لنحتفل معًا.',
+    'You will be missed — thank you for your kind wishes.': 'سنفتقدكم — شكرًا لأمنياتكم الجميلة.',
+    'Please write your name.': 'من فضلك اكتب اسمك.',
+    'Please let us know if you can attend.': 'من فضلك أخبرنا إن كنت ستحضر.',
+    'This is a preview — the reply was not sent.': 'هذه معاينة — لم يُرسَل الرد.',
+    'Too many tries — please try again in a little while.': 'محاولات كثيرة — حاول مرة أخرى بعد قليل.',
+    'Something went wrong — please try again.': 'حدث خطأ — حاول مرة أخرى.',
+    'Share your moments': 'شاركونا لحظاتكم', 'Capture the Night': 'صور الليلة',
+    'Took photos at the wedding? Upload them here — they go straight to Sary & Sona.': 'التقطتم صورًا في الحفل؟ ارفعوها هنا — تصل مباشرةً إلى ساري وسونا.',
+    'With all our love,': 'مع كل الحب،', 'Sary & Sona': 'ساري وسونا',
+    // صور الضيوف (guest-extras)
+    'OUR ALBUM': 'ألبومنا', 'Share the moments': 'شاركونا اللحظات',
+    'Took photos at our celebration? Add them here so we can keep every beautiful moment.': 'التقطتم صورًا في حفلنا؟ أضيفوها هنا لنحتفظ بكل لحظة جميلة.',
+    'Full name': 'الاسم الكامل', 'ADD YOUR PHOTOS': 'أضف صورك',
+    'Your photos go privately to the couple — only they can see them.': 'صوركم تصل إلى العروسين فقط — لا يراها أحد غيرهما.',
+    'Please write your name first': 'من فضلك اكتب اسمك أولًا', 'Please choose photos only': 'من فضلك اختر صورًا فقط',
+    'Some photos couldn’t be uploaded — please try again': 'بعض الصور لم تُرفع — حاول مرة أخرى',
+    'Connection lost — please try again': 'انقطع الاتصال — حاول مرة أخرى',
+    'This is a preview — photos aren’t uploaded': 'هذه معاينة — لن تُرفع الصور',
+    '1 photo sent to the couple': 'وصلت صورة واحدة إلى العروسين'
+  };
+  var RX = [
+    [/^Thank you, (.+)!$/, function (m) { return 'شكرًا يا ' + m[1] + '!'; }],
+    [/^(\d+) photos sent to the couple$/, function (m) { return 'وصلت ' + m[1] + ' صور إلى العروسين'; }],
+    [/^Uploading (\d+) of (\d+)…$/, function (m) { return 'جارٍ رفع ' + m[1] + ' من ' + m[2] + '…'; }],
+    [/^(\d+) \/ (\d+)$/, null]
+  ];
+  var PH = { rsName: ['Full name', 'الاسم الكامل'], rsNote: ['Your wishes…', 'أمنياتكم للعروسين…'], 'gx-pname': ['Full name', 'الاسم الكامل'] };
+  var lang = 'en', orig = new Map(), busy = false;
+
+  function trText(s) {
+    var k = s.trim(); if (!k) return null;
+    if (Object.prototype.hasOwnProperty.call(D, k)) return s.replace(k, D[k]);
+    for (var i = 0; i < RX.length; i++) { var m = RX[i][0].exec(k); if (m && RX[i][1]) return s.replace(k, RX[i][1](m)); }
+    return null;
+  }
+  function walk(root) {
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function (n) {
+      var p = n.parentNode; if (!p || /^(SCRIPT|STYLE|TEXTAREA)$/.test(p.nodeName) || p.closest('.lng')) return NodeFilter.FILTER_REJECT;
+      return NodeFilter.FILTER_ACCEPT; } });
+    var n; while ((n = w.nextNode())) {
+      var t = trText(n.nodeValue);
+      if (t != null && t !== n.nodeValue) { if (!orig.has(n)) orig.set(n, n.nodeValue); n.nodeValue = t; }
+    }
+  }
+  // الكلام اللي بيتغيّر بعدين (رسايل الرد، صور الضيوف): بنترجمه أول ما يظهر وإحنا في العربي
+  var mo = new MutationObserver(function (list) {
+    if (lang !== 'ar' || busy) return;
+    busy = true;
+    list.forEach(function (r) {
+      if (r.type === 'characterData') { var t = trText(r.target.nodeValue); if (t != null && t !== r.target.nodeValue) { orig.set(r.target, r.oldValue != null && trText(r.oldValue) == null ? r.target.nodeValue : (orig.get(r.target) || r.target.nodeValue)); r.target.nodeValue = t; } }
+      else [].forEach.call(r.addedNodes, function (n) { if (n.nodeType === 3) { var t = trText(n.nodeValue); if (t != null) { orig.set(n, n.nodeValue); n.nodeValue = t; } } else if (n.nodeType === 1) walk(n); });
+      var gp = document.getElementById('gx-pname'); if (gp && gp.placeholder !== 'الاسم الكامل') gp.placeholder = 'الاسم الكامل';
+    });
+    busy = false;
+  });
+  function seats() {
+    if (!window.__j4G) return;
+    var g = window.__j4G, n = g.seats, ar = lang === 'ar';
+    var s = ar ? (n === 1 ? 'مقعد واحد' : n === 2 ? 'مقعدان' : n + (n <= 10 ? ' مقاعد' : ' مقعدًا')) : (n === 1 ? '1 seat' : n + ' seats');
+    var cs = document.getElementById('cvSeats');
+    if (cs) cs.innerHTML = ar ? '&#10022; <b>' + s + '</b> محجوزة لكم &#10022;' : '&#10022; <b>' + s.toUpperCase() + '</b> reserved in your honour &#10022;';
+    var box = document.getElementById('rsSeats');
+    if (box && box.style.display === 'block') {
+      box.innerHTML = ar ? 'عزيزنا <b></b>، حجزنا لكم <b>' + s + '</b>.' : 'Dear <b></b>, we have reserved <b>' + s + '</b> in your honour.';
+      box.querySelector('b').textContent = g.name;
+    }
+  }
+  function setLang(l) {
+    lang = l === 'ar' ? 'ar' : 'en';
+    var html = document.documentElement;
+    busy = true;
+    if (lang === 'ar') {
+      walk(document.body);
+      html.lang = 'ar'; html.classList.add('ar');
+      document.title = 'ساري وسونا — دعوة زفاف';
+    } else {
+      orig.forEach(function (v, n) { n.nodeValue = v; }); orig.clear();
+      html.lang = 'en'; html.classList.remove('ar');
+      document.title = 'Sary & Sona — Wedding Invitation';
+    }
+    Object.keys(PH).forEach(function (id) { var e = document.getElementById(id); if (e) e.placeholder = PH[id][lang === 'ar' ? 1 : 0]; });
+    busy = false;
+    seats();
+    btn.dataset.to = lang === 'ar' ? 'en' : 'ar';
+    btn.querySelector('span').textContent = lang === 'ar' ? 'English' : 'العربية';
+    btn.setAttribute('aria-label', lang === 'ar' ? 'View in English' : 'عرض الدعوة بالعربية');
+    try { localStorage.setItem(KEY, lang); } catch (e) {}
+  }
+  if (EDIT) return;
+  var btn = document.createElement('button');
+  btn.type = 'button'; btn.className = 'lng';
+  btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.7 2.9 2.7 15.1 0 18M12 3c-2.7 2.9-2.7 15.1 0 18"/></svg><span>العربية</span>';
+  btn.dataset.to = 'ar';
+  btn.addEventListener('click', function (e) { e.stopPropagation(); setLang(btn.dataset.to); });
+  document.body.appendChild(btn);
+  mo.observe(document.body, { subtree: true, childList: true, characterData: true, characterDataOldValue: true });
+  var start = 'en';
+  try { start = new URLSearchParams(location.search).get('lang') || localStorage.getItem(KEY) || 'en'; } catch (e) {}
+  if (start === 'ar') setLang('ar');
+  window.__j4SetLang = setLang; window.__j4Seats = seats;
 })();
 </script>
 </body>
