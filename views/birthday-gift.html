@@ -614,7 +614,7 @@ html.ar .end-d{letter-spacing:.3em!important;font-family:'Playfair Display','Tim
     fitSoon();
   }
   /* ---------- بعد الفتح: الصفحة بتنزل لوحدها لحد الآخر (طلب المالك) ----------
-     سرعة ثابتة هادية-سريعة (~0.62 شاشة في الثانية) ببداية ونهاية ناعمين. أي لمسة/سكرول من
+     سرعة ثابتة هادية-سريعة (~0.36 شاشة في الثانية) ببداية ونهاية ناعمين. أي لمسة/سكرول من
      صاحب الهدية بيوقّفها فورًا ويسيبه يكمّل بإيده. مش بتشتغل في المحرر ولا مع "تقليل الحركة". */
   function tour() {
     if (STATIC) return;
@@ -630,7 +630,7 @@ html.ar .end-d{letter-spacing:.3em!important;font-family:'Playfair Display','Tim
       var end = Math.max(0, root.scrollHeight - window.innerHeight);
       var left = end - y;
       if (left <= 0.5) { window.scrollTo(0, end); stop(); return; }
-      var top = window.innerHeight * 0.62;            // px/s
+      var top = window.innerHeight * 0.36;            // px/s
       // بيزوّد السرعة في أول ثانية، وبيهدّي في آخر نص شاشة
       var want = Math.min(top, Math.max(60, left * 2.2));
       v += (want - v) * Math.min(1, dt / 520);
