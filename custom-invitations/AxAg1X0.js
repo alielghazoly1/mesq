@@ -4,7 +4,7 @@
 //    شكل الصورة اللي المالك بعتها (الصورة نفسها معاينة Adobe Stock عليها علامة مائية).
 //  • القاعة لونها برجندي: لون الكلام والزراير والعدّاد برجندي بدل الأزرق الرمادي.
 //  • "Our Moments" (الصور) اتشالت، ومكانها كارت الخدش على الصدف (Save the date) زي ما كان في qWn9kOE الأول.
-//  • صفحة لوحدها قبل الختام: "A Little Note of Love" (من غير أطفال).
+//  • (صفحة "A Little Note of Love" اتعملت واتشالت بطلب المالك في نفس اليوم.)
 //  • الكلام كله إنجليزي بكلام المالك. البيانات (الأسامي، الميعاد، القاعة، اللينك) في oneOffFix AxAg1X0-eman-ahmed.
 // نفس أغنية cPcTTdw (A Thousand Years من الثانية 20).
 const { asset } = require('./_asset');
@@ -50,21 +50,6 @@ const STYLE = `<style id="ea-style">
 .sc-ring{pointer-events:none;box-shadow:0 0 0 3px hsl(40,45%,72%),0 0 0 5px hsl(40,30%,92%),0 0 0 6px hsl(40,40%,62%),0 0 0 12px hsla(40,30%,96%,.55),0 0 0 13px hsl(40,40%,66%),0 6px 18px hsla(345,40%,25%,.25),inset 0 0 10px hsla(40,40%,40%,.35)}
 @media (min-width:768px){.sc{max-width:620px;margin:0 auto}}
 
-/* ===== صفحة لوحدها: A Little Note of Love ===== */
-.nl{min-height:100vh;min-height:100svh;display:flex;align-items:center;justify-content:center;padding:56px 22px}
-.nl-card{position:relative;width:100%;max-width:400px;padding:64px 30px 54px;text-align:center;border:1px solid rgba(var(--fg-rgb),.42);border-radius:190px 190px 6px 6px}
-.nl-card::before{content:"";position:absolute;inset:6px;border:1px solid rgba(var(--fg-rgb),.2);border-radius:184px 184px 3px 3px;pointer-events:none}
-.nl-seal{width:92px;height:auto;margin:0 auto 18px;filter:drop-shadow(0 2px 3px rgba(var(--fg-rgb),.15))}
-.nl-t{font-family:var(--script);font-size:clamp(34px,10.5vw,50px);line-height:1.15;color:var(--fg)}
-.nl-line{display:flex;align-items:center;justify-content:center;gap:10px;margin:22px auto 24px;width:62%}
-.nl-line i{flex:1;height:1px;background:linear-gradient(90deg,rgba(var(--fg-rgb),0),rgba(var(--fg-rgb),.55))}
-.nl-line i:last-child{background:linear-gradient(90deg,rgba(var(--fg-rgb),.55),rgba(var(--fg-rgb),0))}
-.nl-line b{width:6px;height:6px;border:1px solid rgba(var(--fg-rgb),.6);transform:rotate(45deg);flex-shrink:0}
-.nl-b{font-family:var(--serif);font-size:20px;line-height:1.75;color:rgba(var(--fg-rgb),.88);font-style:italic}
-.nl-s{font-family:var(--serif);font-size:19px;line-height:1.6;color:var(--fg);margin-top:26px}
-@media (max-width:360px){.nl-card{padding:56px 22px 46px}.nl-b{font-size:18px}}
-/* شاشة قصيرة (iPhone SE): الكارت كله يدخل في الشاشة ومايتغطّاش بزرار الصوت */
-@media (max-height:720px){.nl{padding:34px 20px 70px}.nl-card{padding:44px 24px 36px}.nl-seal{width:64px;margin-bottom:10px}.nl-t{font-size:clamp(30px,9vw,40px)}.nl-line{margin:14px auto 16px}.nl-b{font-size:17px;line-height:1.6}.nl-s{margin-top:16px;font-size:17px}}
 </style>`;
 
 const SCRATCH = `
@@ -79,22 +64,6 @@ const SCRATCH = `
         <canvas class="sc-canvas" id="scratch" data-paper="${asset(QW + 'paper.webp')}"></canvas>
       </div>
       <div class="sc-ring" aria-hidden="true"></div>
-    </section>
-  </div>
-
-`;
-
-const NOTE = `
-  <!-- صفحة لوحدها قبل الختام: من غير أطفال -->
-  <div class="rv sec">
-    <section class="nl" id="loveNote">
-      <div class="nl-card">
-        <img class="nl-seal" src="${asset(OWN + 'seal.webp')}" alt="" aria-hidden="true" loading="lazy" draggable="false">
-        <h2 class="nl-t">A Little Note<br>of Love</h2>
-        <div class="nl-line" aria-hidden="true"><i></i><b></b><i></i></div>
-        <p class="nl-b">As much as we adore your little ones, we kindly wish them a peaceful night’s sleep while you enjoy an unforgettable evening with us.</p>
-        <p class="nl-s">With love and appreciation. 🤍</p>
-      </div>
     </section>
   </div>
 
@@ -202,9 +171,6 @@ module.exports = {
     // "Our Moments" → كارت الخدش
     const g = cut(out, '<!-- 4) الصور', '<!-- 5)');
     if (g) out = out.slice(0, g[0]) + SCRATCH + out.slice(g[1]);
-    // صفحة "A Little Note of Love" قبل الختام
-    const f = out.indexOf('<!-- 8) الختام -->');
-    if (f !== -1) out = out.slice(0, f) + NOTE.trimStart() + '  ' + out.slice(f);
     return out;
   },
 };
