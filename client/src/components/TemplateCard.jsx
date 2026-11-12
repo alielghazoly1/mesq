@@ -108,6 +108,7 @@ export default function TemplateCard({ template, index }) {
               src={templateThumb(template.id)}
               alt={gift ? `هدية عيد ميلاد إلكترونية ${template.name}` : `معاينة تصميم ${template.name}`}
               loading="lazy"
+              decoding="async"
               className="h-full w-full object-cover object-center"
               onError={() => setImgError(true)}
             />

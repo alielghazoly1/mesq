@@ -33,14 +33,22 @@ export default function HeroDemo() {
     const el = wrapRef.current;
     const v = videoRef.current;
     if (!el || !v || typeof IntersectionObserver === 'undefined') return undefined;
+    // الفيديو مبيتحمّلش غير بعد ما الصفحة تخلص تحميل وتهدى (كان بينزل مع أول ثانية ويزاحم
+    // التصاميم والخطوط على نت الموبايل — وعلى الموبايل الصفحة بتنزل للمعرض أصلًا). لحد ساعتها
+    // صورة البوستر هي اللي ظاهرة.
+    let ready = false;
+    let visible = false;
+    let timer = 0;
+    const sync = () => { if (ready && visible) v.play().catch(() => {}); else if (!v.paused) v.pause(); };
+    const arm = () => { timer = window.setTimeout(() => { ready = true; sync(); }, 3500); };
+    if (document.readyState === 'complete') arm();
+    else window.addEventListener('load', arm, { once: true });
     const io = new IntersectionObserver((entries) => {
-      entries.forEach((e) => {
-        if (e.isIntersecting) v.play().catch(() => {});
-        else v.pause();
-      });
+      entries.forEach((e) => { visible = e.isIntersecting; });
+      sync();
     }, { threshold: 0.25 });
     io.observe(el);
-    return () => io.disconnect();
+    return () => { io.disconnect(); window.clearTimeout(timer); window.removeEventListener('load', arm); };
   }, []);
 
   return (
@@ -73,7 +81,7 @@ export default function HeroDemo() {
               muted
               loop
               playsInline
-              preload="metadata"
+              preload="none"
               aria-label={t('heroDemo.alt')}
             >
               <source src={LOOP_WEBM} type="video/webm" />

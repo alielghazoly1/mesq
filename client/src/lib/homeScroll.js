@@ -142,7 +142,34 @@ export function startHomeScroll() {
 
   // 3) أول فتحة على الموبايل
   if (!isPhone() || introDone) return () => {};
-  const timer = setTimeout(() => {
+  // بيبدأ والمتصفح هادي: كود الصفحة والسكريبتات الخارجية (بيكسل الإعلانات ~0.3 ثانية شغل
+  // متواصل على موبايل متوسط) كانوا بيتنفّذوا في نص الحركة فتعلّق وتنط. بنستنى لحد ما يعدّي
+  // نص ثانية من غير شغل تقيل — وبحد أقصى 3 ثواني. البيكسل نفسه مابيتلمسش ولا بيتأخر.
+  let gone = false;
+  const whenQuiet = (fn) => {
+    const t0 = performance.now();
+    let lastBusy = t0;
+    let po = null;
+    try { po = new PerformanceObserver(() => { lastBusy = performance.now(); }); po.observe({ type: 'longtask' }); } catch { po = null; }
+    const pixelBusy = () => {
+      try {
+        if (typeof window.fbq !== 'function') return false;
+        if (!window.fbq.callMethod) return true;
+        return !performance.getEntriesByType('resource').some((r) => r.name.indexOf('/signals/config/') !== -1);
+      } catch { return false; }
+    };
+    const iv = setInterval(() => {
+      const now = performance.now();
+      const waited = now - t0;
+      if (gone) { clearInterval(iv); if (po) po.disconnect(); return; }
+      if (waited < 3000 && (pixelBusy() || now - lastBusy < 500 || document.readyState !== 'complete')) return;
+      clearInterval(iv); if (po) po.disconnect();
+      fn();
+    }, 120);
+    cleanups.push(() => clearInterval(iv));
+  };
+  const timer = setTimeout(() => whenQuiet(() => {
+    if (gone) return;
     introDone = true;
     // نزل بنفسه خلاص / نافذة مفتوحة / التاب مش ظاهر — مش هنحرّك حاجة
     if (window.scrollY > 40 || modalOpen() || document.visibilityState !== 'visible') return;
@@ -155,7 +182,7 @@ export function startHomeScroll() {
       // وصل (مش اتوقف بلمسة): يفضل العنوان في مكانه لو حاجة فوقه اتحمّلت
       if (!finished && Math.abs(target() - window.scrollY) < 6) { finished = true; hold(title, 1500); }
     }));
-  }, 1200);
-  cleanups.push(() => clearTimeout(timer));
+  }), 1200);
+  cleanups.push(() => { gone = true; clearTimeout(timer); });
   return () => cleanups.forEach((c) => c());
 }

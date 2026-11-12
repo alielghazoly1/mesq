@@ -15,7 +15,18 @@ export const api = createApi({
   endpoints: (builder) => ({
     // بنبعت اللغة عشان أسماء التصاميم وأوصافها وأسماء الأقسام ترجع مترجمة
     getTemplates: builder.query({
-      query: (lang = 'en') => `/templates?lang=${encodeURIComponent(lang)}`,
+      // أول طلب في الرئيسية بيكون اتبعت خلاص من index.html (window.__mithaqEarly) قبل ما الكود
+      // ده يتحمّل — بناخد نتيجته مرة واحدة. أي حاجة غير كده (لغة تانية، فشل) = الطلب العادي.
+      async queryFn(lang = 'en', _api, _extra, fetchWithBQ) {
+        const early = typeof window !== 'undefined' ? window.__mithaqEarly : null;
+        if (early && early.templates && early.lang === lang) {
+          const pending = early.templates;
+          early.templates = null;
+          const data = await pending;
+          if (Array.isArray(data)) return { data };
+        }
+        return fetchWithBQ(`/templates?lang=${encodeURIComponent(lang)}`);
+      },
     }),
     getPublicStats: builder.query({
       query: () => '/public-stats',

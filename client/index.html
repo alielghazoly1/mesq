@@ -5,6 +5,23 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- الرئيسية: قايمة التصاميم بتتطلب من دلوقتي — بالتوازي مع تحميل كود الموقع — (والسكريبت ده قبل ستايل الخطوط عن قصد) بدل ما تستنى
+         الكود يتحمّل ويشتغل وبعدين تتزاحم مع الفيديو والخطوط (كانت بتوصل بعد ~5 ثواني على نت الموبايل).
+         store/api.js بياخد النتيجة دي أول مرة. -->
+    <script>
+      try {
+        if (location.pathname === '/') {
+          var __l = 'ar';
+          try { if (localStorage.getItem('wda_lang') === 'en') __l = 'en'; } catch (e) { /* تصفح خاص */ }
+          window.__mithaqEarly = {
+            lang: __l,
+            templates: fetch('/api/templates?lang=' + __l, { credentials: 'include' })
+              .then(function (r) { return r.ok ? r.json() : null; })
+              .catch(function () { return null; }),
+          };
+        }
+      } catch (e) { /* متصفح قديم: الطلب العادي هيشتغل */ }
+    </script>
     <!-- العنوان والوصف ده لجوجل (فيه الكلمات اللي الناس بتدوّر بيها). السيرفر
          بيغيّرهم لكل صفحة عامة (utils/seo.js) — غيّرهم هناك كمان. -->
     <title>ميثاق | دعوة زفاف إلكترونية — اعمل دعوة فرحك أونلاين بلينك خاص</title>

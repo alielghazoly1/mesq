@@ -2,6 +2,7 @@ import { Suspense, lazy, useEffect, useState } from 'react';
 import { Routes, Route, useLocation, useNavigationType } from 'react-router-dom';
 import AuthBar from './components/AuthBar.jsx';
 import { useSelector } from 'react-redux';
+import { useGetMeQuery } from './store/api.js';
 import WelcomeGate from './components/WelcomeGate.jsx';
 import OrderNoticeGate from './components/OrderNoticeGate.jsx';
 import SupportLauncher from './components/SupportLauncher.jsx';
@@ -76,21 +77,32 @@ function AuthModalGate() {
 startCampaignBeacon();
 
 function usePrefetchPages() {
+  const { data: me, isLoading: meLoading } = useGetMeQuery();
+  const loggedIn = !!me?.user;
   useEffect(() => {
+    if (meLoading) return undefined;
     let cancelled = false;
     const run = () => {
       if (cancelled) return;
       // على شبكة موفّرة للبيانات مبنحمّلش حاجة زيادة
       const c = navigator.connection;
       if (c && (c.saveData || /2g/.test(c.effectiveType || ''))) return;
-      [importAuthModal, importPackages, importDashboard, importCreate, importCheckout].forEach((f) => f().catch(() => {}));
+      // زائر مش مسجّل: نافذة الدخول والباقات بس (دول اللي هيدوس عليهم). لوحة العميل والدفع
+      // (ومعاهم مكتبة الرسوم، ~0.5 ميجا) للّي داخل بحسابه — كانوا بينزلوا ويتنفّذوا لكل زائر
+      // في نفس اللحظة اللي الصفحة بتنزل فيها للمعرض، فالحركة كانت بتعلّق.
+      const list = loggedIn
+        ? [importAuthModal, importPackages, importDashboard, importCreate, importCheckout]
+        : [importAuthModal, importPackages];
+      list.forEach((f) => f().catch(() => {}));
     };
     const idle = window.requestIdleCallback || ((cb) => setTimeout(cb, 2500));
-    const start = () => idle(run, { timeout: 6000 });
+    let timer = 0;
+    // بعد ما الصفحة تهدى (والنزول التلقائي على الموبايل يخلص)
+    const start = () => { timer = window.setTimeout(() => idle(run, { timeout: 6000 }), loggedIn ? 1500 : 12000); };
     if (document.readyState === 'complete') start();
     else window.addEventListener('load', start, { once: true });
-    return () => { cancelled = true; window.removeEventListener('load', start); };
-  }, []);
+    return () => { cancelled = true; window.clearTimeout(timer); window.removeEventListener('load', start); };
+  }, [loggedIn]);
 }
 
 /** شاشة انتظار خفيفة لحد ما كود الصفحة يوصل (غالبًا مش بتلحق تبان) */

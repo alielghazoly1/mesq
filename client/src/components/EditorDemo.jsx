@@ -82,8 +82,7 @@ export default function EditorDemo({ variant = 'section' }) {
             muted
             loop
             playsInline
-            autoPlay
-            preload="metadata"
+            preload="none"
             aria-label={t('demo.title')}
           >
             <source src={LOOP_WEBM} type="video/webm" />
