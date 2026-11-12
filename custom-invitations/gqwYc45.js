@@ -47,7 +47,7 @@ module.exports = {
     height: 630,
     overrideImage: true,
     title: 'Rawan Aboualy & Abdelrahman Atwa — Wedding Invitation 🤍',
-    description: 'Friday, 4 December 2026 · 5:30 PM · Dusit Thani LakeView Cairo — Palms Ballroom',
+    description: 'Friday, 4 December 2026 · 6:30 PM · Dusit Thani LakeView Cairo — Palms Ballroom',
   },
 
   render() {
@@ -59,7 +59,7 @@ module.exports = {
     let out = PAGE;
     const link = configValue(templateHtml, 'venueMapDirectLink');
     const song = configValue(templateHtml, 'audioUrl');
-    const start = configValue(templateHtml, 'weddingDateTimeISO') || '2026-12-04T15:30:00.000Z';
+    const start = configValue(templateHtml, 'weddingDateTimeISO') || '2026-12-04T16:30:00.000Z';
     out = out.split('__MAP_LINK__').join(escapeHtml(okUrl(link) && !/query=Venue/.test(link) ? link : FALLBACK_LINK))
       .split('__SONG__').join(escapeHtml(okUrl(song) ? song : DEFAULT_SONG))
       .split('__START__').join(escapeHtml(start))

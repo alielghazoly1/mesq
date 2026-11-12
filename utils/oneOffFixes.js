@@ -1410,16 +1410,17 @@ const FIXES = [
     apply: () => ({ weddingDateTime: new Date('2026-12-12T16:00:00.000Z') }),
   },
   {
-    // gqwYc45 — المالك (2026-11-11): الفرح الساعة 5 مساءً مش 7، وبعدها (نفس اليوم) 5:30 مساءً — العدّاد والبيانات. نفس اليوم 4/12/2026. مرة واحدة.
-    name: 'gqwYc45-time-530pm',
+    // gqwYc45 — المالك (2026-11-12): الفرح الساعة 6:30 مساءً (قبلها 5 ثم 5:30 يوم 11/11 — الاسم اتغيّر عشان يتعمل مرة تانية
+    // ومايتخانقش مع القديم). العدّاد والبيانات. نفس اليوم 4/12/2026. مرة واحدة.
+    name: 'gqwYc45-time-630pm',
     shortId: 'gqwYc45',
     select: 'customizations weddingDateTime',
     when: (c, inv) => {
       if (!inv.weddingDateTime) return false;
       const iso = new Date(inv.weddingDateTime).toISOString();
-      return iso.slice(0, 10) === '2026-12-04' && iso !== '2026-12-04T17:30:00.000Z';
+      return iso.slice(0, 10) === '2026-12-04' && iso !== '2026-12-04T18:30:00.000Z';
     },
-    apply: () => ({ weddingDateTime: new Date('2026-12-04T17:30:00.000Z') }),
+    apply: () => ({ weddingDateTime: new Date('2026-12-04T18:30:00.000Z') }),
   },
   {
     // gqwYc45 — المالك (2026-11-11): لينك القاعة على جوجل ماب (Dusit Thani LakeView Cairo — شارع التسعين) بدل البحث. مرة واحدة.
@@ -1524,6 +1525,14 @@ const FIXES = [
       };
       return set;
     },
+  },
+  {
+    // gqwYc45 — المالك (2026-11-12): الأغنية "فرحة" لمحمود العسيلي (ملف المالك → client/public/custom/gqwYc45/song.mp3).
+    // الدعوة كان عليها أغنية من مكتبة المحرر (بتغلب على ملف الصفحة) — بتتشال مرة واحدة، بس لو لسه نفس الأغنية دي.
+    name: 'gqwYc45-song-farha',
+    shortId: 'gqwYc45',
+    when: (c) => /jeinzrma9uhcznhatcsi/.test(c.audioUrl || ''),
+    apply: () => ({ 'customizations.audioUrl': '', 'customizations.audioStart': 0, 'customizations.audioEnd': 0 }),
   },
 ];
 

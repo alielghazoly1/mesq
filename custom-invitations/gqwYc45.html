@@ -103,6 +103,19 @@ h1,h2,p{margin:0;font-weight:inherit}
 .verse .tr{font:italic 500 17px/1.55 var(--serif);color:var(--ink2);margin:14px auto 0;max-width:340px}
 .verse+.sec{padding-top:34px}
 /* العدّاد */
+/* البرنامج (بطلب المالك 2026-11-12) — خط رأسي رفيع بلؤلؤ عند كل ميعاد، زي الشكل اللي بعته */
+.prog .k{text-wrap:balance}
+.prog .tl{position:relative;max-width:300px;margin:30px auto 0;padding-left:44px;text-align:left}
+.prog .tl::before{content:"";position:absolute;left:11px;top:14px;bottom:24px;width:1px;background:linear-gradient(180deg,rgba(107,60,6,.12),rgba(107,60,6,.5) 8%,rgba(107,60,6,.5) 92%,rgba(107,60,6,.12))}
+.prog .it{position:relative;padding-bottom:38px}
+.prog .it:last-child{padding-bottom:0}
+.prog .it::before{content:"";position:absolute;left:-41px;top:10px;width:15px;height:15px;border-radius:50%;
+  background:radial-gradient(circle at 34% 30%,#fffdf8 0%,#f4ebdf 26%,#d8c8b4 62%,#a8927a 100%);box-shadow:0 1px 2px rgba(80,45,10,.35),inset -1px -1px 2px rgba(90,60,30,.25)}
+.prog .tm{font:400 31px/1.1 var(--disp);color:var(--ink);font-variant-numeric:lining-nums;letter-spacing:.01em}
+.prog .tm small{font:600 15px/1 var(--serif);letter-spacing:.14em;margin-left:.45em;text-transform:uppercase;color:var(--ink2)}
+.prog .ev{margin-top:10px;font:600 17px/1.2 var(--serif);letter-spacing:.3em;text-transform:uppercase;color:var(--ink)}
+.prog .ds{margin-top:8px;font:italic 500 18px/1.5 var(--serif);color:var(--ink2);opacity:.9}
+@media (max-width:360px){.prog .tl{padding-left:38px}.prog .it::before{left:-35px}.prog .tm{font-size:28px}.prog .ev{font-size:15.5px;letter-spacing:.24em}}
 .cd{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:26px}
 .cd div{padding:14px 0 12px;border:1px solid rgba(107,60,6,.28);background:rgba(255,248,238,.45);position:relative}
 .cd div::before{content:"";position:absolute;inset:3px;border:1px solid rgba(107,60,6,.14);pointer-events:none}
@@ -197,7 +210,7 @@ h1,h2,p{margin:0;font-weight:inherit}
       <p class="t cap rv" style="top:78.95%;left:40.75%;right:auto;transform:translate(-50%,-50%);font-size:1.98cqw;font-weight:500;letter-spacing:.2em;--d:3.85s">Palms Ballroom</p>
       <i class="vl rv" style="left:57.64%;top:74.8%;height:4.9%;--d:3.9s" aria-hidden="true"></i>
       <img class="ic rv" src="assets/clock.webp" alt="" style="left:68.06%;top:74.8%;width:4.58%;--d:4s">
-      <p class="t cap rv" style="top:77.4%;left:68%;right:auto;transform:translate(-50%,-50%);font-size:2.62cqw;letter-spacing:.06em;padding-left:.06em;--d:4.1s"><span class="dg">5:30</span> PM</p>
+      <p class="t cap rv" style="top:77.4%;left:68%;right:auto;transform:translate(-50%,-50%);font-size:2.62cqw;letter-spacing:.06em;padding-left:.06em;--d:4.1s"><span class="dg">6:30</span> PM</p>
       <i class="hl rv" style="top:82.23%;--d:4.35s" aria-hidden="true"></i><img class="orn rv" src="assets/orn.webp" alt="" style="top:82.23%;width:34.24%;--d:4.35s">
       <p class="t kid rv" style="top:84.34%;--d:4.6s">We wish your kids a good night sleep</p>
     </div>
@@ -228,6 +241,19 @@ h1,h2,p{margin:0;font-weight:inherit}
       </div>
     </section>
 
+    <!-- البرنامج (بطلب المالك 2026-11-12) -->
+    <section class="sec prog fx" id="programme">
+      <h2 class="h">The <i>Programme</i></h2>
+      <p class="k">from the first hello to the last dance</p>
+      <img class="ornimg" src="assets/orn.webp" alt="">
+      <div class="tl">
+        <div class="it"><p class="tm"><span class="dg">6:30</span><small>pm</small></p><p class="ev">Reception</p><p class="ds">Welcoming our loved ones with warm hearts.</p></div>
+        <div class="it"><p class="tm"><span class="dg">7:00</span><small>pm</small></p><p class="ev">Ceremony</p><p class="ds">The moment our forever begins.</p></div>
+        <div class="it"><p class="tm"><span class="dg">9:00</span><small>pm</small></p><p class="ev">Dinner</p><p class="ds">Dinner is served.</p></div>
+        <div class="it"><p class="tm"><span class="dg">10:00</span><small>pm</small></p><p class="ev">Cake Cutting</p><p class="ds">Cutting the cake and dancing until late.</p></div>
+      </div>
+    </section>
+
     <!-- 4) المكان + الخريطة -->
     <section class="sec venue fx">
       <h2 class="h">The <i>Venue</i></h2>
@@ -236,7 +262,7 @@ h1,h2,p{margin:0;font-weight:inherit}
       <img class="pin" src="assets/pin.webp" alt="">
       <p class="vn">Dusit Thani Cairo</p>
       <p class="vh">Palms Ballroom</p>
-      <p class="vw">Friday, <span class="dg">4</span> December <span class="dg">2026</span> · <span class="dg">5:30</span> PM</p>
+      <p class="vw">Friday, <span class="dg">4</span> December <span class="dg">2026</span> · <span class="dg">6:30</span> PM</p>
       <a class="btn" href="__MAP_LINK__" target="_blank" rel="noopener noreferrer"><span><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5a7 7 0 0 0-7 7c0 5 7 12 7 12s7-7 7-12a7 7 0 0 0-7-7Zm0 9.6a2.6 2.6 0 1 1 0-5.2 2.6 2.6 0 0 1 0 5.2Z"/></svg>View location</span></a>
     </section>
 
