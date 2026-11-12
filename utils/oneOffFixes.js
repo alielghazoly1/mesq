@@ -1534,6 +1534,33 @@ const FIXES = [
     when: (c) => /jeinzrma9uhcznhatcsi/.test(c.audioUrl || ''),
     apply: () => ({ 'customizations.audioUrl': '', 'customizations.audioStart': 0, 'customizations.audioEnd': 0 }),
   },
+  {
+    // DBywdm2 — المالك (2026-11-12): الفرح اتنقل — السبت 28/11/2026 الساعة 7 مساءً، La Vola (جاردينيا بلازا – طريق
+    // السويس) بلينك جوجل ماب الجديد. عشان لوحة العميل والإحصائيات يبقوا زي الصفحة (الصفحة نفسها في
+    // custom-invitations/DBywdm2.html). التاريخ بتوقيت السيرفر زي باقي تعديلات الدعوة دي. مرة واحدة: بس لو لسه
+    // على يوم 3 ديسمبر.
+    name: 'DBywdm2-la-vola-28nov',
+    shortId: 'DBywdm2',
+    select: 'groomName weddingDateTime venueName venueCity venueMapQuery venueMapEmbedSrc venueMapDirectLink',
+    when: (c, inv) => {
+      if (inv.groomName !== 'Ahmed' || !inv.weddingDateTime) return false;
+      const d = new Date(inv.weddingDateTime);
+      return d.getFullYear() === 2026 && d.getMonth() === 11 && d.getDate() === 3;
+    },
+    async apply(c, inv) {
+      const { resolveMapInput } = require('./mapsLink');
+      const LINK = 'https://maps.app.goo.gl/gr6hoGZo26Ss4e229';
+      const venueName = 'La Vola';
+      const venueCity = 'Gardenia Plaza, Suez Road';
+      let embedSrc = 'https://www.google.com/maps?q=30.0791305,31.3992996&z=16&output=embed';
+      let directLink = LINK;
+      try { const r = await resolveMapInput({ raw: LINK, venueName, venueCity }); embedSrc = r.embedSrc || embedSrc; directLink = r.directLink || directLink; } catch (e) { /* اللينك نفسه كفاية */ }
+      return {
+        weddingDateTime: new Date(2026, 10, 28, 19, 0, 0),
+        venueName, venueCity, venueMapQuery: LINK, venueMapEmbedSrc: embedSrc, venueMapDirectLink: directLink,
+      };
+    },
+  },
 ];
 
 let done = false;

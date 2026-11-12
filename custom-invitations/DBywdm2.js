@@ -57,7 +57,7 @@ module.exports = {
     height: 630,
     overrideImage: true,
     title: 'Ahmed & Faten — Wedding Invitation',
-    description: 'Thursday, 03.12.2026 · Royal Garden · 6th October city',
+    description: 'Saturday, 28.11.2026 · 7 PM · La Vola · Gardenia Plaza, Suez Road',
   },
 
   render() {

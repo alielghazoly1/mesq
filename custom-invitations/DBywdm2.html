@@ -81,6 +81,8 @@ main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
 .ht-venue{margin-top:20px;display:flex;flex-direction:column;align-items:center}
 .ht-place{font-family:var(--serif);font-size:20px;letter-spacing:.025em;line-height:1.375}
 .ht-city{font-size:11px;letter-spacing:.25em;margin-top:4px}
+/* 2026-11-12: العنوان بقى أطول (Gardenia Plaza, Suez Road) — مسافات أقل بين الحروف عشان مايلزقش في حرف الإطار */
+.ht-city{letter-spacing:.14em;font-size:10.5px}
 
 /* ===== 3. العدّاد ===== */
 .cd{position:relative;width:100%;overflow:hidden}
@@ -241,10 +243,10 @@ main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
         <h1>Faten</h1>
       </div>
       <p class="ht-with">Together with their families,</p>
-      <p class="ht-date">THURSDAY, 03.12.2026</p>
+      <p class="ht-date">SATURDAY, 28.11.2026</p>
       <div class="ht-venue">
-        <p class="ht-place">Royal Garden</p>
-        <p class="ht-city up">6th October city</p>
+        <p class="ht-place">La Vola</p>
+        <p class="ht-city up">Gardenia Plaza, Suez Road</p>
       </div>
     </div>
   </section>
@@ -286,15 +288,15 @@ main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
       <div class="rv loc-in">
         <h2 class="loc-t">The Venue</h2>
         <p class="loc-k up">WHERE WE CELEBRATE</p>
-        <p class="loc-s">Royal Garden</p>
-        <p class="loc-ar loc-addr" dir="rtl" lang="ar">نادي المهندسين – مدينة ٦ أكتوبر</p>
-        <p class="loc-ar loc-when" dir="rtl" lang="ar">الخميس ٣ ديسمبر <i>|</i> ٦ مساءً</p>
+        <p class="loc-s">La Vola</p>
+        <p class="loc-ar loc-addr" dir="rtl" lang="ar">جاردينيا بلازا – طريق السويس</p>
+        <p class="loc-ar loc-when" dir="rtl" lang="ar">السبت ٢٨ نوفمبر <i>|</i> ٧ مساءً</p>
         <p class="loc-ar loc-txt" dir="rtl" lang="ar"><span class="cl">هناك لحظات لا تكفيها الكلمات،</span> <span class="cl">وفرحة لا تكتمل إلا بمن نحب.</span></p>
         <p class="loc-ar loc-txt" dir="rtl" lang="ar"><span class="cl">وبكل الحب،</span> <span class="cl">يسعدنا أن تشاركونا بداية فصل جديد من حكايتنا،</span> <span class="cl">وأن تكونوا جزءًا من ذكرى ستبقى في قلوبنا إلى الأبد.</span></p>
         <p class="loc-en">We would love to have you with us.</p>
         <div class="loc-img"><img loading="lazy" decoding="async" src="assets/venue.webp" alt="Illustration of the venue" draggable="false"></div>
-        <!-- لوكيشن القاعة على جوجل ماب من المالك (2026-11-06): Royal Garden، أكتوبر — لون الزرار وكلامه (2026-11-07) -->
-        <a class="btn btn-map" href="https://maps.app.goo.gl/9i2n8wZs99jj6ZMU8" target="_blank" rel="noopener noreferrer" aria-label="موقع الحفل | View Location"><span><span><b><span class="b-ar" lang="ar">موقع الحفل</span><span class="b-sep" aria-hidden="true">|</span><span class="b-en">View Location</span><span class="b-pin" aria-hidden="true">📍</span></b></span></span></a>
+        <!-- لوكيشن القاعة على جوجل ماب من المالك (2026-11-12): La Vola، جاردينيا بلازا – طريق السويس — لون الزرار وكلامه (2026-11-07) -->
+        <a class="btn btn-map" href="https://maps.app.goo.gl/gr6hoGZo26Ss4e229" target="_blank" rel="noopener noreferrer" aria-label="موقع الحفل | View Location"><span><span><b><span class="b-ar" lang="ar">موقع الحفل</span><span class="b-sep" aria-hidden="true">|</span><span class="b-en">View Location</span><span class="b-pin" aria-hidden="true">📍</span></b></span></span></a>
       </div>
     </section>
   </div>
@@ -329,8 +331,8 @@ main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
         <p class="ft-ar" dir="rtl" lang="ar">نتمنى نشوفكم ونشارك معاكم أول لحظات حكايتنا الجديدة.</p>
         <p class="ft-l">With all our love,</p>
         <p class="ft-n">Ahmed <span>&amp;</span> Faten</p>
-        <p class="ft-d">03.12.2026</p>
-        <p class="ft-d ft-t">At 6:00PM</p>
+        <p class="ft-d">28.11.2026</p>
+        <p class="ft-d ft-t">At 7:00PM</p>
       </div>
     </footer>
   </div>
@@ -350,8 +352,8 @@ main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
   'use strict';
   /* بيانات الدعوة اللي الكود محتاجها — أي تعديل في الميعاد بيبقى هنا */
   var EVENT = {
-    // العدّاد: الخميس 3 ديسمبر 2026 الساعة 6 المسا بتوقيت مصر (UTC+2) — الميعاد اللي المالك كتبه في الختام
-    countdownTo: Date.UTC(2026, 11, 3, 16, 0, 0)
+    // العدّاد: السبت 28 نوفمبر 2026 الساعة 7 المسا بتوقيت مصر (UTC+2) — المالك (2026-11-12)
+    countdownTo: Date.UTC(2026, 10, 28, 17, 0, 0)
   };
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
