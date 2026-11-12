@@ -1482,6 +1482,49 @@ const FIXES = [
     when: (c) => !!(c.images && /p820gdobz2pugjbagpqd/.test(c.images.gxk79tq || '')),
     apply: () => ({ 'customizations.images.gxk79tq': '' }),
   },
+  {
+    // AxAg1X0 (قالب Mother of Pearl إنجليزي + custom-invitations/AxAg1X0.js) — بطلب المالك (2026-11-12): نسخة من
+    // cPcTTdw لإيمان وأحمد (cPcTTdw ماتلمستش). الجمعة 4/12/2026 الساعة 7 مساءً، Jumeirah Hall (رأس البر، دمياط)
+    // بلينك المالك. "Our Moments" مخفية (مكانها كارت الخدش في الملف الكاستم). الكلام إنجليزي بكلام المالك.
+    // بيتعمل بس لو الدعوة لسه بأسامي البداية (أي قالب) — لو حد كتب أسامي بنفسه مابنلمسهاش.
+    name: 'AxAg1X0-eman-ahmed',
+    shortId: 'AxAg1X0',
+    select: '-__v',
+    when: (c, inv) => ['Groom', 'العريس', 'Yusuf', 'يوسف'].includes(inv.groomName || inv.groomNameAr)
+      && ['Bride', 'العروسة', 'Amira', 'أميرة'].includes(inv.brideName || inv.brideNameAr),
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const link = 'https://maps.app.goo.gl/qB3FKvyegAiJRceB8';
+      const data = await buildInvitationDataFromRequest({
+        templateId: 'mother-of-pearl', language: 'en', occasionType: 'wedding',
+        hiddenSections: ['gallery'], timeline: [], name: inv.name,
+        groomName: 'Ahmed', groomNameAr: 'أحمد', brideName: 'Eman', brideNameAr: 'إيمان',
+        venueName: 'Jumeirah Hall', venueCity: 'Ras El Bar, Damietta',
+        venueMapQuery: link,
+        weddingDate: '2026-12-04', weddingTime: '19:00',
+      }, { ownsTemplate: true, skipMapNetwork: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.templateId = 'mother-of-pearl';
+      set.language = 'en';
+      set.hiddenSections = ['gallery'];
+      set.venueMapDirectLink = link;
+      // "شيل كل اللي في قلبها": أي تعديلات قديمة من المحرر (نصوص، صور، مقاسات، تحريك، موسيقى) بتتشال،
+      // وبيفضل كلام إيمان وأحمد بس.
+      // الكارت: THE WEDDING CELEBRATION / الأسامي / الجمعة 4 ديسمبر 2026 + 7 PM / القاعة / جملة الترحيب
+      set.customizations = {
+        texts: {
+          mp1: 'The Wedding Celebration',
+          mp5: 'Friday, December 4th, 2026\n7 PM',
+          mp7: '',
+          mp4: 'We look forward to celebrating this beautiful evening with you. 🤍',
+          mp25: 'Friday, December 4th, 2026  |  7 PM',
+          mp53: 'At 7 PM',
+        },
+      };
+      return set;
+    },
+  },
 ];
 
 let done = false;
