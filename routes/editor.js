@@ -165,6 +165,8 @@ router.post('/api/editor/draft', requireAuth, async (req, res) => {
       brideName: 'Bride', groomName: 'Groom',
       brideNameAr: 'العروسة', groomNameAr: 'العريس',
       venueName: 'Venue', venueCity: 'City',
+      // قالب ليه بيانات مبدئية خاصة (هدية عيد الميلاد: اسم صاحبة العيد واسم الباعت)
+      ...(template.draftDefaults || {}),
       weddingDate: `${inThreeMonths.getFullYear()}-${pad(inThreeMonths.getMonth() + 1)}-${pad(inThreeMonths.getDate())}`,
       timeline: template.timelineStages.map((key) => ({ key, hour: 18 })),
       hiddenSections: [],

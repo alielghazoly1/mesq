@@ -649,11 +649,13 @@ router.get('/preview-sample/:templateId', (req, res) => {
   const data = {
     templateId: template.id,
     language: previewLang,
-    occasionType: 'wedding',
+    occasionType: template.occasionTypes.includes('wedding') ? 'wedding' : template.occasionTypes[0],
     hiddenSections: [],
     timeline,
     brideName: 'Amira', groomName: 'Yusuf',
     brideNameAr: 'أميرة', groomNameAr: 'يوسف',
+    // هدية عيد الميلاد: صاحبة العيد واللي باعت الهدية
+    ...(template.category === 'birthday' ? { brideName: 'Sarah', brideNameAr: 'سارة', groomName: 'Omar', groomNameAr: 'عمر' } : {}),
     // النسخة الإنجليزي (المعاينة الافتراضية لـ Lily Garden) لازم تبقى إنجليزي
     // بالكامل — حتى اسم القاعة والعنوان والخريطة. باقي القوالب زي ما كانت.
     venueName: previewLang === 'en' ? 'Rose Garden Hall' : 'قاعة النموذج',

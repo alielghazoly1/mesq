@@ -71,6 +71,15 @@ function defaultShare(data) {
   const groom = (isAr ? data.groomNameAr : data.groomName) || data.groomNameAr || data.groomName || '';
   const names = [groom, bride].filter(Boolean).join(isAr ? ' و ' : ' & ');
 
+  // هدية عيد ميلاد: اللينك بيتبعت لصاحب/ة العيد — العنوان باسمه/ا ومن غير تفاصيل قاعة
+  if (data.occasionType === 'birthday') {
+    return {
+      title: bride ? (isAr ? `عيد ميلاد سعيد يا ${bride} 🎁` : `Happy Birthday, ${bride} 🎁`) : (isAr ? 'هدية عيد ميلاد 🎁' : 'A Birthday Gift 🎁'),
+      description: isAr ? (groom && groom !== 'اسمك' ? `هدية معمولة مخصوص علشانك من ${groom} — افتحها.` : 'هدية معمولة مخصوص علشانك — افتحها.')
+        : (groom && groom !== 'Your Name' ? `A little gift made just for you, from ${groom} — tap to open.` : 'A little gift made just for you — tap to open.'),
+    };
+  }
+
   const title = names
     ? (isAr ? `دعوة فرح ${names}` : `${names} — Wedding Invitation`)
     : (isAr ? 'دعوة فرح' : 'Wedding Invitation');

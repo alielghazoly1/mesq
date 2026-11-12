@@ -89,6 +89,8 @@ function localizeTemplate(t, lang) {
     description,
     languages: t.languages,
     occasionTypes: t.occasionTypes,
+    // 'birthday' = قسم هدايا عيد الميلاد (غير كده دعوات الفرح)
+    category: t.category || 'wedding',
     optionalSections: (t.optionalSections || []).map((s) => ({
       key: s.key,
       label: pick(SECTION_LABELS, s.key, l, s.label),

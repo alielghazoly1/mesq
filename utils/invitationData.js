@@ -85,7 +85,9 @@ async function buildInvitationDataFromRequest(body, { skipMapNetwork, user, owns
   // الافتراضي = أول لغة في قايمة القالب (الإنجليزي) مش قيمة ثابتة —
   // عشان يفضل متسق مع اللي الفورم بيعرضه
   const language = template.languages.includes(body.language) ? body.language : template.languages[0];
-  const occasionType = template.occasionTypes.includes(body.occasionType) ? body.occasionType : 'wedding';
+  // قالب مالوش 'wedding' أصلًا (هدية عيد ميلاد) بياخد أول نوع عنده
+  const occasionType = template.occasionTypes.includes(body.occasionType) ? body.occasionType
+    : (template.occasionTypes.includes('wedding') ? 'wedding' : template.occasionTypes[0]);
 
   // مهم: بنفسّر "YYYY-MM-DD" **محليًا** (مش UTC). لو استخدمنا
   // new Date("2026-10-09") المتصفح/Node بيعتبرها منتصف ليل UTC، وبعدين

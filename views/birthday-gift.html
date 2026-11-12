@@ -1,0 +1,727 @@
+<!doctype html>
+<html lang="en" dir="ltr" translate="no" style="color-scheme:light only">
+<!--
+  BIRTHDAY GIFT — قالب Mithaq (views/birthday-gift.html) — قسم هدايا عيد الميلاد
+  ─────────────────────────────────────────────
+  • نسختين: إنجليزي وعربي (C.language). كلمة BIRTHDAY بتفضل إنجليزي في النسختين (بطلب المالك).
+  • الغلاف: هدية ملفوفة بشريط دانتيل وفيونكة في النص — ضغطة على الفيونكة تفكّها، الشرايط تتسحب،
+    وينزل ورد أحمر وبتلات، والكارت يظهر.
+  • البيانات: C.brideName = صاحب/ة العيد، C.groomName = اللي باعت الهدية، التاريخ = يوم الميلاد.
+  • كل جملة عليها data-elem-id (bg1…bg47) → المحرر بيعدّلها. الصور: رسمة التورتة (bg6) وصور الذكريات (bg19–23).
+  • الأقسام (data-section): message gallery wishes countdown rsvp
+-->
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="google" content="notranslate">
+<meta name="theme-color" content="#3d0103">
+<title>Birthday Gift</title>
+<script>window.WEDDING_CONFIG = __INVITATION_CONFIG_JSON__;</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Great+Vibes&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+<script>
+  // اللغة والاتجاه قبل أول رسمة (مفيش ومضة)
+  (function () { var C = window.WEDDING_CONFIG || {}; var h = document.documentElement; if (C.language !== 'en') { h.lang = 'ar'; h.dir = 'rtl'; h.classList.add('ar'); var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = 'https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@400;700&display=swap'; document.head.appendChild(l); } if (!C.autoOpen) h.classList.add('lock'); })();
+</script>
+<link rel="preload" as="image" href="/templates/birthday-gift/bow.webp">
+<link rel="preload" as="image" href="/templates/birthday-gift/lace.webp">
+<style>
+:root{--bg:#3d0103;--bg2:#2a0002;--cream:#f4ece2;--cream2:#ece1d4;--ink:#7b0f17;--ink2:#5a0a10;--rose:#ead9cf;--gold:#c9a36a;
+  --serif:'Cormorant Garamond','Times New Roman',serif;--script:'Great Vibes','Aref Ruqaa',cursive;--disp:'Playfair Display','Times New Roman',serif;--ar:'Amiri','Times New Roman',serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+html{background:var(--bg)}
+html.lock,html.lock body{overflow:hidden;height:100%}
+body{background:var(--bg);color:var(--rose);font-family:var(--serif);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden}
+img{display:block;max-width:none;-webkit-user-select:none;user-select:none;-webkit-user-drag:none}
+[hidden]{display:none!important}
+[data-section].off,#noteField.off{display:none!important}
+.page{position:relative;width:100%;max-width:480px;margin:0 auto;container-type:inline-size;overflow:hidden;
+  background:radial-gradient(120% 50% at 50% 0%,#4a0306 0%,var(--bg) 55%,var(--bg2) 100%)}
+.page *{--u:calc(100cqw / 390)}
+/* ورق الكارت: كريمي بحبيبات خفيفة */
+.paper{background-color:var(--cream);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .32 0 0 0 0 .22 0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* ===================== الغلاف: هدية ملفوفة بدانتيل وفيونكة في النص ===================== */
+.cv{position:fixed;inset:0;z-index:1000;overflow:hidden;background:radial-gradient(90% 70% at 50% 45%,#4f0407 0%,var(--bg) 60%,var(--bg2) 100%);outline:none;-webkit-user-select:none;user-select:none;touch-action:manipulation;cursor:pointer}
+.cv-in{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;transition:opacity .7s ease}
+.cv.ready .cv-in{opacity:1}
+.gift{position:relative;flex:none;width:min(84vw,54vh,400px);width:min(84vw,54svh,400px);aspect-ratio:1/1.46;container-type:inline-size;box-shadow:0 2.5cqw 7cqw rgba(0,0,0,.42),0 0 0 1px rgba(255,255,255,.06)}
+.gift .lid{position:absolute;inset:0;overflow:hidden}
+/* شريطين دانتيل متقاطعين في النص */
+.rb{position:absolute;background:url(/templates/birthday-gift/lace.webp) center/100% auto repeat-y;filter:drop-shadow(0 .6cqw 1cqw rgba(60,0,4,.28))}
+.rb.v{left:50%;top:0;width:21cqw;height:50%;margin-left:-10.5cqw}
+.rb.v.b{top:50%}
+.rb.h{left:50%;top:50%;width:21cqw;height:50cqw;margin:-25cqw 0 0 -10.5cqw;transform-origin:50% 50%}
+.rb.h.l{transform:rotate(90deg) translateY(25cqw)}
+.rb.h.r{transform:rotate(90deg) translateY(-25cqw)}
+.bow{position:absolute;left:50%;top:50%;width:78cqw;transform:translate(-50%,-41%);z-index:3;padding:0;border:0;background:none;cursor:pointer;filter:drop-shadow(0 1.6cqw 2.4cqw rgba(40,0,3,.45));animation:bowBreath 3.4s ease-in-out infinite}
+.bow img{width:100%;height:auto}
+@keyframes bowBreath{0%,100%{transform:translate(-50%,-41%) scale(1)}50%{transform:translate(-50%,-41%) scale(1.03)}}
+/* كارت صغير متعلّق في الفيونكة: لمين الهدية */
+.tag{position:absolute;z-index:2;left:8cqw;top:9cqw;max-width:60cqw;padding:3.4cqw 5.4cqw 3.6cqw 8.4cqw;transform:rotate(-7deg);transform-origin:0 0;border-radius:1.2cqw;
+  background:#fbf6ee;border:1px solid rgba(123,15,23,.3);box-shadow:0 1.2cqw 2.6cqw rgba(60,0,4,.25);color:var(--ink);text-align:center}
+.tag::before{content:"";position:absolute;left:3cqw;top:50%;width:2.6cqw;height:2.6cqw;margin-top:-1.3cqw;border-radius:50%;background:var(--bg);box-shadow:inset 0 0 0 .5cqw #e7d9c8}
+.tag .k{display:block;font:600 2.9cqw/1 var(--serif);letter-spacing:.3em;padding-left:.3em;text-transform:uppercase;opacity:.85}
+.tag .n{display:block;margin-top:.6cqw;font:400 9.6cqw/1.2 var(--script);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 .12em}
+.cv-hint{margin:7vw 0 0;margin:min(7vw,4svh) 0 0;font:600 13px/1 var(--serif);letter-spacing:.42em;padding-left:.42em;text-transform:uppercase;color:#e6cfc3;animation:hintPulse 2.2s ease-in-out infinite}
+@keyframes hintPulse{0%,100%{opacity:.55}50%{opacity:1}}
+/* ===== الفتح ===== */
+.cv.go{cursor:default}
+.cv.go .cv-hint{animation:none;opacity:0;transition:opacity .3s}
+.cv.go .bow{animation:bowGo 1.25s cubic-bezier(.5,0,.3,1) forwards}
+@keyframes bowGo{0%{transform:translate(-50%,-41%) scale(1.03)}22%{transform:translate(-50%,-41%) scale(.9) rotate(-3deg)}48%{transform:translate(-50%,-44%) scale(1.14) rotate(2deg);opacity:1}100%{transform:translate(-50%,24%) scale(.72) rotate(14deg);opacity:0}}
+.cv.go .rb.v.t{animation:rbUp 1s cubic-bezier(.6,0,.3,1) .5s forwards}
+.cv.go .rb.v.b{animation:rbDown 1s cubic-bezier(.6,0,.3,1) .5s forwards}
+.cv.go .rb.h.l{animation:rbLeft 1s cubic-bezier(.6,0,.3,1) .5s forwards}
+.cv.go .rb.h.r{animation:rbRight 1s cubic-bezier(.6,0,.3,1) .5s forwards}
+@keyframes rbUp{to{transform:translateY(-105%)}}
+@keyframes rbDown{to{transform:translateY(105%)}}
+@keyframes rbLeft{to{transform:rotate(90deg) translateY(80cqw)}}
+@keyframes rbRight{to{transform:rotate(90deg) translateY(-80cqw)}}
+.cv.go .tag{animation:tagGo 1.1s cubic-bezier(.5,0,.6,1) .35s forwards}
+@keyframes tagGo{to{transform:translate(-6cqw,120cqw) rotate(-38deg);opacity:0}}
+.cv.out{opacity:0;transition:opacity .75s ease;pointer-events:none}
+
+/* ===================== الورد النازل ===================== */
+.fall{position:fixed;inset:0;z-index:1100;pointer-events:none;overflow:hidden}
+.fall i{position:absolute;top:-16vh;left:0;will-change:transform;animation:fallY linear forwards}
+.fall i img{width:100%;height:auto;animation:fallSway ease-in-out infinite alternate;filter:drop-shadow(0 6px 8px rgba(30,0,2,.35))}
+@keyframes fallY{to{transform:translate3d(0,132vh,0)}}
+@keyframes fallSway{from{transform:translateX(calc(var(--sw)*-1)) rotate(var(--r0))}to{transform:translateX(var(--sw)) rotate(var(--r1))}}
+
+/* ===================== الكارت الأساسي ===================== */
+.hero{position:relative;display:flex;align-items:center;justify-content:center;min-height:100vh;min-height:100svh;padding:calc(var(--u)*34) 0 calc(var(--u)*26)}
+.hcard{position:relative;flex:none;width:min(84cqw,54vh);width:min(84cqw,54svh);container-type:inline-size;padding:13cqw 6cqw 8cqw;text-align:center;color:var(--ink);box-shadow:0 2.5cqw 7cqw rgba(0,0,0,.42)}
+.seal{position:absolute;left:50%;top:0;width:25cqw;aspect-ratio:1;transform:translate(-50%,-52%);container-type:inline-size;filter:drop-shadow(0 1.4cqw 1.8cqw rgba(40,0,3,.4))}
+.seal img{width:100%;height:100%;object-fit:contain}
+.seal-t{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);min-width:.7em;text-align:center;font:400 44cqw/1 'Great Vibes','Aref Ruqaa',cursive;color:#9c2228;white-space:nowrap;
+  text-shadow:-.02em -.026em .02em rgba(255,170,160,.55),.03em .04em .04em rgba(40,0,2,.75)}
+.seal.gold .seal-t{color:#c79a55;text-shadow:-.02em -.026em .02em rgba(255,240,205,.9),.03em .04em .04em rgba(90,55,10,.7)}
+.h-k{margin:0;font:600 3.5cqw/1.3 var(--serif);letter-spacing:.3em;padding-left:.3em;text-transform:uppercase;color:var(--ink)}
+.h-art{margin:5cqw 0 0;display:flex;flex-direction:column;align-items:center}
+.h-s1,.h-s2{display:block;font:400 17cqw/1.1 var(--script);color:var(--ink);white-space:nowrap;padding:0 .14em;position:relative;z-index:2}
+.h-s1{margin-bottom:-5.2cqw}
+.h-s1.poss::after{content:"\2019s"}
+.h-s2{margin-top:-6.4cqw}
+.h-b{display:block;font:500 15.4cqw/1 var(--serif);letter-spacing:.035em;color:var(--ink);white-space:nowrap;direction:ltr;font-family:'Cormorant Garamond','Times New Roman',serif!important}
+.h-art .fit{transform:scale(var(--fit,1))}
+.h-cake{position:relative;width:70cqw;margin:2cqw auto 0}
+.h-cake img{width:100%;height:auto}
+.h-cake.own img{aspect-ratio:1.29;object-fit:cover;border-radius:50%/42%}
+.h-age{position:absolute;left:44%;top:24%;transform:translate(-50%,-50%);min-width:1.2em;font:italic 500 9.6cqw/1 var(--serif);color:var(--ink);white-space:nowrap;direction:ltr}
+.h-cake.own .h-age{display:none}
+.h-l1{margin:3cqw 0 0;font:500 4.5cqw/1.3 var(--serif);color:var(--ink)}
+.h-l2{margin:.4cqw 0 0;font:700 5cqw/1.3 var(--disp);color:var(--ink2);text-wrap:balance}
+.h-date{display:flex;align-items:center;justify-content:center;gap:4.4cqw;margin:6cqw 0 0;color:var(--ink2);direction:ltr}
+html.ar .h-date{direction:rtl}
+.h-date .s{flex:1 1 0;font:700 3.3cqw/1.25 var(--disp);letter-spacing:.04em;text-transform:uppercase}
+.h-date .s:first-child{text-align:end}.h-date .s:last-child{text-align:start}
+.h-date .d{flex:none;padding:0 4.4cqw;border-left:1.5px solid currentColor;border-right:1.5px solid currentColor;font:900 12cqw/1 var(--disp)}
+
+/* ===================== الأقسام ===================== */
+.sec{position:relative;padding:calc(var(--u)*54) calc(var(--u)*26) calc(var(--u)*46);text-align:center}
+.eyebrow{margin:0;font:600 calc(var(--u)*11.5)/1.4 var(--serif);letter-spacing:.36em;padding-left:.36em;text-transform:uppercase;color:#d9bfb2}
+.title{margin:calc(var(--u)*4) auto 0;padding:.22em .16em .14em;font:400 calc(var(--u)*42)/1.15 var(--script);color:#f6e9df}
+.orn{display:flex;align-items:center;justify-content:center;gap:calc(var(--u)*10);margin:calc(var(--u)*14) auto 0;color:var(--gold)}
+.orn::before,.orn::after{content:"";width:calc(var(--u)*56);height:1px;background:linear-gradient(90deg,transparent,currentColor)}
+.orn::after{transform:scaleX(-1)}
+.orn svg{width:calc(var(--u)*16);height:calc(var(--u)*16)}
+
+/* الرسالة: كارت ملفوف بفيونكتين دانتيل */
+.msg{padding:0;background:var(--cream)}
+.msg-st{position:relative;width:100%;aspect-ratio:1/2.18;overflow:hidden;container-type:inline-size}
+.msg-st>img{position:absolute;left:-23%;top:-7.73%;width:146%;height:auto;max-width:none;mix-blend-mode:multiply}
+.msg-in{position:absolute;left:17.5%;right:17.5%;top:28.2%;bottom:28.6%;display:flex;flex-direction:column;justify-content:center;color:var(--ink);overflow:hidden}
+.msg-t{margin:0;padding:.2em .12em 0;font:400 9.4cqw/1.15 var(--script)}
+.msg-b{margin:3cqw 0 0;font:500 4.35cqw/1.5 var(--serif);color:#5a2a2c;text-wrap:pretty}
+.msg-s{margin:3.6cqw 0 0;font:italic 500 4.2cqw/1.3 var(--serif)}
+.msg-n{margin:0;padding:.1em .12em;font:400 8.4cqw/1.2 var(--script)}
+.msg-in.fit>*{font-size:calc(var(--fs)*var(--fit,1))}
+
+/* ألبوم الذكريات: بولارويد بيتقلب لوحده */
+.mem{margin:calc(var(--u)*26) calc(var(--u)*-26) 0;position:relative}
+.mtrack{display:flex;gap:calc(var(--u)*16);overflow-x:auto;scroll-snap-type:x mandatory;padding:calc(var(--u)*16) calc(var(--u)*72) calc(var(--u)*26);scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.mtrack::-webkit-scrollbar{display:none}
+.pol{position:relative;flex:0 0 100%;margin:0;scroll-snap-align:center;padding:calc(var(--u)*9) calc(var(--u)*9) calc(var(--u)*12);background:#fbf7f0;box-shadow:0 calc(var(--u)*10) calc(var(--u)*24) rgba(0,0,0,.45);transform:rotate(var(--rot,0deg)) scale(.9);opacity:.55;transition:transform .55s cubic-bezier(.2,.7,.2,1),opacity .55s ease;cursor:zoom-in}
+.pol:nth-child(odd){--rot:-2.4deg}.pol:nth-child(even){--rot:2.2deg}
+.pol.on{transform:rotate(calc(var(--rot)*.45)) scale(1);opacity:1}
+.pol img{width:100%;aspect-ratio:4/4.7;object-fit:cover;background:#e8dccf}
+.pol figcaption{margin:calc(var(--u)*9) 0 0;min-height:1.3em;font:400 calc(var(--u)*25)/1.25 var(--script);color:var(--ink);text-align:center;direction:inherit}
+.pol::before{content:"";position:absolute;left:50%;top:calc(var(--u)*-9);width:calc(var(--u)*64);height:calc(var(--u)*20);transform:translateX(-50%) rotate(-3deg);background:rgba(201,163,106,.55);box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.mdots{display:flex;justify-content:center;gap:calc(var(--u)*8)}
+.mdots button{width:calc(var(--u)*7);height:calc(var(--u)*7);padding:0;border-radius:99px;border:0;background:rgba(234,217,207,.3);transition:width .3s ease,background .3s ease;cursor:pointer}
+.mdots button.on{width:calc(var(--u)*22);background:var(--gold)}
+.lb{position:fixed;inset:0;z-index:900;display:none;align-items:center;justify-content:center;background:rgba(20,0,1,.95)}
+.lb.on{display:flex}
+.lb img{max-width:94vw;max-height:84vh;object-fit:contain;box-shadow:0 10px 40px rgba(0,0,0,.5)}
+.lb button{position:absolute;border:0;background:none;color:#f1dfd0;cursor:pointer;padding:14px}
+.lb .x{top:max(10px,env(safe-area-inset-top));right:8px;font:300 34px/1 var(--serif)}
+.lb .pv,.lb .nx{top:50%;transform:translateY(-50%);font:300 44px/1 var(--serif)}
+.lb .pv{left:2px}.lb .nx{right:2px}
+
+/* الأمنيات */
+.wl{list-style:none;margin:calc(var(--u)*24) auto 0;padding:0;max-width:calc(var(--u)*310)}
+.wl li{position:relative;padding:calc(var(--u)*18) calc(var(--u)*8) calc(var(--u)*16);font:500 calc(var(--u)*18.5)/1.5 var(--serif);color:#f3e4da;text-wrap:balance}
+.wl li+li{border-top:1px solid rgba(201,163,106,.35)}
+.wl li::before{content:"♥";display:block;margin:0 auto calc(var(--u)*6);font:400 calc(var(--u)*13)/1 serif;color:var(--gold)}
+
+/* العدّاد */
+.cd{display:flex;justify-content:center;gap:calc(var(--u)*10);margin-top:calc(var(--u)*24);direction:ltr}
+html.ar .cd{direction:rtl}
+.cd .b{width:calc(var(--u)*72);padding:calc(var(--u)*14) 0 calc(var(--u)*11);background:var(--cream);color:var(--ink);box-shadow:0 calc(var(--u)*6) calc(var(--u)*14) rgba(0,0,0,.35)}
+.cd .v{display:block;font:900 calc(var(--u)*32)/1 var(--disp);font-variant-numeric:lining-nums tabular-nums}
+.cd .l{display:block;margin-top:calc(var(--u)*7);font:600 calc(var(--u)*9.5)/1 var(--serif);letter-spacing:.2em;padding-left:.2em;text-transform:uppercase}
+.cd.gone{display:none}
+.cd-done{display:none;margin:calc(var(--u)*18) auto 0;padding:.2em .14em;font:400 calc(var(--u)*36)/1.25 var(--script);color:#f6e9df}
+.cd-done.on,body.bd-edit .cd-done{display:block}
+
+/* رد صاحب/ة الهدية */
+.rs{margin:calc(var(--u)*22) auto 0;max-width:calc(var(--u)*320);text-align:start}
+.rs .f{display:block;margin:calc(var(--u)*16) 0 calc(var(--u)*7);font:600 calc(var(--u)*10.5)/1 var(--serif);letter-spacing:.24em;text-transform:uppercase;color:#d9bfb2}
+.rs input[type=text],.rs textarea{width:100%;padding:calc(var(--u)*12) calc(var(--u)*14);border:1px solid rgba(201,163,106,.55);background:rgba(250,244,236,.96);color:#4a1216;font:500 16px/1.4 var(--serif);border-radius:0;outline:none;-webkit-appearance:none;appearance:none}
+.rs textarea{min-height:calc(var(--u)*96);resize:vertical}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:calc(var(--u)*8);padding:calc(var(--u)*14) calc(var(--u)*24);border:1px solid #d8b47c;background:linear-gradient(135deg,#d8b47c,#b08a4e);color:#3d0103;font:700 calc(var(--u)*12)/1 var(--serif);letter-spacing:.26em;text-transform:uppercase;cursor:pointer;box-shadow:0 calc(var(--u)*6) calc(var(--u)*16) rgba(0,0,0,.35)}
+.btn span{display:inline-block}
+.rs .send{width:100%;margin-top:calc(var(--u)*20)}
+.rs .err{min-height:1.3em;margin:calc(var(--u)*10) 0 0;color:#ffc9b8;font:italic 500 calc(var(--u)*15)/1.3 var(--serif);text-align:center}
+.rs-done{display:none;margin-top:calc(var(--u)*20)}
+.rs-done .t{margin:0 auto;padding:.2em .14em;font:400 calc(var(--u)*40)/1.2 var(--script);color:#f6e9df}
+.rs-done .m{margin:calc(var(--u)*6) auto 0;max-width:calc(var(--u)*280);font:italic 500 calc(var(--u)*17)/1.5 var(--serif);color:#e6cfc3}
+#mithaq-rsvp.sent form{display:none}
+#mithaq-rsvp.sent .rs-done,#mithaq-rsvp.bd-show-done .rs-done{display:block}
+
+/* الختام: الكارت بالدانتيل وختم الشمع الدهبي */
+.end{padding:calc(var(--u)*20) 0 0}
+.end-st{position:relative;width:100%;aspect-ratio:675/1200;container-type:inline-size;
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 7%,#000 100%);mask-image:linear-gradient(to bottom,transparent 0,#000 7%,#000 100%)}
+.end-st>img{position:absolute;inset:0;width:100%;height:100%}
+.end-st .seal{left:50.4%;top:11.3%;width:23.4cqw;transform:translate(-50%,-50%);filter:none}
+.end-in{position:absolute;left:11%;width:53%;top:22%;bottom:25%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--ink);text-align:center}
+.end-w{margin:0;font:italic 500 4.7cqw/1.4 var(--serif)}
+.end-n{margin:1cqw 0 0;padding:.2em .14em;font:400 13cqw/1.15 var(--script);white-space:nowrap;transform:scale(var(--fit,1))}
+.end-l{width:14cqw;height:1px;margin:3cqw 0;background:linear-gradient(90deg,transparent,currentColor,transparent)}
+.end-d{margin:0;font:700 3.5cqw/1 var(--disp);letter-spacing:.3em;padding-left:.3em;direction:ltr}
+
+/* الموسيقى */
+.mus{position:fixed;z-index:800;right:max(14px,calc(50vw - 240px + 14px));bottom:max(16px,env(safe-area-inset-bottom));width:46px;height:46px;border-radius:50%;border:1px solid rgba(201,163,106,.85);
+  background:rgba(61,1,3,.88);color:#e9c996;display:none;place-items:center;box-shadow:0 6px 18px rgba(0,0,0,.4);cursor:pointer;padding:0}
+.mus.on{display:grid}
+.mus svg{width:18px;height:18px}
+.mus .pa{display:none}.mus.playing .pa{display:block}.mus.playing .pl{display:none}
+
+/* دخول هادي للأقسام */
+.rv{opacity:0;transform:translateY(calc(var(--u)*24));transition:opacity 1s ease,transform 1.1s cubic-bezier(.2,.7,.2,1)}
+.rv.in{opacity:1;transform:none}
+body.bd-static .rv{opacity:1;transform:none;transition:none}
+body.bd-edit .pol{cursor:default;opacity:1;transform:rotate(calc(var(--rot)*.45))}
+.hcard>*{opacity:0;transform:translateY(3cqw);transition:opacity .9s ease,transform 1s cubic-bezier(.2,.7,.2,1)}
+.hcard>.seal{transform:translate(-50%,-52%) scale(.6)}
+body.reveal .hcard>*{opacity:1;transform:none}
+body.reveal .hcard>.seal{transform:translate(-50%,-52%);transition-delay:.15s}
+body.reveal .hcard>.h-k{transition-delay:.35s}body.reveal .hcard>.h-art{transition-delay:.55s}body.reveal .hcard>.h-cake{transition-delay:.85s}
+body.reveal .hcard>.h-l1{transition-delay:1.1s}body.reveal .hcard>.h-l2{transition-delay:1.25s}body.reveal .hcard>.h-date{transition-delay:1.45s}
+body.bd-static .hcard>*{transition:none}
+
+/* ===================== النسخة العربي ===================== */
+html.ar{--serif:'Amiri','Times New Roman',serif;--script:'Aref Ruqaa','Amiri',serif;--disp:'Amiri','Times New Roman',serif}
+html.ar .page *,html.ar .cv *{letter-spacing:0!important;text-transform:none!important;font-style:normal!important}
+html.ar .h-b{letter-spacing:.035em!important;text-transform:uppercase!important}
+html.ar .h-s1{font-family:'Great Vibes','Aref Ruqaa',cursive}
+html.ar .h-s2{font-weight:700;font-size:15cqw;line-height:1.5;margin-top:-5cqw}
+html.ar .h-k,html.ar .eyebrow,html.ar .tag .k,html.ar .rs .f,html.ar .cd .l{padding-left:0;font-weight:700}
+html.ar .h-k{font-size:4.6cqw}
+html.ar .eyebrow{font-size:calc(var(--u)*16)}
+html.ar .title{font-weight:700;font-size:calc(var(--u)*36);line-height:1.5}
+html.ar .h-l1{font-size:5cqw;font-weight:700}
+html.ar .h-l2{font-size:5.2cqw}
+html.ar .h-date .s{font-size:4.2cqw;line-height:1.35}
+html.ar .tag{padding:3.4cqw 8.4cqw 3.6cqw 5.4cqw}
+html.ar .tag::before{left:auto;right:3cqw}
+html.ar .tag .k{font-size:3.8cqw}
+html.ar .tag .n{font-weight:700;font-size:8cqw;line-height:1.5}
+html.ar .cv-hint{font:700 16px/1 'Amiri',serif}
+html.ar .msg-t{font-weight:700;font-size:8cqw;line-height:1.5}
+html.ar .msg-b{font-size:4.5cqw;line-height:1.7}
+html.ar .msg-n{font-weight:700;font-size:7.4cqw;line-height:1.5}
+html.ar .pol figcaption{font-weight:700;font-size:calc(var(--u)*21);line-height:1.5}
+html.ar .wl li{font-size:calc(var(--u)*19);line-height:1.8}
+html.ar .cd .l{font-size:calc(var(--u)*12.5)}
+html.ar .cd-done,html.ar .rs-done .t{font-weight:700;font-size:calc(var(--u)*30);line-height:1.6}
+html.ar .rs .f{font-size:calc(var(--u)*14.5)}
+html.ar .btn{font-size:calc(var(--u)*16)}
+html.ar .page input,html.ar .page textarea{direction:rtl}
+html.ar .end-w{font-size:5.2cqw;font-weight:700}
+html.ar .end-n{font-weight:700;font-size:11cqw;line-height:1.5}
+html.ar .end-d{letter-spacing:.3em!important;font-family:'Playfair Display','Times New Roman',serif}
+@media (prefers-reduced-motion:reduce){.rv,.hcard>*{opacity:1!important;transform:none;transition:none}.hcard>.seal{transform:translate(-50%,-52%)}.bow,.cv-hint{animation:none}.fall{display:none}}
+</style>
+</head>
+<body>
+
+<!-- 1) الغلاف: الهدية ملفوفة — ضغطة على الفيونكة تفتحها -->
+<div class="cv" id="coverScreen" role="button" tabindex="0" aria-label="Open the gift">
+  <div class="cv-in">
+    <div class="gift">
+      <div class="lid paper">
+        <i class="rb v t"></i><i class="rb v b"></i><i class="rb h l"></i><i class="rb h r"></i>
+        <div class="tag"><span class="k" id="cvFor"></span><span class="n" id="cvName" dir="auto"></span></div>
+      </div>
+      <div class="bow" id="bow"><img src="/templates/birthday-gift/bow.webp" alt="" fetchpriority="high" draggable="false"></div>
+    </div>
+    <p class="cv-hint" id="cvHint"></p>
+  </div>
+</div>
+
+<div class="page" id="page">
+
+  <!-- 2) الكارت -->
+  <section class="hero">
+    <div class="hcard paper">
+      <div class="seal"><img src="/templates/birthday-gift/seal-red.webp" alt="" draggable="false"><span class="seal-t" data-elem-id="bg1" data-f="mono" dir="auto"></span></div>
+      <p class="h-k" data-elem-id="bg2"></p>
+      <div class="h-art">
+        <span class="h-s1 fit" data-elem-id="bg3" dir="auto"></span>
+        <span class="h-b fit" data-elem-id="bg4" dir="ltr"></span>
+        <span class="h-s2 fit" data-elem-id="bg5" dir="auto"></span>
+      </div>
+      <div class="h-cake" id="cake"><img data-elem-id="bg6" src="/templates/birthday-gift/cake.webp" alt="" decoding="async" draggable="false"><span class="h-age" data-elem-id="bg7" dir="ltr"></span></div>
+      <p class="h-l1" data-elem-id="bg8"></p>
+      <p class="h-l2" data-elem-id="bg9"></p>
+      <div class="h-date"><span class="s" data-elem-id="bg10" data-f="weekday" data-wda-live></span><b class="d" data-elem-id="bg11" data-f="day" data-wda-live></b><span class="s" data-elem-id="bg12" data-f="monthYear" data-wda-live></span></div>
+    </div>
+  </section>
+
+  <!-- 3) الرسالة -->
+  <section class="sec msg rv" data-section="message">
+    <div class="msg-st">
+      <img src="/templates/birthday-gift/letter.webp" alt="" loading="lazy" decoding="async" draggable="false">
+      <div class="msg-in" id="msgIn">
+        <p class="msg-t" data-elem-id="bg13" style="--fs:9.4cqw"></p>
+        <p class="msg-b" data-elem-id="bg14" style="--fs:4.35cqw"></p>
+        <p class="msg-s" data-elem-id="bg15" style="--fs:4.2cqw"></p>
+        <p class="msg-n" data-elem-id="bg16" data-f="sender" dir="auto" style="--fs:8.4cqw"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4) ألبوم الذكريات -->
+  <section class="sec rv" data-section="gallery">
+    <p class="eyebrow" data-elem-id="bg17"></p>
+    <h2 class="title" data-elem-id="bg18"></h2>
+    <div class="mem" id="mem" dir="ltr">
+      <div class="mtrack" id="mtrack">
+        <figure class="pol on"><img data-elem-id="bg19" src="/templates/birthday-gift/p1.webp" alt="" loading="lazy" decoding="async" draggable="false"><figcaption data-elem-id="bg24" dir="auto"></figcaption></figure>
+        <figure class="pol"><img data-elem-id="bg20" src="/templates/birthday-gift/p2.webp" alt="" loading="lazy" decoding="async" draggable="false"><figcaption data-elem-id="bg25" dir="auto"></figcaption></figure>
+        <figure class="pol"><img data-elem-id="bg21" src="/templates/birthday-gift/p3.webp" alt="" loading="lazy" decoding="async" draggable="false"><figcaption data-elem-id="bg26" dir="auto"></figcaption></figure>
+        <figure class="pol"><img data-elem-id="bg22" src="/templates/birthday-gift/p4.webp" alt="" loading="lazy" decoding="async" draggable="false"><figcaption data-elem-id="bg27" dir="auto"></figcaption></figure>
+        <figure class="pol"><img data-elem-id="bg23" src="/templates/birthday-gift/p5.webp" alt="" loading="lazy" decoding="async" draggable="false"><figcaption data-elem-id="bg28" dir="auto"></figcaption></figure>
+      </div>
+      <div class="mdots" id="mdots"></div>
+    </div>
+  </section>
+
+  <!-- 5) الأمنيات -->
+  <section class="sec rv" data-section="wishes">
+    <p class="eyebrow" data-elem-id="bg29"></p>
+    <h2 class="title" data-elem-id="bg30"></h2>
+    <ul class="wl">
+      <li data-elem-id="bg31"></li>
+      <li data-elem-id="bg32"></li>
+      <li data-elem-id="bg33"></li>
+    </ul>
+  </section>
+
+  <!-- 6) العدّاد ليوم الميلاد -->
+  <section class="sec rv" data-section="countdown">
+    <p class="eyebrow" data-elem-id="bg34"></p>
+    <div class="cd" id="cd" data-elem-id="bg35" data-wda-live>
+      <div class="b"><span class="v" id="cdD">00</span><span class="l" data-cdl="0"></span></div>
+      <div class="b"><span class="v" id="cdH">00</span><span class="l" data-cdl="1"></span></div>
+      <div class="b"><span class="v" id="cdM">00</span><span class="l" data-cdl="2"></span></div>
+      <div class="b"><span class="v" id="cdS">00</span><span class="l" data-cdl="3"></span></div>
+    </div>
+    <p class="cd-done" id="cdDone" data-elem-id="bg36"></p>
+  </section>
+
+  <!-- 7) رد صاحب/ة الهدية (بيوصل للوحة اللي عمل الهدية) -->
+  <section class="sec rv" data-section="rsvp" id="mithaq-rsvp">
+    <h2 class="title" data-elem-id="bg37"></h2>
+    <p class="eyebrow" data-elem-id="bg38" style="margin-top:calc(var(--u)*6)"></p>
+    <form class="rs" id="rsForm" novalidate>
+      <label class="f" for="rsName" data-elem-id="bg39"></label>
+      <input type="text" id="rsName" maxlength="80" autocomplete="name">
+      <div id="noteField">
+        <label class="f" for="rsNote" data-elem-id="bg40"></label>
+        <textarea id="rsNote" maxlength="200"></textarea>
+      </div>
+      <button class="btn send" type="submit" id="rsSend"><span data-elem-id="bg41"></span></button>
+      <p class="err" id="rsMsg" aria-live="polite"></p>
+    </form>
+    <div class="rs-done" id="rsDone" aria-live="polite">
+      <p class="t" data-elem-id="bg42"></p>
+      <p class="m" data-elem-id="bg43"></p>
+    </div>
+  </section>
+
+  <!-- 8) الختام -->
+  <section class="sec end rv">
+    <div class="end-st">
+      <img src="/templates/birthday-gift/closing.webp" alt="" loading="lazy" decoding="async" draggable="false">
+      <div class="seal gold"><span class="seal-t" id="endMono" dir="auto"></span></div>
+      <div class="end-in">
+        <p class="end-w" data-elem-id="bg44"></p>
+        <p class="end-n" id="endName" data-elem-id="bg45" data-f="sender" dir="auto"></p>
+        <i class="end-l" aria-hidden="true"></i>
+        <p class="end-d" data-elem-id="bg46" data-f="dateDots" data-wda-live dir="ltr"></p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Photo">
+  <button class="x" type="button" aria-label="Close">×</button>
+  <button class="pv" type="button" aria-label="Previous">‹</button>
+  <img alt="">
+  <button class="nx" type="button" aria-label="Next">›</button>
+</div>
+
+<audio id="invitation-audio" src="/templates/birthday-gift/song.mp3" loop preload="none" playsinline></audio>
+<button class="mus" id="mus" type="button" aria-label="Music"><svg class="pl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg><svg class="pa" viewBox="0 0 24 24" fill="currentColor"><rect x="7" y="5" width="3.2" height="14" rx="1"/><rect x="13.8" y="5" width="3.2" height="14" rx="1"/></svg></button>
+
+<script>
+(function () {
+  'use strict';
+  var C = window.WEDDING_CONFIG || {};
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var byId = function (id) { return document.querySelector('[data-elem-id="' + id + '"]'); };
+  var root = document.documentElement;
+  var A = '/templates/birthday-gift/';
+
+  // المحرر / المعاينة الثابتة: من غير الغلاف — كل حاجة ظاهرة على طول
+  var STATIC = !!C.autoOpen;
+  var EDIT = STATIC && /[?&]edit=1(&|$)/.test(location.search);
+  var AR = C.language !== 'en';
+  if (STATIC) document.body.classList.add('bd-static');
+  if (EDIT) document.body.classList.add('bd-edit');
+
+  /* ---------- الأقسام اللي صاحب الهدية شالها ---------- */
+  var HIDDEN = Array.isArray(C.hiddenSections) ? C.hiddenSections : [];
+  $$('[data-section]').forEach(function (s) { if (HIDDEN.indexOf(s.getAttribute('data-section')) !== -1) s.classList.add('off'); });
+
+  /* ---------- البيانات: صاحب/ة العيد، الباعت، يوم الميلاد ---------- */
+  var name = String(C.brideName || '').trim(), sender = String(C.groomName || '').trim();
+  var AD = '٠١٢٣٤٥٦٧٨٩';
+  var dg = function (s) { s = String(s); return AR ? s.replace(/\d/g, function (c) { return AD[c]; }) : s; };
+  var MONTHS = AR ? ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر']
+    : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  var DAYS = AR ? ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'] : ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  var cd0 = C.countdown || {}, now0 = new Date();
+  var num = function (v, d) { return typeof v === 'number' && isFinite(v) ? v : d; };
+  var Y = num(cd0.year, now0.getFullYear()), M = num(cd0.monthIndex, now0.getMonth()), D = num(cd0.day, now0.getDate());
+  var pad2 = function (n) { return (n < 10 ? '0' : '') + n; };
+  // العدّاد لأول لحظة في يوم الميلاد (بتوقيت الجهاز اللي فاتح الهدية)
+  var START = new Date(Y, M, D, 0, 0, 0);
+
+  /* ---------- الكلام الافتراضي (عربي / إنجليزي) — أي سطر اتعدّل بيغلب ---------- */
+  var COPY = AR ? {
+    bg2: 'هدية من القلب', bg3: 'Happy', bg4: 'BIRTHDAY', bg7: '25',
+    bg8: 'شكرًا لأنك في حياتي', bg9: 'وجودك يجعل كل يوم أجمل.',
+    bg13: 'إلى أغلى الناس', bg14: 'سنة جديدة في عمرك، والدنيا أحلى بوجودك. شكرًا على كل ضحكة وكل ذكرى وكل لحظة حلوة بيننا. أتمنى لك سنة مليئة بكل ما يتمناه قلبك.', bg15: 'مع كل حبي،',
+    bg17: 'ذكرياتنا', bg18: 'لحظات لا تُنسى',
+    bg24: 'أجمل ابتسامة', bg25: 'أمنية العيد', bg26: 'معًا دائمًا', bg27: 'أحلى يوم', bg28: 'كل الحب',
+    bg29: 'أمنياتي لك', bg30: 'أتمنى لك هذا العام…',
+    bg31: 'أيامًا مليئة بالضحك والأحباب.', bg32: 'أحلامًا تتحقق واحدًا تلو الآخر.', bg33: 'وقلبًا سعيدًا كما تُسعد قلبي.',
+    bg34: 'العدّ التنازلي ليومك', bg36: 'اليوم يومك — عيد ميلاد سعيد!',
+    bg37: 'ردّ على الهدية', bg38: 'عجبتك الهدية؟ اكتب كلمة', bg39: 'الاسم', bg40: 'رسالتك', bg41: 'إرسال',
+    bg42: 'شكرًا!', bg43: 'رسالتك في الطريق.',
+    bg44: 'مع كل حبي،'
+  } : {
+    bg2: 'Made with love', bg4: 'BIRTHDAY', bg5: 'Gift', bg7: '25',
+    bg8: 'Thank you for being you!', bg9: 'You make every day so much better.',
+    bg13: 'To my favourite person', bg14: 'Another year of you — and the world is brighter for it. Thank you for every laugh, every memory and every little moment. I hope this year brings you everything your heart is quietly wishing for.', bg15: 'With all my love,',
+    bg17: 'Our memories', bg18: 'Moments I Treasure',
+    bg24: 'That smile', bg25: 'Make a wish', bg26: 'Us, always', bg27: 'Best day ever', bg28: 'All my love',
+    bg29: 'My wishes for you', bg30: 'This Year I Wish You…',
+    bg31: 'Days full of laughter and people who love you.', bg32: 'Dreams that come true, one after another.', bg33: 'And a heart as happy as you make mine.',
+    bg34: 'Counting down to your day', bg36: 'Today is your day — Happy Birthday!',
+    bg37: 'Send a Little Reply', bg38: 'Liked your gift? Write a few words back', bg39: 'Your name', bg40: 'Your message', bg41: 'Send',
+    bg42: 'Thank you!', bg43: 'Your message is on its way.',
+    bg44: 'With all my love,'
+  };
+  Object.keys(COPY).forEach(function (id) { var el = byId(id); if (el) el.textContent = COPY[id]; });
+  // الاسم: في الإنجليزي فوق كلمة BIRTHDAY (Sarah’s)، وفي العربي تحتها
+  var nameEl = byId(AR ? 'bg5' : 'bg3');
+  nameEl.setAttribute('data-f', 'name');
+  // حرف الختم: دايمًا حرف إنجليزي مزخرف — الاسم العربي بياخد مقابله (سارة S، عمر O، خالد K…)
+  var AR2EN = { 'ا': 'A', 'أ': 'A', 'آ': 'A', 'إ': 'E', 'ب': 'B', 'ت': 'T', 'ث': 'T', 'ج': 'G', 'ح': 'H', 'خ': 'K', 'د': 'D', 'ذ': 'Z', 'ر': 'R', 'ز': 'Z', 'س': 'S', 'ش': 'S', 'ص': 'S', 'ض': 'D',
+    'ط': 'T', 'ظ': 'Z', 'ع': 'A', 'غ': 'G', 'ف': 'F', 'ق': 'K', 'ك': 'K', 'ل': 'L', 'م': 'M', 'ن': 'N', 'ه': 'H', 'ة': 'H', 'و': 'W', 'ي': 'Y', 'ى': 'Y' };
+  var first = function (s) {
+    s = String(s || '').replace(/[ً-ْـ]/g, '').trim();
+    if (/^(عمر|عمرو|علا|عثمان)/.test(s)) return 'O';
+    if (/^يو/.test(s)) return 'Y';
+    var c = s.charAt(0);
+    return /[a-z]/i.test(c) ? c.toUpperCase() : (AR2EN[c] || c);
+  };
+  var F = {
+    name: name, sender: sender, mono: first(name),
+    weekday: DAYS[new Date(Y, M, D).getDay()], day: dg(D), monthYear: MONTHS[M] + ' ' + dg(Y),
+    dateDots: pad2(D) + ' · ' + pad2(M + 1) + ' · ' + Y
+  };
+  $$('[data-f]').forEach(function (el) { var v = F[el.getAttribute('data-f')]; if (v != null) el.textContent = v; });
+  var CDL = AR ? ['يوم', 'ساعة', 'دقيقة', 'ثانية'] : ['Days', 'Hours', 'Minutes', 'Seconds'];
+  $$('[data-cdl]').forEach(function (el) { el.textContent = CDL[+el.getAttribute('data-cdl')]; });
+  $('#rsName').placeholder = AR ? 'الاسم' : 'Your name';
+  $('#rsNote').placeholder = AR ? 'اكتب ردّك هنا…' : 'Write your reply here…';
+  $('#cvFor').textContent = AR ? 'هدية إلى' : 'A gift for';
+  $('#cvHint').textContent = AR ? 'اضغط على الفيونكة' : 'Tap the bow';
+  var cv = $('#coverScreen');
+  if (cv) cv.setAttribute('aria-label', AR ? 'اضغط على الفيونكة لفتح الهدية' : 'Tap the bow to open the gift');
+  if (name) document.title = AR ? ('عيد ميلاد سعيد يا ' + name) : ('Happy Birthday, ' + name);
+
+  /* ---------- تعديلات فورم الرد من البانل (rsvpOverrides) ---------- */
+  var RO = C.rsvpOverrides || {};
+  var RO_MAP = { title: 'bg37', intro: 'bg38', nameLabel: 'bg39', foodLabel: 'bg40', submit: 'bg41' };
+  Object.keys(RO_MAP).forEach(function (k) { if (RO[k]) byId(RO_MAP[k]).textContent = RO[k]; });
+  if (RO.hideFood) $('#noteField').classList.add('off');
+
+  /* ---------- اللي بيتبع الاسم: ’s، حرف الختم، كارت الغلاف ---------- */
+  var monoEl = byId('bg1'), endMono = $('#endMono'), cvName = $('#cvName'), s1 = byId('bg3'), cake = $('#cake'), cakeImg = byId('bg6');
+  monoEl.dataset.auto = monoEl.textContent;
+  function syncName() {
+    var n = nameEl.textContent.trim();
+    // ’s بعد الاسم اللاتيني بس (النسخة الإنجليزي)
+    var poss = !AR && /[A-Za-z]$/.test(s1.textContent.trim());
+    if (s1.classList.contains('poss') !== poss) s1.classList.toggle('poss', poss);
+    if (monoEl.textContent === monoEl.dataset.auto) { var f = first(n); if (f !== monoEl.textContent) { monoEl.textContent = f; monoEl.dataset.auto = f; } }
+    var m = monoEl.textContent.trim();
+    if (endMono.textContent !== m) endMono.textContent = m;
+    if (cvName && cvName.textContent !== n) cvName.textContent = n;
+    // صاحب الهدية بدّل رسمة التورتة بصورة: السن اللي فوقها يختفي والصورة تاخد شكل بيضاوي
+    var own = cakeImg.getAttribute('src').indexOf(A + 'cake.webp') === -1;
+    if (cake.classList.contains('own') !== own) cake.classList.toggle('own', own);
+  }
+
+  /* ---------- السطور الطويلة بتصغر لحد ما تدخل مكانها (كتابة بس لو القيمة اتغيّرت) ---------- */
+  function textWidth(el) { var r = document.createRange(); r.selectNodeContents(el); return r.getBoundingClientRect().width; }
+  function fitOne(el, avail) {
+    var cur = parseFloat(el.style.getPropertyValue('--fit')) || 1;
+    var w = textWidth(el) / cur;
+    if (el.classList.contains('poss')) w *= 1.14;
+    var want = avail > 0 && w > avail + 1 ? Math.max(0.36, (avail / w) * 0.985) : 1;
+    if (Math.abs(want - cur) < 0.01) return;
+    if (want === 1) el.style.removeProperty('--fit'); else el.style.setProperty('--fit', want.toFixed(3));
+  }
+  var hcard = $('.hcard'), artEls = $$('.h-art .fit'), endName = $('#endName'), msgIn = $('#msgIn');
+  function fitMsg() {
+    // الرسالة الطويلة: الخط بيصغر لحد ما الكلام كله يدخل جوه الكارت
+    var box = msgIn.clientHeight; if (!box) return;
+    var cur = parseFloat(msgIn.style.getPropertyValue('--fit')) || 1, tries = 0, want = cur;
+    var total = function () { var h = 0; [].forEach.call(msgIn.children, function (c) { var cs = getComputedStyle(c); h += c.offsetHeight + (parseFloat(cs.marginTop) || 0) + (parseFloat(cs.marginBottom) || 0); }); return h; };
+    var apply = function (v) { if (v >= 0.995) { msgIn.classList.remove('fit'); msgIn.style.removeProperty('--fit'); } else { msgIn.classList.add('fit'); msgIn.style.setProperty('--fit', v.toFixed(3)); } };
+    if (cur < 1 && total() < box * 0.8) { want = 1; apply(1); }
+    while (total() > box + 1 && want > 0.5 && tries++ < 14) { want = Math.max(0.5, want * 0.94); apply(want); }
+  }
+  function fitAll() {
+    syncName();
+    var w = hcard.clientWidth;
+    if (w) artEls.forEach(function (el) { fitOne(el, w * 0.86); });
+    var ein = endName.parentNode.clientWidth; if (ein) fitOne(endName, ein * 0.98);
+    fitMsg();
+  }
+  var fitT = 0, fitSoon = function () { clearTimeout(fitT); fitT = setTimeout(fitAll, 60); };
+  fitAll();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitAll);
+  addEventListener('resize', fitSoon);
+  var watched = artEls.concat([endName, monoEl, msgIn]);
+  var lastTexts = '';
+  var onText = function () { var now = watched.map(function (el) { return el.textContent; }).join('|') + cakeImg.getAttribute('src'); if (now !== lastTexts) { lastTexts = now; fitSoon(); } };
+  watched.forEach(function (el) { new MutationObserver(onText).observe(el, { subtree: true, characterData: true, childList: true }); });
+  new MutationObserver(onText).observe(cakeImg, { attributes: true, attributeFilter: ['src'] });
+
+  /* ---------- الموسيقى ---------- */
+  var song = $('#invitation-audio'), mus = $('#mus'), pausedByHide = false;
+  try { song.volume = 0.6; } catch (e) {}
+  function setPlaying(p) { mus.classList.toggle('playing', p); }
+  function play() { if (!song.getAttribute('src')) return; try { var pr = song.play(); if (pr && pr.catch) pr.catch(function () { setPlaying(false); }); } catch (e) { setPlaying(false); } }
+  song.addEventListener('play', function () { setPlaying(true); });
+  song.addEventListener('pause', function () { setPlaying(false); });
+  mus.addEventListener('click', function () { if (song.paused) play(); else song.pause(); });
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) { if (!song.paused) { pausedByHide = true; song.pause(); } }
+    else if (pausedByHide) { pausedByHide = false; play(); }
+  });
+
+  /* ---------- دخول الأقسام ---------- */
+  var observed = false;
+  function observe() {
+    if (observed) return; observed = true;
+    var els = $$('.rv');
+    if (STATIC || !('IntersectionObserver' in window)) { els.forEach(function (e) { e.classList.add('in'); }); return; }
+    var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }); }, { threshold: 0.12 });
+    els.forEach(function (e) { io.observe(e); });
+  }
+
+  /* ---------- الورد الأحمر والبتلات اللي بتنزل بعد الفتح ---------- */
+  function rain() {
+    var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) return;
+    var layer = document.createElement('div'); layer.className = 'fall'; layer.setAttribute('aria-hidden', 'true');
+    var vw = Math.min(window.innerWidth, 620), n = 30, r = function (a, b) { return a + Math.random() * (b - a); };
+    var kinds = ['rose1', 'rose2', 'petal1', 'petal2', 'petal3', 'petal1', 'petal2', 'petal3', 'petal4', 'petal4'];
+    for (var i = 0; i < n; i++) {
+      var k = kinds[i % kinds.length], rose = k.indexOf('rose') === 0;
+      var el = document.createElement('i'), im = document.createElement('img');
+      var w = rose ? r(vw * 0.13, vw * 0.2) : r(vw * 0.05, vw * 0.1);
+      im.src = A + k + '.webp'; im.alt = '';
+      el.style.width = w.toFixed(0) + 'px';
+      el.style.left = r(-4, 96).toFixed(1) + '%';
+      el.style.animationDuration = (rose ? r(4.2, 6.2) : r(3.4, 6.6)).toFixed(2) + 's';
+      el.style.animationDelay = r(0, 2.6).toFixed(2) + 's';
+      im.style.setProperty('--sw', r(10, 34).toFixed(0) + 'px');
+      im.style.setProperty('--r0', r(-70, 10).toFixed(0) + 'deg');
+      im.style.setProperty('--r1', r(20, 150).toFixed(0) + 'deg');
+      im.style.animationDuration = r(1.4, 2.6).toFixed(2) + 's';
+      el.appendChild(im); layer.appendChild(el);
+    }
+    document.body.appendChild(layer);
+    setTimeout(function () { if (layer.parentNode) layer.parentNode.removeChild(layer); }, 10500);
+  }
+  // الصور تتحمّل قبل الضغطة عشان تنزل على طول
+  if (!STATIC) ['rose1', 'rose2', 'petal1', 'petal2', 'petal3', 'petal4'].forEach(function (k) { var i = new Image(); i.src = A + k + '.webp'; });
+
+  /* ---------- الغلاف: الفيونكة تتفك، الشرايط تتسحب، والكارت يظهر ---------- */
+  var opened = false;
+  function reveal() {
+    root.classList.remove('lock');
+    document.body.classList.add('reveal');
+    mus.classList.add('on');
+    observe();
+    fitSoon();
+  }
+  function openGift() {
+    if (opened) return; opened = true;
+    play();
+    cv.classList.add('go');
+    var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    setTimeout(rain, reduce ? 0 : 450);
+    setTimeout(function () { cv.classList.add('out'); document.body.classList.add('reveal'); }, reduce ? 0 : 1500);
+    setTimeout(function () { if (cv.parentNode) cv.parentNode.removeChild(cv); reveal(); }, reduce ? 500 : 2300);
+  }
+  if (STATIC || !cv) {
+    if (cv && cv.parentNode) cv.parentNode.removeChild(cv);
+    $$('img[loading=lazy]').forEach(function (i) { i.loading = 'eager'; });
+    reveal();
+  } else {
+    (function () {
+      var shown = false;
+      function show() { if (shown) return; shown = true; syncName(); cv.classList.add('ready'); }
+      var waits = $$('img', cv).filter(function (i) { return !i.complete; }).map(function (i) { return new Promise(function (res) { i.addEventListener('load', res); i.addEventListener('error', res); }); });
+      waits.push(new Promise(function (res) { var l = new Image(); l.onload = l.onerror = res; l.src = A + 'lace.webp'; }));
+      if (document.fonts && document.fonts.load) waits.push(document.fonts.load("40px 'Great Vibes'").catch(function () {}));
+      Promise.all(waits).then(show, show);
+      setTimeout(show, 2500);
+    })();
+    try { history.scrollRestoration = 'manual'; } catch (e) {}
+    window.scrollTo(0, 0);
+    cv.addEventListener('click', openGift);
+    cv.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openGift(); } });
+    cv.addEventListener('touchmove', function (e) { e.preventDefault(); }, { passive: false });
+  }
+
+  /* ---------- العدّاد ---------- */
+  var cdEls = [$('#cdD'), $('#cdH'), $('#cdM'), $('#cdS')], cdBox = $('#cd'), cdDone = $('#cdDone');
+  function tick() {
+    var ms = START - Date.now();
+    var over = ms <= 0 && !EDIT;
+    if (cdBox.classList.contains('gone') !== over) { cdBox.classList.toggle('gone', over); cdDone.classList.toggle('on', over); }
+    ms = Math.max(0, ms);
+    var v = [Math.floor(ms / 864e5), Math.floor(ms / 36e5 % 24), Math.floor(ms / 6e4 % 60), Math.floor(ms / 1e3 % 60)];
+    for (var i = 0; i < 4; i++) { var t = dg(pad2(v[i])); if (cdEls[i].textContent !== t) cdEls[i].textContent = t; }
+  }
+  tick(); setInterval(tick, 1000);
+
+  /* ---------- ألبوم الذكريات: بيتقلب لوحده، والسحب/النقط بتحرّكه، والضغط يكبّر ---------- */
+  (function () {
+    var tr = $('#mtrack'); if (!tr) return;
+    var items = $$('.pol', tr), dots = $('#mdots'), cur = -1, touched = 0, inView = false;
+    items.forEach(function (it, i) {
+      var b = document.createElement('button'); b.type = 'button'; b.setAttribute('aria-label', 'Photo ' + (i + 1));
+      b.addEventListener('click', function () { touched = Date.now(); go(i); }); dots.appendChild(b);
+      it.addEventListener('click', function (e) { if (EDIT) return; touched = Date.now(); if (e.target.tagName === 'FIGCAPTION') return; if (i === cur) openLb(i); else go(i); });
+    });
+    function setCur(i) {
+      if (i === cur) return; cur = i;
+      items.forEach(function (it, k) { it.classList.toggle('on', k === i); });
+      [].forEach.call(dots.children, function (d, k) { d.classList.toggle('on', k === i); });
+    }
+    function go(i) {
+      i = (i + items.length) % items.length;
+      var it = items[i];
+      tr.scrollTo({ left: it.offsetLeft - (tr.clientWidth - it.offsetWidth) / 2, behavior: 'smooth' });
+      setCur(i);
+    }
+    var raf = 0;
+    tr.addEventListener('scroll', function () {
+      if (raf) return;
+      raf = requestAnimationFrame(function () {
+        raf = 0;
+        var mid = tr.scrollLeft + tr.clientWidth / 2, best = 0, bd = 1e9;
+        items.forEach(function (it, k) { var c = it.offsetLeft + it.offsetWidth / 2, d = Math.abs(c - mid); if (d < bd) { bd = d; best = k; } });
+        setCur(best);
+      });
+    }, { passive: true });
+    ['touchstart', 'pointerdown', 'wheel'].forEach(function (ev) { tr.addEventListener(ev, function () { touched = Date.now(); }, { passive: true }); });
+    setCur(0);
+    if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { inView = es[0].isIntersecting; }, { threshold: 0.5 }).observe(tr);
+    // بيتقلب لوحده كل 3 ثواني وهو ظاهر — وبيقف 7 ثواني لو صاحب الهدية لمسه
+    if (!EDIT) setInterval(function () { if (!inView || document.hidden || Date.now() - touched < 7000 || lb.classList.contains('on')) return; go(cur + 1); }, 3000);
+    var lb = $('#lb'), lbImg = lb.querySelector('img'), lbI = 0;
+    function show(i) { lbI = (i + items.length) % items.length; var im = items[lbI].querySelector('img'); lbImg.src = im.currentSrc || im.src; }
+    function openLb(i) { show(i); lb.classList.add('on'); root.style.overflow = 'hidden'; }
+    function closeLb() { lb.classList.remove('on'); root.style.overflow = ''; touched = Date.now(); }
+    lb.querySelector('.x').addEventListener('click', closeLb);
+    lb.querySelector('.pv').addEventListener('click', function (e) { e.stopPropagation(); show(lbI - 1); });
+    lb.querySelector('.nx').addEventListener('click', function (e) { e.stopPropagation(); show(lbI + 1); });
+    lb.addEventListener('click', function (e) { if (e.target === lb) closeLb(); });
+    var sx = 0;
+    lb.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; }, { passive: true });
+    lb.addEventListener('touchend', function (e) { var dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 45) show(lbI + (dx < 0 ? 1 : -1)); }, { passive: true });
+    document.addEventListener('keydown', function (e) { if (!lb.classList.contains('on')) return; if (e.key === 'Escape') closeLb(); if (e.key === 'ArrowRight') show(lbI + 1); if (e.key === 'ArrowLeft') show(lbI - 1); });
+  })();
+
+  /* ---------- رد صاحب/ة الهدية (بيوصل للوحة اللي عمل الهدية) ---------- */
+  (function () {
+    var form = $('#rsForm'); if (!form) return;
+    var sec = $('#mithaq-rsvp'), msg = $('#rsMsg'), send = $('#rsSend'), nm = $('#rsName'), note = $('#rsNote');
+    var sid = C.shortId || '';
+    var SENT_KEY = 'mithaq_rsvp_' + (sid || 'preview');
+    var store = { get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+    function done() { sec.classList.add('sent'); }
+    if (EDIT) sec.classList.add('bd-show-done');
+    if (!STATIC && sid && store.get(SENT_KEY)) done();
+    // الاسم جاهز باسم صاحب/ة العيد (يتغيّر عادي)
+    if (!EDIT && name && !/^(sarah|سارة)$/i.test(name) && !nm.value) nm.value = name;
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (EDIT) return;
+      var n = nm.value.trim().replace(/\s+/g, ' '), t = note.value.trim();
+      if (n.length < 2) { msg.textContent = AR ? 'من فضلك اكتب اسمك.' : 'Please write your name.'; nm.focus(); return; }
+      if (!$('#noteField').classList.contains('off') && t.length < 1) { msg.textContent = AR ? 'اكتب كلمة قبل الإرسال.' : 'Write a few words first.'; note.focus(); return; }
+      if (!sid) { done(); return; }
+      send.disabled = true; msg.textContent = '';
+      fetch('/i/' + encodeURIComponent(sid) + '/rsvp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin',
+        body: JSON.stringify({ guestName: n, attending: 'yes', note: t.slice(0, 200) }) })
+        .then(function (r) { if (!r.ok) throw r; store.set(SENT_KEY, '1'); done(); })
+        .catch(function (r) {
+          send.disabled = false;
+          msg.textContent = r && r.status === 429 ? (AR ? 'محاولات كثيرة — حاول مرة أخرى بعد قليل.' : 'Too many tries — please try again in a little while.') : (AR ? 'حدث خطأ — حاول مرة أخرى.' : 'Something went wrong — please try again.');
+        });
+    });
+  })();
+})();
+</script>
+</body>
+</html>

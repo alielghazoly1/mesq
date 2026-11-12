@@ -318,12 +318,43 @@ const TEMPLATES = [
   },
 ];
 
+// قوالب جاهزة بس لسه مش في المعرض (المالك بيراجعها الأول): المعاينة والمحرر شغالين باللينك
+// المباشر، ومابتظهرش في قايمة التصاميم ولا خريطة الموقع ولا لوحة التحكم. لما المالك يوافق
+// بتتنقل لـ TEMPLATES فوق.
+const UNLISTED_TEMPLATES = [
+  {
+    id: 'birthday-gift',
+    name: 'Birthday Gift',
+    description: 'هدية عيد ميلاد إلكترونية: كارت نبيتي بفيونكة دانتيل — ضغطة عليها تفتح الهدية وينزل ورد أحمر — كارت بالاسم ورسمة التورتة والسن، رسالة من القلب، ألبوم ذكريات بيتقلب، أمنيات، وختام بختم الشمع',
+    file: 'birthday-gift.html',
+    languages: SUPPORTED_LANGUAGES,
+    // قسم تاني غير دعوات الفرح: هدية لصاحبة/أخت/أم/حبيبة
+    category: 'birthday',
+    occasionTypes: ['birthday'],
+    // الإخفاء في views/birthday-gift.html (data-section). الكارت الأساسي والختام ثابتين.
+    optionalSections: [
+      { key: 'message', label: 'الرسالة' },
+      { key: 'gallery', label: 'ألبوم الذكريات' },
+      { key: 'wishes', label: 'الأمنيات' },
+      { key: 'countdown', label: 'العدّاد ليوم الميلاد' },
+      { key: 'rsvp', label: 'رد صاحب/ة الهدية' },
+    ],
+    timelineStages: [],
+    extraFields: [],
+    // بيانات المسودة الجديدة: brideName = صاحب/ة العيد، groomName = اللي باعت الهدية
+    draftDefaults: { brideName: 'Sarah', brideNameAr: 'سارة', groomName: 'Your Name', groomNameAr: 'اسمك', venueName: 'Home', venueCity: 'City' },
+    designLanguages: ['en', 'ar'],
+    isNew: true,
+    isPremium: true,
+  },
+];
+
 function getTemplate(templateId) {
-  return TEMPLATES.find((t) => t.id === templateId) || null;
+  return TEMPLATES.find((t) => t.id === templateId) || UNLISTED_TEMPLATES.find((t) => t.id === templateId) || null;
 }
 
 function getDefaultTemplate() {
   return TEMPLATES[0];
 }
 
-module.exports = { TEMPLATES, getTemplate, getDefaultTemplate };
+module.exports = { TEMPLATES, UNLISTED_TEMPLATES, getTemplate, getDefaultTemplate };

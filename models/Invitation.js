@@ -29,7 +29,7 @@ const invitationSchema = new mongoose.Schema({
   // قبل نظام القوالب، وبالتالي بتتعرض بالتصميم الأصلي بالظبط من غير أي تغيير.
   templateId: { type: String, default: null },
   language: { type: String, enum: ['ar', 'en', 'fr'], default: null },
-  occasionType: { type: String, enum: ['wedding', 'engagement'], default: null },
+  occasionType: { type: String, enum: ['wedding', 'engagement', 'birthday'], default: null },
 
   // أقسام اختارها صاحب الدعوة إنه يشيلها (زي: 'countdown', 'timeline', 'dressCode', 'rsvp', 'map')
   hiddenSections: { type: [String], default: [] },
