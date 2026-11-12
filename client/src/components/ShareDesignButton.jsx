@@ -39,7 +39,7 @@ export default function ShareDesignButton({ template, className = '' }) {
   const [copied, setCopied] = useState(false);
   const box = useRef(null);
   const url = `${window.location.origin}/preview-sample/${template.id}`;
-  const text = t('gallery.shareText', { name: template.name });
+  const text = t(template.category === 'birthday' ? 'gallery.shareTextGift' : 'gallery.shareText', { name: template.name });
 
   useEffect(() => {
     if (!open) return undefined;

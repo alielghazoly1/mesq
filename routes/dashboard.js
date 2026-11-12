@@ -34,7 +34,7 @@ router.get('/api/dashboard', requireAuth, async (req, res) => {
     const invitations = await Invitation.find({ ownerId: req.user.id })
       .sort({ createdAt: -1 })
       .limit(100)
-      .select('shortId templateId language name statsToken brideNameAr groomNameAr brideName groomName weddingDateTime viewCount isPremium status createdAt guestExtras')
+      .select('shortId templateId language name statsToken brideNameAr groomNameAr brideName groomName weddingDateTime viewCount isPremium status createdAt guestExtras occasionType')
       .lean();
 
     const shortIds = invitations.map((i) => i.shortId);
@@ -137,10 +137,14 @@ router.get('/api/dashboard', requireAuth, async (req, res) => {
         name: inv.name || '',
         // رابط صفحة الإحصائيات السري لو اتولّد قبل كده (null لو لسه)
         statsPath: inv.statsToken ? `/s/${inv.statsToken}` : null,
-        names: {
+        names: inv.occasionType === 'birthday' ? {
+          ar: `هدية ${inv.brideNameAr || inv.brideName || ''} 🎁`.trim(),
+          en: `${inv.brideName || inv.brideNameAr || ''} — Birthday Gift 🎁`.trim(),
+        } : {
           ar: `${inv.brideNameAr || ''} & ${inv.groomNameAr || ''}`.trim(),
           en: `${inv.brideName || ''} & ${inv.groomName || ''}`.trim(),
         },
+        occasionType: inv.occasionType || 'wedding',
         weddingDate: inv.weddingDateTime,
         views: inv.viewCount || 0,
         rsvp: countsByShortId[inv.shortId] || { yes: 0, no: 0 },

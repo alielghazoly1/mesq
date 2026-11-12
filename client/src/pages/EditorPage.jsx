@@ -2215,7 +2215,7 @@ export default function EditorPage() {
                             {(selected.kind === 'live' || looksLikeDate(selected.text) || selected.dateish) && data.details?.weddingDate && (
                               <div data-help="date-field" className="mb-4 rounded-xl border border-brass/40 bg-brass/[0.07] p-3">
                                 <div className="mb-2 flex items-center gap-1.5 text-[12px] font-bold text-[#7a5a1a]">
-                                  <CalendarDays size={12} /> {t('editor.dateTitle')}
+                                  <CalendarDays size={12} /> {t(data.details?.occasionType === 'birthday' ? 'editor.dateTitleBirthday' : 'editor.dateTitle')}
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <input
@@ -2224,8 +2224,9 @@ export default function EditorPage() {
                                     onChange={(e) => changeDetail({ weddingDate: e.target.value })}
                                     className="min-w-0 flex-1 rounded-lg border border-line bg-card px-3 py-2 text-[13px] text-ink focus:border-brass focus:outline-none"
                                   />
-                                  {/* ساعة الحفلة — العدّاد التنازلي بينزل عندها */}
+                                  {/* ساعة الحفلة — العدّاد التنازلي بينزل عندها (عيد الميلاد يوم بس، من غير ساعة) */}
                                   <input
+                                    hidden={data.details?.occasionType === 'birthday'}
                                     type="time"
                                     defaultValue={data.details.weddingTime || ''}
                                     onChange={(e) => changeDetail({ weddingTime: e.target.value })}
@@ -2233,7 +2234,7 @@ export default function EditorPage() {
                                   />
                                 </div>
                                 <p className="mt-2 text-[11px] text-ink-dim">
-                                  {selected.kind === 'live' ? t('editor.liveHint') : t('editor.countdownTimeHint')}
+                                  {data.details?.occasionType === 'birthday' ? t('editor.birthdayDateHint') : selected.kind === 'live' ? t('editor.liveHint') : t('editor.countdownTimeHint')}
                                 </p>
                               </div>
                             )}

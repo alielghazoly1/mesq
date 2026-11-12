@@ -359,7 +359,7 @@ footer a{color:var(--ink-dim)}
 function renderLanding(key, stats) {
   const pg = PAGES[key];
   const url = SITE + encodeURI(urlOf(key));
-  const designs = TEMPLATES.map((t) => {
+  const designs = TEMPLATES.filter((t) => (t.category || 'wedding') === 'wedding').map((t) => {
     const img = thumbOf(t.id);
     return `<a class="design" href="/preview-sample/${esc(t.id)}">
 ${img ? `<img src="${esc(img)}" alt="تصميم دعوة زفاف إلكترونية ${esc(t.name)}" width="300" height="400" loading="lazy" decoding="async">` : ''}

@@ -56,7 +56,7 @@ export default function DesignLanguagePicker({ template, busy, error, onPick, on
             <Languages size={18} />
           </span>
           <div className="min-w-0 flex-1">
-            <div className="font-serif text-[19px] font-bold text-ink">{t('gallery.langTitle')}</div>
+            <div className="font-serif text-[19px] font-bold text-ink">{t(template.category === 'birthday' ? 'gallery.langTitleGift' : 'gallery.langTitle')}</div>
             <p className="mt-0.5 text-[12.5px] leading-relaxed text-ink-dim">{t('gallery.langSubtitle')}</p>
           </div>
           <button type="button" onClick={onClose} disabled={busy} aria-label={t('gallery.langCancel')}

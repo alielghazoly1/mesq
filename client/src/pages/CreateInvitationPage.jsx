@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, Navigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { ArrowRight, Lock } from 'lucide-react';
@@ -148,6 +148,8 @@ export default function CreateInvitationPage() {
   }
 
   if (templatesLoading) return null;
+  // هدية عيد الميلاد بتتعمل من المحرر على طول (الفورم ده أسامي عروسين وقاعة)
+  if (template && template.category === 'birthday') return <Navigate to="/?cat=birthday#gallery" replace />;
   if (!template) {
     return (
       <div className="p-10 text-center text-ink-dim">

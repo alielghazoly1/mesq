@@ -316,13 +316,8 @@ const TEMPLATES = [
     isNew: true,
     isPremium: true,
   },
-];
-
-// قوالب جاهزة بس لسه مش في المعرض (المالك بيراجعها الأول): المعاينة والمحرر شغالين باللينك
-// المباشر، ومابتظهرش في قايمة التصاميم ولا خريطة الموقع ولا لوحة التحكم. لما المالك يوافق
-// بتتنقل لـ TEMPLATES فوق.
-const UNLISTED_TEMPLATES = [
   {
+    // قسم "هدايا عيد الميلاد" (category: 'birthday') — بيظهر في تاب لوحده في المعرض، مش مع دعوات الفرح
     id: 'birthday-gift',
     name: 'Birthday Gift',
     description: 'هدية عيد ميلاد إلكترونية: كارت نبيتي بفيونكة دانتيل — ضغطة عليها تفتح الهدية وينزل ورد أحمر — كارت بالاسم ورسمة التورتة والسن، رسالة من القلب، ألبوم ذكريات بيتقلب، أمنيات، وختام بختم الشمع',
@@ -349,6 +344,10 @@ const UNLISTED_TEMPLATES = [
     isPremium: true,
   },
 ];
+
+// قوالب جاهزة بس لسه مش في المعرض (المالك بيراجعها الأول): المعاينة والمحرر شغالين باللينك
+// المباشر، ومابتظهرش في قايمة التصاميم. لما المالك يوافق بتتنقل لـ TEMPLATES فوق.
+const UNLISTED_TEMPLATES = [];
 
 function getTemplate(templateId) {
   return TEMPLATES.find((t) => t.id === templateId) || UNLISTED_TEMPLATES.find((t) => t.id === templateId) || null;

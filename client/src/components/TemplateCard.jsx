@@ -40,6 +40,8 @@ export default function TemplateCard({ template, index }) {
   const locked = !!template.isPremium && !subscribed;
   // التصميم ليه نسختين لغة؟ العميل بيختار قبل ما المسودة تتعمل
   const hasLanguages = Array.isArray(template.designLanguages) && template.designLanguages.length > 1;
+  // هدية عيد ميلاد مش دعوة فرح: الكلام على الزراير بيتغيّر
+  const gift = template.category === 'birthday';
 
   async function startDraft(language) {
     setStartError('');
@@ -104,7 +106,7 @@ export default function TemplateCard({ template, index }) {
           ) : (
             <img
               src={templateThumb(template.id)}
-              alt={`معاينة تصميم ${template.name}`}
+              alt={gift ? `هدية عيد ميلاد إلكترونية ${template.name}` : `معاينة تصميم ${template.name}`}
               loading="lazy"
               className="h-full w-full object-cover object-center"
               onError={() => setImgError(true)}
@@ -137,7 +139,7 @@ export default function TemplateCard({ template, index }) {
               data-preview-link={template.id}
               className="flex flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-full border border-line px-2.5 py-2 text-[11.5px] font-bold leading-tight text-ink-dim transition hover:border-brass/50 hover:text-ink sm:px-3.5 sm:py-2.5 sm:text-[12.5px]"
             >
-              <Eye size={13} className="shrink-0" /> {t(locked ? 'gallery.lockedPreview' : 'gallery.preview')}
+              <Eye size={13} className="shrink-0" /> {t(gift ? 'gallery.previewGift' : locked ? 'gallery.lockedPreview' : 'gallery.preview')}
             </a>
             <ShareDesignButton template={template} className="shrink-0" />
           </div>
@@ -165,7 +167,7 @@ export default function TemplateCard({ template, index }) {
               ) : subscribed ? (
                 <Wand2 size={13} className="shrink-0" />
               ) : null}
-              {subscribed ? t('gallery.useWithEditor') : t('gallery.use')}
+              {gift ? t('gallery.useGift') : subscribed ? t('gallery.useWithEditor') : t('gallery.use')}
             </button>
           )}
         </div>

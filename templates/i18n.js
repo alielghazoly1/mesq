@@ -32,6 +32,17 @@ const TEMPLATE_TEXT = {
     ar: { description: 'باب عاجي بزهور الكالا البارزة وختم شمع دهبي بحروف العروسين بيتفتح على كارت بإطار دهبي وصورتكم في برواز بيضاوي — عدّاد، العائلتين، برنامج الحفل، ألبوم صور، المكان والخريطة، وتأكيد الحضور' },
     en: { description: 'Ivory doors of sculpted calla lilies with a gold wax seal of your initials open onto a gold-framed card with your photo in an oval frame — countdown, families, programme, photo album, venue map and RSVP' },
   },
+  'birthday-gift': {
+    ar: { description: 'هدية ملفوفة بفيونكة دانتيل — ضغطة تفكّها وينزل ورد أحمر — كارت بالاسم والسن، رسالة من القلب، ألبوم ذكريات، أمنيات، وعدّاد ليوم الميلاد' },
+    en: { description: 'A gift wrapped in a lace bow — one tap unties it and red roses fall — a card with their name and age, a letter from the heart, a memories album, wishes and a birthday countdown' },
+    sections: {
+      message: { ar: 'الرسالة', en: 'The letter' },
+      gallery: { ar: 'ألبوم الذكريات', en: 'Memories album' },
+      wishes: { ar: 'الأمنيات', en: 'Wishes' },
+      countdown: { ar: 'العدّاد ليوم الميلاد', en: 'Birthday countdown' },
+      rsvp: { ar: 'الرد على الهدية', en: 'Reply to the gift' },
+    },
+  },
   'lily-garden': {
     ar: { description: 'ظرف بختم شمع وزنبق وردي ينفتح — عدّاد تنازلي، تأكيد حضور، وألبوم يرفع فيه الضيوف صور الفرح' },
     en: { description: 'A wax-sealed envelope of pink lilies that opens — countdown, RSVP, and an album where guests upload their photos' },
@@ -93,7 +104,8 @@ function localizeTemplate(t, lang) {
     category: t.category || 'wedding',
     optionalSections: (t.optionalSections || []).map((s) => ({
       key: s.key,
-      label: pick(SECTION_LABELS, s.key, l, s.label),
+      // القالب ممكن يسمّي أقسامه بنفسه (هدية عيد الميلاد: "ألبوم الذكريات" مش "صوركم")
+      label: pick(text.sections || {}, s.key, l, null) || pick(SECTION_LABELS, s.key, l, s.label),
     })),
     timelineStages: t.timelineStages,
     extraFields: (t.extraFields || []).map((f) => ({

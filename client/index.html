@@ -189,7 +189,7 @@
         // التحميل عدى بنجاح؟ نصفّر العلامة عشان الرفع الجاي يبدأ نضيف
         window.addEventListener('load', function () {
           setTimeout(function () {
-            if (document.getElementById('root') && document.getElementById('root').childElementCount) {
+            if (document.getElementById('root') && document.getElementById('root').childElementCount && !document.getElementById('boot')) {
               try { sessionStorage.removeItem(KEY); } catch (e) { /* */ }
             }
           }, 2500);
@@ -198,7 +198,9 @@
     </script>
   </head>
   <body>
-    <div id="root"></div>
+    <!-- شاشة فورية لحد ما كود الموقع يتحمّل (أول فتحة على نت ضعيف كانت شاشة بيضا فاضية لثواني،
+         فالناس بتحسب الموقع واقف). React بيمسحها أول ما يشتغل. -->
+    <div id="root"><div id="boot" style="position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:#faf5ec;color:#0f1d18;font-family:'Amiri',Georgia,serif"><style>@keyframes bootspin{to{transform:rotate(360deg)}}</style><div style="font-size:40px;font-weight:700;line-height:1">ميثاق</div><div style="width:26px;height:26px;border:2.5px solid rgba(184,137,43,.25);border-top-color:#b8892b;border-radius:50%;animation:bootspin .8s linear infinite"></div></div></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
