@@ -67,12 +67,15 @@ const MAX_DESC = 200;
  */
 function defaultShare(data) {
   const isAr = String(data.language || 'ar').toLowerCase() === 'ar';
-  const bride = (isAr ? data.brideNameAr : data.brideName) || data.brideNameAr || data.brideName || '';
+  const brideDefault = (isAr ? data.brideNameAr : data.brideName) || data.brideNameAr || data.brideName || '';
+  const bride = brideDefault;
   const groom = (isAr ? data.groomNameAr : data.groomName) || data.groomNameAr || data.groomName || '';
   const names = [groom, bride].filter(Boolean).join(isAr ? ' و ' : ' & ');
 
   // هدية عيد ميلاد: اللينك بيتبعت لصاحب/ة العيد — العنوان باسمه/ا ومن غير تفاصيل قاعة
   if (data.occasionType === 'birthday') {
+    // النسخة العربي بتعرض الاسم الإنجليزي على الكارت: لو صاحب الهدية غيّره وساب العربي على اسم البداية، العنوان ياخد اللي كتبه
+    const bride = (isAr && data.brideNameAr === 'سارة' && data.brideName && data.brideName !== 'Sarah') ? data.brideName : brideDefault;
     return {
       title: bride ? (isAr ? `عيد ميلاد سعيد يا ${bride} 🎁` : `Happy Birthday, ${bride} 🎁`) : (isAr ? 'هدية عيد ميلاد 🎁' : 'A Birthday Gift 🎁'),
       description: isAr ? (groom && groom !== 'اسمك' ? `هدية معمولة مخصوص علشانك من ${groom} — افتحها.` : 'هدية معمولة مخصوص علشانك — افتحها.')

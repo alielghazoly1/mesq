@@ -110,7 +110,7 @@ img{display:block;max-width:none;-webkit-user-select:none;user-select:none;-webk
 .h-cake{position:relative;width:70cqw;margin:2cqw auto 0}
 .h-cake img{width:100%;height:auto}
 .h-cake.own img{aspect-ratio:1.29;object-fit:cover;border-radius:50%/42%}
-.h-age{position:absolute;left:44%;top:24%;transform:translate(-50%,-50%);min-width:1.2em;font:italic 500 9.6cqw/1 var(--serif);color:var(--ink);white-space:nowrap;direction:ltr}
+.h-age{position:absolute;left:46.7%;top:30.6%;text-align:center;transform:translate(-50%,-50%);min-width:1.2em;font:italic 500 9.6cqw/1 var(--serif);color:var(--ink);white-space:nowrap;direction:ltr}
 .h-cake.own .h-age{display:none}
 .h-l1{margin:3cqw 0 0;font:500 4.5cqw/1.3 var(--serif);color:var(--ink)}
 .h-l2{margin:.4cqw 0 0;font:700 5cqw/1.3 var(--disp);color:var(--ink2);text-wrap:balance}
@@ -230,6 +230,10 @@ html.ar .page *,html.ar .cv *{letter-spacing:0!important;text-transform:none!imp
 html.ar .h-b{letter-spacing:.035em!important;text-transform:uppercase!important}
 html.ar .h-s1{font-family:'Great Vibes','Aref Ruqaa',cursive}
 html.ar .h-s2{font-weight:700;font-size:15cqw;line-height:1.5;margin-top:-5cqw}
+/* العربي: الاسم تحت BIRTHDAY بيتكتب بالإنجليزي (طلب المالك) — نفس خط Happy */
+html.ar .h-s2.lat{font:400 17cqw/1.1 'Great Vibes','Aref Ruqaa',cursive;margin-top:-2.8cqw}
+/* العربي: من غير كارت "هدية إلى" على الغلاف ومن غير "هدية من القلب" فوق الكارت (طلب المالك) */
+html.ar .tag,html.ar .h-k{display:none}
 html.ar .h-k,html.ar .eyebrow,html.ar .tag .k,html.ar .rs .f,html.ar .cd .l{padding-left:0;font-weight:700}
 html.ar .h-k{font-size:4.6cqw}
 html.ar .eyebrow{font-size:calc(var(--u)*16)}
@@ -455,6 +459,12 @@ html.ar .end-d{letter-spacing:.3em!important;font-family:'Playfair Display','Tim
   // الاسم: في الإنجليزي فوق كلمة BIRTHDAY (Sarah’s)، وفي العربي تحتها
   var nameEl = byId(AR ? 'bg5' : 'bg3');
   nameEl.setAttribute('data-f', 'name');
+  // النسخة العربي: الاسم على الكارت بالإنجليزي (Sarah) لو صاحب الهدية كتبه بالإنجليزي — غير كده الاسم العربي
+  var latin = String(C.brideNameLatin || '').trim();
+  // (لو غيّر الاسم العربي بس وساب الإنجليزي على اسم البداية، بيتعرض العربي)
+  var cardName = AR && /[A-Za-z]/.test(latin) && !(latin === 'Sarah' && name !== 'سارة') ? latin : name;
+  // ولو غيّر الإنجليزي بس، عنوان التاب ياخده بدل اسم البداية العربي
+  if (AR && name === 'سارة' && cardName !== 'Sarah') name = cardName;
   // حرف الختم: دايمًا حرف إنجليزي مزخرف — الاسم العربي بياخد مقابله (سارة S، عمر O، خالد K…)
   var AR2EN = { 'ا': 'A', 'أ': 'A', 'آ': 'A', 'إ': 'E', 'ب': 'B', 'ت': 'T', 'ث': 'T', 'ج': 'G', 'ح': 'H', 'خ': 'K', 'د': 'D', 'ذ': 'Z', 'ر': 'R', 'ز': 'Z', 'س': 'S', 'ش': 'S', 'ص': 'S', 'ض': 'D',
     'ط': 'T', 'ظ': 'Z', 'ع': 'A', 'غ': 'G', 'ف': 'F', 'ق': 'K', 'ك': 'K', 'ل': 'L', 'م': 'M', 'ن': 'N', 'ه': 'H', 'ة': 'H', 'و': 'W', 'ي': 'Y', 'ى': 'Y' };
@@ -466,7 +476,7 @@ html.ar .end-d{letter-spacing:.3em!important;font-family:'Playfair Display','Tim
     return /[a-z]/i.test(c) ? c.toUpperCase() : (AR2EN[c] || c);
   };
   var F = {
-    name: name, sender: sender, mono: first(name),
+    name: cardName, sender: sender, mono: first(cardName),
     weekday: DAYS[new Date(Y, M, D).getDay()], day: dg(D), monthYear: MONTHS[M] + ' ' + dg(Y),
     dateDots: pad2(D) + ' · ' + pad2(M + 1) + ' · ' + Y
   };
@@ -493,6 +503,8 @@ html.ar .end-d{letter-spacing:.3em!important;font-family:'Playfair Display','Tim
   function syncName() {
     var n = nameEl.textContent.trim();
     // ’s بعد الاسم اللاتيني بس (النسخة الإنجليزي)
+    var lat = AR && /[A-Za-z]/.test(n) && !/[؀-ۿ]/.test(n);
+    if (nameEl.classList.contains('lat') !== lat) nameEl.classList.toggle('lat', lat);
     var poss = !AR && /[A-Za-z]$/.test(s1.textContent.trim());
     if (s1.classList.contains('poss') !== poss) s1.classList.toggle('poss', poss);
     if (monoEl.textContent === monoEl.dataset.auto) { var f = first(n); if (f !== monoEl.textContent) { monoEl.textContent = f; monoEl.dataset.auto = f; } }

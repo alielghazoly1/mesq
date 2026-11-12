@@ -343,7 +343,8 @@ const UNLISTED_TEMPLATES = [
     extraFields: [],
     // بيانات المسودة الجديدة: brideName = صاحب/ة العيد، groomName = اللي باعت الهدية
     draftDefaults: { brideName: 'Sarah', brideNameAr: 'سارة', groomName: 'Your Name', groomNameAr: 'اسمك', venueName: 'Home', venueCity: 'City' },
-    designLanguages: ['en', 'ar'],
+    // العربي هو اللي بيفتح الأول (طلب المالك)
+    designLanguages: ['ar', 'en'],
     isNew: true,
     isPremium: true,
   },
