@@ -1602,6 +1602,32 @@ const FIXES = [
       return set;
     },
   },
+  {
+    // zLgiOT3 — المالك (2026-11-13): دعوة عمرو وشيماء (الصفحة نفسها custom-invitations/zLgiOT3.*). البيانات عشان
+    // لوحة العميل والعدّاد والتقويم: الخميس 10/12/2026 الدخول 7:30 مساءً (بتوقيت القاهرة)، إنتركونتيننتال سميراميس.
+    // مرة واحدة: بس لو الدعوة لسه بالأسامي الافتراضية.
+    name: 'zLgiOT3-amr-shimaa',
+    shortId: 'zLgiOT3',
+    select: '-__v',
+    when: (c, inv) => inv.groomName === 'Groom' && inv.brideName === 'Bride',
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const link = 'https://www.google.com/maps/search/?api=1&query=InterContinental+Cairo+Semiramis';
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: 'en', occasionType: 'wedding',
+        hiddenSections: inv.hiddenSections || [], timeline: inv.timeline, name: inv.name,
+        groomName: 'Amr', groomNameAr: 'عمرو', brideName: 'Shimaa', brideNameAr: 'شيماء',
+        venueName: 'InterContinental Cairo Semiramis', venueCity: 'Cairo',
+        venueMapQuery: link,
+        weddingDate: '2026-12-10', weddingTime: '19:30',
+      }, { ownsTemplate: true, skipMapNetwork: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.language = 'en';
+      set.venueMapDirectLink = link;
+      return set;
+    },
+  },
 ];
 
 let done = false;
