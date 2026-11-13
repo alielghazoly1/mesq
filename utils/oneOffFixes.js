@@ -1628,6 +1628,19 @@ const FIXES = [
       return set;
     },
   },
+  {
+    // zLgiOT3 — المالك (2026-11-13) بعت لينك المكان: InterContinental Cairo Semiramis by IHG (الخريطة وزرار الموقع
+    // والتقويم). مرة واحدة: بس لو اللينك لسه مش هو.
+    name: 'zLgiOT3-owner-map-link',
+    shortId: 'zLgiOT3',
+    select: 'customizations venueMapDirectLink venueMapEmbedSrc venueMapQuery',
+    when: (c, inv) => inv.venueMapDirectLink !== 'https://maps.app.goo.gl/yWjAbHwmuqzcNJQg9',
+    apply: () => ({
+      venueMapDirectLink: 'https://maps.app.goo.gl/yWjAbHwmuqzcNJQg9',
+      venueMapQuery: 'https://maps.app.goo.gl/yWjAbHwmuqzcNJQg9',
+      venueMapEmbedSrc: 'https://www.google.com/maps?q=InterContinental+Cairo+Semiramis+by+IHG,+Nile+Corniche,+Qasr+El+Nil,+Cairo&output=embed',
+    }),
+  },
 ];
 
 let done = false;

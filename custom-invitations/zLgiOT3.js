@@ -16,8 +16,9 @@ const DIR = `/custom/${SHORT}/`;
 // الموسيقى: موسيقى الفيديو نفسه (اللي المالك اشتراه)، من أوله لحد ما بتخلص (50 ثانية) وبتلف. لو العميل اختار
 // أغنية من المحرر هي اللي بتشتغل.
 const DEFAULT_SONG = asset(`${DIR}song.mp3`);
-const FALLBACK_LINK = 'https://www.google.com/maps/search/?api=1&query=InterContinental+Cairo+Semiramis';
-const FALLBACK_EMBED = 'https://www.google.com/maps/embed?origin=mfe&pb=!1m3!2m1!1sInterContinental+Cairo+Semiramis!6i16';
+// لينك القاعة من المالك (2026-11-13): InterContinental Cairo Semiramis by IHG — كورنيش النيل، قصر النيل
+const FALLBACK_LINK = 'https://maps.app.goo.gl/yWjAbHwmuqzcNJQg9';
+const FALLBACK_EMBED = 'https://www.google.com/maps?q=InterContinental+Cairo+Semiramis+by+IHG,+Nile+Corniche,+Qasr+El+Nil,+Cairo&output=embed';
 
 let PAGE = null;
 function page() {
