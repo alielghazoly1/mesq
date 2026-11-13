@@ -36,7 +36,8 @@ html.ar .dg{font-family:var(--ar);letter-spacing:0}
 .st{position:absolute;left:50%;top:50%;width:max(100vw,56.25vh);aspect-ratio:9/16;transform:translate(-50%,-50%)}
 @media (min-aspect-ratio:3/4){.st{width:56.25vh}}
 .st>img,.st>video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;max-width:none}
-.bk{position:absolute;inset:-40px;background-position:center;background-size:cover;filter:blur(26px);opacity:.9}
+.bk{position:absolute;inset:-40px;background-position:center;background-size:cover;filter:blur(26px);opacity:.9;display:none}
+@media (min-aspect-ratio:3/4){.bk{display:block}}
 
 /* ===== أول صفحة: الكارت المنقوش وفوقه اللوحة بالبجعتين (فيديو بيلف) — بتطلع لفوق وتختفي مع السكرول (المالك 2026-11-13) ===== */
 .bgv{position:absolute;inset:0;z-index:0;overflow:hidden;background:#e7c6bd}
@@ -67,8 +68,11 @@ main{position:relative;z-index:1}
 .bsm{font:400 23px/1.8 'Amiri Quran','Amiri',serif;direction:rtl;text-shadow:0 0 10px rgba(255,249,243,.95),0 0 22px rgba(255,249,243,.75)}
 .bsm-tr{font:italic 600 15px/1.45 var(--serif);color:#5a3f39;margin-top:2px;text-shadow:0 0 8px rgba(255,249,243,.95),0 0 18px rgba(255,249,243,.8)}
 .mono-wrap{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-top:3svh}
-.mono{height:min(37svh,350px);width:auto;max-width:70vw;object-fit:contain;filter:drop-shadow(0 0 6px rgba(255,249,243,.95)) drop-shadow(0 0 18px rgba(255,249,243,.8))}
-.hdate{margin-top:2.2svh;display:flex;align-items:center;justify-content:center;gap:12px;font-size:24px;font-weight:500;color:#3f2c28;letter-spacing:.14em;
+.mono{height:min(33svh,320px);width:auto;max-width:70vw;object-fit:contain;filter:drop-shadow(0 0 6px rgba(255,249,243,.95)) drop-shadow(0 0 18px rgba(255,249,243,.8))}
+.hnames{margin-top:1.4svh;font:400 clamp(40px,11.5vw,54px)/1.1 var(--script);color:#3f2c28;white-space:nowrap;direction:ltr;
+  text-shadow:0 0 8px rgba(255,249,243,.95),0 0 18px rgba(255,249,243,.9),0 0 32px rgba(255,249,243,.7)}
+.hnames i{font-style:normal;font-size:.62em;color:#7d5d34;margin:0 .14em}
+.hdate{margin-top:1.7svh;display:flex;align-items:center;justify-content:center;gap:12px;font-size:24px;font-weight:500;color:#3f2c28;letter-spacing:.14em;
   text-shadow:0 0 8px rgba(255,249,243,.95),0 0 18px rgba(255,249,243,.9),0 0 30px rgba(255,249,243,.7)}
 .hdate::before,.hdate::after{content:"";width:46px;height:1px;background:linear-gradient(90deg,transparent,#7d5d34);box-shadow:0 0 6px rgba(255,249,243,.9)}
 .hdate::after{transform:scaleX(-1)}
@@ -91,18 +95,26 @@ html.ar .scroll-cue{font:700 14px/1 var(--ar);letter-spacing:0;padding:9px 16px 
 @keyframes rvIn{to{opacity:1;transform:none}}
 .static .hero .rv{opacity:1;transform:none;animation:none}
 
-/* ===== باقي الدعوة تحت الصفحة الأولى: كروت عليها ورد اللوحة وإطارها الدهبي (من الفيديو نفسه) على خلفية بينك ===== */
-.page{position:relative;padding:40px 14px 0;background:linear-gradient(180deg,#e7c0b6 0%,#f0d6ce 22%,#f3dcd5 70%,#eccbc2 100%)}
-.sec{position:relative;max-width:440px;margin:0 auto 38px;padding:70px 26px 46px;text-align:center;border-radius:4px;
-  background:url(assets/cornerL.webp) left top/124px auto no-repeat,url(assets/cornerR.webp) right top/124px auto no-repeat,linear-gradient(180deg,#fefaf7,#fbf3ef);
-  border:1px solid rgba(176,138,87,.6);box-shadow:0 0 0 4px #fcf5f1,0 0 0 5px rgba(176,138,87,.45),0 20px 44px rgba(110,64,54,.18)}
-.sec.seal{margin-top:74px;padding-top:84px}
-.sealo{position:absolute;left:50%;top:-44px;width:92px;height:auto;transform:translateX(-50%);filter:drop-shadow(0 6px 10px rgba(90,55,30,.35))}
-/* الختام: البجعتين في برواز بيضاوي، وورد البحيرة في آخر الصفحة */
-.swp{width:min(80%,300px);aspect-ratio:1.55;margin:26px auto 4px;border-radius:50%;overflow:hidden;box-shadow:0 0 0 4px #fcf5f1,0 0 0 5px rgba(176,138,87,.55),0 10px 24px rgba(110,64,54,.18)}
+/* ===== باقي الدعوة (المالك 2026-11-13): ورق ألوان مائية، وورد على الجناب من الإكليل اللي بعته، والعدّاد جوه الإكليل نفسه ===== */
+.page{position:relative;overflow:hidden;padding:6px 0 0;background:#f8f3f1 url(assets/paper.webp) repeat;background-size:330px auto}
+.page::before{content:"";position:absolute;left:0;right:0;top:0;height:60px;background:linear-gradient(180deg,rgba(90,60,50,.14),rgba(90,60,50,0));pointer-events:none}
+.sec{position:relative;max-width:460px;margin:0 auto;padding:60px 32px 54px;text-align:center}
+.sec>*{position:relative;z-index:1}
+.sec>.fl{position:absolute;z-index:0;pointer-events:none;height:auto;-webkit-user-select:none;user-select:none}
+.fl.tl{left:-18px;top:-4px;width:min(40vw,176px)}
+.fl.tr{right:-18px;top:-4px;width:min(40vw,176px);transform:scaleX(-1)}
+.fl.sl{left:-34px;top:22%;width:min(27vw,122px)}
+.fl.sr{right:-34px;top:22%;width:min(27vw,122px);transform:scaleX(-1)}
+.sec.top{padding-top:min(56vw,244px)}
+/* العدّاد جوه الإكليل: أرقام كبيرة 2×2 بخطوط دهبي رفيعة */
+.cdw{padding:16px 0 0;max-width:none}
+.wr{position:relative;width:min(108vw,490px);margin:0 auto;left:50%;transform:translateX(-50%);aspect-ratio:736/1104}
+.wr>img{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.wr-in{position:absolute;left:23%;right:23%;top:22%;bottom:24%;display:flex;flex-direction:column;align-items:center;justify-content:center}
+/* الختام: البجعتين في برواز بيضاوي، وباقة الورد من الإكليل في آخر الصفحة */
+.swp{width:min(78%,290px);aspect-ratio:1.55;margin:26px auto 4px;border-radius:50%;overflow:hidden;box-shadow:0 0 0 4px #fbf7f4,0 0 0 5px rgba(176,138,87,.55),0 10px 24px rgba(110,64,54,.16)}
 .swp img{width:100%;height:100%;object-fit:cover}
-.foot{height:min(48vw,260px);margin:0 -14px;background:url(assets/flowerband.webp) center bottom/cover no-repeat;
-  -webkit-mask-image:linear-gradient(180deg,transparent,#000 42%);mask-image:linear-gradient(180deg,transparent,#000 42%)}
+.foot{width:min(118vw,560px);margin:-30px auto 0;position:relative;left:50%;transform:translateX(-50%);aspect-ratio:736/490;background:url(assets/bouquet.webp) center bottom/100% auto no-repeat}
 .h{font:600 35px/1.15 var(--serif);color:var(--ink)}
 .h i{font-style:italic;font-weight:500}
 html.ar .h{font:700 34px/1.4 var(--arh)}
@@ -138,14 +150,15 @@ html.ar .vn1{font:700 20px/1.6 var(--ar);letter-spacing:0;padding:0}
 .vn1 svg{display:block;width:24px;height:24px;margin:0 auto 8px;color:var(--gold);fill:none;stroke:currentColor;stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round}
 
 /* العدّاد */
-.cd{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:24px}
-.cd div{padding:15px 0 13px;border:1px solid rgba(176,138,87,.45);background:#fffdfb;border-radius:999px 999px 10px 10px;position:relative}
-.cd div::before{content:"";position:absolute;inset:3px;border:1px solid rgba(176,138,87,.18);border-radius:inherit;pointer-events:none}
-.cd b{display:block;font:400 29px/1 var(--disp);color:var(--ink);font-variant-numeric:lining-nums tabular-nums;margin-top:6px}
-html.ar .cd b{font:700 29px/1 var(--ar)}
-.cd span{display:block;margin-top:9px;font:600 10px/1 var(--serif);letter-spacing:.2em;padding-left:.2em;text-transform:uppercase;color:var(--ink2)}
+.cd{display:grid;grid-template-columns:1fr 1fr;margin-top:clamp(12px,4vw,20px);width:100%}
+.cd div{padding:clamp(8px,2.6vw,12px) 0}
+.cd div:nth-child(odd){border-inline-end:1px solid rgba(176,138,87,.55)}
+.cd div:nth-child(-n+2){border-bottom:1px solid rgba(176,138,87,.55)}
+.cd b{display:block;font:400 clamp(30px,9.4vw,42px)/1 var(--disp);color:var(--ink);font-variant-numeric:lining-nums tabular-nums}
+html.ar .cd b{font:700 clamp(30px,9.4vw,40px)/1.05 var(--ar)}
+.cd span{display:block;margin-top:6px;font:600 10px/1 var(--serif);letter-spacing:.22em;padding-left:.22em;text-transform:uppercase;color:var(--ink2)}
 html.ar .cd span{font:400 15px/1 var(--ar);letter-spacing:0;padding:0}
-.cd-done{display:none;margin-top:22px;font:italic 500 24px/1.4 var(--serif);color:var(--ink)}
+.cd-done{display:none;margin-top:18px;font:italic 500 24px/1.4 var(--serif);color:var(--ink)}
 html.ar .cd-done{font:700 26px/1.5 var(--arh)}
 
 /* البرنامج */
@@ -170,15 +183,17 @@ html.ar .va{font:400 18px/1.7 var(--ar)}
   border:1px solid var(--gold);box-shadow:0 0 0 5px var(--paper),0 0 0 6px rgba(176,138,87,.45),0 12px 26px rgba(90,63,58,.15);background:#efe3dc}
 .map iframe{position:absolute;inset:0;width:100%;height:100%;border:0;pointer-events:none}
 .map a{position:absolute;inset:0;z-index:2}
-.btns{display:flex;flex-wrap:wrap;justify-content:center;gap:12px;margin-top:26px}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:48px;padding:0 24px;border-radius:999px;text-decoration:none;cursor:pointer;
-  font:600 12.5px/1 var(--serif);letter-spacing:.22em;padding-left:calc(24px + .22em);text-transform:uppercase;border:1px solid var(--gold);color:var(--ink);background:#fffdfb}
-.btn.solid{background:linear-gradient(180deg,#c39d68,#a57e4b);color:#fffaf3;border-color:#a57e4b;box-shadow:0 6px 16px rgba(150,110,60,.25)}
-html.ar .btn{font:700 16px/1 var(--ar);letter-spacing:0;padding:0 24px}
+.btns{display:flex;flex-direction:column;align-items:center;gap:14px;margin-top:28px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:50px;min-width:min(250px,100%);padding:0 26px;border-radius:0;text-decoration:none;cursor:pointer;
+  font:600 12.5px/1 var(--serif);letter-spacing:.3em;padding-left:calc(26px + .3em);text-transform:uppercase;color:var(--ink);background:rgba(255,253,251,.5);
+  border:1px solid rgba(160,123,72,.8);box-shadow:inset 0 0 0 3px #faf6f3,inset 0 0 0 4px rgba(160,123,72,.45);transition:background-color .25s}
+.btn:active{background:rgba(213,185,139,.18)}
+.btn.solid{background:#4e3631;color:#fbf4ef;border-color:#4e3631;box-shadow:inset 0 0 0 3px #4e3631,inset 0 0 0 4px rgba(251,244,239,.5)}
+html.ar .btn{font:700 16px/1 var(--ar);letter-spacing:0;padding:0 26px}
 .btn svg{width:17px;height:17px;flex:none;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 
 /* تأكيد الحضور */
-.rs .form{margin-top:24px;text-align:start}
+.rs .form{margin-top:24px;text-align:start;padding:24px 18px 18px;background:rgba(255,255,255,.55);border:1px solid rgba(176,138,87,.35);box-shadow:0 10px 30px rgba(110,64,54,.06)}
 .rs-row{margin-bottom:22px}
 .rs-l{display:block;font:600 11.5px/1.4 var(--serif);letter-spacing:.22em;text-transform:uppercase;color:var(--ink2);margin:0 0 9px}
 html.ar .rs-l{font:700 17px/1.4 var(--ar);letter-spacing:0;text-transform:none}
@@ -267,7 +282,8 @@ html.ar .mute{right:auto;left:16px}
       <p class="bsm-tr e rv" style="--d:.35s">In the name of Allah,<br>the Most Gracious, the Most Merciful</p>
       <div class="mono-wrap">
         <img class="mono rv" src="assets/mono.webp" alt="ع ش" style="--d:.6s" draggable="false">
-        <p class="hdate rv" style="--d:1.1s"><span class="dg e">10 · 12 · 2026</span><span class="dg a">١٠ · ١٢ · ٢٠٢٦</span></p>
+        <p class="hnames rv" style="--d:.95s" lang="en">Amr <i>&amp;</i> Shimaa</p>
+        <p class="hdate rv" style="--d:1.25s"><span class="dg e">10 · 12 · 2026</span><span class="dg a">١٠ · ١٢ · ٢٠٢٦</span></p>
       </div>
     </div>
     <div class="scroll-cue" aria-hidden="true"><span class="e">Scroll down</span><span class="a">انزل لتحت</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6 9l6 6 6-6"/></svg></div>
@@ -275,7 +291,8 @@ html.ar .mute{right:auto;left:16px}
 
   <div class="page">
     <!-- 3) المقدمة + اليوم والتاريخ + الساعة + القاعة -->
-    <section class="sec intro fx">
+    <section class="sec top intro fx">
+      <img class="fl tl" src="assets/fltop.webp" alt="" draggable="false"><img class="fl tr" src="assets/fltop.webp" alt="" draggable="false">
       <p class="p"><span class="e">A beautiful chapter of our lives is about to begin, and we would be honored to have you with us</span><span class="a">فصلٌ جميل من حياتنا على وشك أن يبدأ،<br>ويشرّفنا أن تكونوا معنا</span></p>
       <h1 class="names" style="margin-top:22px"><span class="e">Amr<i>&amp;</i>Shimaa</span><span class="a">عمرو<i>و</i>شيماء</span></h1>
       <div class="orn" aria-hidden="true"><i></i></div>
@@ -291,8 +308,8 @@ html.ar .mute{right:auto;left:16px}
     </section>
 
     <!-- 4) العدّاد -->
-    <section class="sec seal fx">
-      <img class="sealo" src="assets/seal.webp" alt="" draggable="false">
+    <section class="sec cdw fx">
+      <div class="wr"><img src="assets/wreath.webp" alt="" draggable="false"><div class="wr-in">
       <h2 class="h"><span class="e">Counting <i>down</i></span><span class="a">العد التنازلي</span></h2>
       <p class="k"><span class="e">to our forever</span><span class="a">ليومنا الأجمل</span></p>
       <div class="cd" id="cd">
@@ -302,10 +319,12 @@ html.ar .mute{right:auto;left:16px}
         <div><b id="cdS">00</b><span><span class="e">Seconds</span><span class="a">ثانية</span></span></div>
       </div>
       <p class="cd-done" id="cdDone"><span class="e">Today is our day</span><span class="a">النهارده يوم فرحتنا</span></p>
+      </div></div>
     </section>
 
     <!-- 5) البرنامج (من المالك: الدخول 7:30، كتب الكتاب 8، الرقص 9، الغنا 11، العشا 12، الانتهاء 3) -->
     <section class="sec fx" id="programme">
+      <img class="fl sl" src="assets/flside.webp" alt="" draggable="false"><img class="fl sr" src="assets/flside.webp" alt="" draggable="false">
       <h2 class="h"><span class="e">The <i>Programme</i></span><span class="a">برنامج الحفل</span></h2>
       <p class="k"><span class="e">Thursday night · <span class="dg">10</span> December</span><span class="a">ليلة الخميس ١٠ ديسمبر</span></p>
       <div class="orn" aria-hidden="true"><i></i></div>
@@ -320,21 +339,22 @@ html.ar .mute{right:auto;left:16px}
     </section>
 
     <!-- 6) المكان + الخريطة -->
-    <section class="sec fx" id="venue">
+    <section class="sec top fx" id="venue">
+      <img class="fl tr" src="assets/fltop.webp" alt="" draggable="false">
       <h2 class="h"><span class="e">The <i>Venue</i></span><span class="a">مكان الحفل</span></h2>
       <p class="k"><span class="e">where we celebrate</span><span class="a">حيث نحتفل معًا</span></p>
       <p class="vn"><span class="e">InterContinental Cairo Semiramis</span><span class="a">فندق إنتركونتيننتال سميراميس</span></p>
       <p class="va"><span class="e">Corniche El Nil, Garden City, Cairo</span><span class="a">كورنيش النيل، جاردن سيتي، القاهرة</span></p>
       <div class="map"><iframe id="mapFrame" title="Map" data-src="__MAP_EMBED__" referrerpolicy="no-referrer-when-downgrade" tabindex="-1" aria-hidden="true"></iframe><a href="__MAP_LINK__" target="_blank" rel="noopener noreferrer" aria-label="Open the map"></a></div>
       <div class="btns">
-        <a class="btn solid" href="__MAP_LINK__" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-6.2-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 14.8 12 21 12 21Z"/><circle cx="12" cy="9.8" r="2.4"/></svg><span class="e">View location</span><span class="a">الموقع على الخريطة</span></a>
+        <a class="btn" href="__MAP_LINK__" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-6.2-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 14.8 12 21 12 21Z"/><circle cx="12" cy="9.8" r="2.4"/></svg><span class="e">View location</span><span class="a">الموقع على الخريطة</span></a>
         <a class="btn" id="addCal" href="calendar.ics"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="1.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg><span class="e">Add to calendar</span><span class="a">أضف إلى التقويم</span></a>
       </div>
     </section>
 
     <!-- 7) تأكيد الحضور: هيحضر ولا لأ + عدد الحضور + التهنئة (بيوصل للوحة العميل) -->
-    <section class="sec seal rs fx" id="mithaq-rsvp">
-      <img class="sealo" src="assets/seal.webp" alt="" draggable="false">
+    <section class="sec top rs fx" id="mithaq-rsvp">
+      <img class="fl tl" src="assets/fltop.webp" alt="" draggable="false">
       <h2 class="h"><span class="e">Kindly <i>reply</i></span><span class="a">تأكيد الحضور</span></h2>
       <p class="k"><span class="e">we would love to celebrate with you</span><span class="a">يسعدنا أن تشاركونا فرحتنا</span></p>
       <form class="form" id="rsForm" novalidate>
@@ -354,7 +374,8 @@ html.ar .mute{right:auto;left:16px}
     </section>
 
     <!-- 8) الختام -->
-    <section class="sec end fx">
+    <section class="sec top end fx">
+      <img class="fl tl" src="assets/fltop.webp" alt="" draggable="false"><img class="fl tr" src="assets/fltop.webp" alt="" draggable="false">
       <div class="orn" aria-hidden="true" style="margin-top:0"><i></i></div>
       <p class="k" style="margin-top:20px"><span class="e">with all our love</span><span class="a">مع كل الحب</span></p>
       <p class="names"><span class="e">Amr <i>&amp;</i> Shimaa</span><span class="a">عمرو <i>و</i> شيماء</span></p>
@@ -480,7 +501,7 @@ html.ar .mute{right:auto;left:16px}
   }
 
   /* ---------- الفتح: فيديو الظرف → الكارت → اللوحة ---------- */
-  var state = 'idle', stallT = 0;
+  var state = 'idle', stallT = 0, openReady = false;
   function reveal() {
     if (state === 'done') return;
     state = 'done';
@@ -501,7 +522,9 @@ html.ar .mute{right:auto;left:16px}
     cover.classList.add('go');
     startSong();
     var p; try { p = vOpen.play(); } catch (e) { p = null; }
-    loadSwans(true);
+    // فيديو الفتح متحمّل كامل؟ نجهّز اللوحة دلوقتي (جوه الضغطة). لسه بيتحمّل؟ نسيب له النت كله، واللوحة تتحمّل بعده
+    if (openReady) loadSwans(true);
+    else vOpen.addEventListener('canplaythrough', function () { loadSwans(false); }, { once: true });
     if (p && p.catch) p.catch(reveal);
     // الفيديو وقف (نت بطيء) ثانية ونص → الدعوة على طول
     var last = -1, still = 0;
@@ -519,7 +542,7 @@ html.ar .mute{right:auto;left:16px}
   // فيديو الفتح بيتحمّل كامل في الخلفية قبل الضغطة
   if (!EDIT && window.fetch && window.URL && URL.createObjectURL) {
     fetch(vOpen.getAttribute('src')).then(function (r) { if (!r.ok) throw 0; return r.blob(); }).then(function (b) {
-      if (state === 'idle' && b.size > 1000) { vOpen.src = URL.createObjectURL(b); try { vOpen.load(); } catch (e) {} }
+      if (state === 'idle' && b.size > 1000) { vOpen.src = URL.createObjectURL(b); openReady = true; try { vOpen.load(); } catch (e) {} }
     }).catch(function () {});
   }
   if (EDIT) { if (cover && cover.parentNode) cover.parentNode.removeChild(cover); state = 'done'; document.body.classList.add('static'); hero.classList.add('on', 'cue'); }
