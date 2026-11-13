@@ -1535,7 +1535,7 @@ const FIXES = [
     apply: () => ({ 'customizations.audioUrl': '', 'customizations.audioStart': 0, 'customizations.audioEnd': 0 }),
   },
   {
-    // DBywdm2 — المالك (2026-11-12): الفرح اتنقل — السبت 28/11/2026 الساعة 7 مساءً، La Vola (جاردينيا بلازا – طريق
+    // DBywdm2 — المالك (2026-11-12): الفرح اتنقل — السبت 28/11/2026 الساعة 7 مساءً، LA VIOLA (جاردينيا بلازا – طريق
     // السويس) بلينك جوجل ماب الجديد. عشان لوحة العميل والإحصائيات يبقوا زي الصفحة (الصفحة نفسها في
     // custom-invitations/DBywdm2.html). التاريخ بتوقيت السيرفر زي باقي تعديلات الدعوة دي. مرة واحدة: بس لو لسه
     // على يوم 3 ديسمبر.
@@ -1550,7 +1550,7 @@ const FIXES = [
     async apply(c, inv) {
       const { resolveMapInput } = require('./mapsLink');
       const LINK = 'https://maps.app.goo.gl/gr6hoGZo26Ss4e229';
-      const venueName = 'La Vola';
+      const venueName = 'LA VIOLA';
       const venueCity = 'Gardenia Plaza, Suez Road';
       let embedSrc = 'https://www.google.com/maps?q=30.0791305,31.3992996&z=16&output=embed';
       let directLink = LINK;
@@ -1560,6 +1560,14 @@ const FIXES = [
         venueName, venueCity, venueMapQuery: LINK, venueMapEmbedSrc: embedSrc, venueMapDirectLink: directLink,
       };
     },
+  },
+  {
+    // DBywdm2 — المالك (2026-11-13): اسم القاعة "LA VIOLA" مش "La Vola". اللوحة زي الصفحة. مرة واحدة: بس لو لسه La Vola.
+    name: 'DBywdm2-la-viola-name',
+    shortId: 'DBywdm2',
+    select: 'venueName',
+    when: (c, inv) => inv.venueName === 'La Vola',
+    apply: () => ({ venueName: 'LA VIOLA' }),
   },
 ];
 
