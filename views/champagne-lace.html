@@ -2092,7 +2092,7 @@
                             <div class='tn-atom' field='tn_text_1705235414678'>سورة الروم - الآية ٢١</div>
                         </div>
                         <div class='t396__elem tn-elem tn-elem__24426510131705235414679' data-elem-id='1705235414679' data-elem-type='text' data-field-top-value="174" data-field-left-value="464" data-field-height-value="160" data-field-width-value="272" data-field-axisy-value="top" data-field-axisx-value="left" data-field-container-value="grid" data-field-topunits-value="px" data-field-leftunits-value="px" data-field-heightunits-value="px" data-field-widthunits-value="px" data-field-textfit-value="autoheight" data-field-fontsize-value="20" data-field-left-res-320-value="24" data-field-left-res-480-value="104" data-field-left-res-640-value="184" data-field-top-res-960-value="174" data-field-left-res-960-value="344" data-field-height-res-960-value="160" data-field-width-res-960-value="272" data-field-container-res-960-value="grid" data-field-heightunits-res-960-value="px" data-field-textfit-res-960-value="autoheight">
-                            <div class='tn-atom' field='tn_text_1705235414679'><span class="bsm" role="img" aria-label="بسم الله الرحمن الرحيم" data-elem-id="cl90">&#xFDFD;</span><span style="color:#a48c69;">﴿</span><span data-elem-id="cl91">وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم</span><br/><span data-elem-id="cl92">مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا</span><br/><span data-elem-id="cl93">وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً</span><span style="color:#a48c69;">﴾</span></div>
+                            <div class='tn-atom' field='tn_text_1705235414679'><span class="bsm" role="img" aria-label="بسم الله الرحمن الرحيم" data-elem-id="cl90">&#xFDFD;</span><span class="vl"><span class="vbr" data-elem-id="cl94">﴿</span><span data-elem-id="cl91">وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم</span></span><span class="vl"><span data-elem-id="cl92">مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا</span></span><span class="vl"><span data-elem-id="cl93">وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً</span><span class="vbr" data-elem-id="cl95">﴾</span></span></div>
                         </div>
                         <div class='t396__elem tn-elem tn-elem__24426510131776870726590' data-elem-id='1776870726590' data-elem-type='image' data-field-top-value="110" data-field-left-value="390" data-field-height-value="462" data-field-width-value="420" data-field-axisy-value="top" data-field-axisx-value="left" data-field-container-value="grid" data-field-topunits-value="px" data-field-leftunits-value="px" data-field-heightunits-value="px" data-field-widthunits-value="px" data-animate-fix="1" data-animate-fix-dist="85" data-animate-mobile="y" data-field-filewidth-value="1050" data-field-fileheight-value="1155" data-field-widthmode-value="fixed" data-field-heightmode-value="hug" data-field-top-res-320-value="110" data-field-left-res-320-value="-50" data-field-height-res-320-value="462" data-field-top-res-480-value="110" data-field-left-res-480-value="30" data-field-height-res-480-value="462" data-field-top-res-640-value="110" data-field-left-res-640-value="110" data-field-height-res-640-value="462" data-field-top-res-960-value="110" data-field-left-res-960-value="270" data-field-height-res-960-value="462">
                             <div class='tn-atom'>
@@ -3136,6 +3136,18 @@
             #hv-hero .hv-dress { margin-left: auto; margin-right: auto; }
             #hv-hero .hv-card { transform-origin: 50% 0; }
 
+            /* كارت الآية في ظرف الدانتيل (المالك 2026-11-13): كل سطر لوحده يتعدّل أو يتشال، والأقواس
+               الذهبي عناصر لوحدها (cl94/cl95) بمساحة ضغط أوسع شوية من الحرف نفسه. التصغير لو الكلام كتير
+               بيحسبه fitVerseCard (في السكريبت) */
+            #rec2442651013 .vl { display: block; }
+            /* سطر طويل بيلف: السطور تتقسم بالتساوي بدل كلمة لوحدها في الآخر (سطر واحد = زي ما هو) */
+            #rec2442651013 :is(.vl, .bsm),
+            #rec2442651013 .tn-elem[data-elem-id="1705235414678"] > .tn-atom { text-wrap: balance; }
+            #rec2442651013 .vbr { color: #a48c69; position: relative; }
+            #rec2442651013 .vbr::after { content: ""; position: absolute; top: -4px; bottom: -4px; left: -5px; right: -5px; }
+            #rec2442651013 .tn-elem[data-elem-id="1705235414679"] > .tn-atom,
+            #rec2442651013 .tn-elem[data-elem-id="1705235414678"] > .tn-atom { transform-origin: 50% 0; }
+
             /* جملة ختام اختيارية (cl83) فوق "في انتظاركم" — فاضية في القالب فمبتظهرش */
             .cl-note-wrap { background: #fffdfb; }
             .cl-note { max-width: 360px; margin: 0 auto; padding: 44px 28px 0; text-align: center; color: #2b1c13;
@@ -3452,6 +3464,101 @@
                 }
                 if (window.ResizeObserver) new ResizeObserver(later).observe(card);
                 if (window.MutationObserver) new MutationObserver(later).observe(card, { subtree: true, childList: true, characterData: true });
+                if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+                window.addEventListener('load', fit);
+            })();
+            /* ---------- كارت الآية في ظرف الدانتيل: الكلام كله جوه الجزء الظاهر من الكارت ----------
+               العميل يقدر يغيّر أي سطر أو يشيله (المالك 2026-11-13). قبل كده السطور كانت متثبتة في أماكنها:
+               سطر أطول بيلف وينزل على "سورة الروم - الآية ٢١" ويدخل تحت الدانتيل. دلوقتي:
+               1) سطر المصدر (1705235414678) بيمشي ورا آخر سطر في الآية (لو المسافة اتغيّرت أكتر من 4px)
+               2) لو حاجة طلعت بره الجزء الظاهر من الكارت، الآية والمصدر بيصغروا سوا لحد ما يدخلوا (لحد 60%).
+               الجزء الظاهر = الكارت (302×341) ناقص قلابات الظرف اللي قدامه وهي في أعلى مكان ليها (الظرف
+               بيتحرك 85px مع السكرول) — من بكسلات lace-envelope-front: القلابات بتبدأ تغطي طرفين الكارت من
+               y=164 وبتقرب 1.5px من كل ناحية مع كل px لتحت، ولحد 226 الكارت كله متغطي.
+               الدعوات اللي كلامها مكفي متتغيّرش ولا بكسل. الحاجة اللي العميل حرّكها أو ميّلها بإيده بنسيبها. */
+            (function fitVerseCard() {
+                var rec = document.getElementById('rec2442651013');
+                if (!rec) return; /* القسم لو مخفي: fit بيستنى لحد ما يظهر (ResizeObserver) */
+                function q(id) { return rec.querySelector('.tn-elem[data-elem-id="' + id + '"]'); }
+                var card = q('1772528297316'), box = q('1705235414679'), ref = q('1705235414678');
+                var atom = box && box.querySelector('.tn-atom'), refAtom = ref && ref.querySelector('.tn-atom');
+                if (!card || !atom) return;
+                var CW = 302, SIDE = 8, TOPM = 4, VY = 164, VK = 1.5, VM = 6, VEND = 226, GAP = 7, MIN = 0.6;
+                function moved(el) {
+                    for (var x = el; x && x !== rec; x = x.parentElement) {
+                        if (!x.hasAttribute || !x.hasAttribute('data-elem-id')) continue;
+                        var t = x.style.translate, r = x.style.rotate;
+                        if ((t && t !== 'none' && !/^0px( 0px)?$/.test(t)) || (r && r !== 'none' && !/^0deg$/.test(r))) return true;
+                    }
+                    return false;
+                }
+                function glyphs(root, out, cr, s) {
+                    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null), n, range = document.createRange();
+                    while ((n = w.nextNode())) {
+                        if (!n.nodeValue.trim() || moved(n.parentElement)) continue;
+                        range.selectNodeContents(n);
+                        var rs = range.getClientRects();
+                        for (var i = 0; i < rs.length; i++) {
+                            var r = rs[i];
+                            if (r.width < 1 || r.height < 1) continue;
+                            /* مستطيل السطر فيه فراغ فوق وتحت الحروف — بنقيس الحروف بس */
+                            var pad = r.height * 0.12;
+                            out.push({ x1: (r.left - cr.left) / s, x2: (r.right - cr.left) / s, y1: (r.top + pad - cr.top) / s, y2: (r.bottom - pad - cr.top) / s });
+                        }
+                    }
+                }
+                function fits() {
+                    var cr = card.getBoundingClientRect(), s = cr.width / CW;
+                    if (!s) return true;
+                    var g = [];
+                    glyphs(atom, g, cr, s);
+                    if (refAtom) glyphs(refAtom, g, cr, s);
+                    for (var i = 0; i < g.length; i++) {
+                        var b = g[i];
+                        if (b.x1 < SIDE || b.x2 > CW - SIDE || b.y1 < TOPM || b.y2 > VEND) return false;
+                        if (b.y2 > VY) {
+                            var c = (b.y2 - VY) * VK + VM;
+                            if (b.x1 < c || b.x2 > CW - c) return false;
+                        }
+                    }
+                    return true;
+                }
+                function apply(k) {
+                    var t = k >= 0.9995 ? '' : 'scale(' + k.toFixed(3) + ')';
+                    if (atom.style.transform !== t) atom.style.transform = t;
+                    if (refAtom && refAtom.style.transform !== t) refAtom.style.transform = t;
+                    if (!ref) return;
+                    if (!ref.offsetParent) { if (ref.style.marginTop) ref.style.marginTop = ''; return; } /* العميل شاله */
+                    /* المصدر تحت آخر سطر — بالأماكن الأصلية (offset) مش اللي على الشاشة، عشان سحب العميل يفضل زي ما هو */
+                    var cur = parseFloat(ref.style.marginTop) || 0;
+                    var mt = box.offsetTop + box.offsetHeight * k + GAP - (ref.offsetTop - cur);
+                    var want = Math.abs(mt) <= 4 ? '' : mt.toFixed(1) + 'px';
+                    if (ref.style.marginTop !== want) ref.style.marginTop = want;
+                }
+                var busy = false;
+                function fit() {
+                    if (busy || !box.offsetParent) return;
+                    busy = true;
+                    try {
+                        apply(1);
+                        if (fits()) return;
+                        for (var k = 0.98; k >= MIN - 1e-9; k -= 0.02) { apply(k); if (fits()) return; }
+                        apply(MIN);
+                    } finally { busy = false; }
+                }
+                fit();
+                var queued = false;
+                function later() {
+                    if (queued) return;
+                    queued = true;
+                    (window.requestAnimationFrame || setTimeout)(function () { queued = false; fit(); });
+                }
+                if (window.ResizeObserver) { var ro = new ResizeObserver(later); ro.observe(box); if (ref) ro.observe(ref); }
+                if (window.MutationObserver) {
+                    var mo = new MutationObserver(later);
+                    mo.observe(box, { subtree: true, childList: true, characterData: true });
+                    if (ref) mo.observe(ref, { subtree: true, childList: true, characterData: true });
+                }
                 if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
                 window.addEventListener('load', fit);
             })();
