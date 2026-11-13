@@ -10,6 +10,10 @@
 // - تاريخ هجري تحت الميلادي (٣ رجب ١٤٤٨ هـ).
 // - تأكيد الحضور (القالب) + تهنئة صوتية + رفع صور الضيوف تحته (guestExtras — utils/oneOffFixes.js) — كله بيوصل للوحة العميلة.
 // - البرنامج ولوحة ألوان اللبس مستخبيين (مفيش تفاصيل ليهم)، والساعة مستخبية لحد ما المالك يبعتها.
+// - (2026-11-13) كلام جديد من المالك: فقرتين حوالين الأسامي بدل البسملة و"بقلوبٍ يملؤها..." و"نبدأ معًا حكاية عمر..."،
+//   عنوان المكان "حيث يجمعنا الفرح / وِجهة ليلتنا المميزة"، قسم الضيوف بقى رسالة الترحيب + تنويه المسبح (kbn1/kbn2)،
+//   عنوان تأكيد الحضور، وكلام التهنئة الصوتية ورفع الصور. الكلام نفسه في البيانات (oneOffFix G55weuy-texts-nov13)
+//   عشان المحرر يفضل شغال؛ هنا التنويه والستايل وكلام الإضافات بس.
 // البيانات في utils/oneOffFixes.js (G55weuy-kholoud-bilal).
 const { asset } = require('./_asset');
 
@@ -27,17 +31,23 @@ const GREENS = {
 };
 
 const HIJRI = 'السبت ٣ رجب ١٤٤٨ هـ';
+// تنويه المسبح (المالك 2026-11-13) — جوه رسالة الترحيب
+const POOL_T = 'تنويه بمحبة 💫';
+const POOL_P = 'نظرًا لوجود مسبح في المكان،\nنرجو من الأهالي الأعزاء الحرص\nعلى أطفالهم ومتابعتهم طوال الحفل.';
 const FLOWERS = ['fl-b', 'fl-c', 'fl-d', 'fl-e', 'fl-f', 'fl-g', 'fl-gm', 'fl-hm'];
 
 // التهنئة الصوتية ورفع الصور جوه قسم تأكيد الحضور — بالفصحى (العميلة من السعودية) وبكلام الخطوبة
 const EXTRAS_OPTS = `<script>window.MITHAQ_EXTRAS_OPTS = { anchor: '#mithaq-rsvp', lang: 'ar', attend: false, t: {
-  vEyebrow: 'رسالة بصوتك', vTitle: 'سجّل تهنئتك', vSub: 'اضغط مطوّلًا على المايك وتحدّث — أو اضغط مرة واحدة للتسجيل دون إمساك',
+  vEyebrow: 'رسالة بصوتك', vTitle: 'سيبوا لنا صوت يفضل معانا 🎙️',
+  vSub: 'نفسنا نسمع منكم كلمة حلوة، دعوة من القلب،\\nتهنئة بسيطة نفتكرها ونبتسم كل ما نسمعها.\\nسجّلوا لنا صوتكم،\\nوخلوه ذكرى حلوة من يومنا المميز.',
+  vNote: 'اضغطوا مطوّلًا على الميكروفون للتسجيل،\\nأو اضغطوا مرة واحدة لبدء التسجيل',
   idle: 'اضغط للتسجيل', slide: 'اسحب للإلغاء', namePh: 'اكتب اسمك',
   sending: 'جارٍ إرسال تهنئتك…', sent: 'وصلت تهنئتك للخطيبين 🤍', cancelled: 'تم إلغاء التسجيل', short: 'التسجيل قصير جدًا — سجّل مرة أخرى',
   max: 'أقصى مدة دقيقة واحدة', noMic: 'هذا المتصفح لا يدعم تسجيل الصوت', allowMic: 'اسمح للمتصفح باستخدام المايك لتسجيل تهنئتك',
   needName: 'اكتب اسمك أولًا', fail: 'تعذّر الإرسال، حاول مرة أخرى', preview: 'هذه معاينة — لن تُرسل التهنئة', edit: 'التسجيل للضيوف — جرّبه من رابط الدعوة',
-  pEyebrow: 'ألبوم الخطوبة', pTitle: 'شاركونا اللحظات', pSub: 'التقطتم صورًا في الحفل؟ ارفعوها هنا ليحتفظ الخطيبان بكل لحظة جميلة',
-  pName: 'اسمك', pNamePh: 'اسمك الكريم', pAdd: 'ارفع صورك', pNote: 'صوركم تصل للخطيبين فقط — ولا يراها غيرهما',
+  pEyebrow: 'ألبوم الخطوبة', pTitle: 'صوّروا اللحظة وخلوها ذكرى 📸',
+  pSub: 'أكيد كل واحد فيكم هيشوف اليوم\\nبعين مختلفة، وده اللي نفسنا نحتفظ بيه.\\nارفعوا صوركم من الحفلة\\nوشاركونا اللحظات الحلوة\\nاللي يمكن تفوتنا وسط الفرحة.',
+  pName: 'اسمك إيه؟', pNamePh: 'اسمك الكريم', pAdd: 'شاركونا صوركم هنا 📸', pNote: 'صوركم تصل للخطيبين فقط — ولا يراها غيرهما',
   pSent: 'شكرًا لك! وصلت صورك', pNeedName: 'اكتب اسمك أولًا', pType: 'اختر صورًا فقط',
   pFail: 'لم تُرفع بعض الصور — حاول مرة أخرى', pNet: 'انقطع الاتصال — حاول مرة أخرى', pPreview: 'هذه معاينة — لن تُرفع الصور',
   del: 'حذف', play: 'تشغيل', stop: 'إيقاف', send: 'إرسال', mic: 'اضغط مطوّلًا لتسجيل تهنئة صوتية',
@@ -79,6 +89,13 @@ body{background-color:#faf5ee}
 .field:focus{border-color:#c9a26b;box-shadow:0 0 0 .8cqw rgba(201,162,107,.18)}
 .radio input::after{background:#cf9483}
 .sent b{color:#8c5a4b}
+/* (2026-11-13) عنوان المكان سطرين أطول من "نلتقي هنا" — أصغر شوية عشان كل سطر يفضل سطر */
+[data-elem-id="pp31"]{font-size:8cqw;line-height:1.55}
+.s-notes .thanks{font-family:'Aref Ruqaa',var(--ar);font-size:6.4cqw;color:#8c5a4b}
+/* تنويه المسبح — كارت هادي بنفس خطوط ودهبي الدعوة */
+.kb-note{margin:0 auto;max-width:80cqw;padding:5cqw 6cqw 5.4cqw;border:1px solid #dcc6a3;border-radius:3cqw;background:rgba(255,250,245,.62);box-shadow:0 1.2cqw 3.6cqw rgba(120,80,60,.07)}
+.kb-note-t{font:700 6cqw/1.5 'Aref Ruqaa',var(--ar);color:#8c5a4b}
+.kb-note-p{margin-top:1.4cqw;font:400 4.5cqw/1.9 'Amiri',serif;color:#3b2e2a;white-space:pre-line}
 /* مفيش ساعة لسه — السطر مستخبّي */
 [data-elem-id="pp15"]{display:none!important}
 /* زرار الموسيقى بألوان الدعوة */
@@ -94,8 +111,10 @@ body{background-color:#faf5ee}
 #mithaq-extras .gx-card::before{inset:1.6cqw;border-radius:2cqw;border-color:rgba(201,162,107,.45)}
 #mithaq-extras .gx-card + .gx-card{margin-top:7cqw}
 #mithaq-extras .gx-eyebrow{font:500 3.7cqw/1.4 'Reem Kufi',var(--ar);color:#986a4f;letter-spacing:0}
-#mithaq-extras .gx-title{margin-top:1.6cqw;font:700 8.6cqw/1.45 'Aref Ruqaa',var(--ar);color:#8c5a4b;-webkit-text-stroke:0;white-space:nowrap}
-#mithaq-extras .gx-sub{margin-top:1.4cqw;font:400 4.4cqw/1.85 'Amiri',serif;color:#6a5048}
+#mithaq-extras .gx-title{margin-top:1.6cqw;font:700 7.6cqw/1.45 'Aref Ruqaa',var(--ar);color:#8c5a4b;-webkit-text-stroke:0;white-space:normal;text-wrap:balance}
+#mithaq-extras .gx-sub{margin-top:1.4cqw;font:400 4.4cqw/1.85 'Amiri',serif;color:#6a5048;white-space:pre-line;text-wrap:balance}
+#mithaq-extras .gx-vnote{margin-top:3cqw;font:400 3.9cqw/1.75 'Amiri',serif;color:#7a675f;white-space:pre-line}
+#mithaq-extras .gx-add svg{display:none}
 #mithaq-extras .gx-rec{margin-top:6cqw}
 #mithaq-extras .gx-idle,#mithaq-extras .gx-slide{font-size:4.3cqw}
 #mithaq-extras .gx-label{font:500 3.8cqw/1.4 'Reem Kufi',var(--ar);color:#5b3b33;letter-spacing:0}
@@ -137,6 +156,13 @@ module.exports = {
     for (const [g, c] of Object.entries(GREENS)) out = out.split(g).join(c);
     // التاريخ الهجري تحت سطر التاريخ الميلادي
     out = out.replace(/(<p class="date-line[^"]*"[^>]*data-elem-id="pp10"[^>]*><\/p>)/, (m) => `${m}\n    <p class="kb-hijri r d2">${HIJRI}</p>`);
+    // تنويه المسبح (المالك 2026-11-13) — جوه رسالة الترحيب بعد آخر جملة وقبل "مستنيينكم بكل الحب"
+    out = out.replace(/(<p class="p r" data-elem-id="pp49"><\/p>)/, (m) => `${m}
+    <svg class="orn sm r" viewBox="0 0 240 22" aria-hidden="true"><use href="#orn-dot"/></svg>
+    <div class="kb-note r">
+      <p class="kb-note-t" data-elem-id="kbn1">${POOL_T}</p>
+      <p class="kb-note-p" data-elem-id="kbn2">${POOL_P}</p>
+    </div>`);
     // التهنئة الصوتية ورفع الصور: جوه قسم تأكيد الحضور، تحت الفورم على طول
     out = out.replace(/<\/head>/i, () => `${CSS}\n${EXTRAS_OPTS}\n</head>`);
     return out;

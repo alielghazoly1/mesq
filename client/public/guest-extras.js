@@ -100,7 +100,9 @@
           + '<p class="gx-sub">' + esc(T.iSub) + '</p>'
         : '<p class="gx-eyebrow">' + esc(T.vEyebrow) + '</p>'
           + '<h2 class="gx-title">' + esc(T.vTitle) + '</h2>'
-          + '<p class="gx-sub">' + esc(T.vSub) + '</p>')
+          + '<p class="gx-sub">' + esc(T.vSub) + '</p>'
+          // سطر إرشاد اختياري فوق المايك (دعوة بعينها بتحطه في O.t.vNote) — من غيره مفيش أي حاجة زيادة
+          + (T.vNote ? '<p class="gx-note gx-vnote">' + esc(T.vNote) + '</p>' : ''))
       + (O.attend
         ? '<div class="gx-att" role="radiogroup" aria-label="' + esc(T.aQ) + '"><p class="gx-att-q">' + esc(T.aQ) + '</p><div class="gx-att-row">'
           + '<button type="button" class="gx-att-b" data-v="yes" role="radio" aria-checked="false">' + SVG.check + '<span>' + esc(T.aYes) + '</span></button>'
