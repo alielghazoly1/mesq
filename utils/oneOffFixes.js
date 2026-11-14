@@ -1641,6 +1641,34 @@ const FIXES = [
       venueMapEmbedSrc: 'https://www.google.com/maps?q=InterContinental+Cairo+Semiramis+by+IHG,+Nile+Corniche,+Qasr+El+Nil,+Cairo&output=embed',
     }),
   },
+  {
+    // JlZYcU7 — المالك (2026-11-14): دعوة عمر وسمية (الصفحة نفسها custom-invitations/JlZYcU7.*، نسخة من دعوته على
+    // موقعه التاني). البيانات عشان لوحة العميل والتقويم والخريطة: الجمعة 11/12/2026 الساعة 8 مساءً، قاعة ليالي البنفسج
+    // للضيافة — المعترض، العين (الإمارات)، واللينك اللي بعته. مرة واحدة: بس لو الدعوة لسه بالأسامي الافتراضية.
+    name: 'JlZYcU7-omar-sumaya',
+    shortId: 'JlZYcU7',
+    select: '-__v',
+    when: (c, inv) => inv.groomName === 'Groom' && inv.brideName === 'Bride',
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const link = 'https://maps.app.goo.gl/XRcLYKcj1piXBL5d9';
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: 'ar', occasionType: 'wedding',
+        hiddenSections: inv.hiddenSections || [], timeline: inv.timeline, name: inv.name,
+        groomName: 'Omar', groomNameAr: 'عمر', brideName: 'Sumaya', brideNameAr: 'سمية',
+        venueName: 'قاعة ليالي البنفسج للضيافة', venueCity: 'العين',
+        venueMapQuery: link,
+        weddingDate: '2026-12-11', weddingTime: '20:00',
+      }, { ownsTemplate: true, skipMapNetwork: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.language = 'ar';
+      set.venueMapDirectLink = link;
+      set.venueMapQuery = link;
+      set.venueMapEmbedSrc = 'https://www.google.com/maps?q=24.2233503,55.7373967&hl=ar&z=16&output=embed';
+      return set;
+    },
+  },
 ];
 
 let done = false;

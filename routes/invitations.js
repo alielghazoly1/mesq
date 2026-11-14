@@ -339,8 +339,27 @@ router.get('/i/:shortId/wishes', async (req, res) => {
     if (!wishesEnabled(req.params.shortId)) return res.status(404).json({ error: 'not found' });
     const list = await GuestWish.find({ shortId: req.params.shortId, hidden: { $ne: true } })
       .sort({ createdAt: -1 }).limit(100).select('guestName message createdAt').lean();
+    // الدعوات اللي طالبة كده (publicRsvpCount — زي JlZYcU7): عدد تأكيدات الحضور فوق فورم الرد ("61 تأكيدات الحضور").
+    // رقم بس من غير أي أسامي؛ الضيف اللي غيّر رده بيتحسب آخر رد ليه (نفس الجهاز ونفس الاسم).
+    const custom = getCustomInvitation(req.params.shortId);
+    let going;
+    if (custom && custom.publicRsvpCount) {
+      const replies = await Rsvp.find({ shortId: req.params.shortId }).sort({ createdAt: -1 }).limit(5000)
+        .select('guestName deviceId attending').lean();
+      const seen = new Set();
+      going = 0;
+      for (const r of replies) {
+        const key = `${r.deviceId || ''}|${String(r.guestName || '').replace(/\s+/g, ' ').trim().toLowerCase()}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        if (r.attending === true) going += 1;
+      }
+    }
     res.set('Cache-Control', 'no-store');
-    return res.json({ wishes: list.map((w) => ({ name: w.guestName, message: w.message, at: w.createdAt })) });
+    return res.json({
+      wishes: list.map((w) => ({ name: w.guestName, message: w.message, at: w.createdAt })),
+      ...(going !== undefined ? { going } : {}),
+    });
   } catch (err) {
     console.error('Error listing wishes:', err);
     return res.status(500).json({ error: 'حصل خطأ في السيرفر، حاول تاني بعد شوية.' });

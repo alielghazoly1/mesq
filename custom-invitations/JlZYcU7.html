@@ -1,0 +1,722 @@
+<!doctype html>
+<html lang="ar" dir="rtl" translate="no" style="color-scheme:light only">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="google" content="notranslate">
+<meta name="theme-color" content="#d9d0c1">
+<title>عمر &amp; سمية — دعوة زفاف</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Noto+Sans+Arabic:wght@400;500;600;700&family=Reem+Kufi:wght@600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Great+Vibes&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="assets/cover.webp">
+<link rel="preload" as="image" href="assets/title.webp">
+<style>
+/* عمر وسمية — الجمعة 11/12/2026 الساعة 8 مساءً، قاعة ليالي البنفسج للضيافة (المعترض — العين). بطلب المالك (2026-11-14):
+   نسخة من دعوته على موقعه التاني (buharita): ظرف بختم دهبي (الضغطة على الختم بتشغّل فيديو الفتح)، وبعده أول صفحة بفيديو
+   السلم والورد والحمام، والكروت البيضا فوق خلفية ورد باهتة، وشريط تحت (الحضور / المكان / التهاني / الموسيقى)، والصفحة
+   بتنزل لوحدها بعد الفتح. من غير قسم الصور ولا قسم الفقرات (طلب المالك). الكلام من كارت الدعوة اللي بعته. */
+:root{--brown:#461901;--rust:#814016;--ink:#4f412f;--ink2:#6b5a45;--muted:#8d7255;--teal:#5f98a1;--teal2:#4b8089;--tealink:#2c5961;
+  --gold:#d4af37;--card:rgba(251,254,254,.93);
+  --sans:'Noto Sans Arabic','Outfit',Tahoma,sans-serif;--serif:'Amiri','Times New Roman',serif;--kufi:'Reem Kufi','Noto Sans Arabic',sans-serif;
+  --disp:'Playfair Display','Noto Sans Arabic',serif;--num:'Outfit','Noto Sans Arabic',sans-serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+html{background:#e2ecea}
+html.lock,html.lock body{overflow:hidden;height:100%;overscroll-behavior:none}
+body{direction:rtl;color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden;background:#e2ecea}
+img,video,iframe{display:block;max-width:100%}
+img,video{-webkit-user-select:none;user-select:none;-webkit-user-drag:none}
+h1,h2,h3,p{margin:0;font-weight:inherit}
+button,input,select,textarea{font:inherit;color:inherit}
+svg{display:block}
+
+/* مسرح 9:16 بيملا الشاشة (زي الفيديو) — على الشاشات العريضة في النص وحواليه نسخة مغبّشة */
+.cv,.hero{--stw:max(100vw,56.25vh)}
+@media (min-aspect-ratio:3/4){.cv,.hero{--stw:56.25vh}}
+.st{position:absolute;left:50%;top:50%;width:var(--stw);height:calc(var(--stw) * 16 / 9);transform:translate(-50%,-50%)}
+.st>img,.st>video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;max-width:none}
+.bk{position:absolute;inset:-40px;background-position:center;background-size:cover;filter:blur(26px);opacity:.9;display:none}
+@media (min-aspect-ratio:3/4){.bk{display:block}}
+
+/* ===== الغلاف: الظرف (أول فريم من الفيديو) — الضغطة على الختم بتشغّل الفتح ===== */
+.cv{position:fixed;inset:0;z-index:100;overflow:hidden;cursor:pointer;outline:none;touch-action:manipulation;background:#d9d0c1;transition:opacity .95s ease}
+.cv.fade{opacity:0;pointer-events:none}
+.cv .bk{background-image:url(assets/cover.webp)}
+.cv video{opacity:0;transition:opacity .12s linear}
+.cv video.on{opacity:1}
+/* "دعوة زفاف" الدهبي فوق */
+.cv .ttl{position:absolute;left:50%;top:calc(4.6% + env(safe-area-inset-top));z-index:3;width:min(78vw,340px);height:auto;transform:translateX(-50%);
+  filter:drop-shadow(0 2px 5px rgba(90,62,24,.22));transition:opacity .7s ease}
+.cv.t2 .ttl{opacity:0}
+/* حروف العروسين على الختم (ع & س) — مكانها ومقاسها بالنسبة للفيديو نفسه، فبتفضل على الختم في أي شاشة */
+.seal{position:absolute;left:50.2%;top:51.3%;z-index:2;transform:translate(-50%,-52%);display:flex;align-items:center;gap:.3em;direction:rtl;pointer-events:none;
+  font:italic 400 calc(var(--stw) * .047)/1 var(--disp);color:#36281b;opacity:.9;
+  text-shadow:0 1px 0 rgba(255,240,200,.45),0 -1px 0 rgba(90,60,20,.18)}
+.seal b{font-weight:400}
+.seal i{font:italic 400 .98em/1 'Playfair Display',serif;margin-top:-.08em}
+/* "اضغطوا على الختم" والسهم فوق الختم */
+.tap{position:absolute;left:50%;top:32.4%;z-index:2;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:calc(var(--stw) * .012);
+  color:#fff;white-space:nowrap;transition:opacity .35s ease;pointer-events:none}
+.tap span{font:700 calc(min(var(--stw) * .03, 15px) + 1px)/1.3 var(--sans);text-shadow:0 1px 6px rgba(70,48,20,.45),0 0 2px rgba(70,48,20,.25)}
+.tap svg{width:calc(min(var(--stw) * .036, 18px) + 2px);height:auto;filter:drop-shadow(0 1px 3px rgba(70,48,20,.4));animation:bob 1.6s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(-2px)}50%{transform:translateY(4px)}}
+.cv.go .tap{opacity:0}
+
+/* ===== أول صفحة: فيديو السلم بالورد والحمام، "دعوة زفاف" فوق، والتاريخ، والأسامي ===== */
+main{position:relative;z-index:1}
+.hero{position:relative;height:100vh;height:100svh;min-height:520px;overflow:hidden;text-align:center;background:#ece5da}
+.hero .bgv{position:absolute;inset:0;overflow:hidden}
+.hero .bk{background-image:url(assets/stairs.webp)}
+.hero video{opacity:0;transition:opacity 1.2s ease}
+.hero video.on{opacity:1}
+.static .hero video{display:none}
+.shade{position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(180deg,rgba(62,46,34,.58) 0%,rgba(62,46,34,.3) 13%,rgba(62,46,34,.08) 27%,rgba(62,46,34,0) 38%)}
+.h-in{position:absolute;inset:0;z-index:2;color:#fff}
+.h-title{position:absolute;left:50%;top:calc(3.4% + env(safe-area-inset-top));width:min(66vw,300px);height:auto;transform:translateX(-50%);
+  filter:drop-shadow(0 2px 6px rgba(40,28,16,.28))}
+.h-date{position:absolute;left:0;right:0;top:calc(16.4% + env(safe-area-inset-top));font:700 15px/1.4 var(--disp);font-variant-numeric:oldstyle-nums;
+  text-shadow:0 1px 8px rgba(40,28,16,.45),0 0 2px rgba(40,28,16,.3)}
+.h-names{position:absolute;left:0;right:0;top:46%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center}
+.h-names .nm{font:700 clamp(40px,12vw,52px)/1.25 var(--kufi);text-shadow:0 2px 14px rgba(60,44,30,.35),0 0 3px rgba(60,44,30,.2)}
+.h-names .amp{font:400 clamp(26px,7.5vw,32px)/1 'Great Vibes',cursive;color:#cda24e;margin:4px 0 6px;text-shadow:0 1px 5px rgba(60,44,30,.3),0 0 1px rgba(60,44,30,.25)}
+.cue{position:absolute;left:50%;bottom:calc(14% + env(safe-area-inset-bottom));z-index:2;width:1px;height:34px;transform:translateX(-50%);overflow:hidden;
+  background:rgba(255,255,255,.45);opacity:0;transition:opacity .8s}
+.cue::after{content:"";position:absolute;left:0;top:-40%;width:1px;height:40%;background:#fff;animation:cue 1.9s ease-in-out infinite}
+@keyframes cue{0%{top:-40%}100%{top:100%}}
+.hero.cueon .cue{opacity:1}
+.hero .rv{opacity:0;transform:translateY(12px)}
+.h-title.rv{transform:translateX(-50%) translateY(12px)}
+.hero.on .rv{animation:rvIn 1.2s cubic-bezier(.22,.8,.3,1) var(--d,0s) forwards}
+.hero.on .h-title.rv{animation-name:rvInT}
+@keyframes rvIn{to{opacity:1;transform:none}}
+@keyframes rvInT{to{opacity:1;transform:translateX(-50%)}}
+.static .hero .rv{opacity:1;transform:none;animation:none}
+.static .hero .h-title.rv{transform:translateX(-50%)}
+
+/* ===== باقي الدعوة: كروت بيضا فوق خلفية ورد باهتة (نعناعي فاتح) ===== */
+.content{position:relative;max-width:520px;margin:0 auto;padding:96px 0 calc(150px + env(safe-area-inset-bottom));
+  background:#e4eeec url(assets/bg.webp) center top/100% auto repeat-y}
+.content::before{content:"";position:absolute;left:0;right:0;top:0;height:150px;pointer-events:none;
+  background:url(assets/bgtop.webp) center top/100% auto no-repeat;-webkit-mask-image:linear-gradient(180deg,#000 45%,transparent);mask-image:linear-gradient(180deg,#000 45%,transparent)}
+@media (min-width:521px){html,body{background:#dfe9e7}}
+.card{position:relative;width:calc(100% - 62px);max-width:420px;margin:0 auto 112px;background:var(--card);border-radius:40px;padding:30px 24px;text-align:center;
+  box-shadow:0 14px 34px rgba(52,78,78,.08),0 2px 8px rgba(52,78,78,.04);border:1px solid rgba(255,255,255,.85)}
+.fx{opacity:0;transform:translateY(26px);transition:opacity 1s ease,transform 1s cubic-bezier(.22,.8,.3,1)}
+.fx.in{opacity:1;transform:none}
+.static .fx{opacity:1;transform:none}
+.eyb{font:600 14px/1.5 var(--sans);color:var(--muted)}
+.h2{font:700 27px/1.45 var(--serif);color:var(--ink);margin-top:2px}
+
+/* الكارت الأول: الدعاء والعائلتين والعروسين */
+.c1{padding:34px 22px 34px}
+.orn{display:flex;align-items:center;justify-content:center;gap:12px}
+.orn::before,.orn::after{content:"";width:72px;height:1px;background:linear-gradient(90deg,transparent,#e2c4a2)}
+.orn::after{transform:scaleX(-1)}
+.orn svg{width:20px;height:11px;flex:none}
+.dua{font:700 21px/2.05 var(--serif);color:var(--brown);margin:24px 0 20px;text-wrap:balance}
+.sep{width:62px;height:1px;background:#e8d5bd;margin:0 auto}
+.c1 .t{font:600 15.5px/1.75 var(--sans);color:var(--rust);text-wrap:balance}
+.c1 .t1{margin-top:28px}
+.fam{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;margin:20px 0 24px;font:600 15px/1.7 var(--sans);color:var(--rust)}
+.fam .amp{font:600 17px/1 var(--sans)}
+.c1 .nms{font:700 17px/1.6 var(--sans);color:var(--rust);margin-top:22px}
+.c1 .t3{margin-top:22px}
+.dia{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:30px}
+.dia::before,.dia::after{content:"";width:86px;height:1px;background:linear-gradient(90deg,transparent,#e3c09c)}
+.dia::after{transform:scaleX(-1)}
+.dia i{display:block;width:6px;height:6px;transform:rotate(45deg);border:1px solid #c98a52}
+.dia i.b{width:9px;height:9px;background:#c98a52;border-color:#c98a52;margin:0 2px}
+
+/* تنويه الكاميرات */
+.note{background:rgba(251,252,251,.95);border:1px solid rgba(242,160,160,.45);overflow:hidden;padding:30px 24px 24px}
+.note::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,rgba(240,110,110,.15),#f07c7c 50%,rgba(240,110,110,.15))}
+.nic{width:48px;height:48px;margin:0 auto 18px;border-radius:13px;background:#fde9ea;border:1.5px solid #f3a7ab;display:flex;align-items:center;justify-content:center}
+.nic svg{width:24px;height:24px}
+.note p{font:700 17.5px/1.7 var(--sans);color:var(--brown)}
+.note .nocam{width:16px;height:16px;margin:16px auto 0}
+
+/* النتيجة: راس تركواز بحلقتين بني، والشهر واليوم متعلّم */
+.cal{padding:0;overflow:hidden;background:linear-gradient(rgba(251,254,254,.9),rgba(251,254,254,.9)),url(assets/bg.webp) center/240% auto}
+.ch{position:relative;height:84px;background:radial-gradient(120% 140% at 50% 0%,#64a0a9 0%,#5a919a 45%,#4b8089 100%);display:flex;align-items:flex-end;justify-content:space-between;padding:0 12% 16px;color:#fff;
+  box-shadow:inset 0 -1px 0 rgba(255,255,255,.18)}
+.ch span{font:700 17px/1 var(--serif);min-width:4.2em;text-align:center}
+.ch span.y{font:700 16px/1 var(--disp)}
+.ring{position:absolute;top:-2px;width:24px;height:40px;border-radius:0 0 13px 13px;background:linear-gradient(90deg,#6c3f1c,#86522a 55%,#6c3f1c);border:3px solid #efd9a8;border-top:0;
+  box-shadow:0 3px 6px rgba(40,30,20,.25)}
+.ring.r1{right:calc(37% - 12px)}.ring.r2{right:calc(63% - 12px)}
+.cb{padding:26px 16px 30px}
+.wd,.gd{display:grid;grid-template-columns:repeat(7,1fr);text-align:center}
+.wd span{font:700 10px/1.4 var(--sans);color:#7ea3a8;white-space:nowrap}
+.gd{margin-top:14px;row-gap:12px}
+.gd span{font:600 15.5px/36px var(--num);color:var(--tealink);height:36px}
+.gd span.on{position:relative;z-index:0}
+.gd span.on::before{content:"";position:absolute;left:50%;top:50%;width:42px;height:34px;transform:translate(-50%,-50%);border:2px solid var(--teal);border-radius:50%;z-index:-1;
+  background:rgba(255,255,255,.7);box-shadow:0 3px 10px rgba(75,128,137,.22)}
+.cdiv{display:flex;align-items:center;justify-content:center;gap:10px;margin:24px 0 16px}
+.cdiv::before,.cdiv::after{content:"";width:52px;height:1px;background:#d8bc86}
+.cdiv i{width:6px;height:6px;border-radius:50%;background:var(--teal)}
+.cday{font:700 21px/1.4 var(--serif);color:#2f4f55}
+.ctime{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:6px;font:700 23px/1.3 var(--num);color:var(--teal)}
+.ctime svg{width:22px;height:22px}
+.savew{margin:-70px auto 112px;text-align:center}
+.save{display:inline-flex;align-items:center;gap:12px;padding:15px 30px;border-radius:999px;background:#fff;color:#7b4d27;text-decoration:none;font:700 15px/1 var(--sans);
+  box-shadow:0 10px 26px rgba(52,78,78,.1),0 1px 3px rgba(52,78,78,.06)}
+.save svg{width:21px;height:21px}
+
+/* العد التنازلي */
+.cd{padding:30px 18px 32px}
+.cd .eyb{font-size:15px;font-weight:700}
+.cdg{display:flex;justify-content:center;gap:8px;margin-top:22px}
+.cdg>div{flex:1 1 0;max-width:76px;padding:12px 2px 10px;border-radius:18px;background:#f5f1e3;border:1px solid #eadfb9}
+.cdg b{display:block;font:700 27px/1.15 var(--disp);color:#a4802f;font-variant-numeric:lining-nums tabular-nums}
+.cdg span{display:block;margin-top:4px;font:600 11.5px/1.3 var(--sans);color:var(--muted)}
+.cdone{display:none;margin:30px 0 8px;font:700 19px/1.5 var(--sans);color:#d6ad3c}
+
+/* المكان */
+.loc{padding:32px 22px 30px}
+.pin{width:58px;height:58px;margin:22px auto 16px;border-radius:50%;background:#f4ecd5;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(180,150,60,.15)}
+.pin svg{width:27px;height:27px}
+.addr{font:700 16px/1.65 var(--sans);color:#514332}
+.addr small{display:block;font:500 14px/1.6 var(--sans);color:var(--ink2)}
+.map{position:relative;margin:20px 0 0;height:190px;border-radius:18px;overflow:hidden;border:1px solid #ecdfb6;background:#eef3f2;box-shadow:0 8px 20px rgba(52,78,78,.08)}
+.map iframe{width:100%;height:100%;border:0}
+.gbtn{display:inline-flex;align-items:center;justify-content:center;margin-top:26px;padding:16px 34px;border-radius:999px;text-decoration:none;
+  background:linear-gradient(135deg,#ead27a 0%,#d8b24b 45%,#b98a2c 100%);color:#2e1f0c;font:700 15px/1 var(--sans);box-shadow:0 10px 22px rgba(185,138,44,.3)}
+.gbtn b{font:700 15px/1 var(--num);letter-spacing:.04em;margin-inline-start:.35em}
+
+/* تأكيد الحضور ودفتر التهاني */
+.rs,.gb{padding:22px 20px 26px;text-align:right}
+.cnt{display:none;align-items:center;justify-content:center;gap:8px;margin:0 0 18px;padding:13px 10px;border-radius:18px;background:#fff;box-shadow:0 2px 10px rgba(52,78,78,.05);font:600 12px/1 var(--sans);color:var(--ink2)}
+.cnt.show{display:flex}
+.cnt svg{width:16px;height:16px}
+.cnt b{font:700 16px/1 var(--num);color:var(--ink)}
+.rs .h2,.gb .h2{text-align:center;font-size:29px}
+.sub{text-align:center;font:700 10.5px/1.5 var(--sans);color:var(--ink);margin-top:2px}
+.f{margin-top:20px}
+.f label,.lbl{display:block;font:700 11.5px/1.4 var(--sans);color:var(--ink2);margin-bottom:8px}
+.f .lbl2{font-size:14.5px;color:var(--ink2)}
+.inp{display:block;width:100%;border:0;outline:none;border-radius:16px;background:#f5fafa;padding:14px 16px;font:500 15.5px/1.4 var(--sans);color:var(--ink);
+  box-shadow:inset 0 0 0 1px rgba(75,128,137,.06);transition:box-shadow .2s;-webkit-appearance:none;appearance:none}
+.inp:focus{box-shadow:inset 0 0 0 1.5px rgba(212,175,55,.75)}
+.inp::placeholder{color:#9b958c}
+textarea.inp{min-height:84px;resize:none}
+.att{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.att button{display:flex;align-items:center;justify-content:center;gap:6px;height:50px;border-radius:16px;border:1.5px solid transparent;background:#f5fafa;cursor:pointer;
+  font:700 15px/1 var(--sans);color:var(--ink2);transition:background .2s,border-color .2s}
+.att button svg{width:15px;height:15px;display:none}
+.att button.on{background:#f3eed4;border-color:#dcc06a;color:var(--ink)}
+.att button.on svg{display:block}
+.selw{position:relative}
+.selw select{padding-left:44px;cursor:pointer;font-family:var(--num)}
+.selw svg{position:absolute;left:16px;top:50%;width:16px;height:16px;transform:translateY(-50%);pointer-events:none}
+.cntrow{transition:opacity .25s}
+.cntrow.off{display:none}
+.sbtn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:56px;margin-top:28px;border:0;border-radius:999px;background:#4f3d2a;color:#fff;cursor:pointer;
+  font:700 18px/1 var(--sans);box-shadow:0 10px 22px rgba(79,61,42,.28)}
+.sbtn svg{width:17px;height:17px}
+.sbtn:disabled{opacity:.6}
+.msg{min-height:1.4em;margin-top:12px;text-align:center;font:600 13px/1.5 var(--sans);color:#b0453a}
+.done{display:none;text-align:center;padding:26px 6px 8px}
+.done .dh{font:700 22px/1.6 var(--serif);color:var(--ink)}
+.done p{font:500 15px/1.7 var(--sans);color:var(--ink2);margin-top:6px}
+.done button{margin-top:16px;border:0;background:none;color:#9a7330;font:700 13px/1 var(--sans);text-decoration:underline;cursor:pointer;padding:8px}
+.rs.sent .rsf{display:none}
+.rs.sent .done{display:block}
+.wl{width:calc(100% - 62px);max-width:420px;margin:-86px auto 0}
+.w{background:rgba(251,254,254,.86);border-radius:18px;padding:14px 16px 14px;margin-bottom:12px;box-shadow:0 6px 18px rgba(52,78,78,.06);border:1px solid rgba(255,255,255,.8);text-align:right}
+.w-h{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.w-h b{font:700 14.5px/1.5 var(--sans);color:#b38327}
+.w-h time{flex:none;font:500 10.5px/2 var(--num);color:#a49c90}
+.w p{margin-top:6px;font:italic 400 16px/1.8 var(--serif);color:#4e4436;white-space:pre-line;overflow-wrap:anywhere}
+
+/* ===== الشريط اللي تحت ===== */
+.nav{position:fixed;left:50%;bottom:calc(12px + env(safe-area-inset-bottom));z-index:60;width:calc(100% - 28px);max-width:440px;height:68px;transform:translate(-50%,140%);
+  display:flex;align-items:center;justify-content:space-around;padding:0 8px;border-radius:30px;background:rgba(255,255,255,.88);
+  -webkit-backdrop-filter:blur(14px) saturate(1.2);backdrop-filter:blur(14px) saturate(1.2);box-shadow:0 12px 34px rgba(40,56,56,.16),0 1px 4px rgba(40,56,56,.06);
+  border:1px solid rgba(255,255,255,.75);transition:transform .8s cubic-bezier(.22,.8,.3,1)}
+.nav.show{transform:translate(-50%,0)}
+.nav button{flex:1 1 0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;height:54px;margin:0 3px;border:1px solid transparent;border-radius:18px;
+  background:none;cursor:pointer;color:#8b8b8b;font:700 9.5px/1 var(--sans);transition:background .25s,border-color .25s,color .25s,box-shadow .25s}
+.nav button svg{width:21px;height:21px}
+.nav button.on{background:#fff;border-color:#ecdcb2;color:#9a7330;box-shadow:0 4px 14px rgba(160,128,50,.16)}
+.nav .mu .off{display:none}
+.nav .mu.muted .off{display:block}
+.nav .mu.muted .onn{display:none}
+@media (prefers-reduced-motion:reduce){.fx{transition:none;opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="cv" id="cover" role="button" tabindex="0" aria-label="اضغطوا على الختم لفتح الدعوة">
+  <div class="bk" aria-hidden="true"></div>
+  <div class="st">
+    <img src="assets/cover.webp" alt="" fetchpriority="high">
+    <video id="vOpen" src="assets/open.mp4" poster="assets/cover.webp" muted playsinline webkit-playsinline preload="auto"></video>
+    <div class="seal" id="seal" aria-hidden="true"><b>ع</b><i>&amp;</i><b>س</b></div>
+    <div class="tap" aria-hidden="true"><span>اضغطوا على الختم</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v15M6 13l6 6 6-6"/></svg></div>
+  </div>
+  <img class="ttl" src="assets/title.webp" alt="دعوة زفاف">
+</div>
+
+<main>
+<section class="hero" id="hero" aria-label="عمر وسمية">
+  <div class="bgv" aria-hidden="true">
+    <div class="bk"></div>
+    <div class="st"><img src="assets/stairs.webp" alt=""><video id="vSt" data-src="assets/stairs.mp4" poster="assets/stairs.webp" muted loop playsinline webkit-playsinline preload="none"></video></div>
+  </div>
+  <div class="shade" aria-hidden="true"></div>
+  <div class="h-in">
+    <img class="h-title rv" style="--d:.15s" src="assets/title.webp" alt="دعوة زفاف">
+    <p class="h-date rv" style="--d:.55s" id="hDate">11 ديسمبر 2026 - 8:00 م</p>
+    <h1 class="h-names"><span class="nm rv" style="--d:.9s">عمر</span><span class="amp rv" style="--d:1.2s">&amp;</span><span class="nm rv" style="--d:1.45s">سمية</span></h1>
+  </div>
+  <div class="cue" aria-hidden="true"></div>
+</section>
+
+<div class="content" id="content">
+  <section class="card c1 fx" aria-label="الدعوة">
+    <div class="orn" aria-hidden="true"><svg viewBox="0 0 40 22"><path d="M20 5c3-5 9-5 11-1 1.5 3-1 6-4.5 6.5 3 .5 5.5 3 4.5 6-2 4-8 4-11-1-3 5-9 5-11 1-1-3 1.5-5.5 4.5-6C10 10 7.5 7 9 4c2-4 8-4 11 1z" fill="#b8682f"/><circle cx="20" cy="11" r="2.2" fill="#fff6ec"/></svg></div>
+    <p class="dua">بَارَكَ اللَّهُ لَكُمَا وَبَارَكَ عَلَيْكُمَا وَجَمَعَ بَيْنَكُمَا فِي خَيْرٍ</p>
+    <div class="sep" aria-hidden="true"></div>
+    <p class="t t1">يسعدون بالود والمحبة أن يدعوكم</p>
+    <div class="fam"><span>آل أحمد<br>علي الفكي</span><span class="amp">&amp;</span><span>آل هاشم<br>حسن أحمد</span></div>
+    <p class="t">لحضور زفاف</p>
+    <p class="nms">عمر &amp; سمية</p>
+    <p class="t t3">حضوركم يشرفنا ويزيد افراحنا</p>
+    <div class="dia" aria-hidden="true"><i></i><i class="b"></i><i></i></div>
+  </section>
+
+  <section class="card note fx" aria-label="تنويه">
+    <div class="nic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#d92b3a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.3 12.2l2.5 2.5 5-5.2"/></svg></div>
+    <p>لتكن ذكرياتنا حية في القلوب ... يرجى عدم استخدام الكاميرات او الهواتف للتصوير...</p>
+    <svg class="nocam" viewBox="0 0 24 24" fill="none" stroke="#e0485a" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M5 5l14 14"/><rect x="8" y="6.5" width="8" height="11" rx="1.6"/></svg>
+  </section>
+
+  <section class="card cal fx" aria-label="الموعد">
+    <div class="ch"><span id="chDay">الجمعة</span><span id="chMon">ديسمبر</span><span class="y" id="chYear">2026</span>
+      <i class="ring r1" aria-hidden="true"></i><i class="ring r2" aria-hidden="true"></i></div>
+    <div class="cb">
+      <div class="wd" aria-hidden="true"><span>الأحد</span><span>الاثنين</span><span>الثلاثاء</span><span>الأربعاء</span><span>الخميس</span><span>الجمعة</span><span>السبت</span></div>
+      <div class="gd" id="grid"></div>
+      <div class="cdiv" aria-hidden="true"><i></i></div>
+      <p class="cday" id="cDay">الجمعة</p>
+      <p class="ctime"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span id="cTime">8:00 م</span></p>
+    </div>
+  </section>
+  <div class="savew fx"><a class="save" id="addCal" href="#">حفظ التاريخ<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg></a></div>
+
+  <section class="card cd fx" aria-label="العد التنازلي">
+    <p class="eyb">العد التنازلي</p>
+    <div class="cdg" id="cd">
+      <div><b id="cdD">00</b><span>أيام</span></div>
+      <div><b id="cdH">00</b><span>ساعات</span></div>
+      <div><b id="cdM">00</b><span>دقائق</span></div>
+      <div><b id="cdS">00</b><span>ثواني</span></div>
+    </div>
+    <p class="cdone" id="cdDone">لقد حل اليوم الكبير! 🎉</p>
+  </section>
+
+  <section class="card loc fx" id="loc" aria-label="المكان">
+    <p class="eyb">مكان الاستقبال</p>
+    <h2 class="h2">كيفية الوصول</h2>
+    <div class="pin" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg></div>
+    <p class="addr">قاعة ليالي البنفسج للضيافة<small>المعترض - حي الجبل - العين</small></p>
+    <div class="map"><iframe id="mapFrame" title="خريطة قاعة ليالي البنفسج" data-src="__MAP_EMBED__" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe></div>
+    <a class="gbtn" href="__MAP_LINK__" target="_blank" rel="noopener">فتح خرائط <b>GOOGLE</b></a>
+  </section>
+
+  <section class="card rs fx" id="mithaq-rsvp" aria-label="تأكيد الحضور">
+    <div class="cnt" id="cnt"><svg viewBox="0 0 24 24" fill="none" stroke="#c9a23c" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.4 2.8-5.4 6-5.4s6 2 6 5.4"/><circle cx="17" cy="9" r="2.6"/><path d="M15.6 14.7c2.8.3 5.4 2 5.4 5.3"/></svg><b id="cntN">0</b><span>تأكيدات الحضور</span></div>
+    <h2 class="h2">تأكيد الحضور</h2>
+    <p class="sub" id="rsBy">يرجى الرد قبل 11 ديسمبر 2026</p>
+    <form class="rsf" id="rsForm" novalidate>
+      <div class="f"><label for="rsName">الاسم الكامل</label><input class="inp" id="rsName" maxlength="60" autocomplete="name" placeholder="مثال: أحمد منصور"></div>
+      <div class="f"><span class="lbl">الحضور</span>
+        <div class="att" role="radiogroup" aria-label="الحضور">
+          <button type="button" class="on" data-a="yes" role="radio" aria-checked="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>حاضر</button>
+          <button type="button" data-a="no" role="radio" aria-checked="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>غير حاضر</button>
+        </div></div>
+      <div class="f cntrow" id="rsCntRow"><label for="rsCnt">عدد الأشخاص</label>
+        <div class="selw"><select class="inp" id="rsCnt"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select>
+          <svg viewBox="0 0 24 24" fill="none" stroke="#6b5a45" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></div></div>
+      <div class="f"><label class="lbl2" for="rsNote">ملاحظة / قيود غذائية</label><textarea class="inp" id="rsNote" maxlength="150" rows="3" placeholder="اختياري (مثال: نباتي، حساسية...)"></textarea></div>
+      <button class="sbtn" type="submit" id="rsSend">تأكيد<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 3L10 14M21 3l-7 18-4-7-7-4z"/></svg></button>
+      <p class="msg" id="rsMsg" role="status"></p>
+    </form>
+    <div class="done" id="rsDone"><p class="dh" id="rsDoneH">شكرًا لكم 🤍</p><p id="rsDoneTxt"></p><button type="button" id="rsAgain">إرسال رد آخر</button></div>
+  </section>
+
+  <section class="card gb fx" id="gb" aria-label="دفتر التهاني">
+    <h2 class="h2">دفتر التهاني</h2>
+    <p class="sub">اتركوا تهانيكم للعروسين</p>
+    <form id="wForm" novalidate>
+      <div class="f"><label for="wName">اسمكم / العائلة</label><input class="inp" id="wName" maxlength="60" placeholder="مثال: عائلة منصور"></div>
+      <div class="f"><label for="wMsg">رسالة التهنئة</label><textarea class="inp" id="wMsg" maxlength="400" rows="3" placeholder="اكتبوا تهانيكم هنا..."></textarea></div>
+      <button class="sbtn" type="submit" id="wSend">نشر<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 3L10 14M21 3l-7 18-4-7-7-4z"/></svg></button>
+      <p class="msg" id="wErr" role="status"></p>
+    </form>
+  </section>
+  <div class="wl" id="wishes" aria-live="polite"></div>
+</div>
+</main>
+
+<nav class="nav" id="nav" aria-label="أقسام الدعوة">
+  <button type="button" class="on" data-go="mithaq-rsvp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.1A4.4 4.4 0 0 1 12 7.6a4.4 4.4 0 0 1 7.5 2.8c0 5.5-7.5 10.1-7.5 10.1z"/></svg>الحضور</button>
+  <button type="button" data-go="loc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg>المكان</button>
+  <button type="button" data-go="gb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 11.6a8.4 8.4 0 0 1-12.3 7.4L3.5 20.5l1.5-4.6A8.4 8.4 0 1 1 20.5 11.6z"/><path d="M8.5 10.5h7M8.5 13.5h4.5"/></svg>التهاني</button>
+  <button type="button" class="mu" id="muBtn" aria-label="الموسيقى"><svg class="onn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6.5 8.8H3.5v6.4h3L11 19z"/><path d="M15.5 9.2a4 4 0 0 1 0 5.6M18.3 6.5a8 8 0 0 1 0 11"/></svg><svg class="off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6.5 8.8H3.5v6.4h3L11 19z"/><path d="M16 9.5l5 5M21 9.5l-5 5"/></svg>الموسيقى</button>
+</nav>
+<audio id="song" src="__SONG__" loop preload="metadata" playsinline></audio>
+
+<script>
+(function () {
+  'use strict';
+  var ID = window.MQ_ID || 'JlZYcU7';
+  var EDIT = !!window.MQ_EDIT;
+  // الفرح في العين (الإمارات): الساعة اللي في البيانات ساعة حائط هناك، والعدّاد على اللحظة دي (توقيت الإمارات)
+  var START = new Date('__START__');
+  var WALL = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec('__WALL__') || [0, '2026', '12', '11', '20', '00'];
+  var Y = +WALL[1], MO = +WALL[2] - 1, D = +WALL[3], HH = +WALL[4], MI = +WALL[5];
+  var $ = function (s) { return document.querySelector(s); };
+  var $$ = function (s) { return [].slice.call(document.querySelectorAll(s)); };
+  var root = document.documentElement, hero = $('#hero'), cover = $('#cover'), vOpen = $('#vOpen'), vSt = $('#vSt'), nav = $('#nav');
+
+  /* ---------- التاريخ والنتيجة من ميعاد الدعوة ---------- */
+  var MONTHS = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+  var DAYS = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+  (function () {
+    var wd = new Date(Date.UTC(Y, MO, D)).getUTCDay();
+    var h12 = HH % 12 || 12, ap = HH < 12 ? 'ص' : 'م';
+    var tm = h12 + ':' + (MI < 10 ? '0' : '') + MI + ' ' + ap;
+    $('#hDate').textContent = D + ' ' + MONTHS[MO] + ' ' + Y + ' - ' + tm;
+    $('#chDay').textContent = DAYS[wd]; $('#chMon').textContent = MONTHS[MO]; $('#chYear').textContent = Y;
+    $('#cDay').textContent = DAYS[wd]; $('#cTime').textContent = tm;
+    $('#rsBy').textContent = 'يرجى الرد قبل ' + D + ' ' + MONTHS[MO] + ' ' + Y;
+    var first = new Date(Date.UTC(Y, MO, 1)).getUTCDay(), days = new Date(Date.UTC(Y, MO + 1, 0)).getUTCDate(), h = '';
+    for (var i = 0; i < first; i++) h += '<span></span>';
+    for (var d = 1; d <= days; d++) h += '<span' + (d === D ? ' class="on"' : '') + '>' + d + '</span>';
+    $('#grid').innerHTML = h;
+  })();
+
+  /* ---------- الموسيقى (زرار في الشريط اللي تحت) ---------- */
+  var song = $('#song'), mu = $('#muBtn'), started = false;
+  try { song.volume = 0.85; } catch (e) {}
+  var A0 = +'__A_START__' || 0, A1 = +'__A_END__' || 0;
+  if (A0 || A1) {
+    var seek0 = function () { try { song.currentTime = A0; } catch (e) {} };
+    ['loadedmetadata', 'canplay', 'play', 'playing'].forEach(function (ev) {
+      song.addEventListener(ev, function () { if (A0 && song.currentTime < A0 - 0.5) seek0(); });
+    });
+    song.addEventListener('timeupdate', function () { if (A1 && song.currentTime >= A1) seek0(); });
+  }
+  function markMu() { mu.classList.toggle('muted', song.paused); }
+  song.addEventListener('play', markMu); song.addEventListener('pause', markMu);
+  markMu();
+  function startSong() {
+    if (started) return; started = true;
+    var p; try { p = song.play(); } catch (e) { p = null; }
+    if (p && p.catch) p.catch(function () { started = false; markMu(); });
+  }
+  mu.addEventListener('click', function () {
+    stopAuto();
+    if (song.paused) { started = true; song.play().catch(function () {}); } else song.pause();
+  });
+  var hiddenPause = false;
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) { if (!song.paused) { hiddenPause = true; song.pause(); } }
+    else if (hiddenPause) { hiddenPause = false; song.play().catch(function () {}); }
+  });
+
+  /* ---------- فيديو السلم: بيتحمّل وقت الفتح، ويقف لو الضيف نزل تحت أو قفل الصفحة ---------- */
+  var stAsked = false, stWanted = false, heroSeen = true;
+  function loadSt(prime) {
+    if (stAsked) return; stAsked = true;
+    vSt.src = vSt.getAttribute('data-src'); vSt.preload = 'auto';
+    try { vSt.load(); } catch (e) {}
+    // جوه الضغطة نفسها: نشغّله ونوقفه — كده الآيفون (حتى في توفير البطارية) يسمح يشتغل بعدين لوحده
+    if (prime) {
+      var p; try { p = vSt.play(); } catch (e) { p = null; }
+      if (p && p.then) p.then(function () { if (!stWanted) { vSt.pause(); try { vSt.currentTime = 0; } catch (e) {} } }).catch(function () {});
+    }
+  }
+  function playSt() {
+    stWanted = true; loadSt(false);
+    var p; try { p = vSt.play(); } catch (e) { p = null; }
+    if (p && p.catch) p.catch(function () {});
+  }
+  vSt.addEventListener('playing', function () { if (stWanted) vSt.classList.add('on'); else vSt.pause(); });
+  function syncSt() {
+    if (!vSt.classList.contains('on')) return;
+    if (document.hidden || !heroSeen) vSt.pause(); else vSt.play().catch(function () {});
+  }
+  document.addEventListener('visibilitychange', syncSt);
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (es) { heroSeen = es[0].isIntersecting; syncSt(); }, { threshold: 0.02 }).observe(hero);
+  }
+
+  /* ---------- الفتح: الضغطة على الختم → فيديو الظرف → أول صفحة → الصفحة بتنزل لوحدها ---------- */
+  var state = 'idle', stallT = 0, openReady = false, seal = $('#seal');
+  function reveal() {
+    if (state === 'done') return;
+    state = 'done';
+    clearInterval(stallT);
+    root.classList.remove('lock');
+    hero.classList.add('on');
+    playSt();
+    if (cover) {
+      cover.classList.add('fade', 't2');
+      setTimeout(function () { if (cover.parentNode) cover.parentNode.removeChild(cover); }, 1000);
+    }
+    setTimeout(function () { nav.classList.add('show'); }, 900);
+    setTimeout(function () { hero.classList.add('cueon'); }, 2300);
+    setTimeout(startAuto, 3600);
+  }
+  // الحروف على الختم: بتنوّر مع لمعة الختم (1–1.5 ث) وبتختفي قبل ما يسيح (2.45 ث)؛ "دعوة زفاف" بيختفي بعدها
+  function sealFx() {
+    if (state !== 'playing') return;
+    var t = vOpen.currentTime || 0, o = 0.9;
+    if (t > 0.9 && t < 1.65) o = 0.9 - 0.4 * Math.sin(Math.PI * (t - 0.9) / 0.75);
+    if (t >= 2.3) o = Math.max(0, 0.9 * (1 - (t - 2.3) / 0.2));
+    seal.style.opacity = o.toFixed(3);
+    if (t >= 2.5) cover.classList.add('t2');
+    if (t >= 6.8 && !stWanted) playSt();
+    if (vOpen.duration && t >= vOpen.duration - 1.15) { reveal(); return; }
+    requestAnimationFrame(sealFx);
+  }
+  function open() {
+    if (state !== 'idle') return;
+    state = 'playing';
+    cover.classList.add('go');
+    startSong();
+    var p; try { p = vOpen.play(); } catch (e) { p = null; }
+    if (openReady) loadSt(true);
+    else vOpen.addEventListener('canplaythrough', function () { loadSt(false); }, { once: true });
+    if (p && p.catch) p.catch(reveal);
+    requestAnimationFrame(sealFx);
+    // الفيديو وقف (نت بطيء) ثانية ونص → الدعوة على طول
+    var last = -1, still = 0;
+    stallT = setInterval(function () {
+      if (document.hidden) return;
+      if (vOpen.currentTime > last + 0.01) { last = vOpen.currentTime; still = 0; return; }
+      still += 250; if (still >= 1500) reveal();
+    }, 250);
+    setTimeout(reveal, 15000);
+  }
+  vOpen.addEventListener('playing', function () { vOpen.classList.add('on'); });
+  vOpen.addEventListener('ended', reveal);
+  vOpen.addEventListener('error', function () { if (state === 'playing') reveal(); });
+  // فيديو الفتح بيتحمّل كامل في الخلفية قبل الضغطة
+  if (!EDIT && window.fetch && window.URL && URL.createObjectURL) {
+    fetch(vOpen.getAttribute('src')).then(function (r) { if (!r.ok) throw 0; return r.blob(); }).then(function (b) {
+      if (state === 'idle' && b.size > 1000) { vOpen.src = URL.createObjectURL(b); openReady = true; try { vOpen.load(); } catch (e) {} }
+    }).catch(function () {});
+  }
+  if (EDIT) {
+    if (cover && cover.parentNode) cover.parentNode.removeChild(cover);
+    state = 'done'; document.body.classList.add('static'); hero.classList.add('on', 'cueon'); nav.classList.add('show');
+  } else {
+    root.classList.add('lock');
+    try { history.scrollRestoration = 'manual'; } catch (e) {}
+    scrollTo(0, 0);
+    cover.addEventListener('click', open);
+    cover.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } });
+    cover.addEventListener('touchmove', function (e) { e.preventDefault(); }, { passive: false });
+  }
+
+  /* ---------- النزول التلقائي بعد الفتح: بالراحة لآخر الدعوة، وأي لمسة من الضيف بتوقفه ---------- */
+  var auto = false, aT = 0, aAcc = 0, aStart = 0, userTouched = false;
+  function stopAuto() { auto = false; }
+  ['touchstart', 'wheel', 'mousedown', 'keydown'].forEach(function (ev) {
+    addEventListener(ev, function () { if (state === 'done') { userTouched = true; stopAuto(); } }, { passive: true });
+  });
+  function startAuto() {
+    if (EDIT || userTouched || auto) return;
+    auto = true; aT = 0; aAcc = 0; aStart = 0;
+    requestAnimationFrame(step);
+  }
+  function step(ts) {
+    if (!auto) return;
+    if (!aStart) { aStart = ts; aT = ts; }
+    var dt = Math.min(64, ts - aT); aT = ts;
+    var v = 46 * Math.min(1, (ts - aStart) / 1600);          // بيبدأ هادي ويوصل 46 بكسل في الثانية
+    aAcc += v * dt / 1000;
+    var px = Math.floor(aAcc);
+    if (px >= 1) {
+      aAcc -= px;
+      var y = window.pageYOffset || document.documentElement.scrollTop;
+      var max = (document.documentElement.scrollHeight || document.body.scrollHeight) - innerHeight;
+      if (y >= max - 1) { auto = false; return; }
+      window.scrollTo(0, Math.min(max, y + px));
+    }
+    requestAnimationFrame(step);
+  }
+
+  /* ---------- الشريط اللي تحت: كل زرار بيودّي على قسمه، واللي قدام العين بيتعلّم ---------- */
+  var navBtns = $$('.nav button[data-go]');
+  navBtns.forEach(function (b) {
+    b.addEventListener('click', function () {
+      stopAuto(); userTouched = true;
+      var t = document.getElementById(b.getAttribute('data-go'));
+      if (!t) return;
+      var y = t.getBoundingClientRect().top + (window.pageYOffset || 0) - 18;
+      try { window.scrollTo({ top: y, behavior: 'smooth' }); } catch (e) { window.scrollTo(0, y); }
+    });
+  });
+  function spy() {
+    var mid = innerHeight * 0.45, cur = 'mithaq-rsvp';
+    ['loc', 'mithaq-rsvp', 'gb'].forEach(function (id) {
+      var r = document.getElementById(id).getBoundingClientRect();
+      if (r.top < mid && r.bottom > mid * 0.5) cur = id;
+    });
+    if (document.getElementById('wishes').getBoundingClientRect().top < mid) cur = 'gb';
+    navBtns.forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-go') === cur); });
+  }
+  var spyT = 0;
+  addEventListener('scroll', function () { if (!spyT) spyT = setTimeout(function () { spyT = 0; spy(); }, 120); }, { passive: true });
+
+  /* ---------- ظهور الكروت وهي طالعة (مرة واحدة) ---------- */
+  var fx = $$('.fx');
+  if ('IntersectionObserver' in window && !EDIT) {
+    var io = new IntersectionObserver(function (es) { es.forEach(function (x) { if (x.isIntersecting) { x.target.classList.add('in'); io.unobserve(x.target); } }); }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+    fx.forEach(function (e) { io.observe(e); });
+    var rp = 0;
+    addEventListener('scroll', function () {
+      clearTimeout(rp);
+      rp = setTimeout(function () { var vh = innerHeight; fx.forEach(function (e) { if (!e.classList.contains('in') && e.getBoundingClientRect().top < vh) e.classList.add('in'); }); }, 120);
+    }, { passive: true });
+  } else fx.forEach(function (e) { e.classList.add('in'); });
+
+  /* ---------- الخريطة: بتتحمّل مرة واحدة لما الضيف يقرب منها ---------- */
+  (function () {
+    var f = $('#mapFrame'); if (!f) return;
+    var src = f.getAttribute('data-src'); if (!/^https:\/\/www\.google\.com\/maps/.test(src || '')) return;
+    var done = false;
+    function load() { if (done) return; done = true; f.src = src; }
+    if ('IntersectionObserver' in window) {
+      var mo = new IntersectionObserver(function (es) { if (es.some(function (x) { return x.isIntersecting; })) { mo.disconnect(); load(); } }, { rootMargin: '1200px 0px' });
+      mo.observe(f);
+    } else load();
+    if (EDIT) load();
+  })();
+
+  /* ---------- العد التنازلي ---------- */
+  var cd = [$('#cdD'), $('#cdH'), $('#cdM'), $('#cdS')];
+  var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+  function tick() {
+    var ms = START - Date.now();
+    if (!(ms > 0)) { $('#cd').style.display = 'none'; $('#cdDone').style.display = 'block'; return false; }
+    var x = [Math.floor(ms / 864e5), Math.floor(ms / 36e5) % 24, Math.floor(ms / 6e4) % 60, Math.floor(ms / 1e3) % 60];
+    for (var i = 0; i < 4; i++) { var s = pad(x[i]); if (cd[i].textContent !== s) cd[i].textContent = s; }
+    return true;
+  }
+  if (tick()) { var cdT = setInterval(function () { if (!tick()) clearInterval(cdT); }, 1000); }
+
+  /* ---------- حفظ التاريخ: سفاري الآيفون بيفتح تقويم أبل، والبرامج اللي جوه بتسلّمه لسفاري ---------- */
+  (function () {
+    var a = $('#addCal'); if (!a) return;
+    var url = location.origin + '/i/' + encodeURIComponent(ID) + '/calendar.ics';
+    a.setAttribute('href', url);
+    var ua = navigator.userAgent || '';
+    var ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if (!ios) { a.setAttribute('download', 'wedding.ics'); return; }
+    var notSafari = !/Safari\//.test(ua) || /Instagram|FBAN|FBAV|FB_IAB|FBIOS|Messenger|musical_ly|TikTok|Snapchat|Line\/|LinkedInApp|Twitter|GSA\/|CriOS|FxiOS|EdgiOS|OPiOS|DuckDuckGo/i.test(ua);
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      if (EDIT) return;
+      location.href = notSafari ? 'x-safari-' + url : url;
+    });
+  })();
+
+  /* ---------- عدد التأكيدات + دفتر التهاني (التهاني بتظهر لكل الضيوف) ---------- */
+  var BASE = '/i/' + encodeURIComponent(ID);
+  var going = 0;
+  function paintCnt() { var c = $('#cnt'); $('#cntN').textContent = going; c.classList.toggle('show', going > 0); }
+  function esc(s) { var d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+  function dstr(at) { var d = new Date(at); if (isNaN(d)) return ''; return d.getDate() + '/' + (d.getMonth() + 1) + '/' + d.getFullYear(); }
+  var wishes = [];
+  function renderWishes() {
+    $('#wishes').innerHTML = wishes.map(function (w) {
+      return '<article class="w"><div class="w-h"><b>' + esc(w.name) + '</b><time>' + esc(dstr(w.at)) + '</time></div><p>“' + esc(w.message) + '”</p></article>';
+    }).join('');
+  }
+  if (!EDIT) {
+    fetch(BASE + '/wishes', { credentials: 'same-origin' }).then(function (r) { return r.ok ? r.json() : {}; }).then(function (j) {
+      wishes = (j && j.wishes) || []; renderWishes();
+      if (j && typeof j.going === 'number') { going = j.going; paintCnt(); }
+    }).catch(function () {});
+  }
+  (function () {
+    var form = $('#wForm'), err = $('#wErr'), btn = $('#wSend');
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var name = $('#wName').value.trim().replace(/\s+/g, ' '), msg = $('#wMsg').value.trim();
+      err.style.color = '';
+      if (name.length < 2) { err.textContent = 'من فضلك اكتبوا الاسم'; $('#wName').focus(); return; }
+      if (!msg) { err.textContent = 'من فضلك اكتبوا التهنئة'; $('#wMsg').focus(); return; }
+      if (EDIT) { err.textContent = 'دي معاينة بس — التهنئة ما اتنشرتش.'; return; }
+      btn.disabled = true; err.textContent = '';
+      fetch(BASE + '/wishes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', body: JSON.stringify({ guestName: name, message: msg }) })
+        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, status: r.status, j: j }; }); })
+        .then(function (res) {
+          btn.disabled = false;
+          if (!res.ok) { err.textContent = res.status === 429 ? 'محاولات كتير — جرّبوا تاني بعد شوية' : ((res.j && res.j.error) || 'حصلت مشكلة، جرّبوا تاني'); return; }
+          wishes.unshift(res.j.wish || { name: name, message: msg, at: new Date().toISOString() }); renderWishes();
+          $('#wMsg').value = ''; err.style.color = '#4f7a4a'; err.textContent = 'تم نشر تهنئتكم، شكرًا لكم 🤍';
+        })
+        .catch(function () { btn.disabled = false; err.textContent = 'مشكلة في الاتصال، جرّبوا تاني'; });
+    });
+  })();
+
+  /* ---------- تأكيد الحضور → /i/:id/rsvp (لوحة العميل وصفحة الإحصائيات بتعدّ "عدد الحضور") ---------- */
+  (function () {
+    var sec = $('#mithaq-rsvp'), form = $('#rsForm'), msg = $('#rsMsg'), send = $('#rsSend'), cntRow = $('#rsCntRow');
+    var att = 'yes', KEY = 'mithaq_rsvp_' + ID;
+    var btns = $$('.att button');
+    btns.forEach(function (b) {
+      b.addEventListener('click', function () {
+        att = b.getAttribute('data-a');
+        btns.forEach(function (x) { x.classList.toggle('on', x === b); x.setAttribute('aria-checked', x === b ? 'true' : 'false'); });
+        cntRow.classList.toggle('off', att !== 'yes');
+        msg.textContent = '';
+      });
+    });
+    function showDone(a, first) {
+      $('#rsDoneH').textContent = a === 'no' ? 'شكرًا لكم 🤍' : 'في انتظاركم بكل الحب 🤍';
+      $('#rsDoneTxt').textContent = a === 'no' ? 'وصلنا ردكم' + (first ? ' يا ' + first : '') + '، وسنفتقد حضوركم.' : 'تم تأكيد حضوركم' + (first ? ' يا ' + first : '') + '، شكرًا لكم.';
+      sec.classList.add('sent');
+    }
+    try { var prev = !EDIT && localStorage.getItem(KEY); if (prev) showDone(prev === 'no' ? 'no' : 'yes', ''); } catch (e) {}
+    $('#rsAgain').addEventListener('click', function () {
+      sec.classList.remove('sent'); form.reset(); att = 'yes';
+      btns.forEach(function (x) { var on = x.getAttribute('data-a') === 'yes'; x.classList.toggle('on', on); x.setAttribute('aria-checked', on ? 'true' : 'false'); });
+      cntRow.classList.remove('off'); send.disabled = false; msg.textContent = '';
+      try { localStorage.removeItem(KEY); } catch (e) {}
+    });
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var nm = $('#rsName').value.trim().replace(/\s+/g, ' ');
+      if (nm.length < 2) { msg.textContent = 'من فضلك اكتبوا الاسم.'; $('#rsName').focus(); return; }
+      if (EDIT) { msg.textContent = 'دي معاينة بس — الرد ما اتبعتش.'; return; }
+      var n = +$('#rsCnt').value || 1;
+      var note = $('#rsNote').value.trim().replace(/\s+/g, ' ').slice(0, 150);
+      var body = (att === 'yes' ? 'عدد الحضور: ' + n : '') + (note ? (att === 'yes' ? ' — ' : '') + note : '');
+      send.disabled = true; msg.textContent = '';
+      fetch(BASE + '/rsvp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin',
+        body: JSON.stringify({ guestName: nm, attending: att, note: body.slice(0, 200) }) })
+        .then(function (r) {
+          if (r.status === 429) { var er = new Error('many'); er.k = 'many'; throw er; }
+          if (!r.ok) throw new Error('err');
+          try { localStorage.setItem(KEY, att); } catch (x) {}
+          if (att === 'yes') { going += 1; paintCnt(); }
+          showDone(att, nm.split(' ')[0]);
+          try { sec.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (x) {}
+        })
+        .catch(function (er) { msg.textContent = er && er.k === 'many' ? 'محاولات كتير — جرّبوا تاني بعد شوية.' : 'حصلت مشكلة — جرّبوا تاني.'; send.disabled = false; });
+    });
+  })();
+})();
+</script>
+</body>
+</html>
