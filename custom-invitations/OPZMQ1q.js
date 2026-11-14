@@ -10,6 +10,7 @@ module.exports = {
   render({ editMode } = {}) {
     if (editMode) return {};
     // أول صفحة في Champagne Lace: #hv-hero بياخد hv--play بعد ضغطة الختم بـ 2.3 ثانية (حركتها ~3.6 ثانية)
-    return { bodyEnd: glideScript({ playSel: '#hv-hero', playClass: 'hv--play', after: 4100, clickSel: '.popup-enter', afterClick: 6400 }) };
+    // السرعة: 90 بكسل في الثانية (المالك 2026-11-14: "سرّعه شوية حلوين، ينزل بسرعة" — كانت 42)
+    return { bodyEnd: glideScript({ playSel: '#hv-hero', playClass: 'hv--play', after: 4100, clickSel: '.popup-enter', afterClick: 6400, speed: 90 }) };
   },
 };
