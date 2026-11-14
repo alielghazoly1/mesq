@@ -22,7 +22,7 @@ const TEXT = {
     bsm: '',
     introTop: '',
     introAfter: 'Together with their families,<br>they gladly invite you to celebrate<br>the beginning of their forever<br>at their wedding celebration.',
-    name1: 'Ahmed Hasab El Naby', amp: '&', name2: 'Jilan Hossam',
+    name1: 'Ahmed', amp: '&', name2: 'Jilan',
     wday: 'FRIDAY',
     dateM: 'January', dateD: '8', dateY: '2027',
     venue1: 'Akhenaton Hall', venue2: 'Dar El Marasem – Police Officers Club', venue3: 'Gezira, Cairo',
@@ -36,6 +36,7 @@ const TEXT = {
       rows: [['7:30 PM', 'Zaffa'], ['8:00 PM', 'Katb Ketab Ceremony']],
       follow: 'Celebration to follow.',
       dressEyebrow: 'DRESS CODE', dress: 'Formal Evening Wear', dressNote: 'Kindly keep white for the bride.',
+      attireAlt: 'Formal evening wear — a black tuxedo and an evening gown',
     },
     venuePhotoAlt: 'Dar El Marasem – Police Officers Club',
     toggle: 'عربي', toggleLabel: 'اقرأ الدعوة بالعربي',
@@ -60,6 +61,7 @@ const TEXT = {
       rows: [['٧:٣٠ مساءً', 'الزفة'], ['٨:٠٠ مساءً', 'عقد القران']],
       follow: 'ويلي ذلك الاحتفال بالزفاف.',
       dressEyebrow: 'الزي الرسمي', dress: 'زي سهرة أنيق', dressSub: '(Formal Evening Wear)', dressNote: 'نرجو التكرم بترك اللون الأبيض للعروس.',
+      attireAlt: 'زي سهرة أنيق — بدلة سموكنج وفستان سهرة',
     },
     venuePhotoAlt: 'دار المراسم لضباط الشرطة – الجزيرة',
     toggle: 'English', toggleLabel: 'Read the invitation in English',
@@ -85,7 +87,6 @@ const CSS = `
 #hv-hero .l4-intro--after{font-style:italic;font-size:13px;margin-top:10px}
 #hv-hero .l4-wday{margin:12px 0 -4px;font:500 10.4px/1 'Cinzel','Times New Roman',serif;letter-spacing:.28em;padding-left:.28em;color:#6f5d4c}
 body.cl-ar #hv-hero .l4-wday{font:700 15px/1 'Amiri',serif;letter-spacing:0;padding:0}
-body:not(.cl-ar) #hv-hero .hv-names{font-size:38px}
 body.cl-ar #hv-hero .hv-names--ar{font-size:34px;line-height:1.5}
 body.cl-ar #hv-hero .hv-names--ar .hv-amp{font-family:'Aref Ruqaa','Amiri',serif!important;font-style:normal;font-size:21px;line-height:1.3;color:#a48c69;margin:-2px 0 -4px}
 #hv-hero .hv-venue .l4-v3{display:block}
@@ -105,7 +106,7 @@ body.cl-ar #hv-hero .hv-names--ar .hv-amp{font-family:'Aref Ruqaa','Amiri',serif
 .l4d{position:relative;overflow:hidden;background:#fffdfb;color:#2b1c13;text-align:center;padding:26px 0 46px;-webkit-font-smoothing:antialiased}
 .l4d *{box-sizing:border-box;margin:0;padding:0}
 .l4d-stage{position:relative;width:440px;margin-left:calc(50% - 220px)}
-body.cl-ar .l4d-stage{margin-left:0;margin-right:calc(50% - 220px);direction:rtl}
+body.cl-ar .l4d-stage{direction:rtl}  /* القسم نفسه LTR — فالتوسيط بالـ margin-left زي الإنجليزي */
 .l4d-eyebrow{font:500 10px/1 'Cinzel','Times New Roman',serif;letter-spacing:.3em;padding-left:.3em;color:#6f5d4c}
 .l4d-title{margin-top:10px;font:400 42px/1.15 'Pinyon Script','Aref Ruqaa',cursive;-webkit-text-stroke:.3px currentColor}
 .l4d-card{position:relative;width:350px;margin:22px auto 0;padding:24px 20px 22px;background:#fbf8f2;border-radius:2px;
@@ -135,6 +136,13 @@ body.cl-ar .l4d-sub{direction:ltr}
 .l4d--in .l4d-card{animation-delay:.26s}
 .l4d--in .l4d-stage > :nth-child(n+4){animation-delay:.4s}
 
+/* صورة الزي (بدلة + فستان) تحت الدريس كود — جوه قوس عاجي بخط دهبي زي قوس الخريطة */
+.l4d-attire{position:relative;width:216px;height:282px;margin:26px auto 0;padding:8px;border-radius:108px 108px 3px 3px;background:#fbf8f2;
+  box-shadow:0 1px 1px rgba(60,44,28,.14),0 3px 8px rgba(60,44,28,.08),6px 18px 34px -14px rgba(60,44,28,.45)}
+.l4d-attire::after{content:"";position:absolute;inset:3px;border-radius:105px 105px 2px 2px;border:1px solid rgba(164,140,105,.55);pointer-events:none}
+.l4d-attire img{display:block;width:100%;height:100%;object-fit:contain;padding:22px 14px 10px;border-radius:100px 100px 1px 1px;
+  background:radial-gradient(ellipse at 50% 42%,#fffdf9 0%,#f6f0e6 100%)}
+
 /* ===== الختام ===== */
 body.cl-ar .cl-note{font-size:20px}
 `;
@@ -143,6 +151,7 @@ function clientScript() {
   const cfg = {
     T: TEXT,
     venuePhoto: IMG('venue.webp'),
+    attire: IMG('attire.webp'),
   };
   const json = JSON.stringify(cfg).replace(/</g, '\\u003c');
   return `<script id="l4-script">(function(){
@@ -181,7 +190,8 @@ function details(D){
   return '<p class="l4d-eyebrow">'+esc(D.eyebrow)+'</p><h2 class="l4d-title">'+esc(D.title)+'</h2>'
     +'<div class="l4d-card">'+r+'<p class="l4d-follow">'+esc(D.follow)+'</p></div>'
     +'<div class="l4d-rule"></div><p class="l4d-eyebrow">'+esc(D.dressEyebrow)+'</p><p class="l4d-dress">'+esc(D.dress)+'</p>'
-    +(D.dressSub?'<p class="l4d-sub">'+esc(D.dressSub)+'</p>':'')+'<p class="l4d-note">'+esc(D.dressNote)+'</p>';
+    +(D.dressSub?'<p class="l4d-sub">'+esc(D.dressSub)+'</p>':'')+'<p class="l4d-note">'+esc(D.dressNote)+'</p>'
+    +'<figure class="l4d-attire"><img src="'+X.attire+'" alt="'+esc(D.attireAlt)+'" width="520" height="712" decoding="async" loading="lazy"></figure>';
 }
 function apply(g){
   build();
@@ -248,6 +258,8 @@ module.exports = {
   transform(html, { editMode } = {}) {
     if (editMode) return html;
     let out = html;
+    // الأغنية: Perfect (Ed Sheeran) instrumental اللي بعتها المالك — مكان أغنية القالب (العميل ماختارش أغنية)
+    out = out.replace('<source src="/templates/champagne-lace/song.mp3"', () => `<source src="${IMG('song.mp3')}"`);
     // الفورم بيكلّم الضيف بلغة الصفحة وقت الإرسال (رسايل الشكر/الأخطاء) — بنخلي القاموس بتاعه يتبدّل مع الزرار
     out = out.replace('var L = T[LANG];', () => 'var L = T[LANG]; window.__clT = T; window.__clSetLang = function (g) { if (T[g]) { LANG = g; L = T[g]; } };');
     // الألبوم: صور العروسين التلاتة (علامة المصوّر على الشمال تحت، فالقص من اليمين بس)
