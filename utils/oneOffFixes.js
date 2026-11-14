@@ -1775,6 +1775,14 @@ const FIXES = [
     when: (c) => c.audioUrl === 'https://res.cloudinary.com/dxtkmyscw/video/upload/v1794446199/mithaq/users/6ae3ed15bd8994520d0ef392/audio/udiia8breihcxzmwxcni.mp3',
     apply: () => ({ 'customizations.audioUrl': '', 'customizations.audioStart': 0, 'customizations.audioEnd': 0 }),
   },
+  {
+    // Bnm4rJd — المالك (2026-11-14): الأغنية بس تتغيّر لـ "Coming up roses" (بتتقدّم من custom-invitations/Bnm4rJd.js مكان
+    // أغنية القالب)، فأغنية العميل اللي في التخصيصات (وبتغلب) بتتشال. مرة واحدة: بس لو لسه هي نفس أغنية العميل.
+    name: 'Bnm4rJd-owner-song',
+    shortId: 'Bnm4rJd',
+    when: (c) => c.audioUrl === 'https://res.cloudinary.com/dxtkmyscw/video/upload/v1794684271/mithaq/users/6af6cbe3a065d325bd1a1e0b/audio/hvvm7hhl5lgtwjfx6s2d.mp3',
+    apply: () => ({ 'customizations.audioUrl': '', 'customizations.audioStart': 0, 'customizations.audioEnd': 0 }),
+  },
 ];
 
 let done = false;
