@@ -1668,6 +1668,35 @@ const FIXES = [
       set.venueMapEmbedSrc = 'https://www.google.com/maps?q=24.2233503,55.7373967&hl=ar&z=16&output=embed';
       return set;
     },
+  },  {
+    // zukBi1U — المالك (2026-11-14): فرح الأخين عبدالرحمن وعبدالله نصار على الأختين جيهاد وشامية صلاح فهدي (الصفحة نفسها
+    // custom-invitations/zukBi1U.js فوق قالب Blossom & Oud). البيانات عشان لوحة العميل والتقويم: الدعوة عربي، حفل الزفاف
+    // الخميس 19/11/2026 الساعة 7:30 مساءً في قاعة الملكة، مركز ملوي، المنيا (لينك المالك). الحنة (الأربعاء 18/11) في
+    // ملف الدعوة. مرة واحدة: بس لو الدعوة لسه بالأسامي الافتراضية.
+    name: 'zukBi1U-double-wedding',
+    shortId: 'zukBi1U',
+    select: '-__v',
+    when: (c, inv) => inv.groomName === 'Groom' && inv.brideName === 'Bride',
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const link = 'https://maps.app.goo.gl/yq6fbmEmGyDwG9fp9';
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: 'ar', occasionType: 'wedding',
+        hiddenSections: inv.hiddenSections || [], timeline: inv.timeline, name: inv.name,
+        groomName: 'Abdelrahman & Abdallah', groomNameAr: 'عبدالرحمن وعبدالله',
+        brideName: 'Gihad & Shamia', brideNameAr: 'جيهاد وشامية',
+        venueName: 'قاعة الملكة', venueCity: 'مركز ملوي، المنيا',
+        venueMapQuery: link,
+        weddingDate: '2026-11-19', weddingTime: '19:30',
+      }, { ownsTemplate: true, skipMapNetwork: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.language = 'ar';
+      set.venueMapDirectLink = link;
+      set.venueMapQuery = link;
+      set.venueMapEmbedSrc = 'https://www.google.com/maps?q=27.7422125,30.8461406&hl=ar&z=16&output=embed';
+      return set;
+    },
   },
 ];
 
