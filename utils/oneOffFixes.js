@@ -1698,6 +1698,64 @@ const FIXES = [
       return set;
     },
   },
+  {
+    // omEC8BT — المالك (2026-11-14): العميل عامل هدية عيد ميلاد شهد (20 سنة) على قالب فرح (Royal Maroon) — تتنقل لقالب
+    // "هدية عيد الميلاد" بالعربي بكلامه وصوره وأغنيته (+ قسم العيون في custom-invitations/omEC8BT.js). عيد الميلاد
+    // 21 نوفمبر 2026 (العميل كاتبه "November 21st" ومعلّم 21 في النتيجة). مفيش اسم للي باعت الهدية، فمكانه جملة العميل
+    // "عشانك انتي وبس ❣️". مرة واحدة: بس لو الدعوة لسه على Royal Maroon (القيم القديمة بتتسجّل في اللوج قبل التغيير).
+    name: 'omEC8BT-birthday-gift',
+    shortId: 'omEC8BT',
+    select: '-__v',
+    when: (c, inv) => inv.templateId === 'royal-maroon',
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const data = await buildInvitationDataFromRequest({
+        templateId: 'birthday-gift', language: 'ar', occasionType: 'birthday',
+        hiddenSections: [], timeline: [], name: inv.name,
+        brideName: 'Shahd', brideNameAr: 'شهد',
+        groomName: 'عشانك انتي وبس ❣️', groomNameAr: 'عشانك انتي وبس ❣️',
+        venueName: 'Home', venueCity: 'City',
+        weddingDate: '2026-11-21', weddingTime: '00:00',
+      }, { ownsTemplate: true, skipMapNetwork: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.language = 'ar';
+      const I = (v, id) => `https://res.cloudinary.com/dxtkmyscw/image/upload/${v}/mithaq/users/6ae3ed15bd8994520d0ef392/images/${id}.jpg`;
+      set['customizations.images'] = {
+        bg19: I('v1794349242', 's13cwxh9vqpfnwvhm9bc'), // صورتها وهي صغيرة بالطرطور والتورتة
+        bg20: I('v1794349304', 'gbkcbr0caz2j8j07vtpo'),
+        bg21: I('v1794349329', 'ckhqjfuvycudkuiymywo'),
+        bg22: I('v1794349460', 'gzljynkrkq5hkc1d9ink'),
+        bg23: I('v1794349585', 'dqbcaayoiwlh8rvlwxkz'),
+      };
+      set['customizations.texts'] = {
+        bg7: '20',
+        // جملة العميل اللي كانت فوق في الدعوة القديمة
+        bg8: 'كُلُّ عامٍ وأنتِ الأجملُ',
+        bg9: 'في عُيونِ كُلِّ مَن رآكِ ❣️',
+        // الرسالة: كلام العميل زي ما هو، وعنوانها من جملته "عايز اقولك انك أحلى بنت ف الدنيا" (سطر واحد عشان الرسالة طويلة)
+        bg13: 'إلى أحلى بنت في الدنيا ❣️',
+        bg14: 'اجمل و احلى حد يتم ال 20 اول حاجه عايز اقولك كل سنه وانتي طيبه يا شهد و عقبال مليون سنه وانتي ف صحه وسعاده يارب و اشوفك كده دايما احسن حد ف الدنيا دي كلها انا اينعم مش بعرف أقول كلام حلو و كده بس هحاول عشان خاطر عيونك عايز اقولك انك اطيب و احن حد ف الدنيا دي و بجد بجد يا بخت الي ف حياته شهد لانك اجمل حاجه ف الدنيا دي كل سنه وانتي طيبه يا اجمل شهد في الدنيا ❣️',
+        bg15: 'مع كل حبي،',
+        bg24: 'أول شمعة 🎂', bg25: 'أطيب وأحن حد', bg26: 'أحلى بنت في الدنيا', bg27: 'كلها رقة', bg28: 'كل الحب',
+        // الأمنيات من كلام العميل نفسه
+        bg31: 'عقبال مليون سنة وانتي في صحة وسعادة.',
+        bg32: 'وأشوفك كده دايمًا أحسن حد في الدنيا.',
+        bg33: 'وتفضلي أطيب وأحن حد في الدنيا دي.',
+        bg44: 'معمول بكل حب',
+      };
+      // تنسيقات القالب القديم مالهاش مكان في الهدية
+      set['customizations.added'] = [];
+      ['offsets', 'sizes', 'rotations', 'scales', 'aligns', 'elemFonts', 'colors', 'rsvp'].forEach((k) => { set[`customizations.${k}`] = {}; });
+      set['customizations.hidden'] = [];
+      set['customizations.fontFamily'] = '';
+      set['customizations.calDay'] = 0;
+      set['customizations.calLang'] = '';
+      // كارت المشاركة: صورة العميل ووصفه زي ما هم، والعنوان بالعربي
+      set['customizations.share'] = { ...((c && c.share) || {}), title: 'عيد ميلاد سعيد لأجمل بنت بتكمّل ٢٠ سنة ❤️' };
+      return set;
+    },
+  },
 ];
 
 let done = false;

@@ -249,6 +249,11 @@ html.ar .cv-hint{font:700 16px/1 'Amiri',serif}
 html.ar .msg-t{font-weight:700;font-size:8cqw;line-height:1.5}
 html.ar .msg-b{font-size:4.5cqw;line-height:1.7}
 html.ar .msg-n{font-weight:700;font-size:7.4cqw;line-height:1.5}
+/* العربي: الرسالة الطويلة لازم تصغر هي كمان (مقاسات العربي فوق كانت بتغلب على .msg-in.fit فالكلام كان بيتقص من فوق) */
+html.ar .msg-in.fit>.msg-t{font-size:calc(8cqw*var(--fit,1))}
+html.ar .msg-in.fit>.msg-b{font-size:calc(4.5cqw*var(--fit,1));line-height:1.6}
+html.ar .msg-in.fit>.msg-s{font-size:calc(4.2cqw*var(--fit,1))}
+html.ar .msg-in.fit>.msg-n{font-size:calc(7.4cqw*var(--fit,1))}
 html.ar .pol figcaption{font-weight:700;font-size:calc(var(--u)*21);line-height:1.5}
 html.ar .wl li{font-size:calc(var(--u)*19);line-height:1.8}
 html.ar .cd .l{font-size:calc(var(--u)*12.5)}
