@@ -1767,6 +1767,14 @@ const FIXES = [
     when: (c, inv) => inv.templateId === 'birthday-gift' && inv.coverStyle === 'envelope',
     apply: () => ({ coverStyle: '' }),
   },
+  {
+    // omEC8BT — المالك (2026-11-14) بعت أغنية الهدية: بتتقدّم من custom-invitations/omEC8BT.js مكان أغنية القالب، فأغنية
+    // العميل القديمة (اللي كانت في التخصيصات وبتغلب) بتتشال. مرة واحدة: بس لو لسه هي نفس الأغنية القديمة.
+    name: 'omEC8BT-owner-song',
+    shortId: 'omEC8BT',
+    when: (c) => c.audioUrl === 'https://res.cloudinary.com/dxtkmyscw/video/upload/v1794446199/mithaq/users/6ae3ed15bd8994520d0ef392/audio/udiia8breihcxzmwxcni.mp3',
+    apply: () => ({ 'customizations.audioUrl': '', 'customizations.audioStart': 0, 'customizations.audioEnd': 0 }),
+  },
 ];
 
 let done = false;
