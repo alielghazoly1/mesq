@@ -1753,8 +1753,19 @@ const FIXES = [
       set['customizations.calLang'] = '';
       // كارت المشاركة: صورة العميل ووصفه زي ما هم، والعنوان بالعربي
       set['customizations.share'] = { ...((c && c.share) || {}), title: 'عيد ميلاد سعيد لأجمل بنت بتكمّل ٢٠ سنة ❤️' };
+      // الهدية بتتفتح بغلافها هي (الفيونكة والورد) مش بغلاف المظروف اللي كان للفرح
+      set.coverStyle = '';
       return set;
     },
+  },
+  {
+    // omEC8BT — بعد النقل لقالب الهدية: غلاف "المظروف بالفيديو" اللي العميل كان مختاره للفرح كان لسه مغطّي غلاف الهدية
+    // (الفيونكة والورد). المالك عايزها زي الهدية اللي على الموقع، فبتتفتح بغلافها هي. مرة واحدة.
+    name: 'omEC8BT-gift-cover',
+    shortId: 'omEC8BT',
+    select: 'customizations templateId coverStyle',
+    when: (c, inv) => inv.templateId === 'birthday-gift' && inv.coverStyle === 'envelope',
+    apply: () => ({ coverStyle: '' }),
   },
 ];
 
