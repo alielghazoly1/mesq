@@ -24,6 +24,8 @@ const SRC = {
 const ICON = {
   eye: '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
   user: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>',
+  users: '<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.4 2.8-5.4 6-5.4s6 2 6 5.4"/><circle cx="17" cy="9" r="2.6"/><path d="M15.6 14.7c2.8.3 5.4 2 5.4 5.3"/>',
+  kid: '<circle cx="12" cy="6.5" r="2.8"/><path d="M8.5 21v-5.5a3.5 3.5 0 0 1 7 0V21M6.5 11.5l3 1.4M17.5 11.5l-3 1.4"/>',
   check: '<path d="M20 6 9 17l-5-5"/>',
   x: '<path d="M18 6 6 18M6 6l12 12"/>',
   mic: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
@@ -95,6 +97,41 @@ function areaChart(series) {
  *                         voices?: {count, list, link}, photos?: {count, list, link} }
  * @returns {string} HTML كامل
  */
+// ===== عدد الأشخاص من ردود الحضور (المالك 2026-11-14) =====
+// الدعوات اللي فورم الرد فيها بيسأل عن العدد بتكتب العدد في رسالة الرد نفسها: "Adultes : 2 · Enfants : 1"
+// (xVSjgue وlcqdxr6)، "Guests: 3" (zLgiOT3)، "عدد الحضور: 3"، "الكبار: 2 · الأطفال: 1". هنا بنجمعهم: الكبار والأطفال
+// والإجمالي. الضيف اللي بعت الرد أكتر من مرة (نفس الجهاز ونفس الاسم) بيتحسب آخر رد ليه بس.
+const AR_NUM = '٠١٢٣٤٥٦٧٨٩';
+function noteCounts(note) {
+  const s = String(note || '').replace(/[٠-٩]/g, (d) => String(AR_NUM.indexOf(d)));
+  const num = (re) => { const m = re.exec(s); return m ? Math.min(99, parseInt(m[1], 10)) : null; };
+  return {
+    adults: num(/(?:adultes?|adults?|الكبار|كبار)\s*[:：]\s*(\d{1,2})/i),
+    kids: num(/(?:enfants?|children|kids|الأطفال|الاطفال|أطفال|اطفال|الصغار|صغار)\s*[:：]\s*(\d{1,2})/i),
+    total: num(/(?:guests|personnes|people|عدد الحضور|عدد الأشخاص)\s*[:：]\s*(\d{1,2})/i),
+  };
+}
+/** @returns {null | {adults:number, kids:number, people:number, replies:number, split:boolean, dupes:number}} */
+function headcount(list) {
+  const seen = new Set();
+  let adults = 0; let kids = 0; let people = 0; let replies = 0; let dupes = 0; let counted = false; let split = false;
+  for (const r of list || []) {             // الأحدث الأول
+    if (!r || r.attending !== true) continue;
+    const key = `${r.deviceId || ''}|${String(r.guestName || '').replace(/\s+/g, ' ').trim().toLowerCase()}`;
+    if (seen.has(key)) { dupes += 1; continue; }
+    seen.add(key);
+    replies += 1;
+    const c = noteCounts(r.note);
+    if (c.adults != null || c.kids != null) {
+      counted = true; split = true;
+      adults += c.adults || 0; kids += c.kids || 0; people += (c.adults || 0) + (c.kids || 0);
+    } else if (c.total != null) {
+      counted = true; adults += c.total; people += c.total;
+    } else { adults += 1; people += 1; }   // رد من غير عدد = الضيف لوحده
+  }
+  return counted ? { adults, kids, people, replies, split, dupes } : null;
+}
+
 function buildStatsPage(invitation, stats) {
   const guestLinks = stats.guestLinks || null;
   const glSeats = (n) => (n === 1 ? 'شخص واحد' : n === 2 ? 'شخصين' : n <= 10 ? `${n} أشخاص` : `${n} شخص`);
@@ -115,12 +152,16 @@ function buildStatsPage(invitation, stats) {
   const countdown = countdownText(invitation.weddingDateTime);
   const dateLine = invitation.weddingDateTime ? dtDay.format(new Date(invitation.weddingDateTime)) : '';
 
+  const hc = stats.headcount || null;
   const kpi = (icon, label, value, cls = '') => `<div class="kpi ${cls}"><span class="kpi-ic">${svg(icon, 16)}</span><div class="kpi-v">${nf.format(value || 0)}</div><div class="kpi-l">${label}</div></div>`;
   const kpis = [
     kpi('eye', 'المشاهدات', views),
     stats.uniques != null ? kpi('user', 'ضيوف مختلفين', stats.uniques) : '',
     kpi('check', 'هيحضروا', rsvpYes, 'ok'),
     kpi('x', 'معتذرين', rsvpNo, 'no'),
+    hc ? kpi('users', 'إجمالي الأشخاص', hc.people, 'ok') : '',
+    hc && hc.split ? kpi('user', 'الكبار', hc.adults) : '',
+    hc && hc.split ? kpi('kid', 'الأطفال', hc.kids, 'rose') : '',
     voices ? kpi('mic', 'تهاني صوتية', voices.count, 'wine') : '',
     photos ? kpi('img', 'صور الضيوف', photos.count, 'rose') : '',
   ].filter(Boolean).join('');
@@ -129,6 +170,16 @@ function buildStatsPage(invitation, stats) {
       <span class="av" style="background:${['#b08d57', '#3f8f6b', '#7a5ea8', '#c0605a', '#3d7fb8', '#a8783d'][[...String(r.guestName || '?')].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 0) % 6]}">${escapeHtml(String(r.guestName || '?').trim().slice(0, 1))}</span>
       <div class="g-b">
         <div class="g-t"><b>${escapeHtml(r.guestName || '')}</b><span class="pill ${r.attending ? 'ok' : 'no'}">${r.attending ? 'هيحضر' : 'معتذر'}</span></div>
+        ${(() => {
+          if (!r.attending) return '';
+          const c = noteCounts(r.note);
+          if (c.adults == null && c.kids == null && c.total == null) return '';
+          const chips = [];
+          if (c.adults != null) chips.push(`${svg('user', 13)} ${nf.format(c.adults)} ${c.adults === 1 ? 'كبير' : 'كبار'}`);
+          if (c.kids != null) chips.push(`${svg('kid', 13)} ${nf.format(c.kids)} ${c.kids === 1 ? 'طفل' : 'أطفال'}`);
+          if (c.adults == null && c.kids == null) chips.push(`${svg('users', 13)} ${nf.format(c.total)} ${c.total === 1 ? 'شخص' : 'أشخاص'}`);
+          return `<div class="g-c">${chips.map((x) => `<span>${x}</span>`).join('')}</div>`;
+        })()}
         ${r.note ? `<p class="g-n">${escapeHtml(r.note)}</p>` : ''}
         <div class="g-w">${r.createdAt ? escapeHtml(dtShort.format(new Date(r.createdAt))) : ''}</div>
       </div>
@@ -239,6 +290,15 @@ function buildStatsPage(invitation, stats) {
   .g-t b{font-size:14.5px}
   .pill{font-size:11px;font-weight:800;padding:2px 9px;border-radius:999px}
   .pill.ok{background:rgba(31,122,77,.1);color:var(--ok)} .pill.no{background:rgba(162,70,94,.1);color:var(--no)}
+  .g-c{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+  .g-c span{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:800;color:#1f5f43;background:rgba(31,122,77,.08);border:1px solid rgba(31,122,77,.18);border-radius:999px;padding:3px 10px}
+  .hc{margin-top:14px;padding:12px 14px;border-radius:16px;background:rgba(31,122,77,.06);border:1px solid rgba(31,122,77,.16)}
+  .hc-t{display:flex;align-items:center;gap:8px;font-size:15px;color:#1f5f43}
+  .hc-t b{font-size:20px}
+  .hc-r{display:flex;gap:16px;flex-wrap:wrap;margin-top:8px;font-size:14px;color:#3d5d4e}
+  .hc-r span{display:inline-flex;align-items:center;gap:6px}
+  .hc-r b{font-size:17px;color:#1f5f43}
+  .hc-n{margin:8px 0 0;font-size:12px;color:#7a6a58}
   .g-n{margin:6px 0 0;font-size:13px;color:#5d4e3e;background:var(--ivory);border-radius:10px;padding:6px 10px}
   .g-w{font-size:11.5px;color:var(--dim);margin-top:4px}
   .empty{text-align:center;color:var(--dim);padding:26px 10px;font-size:13.5px}
@@ -292,7 +352,12 @@ function buildStatsPage(invitation, stats) {
             <text x="50" y="52" text-anchor="middle" font-family="Amiri,serif" font-weight="700" font-size="22" fill="#1f7a4d">${attendPct}%</text>
             <text x="50" y="68" text-anchor="middle" font-family="Cairo,sans-serif" font-size="9" fill="#8a7a68">هيحضروا</text></svg>
           <div class="ring-rows"><div class="row ok"><span>هيحضروا</span><span>${nf.format(rsvpYes)}</span></div><div class="row no"><span>معتذرين</span><span>${nf.format(rsvpNo)}</span></div></div>
-        </div>` : '<div class="empty">لسه مفيش ردود</div>'}
+        </div>
+        ${hc ? `<div class="hc">
+          <div class="hc-t">${svg('users', 16)} اللي جايين: <b>${nf.format(hc.people)}</b> ${hc.people === 1 ? 'شخص' : 'أشخاص'}</div>
+          ${hc.split ? `<div class="hc-r"><span>${svg('user', 14)} الكبار <b>${nf.format(hc.adults)}</b></span><span>${svg('kid', 14)} الأطفال <b>${nf.format(hc.kids)}</b></span></div>` : ''}
+          ${hc.dupes ? `<p class="hc-n">${nf.format(hc.dupes)} ${hc.dupes === 1 ? 'رد مكرر' : 'ردود مكررة'} من نفس الضيف — اتحسب آخر رد بس.</p>` : ''}
+        </div>` : ''}` : '<div class="empty">لسه مفيش ردود</div>'}
       </section>
     </div>
 
@@ -394,12 +459,13 @@ function buildStatsPage(invitation, stats) {
 }
 
 async function loadStatsData(Rsvp, shortId) {
-  const [agg, rsvpList] = await Promise.all([
+  const [agg, rsvpList, yesList] = await Promise.all([
     Rsvp.aggregate([
       { $match: { shortId } },
       { $group: { _id: '$attending', count: { $sum: 1 } } },
     ]),
     Rsvp.find({ shortId }).sort({ createdAt: -1 }).limit(300).lean(),
+    Rsvp.find({ shortId, attending: true }).sort({ createdAt: -1 }).limit(5000).select('guestName note deviceId attending createdAt').lean(),
   ]);
   let rsvpYes = 0;
   let rsvpNo = 0;
@@ -407,7 +473,7 @@ async function loadStatsData(Rsvp, shortId) {
     if (row._id === true) rsvpYes = row.count;
     else if (row._id === false) rsvpNo = row.count;
   }
-  return { rsvpYes, rsvpNo, rsvpList };
+  return { rsvpYes, rsvpNo, rsvpList, headcount: headcount(yesList) };
 }
 
 /**
@@ -444,4 +510,4 @@ async function ensureStatsToken(invitation) {
   throw new Error('could not generate a unique statsToken');
 }
 
-module.exports = { buildStatsPage, loadStatsData, ensureStatsToken, countdownText };
+module.exports = { buildStatsPage, loadStatsData, ensureStatsToken, countdownText, noteCounts, headcount };
