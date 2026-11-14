@@ -1783,6 +1783,33 @@ const FIXES = [
     when: (c) => c.audioUrl === 'https://res.cloudinary.com/dxtkmyscw/video/upload/v1794684271/mithaq/users/6af6cbe3a065d325bd1a1e0b/audio/hvvm7hhl5lgtwjfx6s2d.mp3',
     apply: () => ({ 'customizations.audioUrl': '', 'customizations.audioStart': 0, 'customizations.audioEnd': 0 }),
   },
+  {
+    // l47wr2d (Champagne Lace) — المالك (2026-11-15): أحمد حسب النبي وچيلان حسام، الجمعة 8/1/2027 الساعة 7:30 م (الزفة)،
+    // قاعة إخناتون — دار المراسم، نادي ضباط الشرطة، الجزيرة، بلينك الخريطة اللي بعته. الكلام باللغتين والصور والبرنامج
+    // في custom-invitations/l47wr2d.js. بيتعمل بس لو الدعوة لسه بأسامي المسودة (Groom/Bride).
+    name: 'l47wr2d-ahmed-jilan',
+    shortId: 'l47wr2d',
+    select: '-__v',
+    when: (c, inv) => inv.templateId === 'champagne-lace' && inv.brideName === 'Bride' && inv.groomName === 'Groom',
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: 'en', occasionType: inv.occasionType,
+        hiddenSections: inv.hiddenSections, timeline: inv.timeline, name: inv.name,
+        groomName: 'Ahmed Hasab El Naby', groomNameAr: 'أحمد محمد حسب النبي',
+        brideName: 'Jilan Hossam', brideNameAr: 'چيلان حسام نصر',
+        venueName: 'Akhenaton Hall', venueCity: 'Gezira, Cairo',
+        venueAddress: 'Dar El Marasem – Police Officers Club, Gezira, Cairo',
+        venueMapQuery: 'https://maps.app.goo.gl/woJFYWbDgcbrUiH29?g_st=ic',
+        weddingDate: '2027-01-08', weddingTime: '19:30',
+      }, { ownsTemplate: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      // لينك المالك بيفتح "Police Officers Club, Al Borg, Zamalek" — الخريطة جوه الدعوة على نفس المكان (مش بحث باسم القاعة)
+      set.venueMapEmbedSrc = 'https://www.google.com/maps?q=Police%20Officers%20Club%2C%20Al%20Borg%2C%20Zamalek%2C%20Cairo&z=16&output=embed';
+      return set;
+    },
+  },
 ];
 
 let done = false;

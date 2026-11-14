@@ -17,7 +17,7 @@ const User = require('../models/User');
 const { sanitizeText } = require('../utils/sanitize');
 const { generateShortId } = require('../utils/idGenerator');
 const { renderNewPathHtml, renderLegacyHtml } = require('../utils/renderInvitation');
-const { getCustomInvitation, applyCustomData, injectCustomInvitation } = require('../utils/customInvitations');
+const { getCustomInvitation, applyCustomData, customLang, injectCustomInvitation } = require('../utils/customInvitations');
 const { injectBeforeBodyEnd } = require('../utils/templateFixes');
 const { guestExtrasTags, hasGuestExtras } = require('../utils/guestExtras');
 const { shareImageSize: shareImageSize_ } = require('../utils/shareImageSize');
@@ -248,11 +248,14 @@ router.get('/i/:shortId', async (req, res) => {
     // (client/src/lib/shareLink.js). بنحطها في og:url كمان: فيسبوك
     // وإنستجرام بيعتمدوا عليه كمعرّف للكارت، فلو فضل ثابت بيرجّعوا القديم.
     const cardVer = /^[a-z0-9]{1,12}$/.test(String(req.query.c || '')) ? `?c=${req.query.c}` : '';
-    const pageUrl = `${req.protocol}://${req.get('host')}/i/${invitation.shortId}${cardVer}`;
 
     // دعوة "كاستم" معمولة لعميل معيّن (custom-invitations/) — محتواها فوق المحفوظ
     const custom = invitation.templateId ? getCustomInvitation(invitation.shortId) : null;
-    const renderData = invitation.templateId ? (custom ? applyCustomData(invitation, custom) : invitation) : null;
+    // دعوة كاستم بلغتين: ?lang=ar|en (لينك /ar و /en بيحوّل هنا) — الصفحة وكارت المشاركة باللغة دي،
+    // ولينك الكارت (og:url) بلغته كمان عشان واتساب/فيسبوك يرجّعوا الضيف لنفس اللغة
+    const lang = customLang(custom, req.query.lang);
+    const pageUrl = `${req.protocol}://${req.get('host')}/i/${invitation.shortId}${lang ? `/${lang}` : ''}${cardVer}`;
+    const renderData = invitation.templateId ? (custom ? applyCustomData(invitation, custom, { lang }) : invitation) : null;
     // مقاس صورة كارت المشاركة الحقيقي — إنستجرام/فيسبوك محتاجينه عشان يعرضوا
     // الصورة من أول مرة (utils/shareImageSize.js). متخزّن في الذاكرة بعد أول مرة.
     const shareImageSize = custom && custom.share && custom.share.overrideImage && custom.share.width
@@ -282,6 +285,17 @@ router.get('/i/:shortId', async (req, res) => {
     console.error('Error rendering invitation:', err);
     return res.status(500).send('حصل خطأ في السيرفر');
   }
+});
+
+// GET /i/:shortId/ar و /i/:shortId/en — لينك مشاركة بلغة معيّنة (المالك بيكتب /AR أو /EN في آخر لينك الدعوة).
+// بيحوّل لنفس الدعوة بـ ?lang= ومعاه أي باراميترز تانية (زي ?g= كود الضيف). الدعوات اللي بلغة واحدة بتتعرض عادي.
+router.get(['/i/:shortId/ar', '/i/:shortId/en'], (req, res) => {
+  const m = /\/(ar|en)\/?$/i.exec(req.path);
+  const raw = req.originalUrl.indexOf('?') === -1 ? '' : req.originalUrl.slice(req.originalUrl.indexOf('?') + 1);
+  const qs = new URLSearchParams(raw);
+  qs.set('lang', (m ? m[1] : 'en').toLowerCase());
+  res.set('Cache-Control', 'no-store');
+  return res.redirect(302, `/i/${encodeURIComponent(req.params.shortId)}?${qs.toString()}`);
 });
 
 // POST /i/:shortId/rsvp — ضيف بيبعت تأكيد حضوره على دعوة معينة. عام بدون

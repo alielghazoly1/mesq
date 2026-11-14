@@ -52,6 +52,7 @@ const OPZMQ1q = require('../custom-invitations/OPZMQ1q');
 const omEC8BT = require('../custom-invitations/omEC8BT');
 const Bnm4rJd = require('../custom-invitations/Bnm4rJd');
 const ltoG0xC = require('../custom-invitations/ltoG0xC');
+const l47wr2d = require('../custom-invitations/l47wr2d');
 
 const CUSTOM = { [QICmvQj.shortId]: QICmvQj, [GrpUVQq.shortId]: GrpUVQq, [vYsx7Gn.shortId]: vYsx7Gn,
   [ab1yJIK9C.shortId]: ab1yJIK9C,
@@ -98,35 +99,46 @@ const CUSTOM = { [QICmvQj.shortId]: QICmvQj, [GrpUVQq.shortId]: GrpUVQq, [vYsx7G
   [omEC8BT.shortId]: omEC8BT,
   [Bnm4rJd.shortId]: Bnm4rJd,
   [ltoG0xC.shortId]: ltoG0xC,
+  [l47wr2d.shortId]: l47wr2d,
 };
 
 function getCustomInvitation(shortId) {
   return Object.prototype.hasOwnProperty.call(CUSTOM, shortId) ? CUSTOM[shortId] : null;
 }
 
+/** اللغة اللي الضيف طالبها (?lang=ar|en أو لينك /ar و /en) — بس للدعوة الكاستم اللي معمولة بلغتين (custom.langs) */
+function customLang(custom, raw) {
+  const l = String(raw || '').toLowerCase();
+  return custom && Array.isArray(custom.langs) && custom.langs.includes(l) ? l : '';
+}
+
 /** نسخة من بيانات الدعوة بالمحتوى المخصوص فوقها (مابتعدّلش المستند الأصلي) */
-function applyCustomData(invitation, custom) {
+function applyCustomData(invitation, custom, { lang = '' } = {}) {
   const base = typeof invitation.toObject === 'function' ? invitation.toObject() : { ...invitation };
   const c = base.customizations || {};
   const fields = custom.fields || {};
   // دعوة كاستم ممكن تبقى "شكل بس" (زي باب GrpUVQq): مفيش نصوص ولا كارت
   // مشاركة خاص — الحاجات دي بتفضل زي ما صاحب الدعوة كاتبها في المحرر
   const dateTexts = custom.dateTexts ? custom.dateTexts(fields.weddingDateTime || base.weddingDateTime) : {};
+  // دعوة بلغتين (l47wr2d): الصفحة وكارت المشاركة بيترسموا باللغة المطلوبة
+  const useLang = customLang(custom, lang);
+  const share = (custom.shareByLang && custom.shareByLang[useLang || fields.language || base.language]) || custom.share;
   return {
     ...base,
     ...fields,
+    ...(useLang ? { language: useLang } : {}),
     customizations: {
       ...c,
       texts: { ...(c.texts || {}), ...(custom.texts || {}), ...dateTexts },
       hidden: [...new Set([...(c.hidden || []), ...(custom.hidden || [])])],
       rsvp: { ...(c.rsvp || {}), ...(custom.rsvp || {}) },
       // كارت كاستم ممكن يبقى صورة بس (eJCypdA): العنوان والوصف بيفضلوا بتوع صاحب الدعوة
-      share: custom.share && (custom.share.title || custom.share.overrideImage)
+      share: share && (share.title || share.overrideImage)
         ? {
           ...(c.share || {}),
-          ...(custom.share.title ? { title: custom.share.title, description: custom.share.description } : {}),
+          ...(share.title ? { title: share.title, description: share.description } : {}),
           // صورة الكارت الكاستم تكسب على صورة المحرر (بتيجي من shareFallbackImage)
-          ...(custom.share.overrideImage ? { image: '' } : {}),
+          ...(share.overrideImage ? { image: '' } : {}),
         }
         : (c.share || {}),
     },
@@ -234,4 +246,4 @@ function injectCustomInvitation(html, custom, { editMode = false } = {}) {
   return out;
 }
 
-module.exports = { getCustomInvitation, applyCustomData, customInvitationTags, injectCustomInvitation };
+module.exports = { getCustomInvitation, applyCustomData, customLang, customInvitationTags, injectCustomInvitation };
