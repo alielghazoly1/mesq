@@ -8,14 +8,16 @@
 <title>عمر &amp; سمية — دعوة زفاف</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Noto+Sans+Arabic:wght@400;500;600;700&family=Reem+Kufi:wght@600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Great+Vibes&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Noto+Sans+Arabic:wght@400;500;600;700&family=Reem+Kufi:wght@600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Great+Vibes&family=Outfit:wght@500;600;700&family=Ovo&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="assets/cover.webp">
 <link rel="preload" as="image" href="assets/title.webp">
 <style>
 /* عمر وسمية — الجمعة 11/12/2026 الساعة 8 مساءً، قاعة ليالي البنفسج للضيافة (المعترض — العين). بطلب المالك (2026-11-14):
    نسخة من دعوته على موقعه التاني (buharita): ظرف بختم دهبي (الضغطة على الختم بتشغّل فيديو الفتح)، وبعده أول صفحة بفيديو
    السلم والورد والحمام، والكروت البيضا فوق خلفية ورد باهتة، وشريط تحت (الحضور / المكان / التهاني / الموسيقى)، والصفحة
-   بتنزل لوحدها بعد الفتح. من غير قسم الصور ولا قسم الفقرات (طلب المالك). الكلام من كارت الدعوة اللي بعته. */
+   بتنزل لوحدها بعد الفتح. من غير قسم الصور (طلب المالك). الكلام من كارت الدعوة اللي بعته.
+   تاني طلب (نفس اليوم): كارت الآية بإطار الدانتيل (زي الصورة اللي بعتها) ما بين أول صفحة والكروت، وبرنامج الحفل رجع
+   (الجرتق الساعة 11، و"مراسم الزفاف": زفة العروسين والأغاني السودانية)، والأغنية اتغيّرت بأغنيته. */
 :root{--brown:#461901;--rust:#814016;--ink:#4f412f;--ink2:#6b5a45;--muted:#8d7255;--teal:#5f98a1;--teal2:#4b8089;--tealink:#2c5961;
   --gold:#d4af37;--card:rgba(251,254,254,.93);
   --sans:'Noto Sans Arabic','Outfit',Tahoma,sans-serif;--serif:'Amiri','Times New Roman',serif;--kufi:'Reem Kufi','Noto Sans Arabic',sans-serif;
@@ -109,6 +111,20 @@ main{position:relative;z-index:1}
 .eyb{font:600 14px/1.5 var(--sans);color:var(--muted)}
 .h2{font:700 27px/1.45 var(--serif);color:var(--ink);margin-top:2px}
 
+/* الآية بإطار الدانتيل (بطلب المالك — نفس الكارت اللي بعت صورته): ما بين أول صفحة والكروت.
+   مقاسات الكلام بالنسبة لعرض الإطار (--fw)، ولو الكلام ما دخلش (شاشة صغيرة) الـ JS بيصغّره شوية (--k) */
+.vs{position:relative;width:calc(100% - 28px);max-width:440px;margin:-36px auto 84px;--fw:min(calc(100vw - 28px),440px)}
+.vs>img{width:100%;height:auto}
+.vs-t{--k:1;position:absolute;top:13%;left:12.5%;right:12.5%;bottom:12.5%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;overflow:hidden;padding:8px 6px}
+.vs-b{direction:rtl;font:700 calc(var(--fw) * .071 * var(--k))/1.5 var(--serif);color:#5a3f16;margin:0 0 calc(14px * var(--k))}
+.vs-a{direction:rtl;font:700 calc(var(--fw) * .049 * var(--k))/1.7 var(--serif);color:#201509;margin:0 4px 3px;text-wrap:balance}
+.vs-a:last-of-type{margin-bottom:4px}
+.vs-r{width:46px;height:1px;flex:none;background:#866739;opacity:.7;margin:2px 0 calc(14px * var(--k))}
+.vs-e{direction:ltr;font:italic 400 max(11px,calc(var(--fw) * .0395 * var(--k)))/1.55 'Ovo','EB Garamond',Georgia,serif;color:#362509;margin:0 6px 2px}
+.vs-c{direction:ltr;font:700 max(9.5px,calc(var(--fw) * .03 * var(--k)))/1.5 var(--num);letter-spacing:.21em;color:#55380f;text-transform:uppercase}
+@media (max-width:479px){.vs-t{top:12.5%;left:11.5%;right:11.5%;bottom:12%;padding:6px 4px}.vs-b{margin-bottom:calc(10px * var(--k))}}
+
 /* الكارت الأول: الدعاء والعائلتين والعروسين */
 .c1{padding:34px 22px 34px}
 .orn{display:flex;align-items:center;justify-content:center;gap:12px}
@@ -173,6 +189,24 @@ main{position:relative;z-index:1}
 .cdg b{display:block;font:700 27px/1.15 var(--disp);color:#a4802f;font-variant-numeric:lining-nums tabular-nums}
 .cdg span{display:block;margin-top:4px;font:600 11.5px/1.3 var(--sans);color:var(--muted)}
 .cdone{display:none;margin:30px 0 8px;font:700 19px/1.5 var(--sans);color:#d6ad3c}
+
+/* برنامج الحفل (رجع بطلب المالك): نفس شكل الأصل — خط رفيع في النص فوقه الوردة الزرقا، المواعيد يمين الخط والفقرات شماله.
+   الوردة صورة على أبيض بتتدمج في الكارت (multiply) فبتبان بلمعتها الدهبي من غير مربع */
+.pg{padding:30px 22px 52px}
+.tl{position:relative;width:max-content;max-width:100%;margin:30px auto 0;padding:44px 0 29px}
+.tl::before{content:"";position:absolute;top:45px;bottom:0;right:72px;width:2px;background:#e1e0da}
+.rose{position:absolute;top:-1px;right:41px;width:64px;height:64px;mix-blend-mode:multiply;pointer-events:none}
+.ti{position:relative;display:grid;grid-template-columns:58px 30px minmax(0,150px);align-items:start;margin-bottom:44px}
+.ti:last-child{margin-bottom:0}
+.tm{grid-column:1;justify-self:end;padding-top:10px;font:700 18px/28.5px var(--disp);font-variant-numeric:oldstyle-nums;color:var(--ink);white-space:nowrap;
+  text-shadow:0 2px 3px rgba(79,65,47,.16)}
+.dt{grid-column:2;justify-self:center;position:relative;z-index:1;display:block;width:13px;height:13px;margin-top:18px;border-radius:50%;background:#fff;border:2.5px solid #8d7255;
+  animation:dotGlow 4s ease-in-out infinite}
+.ti:nth-of-type(2) .dt{animation-delay:1s}.ti:nth-of-type(3) .dt{animation-delay:2s}.ti:nth-of-type(4) .dt{animation-delay:3s}
+@keyframes dotGlow{0%,60%,100%{box-shadow:0 0 0 0 rgba(222,184,92,0)}25%{box-shadow:0 0 9px 3px rgba(222,184,92,.5)}}
+.tx{grid-column:3;padding-inline-start:8px;text-align:right}
+.tx h3{font:700 19px/28.5px var(--serif);color:var(--ink);text-shadow:0 2px 3px rgba(79,65,47,.16)}
+.tx p{margin-top:4px;font:400 14.5px/1.7 var(--sans);color:#574a39}
 
 /* المكان */
 .loc{padding:32px 22px 30px}
@@ -244,7 +278,7 @@ textarea.inp{min-height:84px;resize:none}
 .nav .mu .off{display:none}
 .nav .mu.muted .off{display:block}
 .nav .mu.muted .onn{display:none}
-@media (prefers-reduced-motion:reduce){.fx{transition:none;opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.fx{transition:none;opacity:1;transform:none}.dt{animation:none}}
 </style>
 </head>
 <body>
@@ -276,6 +310,19 @@ textarea.inp{min-height:84px;resize:none}
 </section>
 
 <div class="content" id="content">
+  <section class="vs fx" aria-label="آية قرآنية">
+    <img src="assets/frame.webp" alt="" width="880" height="1320" decoding="async">
+    <div class="vs-t" id="vsT">
+      <p class="vs-b">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
+      <p class="vs-a">وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُمْ مِنْ أَنفُسِكُمْ أَزْوَاجًا</p>
+      <p class="vs-a">لِتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَوَدَّةً وَرَحْمَةً ۚ</p>
+      <p class="vs-a">إِنَّ فِي ذَٰلِكَ لَآيَاتٍ لِقَوْمٍ يَتَفَكَّرُونَ</p>
+      <div class="vs-r" aria-hidden="true"></div>
+      <p class="vs-e" lang="en">"And among His signs is that He created for you mates from among yourselves, that you may find tranquility in them, and He placed between you affection and mercy. Indeed in that are signs for a people who reflect."</p>
+      <p class="vs-c" lang="en">Surah Ar-Rum — 30:21</p>
+    </div>
+  </section>
+
   <section class="card c1 fx" aria-label="الدعوة">
     <div class="orn" aria-hidden="true"><svg viewBox="0 0 40 22"><path d="M20 5c3-5 9-5 11-1 1.5 3-1 6-4.5 6.5 3 .5 5.5 3 4.5 6-2 4-8 4-11-1-3 5-9 5-11 1-1-3 1.5-5.5 4.5-6C10 10 7.5 7 9 4c2-4 8-4 11 1z" fill="#b8682f"/><circle cx="20" cy="11" r="2.2" fill="#fff6ec"/></svg></div>
     <p class="dua">بَارَكَ اللَّهُ لَكُمَا وَبَارَكَ عَلَيْكُمَا وَجَمَعَ بَيْنَكُمَا فِي خَيْرٍ</p>
@@ -316,6 +363,18 @@ textarea.inp{min-height:84px;resize:none}
       <div><b id="cdS">00</b><span>ثواني</span></div>
     </div>
     <p class="cdone" id="cdDone">لقد حل اليوم الكبير! 🎉</p>
+  </section>
+
+  <section class="card pg fx" id="prog" aria-label="برنامج الحفل">
+    <p class="eyb">برنامج الحفل</p>
+    <h2 class="h2">تفاصيل الاحتفال</h2>
+    <div class="tl">
+      <img class="rose" src="assets/rose.webp" alt="" width="192" height="192" decoding="async">
+      <div class="ti"><p class="tm">8:00 م</p><i class="dt" aria-hidden="true"></i><div class="tx"><h3>استقبال الضيوف</h3><p>الترحيب بالضيوف الكرام</p></div></div>
+      <div class="ti"><p class="tm">8:30 م</p><i class="dt" aria-hidden="true"></i><div class="tx"><h3>الضيافة الرئيسية</h3><p>دعوة الحضور الكرام لتناول طعام العشاء</p></div></div>
+      <div class="ti"><p class="tm">9:00 م</p><i class="dt" aria-hidden="true"></i><div class="tx"><h3>مراسم الزفاف</h3><p>زفة العروسين ..<br>الأغاني السودانية</p></div></div>
+      <div class="ti"><p class="tm">11:00 م</p><i class="dt" aria-hidden="true"></i><div class="tx"><h3>الجرتق</h3><p>طقوس الجرتق التراثية السودانية واكمال الفرحة مع العائلة والأصدقاء</p></div></div>
+    </div>
   </section>
 
   <section class="card loc fx" id="loc" aria-label="المكان">
@@ -398,6 +457,25 @@ textarea.inp{min-height:84px;resize:none}
     for (var i = 0; i < first; i++) h += '<span></span>';
     for (var d = 1; d <= days; d++) h += '<span' + (d === D ? ' class="on"' : '') + '>' + d + '</span>';
     $('#grid').innerHTML = h;
+  })();
+
+  /* ---------- الآية: لو الكلام أطول من الإطار (شاشة صغيرة أو الخط اتأخر) بيصغر شوية لحد ما يدخل ---------- */
+  (function () {
+    var box = $('#vsT'); if (!box) return;
+    function over() {
+      var a = box.firstElementChild.getBoundingClientRect(), z = box.lastElementChild.getBoundingClientRect(), r = box.getBoundingClientRect();
+      var cs = getComputedStyle(box), pad = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+      return r.height > 0 && (z.bottom - a.top) > r.height - pad;
+    }
+    function fit() {
+      var k = 1; box.style.setProperty('--k', '1');
+      for (var i = 0; i < 10 && over(); i++) { k -= 0.04; box.style.setProperty('--k', k.toFixed(2)); }
+    }
+    fit();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+    if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', fit);
+    var rt = 0;
+    addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(fit, 150); });
   })();
 
   /* ---------- الموسيقى (زرار في الشريط اللي تحت) ---------- */
