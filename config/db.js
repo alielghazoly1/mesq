@@ -40,6 +40,8 @@ async function connectDB() {
         require('../utils/ensureIndexes')().catch(() => {});
         // تعديلات لمرة واحدة على دعوات معيّنة بطلب المالك (utils/oneOffFixes.js)
         require('../utils/oneOffFixes')().catch(() => {});
+        // أرقام الموبايل القديمة → الشكل الدولي الموحّد (utils/phoneMigration.js) — في الخلفية
+        require('../utils/phoneMigration').runPhoneMigration().catch(() => {});
         return m;
       })
       .catch((err) => {

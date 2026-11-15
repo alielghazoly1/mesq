@@ -14,12 +14,16 @@ import { Link } from 'react-router-dom';
 import { Trans, useTranslation } from 'react-i18next';
 import { AnimatePresence, motion } from 'motion/react';
 import {
-  X, Eye, EyeOff, Mail, Lock, User, Phone, Check, AlertCircle, Loader2, ArrowLeft, ArrowRight,
+  X, Eye, EyeOff, Mail, Lock, User, Check, AlertCircle, Loader2, ArrowLeft, ArrowRight,
 } from 'lucide-react';
 import { api, useLoginMutation, useRegisterMutation, useGoogleCompleteMutation } from '../store/api.js';
 import { closeAuthModal, openAuthModal, showWelcome } from '../store/uiSlice.js';
 import { pixelTrack } from '../lib/metaPixel.js';
 import CountrySelect from './form/CountrySelect.jsx';
+import PhoneField from './form/PhoneField.jsx';
+import { phoneRule, phoneServerText } from '../lib/phoneUi.js';
+import { normalizePhone } from '../lib/phone.js';
+import { whatsappLink, WHATSAPP_MESSAGES } from '../lib/contact.js';
 import GoogleSignIn from './GoogleSignIn.jsx';
 import { guessCountry } from '../lib/guessCountry.js';
 
@@ -45,6 +49,14 @@ const finishAuth = (dispatch) => {
   dispatch(api.util.resetApiState());
   dispatch(closeAuthModal());
 };
+
+// رقم الموبايل للسيرفر: الشكل الدولي الموحّد (+201012345678) + كود الدولة اللي اختاره جنب الرقم.
+// السيرفر بيتحقق تاني بنفس القواعد (utils/phone.js).
+function phonePayload(v) {
+  const n = normalizePhone(v && v.input, v && v.country);
+  return { phone: n.ok ? n.e164 : String((v && v.input) || ''), phoneCountry: (v && v.country) || '' };
+}
+const emptyPhone = () => ({ country: guessCountry() || '', input: '', manual: false });
 
 /* ───────────── عناصر الفورم ───────────── */
 
@@ -281,24 +293,50 @@ function PasswordStrength({ control }) {
   );
 }
 
+/**
+ * الرقم متسجّل في حساب تاني: غالبًا صاحبه هو نفسه اللي سجّل قبل كده — "ادخل بحسابك"،
+ * ولو مش حسابه (حد كتب رقمه غلط) يكلّمنا على واتساب ونحلّها بدل ما يفضل واقف.
+ */
+function PhoneTakenHelp({ onLogin }) {
+  const { t } = useTranslation();
+  const linkCls = 'whitespace-nowrap font-extrabold text-ink underline underline-offset-2';
+  return (
+    <span data-phone-taken-help>
+      {onLogin ? (
+        <>
+          {t('auth.phoneTakenMine')}{' '}
+          <button type="button" className={linkCls} onClick={onLogin} data-phone-login>{t('auth.phoneTakenLogin')}</button>
+          {' — '}
+        </>
+      ) : null}
+      {t('auth.phoneTakenNotMine')}{' '}
+      <a href={whatsappLink(WHATSAPP_MESSAGES.phoneTaken)} target="_blank" rel="noopener noreferrer" className={linkCls} data-phone-wa>
+        {t('auth.phoneTakenWa')}
+      </a>
+    </span>
+  );
+}
+
 function RegisterForm({ onEmailTaken }) {
   const dispatch = useDispatch();
   const { t } = useTranslation();
   const { register, handleSubmit, control, setValue, getValues, formState: { errors } } = useForm({
     mode: 'onTouched',
-    defaultValues: { name: '', email: '', phone: '', password: '', country: guessCountry() || undefined },
+    defaultValues: { name: '', email: '', phone: emptyPhone(), password: '', country: guessCountry() || undefined },
   });
   const [doRegister, { isLoading, error, reset }] = useRegisterMutation();
+  const country = useWatch({ control, name: 'country' }) || '';
   const pw = useWatch({ control, name: 'password' }) || '';
   const name = useWatch({ control, name: 'name' }) || '';
   const left = Math.max(0, PW_MIN - pw.length);
   const serverMsg = error?.data?.error || '';
   const emailTaken = error?.status === 409 && /الإيميل/.test(serverMsg);
-  const phoneTaken = error?.status === 409 && /التليفون/.test(serverMsg);
+  // أي رد من السيرفر عن الرقم (ناقص/مش موبايل/مستخدم) بيتعرض تحت خانة الرقم نفسها
+  const phoneServer = error?.data?.field === 'phone' ? phoneServerText(t, error.data, (getValues('phone') || {}).country) : '';
 
   async function onSubmit(values) {
     try {
-      const res = await doRegister({ ...values, email: values.email.trim(), name: values.name.trim() }).unwrap();
+      const res = await doRegister({ ...values, ...phonePayload(values.phone), email: values.email.trim(), name: values.name.trim() }).unwrap();
       finishAuth(dispatch);
       // شاشة الترحيب مكان فورم التسجيل على طول — من غير أي فراغ بينهم
       dispatch(showWelcome((res && res.user && res.user.name) || values.name || ''));
@@ -368,31 +406,26 @@ function RegisterForm({ onEmailTaken }) {
         <Hint tone="error">{errors.country?.message}</Hint>
       </div>
 
-      <Field
+      <Controller
         name="phone"
-        label={t('auth.phone').replace(/\s*\(.*\)\s*$/, '')}
-        optional
-        icon={Phone}
-        error={errors.phone?.message || (phoneTaken ? serverMsg : '')}
-      >
-        <input
-          type="tel"
-          inputMode="tel"
-          autoComplete="tel"
-          maxLength={30}
-          dir="ltr"
-          placeholder="01xxxxxxxxx"
-          className={`${inputCls} text-start`}
-          {...register('phone', {
-            validate: (v) => {
-              const d = String(v || '').replace(/\D/g, '');
-              return d.length === 0 || d.length >= 8 || t('auth.phoneShort');
-            },
-          })}
-        />
-      </Field>
+        control={control}
+        rules={phoneRule(t)}
+        render={({ field }) => (
+          <PhoneField
+            value={field.value}
+            onChange={(v) => { field.onChange(v); if (error) reset(); }}
+            onBlur={field.onBlur}
+            accountCountry={country}
+            error={errors.phone?.message || phoneServer}
+            extra={error?.data?.code === 'phone_taken'
+              // الإيميل اللي اتكتب هنا مالوش حساب (السيرفر بيشيك عليه قبل الرقم) — فالدخول من غير ما نملاه بيه
+              ? <PhoneTakenHelp onLogin={() => onEmailTaken('')} />
+              : null}
+          />
+        )}
+      />
 
-      <ServerError message={emailTaken || phoneTaken ? '' : serverMsg} />
+      <ServerError message={emailTaken || phoneServer ? '' : serverMsg} />
       <SubmitButton loading={isLoading}>{t('auth.submitRegister')}</SubmitButton>
       <p className="text-center text-[11.5px] leading-relaxed text-ink-dim">
         <Trans
@@ -410,21 +443,22 @@ function RegisterForm({ onEmailTaken }) {
 /* ───────────── بعد جوجل (عميل جديد) ───────────── */
 
 // خطوة واحدة بعد جوجل للعميل الجديد بس: الدولة (متختارة جاهزة من جهازه —
-// بتحدد العملة) + واتساب اختياري. الاسم والإيميل جايين من جوجل.
-function GoogleCompleteForm({ pending, profile, onBack }) {
+// بتحدد العملة) + رقم الموبايل (إجباري). الاسم والإيميل جايين من جوجل.
+function GoogleCompleteForm({ pending, profile, onBack, onLogin }) {
   const dispatch = useDispatch();
   const { t } = useTranslation();
-  const { register, handleSubmit, control, formState: { errors } } = useForm({
+  const { register, handleSubmit, control, getValues, formState: { errors } } = useForm({
     mode: 'onTouched',
-    defaultValues: { name: profile.name || '', country: guessCountry() || undefined, phone: '' },
+    defaultValues: { name: profile.name || '', country: guessCountry() || undefined, phone: emptyPhone() },
   });
   const [complete, { isLoading, error, reset }] = useGoogleCompleteMutation();
   const serverMsg = error?.data?.error || '';
-  const phoneTaken = error?.status === 409 && /التليفون/.test(serverMsg);
+  const phoneServer = error?.data?.field === 'phone' ? phoneServerText(t, error.data, (getValues('phone') || {}).country) : '';
+  const country = useWatch({ control, name: 'country' }) || '';
 
   async function onSubmit(values) {
     try {
-      const res = await complete({ pending, ...values, name: values.name.trim() }).unwrap();
+      const res = await complete({ pending, ...values, ...phonePayload(values.phone), name: values.name.trim() }).unwrap();
       finishAuth(dispatch);
       if (res && res.isNew) {
         dispatch(showWelcome((res.user && res.user.name) || values.name || ''));
@@ -466,30 +500,22 @@ function GoogleCompleteForm({ pending, profile, onBack }) {
         />
         <Hint tone="error">{errors.country?.message}</Hint>
       </div>
-      <Field
+      <Controller
         name="phone"
-        label={t('auth.phone').replace(/\s*\(.*\)\s*$/, '')}
-        optional
-        icon={Phone}
-        error={errors.phone?.message || (phoneTaken ? serverMsg : '')}
-      >
-        <input
-          type="tel"
-          inputMode="tel"
-          autoComplete="tel"
-          maxLength={30}
-          dir="ltr"
-          placeholder="01xxxxxxxxx"
-          className={`${inputCls} text-start`}
-          {...register('phone', {
-            validate: (v) => {
-              const d = String(v || '').replace(/\D/g, '');
-              return d.length === 0 || d.length >= 8 || t('auth.phoneShort');
-            },
-          })}
-        />
-      </Field>
-      <ServerError message={phoneTaken ? '' : serverMsg} />
+        control={control}
+        rules={phoneRule(t)}
+        render={({ field }) => (
+          <PhoneField
+            value={field.value}
+            onChange={(v) => { field.onChange(v); if (error) reset(); }}
+            onBlur={field.onBlur}
+            accountCountry={country}
+            error={errors.phone?.message || phoneServer}
+            extra={error?.data?.code === 'phone_taken' ? <PhoneTakenHelp onLogin={onLogin} /> : null}
+          />
+        )}
+      />
+      <ServerError message={phoneServer ? '' : serverMsg} />
       <SubmitButton loading={isLoading}>{t('auth.google.finish')}</SubmitButton>
       <button type="button" onClick={onBack} className="w-full text-center text-[13px] font-bold text-ink-dim underline-offset-4 hover:underline">
         {t('auth.google.back')}
@@ -522,7 +548,8 @@ export default function AuthModal() {
     if (!open) return undefined;
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    const onKey = (e) => { if (e.key === 'Escape') dispatch(closeAuthModal()); };
+    // Escape اللي قايمة (كود الدولة/الدولة) قفلت بيه نفسها مايقفلش الشيت كله ويمسح اللي اتكتب
+    const onKey = (e) => { if (e.key === 'Escape' && !e.defaultPrevented) dispatch(closeAuthModal()); };
     window.addEventListener('keydown', onKey);
     return () => { document.body.style.overflow = prev; window.removeEventListener('keydown', onKey); };
   }, [open, dispatch]);
@@ -570,7 +597,12 @@ export default function AuthModal() {
               </button>
 
               {googleNew ? (
-                <GoogleCompleteForm pending={googleNew.pending} profile={googleNew.profile} onBack={() => setGoogleNew(null)} />
+                <GoogleCompleteForm
+                  pending={googleNew.pending}
+                  profile={googleNew.profile}
+                  onBack={() => setGoogleNew(null)}
+                  onLogin={() => { setGoogleNew(null); dispatch(openAuthModal('login')); }}
+                />
               ) : (
                 <>
                   <div className="mb-4 pe-9 text-start">

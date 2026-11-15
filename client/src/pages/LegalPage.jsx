@@ -21,7 +21,7 @@ const PRIVACY = {
     intro: 'ميثاق (mithaq-invitation.com) موقع لعمل دعوات أفراح وخطوبة إلكترونية. الصفحة دي بتوضح إيه البيانات اللي بنجمعها، وبنستخدمها في إيه، وإزاي تقدر تتحكم فيها.',
     sections: [
       ['البيانات اللي بنجمعها', [
-        'بيانات الحساب: الاسم، الإيميل، الدولة (عشان الأسعار تظهر بعملتك)، ورقم التليفون/الواتساب لو كتبته.',
+        'بيانات الحساب: الاسم، الإيميل، الدولة (عشان الأسعار تظهر بعملتك)، ورقم الموبايل/الواتساب (مطلوب عند عمل الحساب عشان نقدر نتواصل معاك بخصوص طلبك والدعم).',
         'لو دخلت بجوجل: بنستلم من جوجل اسمك وإيميلك ورقم حسابك عند جوجل (معرّف ثابت) بس — مش بنوصل لباسورد جوجل ولا لأي بيانات تانية في حسابك.',
         'محتوى الدعوات اللي بتعملها: الأسامي، المواعيد، المكان، الصور والفيديوهات والأغاني اللي بترفعها.',
         'ردود الضيوف على دعوتك: تأكيد الحضور ورسايلهم، والصور أو التهاني الصوتية لو الخاصية دي مفعّلة.',
@@ -32,7 +32,7 @@ const PRIVACY = {
         'تشغيل حسابك وعرض دعوتك لضيوفك وتوصيل ردودهم ليك.',
         'تفعيل الباقة بعد مراجعة الإيصال، والتواصل معاك بخصوص طلبك أو الدعم.',
         'تحسين الموقع ومعرفة الإعلانات اللي بتجيب عملاء (بشكل مجمّع).',
-        'مش بنبيع بياناتك ولا بنديها لأي حد لأغراض إعلانية.',
+        'مش بنبيع بياناتك. لقياس الإعلانات بس، بنبعت لميتا (فيسبوك وإنستجرام) الإيميل ورقم الموبايل متشفّرين (hashed) — ميتا مابتشوفهمش كنص، بتستخدمهم عشان تعرف إن حد شاف إعلان وسجّل.',
       ]],
       ['الكوكيز', [
         'كوكي تسجيل الدخول عشان تفضل داخل على حسابك.',
@@ -58,7 +58,7 @@ const PRIVACY = {
     intro: 'Mithaq (mithaq-invitation.com) is a service for creating online wedding and engagement invitations. This page explains what data we collect, why, and how you control it.',
     sections: [
       ['Data we collect', [
-        'Account data: your name, email, country (so prices show in your currency) and phone/WhatsApp number if you add one.',
+        'Account data: your name, email, country (so prices show in your currency) and mobile/WhatsApp number (required when you create an account, so we can contact you about your order and support).',
         'If you sign in with Google: we receive only your name, email address and Google account ID from Google — never your Google password or any other data in your account.',
         'The content of invitations you create: names, dates, venue, and the photos, videos and music you upload.',
         'Your guests’ replies: RSVPs and messages, plus photos or voice greetings if that feature is enabled.',
@@ -69,7 +69,7 @@ const PRIVACY = {
         'To run your account, show your invitation to your guests and deliver their replies to you.',
         'To activate your package after reviewing your receipt, and to contact you about your order or support.',
         'To improve the site and measure which ads bring customers (in aggregate).',
-        'We do not sell your data or share it with anyone for advertising.',
+        'We do not sell your data. For ad measurement only, we send Meta (Facebook and Instagram) your email and mobile number in hashed form — Meta never sees them as plain text; it uses them to tell whether someone who saw an ad signed up.',
       ]],
       ['Cookies', [
         'A login cookie to keep you signed in.',

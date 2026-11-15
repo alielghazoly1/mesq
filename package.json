@@ -27,6 +27,7 @@
     "file-type": "^22.0.2",
     "helmet": "^7.1.0",
     "interactjs": "^1.10.28",
+    "libphonenumber-js": "^1.13.16",
     "mongoose": "^8.6.0",
     "multer": "^2.3.0"
   }

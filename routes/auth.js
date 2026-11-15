@@ -15,6 +15,7 @@ const { editWindowInfo } = require('../utils/editWindow');
 const { verifyGoogleIdToken, signPending, readPending, getGoogleConfig } = require('../utils/googleAuth');
 const metaCapi = require('../utils/metaCapi');
 const { markIfBanned } = require('../utils/banGate');
+const { normalizePhone, phoneOwnerFilter } = require('../utils/phone');
 
 const router = express.Router();
 
@@ -53,15 +54,25 @@ function clearAttribution(res, { referredBy, campaign }) {
 
 const publicUser = (user) => ({ id: String(user._id), email: user.email, name: user.name, country: user.country });
 
+// رقم الموبايل إجباري في أي تسجيل جديد (بالإيميل أو بجوجل) — بيرجع الرقم الموحّد (+201012345678)
+// أو رد الخطأ جاهز. phoneCountry = كود الدولة اللي العميل اختاره جنب الرقم (ممكن يختلف عن دولة
+// الحساب — مصري عايش في السعودية)، ولو مبعتوش بنستخدم دولة الحساب.
+const PHONE_TAKEN = 'رقم الموبايل ده مستخدم في حساب تاني.';
+function phoneFromBody(body, country) {
+  const b = body || {};
+  const n = normalizePhone(b.phone, b.phoneCountry || country);
+  return n.ok ? { phone: n.e164 } : { error: { error: n.error, field: 'phone', code: 'phone_' + n.code } };
+}
+async function phoneTaken(e164) {
+  return !!(await User.exists(phoneOwnerFilter(e164)));
+}
+
 router.post('/api/auth/register', async (req, res) => {
   try {
     const email = String((req.body && req.body.email) || '').trim().toLowerCase();
     const password = String((req.body && req.body.password) || '');
     const name = sanitizeText(req.body && req.body.name, 80);
     const country = String((req.body && req.body.country) || '').trim().toUpperCase();
-    // رقم التليفون اختياري — بنسيب بس الأرقام و + و - و () والمسافات
-    const phone = String((req.body && req.body.phone) || '')
-      .replace(/[^\d+\-() ]/g, '').trim().slice(0, 30);
 
     if (!isValidEmail(email)) {
       return res.status(400).json({ error: 'من فضلك اكتب إيميل صحيح.' });
@@ -75,18 +86,18 @@ router.post('/api/auth/register', async (req, res) => {
     if (!isValidCountryCode(country)) {
       return res.status(400).json({ error: 'من فضلك اختار الدولة.' });
     }
+    const ph = phoneFromBody(req.body, country);
+    if (ph.error) return res.status(400).json(ph.error);
+    const { phone } = ph;
 
     const existing = await User.findOne({ email });
     if (existing) {
       return res.status(409).json({ error: 'الإيميل ده مسجل بالفعل، جرب تسجل الدخول.' });
     }
-    // التليفون اختياري — بس لو كتبه، لازم ميكونش مستخدم في حساب تاني.
+    // الرقم مايبقاش مستخدم في حساب تاني (بأي شكل كان متكتب بيه في الحسابات القديمة).
     // رسالة خاصة بيه عشان متتلخبطش مع رسالة الإيميل.
-    if (phone) {
-      const phoneTaken = await User.findOne({ phone });
-      if (phoneTaken) {
-        return res.status(409).json({ error: 'رقم التليفون ده مستخدم في حساب تاني.' });
-      }
+    if (await phoneTaken(phone)) {
+      return res.status(409).json({ error: PHONE_TAKEN, field: 'phone', code: 'phone_taken' });
     }
 
     const { referredBy, campaign } = await attributionFromCookies(req);
@@ -104,7 +115,7 @@ router.post('/api/auth/register', async (req, res) => {
       if (err.code === 11000) {
         const dupKey = err.keyPattern || err.keyValue || {};
         if ('phone' in dupKey) {
-          return res.status(409).json({ error: 'رقم التليفون ده مستخدم في حساب تاني.' });
+          return res.status(409).json({ error: PHONE_TAKEN, field: 'phone', code: 'phone_taken' });
         }
         return res.status(409).json({ error: 'الإيميل ده مسجل بالفعل، جرب تسجل الدخول.' });
       }
@@ -181,7 +192,7 @@ router.post('/api/auth/login', async (req, res) => {
 //        - حساب جوجل ده معروف عندنا (googleId) → دخول
 //        - أو إيميله متسجّل (بالباسورد) → نربط جوجل بنفس الحساب ودخول
 //        - غير كده → {needsProfile, pending} — العميل جديد ويكمّل خطوة واحدة
-//   POST /api/auth/google/complete ← {pending, country, phone} → حساب جديد
+//   POST /api/auth/google/complete ← {pending, country, phone, phoneCountry} → حساب جديد (الموبايل إجباري)
 // ==========================================================================
 router.get('/api/auth/google/config', async (req, res) => {
   const cfg = await getGoogleConfig();
@@ -233,7 +244,6 @@ router.post('/api/auth/google/complete', async (req, res) => {
     const p = readPending(req.body && req.body.pending);
     if (!p) return res.status(400).json({ error: 'الخطوة دي خلص وقتها — دوس على زرار جوجل تاني.', expired: true });
     const country = String((req.body && req.body.country) || '').trim().toUpperCase();
-    const phone = String((req.body && req.body.phone) || '').replace(/[^\d+\-() ]/g, '').trim().slice(0, 30);
     const name = sanitizeText((req.body && req.body.name) || p.name, 80) || p.email.split('@')[0].slice(0, 80);
     if (!isValidCountryCode(country)) return res.status(400).json({ error: 'من فضلك اختار الدولة.' });
 
@@ -245,8 +255,12 @@ router.post('/api/auth/google/complete', async (req, res) => {
       await createSession(res, existing._id);
       return res.json({ user: publicUser(existing) });
     }
-    if (phone && await User.findOne({ phone })) {
-      return res.status(409).json({ error: 'رقم التليفون ده مستخدم في حساب تاني.' });
+    // حساب جديد بجوجل: رقم الموبايل إجباري هنا كمان (نفس قواعد التسجيل بالإيميل)
+    const ph = phoneFromBody(req.body, country);
+    if (ph.error) return res.status(400).json(ph.error);
+    const { phone } = ph;
+    if (await phoneTaken(phone)) {
+      return res.status(409).json({ error: PHONE_TAKEN, field: 'phone', code: 'phone_taken' });
     }
 
     const { referredBy, campaign } = await attributionFromCookies(req);
@@ -259,7 +273,7 @@ router.post('/api/auth/google/complete', async (req, res) => {
     } catch (err) {
       if (err.code === 11000) {
         const dupKey = err.keyPattern || err.keyValue || {};
-        if ('phone' in dupKey) return res.status(409).json({ error: 'رقم التليفون ده مستخدم في حساب تاني.' });
+        if ('phone' in dupKey) return res.status(409).json({ error: PHONE_TAKEN, field: 'phone', code: 'phone_taken' });
         return res.status(409).json({ error: 'الحساب ده اتعمل خلاص — دوس على زرار جوجل تاني عشان تدخل.' });
       }
       throw err;

@@ -7,11 +7,11 @@ import { motion } from 'motion/react';
 import {
   X, Crown, Ban, PauseCircle, PlayCircle, Trash2, Plus, Save,
   Mail, Globe, Calendar, Eye, FileText, MessageSquare, Wallet, ShieldAlert, Monitor, MessageCircle,
-  Megaphone, Copy, MousePointerClick, UserPlus, Smartphone, Tablet, Activity,
+  Megaphone, Copy, MousePointerClick, UserPlus, Smartphone, Tablet, Activity, Pencil,
 } from 'lucide-react';
 import {
   useGetUserQuery, useUpdateSubscriptionMutation, useBlockUserMutation,
-  useGetAdminPackagesQuery, useSetUserUgcMutation, useGetUserVisitsQuery,
+  useGetAdminPackagesQuery, useSetUserUgcMutation, useGetUserVisitsQuery, useSetUserPhoneMutation,
 } from '../../store/adminApi.js';
 import {
   Panel, StatTile, Badge, Btn, Field, Table, Row, Cell,
@@ -202,6 +202,42 @@ function UgcPanel({ userId, ugc }) {
   );
 }
 
+/**
+ * تعديل/مسح رقم العميل — الرقم بقى إجباري ومش بيتكرر، فلو حد كتب رقم حد تاني غلط، صاحب الرقم الحقيقي
+ * بيكلّمك على واتساب وانت بتمسحه من الحساب الغلط (أو تصلّحه) من هنا. نفس قواعد التسجيل على السيرفر.
+ */
+function PhoneEdit({ user }) {
+  const [open, setOpen] = useState(false);
+  const [val, setVal] = useState('');
+  const [err, setErr] = useState('');
+  const [save, { isLoading }] = useSetUserPhoneMutation();
+  async function run(phone) {
+    setErr('');
+    try { await save({ id: user._id || user.id, phone, phoneCountry: user.country }).unwrap(); setOpen(false); }
+    catch (e) { setErr((e && e.data && e.data.error) || 'حصل خطأ'); }
+  }
+  if (!open) {
+    return (
+      <button type="button" className="inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[11px] text-ivory/45 hover:bg-ivory/10 hover:text-ivory" onClick={() => { setVal(user.phone || ''); setErr(''); setOpen(true); }} data-phone-edit>
+        <Pencil size={11} /> تعديل الرقم
+      </button>
+    );
+  }
+  return (
+    <span className="mt-1 flex w-full flex-wrap items-center gap-1.5" data-phone-edit-form>
+      <input
+        dir="ltr" inputMode="tel" value={val} onChange={(e) => setVal(e.target.value)}
+        placeholder="+201012345678 أو 01012345678"
+        className="h-8 w-44 rounded-full border border-line-lite bg-transparent px-3 text-[12.5px] text-ivory outline-none focus:border-ivory/40"
+      />
+      <Btn size="sm" tone="ok" icon={Save} loading={isLoading} onClick={() => run(val)}>حفظ</Btn>
+      {user.phone ? <Btn size="sm" tone="danger" icon={Trash2} loading={isLoading} onClick={() => run('')}>مسح الرقم</Btn> : null}
+      <Btn size="sm" onClick={() => setOpen(false)}>إلغاء</Btn>
+      {err ? <span className="w-full text-[11.5px] text-error">{err}</span> : null}
+    </span>
+  );
+}
+
 export default function ClientDrawer({ userId, onClose }) {
   const { data, isLoading } = useGetUserQuery(userId);
   const hideMoney = useMoneyHidden(); // "إخفاء الفلوس" (الأمان) → مربعات "دفع كام" وعمود المبلغ بيتشالوا
@@ -282,19 +318,22 @@ export default function ClientDrawer({ userId, onClose }) {
                 <span className="inline-flex items-center gap-1.5"><Mail size={12} /> {data.user.email}</span>
                 <SignupBadge signup={data.user.signup} full />
                 <span className="inline-flex items-center gap-1.5"><Globe size={12} /> {countryName(data.user.country)}</span>
+                <span className="inline-flex flex-wrap items-center gap-1.5">
                 {data.user.phone ? (
-                  <a
-                    href={waLink(data.user.phone, data.user.country)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-emerald-bright hover:underline"
-                    dir="ltr"
-                  >
-                    <MessageCircle size={12} /> {data.user.phone}
-                  </a>
-                ) : (
-                  <span className="inline-flex items-center gap-1.5 text-ivory/35"><MessageCircle size={12} /> مفيش رقم</span>
-                )}
+                    <a
+                      href={waLink(data.user.phone, data.user.country)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-emerald-bright hover:underline"
+                      dir="ltr"
+                    >
+                      <MessageCircle size={12} /> {data.user.phone}
+                    </a>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 text-ivory/35"><MessageCircle size={12} /> مفيش رقم</span>
+                  )}
+                  <PhoneEdit user={data.user} />
+                </span>
                 <span className="inline-flex items-center gap-1.5"><Calendar size={12} /> سجّل {fmtDate(data.user.createdAt)}</span>
                 {data.user.campaign && (
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-brass/15 px-2 py-0.5 font-bold text-brass-soft" title="سجّل من لينك إعلان">

@@ -154,6 +154,11 @@ export const adminApi = createApi({
       query: ({ id, ...body }) => ({ url: `/users/${id}/password`, method: 'PATCH', body }),
       invalidatesTags: (r, e, { id }) => [{ type: 'User', id }, 'Audit'],
     }),
+    // رقم العميل (تغيير أو مسح) — بيظهر في ملفه وفي قايمة العملاء
+    setUserPhone: builder.mutation({
+      query: ({ id, ...body }) => ({ url: `/users/${id}/phone`, method: 'PATCH', body }),
+      invalidatesTags: (r, e, { id }) => (e ? [] : [{ type: 'User', id }, 'Users', 'Audit']),
+    }),
 
     // ===== الطلبات =====
     getOrders: builder.query({
@@ -382,6 +387,7 @@ export const {
   useResolveWithdrawalMutation,
   useBlockUserMutation,
   useSetUserPasswordMutation,
+  useSetUserPhoneMutation,
   useGetOrdersQuery,
   useGetOrdersAttentionQuery,
   useGetRevenueQuery,

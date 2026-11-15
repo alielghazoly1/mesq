@@ -13,6 +13,11 @@ import { PinnedClientCard, PinnedInvitationCard } from '../../components/admin/P
 import ClientDrawer from './ClientDrawer.jsx';
 
 const match = (q, ...vals) => !q || vals.some((v) => String(v || '').toLowerCase().includes(q));
+// الأرقام متخزّنة دولي (+966501234567) والمالك بيكتب المحلي (0501234567): مقارنة بالأرقام بس من غير الأصفار اللي في الأول
+const phoneMatch = (q, phone) => {
+  const core = String(q || '').replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x0660)).replace(/\D/g, '').replace(/^0+/, '');
+  return core.length >= 5 && String(phone || '').replace(/\D/g, '').includes(core);
+};
 
 export default function PinnedPage() {
   const dispatch = useDispatch();
@@ -28,7 +33,7 @@ export default function PinnedPage() {
   const users = data?.users || [];
   const invitations = data?.invitations || [];
   const needle = q.trim().toLowerCase();
-  const shownUsers = useMemo(() => users.filter((u) => match(needle, u.name, u.email, u.phone, u.note)), [users, needle]);
+  const shownUsers = useMemo(() => users.filter((u) => (match(needle, u.name, u.email, u.phone, u.note) || phoneMatch(needle, u.phone))), [users, needle]);
   const shownInv = useMemo(() => invitations.filter((i) => match(needle, i.namesAr, i.namesEn, i.shortId, i.venueName, i.note, i.owner?.name)), [invitations, needle]);
   const onlineCount = users.filter((u) => u.online).length;
 

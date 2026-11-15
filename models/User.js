@@ -18,9 +18,12 @@ const userSchema = new mongoose.Schema({
   // (client/src/components/form/CountrySelect.jsx، مكتبة world-countries)
   country: { type: String, required: true, uppercase: true, minlength: 2, maxlength: 2 },
 
-  // رقم تليفون اختياري بيدخله العميل وقت التسجيل — بيظهر في لوحة التحكم
-  // عشان تقدر تتواصل معاه (واتساب). الحسابات القديمة مالهاش الحقل ده (فاضي).
+  // رقم الموبايل (واتساب) — إجباري في التسجيل من 2026-11-15، ومتخزّن بشكل دولي موحّد
+  // E.164 (+201012345678) بعد ما utils/phone.js يتأكد إنه موبايل صحيح في دولته.
+  // حسابات قديمة: ممكن تكون فاضية (كان اختياري) أو بشكل قديم لو الرقم مش صحيح (utils/phoneMigration.js).
   phone: { type: String, default: '', maxlength: 30 },
+  // الرقم زي ما كان متخزّن قبل التوحيد (للرجوع لو احتجنا) — بيتملي بس لما الرقم القديم اتغيّر شكله
+  phoneRaw: { type: String, default: '', maxlength: 40 },
 
   // ===== نظام التسويق بالعمولة (UGC / أفلييت) =====
   // حساب UGC = مسوّق بياخد نسبة على كل عميل بيجي من لينك إحالته. الأدمن هو

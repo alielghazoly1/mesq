@@ -338,6 +338,16 @@ app.use('/api/account/password', credentialsLimiter);
 app.use('/api/auth/register', credentialsLimiter);
 // الدخول بجوجل نفس الحد (التحقق من التوكن + إنشاء الحساب)
 app.use('/api/auth/google', (req, res, next) => (req.method === 'POST' ? credentialsLimiter(req, res, next) : next()));
+// تعديل بيانات الحساب (الاسم والموبايل): بيرد "الرقم ده مستخدم في حساب تاني" — حد عشان محدش يستخدمه
+// يكشف الأرقام المتسجّلة رقم ورا رقم. 30 في الربع ساعة أكتر بكتير من أي استخدام عادي.
+const accountEditLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'عدد كبير جدًا من المحاولات، حاول تاني بعد شوية.' },
+});
+app.patch('/api/account', accountEditLimiter);
 
 // قراءة حالة الدخول والخروج: حد واسع — دول مش بيتخمّن فيهم أي سر،
 // و/me بتتنادى مع كل صفحة. الحد هنا لمنع الإغراق بس.

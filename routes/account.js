@@ -8,6 +8,7 @@ const { requireAuth } = require('../middleware/auth');
 const { sanitizeText } = require('../utils/sanitize');
 const { hashPassword, verifyPassword } = require('../utils/password');
 const { isValidPassword } = require('../utils/validators');
+const { normalizePhone, cleanPhoneInput, phoneOwnerFilter, PHONE_MESSAGES } = require('../utils/phone');
 
 const router = express.Router();
 
@@ -48,27 +49,48 @@ router.patch('/api/account', requireAuth, async (req, res) => {
   try {
     const b = req.body || {};
     const set = {};
+    let samePhone = null; // اتبعت نفس الرقم المتخزّن (مافيش كتابة، بس الرد بيرجّعه زي الأول)
     if (b.name !== undefined) {
       const name = sanitizeText(b.name, 80);
       if (name.length < 2) return res.status(400).json({ error: 'اكتب اسمك (حرفين على الأقل).', field: 'name' });
       set.name = name;
     }
     if (b.phone !== undefined) {
-      const phone = String(b.phone || '').replace(/[^\d+\-() ]/g, '').trim().slice(0, 30);
-      if (phone && phone.replace(/\D/g, '').length < 8) return res.status(400).json({ error: 'رقم الموبايل ناقص.', field: 'phone' });
-      if (phone && await User.exists({ phone, _id: { $ne: req.user._id } })) {
-        return res.status(409).json({ error: 'رقم التليفون ده مستخدم في حساب تاني.', field: 'phone' });
+      // نفس قواعد التسجيل (utils/phone.js): موبايل صحيح في دولته، ومتخزّن بالشكل الدولي الموحّد.
+      // الرقم إجباري: اللي عنده رقم مايقدرش يمسحه — الحسابات القديمة اللي مالهاش رقم بتعدّل
+      // باقي بياناتها عادي ولو كتبت رقم لازم يبقى صحيح.
+      const cur = await User.findById(req.user._id).select('phone').lean();
+      const curPhone = (cur && cur.phone) || '';
+      // نفس تنضيف التحقق (أرقام عربي/فارسي/عريضة) — عشان "فاضي" يتفهم زي ما normalizePhone بيفهمه
+      const empty = !cleanPhoneInput(b.phone).replace(/\D/g, '');
+      if (empty) {
+        if (curPhone) return res.status(400).json({ error: PHONE_MESSAGES.required, field: 'phone', code: 'phone_required' });
+      } else if (String(b.phone).trim() === curPhone) {
+        // نفس الرقم المتخزّن بالظبط = مااتغيّرش — حتى لو قديم ومش موبايل، الاسم يتحفظ عادي
+        samePhone = curPhone;
+      } else {
+        const n = normalizePhone(b.phone, b.phoneCountry || req.user.country);
+        if (!n.ok) return res.status(400).json({ error: n.error, field: 'phone', code: 'phone_' + n.code });
+        if (n.e164 === curPhone) {
+          samePhone = curPhone; // نفس رقمه مكتوب بشكل تاني
+        } else {
+          if (await User.exists({ ...phoneOwnerFilter(n.e164), _id: { $ne: req.user._id } })) {
+            return res.status(409).json({ error: 'رقم الموبايل ده مستخدم في حساب تاني.', field: 'phone', code: 'phone_taken' });
+          }
+          set.phone = n.e164;
+        }
       }
-      set.phone = phone;
     }
-    if (!Object.keys(set).length) return res.status(400).json({ error: 'مفيش حاجة اتغيّرت.' });
-    try {
-      await User.updateOne({ _id: req.user._id }, { $set: set });
-    } catch (err) {
-      if (err && err.code === 11000) return res.status(409).json({ error: 'رقم التليفون ده مستخدم في حساب تاني.', field: 'phone' });
-      throw err;
+    if (!Object.keys(set).length && samePhone === null) return res.status(400).json({ error: 'مفيش حاجة اتغيّرت.' });
+    if (Object.keys(set).length) {
+      try {
+        await User.updateOne({ _id: req.user._id }, { $set: set });
+      } catch (err) {
+        if (err && err.code === 11000) return res.status(409).json({ error: 'رقم الموبايل ده مستخدم في حساب تاني.', field: 'phone', code: 'phone_taken' });
+        throw err;
+      }
     }
-    return res.json({ ok: true, ...set });
+    return res.json({ ok: true, ...(samePhone !== null ? { phone: samePhone } : {}), ...set });
   } catch (err) {
     console.error('Account update failed:', err);
     return res.status(500).json({ error: 'حصل خطأ في السيرفر.' });

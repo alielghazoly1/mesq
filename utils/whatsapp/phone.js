@@ -5,6 +5,7 @@
 // 1001234567 — كلهم لازم يطلعوا 201001234567. الرقم المحلي بنحط قدامه
 // كود دولة العميل (من الدولة اللي اختارها وقت التسجيل).
 // لو مش قادرين نعرف الرقم صح بنرجّع '' — ومش بنبعت (أحسن من رقم غلط).
+const { normalizePhone } = require('../phone');
 
 const DIAL = {
   EG: '20', SA: '966', AE: '971', KW: '965', QA: '974', BH: '973', OM: '968',
@@ -22,6 +23,14 @@ const DIAL = {
 const LOCAL_LEN = { EG: 10, SA: 9, AE: 9, KW: 8, QA: 8, BH: 8, OM: 8, JO: 9, US: 10, CA: 10, GB: 10 };
 
 function toWhatsAppNumber(raw, country) {
+  // الأرقام الجديدة متخزّنة موحّدة (utils/phone.js) — +201012345678 → 201012345678.
+  // بنتأكد بالمكتبة إنه موبايل صحيح: شكل "+أرقام" لوحده مش كفاية (+2001012345678 القديم = +201012345678،
+  // و +20101234567 ناقص). اللي المكتبة مش متأكدة منه بيكمّل على القواعد القديمة تحت.
+  const t = String(raw || '').trim();
+  if (/^\+[1-9]\d{6,14}$/.test(t)) {
+    const n = normalizePhone(t);
+    if (n.ok) return n.e164.slice(1);
+  }
   let d = String(raw || '').replace(/[^\d+]/g, '');
   if (!d) return '';
   const cc = String(country || '').toUpperCase();

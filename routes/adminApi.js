@@ -54,6 +54,7 @@ const {
   discountPercentFor, MAX_PRICE,
 } = require('../utils/pricing');
 const { sanitizeText } = require('../utils/sanitize');
+const { phoneSearchClauses, normalizePhone, phoneOwnerFilter } = require('../utils/phone');
 const { hashPassword } = require('../utils/password');
 const { isValidPassword } = require('../utils/validators');
 const {
@@ -524,7 +525,8 @@ router.get('/admin/api/users', requireAdminSession, async (req, res) => {
     const filter = {};
     if (q) {
       const re = new RegExp(escapeRegex(q), 'i');
-      filter.$or = [{ name: re }, { email: re }];
+      // بالاسم أو الإيميل أو الموبايل (بأي شكل اتكتب: 010… أو +20…)
+      filter.$or = [{ name: re }, { email: re }, { phone: re }, ...phoneSearchClauses(q)];
     }
     if (status === 'premium') filter['subscription.packageId'] = { $ne: null };
     if (status === 'free') filter['subscription.packageId'] = null;
@@ -964,6 +966,42 @@ router.patch('/admin/api/users/:id/password', requireAdminSession, async (req, r
     return res.json({ ok: true, killedSessions });
   } catch (err) {
     console.error('Error changing user password:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
+// PATCH /admin/api/users/:id/phone — {phone, phoneCountry}. المالك بيغيّر رقم عميل أو يمسحه (phone: '').
+// ليه: الرقم بقى إجباري ومش بيتكرر، فلو حد كتب رقم غيره غلط صاحب الرقم الحقيقي مابيعرفش يسجّل
+// ("كلّمنا على واتساب") — المالك بيصلّح الرقم الغلط أو يمسحه من هنا. نفس قواعد التسجيل، والرقم القديم
+// بيتحفظ في phoneRaw (لو فاضي) وفي سجل الإدارة.
+router.patch('/admin/api/users/:id/phone', requireAdminSession, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('phone phoneRaw country email');
+    if (!user) return res.status(404).json({ error: 'العميل ده مش موجود.' });
+    const b = req.body || {};
+    const before = user.phone || '';
+    let phone = '';
+    if (String(b.phone || '').trim()) {
+      const n = normalizePhone(b.phone, b.phoneCountry || user.country);
+      if (!n.ok) return res.status(400).json({ error: n.error, code: 'phone_' + n.code });
+      if (await User.exists({ ...phoneOwnerFilter(n.e164), _id: { $ne: user._id } })) {
+        return res.status(409).json({ error: 'الرقم ده متسجّل على عميل تاني — امسحه من عنده الأول.', code: 'phone_taken' });
+      }
+      phone = n.e164;
+    }
+    if (phone === before) return res.json({ ok: true, phone });
+    const set = { phone };
+    if (before && !user.phoneRaw) set.phoneRaw = before;
+    try {
+      await saveUserFields(user, set);
+    } catch (err) {
+      if (err && err.code === 11000) return res.status(409).json({ error: 'الرقم ده متسجّل على عميل تاني — امسحه من عنده الأول.', code: 'phone_taken' });
+      throw err;
+    }
+    logAdminAction(req, phone ? 'user.phone' : 'user.phone.clear', { type: 'user', id: user._id, label: user.email }, { before, after: phone });
+    return res.json({ ok: true, phone });
+  } catch (err) {
+    console.error('Error changing user phone:', err);
     return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
   }
 });
@@ -1465,7 +1503,7 @@ router.get('/admin/api/invitations', requireAdminSession, async (req, res) => {
     if (q) {
       const re = new RegExp(escapeRegex(q), 'i');
       // البحث كمان باسم/إيميل/موبايل صاحب الدعوة
-      const ownerIds = (await User.find({ $or: [{ name: re }, { email: re }, { phone: re }] })
+      const ownerIds = (await User.find({ $or: [{ name: re }, { email: re }, { phone: re }, ...phoneSearchClauses(q)] })
         .select('_id').limit(200).lean()).map((u) => u._id);
       parts.push({ $or: [
         { shortId: re }, { brideName: re }, { groomName: re },
@@ -1695,7 +1733,7 @@ router.get('/admin/api/support', requireAdminSession, async (req, res) => {
     const pre = [];
     if (q) {
       const rx = new RegExp(escapeRegex(q), 'i');
-      const ids = await User.find({ $or: [{ name: rx }, { email: rx }, { phone: rx }] }).select('_id').limit(300).lean();
+      const ids = await User.find({ $or: [{ name: rx }, { email: rx }, { phone: rx }, ...phoneSearchClauses(q)] }).select('_id').limit(300).lean();
       pre.push({ $match: { userId: { $in: ids.map((u) => u._id) } } });
     }
     const threads = await SupportMessage.aggregate([

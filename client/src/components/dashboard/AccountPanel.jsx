@@ -3,12 +3,15 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  UserRound, Mail, Phone, KeyRound, Eye, EyeOff, Check, Loader2, ShieldCheck, LogOut, MonitorSmartphone,
+  UserRound, Mail, KeyRound, Eye, EyeOff, Check, Loader2, ShieldCheck, LogOut, MonitorSmartphone,
 } from 'lucide-react';
 import {
   useGetAccountQuery, useUpdateAccountMutation, useChangePasswordMutation, useLogoutOthersMutation,
 } from '../../store/api.js';
 import { initials } from './dashUtils.js';
+import PhoneField from '../form/PhoneField.jsx';
+import { phoneErrorText, phoneServerText } from '../../lib/phoneUi.js';
+import { normalizePhone, splitStored } from '../../lib/phone.js';
 
 const input = 'w-full rounded-xl border border-line bg-card px-3.5 py-2.5 text-base text-ink placeholder:text-ink-dim/60 focus:border-brass focus:outline-none sm:text-[14px]';
 
@@ -32,28 +35,48 @@ export default function AccountPanel() {
   const [changePw, { isLoading: changing }] = useChangePasswordMutation();
   const [logoutOthers, { isLoading: loggingOut }] = useLogoutOthersMutation();
   const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
+  // رقم الموبايل: كود الدولة + الرقم (نفس خانة التسجيل) — بيتحفظ بالشكل الدولي الموحّد
+  const [phone, setPhone] = useState({ country: '', input: '', manual: true });
+  const [phoneErr, setPhoneErr] = useState('');
   const [profileMsg, setProfileMsg] = useState(null);
   const [cur, setCur] = useState('');
   const [next, setNext] = useState('');
   const [pwMsg, setPwMsg] = useState(null);
   const [devMsg, setDevMsg] = useState('');
 
-  useEffect(() => { if (data) { setName(data.name); setPhone(data.phone); } }, [data]);
+  useEffect(() => {
+    if (data) {
+      const sp = splitStored(data.phone, data.country);
+      setName(data.name); setPhone({ country: sp.country, input: sp.national, manual: true }); setPhoneErr('');
+    }
+  }, [data]);
 
   if (isLoading || !data) return <div className="grid place-items-center rounded-[26px] border border-line bg-card py-12"><Loader2 className="animate-spin text-ink-dim" /></div>;
 
-  const dirty = name.trim() !== data.name || phone.trim() !== data.phone;
+  const stored = splitStored(data.phone, data.country);
+  const phoneChanged = String(phone.input || '').trim() !== stored.national || phone.country !== stored.country;
+  const dirty = name.trim() !== data.name || phoneChanged;
   const pwLeft = Math.max(0, 6 - next.length);
 
   async function saveProfile(e) {
     e.preventDefault();
     setProfileMsg(null);
+    setPhoneErr('');
+    const body = { name: name.trim() };
+    if (phoneChanged) {
+      const n = normalizePhone(phone.input, phone.country);
+      // الرقم إجباري: اللي عنده رقم مايقدرش يمسحه (اللي مالوش رقم قديم يسيبه فاضي ويحفظ اسمه عادي)
+      if (!n.ok && !(n.code === 'required' && !data.phone)) { setPhoneErr(phoneErrorText(t, n.code, phone.country)); return; }
+      if (n.ok) { body.phone = n.e164; body.phoneCountry = phone.country; }
+    }
     try {
-      await update({ name: name.trim(), phone: phone.trim() }).unwrap();
+      await update(body).unwrap();
       setProfileMsg({ ok: true, text: t('dash2.saved') });
       setTimeout(() => setProfileMsg(null), 2500);
-    } catch (err) { setProfileMsg({ ok: false, text: err?.data?.error || t('dash2.saveFailed') }); }
+    } catch (err) {
+      if (err?.data?.field === 'phone') setPhoneErr(phoneServerText(t, err.data, phone.country));
+      else setProfileMsg({ ok: false, text: err?.data?.error || t('dash2.saveFailed') });
+    }
   }
 
   async function savePw(e) {
@@ -98,13 +121,16 @@ export default function AccountPanel() {
             <span className="mb-1 block text-[11.5px] font-bold text-ink-dim">{t('dash2.fEmail')}</span>
             <div className={`${input} flex items-center gap-2 bg-ink/[0.03] text-ink-dim`}><Mail size={14} /> <span className="truncate" dir="ltr">{data.email}</span></div>
           </label>
-          <label className="block">
-            <span className="mb-1 block text-[11.5px] font-bold text-ink-dim">{t('dash2.fPhone')}</span>
-            <div className="relative">
-              <Phone size={14} className="pointer-events-none absolute start-3.5 top-1/2 -translate-y-1/2 text-ink-dim" />
-              <input value={phone} onChange={(e) => setPhone(e.target.value)} inputMode="tel" dir="ltr" placeholder="01xxxxxxxxx" className={`${input} ps-9 text-start`} data-field-phone />
-            </div>
-          </label>
+          <div data-field-phone>
+            <PhoneField
+              name="account-phone"
+              value={phone}
+              onChange={(v) => { setPhone(v); setPhoneErr(''); }}
+              accountCountry={data.country}
+              label={<span className="text-[11.5px] text-ink-dim">{t('auth.phoneLabel')}</span>}
+              error={phoneErr}
+            />
+          </div>
           {profileMsg && <p className={`text-[12px] font-bold ${profileMsg.ok ? 'text-[#1f7a4d]' : 'text-[#a2465e]'}`} data-profile-msg>{profileMsg.text}</p>}
           <button type="submit" disabled={!dirty || saving} data-profile-save
             className="inline-flex items-center gap-1.5 rounded-full bg-night px-5 py-2.5 text-[13px] font-bold text-ivory transition hover:bg-emerald disabled:opacity-40">

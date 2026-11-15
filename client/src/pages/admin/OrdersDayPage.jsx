@@ -239,7 +239,7 @@ export default function OrdersDayPage() {
                           {kind === 'created' && <Badge tone={tone}>{st}</Badge>}
                         </span>
                         <span className="mt-0.5 block truncate text-[11.5px] text-ivory/45">
-                          {countryName(o.user.country)}{o.user.phone ? ` · ${o.user.phone}` : ''}{o.activationMinutes != null ? ` · اتفعّل بعد ${mins(o.activationMinutes)}` : ''}
+                          {countryName(o.user.country)}{o.user.phone ? <> · <bdi dir="ltr">{o.user.phone}</bdi></> : null}{o.activationMinutes != null ? ` · اتفعّل بعد ${mins(o.activationMinutes)}` : ''}
                         </span>
                       </span>
                       <span className="shrink-0 text-end">
