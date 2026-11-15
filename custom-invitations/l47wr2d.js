@@ -136,6 +136,16 @@ body.cl-ar .l4d-sub{direction:ltr}
 
 /* ===== الصفحة الأولى (المالك 2026-11-15): من غير التاريخ والمكان — عشان اللي يفتح يكمّل لتحت — وسهم متحرك لتحت ===== */
 #hv-hero .hv-card .hv-date,#hv-hero .hv-card .l4-wday,#hv-hero .hv-card .hv-venue{display:none!important}
+/* الكلام متوزّع على الكارت كله مش نصّه اللي فوق (المالك): مسافات وخط أوسع لحد فوق الورد اللي تحت (سكريبت القالب fitHeroCard
+   بيتأكد إن مفيش سطر بيخبط في الورد). الشاشات القصيرة (SE) زي الأول عشان السهم مايقعدش على الكلام */
+@media (min-height:621px){
+  body.cl-ar #hv-hero .l4-bsm{margin-bottom:var(--l4-g1,22px)}
+  body.cl-ar #hv-hero .l4-intro--top{font-size:15px;line-height:2.05;margin-bottom:var(--l4-g2,26px)}
+  body.cl-ar #hv-hero .hv-names--ar{font-size:36px;line-height:1.75}
+  body:not(.cl-ar) #hv-hero .hv-names{font-size:56px;margin-top:6px}
+  body:not(.cl-ar) #hv-hero .hv-names .hv-amp{font-size:34px;margin:2px 0 6px}
+  body:not(.cl-ar) #hv-hero .l4-intro--after{margin-top:var(--l4-g3,40px);font-size:15px;line-height:2.1}
+}
 #l4-down{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 22px);z-index:2147482000;width:44px;height:44px;margin-left:-22px;
   display:none;align-items:center;justify-content:center;border:0;padding:0;background:none;color:#6f5a40;cursor:pointer;opacity:0;
   transition:opacity .6s ease;-webkit-tap-highlight-color:transparent}
