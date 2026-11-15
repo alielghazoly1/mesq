@@ -22,7 +22,7 @@ const TEXT = {
     open: 'Click to open',
     bsm: '',
     introTop: '',
-    introAfter: 'Together with their families,<br>they gladly invite you to celebrate<br>the beginning of their forever<br>at their wedding celebration.',
+    introAfter: 'Together with their families,<br>They gladly invite you to celebrate<br>the beginning of their forever<br>at their wedding celebration.',
     name1: 'Ahmed', amp: '&', name2: 'Jilan',
     wday: 'FRIDAY',
     dateM: 'January', dateD: '8', dateY: '2027',
@@ -37,7 +37,7 @@ const TEXT = {
       rows: [['7:30 PM', 'Zaffa'], ['8:00 PM', 'Katb Ketab Ceremony']],
       follow: 'Celebration to follow.',
       dressEyebrow: 'DRESS CODE', dress: 'Formal Evening Wear', dressNote: 'Kindly keep white for the bride.',
-      attireAlt: 'Formal evening wear — a black tuxedo and an evening gown',
+      attireAlt: 'Formal evening wear — couples in suits and evening dresses of different colours',
     },
     venuePhotoAlt: 'Dar El Marasem – Police Officers Club',
     toggle: 'عربي', toggleLabel: 'اقرأ الدعوة بالعربي',
@@ -55,14 +55,14 @@ const TEXT = {
     tileD: '٨', tileM: 'يناير', tileY: '٢٠٢٧',
     cdDate: 'الجمعة | ٨ يناير ٢٠٢٧',
     vnName: 'قاعة (إخناتون)', vnAddr: 'دار المراسم لضباط الشرطة – الجزيرة',
-    hope: 'في انتظاركم!', closingNames: 'چيلان و أحمد',
+    hope: 'في انتظاركم', closingNames: 'أحمد و چيلان',
     note: 'وجودكم يشرفنا ويزيد فرحتنا اكتمالًا',
     details: {
       eyebrow: 'الجمعة | ٨ يناير ٢٠٢٧', title: 'برنامج الحفل',
       rows: [['٧:٣٠ مساءً', 'الزفة'], ['٨:٠٠ مساءً', 'عقد القران']],
       follow: 'ويلي ذلك الاحتفال بالزفاف.',
-      dressEyebrow: 'الزي الرسمي', dress: 'زي سهرة أنيق', dressSub: '(Formal Evening Wear)', dressNote: 'نرجو التكرم بترك اللون الأبيض للعروس.',
-      attireAlt: 'زي سهرة أنيق — بدلة سموكنج وفستان سهرة',
+      dressEyebrow: 'الزي الرسمي', dress: '', dressNote: 'نرجو التكرم بترك اللون الأبيض للعروس.',
+      attireAlt: 'الزي الرسمي — بدل وفساتين سهرة بألوان مختلفة',
     },
     venuePhotoAlt: 'دار المراسم لضباط الشرطة – الجزيرة',
     toggle: 'English', toggleLabel: 'Read the invitation in English',
@@ -92,16 +92,7 @@ body.cl-ar #hv-hero .hv-names--ar{font-size:34px;line-height:1.5}
 body.cl-ar #hv-hero .hv-names--ar .hv-amp{font-family:'Aref Ruqaa','Amiri',serif!important;font-style:normal;font-size:21px;line-height:1.3;color:#a48c69;margin:-2px 0 -4px}
 #hv-hero .hv-venue .l4-v3{display:block}
 
-/* ===== المكان: صورة القاعة فوق الخريطة ===== */
-#vn-venue .vn-stage{height:770px}
-#vn-venue .l4-vphoto{position:absolute;left:50px;top:180px;width:340px;height:154px;padding:6px;margin:0;background:#fbf8f2;border-radius:2px;
-  box-shadow:0 1px 1px rgba(60,44,28,.16),0 4px 10px rgba(60,44,28,.08),4px 18px 30px -16px rgba(60,44,28,.55)}
-#vn-venue .l4-vphoto::after{content:"";position:absolute;inset:3px;border:1px solid rgba(164,140,105,.5);pointer-events:none}
-#vn-venue .l4-vphoto img{display:block;width:100%;height:100%;object-fit:cover}
-#vn-venue .vn-frame{top:356px}
-#vn-venue .vn-fl{top:330px}
-#vn-venue .vn-dir{top:722px}
-.vn--in .l4-vphoto{animation-delay:.38s!important}
+/* ===== المكان ===== (2026-11-15: صورة المبنى اللي كانت فوق الخريطة اتشالت — المالك: دي مش دار المراسم. الخريطة واللينك على المكان الصح. لو بعت صورة للقاعة الصح تترجع في venuePhoto) */
 
 /* ===== برنامج الحفل + الزي ===== */
 .l4d{position:relative;overflow:hidden;background:#fffdfb;color:#2b1c13;text-align:center;padding:26px 0 46px;-webkit-font-smoothing:antialiased}
@@ -137,9 +128,24 @@ body.cl-ar .l4d-sub{direction:ltr}
 .l4d--in .l4d-card{animation-delay:.26s}
 .l4d--in .l4d-stage > :nth-child(n+4){animation-delay:.4s}
 
-/* صورة الزي (بدلة + فستان) تحت الدريس كود — نفس رسمة DBywdm2 وبنفس طريقة عرضها هناك: لوحدها، من غير إطار ولا ظل */
-.l4d-attire{position:relative;width:200px;height:250px;margin:30px auto 0}
-.l4d-attire img{position:absolute;left:-13.75%;top:-10.2%;width:127.5%;height:128%;max-width:none}
+/* صورة الزي تحت الدريس كود (المالك 2026-11-15): رسمة أزواج كتير ببدل وفساتين سهرة بألوان مختلفة — عشان محدش يفهم إن
+   في لون معيّن. صفّين عشان تبان كبيرة على الموبايل، وإضاءتها دافية زي الدعوة. لوحدها من غير إطار ولا ظل؛ الخلفية البيضا
+   شفافة في الملف نفسه فبتبان على خلفية الصفحة */
+.l4d-attire{width:min(330px,84vw);margin:26px auto 0}
+.l4d-attire img{display:block;width:100%;height:auto}
+
+/* ===== الصفحة الأولى (المالك 2026-11-15): من غير التاريخ والمكان — عشان اللي يفتح يكمّل لتحت — وسهم متحرك لتحت ===== */
+#hv-hero .hv-card .hv-date,#hv-hero .hv-card .l4-wday,#hv-hero .hv-card .hv-venue{display:none!important}
+#l4-down{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 22px);z-index:2147482000;width:44px;height:44px;margin-left:-22px;
+  display:none;align-items:center;justify-content:center;border:0;padding:0;background:none;color:#6f5a40;cursor:pointer;opacity:0;
+  transition:opacity .6s ease;-webkit-tap-highlight-color:transparent}
+#l4-down.on{display:flex}
+#l4-down.show{opacity:1}
+#l4-down svg{width:36px;height:36px;overflow:visible;animation:l4-bob 1.8s ease-in-out infinite;filter:drop-shadow(0 1px 2px rgba(251,248,242,.9))}
+#l4-down svg path{fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+#l4-down svg .l4-c2{opacity:.55}
+@keyframes l4-bob{0%,100%{transform:translateY(-4px)}50%{transform:translateY(5px)}}
+@media (prefers-reduced-motion:reduce){#l4-down svg{animation:none}}
 
 /* ===== الختام ===== */
 body.cl-ar .cl-note{font-size:20px}
@@ -148,8 +154,8 @@ body.cl-ar .cl-note{font-size:20px}
 function clientScript() {
   const cfg = {
     T: TEXT,
-    venuePhoto: IMG('venue.webp'),
-    attire: IMG('attire.webp'),
+    venuePhoto: '',
+    attire: IMG('dresscode.webp'),
   };
   const json = JSON.stringify(cfg).replace(/</g, '\\u003c');
   return `<script id="l4-script">(function(){
@@ -176,7 +182,7 @@ function build(){
     var vp=card.querySelector('.hv-venue');if(vp){v3=el('span','cl-line l4-v3');vp.appendChild(v3);}
   }
   var st=document.querySelector('#vn-venue .vn-stage'),ad=st&&st.querySelector('.vn-addr');
-  if(st&&ad){vphoto=el('figure','l4-vphoto');var im=new Image();im.src=X.venuePhoto;im.alt='';im.decoding='async';im.loading='lazy';vphoto.appendChild(im);ad.parentNode.insertBefore(vphoto,ad.nextSibling);}
+  if(st&&ad&&X.venuePhoto){vphoto=el('figure','l4-vphoto');var im=new Image();im.src=X.venuePhoto;im.alt='';im.decoding='async';im.loading='lazy';vphoto.appendChild(im);ad.parentNode.insertBefore(vphoto,ad.nextSibling);}
   var vr=document.getElementById('venue');
   if(vr){det=el('section','l4d');det.id='l4-details';det.innerHTML='<div class="l4d-stage"></div>';vr.parentNode.insertBefore(det,vr.nextSibling);
     if('IntersectionObserver' in window&&!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)){det.classList.add('l4d--armed');
@@ -187,9 +193,9 @@ function details(D){
   var r=D.rows.map(function(x){return '<div class="l4d-row"><span class="l4d-time">'+esc(x[0])+'</span><i class="l4d-dot"></i><span class="l4d-what">'+esc(x[1])+'</span></div>';}).join('');
   return '<p class="l4d-eyebrow">'+esc(D.eyebrow)+'</p><h2 class="l4d-title">'+esc(D.title)+'</h2>'
     +'<div class="l4d-card">'+r+'<p class="l4d-follow">'+esc(D.follow)+'</p></div>'
-    +'<div class="l4d-rule"></div><p class="l4d-eyebrow">'+esc(D.dressEyebrow)+'</p><p class="l4d-dress">'+esc(D.dress)+'</p>'
+    +'<div class="l4d-rule"></div><p class="l4d-eyebrow">'+esc(D.dressEyebrow)+'</p>'+(D.dress?'<p class="l4d-dress">'+esc(D.dress)+'</p>':'')
     +(D.dressSub?'<p class="l4d-sub">'+esc(D.dressSub)+'</p>':'')+'<p class="l4d-note">'+esc(D.dressNote)+'</p>'
-    +'<figure class="l4d-attire"><img src="'+X.attire+'" alt="'+esc(D.attireAlt)+'" width="459" height="576" decoding="async" loading="lazy" draggable="false"></figure>';
+    +'<figure class="l4d-attire"><img src="'+X.attire+'" alt="'+esc(D.attireAlt)+'" width="662" height="936" decoding="async" loading="lazy" draggable="false"></figure>';
 }
 function apply(g){
   build();
@@ -226,9 +232,16 @@ function apply(g){
 }
 var btn=el('button','');btn.id='l4-lang';btn.type='button';
 btn.addEventListener('click',function(e){e.stopPropagation();var g=lang==='ar'?'en':'ar';apply(g);try{sessionStorage.setItem('l4_lang',g);}catch(x){}});
-function showBtn(){if(btn.classList.contains('on'))return;btn.classList.add('on');requestAnimationFrame(function(){requestAnimationFrame(function(){btn.classList.add('show');});});}
+var down=el('button','');down.id='l4-down';down.type='button';down.setAttribute('aria-label','scroll');
+down.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7.5l7 6 7-6"/><path class="l4-c2" d="M5 13l7 6 7-6"/></svg>';
+var downGone=false;
+function hideDown(){if(downGone)return;downGone=true;down.classList.remove('show');setTimeout(function(){down.classList.remove('on');},700);}
+down.addEventListener('click',function(e){e.stopPropagation();window.scrollBy({top:Math.round(innerHeight*0.8),behavior:'smooth'});hideDown();});
+window.addEventListener('scroll',function(){if(!downGone&&down.classList.contains('show')&&(window.scrollY||document.documentElement.scrollTop)>60)hideDown();},{passive:true});
+function showBtn(){if(btn.classList.contains('on'))return;btn.classList.add('on');requestAnimationFrame(function(){requestAnimationFrame(function(){btn.classList.add('show');});});
+  if(!downGone&&(window.scrollY||document.documentElement.scrollTop)<60){down.classList.add('on');setTimeout(function(){if(!downGone)down.classList.add('show');},1200);}}
 function start(){
-  document.body.appendChild(btn);
+  document.body.appendChild(btn);document.body.appendChild(down);
   apply(lang);
   var hero=document.getElementById('hv-hero');
   if(hero&&window.MutationObserver){if(hero.classList.contains('hv--play'))showBtn();
@@ -260,6 +273,16 @@ module.exports = {
     out = out.replace('<source src="/templates/champagne-lace/song.mp3"', () => `<source src="${IMG('song.mp3')}"`);
     // الفورم بيكلّم الضيف بلغة الصفحة وقت الإرسال (رسايل الشكر/الأخطاء) — بنخلي القاموس بتاعه يتبدّل مع الزرار
     out = out.replace('var L = T[LANG];', () => 'var L = T[LANG]; window.__clT = T; window.__clSetLang = function (g) { if (T[g]) { LANG = g; L = T[g]; } };');
+    // الخريطة (المالك 2026-11-15): القالب بيرسم الخريطة ولينك الاتجاهات على مكانه الافتراضي (Royal Maxim Palace Kempinski)
+    // وسكريبت الصفحة بيبدّلها بعدين — على بعض الموبايلات الضيف كان بيشوف Kempinski. دلوقتي مكان الدعوة نفسه من السيرفر.
+    out = out
+      .split('https://www.google.com/maps?q=Royal+Maxim+Palace+Kempinski+Cairo&amp;z=15&amp;hl=en&amp;output=embed')
+      .join('https://www.google.com/maps?q=Police%20Officers%20Club%2C%20Al%20Borg%2C%20Zamalek%2C%20Cairo&amp;z=16&amp;output=embed')
+      .split('https://www.google.com/maps/dir/?api=1&amp;destination=Royal+Maxim+Palace+Kempinski+Cairo')
+      .join('https://maps.app.goo.gl/woJFYWbDgcbrUiH29')
+      .split('title="Map: Royal Maxim Palace Kempinski"').join('title="Map: Dar El Marasem – Police Officers Club, Gezira"')
+      .split('data-location="Royal Maxim Palace Kempinski, New Cairo, Cairo, Egypt"').join('data-location="Akhenaton Hall, Dar El Marasem – Police Officers Club, Gezira, Cairo, Egypt"')
+      .split('data-cl="vnName">Royal Maxim Palace Kempinski<').join('data-cl="vnName">Akhenaton Hall<');
     // الألبوم: صور العروسين التلاتة (علامة المصوّر على الشمال تحت، فالقص من اليمين بس)
     out = out
       .replace(/(<img data-elem-id="cl62" src=")[^"]*(" alt="[^"]*" style=")[^"]*(")/, (m, a, b, c) => `${a}${IMG('p1.webp')}${b}object-position:0% 50%${c}`)
