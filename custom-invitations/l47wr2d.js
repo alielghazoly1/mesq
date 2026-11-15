@@ -7,6 +7,7 @@
 //     حسب النبي")، وبسم الله فوق الكارت الأول. الإنجليزي: "Ahmed Hasab El Naby & Jilan Hossam" زي ما كتبها.
 //   • برنامج الحفل + الزي (قسم جديد بنفس شكل القالب بعد المكان)، صورة القاعة فوق الخريطة، و3 صور العروسين في
 //     الألبوم (علامة المصوّر Ahmed Bebo فاضلة زي ما هي)، وجملة الختام في سطر الختام (cl83).
+//   • تحت الدريس كود رسمة البدلة والفستان (نفس ملف DBywdm2) لوحدها — المالك رفض الإطار والظل.
 // الأسامي/التاريخ/المكان/الخريطة متخزّنين في بيانات الدعوة نفسها (utils/oneOffFixes.js: l47wr2d-ahmed-jilan) عشان
 // الداشبورد والتقويم والحضور. في المحرر (editMode) الملف ده مابيعملش أي حاجة — القالب بيتعرض زي ما هو.
 const { asset } = require('./_asset');
@@ -136,12 +137,9 @@ body.cl-ar .l4d-sub{direction:ltr}
 .l4d--in .l4d-card{animation-delay:.26s}
 .l4d--in .l4d-stage > :nth-child(n+4){animation-delay:.4s}
 
-/* صورة الزي (بدلة + فستان) تحت الدريس كود — جوه قوس عاجي بخط دهبي زي قوس الخريطة */
-.l4d-attire{position:relative;width:216px;height:282px;margin:26px auto 0;padding:8px;border-radius:108px 108px 3px 3px;background:#fbf8f2;
-  box-shadow:0 1px 1px rgba(60,44,28,.14),0 3px 8px rgba(60,44,28,.08),6px 18px 34px -14px rgba(60,44,28,.45)}
-.l4d-attire::after{content:"";position:absolute;inset:3px;border-radius:105px 105px 2px 2px;border:1px solid rgba(164,140,105,.55);pointer-events:none}
-.l4d-attire img{display:block;width:100%;height:100%;object-fit:contain;padding:22px 14px 10px;border-radius:100px 100px 1px 1px;
-  background:radial-gradient(ellipse at 50% 42%,#fffdf9 0%,#f6f0e6 100%)}
+/* صورة الزي (بدلة + فستان) تحت الدريس كود — نفس رسمة DBywdm2 وبنفس طريقة عرضها هناك: لوحدها، من غير إطار ولا ظل */
+.l4d-attire{position:relative;width:200px;height:250px;margin:30px auto 0}
+.l4d-attire img{position:absolute;left:-13.75%;top:-10.2%;width:127.5%;height:128%;max-width:none}
 
 /* ===== الختام ===== */
 body.cl-ar .cl-note{font-size:20px}
@@ -191,7 +189,7 @@ function details(D){
     +'<div class="l4d-card">'+r+'<p class="l4d-follow">'+esc(D.follow)+'</p></div>'
     +'<div class="l4d-rule"></div><p class="l4d-eyebrow">'+esc(D.dressEyebrow)+'</p><p class="l4d-dress">'+esc(D.dress)+'</p>'
     +(D.dressSub?'<p class="l4d-sub">'+esc(D.dressSub)+'</p>':'')+'<p class="l4d-note">'+esc(D.dressNote)+'</p>'
-    +'<figure class="l4d-attire"><img src="'+X.attire+'" alt="'+esc(D.attireAlt)+'" width="520" height="712" decoding="async" loading="lazy"></figure>';
+    +'<figure class="l4d-attire"><img src="'+X.attire+'" alt="'+esc(D.attireAlt)+'" width="459" height="576" decoding="async" loading="lazy" draggable="false"></figure>';
 }
 function apply(g){
   build();
