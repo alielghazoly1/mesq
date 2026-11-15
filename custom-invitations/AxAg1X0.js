@@ -3,10 +3,13 @@
 //  • ختم E&A (بنفس خط Monsieur La Doulaise + Bodoni) في فيديو الظرف والغلاف وختم اللؤلؤ — اترسم من الخطوط على
 //    شكل الصورة اللي المالك بعتها (الصورة نفسها معاينة Adobe Stock عليها علامة مائية).
 //  • القاعة لونها برجندي: لون الكلام والزراير والعدّاد برجندي بدل الأزرق الرمادي.
-//  • "Our Moments" (الصور) اتشالت، ومكانها كارت الخدش على الصدف (Save the date) زي ما كان في qWn9kOE الأول.
+//  • "Our Moments" (الصور) اتشالت، ومكانها كارت الخدش على الصدف زي ما كان في qWn9kOE الأول.
+//    (2026-11-15 بطلب المالك) تحت الخدش بقت صورة العرسان اللي بعتها مالية الشكل البيضاوي بدل Save the date —
+//    زي التصميم الأصلي و DBywdm2 (التاريخ موجود في الكارت الأولاني والعدّاد والختام).
 //  • (صفحة "A Little Note of Love" اتعملت واتشالت بطلب المالك في نفس اليوم.)
 //  • الكلام كله إنجليزي بكلام المالك. البيانات (الأسامي، الميعاد، القاعة، اللينك) في oneOffFix AxAg1X0-eman-ahmed.
-// نفس أغنية cPcTTdw (A Thousand Years من الثانية 20).
+// الأغنية (2026-11-15): الملف اللي المالك بعته (مقطع 27 ثانية) — مقصوص عند النقطة اللي اللحن بيرجع فيها لأوله
+// عشان اللفّة ماتبانش، وصوته على مستوى أغاني الموقع. (قبلها كانت نفس أغنية cPcTTdw.)
 const { asset } = require('./_asset');
 
 const SHORT = 'AxAg1X0';
@@ -18,7 +21,7 @@ const SWAP = [
   ['v1.mp4', OWN + 'v1.mp4'],
   ['seal.webp', OWN + 'seal.webp'],
   ['countdown-frame.webp', OWN + 'countdown-frame.webp'],
-  ['song.mp3', QW + 'song.mp3'],
+  ['song.mp3', OWN + 'song.mp3'],
 ];
 
 // برجندي القاعة
@@ -41,10 +44,8 @@ const STYLE = `<style id="ea-style">
 .sc-oval{overflow:hidden}
 .sc-under{position:absolute;left:0;top:0;right:0;bottom:0;background:var(--ivory);visibility:hidden}
 .sc-under.ready{visibility:visible}
-.sc-date{position:absolute;left:0;top:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:radial-gradient(ellipse at 50% 40%,#fbf8f3,#ece4d8)}
-.sc-d1{font-family:var(--script);font-size:clamp(20px,6vw,34px);line-height:1;color:var(--fg)}
-.sc-d2{font-family:var(--serif);font-size:clamp(20px,6.2vw,36px);line-height:1.2;letter-spacing:.04em;margin-top:6px;color:var(--fg)}
-.sc-d3{font-family:var(--sans);font-weight:300;font-size:clamp(8px,2.2vw,12px);letter-spacing:.25em;text-transform:uppercase;margin-top:6px;color:rgba(var(--fg-rgb),.7)}
+/* تحت الخدش: صورة العرسان مالية الشكل البيضاوي (زي DBywdm2) */
+.sc-photo{position:absolute;left:0;top:0;width:100%;height:100%;max-width:none;object-fit:cover;-webkit-user-select:none;user-select:none}
 .sc-canvas{position:absolute;left:0;top:0;width:100%;height:100%;cursor:pointer;touch-action:none;transition:opacity .7s}
 .sc-canvas.done{opacity:0;pointer-events:none}
 .sc-ring{pointer-events:none;box-shadow:0 0 0 3px hsl(40,45%,72%),0 0 0 5px hsl(40,30%,92%),0 0 0 6px hsl(40,40%,62%),0 0 0 12px hsla(40,30%,96%,.55),0 0 0 13px hsl(40,40%,66%),0 6px 18px hsla(345,40%,25%,.25),inset 0 0 10px hsla(40,40%,40%,.35)}
@@ -59,7 +60,7 @@ const SCRATCH = `
       <img class="sc-bg" src="${asset(QW + 'welcome-families.webp')}" alt="" loading="lazy" draggable="false">
       <div class="sc-oval">
         <div class="sc-under" id="scUnder">
-          <div class="sc-date"><span class="sc-d1">Save the date</span><span class="sc-d2">04.12.2026</span><span class="sc-d3">At 7 PM</span></div>
+          <img class="sc-photo" src="${asset(OWN + 'couple.webp')}" alt="Eman &amp; Ahmed" loading="lazy" decoding="async" draggable="false">
         </div>
         <canvas class="sc-canvas" id="scratch" data-paper="${asset(QW + 'paper.webp')}"></canvas>
       </div>
