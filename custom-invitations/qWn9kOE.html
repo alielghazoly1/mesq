@@ -576,10 +576,30 @@ main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
       if (still >= 1500 && t > 0.05) fadeCover();
     }, 250);
   }
+  // الفيونكة لسه بتتحمّل في الخلفية؟ نستنى على آخر فريم من الظرف (لحد 4 ثواني) لحد ما تبقى في الذاكرة —
+  // كانت بتبدأ من النت وهي لسه بتتحمّل فتقف في نصّها على الآيفون
+  var v2Wait = 0;
   function startV2() {
+    if (v2Started || v2Wait) return;
+    if (v2Loading && !v2Ready) {
+      clearInterval(stallT);
+      var w0 = Date.now();
+      v2Wait = setInterval(function () {
+        if (state !== 'envelope') { clearInterval(v2Wait); return; }
+        if (v2Ready || !v2Loading || Date.now() - w0 > 4000) { clearInterval(v2Wait); playV2(); }
+      }, 100);
+      return;
+    }
+    playV2();
+  }
+  function playV2() {
     if (v2Started) return;
     v2Started = true;
     v2.classList.add('on');
+    // الظرف خلص واتغطّى بالفيونكة (بعد ما تظهر بالكامل): نفضّي فيديو الظرف من الذاكرة — الآيفون بيفك فيديو واحد بس بدل اتنين
+    v2.addEventListener('playing', function () {
+      setTimeout(function () { try { v1.pause(); v1.removeAttribute('src'); v1.load(); } catch (e) {} }, 1200);
+    }, { once: true });
     try { v2.currentTime = 0; } catch (e) {}
     var p;
     try { p = v2.play(); } catch (e) { p = null; }
@@ -588,13 +608,17 @@ main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
     // الفيونكة مابدأتش خلال ثانيتين ونص → الكارت على طول بدل ما الضيف يستنى
     setTimeout(function () { if (state === 'envelope' && v2.currentTime < 0.05) fadeCover(); }, 2500);
   }
-  // الفيديوهين بيتحمّلوا كاملين في الخلفية من أول ما الصفحة تفتح — لو خلصوا قبل الضغطة الفتح بيبقى من الذاكرة
-  function preloadVid(vid) {
+  // الفيديوهين بيتحمّلوا كاملين في الخلفية (blob) واحد ورا التاني — الظرف الأول (محتاجينه مع الضغطة)، وبعده الفيونكة.
+  // أي فيديو لسه ما بدأش لما نسخته توصل بيتبدّل بيها (الفيونكة حتى بعد الضغطة) — كده بتشتغل من الذاكرة ومابتقفش.
+  var v2Loading = false, v2Ready = false;
+  function preloadVid(vid, canSwap, done) {
     var url = vid.getAttribute('src');
-    if (!url || !window.fetch || !window.URL || !URL.createObjectURL) return;
+    if (!url || !window.fetch || !window.URL || !URL.createObjectURL) { done(false); return; }
     fetch(url).then(function (r) { if (!r.ok) throw 0; return r.blob(); }).then(function (b) {
-      if (state === 'idle' && b && b.size > 1000) { vid.src = URL.createObjectURL(b); try { vid.load(); } catch (e) {} }
-    }).catch(function () {});
+      var ok = !!(b && b.size > 1000 && canSwap());
+      if (ok) { vid.src = URL.createObjectURL(b); try { vid.load(); } catch (e) {} }
+      done(ok);
+    }).catch(function () { done(false); });
   }
   v1.addEventListener('timeupdate', function () {
     if (v1.currentTime > 0.05) { v1.classList.add('on'); clearTimeout(firstWatch); }
@@ -645,7 +669,11 @@ main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
       root.classList.add('lock');
       try { history.scrollRestoration = 'manual'; } catch (e) {}
       window.scrollTo(0, 0);
-      preloadVid(v1); preloadVid(v2);
+      v2.preload = 'metadata';
+      v2Loading = true;
+      preloadVid(v1, function () { return state === 'idle'; }, function () {
+        preloadVid(v2, function () { return !v2Started; }, function (ok) { v2Ready = ok; v2Loading = false; });
+      });
       cover.addEventListener('click', openInvitation);
       cover.addEventListener('touchmove', function (e) { e.preventDefault(); }, { passive: false });
     }

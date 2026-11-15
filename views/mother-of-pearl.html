@@ -759,10 +759,30 @@ html[dir=rtl] .ft-en-h{font-size:30px;line-height:1.6}
       if (still >= 1500 && t > 0.05) fadeCover();
     }, 250);
   }
+  // الفيونكة لسه بتتحمّل في الخلفية؟ نستنى على آخر فريم من الظرف (لحد 4 ثواني) لحد ما تبقى في الذاكرة —
+  // كانت بتبدأ من النت وهي لسه بتتحمّل فتقف في نصّها على الآيفون
+  var v2Wait = 0;
   function startV2() {
+    if (v2Started || v2Wait) return;
+    if (v2Loading && !v2Ready) {
+      clearInterval(stallT);
+      var w0 = Date.now();
+      v2Wait = setInterval(function () {
+        if (state !== 'envelope') { clearInterval(v2Wait); return; }
+        if (v2Ready || !v2Loading || Date.now() - w0 > 4000) { clearInterval(v2Wait); playV2(); }
+      }, 100);
+      return;
+    }
+    playV2();
+  }
+  function playV2() {
     if (v2Started) return;
     v2Started = true;
     v2.classList.add('on');
+    // الظرف خلص واتغطّى بالفيونكة (بعد ما تظهر بالكامل): نفضّي فيديو الظرف من الذاكرة — الآيفون بيفك فيديو واحد بس بدل اتنين
+    v2.addEventListener('playing', function () {
+      setTimeout(function () { try { v1.pause(); v1.removeAttribute('src'); v1.load(); } catch (e) {} }, 1200);
+    }, { once: true });
     try { v2.currentTime = 0; } catch (e) {}
     var p;
     try { p = v2.play(); } catch (e) { p = null; }
@@ -774,6 +794,7 @@ html[dir=rtl] .ft-en-h{font-size:30px;line-height:1.6}
   function openInvitation() {
     if (state !== 'idle') return;
     state = 'envelope';
+    cover.classList.add('go');   // "اضغط لفتح الدعوة" تختفي مع الضغطة (كانت فاضلة فوق الفيديوهين)
     startMusic();
     // نفس الضغطة بتجهّز الفيديو التاني عشان يشتغل لوحده بعد الأول (آيفون في توفير الطاقة)
     try {
@@ -787,15 +808,19 @@ html[dir=rtl] .ft-en-h{font-size:30px;line-height:1.6}
     firstWatch = setTimeout(function () { if (v1.currentTime <= 0.05) fadeCover(); }, 6000);
     watchdog = setTimeout(fadeCover, 20000);
   }
-  // تحميل الفيديوهين كاملين في الخلفية (blob) — لو التحميل خلص قبل الضغطة، الفتح بيبقى من الذاكرة
-  function preload(vid) {
-    var url = vid.getAttribute('data-src');
-    vid.src = url;
-    if (!window.fetch || !window.URL || !URL.createObjectURL) return;
+  // تحميل الفيديوهين كاملين في الخلفية (blob) واحد ورا التاني — الظرف الأول (محتاجينه مع الضغطة)، وبعده الفيونكة.
+  // أي فيديو لسه ما بدأش لما نسخته توصل بيتبدّل بيها (الفيونكة حتى بعد الضغطة) — كده بتشتغل من الذاكرة ومابتقفش.
+  var v2Loading = false, v2Ready = false;
+  // ?v= على ملفات القالب (اللي من غير بصمة) — الفيديوهات اتعملت تاني (2026-11-15) والمتصفح كان محتفظ بالقديمة أسبوع
+  function vurl(vid) { var u = vid.getAttribute('data-src') || ''; return u.indexOf('?') === -1 ? u + '?v=ios2' : u; }
+  function preload(vid, canSwap, done) {
+    var url = vurl(vid);
+    if (!window.fetch || !window.URL || !URL.createObjectURL) { done(false); return; }
     fetch(url).then(function (r) { if (!r.ok) throw 0; return r.blob(); }).then(function (b) {
-      // لسه ماشتغلش؟ نبدّله بالنسخة اللي في الذاكرة
-      if (state === 'idle' && b && b.size > 1000) { vid.src = URL.createObjectURL(b); try { vid.load(); } catch (e) {} }
-    }).catch(function () {});
+      var ok = !!(b && b.size > 1000 && canSwap());
+      if (ok) { vid.src = URL.createObjectURL(b); try { vid.load(); } catch (e) {} }
+      done(ok);
+    }).catch(function () { done(false); });
   }
 
   if (STATIC) {
@@ -830,7 +855,13 @@ html[dir=rtl] .ft-en-h{font-size:30px;line-height:1.6}
     root.classList.add('lock');
     try { history.scrollRestoration = 'manual'; } catch (e) {}
     window.scrollTo(0, 0);
-    preload(v1); preload(v2);
+    v1.src = vurl(v1);
+    v2.preload = 'metadata';
+    v2.src = vurl(v2);
+    v2Loading = true;
+    preload(v1, function () { return state === 'idle'; }, function () {
+      preload(v2, function () { return !v2Started; }, function (ok) { v2Ready = ok; v2Loading = false; });
+    });
     cover.addEventListener('click', openInvitation);
     cover.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openInvitation(); } });
     cover.addEventListener('touchmove', function (e) { e.preventDefault(); }, { passive: false });
