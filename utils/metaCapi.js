@@ -53,14 +53,19 @@ function clearConfigCache() { cache = { at: 0, cfg: null }; }
 const sha = (v) => crypto.createHash('sha256').update(String(v)).digest('hex');
 const norm = (v) => String(v || '').trim().toLowerCase();
 
+const keepCookie = (v, max) => { const t = String(v || '').trim(); return t && t.length <= max ? t : undefined; };
+
 /** بيانات المتصفح وقت الطلب — بتتحفظ على الأوردر عشان حدث الشراء (بيحصل من جهاز الأدمن) */
 function contextFromReq(req) {
   if (!req) return {};
   const c = req.cookies || {};
   const ref = String(req.get('referer') || '');
   return {
-    fbp: String(c._fbp || '').slice(0, 200) || undefined,
-    fbc: String(c._fbc || '').slice(0, 300) || undefined,
+    // _fbp/_fbc بيتبعتوا زي ما هما بالحرف: ميتا بتعتبر أي تعديل (قص أو تصغير حروف) "fbclid متعدّل" وبتضعّف
+    // ربط الحدث بالإعلان (تشخيص ميتا 2026-11-16). كان فيه قص لـ 300 حرف — والـ fbclid ممكن يوصل 500.
+    // لو القيمة طويلة بشكل مش طبيعي مابنبعتهاش خالص بدل ما نبعتها مقصوصة.
+    fbp: keepCookie(c._fbp, 300),
+    fbc: keepCookie(c._fbc, 1000),
     ip: String(req.ip || '').replace(/^::ffff:/, '').slice(0, 60) || undefined,
     ua: String(req.get('user-agent') || '').slice(0, 400) || undefined,
     url: ref.startsWith(SITE) ? ref.slice(0, 500) : undefined,
