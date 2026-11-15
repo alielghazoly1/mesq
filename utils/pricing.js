@@ -304,7 +304,28 @@ async function savePricingPage(input) {
   return doc;
 }
 
+/**
+ * قيمة "فتح ديمو تصميم" (ViewContent) لميتا. ميتا (Diagnostics) بتطلب عملة صالحة في
+ * ViewContent — من غيرها كانت بتقول إن 100% من الأحداث مالهاش عملة. القيمة = أرخص باقة
+ * متاحة بعملة الزائر بعد الخصم ("الدعوة تبدأ من كذا")، نفس الأسعار اللي هيشوفها.
+ * الزائر المسجّل بدولة حسابه؛ غيره بالجنيه (الموقع مابيعرفش دولته قبل التسجيل).
+ * مابترميش أخطاء أبدًا — لو حصل أي حاجة بترجع {} والحدث بيتبعت من غير مبلغ زي الأول.
+ * @param {string} [countryCode]
+ * @returns {Promise<{value?: number, currency?: string}>}
+ */
+async function viewContentMoney(countryCode) {
+  try {
+    const list = await pricedPackagesFor(countryCode || 'EG', 'ar');
+    const prices = list.map((p) => Number(p.price) || 0).filter((v) => v > 0);
+    if (!prices.length || !list[0].currency) return {};
+    return { value: Math.round(Math.min(...prices) * 100) / 100, currency: String(list[0].currency).toUpperCase() };
+  } catch (err) {
+    return {};
+  }
+}
+
 module.exports = {
+  viewContentMoney,
   getPricingSettings,
   getPricingSettingsCached,
   invalidateCache,

@@ -30,6 +30,7 @@ const { hashIp } = require('../middleware/freeQuota');
 const { getPublicStats } = require('../utils/publicStats');
 const { getTemplate, TEMPLATES } = require('../templates/registry');
 const { injectPixel } = require('../utils/metaPixel');
+const { viewContentMoney } = require('../utils/pricing');
 const metaCapi = require('../utils/metaCapi');
 const { buildEventIcs } = require('../utils/calendarIcs');
 const { buildDisplayFields } = require('../utils/dateFormatter');
@@ -661,7 +662,8 @@ router.get('/i/:shortId/calendar.ics', async (req, res) => {
 // GET /preview-sample/:templateId — معاينة القالب ببيانات وهمية جاهزة (زرار
 // "شوف شكل الدعوة" في معرض القوالب)، بدون أي حفظ ومن غير ما يحتاج المستخدم
 // يفتح الفورم أصلًا.
-router.get('/preview-sample/:templateId', (req, res) => {
+router.get('/preview-sample/:templateId', async (req, res) => {
+  try {
   const template = getTemplate(req.params.templateId);
   if (!template) return res.status(404).send('القالب ده مش موجود');
   // المعاينة مفتوحة للكل حتى في التصاميم المدفوعة — الناس لازم تشوف
@@ -715,19 +717,26 @@ router.get('/preview-sample/:templateId', (req, res) => {
     // بتقول إن السيرفر بيبعت أقل بكتير من البيكسل في ViewContent. الزوار اللي
     // مانعين البيكسل (آيفون/مانع إعلانات) بيوصلوا كده. بوتات المعاينة لأ.
     const vcId = 'vc_' + crypto.randomBytes(8).toString('hex');
-    html = injectPixel(html, { viewContent: { id: template.id, name: template.name }, eventId: vcId });
+    // ميتا (Diagnostics 2026-11-15): "100% من ViewContent مالهاش عملة صالحة" — بنبعت قيمة وعملة
+    // (أرخص باقة بعملة الزائر) من المتصفح والسيرفر بنفس الأرقام
+    const money = await viewContentMoney(req.user && req.user.country);
+    html = injectPixel(html, { viewContent: { id: template.id, name: template.name, ...money }, eventId: vcId });
     if (!PREVIEW_BOT_RE.test(String(req.get('user-agent') || ''))) {
       metaCapi.fire('ViewContent', {
         eventId: vcId,
         // عميل مسجّل بيتفرّج على تصميم: إيميله وتليفونه متشفّرين (ميتا كانت بتقترحهم لـ View content)
         user: req.user || undefined,
         ctx: { ...metaCapi.contextFromReq(req), url: 'https://mithaq-invitation.com' + req.originalUrl.slice(0, 300) },
-        custom: { content_ids: [template.id], content_name: template.name || template.id, content_type: 'product' },
+        custom: { content_ids: [template.id], content_name: template.name || template.id, content_type: 'product', ...money },
       });
     }
   }
   res.set('Content-Type', 'text/html; charset=utf-8');
   return res.send(html);
+  } catch (err) {
+    console.error('Error rendering preview sample:', err);
+    return res.status(500).send('حصل خطأ في السيرفر');
+  }
 });
 
 // GET /r/:code — لينك إحالة الـ UGC. بيعدّ زيارة، بيحط كوكي إحالة يعيش طويل
