@@ -383,9 +383,6 @@ body.static .card .ico{transform:translate(-50%,-50%)!important}
                 <button type="button" data-a="no" role="radio" aria-checked="false">Regretfully decline</button>
               </div>
             </div>
-            <div class="row" id="rsCntRow"><span class="lab" id="cntL">Number of guests</span>
-              <div class="cnt" aria-labelledby="cntL"><button type="button" id="rsMinus" aria-label="Fewer guests">−</button><output id="rsCnt">1</output><button type="button" id="rsPlus" aria-label="More guests">+</button><small id="rsCntW">guest</small></div>
-            </div>
             <div class="row"><label class="lab" for="rsNote">A note for the couple <i style="text-transform:none;letter-spacing:0;font-weight:400">(optional)</i></label><textarea class="inp" id="rsNote" maxlength="150" placeholder="Your wishes…"></textarea></div>
             <button class="send" id="rsSend" type="submit">Send RSVP</button>
             <p class="rmsg" id="rsMsg" role="status"></p>
@@ -604,18 +601,13 @@ body.static .card .ico{transform:translate(-50%,-50%)!important}
   /* ---------- تأكيد الحضور → /i/:id/rsvp (لوحة العميل، وصفحة الإحصائيات بتعدّ "Guests: N") ---------- */
   (function () {
     var BASE = '/i/' + encodeURIComponent(ID);
-    var tk = $('#ticket'), form = $('#rsForm'), msg = $('#rsMsg'), send = $('#rsSend'), cntRow = $('#rsCntRow'), out = $('#rsCnt');
-    var att = 'yes', n = 1, KEY = 'mithaq_rsvp_' + ID;
+    var tk = $('#ticket'), form = $('#rsForm'), msg = $('#rsMsg'), send = $('#rsSend');
+    var att = 'yes', KEY = 'mithaq_rsvp_' + ID;
     var btns = $$('.att button');
-    function paintN() { out.textContent = n; $('#rsCntW').textContent = n === 1 ? 'guest' : 'guests'; $('#rsMinus').disabled = n <= 1; $('#rsPlus').disabled = n >= 10; }
-    $('#rsMinus').addEventListener('click', function () { if (n > 1) { n--; paintN(); } });
-    $('#rsPlus').addEventListener('click', function () { if (n < 10) { n++; paintN(); } });
-    paintN();
     btns.forEach(function (b) {
       b.addEventListener('click', function () {
         att = b.getAttribute('data-a');
         btns.forEach(function (x) { x.classList.toggle('on', x === b); x.setAttribute('aria-checked', x === b ? 'true' : 'false'); });
-        cntRow.classList.toggle('off', att !== 'yes');
         msg.textContent = '';
       });
     });
@@ -627,9 +619,9 @@ body.static .card .ico{transform:translate(-50%,-50%)!important}
     }
     try { var prev = !EDIT && localStorage.getItem(KEY); if (prev) showDone(prev === 'no' ? 'no' : 'yes', ''); } catch (e) {}
     $('#rsAgain').addEventListener('click', function () {
-      tk.classList.remove('sent'); form.reset(); att = 'yes'; n = 1; paintN();
+      tk.classList.remove('sent'); form.reset(); att = 'yes';
       btns.forEach(function (x) { var on = x.getAttribute('data-a') === 'yes'; x.classList.toggle('on', on); x.setAttribute('aria-checked', on ? 'true' : 'false'); });
-      cntRow.classList.remove('off'); send.disabled = false; msg.textContent = '';
+      send.disabled = false; msg.textContent = '';
       try { localStorage.removeItem(KEY); } catch (e) {}
     });
     form.addEventListener('submit', function (e) {
@@ -638,7 +630,8 @@ body.static .card .ico{transform:translate(-50%,-50%)!important}
       if (nm.length < 2) { msg.textContent = 'Please write your name.'; $('#rsName').focus(); return; }
       if (EDIT) { msg.textContent = 'This is a preview — the reply was not sent.'; return; }
       var note = $('#rsNote').value.trim().replace(/\s+/g, ' ').slice(0, 150);
-      var body = (att === 'yes' ? 'Guests: ' + n : '') + (note ? (att === 'yes' ? ' — ' : '') + note : '');
+      // (المالك 2026-11-16: من غير عدد الأشخاص)
+      var body = note;
       send.disabled = true; msg.textContent = '';
       fetch(BASE + '/rsvp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin',
         body: JSON.stringify({ guestName: nm, attending: att, note: body.slice(0, 200) }) })

@@ -14,8 +14,8 @@ const { cairoWallToDate } = require('../utils/cairoTime');
 
 const SHORT = 'ltoG0xC';
 const DIR = `/custom/${SHORT}/`;
-// الموسيقى: أغنية العميل لو اختارها من المحرر، وإلا نفس صوت المظروف الافتراضي اللي كان شغّال (utils/templateFixes.js)
-const DEFAULT_SONG = 'https://res.cloudinary.com/dxtkmyscw/video/upload/v1789700090/mithaq/library/music/asescpbq35fmshnm2exj.mp3';
+// الموسيقى: أغنية العميل لو اختارها من المحرر، وإلا الأغنية اللي بعتها المالك (2026-11-16) — song.mp3
+const DEFAULT_SONG = asset(`/custom/${SHORT}/song.mp3`);
 // القاعة من المالك (2026-11-16): قاعة الورا — JF29+VV2، شارع المصرف القديم، شيبة النكارية، الزقازيق → 30.602138, 31.469641
 const FALLBACK_LINK = 'https://maps.app.goo.gl/wWPVs4n4Foz1Nw8G7';
 const FALLBACK_EMBED = 'https://www.google.com/maps?q=30.602138,31.469641&hl=en&z=16&output=embed';
