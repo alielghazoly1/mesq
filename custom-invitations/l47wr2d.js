@@ -92,7 +92,16 @@ body.cl-ar #hv-hero .hv-names--ar{font-size:34px;line-height:1.5}
 body.cl-ar #hv-hero .hv-names--ar .hv-amp{font-family:'Aref Ruqaa','Amiri',serif!important;font-style:normal;font-size:21px;line-height:1.3;color:#a48c69;margin:-2px 0 -4px}
 #hv-hero .hv-venue .l4-v3{display:block}
 
-/* ===== المكان ===== (2026-11-15: صورة المبنى اللي كانت فوق الخريطة اتشالت — المالك: دي مش دار المراسم. الخريطة واللينك على المكان الصح. لو بعت صورة للقاعة الصح تترجع في venuePhoto) */
+/* ===== المكان: صورة القاعة فوق الخريطة ===== (2026-11-15 اتشالت، 2026-11-16 المالك طلب ترجع زي ما كانت) */
+#vn-venue .vn-stage{height:770px}
+#vn-venue .l4-vphoto{position:absolute;left:50px;top:180px;width:340px;height:154px;padding:6px;margin:0;background:#fbf8f2;border-radius:2px;
+  box-shadow:0 1px 1px rgba(60,44,28,.16),0 4px 10px rgba(60,44,28,.08),4px 18px 30px -16px rgba(60,44,28,.55)}
+#vn-venue .l4-vphoto::after{content:"";position:absolute;inset:3px;border:1px solid rgba(164,140,105,.5);pointer-events:none}
+#vn-venue .l4-vphoto img{display:block;width:100%;height:100%;object-fit:cover}
+#vn-venue .vn-frame{top:356px}
+#vn-venue .vn-fl{top:330px}
+#vn-venue .vn-dir{top:722px}
+.vn--in .l4-vphoto{animation-delay:.38s!important}
 
 /* ===== برنامج الحفل + الزي ===== */
 .l4d{position:relative;overflow:hidden;background:#fffdfb;color:#2b1c13;text-align:center;padding:26px 0 46px;-webkit-font-smoothing:antialiased}
@@ -164,7 +173,7 @@ body.cl-ar .cl-note{font-size:20px}
 function clientScript() {
   const cfg = {
     T: TEXT,
-    venuePhoto: '',
+    venuePhoto: IMG('venue.webp'),
     attire: IMG('dresscode.webp'),
   };
   const json = JSON.stringify(cfg).replace(/</g, '\\u003c');

@@ -1937,6 +1937,30 @@ async function runSupportFixes() {
   }
 }
 
+// تصفير إحصائيات دعوة بطلب المالك (مرة واحدة، بعلامة على الدعوة نفسها): عدد الفتحات (viewCount) + أيام الإحصائيات
+// (InvitationDay: الزيارات، الزوار، المصادر، الأجهزة، الساعات). ردود الضيوف (Rsvp) مابتتلمسش. القيم القديمة بتتسجّل في اللوج.
+const STATS_RESETS = [
+  { name: 'l47wr2d-stats-reset-20261116', shortId: 'l47wr2d', mark: 'statsReset20261116' },
+];
+async function runStatsResets() {
+  const InvitationDay = require('../models/InvitationDay');
+  for (const r of STATS_RESETS) {
+    try {
+      const col = Invitation.collection;
+      const inv = await col.findOne({ shortId: r.shortId }, { projection: { _id: 1, viewCount: 1, fixes: 1 } });
+      if (!inv || (inv.fixes && inv.fixes[r.mark])) continue;
+      const days = await InvitationDay.find({ shortId: r.shortId }).lean();
+      const tot = days.reduce((a, d) => ({ views: a.views + (d.views || 0), uniques: a.uniques + (d.uniques || 0) }), { views: 0, uniques: 0 });
+      console.log(`[oneOffFix] ${r.name} before: ${JSON.stringify({ viewCount: inv.viewCount || 0, days: days.length, ...tot })}`);
+      await InvitationDay.deleteMany({ shortId: r.shortId });
+      await col.updateOne({ _id: inv._id }, { $set: { viewCount: 0, [`fixes.${r.mark}`]: new Date() } });
+      console.log(`[oneOffFix] ${r.name} applied`);
+    } catch (err) {
+      console.error(`[oneOffFix] ${r.name} failed:`, err.message);
+    }
+  }
+}
+
 async function runOneOffFixes() {
   if (done) return;
   done = true;
@@ -1944,6 +1968,7 @@ async function runOneOffFixes() {
   await runSiteConfigFixes();
   await runPaymentFixes();
   await runSupportFixes();
+  await runStatsResets();
   try { await require('./banGate').runBanSeeds(); } catch (err) { console.error('[ban] seeds failed:', err.message); }
   for (const fix of FIXES) {
     try {
@@ -1968,3 +1993,4 @@ async function runOneOffFixes() {
 
 module.exports = runOneOffFixes;
 module.exports.FIXES = FIXES;
+module.exports.runStatsResets = runStatsResets;
