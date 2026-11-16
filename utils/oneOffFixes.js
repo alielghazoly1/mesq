@@ -1810,6 +1810,37 @@ const FIXES = [
       return set;
     },
   },
+  {
+    // ltoG0xC (Royal Maroon + صفحة مخصوصة custom-invitations/ltoG0xC.*) — المالك (2026-11-16): أحمد ويارا، الاثنين
+    // 21/12/2026، الحضور الساعة 8 مساءً، قاعة الورا (Alura Wedding Hall) بالزقازيق، بلينك الخريطة اللي بعته. البيانات عشان
+    // لوحة العميل والتقويم وتأكيد الحضور. مرة واحدة: بس لو الدعوة لسه بأسامي القالب (العروسة "Bride"؛ العريس "Groom" أو
+    // "علي" اللي كان متكتب في المحرر).
+    name: 'ltoG0xC-ahmed-yara',
+    shortId: 'ltoG0xC',
+    select: '-__v',
+    when: (c, inv) => inv.brideName === 'Bride' && ['Groom', 'علي'].includes(String(inv.groomName || '').trim()),
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const link = 'https://maps.app.goo.gl/wWPVs4n4Foz1Nw8G7';
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: 'en', occasionType: 'wedding',
+        hiddenSections: inv.hiddenSections || [], timeline: inv.timeline, name: inv.name,
+        groomName: 'Ahmed', groomNameAr: 'أحمد', brideName: 'Yara', brideNameAr: 'يارا',
+        venueName: 'Alura Wedding Hall', venueCity: 'Zagazig',
+        venueMapQuery: link,
+        weddingDate: '2026-12-21', weddingTime: '20:00',
+      }, { ownsTemplate: true, skipMapNetwork: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.language = 'en';
+      set.venueMapDirectLink = link;
+      set.venueMapQuery = link;
+      // اللينك بيفتح "قاعه الورا" (JF29+VV2) — الخريطة جوه الدعوة على نفس النقطة
+      set.venueMapEmbedSrc = 'https://www.google.com/maps?q=30.602138,31.469641&hl=en&z=16&output=embed';
+      if (inv.coverStyle) set.coverStyle = inv.coverStyle;
+      return set;
+    },
+  },
 ];
 
 let done = false;
