@@ -178,7 +178,7 @@ const NOTE = `
             <p class="dr-t">A Little Note</p>
             <p class="dr-s">of Love</p>
             <div class="dr-line" aria-hidden="true"><i></i><b></b><i></i></div>
-            <p class="ea-p">As much as we adore your little ones, we kindly wish them a peaceful night's sleep while you enjoy an unforgettable evening with us.</p>
+            <p class="ea-p">A sweet night’s sleep for the Kids while the grown-ups celebrate</p>
             <p class="ea-sign">With love and appreciation. 🤍</p>
           </div>
         </div>
