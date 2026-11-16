@@ -32,6 +32,10 @@ const TEMPLATE_TEXT = {
     ar: { description: 'باب عاجي بزهور الكالا البارزة وختم شمع دهبي بحروف العروسين بيتفتح على كارت بإطار دهبي وصورتكم في برواز بيضاوي — عدّاد، العائلتين، برنامج الحفل، ألبوم صور، المكان والخريطة، وتأكيد الحضور' },
     en: { description: 'Ivory doors of sculpted calla lilies with a gold wax seal of your initials open onto a gold-framed card with your photo in an oval frame — countdown, families, programme, photo album, venue map and RSVP' },
   },
+  'lace': {
+    ar: { description: 'دانتيل وتول برجندي ولولي: فيديو فتح سينمائي وبعده فيديو بيلف ورا أساميكم — عدّاد، المكان، برنامج اليوم برسومات متحركة، الدريس كود، المواصلات، الإقامة، الهدية، وتأكيد حضور بعدد الضيوف والأطفال' },
+    en: { description: 'Lace, burgundy tulle and pearls: a cinematic opening film, then a looping film behind your names — countdown, venue, an animated day programme, dress code, transport, where to stay, gift details and an RSVP with guest and children counts' },
+  },
   'birthday-gift': {
     ar: { description: 'هدية ملفوفة بفيونكة دانتيل — ضغطة تفكّها وينزل ورد أحمر — كارت بالاسم والسن، رسالة من القلب، ألبوم ذكريات، أمنيات، وعدّاد ليوم الميلاد' },
     en: { description: 'A gift wrapped in a lace bow — one tap unties it and red roses fall — a card with their name and age, a letter from the heart, a memories album, wishes and a birthday countdown' },

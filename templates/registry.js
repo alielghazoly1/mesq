@@ -347,7 +347,37 @@ const TEMPLATES = [
 
 // قوالب جاهزة بس لسه مش في المعرض (المالك بيراجعها الأول): المعاينة والمحرر شغالين باللينك
 // المباشر، ومابتظهرش في قايمة التصاميم. لما المالك يوافق بتتنقل لـ TEMPLATES فوق.
-const UNLISTED_TEMPLATES = [];
+const UNLISTED_TEMPLATES = [
+  {
+    // 2026-11-17: نسخة طبق الأصل من تصميم "Lace" (The Digital Yes) — المالك متفق معاهم (عمولة). اتبنى من scratch lace/build.js
+    id: 'lace',
+    name: 'Lace',
+    description: 'دانتيل وتول برجندي ولولي: فيديو فتح سينمائي وبعده فيديو بيلف ورا أساميكم — عدّاد، المكان، برنامج اليوم برسومات متحركة، الدريس كود، المواصلات، الإقامة، الهدية، وتأكيد حضور بعدد الضيوف والأطفال',
+    file: 'lace.html',
+    languages: SUPPORTED_LANGUAGES,
+    occasionTypes: SUPPORTED_OCCASIONS,
+    // الإخفاء في views/lace.html (data-section). الهيرو والختام ثابتين.
+    optionalSections: [
+      { key: 'welcome', label: 'كلمة الترحيب' },
+      { key: 'countdown', label: 'العداد التنازلي' },
+      { key: 'venue', label: 'مكان الحفل وزرار الخريطة' },
+      { key: 'timeline', label: 'برنامج اليوم' },
+      { key: 'dressCode', label: 'الزي المقترح (Dress Code)' },
+      { key: 'transport', label: 'المواصلات' },
+      { key: 'stay', label: 'أماكن الإقامة (فندقين)' },
+      { key: 'gift', label: 'الهدية (رقم الحساب)' },
+      { key: 'rsvp', label: 'تأكيد الحضور (RSVP)' },
+    ],
+    timelineStages: [],
+    extraFields: [
+      { key: 'venueAddress', label: 'المدينة / العنوان (تحت اسم القاعة — اختياري)', maxlength: 200 },
+    ],
+    // التصميم الأصلي إنجليزي بس
+    designLanguages: ['en'],
+    isNew: true,
+    isPremium: true,
+  },
+];
 
 function getTemplate(templateId) {
   return TEMPLATES.find((t) => t.id === templateId) || UNLISTED_TEMPLATES.find((t) => t.id === templateId) || null;
