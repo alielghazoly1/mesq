@@ -194,16 +194,12 @@ a{color:inherit}
 .marc iframe{position:absolute;inset:0;width:100%;height:100%;border:0;filter:sepia(.25) saturate(.85) contrast(1.02)}
 .arrive{margin-top:22px;font:500 14px/1.6 var(--serif);letter-spacing:.2em;padding-left:.2em;text-transform:uppercase;color:var(--rose2)}
 
-/* ٥) الدريس كود: دوائر القماش (زي صورة المالك) */
-.sw{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:26px 14px;max-width:340px;margin:34px auto 6px}
-.sw figure{margin:0;display:flex;flex-direction:column;align-items:center}
-.sw .disc{position:relative;width:clamp(104px,30vw,128px);aspect-ratio:1;border-radius:50%;padding:7px;
-  background:radial-gradient(circle at 35% 30%,#fbf3e8,#eadcc8 70%,#d9c6ad);box-shadow:0 14px 28px -12px rgba(0,0,0,.75),inset 0 -2px 4px rgba(120,80,40,.25);animation:flt 6s ease-in-out infinite}
-.sw figure:nth-child(2) .disc{animation-delay:-1.5s}.sw figure:nth-child(3) .disc{animation-delay:-3s}.sw figure:nth-child(4) .disc{animation-delay:-4.5s}
-.sw .disc img{width:100%;height:100%;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06)}
-.sw .disc::after{content:"";position:absolute;inset:7px;border-radius:50%;box-shadow:inset 0 2px 6px rgba(0,0,0,.18),inset 0 -6px 14px rgba(255,255,255,.12);pointer-events:none}
-.sw figcaption{margin-top:14px;font:600 13px/1 var(--serif);letter-spacing:.26em;padding-left:.26em;text-transform:uppercase;color:var(--rose)}
-@keyframes flt{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+/* ٥) الدريس كود: دوايره الخمسة زي ما هي في صورته بالظبط (أخضر، بينك، لافندر، أزرق، خوخي) بحلقتها الكريم — 3 فوق و2 تحت
+   بينهم زي صورته. العرض والطول نفس الرقم بالظبط فمستحيل تتمط (المالك 2026-11-16: "عايزها مدورة") */
+.c5{--d:min(calc(var(--col) * .25),118px);--g:calc(var(--d) * .16);margin:34px auto 4px}
+.c5-row{display:flex;justify-content:center;gap:var(--g)}
+.c5-row+.c5-row{margin-top:calc(var(--d) * .12)}
+.c5 img{display:block;flex:none;width:var(--d);height:var(--d);max-width:none;border-radius:50%}
 .dnote{margin-top:22px;font:italic 400 17px/1.6 var(--serif);color:var(--rose2)}
 
 /* ٦) تأكيد الحضور: تذكرة مسرح */
@@ -362,11 +358,9 @@ body.static .card .ico{transform:translate(-50%,-50%)!important}
     <section class="sec" id="dress">
       <h2 class="fx"><span class="title">Dress Code</span></h2>
       <p class="eyebrow fx d1" style="margin-top:10px">Our colour palette</p>
-      <div class="sw">
-        <figure class="fx d1"><div class="disc"><img src="assets/sw-beige.webp" alt="Beige" decoding="async" loading="lazy"></div><figcaption>Beige</figcaption></figure>
-        <figure class="fx d2"><div class="disc"><img src="assets/sw-pink.webp" alt="Pink" decoding="async" loading="lazy"></div><figcaption>Pink</figcaption></figure>
-        <figure class="fx d3"><div class="disc"><img src="assets/sw-gold.webp" alt="Gold" decoding="async" loading="lazy"></div><figcaption>Gold</figcaption></figure>
-        <figure class="fx d4"><div class="disc"><img src="assets/sw-mint.webp" alt="Mint green" decoding="async" loading="lazy"></div><figcaption>Mint Green</figcaption></figure>
+      <div class="c5">
+        <div class="c5-row fx d1"><img src="assets/c5-sage.webp" alt="Sage green" decoding="async" loading="lazy"><img src="assets/c5-pink.webp" alt="Pink" decoding="async" loading="lazy"><img src="assets/c5-lav.webp" alt="Lavender" decoding="async" loading="lazy"></div>
+        <div class="c5-row fx d2"><img src="assets/c5-blue.webp" alt="Blue" decoding="async" loading="lazy"><img src="assets/c5-peach.webp" alt="Peach" decoding="async" loading="lazy"></div>
       </div>
       <p class="dnote fx d4">We would love to see you in these shades</p>
     </section>
