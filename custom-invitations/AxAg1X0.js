@@ -81,7 +81,7 @@ const SCRATCH = `
       <img class="sc-bg" src="${asset(QW + 'welcome-families.webp')}" alt="" loading="lazy" draggable="false">
       <div class="sc-oval">
         <div class="sc-under" id="scUnder">
-          <img class="sc-photo" src="${asset(OWN + 'couple.webp')}" alt="Eman &amp; Ahmed" loading="lazy" decoding="async" draggable="false">
+          <img class="sc-photo" src="${asset(OWN + 'couple.webp')}" alt="Ahmed &amp; Eman" loading="lazy" decoding="async" draggable="false">
         </div>
         <canvas class="sc-canvas" id="scratch" data-paper="${asset(QW + 'paper.webp')}"></canvas>
       </div>
@@ -202,7 +202,7 @@ module.exports = {
     width: 1200,
     height: 630,
     overrideImage: true,
-    title: 'Eman & Ahmed — Wedding Invitation 🤍',
+    title: 'Ahmed & Eman — Wedding Invitation 🤍',
     description: 'Friday, December 4th, 2026 · 7 PM · Jumeirah Hall',
   },
 
@@ -213,8 +213,7 @@ module.exports = {
   transform(html) {
     let out = html;
     for (const [from, to] of SWAP) out = out.split(T + from).join(asset(to));
-    // إيمان الأول (زي الختم E&A) في الكارت والختام
-    out = out.split('data-f="groom"').join('data-f="__B__"').split('data-f="bride"').join('data-f="groom"').split('data-f="__B__"').join('data-f="bride"');
+    // (2026-11-16 المالك: أحمد الأول — "Ahmed & Eman") ترتيب القالب نفسه: العريس الأول في الكارت والختام
     // جملة الترحيب تحت القاعة في الكارت
     const withLine = /<p class="ht-with" data-elem-id="mp4"><\/p>\s*/;
     if (withLine.test(out)) {
