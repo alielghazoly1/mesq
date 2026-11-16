@@ -132,6 +132,8 @@ function renderNewPathHtml(data, options) {
     venueName: data.venueName,
     venueCity: data.venueCity,
     venueAddress: data.venueAddress || '',
+    // قالب Lace: مكان تجمّع الباص (زرار "View Pick-Up Point") — حقل إضافي اختياري
+    pickupPlace: data.pickupPlace || '',
     venueMapQuery: data.venueMapQuery,
     // رابط التضمين النهائي ورابط الفتح المباشر بيتحسبوا مسبقًا (utils/mapsLink.js)
     // من أي مدخل (لينك جوجل مابس كامل، لينك مصغّر، أو نص عادي). الـ fallback هنا
