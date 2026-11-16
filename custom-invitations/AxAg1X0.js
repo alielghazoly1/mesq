@@ -67,7 +67,7 @@ const STYLE = `<style id="ea-style">
 .ea-note .dr-t{font-size:36px;line-height:1.05}
 .ea-note .dr-s{font-size:31px;margin-top:6px}
 .ea-note .dr-line{width:100%;margin:22px 0 18px}
-.ea-note .ea-p{font-family:var(--serif);font-style:italic;font-size:17px;line-height:1.55;color:rgba(${WINE_RGB},.92)}
+.ea-note .ea-p{text-wrap:balance;font-family:var(--serif);font-style:italic;font-size:17px;line-height:1.55;color:rgba(${WINE_RGB},.92)}
 .ea-note .ea-sign{margin:18px -4% 0;font-family:var(--script);font-size:24px;line-height:1.25;text-wrap:balance}
 @media (max-width:360px){.ea-note .dr-t{font-size:31px}.ea-note .ea-p{font-size:15.5px}.ea-note .ea-sign{font-size:21px}}
 @media (min-width:768px){.ea-note .ea-p{font-size:19px}}
@@ -178,7 +178,7 @@ const NOTE = `
             <p class="dr-t">A Little Note</p>
             <p class="dr-s">of Love</p>
             <div class="dr-line" aria-hidden="true"><i></i><b></b><i></i></div>
-            <p class="ea-p">A sweet night’s sleep for the Kids while the grown-ups celebrate</p>
+            <p class="ea-p">A sweet night’s sleep for the Kids while the <span style="white-space:nowrap">grown-ups</span> celebrate</p>
             <p class="ea-sign">With love and appreciation. 🤍</p>
           </div>
         </div>
