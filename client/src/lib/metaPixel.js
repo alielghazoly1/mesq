@@ -28,14 +28,28 @@ function load() {
   if (loaded) return true;
   if (!enabled()) return false;
   loaded = true;
+  // fbq شغّال من أول لحظة (الأحداث بتتحفظ في طابور)، بس كود فيسبوك نفسه (~265KB مع الإعدادات)
+  // مابيتحمّلش غير بعد ما الصفحة تخلص وتهدى — كان بيزاحم صور التصاميم والخطوط على نت الموبايل
+  // (2026-11-17، الرئيسية أسرع). أول ما يتحمّل بيبعت كل اللي في الطابور بالترتيب، فمفيش حدث بيضيع.
   /* eslint-disable */
-  !function (f, b, e, v, n, t, s) {
-    if (f.fbq) return; n = f.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); };
+  !function (f) {
+    if (f.fbq) return; var n = f.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); };
     if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0'; n.queue = [];
-    t = b.createElement(e); t.async = !0; t.src = v; s = b.getElementsByTagName(e)[0]; s.parentNode.insertBefore(t, s);
-  }(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+  }(window);
   /* eslint-enable */
   window.fbq('init', PIXEL_ID);
+  const inject = () => {
+    const t = document.createElement('script');
+    t.async = true;
+    t.src = 'https://connect.facebook.net/en_US/fbevents.js';
+    document.head.appendChild(t);
+  };
+  const later = () => {
+    if ('requestIdleCallback' in window) window.requestIdleCallback(inject, { timeout: 3000 });
+    else window.setTimeout(inject, 1500);
+  };
+  if (document.readyState === 'complete') later();
+  else window.addEventListener('load', later, { once: true });
   return true;
 }
 

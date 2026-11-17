@@ -156,3 +156,9 @@ iframe {
   60% { transform: rotate(14deg); }
   80% { transform: rotate(-4deg); }
 }
+
+/* الرئيسية: الأقسام اللي تحت المعرض بتترسم لما الزائر يقرّب منها بس (GalleryPage.jsx) */
+.home-below > * {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 700px;
+}

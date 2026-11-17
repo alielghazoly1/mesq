@@ -9,6 +9,7 @@
 // الصفحة، والنسخة الكاملة مبتتحملش غير لما يضغط عليها بنفسه. والتشغيل
 // بيبدأ لما الفيديو يبان في الشاشة بس — مش قبلها.
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
@@ -63,6 +64,18 @@ export default function EditorDemo({ variant = 'section' }) {
     return () => io.disconnect();
   }, []);
 
+  // صورة البوستر نفسها مابتتحمّلش مع أول الصفحة — بس لما الزائر يقرّب من القسم ده
+  const [near, setNear] = useState(false);
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') { setNear(true); return undefined; }
+    const io = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) { setNear(true); io.disconnect(); }
+    }, { rootMargin: '900px 0px' });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   const compact = variant === 'compact';
 
   return (
@@ -78,7 +91,7 @@ export default function EditorDemo({ variant = 'section' }) {
           <video
             ref={videoRef}
             className="block h-full w-full object-cover object-[22%_center] sm:h-auto sm:object-contain"
-            poster={POSTER}
+            poster={near ? POSTER : undefined}
             muted
             loop
             playsInline
@@ -103,7 +116,8 @@ export default function EditorDemo({ variant = 'section' }) {
       </BrowserFrame>
 
       {/* الفيديو الكامل في نافذة */}
-      {full && (
+      {/* على body مباشرة: القسم ده عليه content-visibility في الرئيسية، فلو النافذة جواه بتتحبس فيه */}
+      {full && createPortal(
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -139,7 +153,8 @@ export default function EditorDemo({ variant = 'section' }) {
               {t('demo.cta')} <ArrowLeft size={15} className="rtl:rotate-180" />
             </Link>
           </motion.div>
-        </motion.div>
+        </motion.div>,
+        document.body,
       )}
     </div>
   );

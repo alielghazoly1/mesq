@@ -24,12 +24,15 @@ export default function Footer() {
       <div className="mx-auto max-w-3xl text-center">
         {/* هنا بنستخدم اللوجو الكامل بالسطر التحتاني ("موقع دعوات
             افراح") — المساحة تسمح، والفوتر أنسب مكان للتعريف الكامل */}
+        {/* آخر الصفحة: اللوجو مابيتحمّلش غير لما الزائر يقرّب منه */}
         {!logoFailed && (
           <img
             src="/img/logo-full.png"
             alt={t('nav.brand')}
             width="566"
             height="360"
+            loading="lazy"
+            decoding="async"
             className="mx-auto mb-3 h-24 w-auto sm:h-28"
             onError={() => setLogoFailed(true)}
           />

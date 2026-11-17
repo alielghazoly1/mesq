@@ -19,15 +19,19 @@ export default function GalleryPage() {
       {/* الفيديو بيجي بعد ما يشوف التصاميم بالظبط: هو ساعتها عجبه
           تصميم وبيسأل نفسه "طب أقدر أغيّر فيه؟" — الفيديو هو الإجابة،
           وبعده على طول قسم الباقات */}
-      <EditorDemoSection />
-      <PremiumSection />
-      <CommissionBanner />
-      {/* آراء العرسان قبل الأسئلة — آخر حاجة بيشوفها قبل ما يقرر */}
-      <div className="bg-ivory px-4 pt-12 sm:px-6 sm:pt-16">
-        <ReviewsStrip />
+      {/* كل اللي تحت المعرض: المتصفح مابيرسمهوش لحد ما الزائر يقرّب منه (content-visibility) —
+          أول فتحة على الموبايل أخف وأسرع. (2026-11-17) */}
+      <div className="home-below">
+        <EditorDemoSection />
+        <PremiumSection />
+        <CommissionBanner />
+        {/* آراء العرسان قبل الأسئلة — آخر حاجة بيشوفها قبل ما يقرر */}
+        <div className="bg-ivory px-4 pt-12 sm:px-6 sm:pt-16">
+          <ReviewsStrip />
+        </div>
+        <HomeFaq />
+        <Footer />
       </div>
-      <HomeFaq />
-      <Footer />
     </div>
   );
 }

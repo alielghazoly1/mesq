@@ -8,7 +8,7 @@ import { isEditOpen } from '../lib/editWindow.js';
 import DesignLanguagePicker from './DesignLanguagePicker.jsx';
 import ShareDesignButton from './ShareDesignButton.jsx';
 import { rememberPreviewFrom } from '../lib/homeScroll.js';
-import { templateThumb } from '../lib/thumbs.js';
+import { templateThumb, templateThumbSet } from '../lib/thumbs.js';
 
 // كارت تصميم في المعرض.
 //
@@ -104,14 +104,21 @@ export default function TemplateCard({ template, index }) {
               {template.name}
             </div>
           ) : (
-            <img
-              src={templateThumb(template.id)}
-              alt={gift ? `هدية عيد ميلاد إلكترونية ${template.name}` : `معاينة تصميم ${template.name}`}
-              loading="lazy"
-              decoding="async"
-              className="h-full w-full object-cover object-center"
-              onError={() => setImgError(true)}
-            />
+            <picture>
+              <source
+                type="image/webp"
+                srcSet={templateThumbSet(template.id)}
+                sizes="(min-width: 1024px) 230px, (min-width: 640px) 28vw, 34vw"
+              />
+              <img
+                src={templateThumb(template.id)}
+                alt={gift ? `هدية عيد ميلاد إلكترونية ${template.name}` : `معاينة تصميم ${template.name}`}
+                loading="lazy"
+                decoding="async"
+                className="h-full w-full object-cover object-center"
+                onError={() => setImgError(true)}
+              />
+            </picture>
           )}
         </div>
       </div>

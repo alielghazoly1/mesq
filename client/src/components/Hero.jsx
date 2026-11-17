@@ -38,6 +38,7 @@ export default function Hero() {
             alt={t('nav.brand')}
             width="315"
             height="180"
+            fetchPriority="high"
             className="mb-3 h-12 w-auto drop-shadow-[0_10px_26px_rgba(0,0,0,.55)] sm:h-16 lg:mb-4 lg:h-20"
           />
 
