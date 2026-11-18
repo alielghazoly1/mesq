@@ -1578,6 +1578,51 @@ const FIXES = [
     apply: () => ({ 'customizations.texts.pp1': 'يطيب لنا أن نجمع أحبابنا\nلنحتفل ببداية حكايتنا' }),
   },
   {
+    // Ye053hU (Lace عربي) — المالك (2026-11-18): زفاف فارس وصفاء من كارت التفاصيل اللي بعته — الأسامي والميعاد
+    // (الخميس 17/12/2026، استقبال الضيوف 9 مساءً بتوقيت المدينة) والمكان (قاعة أضواء 2 — لينك الخريطة بتاعه)
+    // بنفس دالة حفظ التفاصيل، وكلام الكارت كله، والإقامة والهدية مستخبيين. الباقي في custom-invitations/Ye053hU.js.
+    // بس لو الدعوة لسه بأسامي المسودة ومحدش كتب فيها.
+    name: 'Ye053hU-fares-safaa',
+    shortId: 'Ye053hU',
+    select: '-__v',
+    when: (c, inv) => inv.templateId === 'lace' && (inv.groomNameAr || inv.groomName) === 'العريس'
+      && (inv.brideNameAr || inv.brideName) === 'العروسة' && !((c.texts || {}).lc1),
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: inv.language, occasionType: inv.occasionType,
+        hiddenSections: [...new Set([...(inv.hiddenSections || []), 'stay', 'gift'])], timeline: inv.timeline, name: inv.name,
+        groomName: 'فارس', groomNameAr: 'فارس',
+        brideName: 'صفاء', brideNameAr: 'صفاء',
+        venueName: 'قاعة أضواء (2)', venueCity: 'المدينة المنورة', venueAddress: 'قاعات أضواء للاحتفالات',
+        venueMapQuery: 'https://maps.app.goo.gl/qu5hxuuxZQ3iWCnH8',
+        weddingDate: '2026-12-17', weddingTime: '21:00',
+      }, { ownsTemplate: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set['customizations.texts'] = {
+        ...(c.texts || {}),
+        lc1: 'بارك الله لهما',
+        lc2: 'وبارك عليهما وجمع بينهما في الخير',
+        lc9: 'تشرف السيدة',
+        lc10: 'رقية عصر',
+        lc11: 'بدعوتكم بكل الحب والفرح\nلمشاركة فرحة زفاف فارس وصفاء',
+        lc8: 'قاعات أضواء للاحتفالات — المدينة المنورة',
+        lc19: 'قاعات أضواء للاحتفالات — المدينة المنورة',
+        lc23: 'فقرات الحفل',
+        lc25: '٩:٠٠ م', lc26: 'استقبال الضيوف',
+        lc28: '١٠:٣٠ م', lc29: 'الزفة المدينية', lc30: 'بدون حضور العريس',
+        lc31: '١٢:٣٠ ص', lc32: 'زفة العروسين', lc33: 'بعد منتصف الليل',
+        lc34: '١:١٥ ص', lc35: 'تناول العشاء',
+        lc43: 'تنويه مهم',
+        lc44: 'نرجو من ضيوفنا الكرام الاستمتاع بتصوير فقرات الحفل واللقطات التذكارية الخاصة، مع الالتزام بعدم تصوير العروسين وأهل العروسين، حفاظًا على خصوصيتهم وتقديرًا لهم.',
+        lc46: 'جنة الأطفال منازلهم',
+      };
+      set['customizations.hidden'] = [...new Set([...(c.hidden || []), 'lc20', 'lc21', 'lc24', 'lc27', 'lc36', 'lc45', 'lc100'])];
+      return set;
+    },
+  },
+  {
     // G55weuy — المالك (2026-11-18): "عائلة صبري" تحت الأسامي بقت "عائلة سعد". بس لو السطر لسه زي ما هو.
     name: 'G55weuy-family-saad-nov18',
     shortId: 'G55weuy',
