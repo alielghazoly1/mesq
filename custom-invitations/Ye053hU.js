@@ -19,7 +19,13 @@ const A = {};
 ['name-fares', 'name-safaa', 'ic-reception', 'ic-zaffa', 'ic-rings', 'ic-dinner', 'am-photo', 'am-table', 'am-coffee', 'ic-nocam-light']
   .forEach((n) => { A[n] = asset(`${DIR}${n}.webp`); });
 
+// (المالك 2026-11-18) البرجندي بتاع الدعوة كلها = نفس برجندي الكارت والأيقونات بتاعته (#701619) بدل نبيتي القالب
+['art-1', 'art-4', 'villa-illustration-thick'].forEach((n) => { A[n] = asset(`${DIR}${n}.svg`); });
+A.tulle = asset(`${DIR}tulle-texture-burgundy.webp`);
 const CSS = `<style id="ye-style">
+html:root{--foreground:358 67% 26%!important;--primary:358 62% 31%!important;--accent:358 62% 31%!important;--ring:358 62% 31%!important;
+  --card-foreground:358 62% 31%!important;--muted-foreground:358 62% 31%!important;--popover-foreground:358 62% 31%!important;--secondary-foreground:358 62% 31%!important}
+#countdown{background-color:#701619!important}
 /* الأسامي صور (من كارت المالك) */
 .ye-nm{display:block;height:auto;margin:0 auto;pointer-events:none;-webkit-user-select:none;user-select:none}
 .ye-hero-nm{width:min(46vw,210px)}
@@ -113,6 +119,9 @@ module.exports = {
       out = out.replace(/(<span data-f="name1" data-elem-id="lc91")>[^<]*<\/span>/, `$1 class="ye-has-img"></span><img class="ye-end-nm" src="${A['name-fares']}" alt="فارس" draggable="false">`);
       out = out.replace(/(<span data-f="name2" data-elem-id="lc93")>[^<]*<\/span>/, `$1 class="ye-has-img"></span><img class="ye-end-nm" src="${A['name-safaa']}" alt="صفاء" draggable="false">`);
     }
+    // الرسومات اللي لونها جوه الملف نفسه → نسخ بلون الكارت
+    for (const n of ['art-1', 'art-4', 'villa-illustration-thick']) out = out.split(`/templates/lace/${n}.svg`).join(A[n]);
+    out = out.split('/templates/lace/tulle-texture-burgundy.webp').join(A.tulle);
     // التاريخ الهجري تحت التاريخ
     out = out.replace(/(<p\b[^>]*data-f="dateDots"[^>]*data-elem-id="lc6"[^>]*>[^<]*<\/p>)/, `$1<p class="ye-hijri" data-elem-id="ya8">الخميس ٨ رجب ١٤٤٨ هـ</p>`);
 
