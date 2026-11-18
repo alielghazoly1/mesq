@@ -166,6 +166,51 @@ const SCRATCH_JS = `<script>
 </script>`;
 
 // "A Little Note of Love" مكان الدريس كود (المالك 2026-11-16) — نفس إطار القالب، والختم برجندي
+// (2026-11-18 بطلب المالك) علامة "انزل لتحت" في آخر الكارت الأساسي: بتظهر بهدوء بعد ما الكلام يبان (بعد فتح الظرف)،
+// خط رفيع بيجري فيه نور لتحت + سهم بيتنفّس، باللون البرجندي. الضغط عليها بينزل للعدّاد، وبتختفي أول ما الضيف ينزل.
+const SCROLL_HINT = `<a class="ea-scroll" id="eaScroll" href="#countdown" aria-label="Scroll down"><span class="ea-scroll-t">Scroll</span><span class="ea-scroll-line"><i></i></span><svg class="ea-scroll-chev" viewBox="0 0 24 14" aria-hidden="true"><path d="M2 2l10 10L22 2"/></svg></a>`;
+const SCROLL_STYLE = `<style id="ea-scroll-style">
+.ea-scroll{position:absolute;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:22;display:flex;flex-direction:column;align-items:center;gap:7px;
+  padding:6px 16px;border-radius:40px;background:radial-gradient(closest-side,rgba(247,243,238,.75),rgba(247,243,238,0));color:${WINE};text-decoration:none;opacity:0;transform:translate(-50%,12px);transition:opacity 1.4s ease,transform 1.4s cubic-bezier(.2,.7,.2,1);pointer-events:none;-webkit-tap-highlight-color:transparent}
+.ea-scroll.tight .ea-scroll-t{display:none}
+.ea-scroll.tight .ea-scroll-line{height:24px}
+.ea-scroll.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.ea-scroll.gone{opacity:0;transform:translate(-50%,8px);pointer-events:none;transition-duration:.6s}
+.ea-scroll-t{font-family:'Jost',sans-serif;font-weight:300;font-size:9.5px;letter-spacing:.42em;text-transform:uppercase;line-height:1;margin-right:-.42em;opacity:.85}
+.ea-scroll-line{position:relative;display:block;width:1px;height:34px;overflow:hidden;background:rgba(${WINE_RGB},.18)}
+.ea-scroll-line i{position:absolute;left:0;top:-40%;width:1px;height:40%;background:linear-gradient(to bottom,rgba(${WINE_RGB},0),${WINE});animation:eaDrop 2.2s cubic-bezier(.6,0,.3,1) infinite}
+.ea-scroll-chev{width:15px;height:9px;overflow:visible;animation:eaBob 2.2s ease-in-out infinite}
+.ea-scroll-chev path{fill:none;stroke:${WINE};stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+@keyframes eaDrop{0%{top:-40%}70%,100%{top:100%}}
+@keyframes eaBob{0%,45%{transform:translateY(-2px);opacity:.35}70%{transform:translateY(3px);opacity:1}100%{transform:translateY(-2px);opacity:.35}}
+@media (min-width:768px){.ea-scroll{bottom:30px}.ea-scroll-line{height:48px}}
+@media (prefers-reduced-motion:reduce){.ea-scroll-line i,.ea-scroll-chev{animation:none}.ea-scroll-line i{top:60%}}
+</style>`;
+const SCROLL_JS = `<script>
+(function () {
+  var a = document.getElementById('eaScroll'), ht = document.getElementById('heroText');
+  if (!a || !ht) return;
+  var shown = false, gone = false;
+  function show() { if (shown || gone) return; shown = true; setTimeout(function () { if (gone || scrollY >= 40) return; fit(); a.classList.add('on'); }, 1500); }
+  // الشاشات القصيرة: لو العلامة هتلمس الكلام، الكلمة بتتشال ويفضل الخط والسهم
+  function fit() {
+    a.classList.remove('tight');
+    var low = 0; [].forEach.call(ht.querySelectorAll('p,h1'), function (el) { if (el.offsetHeight) low = Math.max(low, el.getBoundingClientRect().bottom); });
+    if (a.getBoundingClientRect().top < low + 6) a.classList.add('tight');
+  }
+  addEventListener('resize', function () { if (shown && !gone) fit(); });
+  if (ht.classList.contains('on')) show();
+  else try { new MutationObserver(function (m, o) { if (ht.classList.contains('on')) { o.disconnect(); show(); } }).observe(ht, { attributes: true, attributeFilter: ['class'] }); } catch (e) { setTimeout(show, 9000); }
+  addEventListener('scroll', function () { if (!gone && scrollY > 60) { gone = true; a.classList.remove('on'); a.classList.add('gone'); } }, { passive: true });
+  a.addEventListener('click', function (e) {
+    e.preventDefault();
+    var t = document.getElementById('countdown') || a.parentNode.nextElementSibling;
+    var y = t ? t.getBoundingClientRect().top + scrollY - 10 : innerHeight;
+    try { scrollTo({ top: y, behavior: 'smooth' }); } catch (x) { scrollTo(0, y); }
+  });
+})();
+</script>`;
+
 const NOTE = `
   <!-- 7) A Little Note of Love (مكان الدريس كود) -->
   <div class="rv sec" data-section="loveNote">
@@ -400,11 +445,12 @@ module.exports = {
     description: 'Friday, December 4th, 2026 · 7 PM · Jumeirah Hall',
   },
 
-  render() {
-    return { head: STYLE, bodyEnd: SCRATCH_JS };
+  render({ editMode } = {}) {
+    if (editMode) return { head: STYLE, bodyEnd: SCRATCH_JS };
+    return { head: STYLE + SCROLL_STYLE, bodyEnd: SCRATCH_JS + SCROLL_JS };
   },
 
-  transform(html) {
+  transform(html, { editMode } = {}) {
     // فيديو فتح واحد (open.mp4) — ولو كود القالب اتغيّر، الفيديوهين القدام (v1.mp4 بتاعنا + فيونكة القالب)
     let out = oneVideo(html) || html;
     for (const [from, to] of SWAP_URLS) out = out.split(from).join(to);
@@ -421,6 +467,8 @@ module.exports = {
     // الدريس كود اتشال خالص → "A Little Note of Love" مكانه
     const dc = cut(out, '<!-- 7) الدريس كود', '<!-- 8)');
     if (dc) out = out.slice(0, dc[0]) + NOTE + out.slice(dc[1]);
+    // علامة "انزل لتحت" في آخر الكارت الأساسي (مش في المحرر)
+    if (!editMode) out = out.replace('<div class="hero-text" id="heroText">', (m) => SCROLL_HINT + m);
     // الختم اللي في الختام (جوه الدعوة) برجندي — اللي بره على المظروف زي ما هو
     out = out.replace(/(<img class="ft-seal" src=")[^"]*(")/, (m, a, b) => `${a}${SEAL_WINE}${b}`);
     return out;
