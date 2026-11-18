@@ -647,6 +647,7 @@ router.get('/i/:shortId/calendar.ics', async (req, res) => {
         `${isAr ? 'الدعوة' : 'Invitation'}: ${pageUrl}`,
       ].filter(Boolean).join('\n'),
       url: pageUrl,
+      alarms: custom.calendar.alarms,
     });
     res.set('Content-Type', 'text/calendar; charset=utf-8');
     // inline مش attachment: سفاري الآيفون بيعرض "إضافة إلى التقويم" بدل ما ينزّل الملف

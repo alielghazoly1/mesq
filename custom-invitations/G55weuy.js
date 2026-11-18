@@ -136,8 +136,128 @@ body{background-color:#faf5ee}
 #mithaq-extras .gx-sent-n,#mithaq-extras .gx-status,#mithaq-extras .gx-toast,#mithaq-extras .gx-err{font-family:'Amiri',serif;font-size:4cqw}
 </style>`;
 
+// (2026-11-18 بطلب المالك) زرار "أضف الموعد للتقويم" (#cal تحت العدّاد) بقى مناسب لكل موبايل، وبيفكّر الضيف قبلها بـ 3 أيام:
+//  • آيفون: تقويم أبل على طول (ملف /i/G55weuy/calendar.ics فيه تنبيه قبلها بـ 3 أيام). جوه إنستجرام/واتساب/كروم
+//    بيتسلّم لسفاري (x-safari، iOS 17+)، ولو مانفعش جملة صغيرة تقوله يفتح في Safari.
+//  • أندرويد والكمبيوتر: لوحة صغيرة بلون الدعوة فيها اختيارين: تقويم الموبايل (سامسونج وغيره — نفس الملف بالتنبيه)
+//    أو تقويم Google (بيفتح الأبلكيشن والحدث جاهز). جوه متصفح التطبيقات على أندرويد الملف بيتفتح في كروم.
+//  القالب كان بيفتح تقويم جوجل بس وباسم "بلال صبري" — دلوقتي العنوان "خطوبة خلود وبلال" والساعة 8 مساءً زي الدعوة.
+const CAL_TITLE = 'خطوبة خلود وبلال';
+const CAL_CSS = `<style id="kb-cal-style">
+.kb-cal-note{margin:3.2cqw auto 0;font-family:'Amiri',serif;font-size:4cqw;line-height:1.5;color:#986a4f}
+.kb-cal{position:fixed;inset:0;z-index:2147482000;display:flex;align-items:flex-end;justify-content:center;background:rgba(60,36,28,0);transition:background .3s ease;direction:rtl}
+.kb-cal.on{background:rgba(60,36,28,.42)}
+.kb-cal-card{width:100%;max-width:460px;box-sizing:border-box;padding:22px 20px calc(18px + env(safe-area-inset-bottom,0px));border-radius:26px 26px 0 0;
+  background:linear-gradient(#fdf8f3,#f8eee6);box-shadow:0 -12px 40px rgba(90,50,40,.25);transform:translateY(105%);transition:transform .38s cubic-bezier(.2,.8,.2,1);text-align:center;font-family:'Amiri',serif;color:#5b3b33}
+.kb-cal.on .kb-cal-card{transform:none}
+.kb-cal-bar{width:40px;height:4px;border-radius:4px;background:#e2cbbb;margin:-8px auto 14px}
+.kb-cal-t{font-family:'Aref Ruqaa','Amiri',serif;font-size:23px;line-height:1.3;color:#8c5a4b;margin:0}
+.kb-cal-s{font-size:15px;line-height:1.6;color:#986a4f;margin:4px 0 16px}
+.kb-cal-o{display:flex;align-items:center;gap:14px;width:100%;box-sizing:border-box;margin:0 0 10px;padding:13px 16px;border:1px solid #e6cfc0;border-radius:18px;background:#fff;
+  font:inherit;color:inherit;text-align:right;text-decoration:none;cursor:pointer;-webkit-tap-highlight-color:transparent;box-shadow:0 2px 8px rgba(160,95,80,.08)}
+.kb-cal-o:active{transform:scale(.985);background:#fbf3ee}
+.kb-cal-o i{flex:none;display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:13px;background:linear-gradient(#f3d9cf,#e7b3a5);color:#fff}
+.kb-cal-o i svg{width:24px;height:24px}
+.kb-cal-o b{display:block;font-weight:700;font-size:18px;line-height:1.35;color:#5b3b33}
+.kb-cal-o small{display:block;font-size:13.5px;line-height:1.45;color:#a07a66}
+.kb-cal-x{margin-top:4px;padding:10px 24px;border:0;background:none;font:inherit;font-size:16px;color:#a07a66;cursor:pointer}
+.kb-cal-hint{position:fixed;left:50%;bottom:24px;z-index:2147483000;transform:translateX(-50%);width:max-content;max-width:calc(100% - 40px);padding:12px 20px;border-radius:14px;
+  background:rgba(70,40,32,.94);color:#fbf4ee;font:400 15px/1.7 'Amiri',serif;text-align:center;direction:rtl;box-shadow:0 10px 30px rgba(0,0,0,.25);opacity:0;transition:opacity .3s ease}
+</style>`;
+const CAL_JS = `<script id="kb-cal">(function () {
+  var a = document.getElementById('cal');
+  if (!a) return;
+  var C = window.WEDDING_CONFIG || {};
+  var ics = location.origin + '/i/${SHORT}/calendar.ics';
+  var ua = navigator.userAgent || '';
+  var ios = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var android = /Android/i.test(ua);
+  var appBrowser = /Instagram|FBAN|FBAV|FB_IAB|FBIOS|Messenger|musical_ly|TikTok|Snapchat|Line\\/|LinkedInApp|Twitter|; wv\\)/i.test(ua);
+  var notSafari = !/Safari\\//.test(ua) || appBrowser || /GSA\\/|CriOS|FxiOS|EdgiOS|OPiOS|DuckDuckGo/i.test(ua);
+  a.removeAttribute('target');
+  a.setAttribute('href', ics);
+  var note = document.createElement('p');
+  note.className = 'kb-cal-note';
+  note.textContent = 'ويفكّركم قبل الخطوبة بـ ٣ أيام 🤍';
+  a.parentNode.insertBefore(note, a.nextSibling);
+
+  // تقويم Google: نفس الساعة اللي في الدعوة (8 مساءً) لحد 1 بالليل
+  function gLink() {
+    var t = (C.countdown || {}), p = function (n) { return (n < 10 ? '0' : '') + n; };
+    var s = new Date(Date.UTC(t.year, t.monthIndex, t.day, t.hour, t.minute)), e = new Date(s.getTime() + 5 * 3600e3);
+    var f = function (d) { return d.getUTCFullYear() + p(d.getUTCMonth() + 1) + p(d.getUTCDate()) + 'T' + p(d.getUTCHours()) + p(d.getUTCMinutes()) + '00'; };
+    var where = [C.venueName, C.venueCity].filter(Boolean).join('، ');
+    var det = (C.venueMapDirectLink ? 'الموقع على الخريطة: ' + C.venueMapDirectLink + '\\n' : '') + 'الدعوة: ' + location.origin + '/i/${SHORT}';
+    return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent('${CAL_TITLE}') + '&dates=' + f(s) + '/' + f(e)
+      + '&location=' + encodeURIComponent(where) + '&details=' + encodeURIComponent(det);
+  }
+  function fileAndroid() {
+    // متصفح جوه التطبيقات (إنستجرام/فيسبوك) مابينزّلش ملفات — بنفتحه في كروم
+    if (android && appBrowser) {
+      location.href = 'intent://' + location.host + '/i/${SHORT}/calendar.ics#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=' + encodeURIComponent(ics) + ';end';
+      return;
+    }
+    var d = document.createElement('a');
+    d.href = ics; d.download = 'khetba-kholoud-bilal.ics'; d.style.display = 'none';
+    document.body.appendChild(d); d.click();
+    setTimeout(function () { if (d.parentNode) d.parentNode.removeChild(d); }, 1000);
+  }
+  var CAL_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/><path d="M12 12.6v2.6l1.7 1"/></svg>';
+  var G_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/><path d="M15 14.2a3 3 0 1 1-.9-2.2M15 14.2h-2.6"/></svg>';
+  function sheet() {
+    if (document.querySelector('.kb-cal')) return;
+    var w = document.createElement('div');
+    w.className = 'kb-cal';
+    w.setAttribute('role', 'dialog');
+    w.setAttribute('aria-label', 'أضف الموعد للتقويم');
+    var fileName = android ? 'تقويم الموبايل' : 'ملف التقويم';
+    var fileSub = android ? 'سامسونج وأي تقويم على الموبايل — بتنبيه قبلها بـ ٣ أيام' : 'Outlook وتقويم أبل — بتنبيه قبلها بـ ٣ أيام';
+    w.innerHTML = '<div class="kb-cal-card"><div class="kb-cal-bar"></div><p class="kb-cal-t">احفظوا الموعد</p><p class="kb-cal-s">السبت <span dir="ltr">12/12/2026</span> — الساعة الثامنة مساءً</p>'
+      + '<button type="button" class="kb-cal-o" data-k="file"><i>' + CAL_ICON + '</i><span><b>' + fileName + '</b><small>' + fileSub + '</small></span></button>'
+      + '<a class="kb-cal-o" data-k="g" target="_blank" rel="noopener"><i>' + G_ICON + '</i><span><b>تقويم Google</b><small>بيفتح التقويم والموعد جاهز للحفظ</small></span></a>'
+      + '<button type="button" class="kb-cal-x">إلغاء</button></div>';
+    document.body.appendChild(w);
+    w.querySelector('[data-k="g"]').href = gLink();
+    function close() { w.classList.remove('on'); setTimeout(function () { if (w.parentNode) w.parentNode.removeChild(w); }, 400); }
+    w.addEventListener('click', function (e) {
+      if (e.target === w || e.target.closest('.kb-cal-x')) return close();
+      var o = e.target.closest('.kb-cal-o');
+      if (!o) return;
+      if (o.getAttribute('data-k') === 'file') { e.preventDefault(); fileAndroid(); }
+      setTimeout(close, 250);
+    });
+    requestAnimationFrame(function () { requestAnimationFrame(function () { w.classList.add('on'); }); });
+  }
+  function hint() {
+    var d = document.createElement('div');
+    d.className = 'kb-cal-hint';
+    d.setAttribute('role', 'status');
+    d.innerHTML = 'عشان تضيف الموعد لتقويم الآيفون<br>افتح الدعوة في Safari من زرار <b dir="ltr">•••</b>';
+    document.body.appendChild(d);
+    requestAnimationFrame(function () { d.style.opacity = '1'; });
+    var close = function () { d.style.opacity = '0'; setTimeout(function () { if (d.parentNode) d.parentNode.removeChild(d); }, 350); };
+    d.addEventListener('click', close);
+    setTimeout(close, 7000);
+  }
+  a.addEventListener('click', function (e) {
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    if (!ios) return sheet();
+    if (!notSafari) { location.href = ics; return; }
+    var left = false;
+    var mark = function () { if (document.visibilityState === 'hidden') left = true; };
+    document.addEventListener('visibilitychange', mark);
+    window.addEventListener('pagehide', function () { left = true; });
+    location.href = 'x-safari-' + ics;
+    setTimeout(function () { document.removeEventListener('visibilitychange', mark); if (!left) hint(); }, 1800);
+  }, true);
+})();</script>`;
+
 module.exports = {
   shortId: SHORT,
+
+  // ملف الموعد (routes/invitations.js → /i/G55weuy/calendar.ics): 8 مساءً لحد 1 بالليل، تنبيه قبلها بـ 3 أيام
+  calendar: { title: CAL_TITLE, hours: 5, alarms: ['-P3D'] },
 
   // كارت لينك المشاركة: الظرف والأسامي والتاريخين والمكان (1200×630)
   share: {
@@ -149,8 +269,9 @@ module.exports = {
     description: 'السبت ١٢ ديسمبر ٢٠٢٦ · منتجع أوراق ٢ — الرياض',
   },
 
-  render() {
-    return {};
+  // في المحرر الزرار مابيتداسش (الضغط = تعديل) — فمفيش داعي للسكريبت
+  render({ editMode } = {}) {
+    return editMode ? {} : { head: CAL_CSS, bodyEnd: CAL_JS };
   },
 
   transform(html) {

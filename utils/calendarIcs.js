@@ -53,10 +53,12 @@ function floating(t) {
  * @param {string} [o.location]
  * @param {string} [o.description]
  * @param {string} [o.url] لينك الدعوة
+ * @param {string[]} [o.alarms] تنبيهات قبل الحفلة (TRIGGER) — الافتراضي قبلها بيوم
  * @param {Date} [o.now]
  * @returns {string}
  */
-function buildEventIcs({ uid, title, start, hours = 6, location, description, url, now = new Date() }) {
+function buildEventIcs({ uid, title, start, hours = 6, location, description, url, alarms, now = new Date() }) {
+  const triggers = (Array.isArray(alarms) && alarms.length ? alarms : ['-P1D']).filter((t) => /^-P(\d+[DW]|T\d+[HM]|\d+DT\d+H)$/.test(t));
   const e = new Date(Date.UTC(start.year, start.monthIndex, start.day, start.hour, start.minute) + hours * 3600 * 1000);
   const end = { year: e.getUTCFullYear(), monthIndex: e.getUTCMonth(), day: e.getUTCDate(), hour: e.getUTCHours(), minute: e.getUTCMinutes() };
   const stamp = now.toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
@@ -75,12 +77,8 @@ function buildEventIcs({ uid, title, start, hours = 6, location, description, ur
     location ? `LOCATION:${icsText(location)}` : '',
     description ? `DESCRIPTION:${icsText(description)}` : '',
     url ? `URL:${url}` : '',
-    // تنبيه قبلها بيوم (زي ملف القالب نفسه)
-    'BEGIN:VALARM',
-    'ACTION:DISPLAY',
-    `DESCRIPTION:${icsText(title)}`,
-    'TRIGGER:-P1D',
-    'END:VALARM',
+    // تنبيه قبلها بيوم (زي ملف القالب نفسه) — أو اللي الدعوة طالباه (calendar.alarms)
+    ...triggers.flatMap((t) => ['BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${icsText(title)}`, `TRIGGER:${t}`, 'END:VALARM']),
     'END:VEVENT',
     'END:VCALENDAR',
   ].filter(Boolean).map(fold).join('\r\n') + '\r\n';
