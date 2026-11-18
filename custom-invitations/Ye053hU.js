@@ -48,13 +48,13 @@ html:root{--foreground:358 67% 26%!important;--primary:358 62% 31%!important;--a
 .ye-am{position:relative;padding:72px 20px 40px;text-align:center}
 .ye-am-t{font-size:44px;line-height:1.15}
 .ye-am-orn{display:block;width:120px;height:14px;margin:14px auto 30px;color:hsl(var(--foreground)/.55)}
-.ye-am-it{margin:0 auto 34px}
-.ye-am-it img{display:block;height:auto;margin:0 auto;-webkit-user-select:none;user-select:none}
-.ye-am-it.big img{width:min(90vw,430px)}
-.ye-am-it.mid img{width:min(70vw,320px)}
-.ye-pill{display:inline-block;margin-top:12px;padding:7px 22px;border-radius:99px;background:linear-gradient(#f1dfd2,#e7cdbb);color:hsl(var(--foreground));
-  font-family:'Amiri',serif;font-weight:700;font-size:18px;line-height:1.4;box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 2px 6px rgba(110,40,40,.08)}
-@media (min-width:768px){.ye-am-t{font-size:64px}.ye-am-it.big img{width:520px}.ye-am-it.mid img{width:380px}}
+.ye-am-it img{display:block;margin:0 auto;-webkit-user-select:none;user-select:none}
+.ye-am-it.big img{width:min(72vw,320px);height:auto}
+.ye-am-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:330px;margin:28px auto 0;align-items:end}
+.ye-am-row img{width:100%;height:118px;object-fit:contain}
+.ye-pill{display:inline-block;margin-top:12px;padding:6px 18px;border-radius:99px;background:linear-gradient(#f1dfd2,#e7cdbb);color:hsl(var(--foreground));
+  font-family:'Amiri',serif;font-weight:700;font-size:16px;line-height:1.4;box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 2px 6px rgba(110,40,40,.08)}
+@media (min-width:768px){.ye-am-t{font-size:64px}.ye-am-it.big img{width:400px}.ye-am-row{max-width:420px}.ye-am-row img{height:150px}}
 /* التنويه (مكان المواصلات) */
 .ye-nocam{width:96px!important;height:auto}
 .ye-kids-wrap{margin-top:34px;display:flex;align-items:center;justify-content:center;gap:12px}
@@ -70,8 +70,10 @@ const AMBIENCE = `<section class="ye-am" aria-label="أجواء الحفل">
       <h2 class="ye-am-t font-display text-foreground" data-elem-id="ya1">أجواء الحفل</h2>
       ${ORN}
       <div class="ye-am-it big rvf"><img loading="lazy" decoding="async" src="${A['am-table']}" alt="الطاولة المدينية" draggable="false" data-elem-id="ya5"><span class="ye-pill" data-elem-id="ya2">الطاولة المدينية</span></div>
-      <div class="ye-am-it mid rvf"><img loading="lazy" decoding="async" src="${A['am-coffee']}" alt="ركن القهوة" draggable="false" data-elem-id="ya6"><span class="ye-pill" data-elem-id="ya3">ركن القهوة</span></div>
-      <div class="ye-am-it mid rvf"><img loading="lazy" decoding="async" src="${A['am-photo']}" alt="الفوتو شوت" draggable="false" data-elem-id="ya7"><span class="ye-pill" data-elem-id="ya4">الفوتو شوت</span></div>
+      <div class="ye-am-row">
+        <div class="ye-am-it rvf"><img loading="lazy" decoding="async" src="${A['am-coffee']}" alt="ركن القهوة" draggable="false" data-elem-id="ya6"><span class="ye-pill" data-elem-id="ya3">ركن القهوة</span></div>
+        <div class="ye-am-it rvf"><img loading="lazy" decoding="async" src="${A['am-photo']}" alt="الفوتو شوت" draggable="false" data-elem-id="ya7"><span class="ye-pill" data-elem-id="ya4">الفوتو شوت</span></div>
+      </div>
     </section>`;
 
 // فقرات الحفل: نفس أرقام عناصر القالب (lc25–lc36) عشان الكلام يتعدّل من المحرر زي ما هو، والأيقونات lc97/lc106/lc98/lc107
