@@ -30,7 +30,6 @@ const GREENS = {
   '#5b7058': '#b97f6f',
 };
 
-const HIJRI = 'السبت ٣ رجب ١٤٤٨ هـ';
 // تنويه المسبح (المالك 2026-11-13) — جوه رسالة الترحيب
 const POOL_T = 'تنويه بمحبة 💫';
 const POOL_P = 'نظرًا لوجود مسبح في المكان،\nنرجو من الأهالي الأعزاء الحرص\nعلى أطفالهم ومتابعتهم طوال الحفل.';
@@ -155,8 +154,9 @@ module.exports = {
     out = out.replace(/(<div class="env-t env-names[^"]*">[\s\S]*?<\/div>)/, (m) => `${m}
       <img class="kb-mono-art" src="${asset(`${DIR}mono.webp`)}" alt="خ ب">`);
     for (const [g, c] of Object.entries(GREENS)) out = out.split(g).join(c);
-    // التاريخ الهجري تحت سطر التاريخ الميلادي
-    out = out.replace(/(<p class="date-line[^"]*"[^>]*data-elem-id="pp10"[^>]*><\/p>)/, (m) => `${m}\n    <p class="kb-hijri r d2">${HIJRI}</p>`);
+    // (المالك 2026-11-18) سطر التاريخ في آخر الكارت الأولاني (السبت 12 ديسمبر 2026 + الهجري تحته) اتشال —
+    // الموعد مكتوب في "موعد فرحنا" تحته على طول: "مش عايز يبقى الميعاد مكرر مرتين"
+    out = out.replace(/<p class="date-line[^"]*"[^>]*data-elem-id="pp10"[^>]*><\/p>\s*/, '');
     // تنويه المسبح (المالك 2026-11-13) — جوه رسالة الترحيب بعد آخر جملة وقبل "مستنيينكم بكل الحب"
     out = out.replace(/(<p class="p r" data-elem-id="pp49"><\/p>)/, (m) => `${m}
     <svg class="orn sm r" viewBox="0 0 240 22" aria-hidden="true"><use href="#orn-dot"/></svg>
