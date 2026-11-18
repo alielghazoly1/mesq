@@ -188,6 +188,200 @@ const NOTE = `
 
 `;
 
+// ===== فيديو فتح واحد (المالك 2026-11-18) =====
+// "الفيديو التاني اللي فيه الفيونكة بيعلق في آخره — خلّي الأولاني ملضوم في التاني، يبقى فيديو واحد".
+// open.mp4 = فيديو الظرف (v1.mp4 بتاعنا) + فيديو الفيونكة (v2.mp4 بتاع القالب) في ملف واحد (10 ثواني)، وفيه نفس
+// اللي الصفحة كانت بتعمله بينهم بالظبط: آخر الظرف بينوّر (brightness 1.1 / saturate .97 في 1.1 ثانية) والفيونكة
+// بتظهر فوقه في 0.8 ثانية (scratch ea2/merge.py). كده مفيش فيديو تاني يستنى يتحمّل ولا يتفك من الأول.
+// الصفحة: فيديو واحد بيتحمّل مرة واحدة كامل في الذاكرة من أول ما الدعوة تفتح. لو الضيف داس قبل ما يخلص: بنستنى
+// بس لو هيخلص خلال ثانيتين بالكتير (السرعة بتتقاس من آخر ~0.6 ثانية تحميل) — وإلا (أو لو النت سريع) الفيديو بيشتغل
+// من النت على طول وتحميل الذاكرة بيقف عشان النت كله يروح له. لو المتصفح ماعرفش يشغّل نسخة الذاكرة → نفس الملف من النت.
+// آخر الفيديو = نفس نهاية الفيونكة (الكارت بيظهر قبل الآخر بـ 1.8 ثانية والغلاف بيختفي قبله بثانية).
+// لو أي حتة من كود القالب اتغيّرت ومش لاقيينها، أو open.mp4 مش موجود، بنسيب الدعوة على الفيديوهين القدام (ولا حاجة بتبوظ).
+// (2026-11-18، 3 مراجعات مستقلة: iOS / منطق الصفحة / الفيديو نفسه — اتصلّح كل اللي طلع فيها.)
+const ONE_VIDEO = [
+  // 1) الضغطة: فيديو واحد — ولو نسخة الذاكرة لسه جاية، نستنى عليها شوية
+  [`    // نفس الضغطة بتجهّز الفيديو التاني عشان يشتغل لوحده بعد الأول (آيفون في توفير الطاقة)
+    try {
+      var pv = v2.play();
+      if (pv && pv.then) pv.then(function () { if (!v2Started) { v2.pause(); try { v2.currentTime = 0; } catch (e) {} } }).catch(function () {});
+    } catch (e) {}
+    var p;
+    try { p = v1.play(); } catch (e) { p = null; }
+    if (p && p.catch) p.catch(fadeCover);
+    watchStall(v1);
+    firstWatch = setTimeout(function () { if (v1.currentTime <= 0.05) fadeCover(); }, 6000);
+    watchdog = setTimeout(fadeCover, 20000);
+  }`,
+  `    watchdog = setTimeout(fadeCover, 20000);
+    if (oneLoading && !oneReady && worthWaiting(0)) {
+      // الضغطة نفسها بتفتح الفيديو (آيفون في توفير الطاقة مابيشغّلش فيديو من غير ضغطة) — وبعدين نستنى نسخة الذاكرة
+      try {
+        var pu = v1.play();
+        if (pu && pu.then) pu.then(function () { if (!oneStarted) { v1.pause(); try { v1.currentTime = 0; } catch (e) {} } }).catch(function () {});
+      } catch (e) {}
+      var w0 = Date.now();
+      oneWait = setInterval(function () {
+        if (state !== 'envelope') { clearInterval(oneWait); return; }
+        if (oneReady || !oneLoading) { clearInterval(oneWait); beginOne(); return; }
+        if (!worthWaiting(Date.now() - w0)) { clearInterval(oneWait); giveUpMemory(); beginOne(); }
+      }, 100);
+      return;
+    }
+    if (oneLoading && !oneReady) giveUpMemory();
+    beginOne();
+  }
+  var oneLoading = false, oneReady = false, oneStarted = false, oneWait = 0, oneNet = false;
+  var oneGot = 0, oneTotal = 0, oneAbort = null, oneHist = [];
+  var ONE_BPS = 248000;   // متوسط الفيديو نفسه: 2.5 ميجا في 10.08 ثانية (بايت في الثانية)
+  // نسخة الذاكرة (الملف كله) — بنسجّل الوصول أول بأول عشان نعرف السرعة الحقيقية
+  function loadOne() {
+    if (!window.fetch || !window.URL || !URL.createObjectURL || !window.Blob) { try { v1.preload = 'auto'; } catch (e) {} return; }
+    oneLoading = true;
+    var ac = null;
+    try { ac = new AbortController(); } catch (e) {}
+    oneAbort = ac;
+    fetch(vurl(v1), ac ? { signal: ac.signal } : {}).then(function (r) {
+      if (!r.ok) throw 0;
+      oneTotal = +(r.headers.get('content-length') || 0);
+      if (!r.body || !r.body.getReader) return r.blob();
+      var rd = r.body.getReader(), parts = [];
+      function pump() {
+        return rd.read().then(function (x) {
+          if (x.done) return new Blob(parts, { type: 'video/mp4' });
+          parts.push(x.value); oneGot += x.value.byteLength;
+          oneHist.push([Date.now(), oneGot]);
+          if (oneHist.length > 120) oneHist.splice(0, 60);
+          return pump();
+        });
+      }
+      return pump();
+    }).then(function (b) {
+      oneLoading = false;
+      if (b && b.size > 1000 && !oneStarted) { v1.src = URL.createObjectURL(b); try { v1.load(); } catch (e) {} oneReady = true; }
+    }).catch(function () {
+      oneLoading = false;
+      try { if (!oneStarted) v1.preload = 'auto'; } catch (e) {}
+    });
+  }
+  // السرعة دلوقتي (بايت/مللي ثانية) من آخر ~0.6 ثانية تحميل — من أول بايت وصل، مش من وقت ما الطلب اتبعت
+  function oneRate() {
+    var n = oneHist.length;
+    if (n < 2) return 0;
+    var last = oneHist[n - 1], i = n - 1;
+    while (i > 0 && last[0] - oneHist[i - 1][0] <= 600) i--;
+    var dt = last[0] - oneHist[i][0];
+    return dt >= 250 ? (last[1] - oneHist[i][1]) / dt : 0;
+  }
+  // الضيف داس قبل ما النسخة تخلص: نستنى بس لو هتخلص قريب (ثانيتين بالكتير من الضغطة)
+  function worthWaiting(waited) {
+    if (waited >= 2000) return false;
+    var r = oneRate();
+    // السرعة لسه مش معروفة: لو السيرفر لسه مارَدّش خالص نستنى الطلب اللي ماشي (طلب جديد من النت هيستنى الرد من الأول)
+    if (!r) return waited < (oneGot ? 1200 : 2000);
+    if (!oneTotal) return waited < 1200;
+    var left = (oneTotal - oneGot) / r;                 // مللي ثانية لحد ما النسخة تكمل
+    if (left <= 700) return true;                       // على وشك تخلص — من الذاكرة
+    if (r * 1000 > 1.6 * ONE_BPS) return false;         // النت أسرع من الفيديو بكتير: من النت على طول ومش هيقف
+    return left <= 2000 - waited;
+  }
+  // من النت: تحميل الذاكرة بيقف عشان النت كله يروح للفيديو (مايقفش في نصّه)
+  function giveUpMemory() {
+    try { if (oneAbort) oneAbort.abort(); } catch (e) {}
+    oneLoading = false;
+    try { v1.preload = 'auto'; } catch (e) {}
+  }
+  // نسخة الذاكرة مااشتغلتش في المتصفح ده → نفس الفيديو من النت (مرة واحدة) بدل ما الفتح يتشال
+  function netRetry() {
+    if (oneNet || !/^blob:/.test(v1.currentSrc || v1.src || '')) return false;
+    oneNet = true;
+    try { v1.src = vurl(v1); v1.load(); } catch (e) { return false; }
+    if (oneStarted) {
+      var p2;
+      try { p2 = v1.play(); } catch (e) { p2 = null; }
+      if (p2 && p2.catch) p2.catch(fadeCover);
+      // من الأول: مراقبة الوقوف وأول فريم بتبدأ من جديد
+      watchStall(v1);
+      clearTimeout(firstWatch);
+      firstWatch = setTimeout(function () { if (v1.currentTime <= 0.05) fadeCover(); }, 6000);
+    }
+    return true;
+  }
+  function beginOne() {
+    if (oneStarted || state !== 'envelope') return;
+    oneStarted = true;
+    try { if (v1.currentTime > 0) v1.currentTime = 0; } catch (e) {}
+    var p;
+    try { p = v1.play(); } catch (e) { p = null; }
+    // لو المحاولة من النت شغالة خلاص (netRetry) هي اللي بتكمّل — مانقفلش الفتح
+    if (p && p.catch) p.catch(function () { if (oneNet) return; if (!netRetry()) fadeCover(); });
+    watchStall(v1);
+    firstWatch = setTimeout(function () { if (v1.currentTime <= 0.05) fadeCover(); }, 6000);
+  }`],
+  // 2) آخر الفيديو الواحد = آخر الفيونكة: الكارت يظهر والغلاف يختفي (زي ما كان على الفيديو التاني)
+  [`      var left = v1.duration - v1.currentTime;
+      if (left < 1.2) v1.classList.add('warm');
+      if (left < 0.1) startV2();
+    });
+    v1.addEventListener('ended', startV2);`,
+  `      if (!oneStarted) return;
+      // طول الفيديو معروف (10.08 ث) — لو المتصفح لسه مش عارفه (بيتحمّل من النت) ماتستناش لآخر فريم
+      var left = (isFinite(v1.duration) ? v1.duration : 10.08) - v1.currentTime;
+      if (left < 1.8) showHero();
+      if (left < 1) fadeCover();
+    });
+    v1.addEventListener('ended', function () { if (oneStarted) fadeCover(); });
+    v1.addEventListener('error', function () { if (state === 'envelope' && !netRetry()) fadeCover(); });`],
+  // ... والـ error القديم بتاع الفيديو الأول (اللي كان بيقفل الفتح على طول) مكانه السطر اللي فوق
+  [`    v1.addEventListener('error', function () { if (state === 'envelope') fadeCover(); });
+`, ''],
+  // 3) التحميل: ملف واحد بس في الذاكرة (من غير الفيديو التاني خالص)
+  [`    v1.src = vurl(v1);
+    v2.preload = 'metadata';
+    v2.src = vurl(v2);
+    v2Loading = true;
+    preload(v1, function () { return state === 'idle'; }, function () {
+      preload(v2, function () { return !v2Started; }, function (ok) { v2Ready = ok; v2Loading = false; });
+    });`,
+  `    // الفيديو نفسه بياخد بياناته الأولانية بس — الملف كله بيتحمّل مرة واحدة في الذاكرة (مش مرتين في نفس الوقت)
+    v1.preload = 'metadata';
+    v1.src = vurl(v1);
+    loadOne();`],
+  // 4) عنصر الفيديو التاني فاضي (من غير ملف) — الكود القديم بيلمسه بس مابيحمّلش حاجة
+  [` preload="auto" data-src="${T}v2.mp4"></video>`, ' preload="none"></video>'],
+  // 5) الضيف خرج من الموبايل ورجع وإحنا لسه مستنيين نسخة الذاكرة: الانتظار نفسه هو اللي بيشغّل (مايبدأش ويرجع من الأول)
+  [`      var cur = v2Started ? v2 : v1;`, `      if (!oneStarted) return;
+      var cur = v1;`],
+];
+
+// الملفات بتتحسب بصمتها مرة واحدة (السيرفر بيعيد التشغيل مع كل رفع) — مش مع كل فتحة للدعوة
+const OPEN_SRC = asset(OWN + 'open.mp4');
+const SWAP_URLS = SWAP.map(([from, to]) => [T + from, asset(to)]);
+const SEAL_WINE = asset(OWN + 'seal-wine.webp');
+
+/** الدعوة بفيديو واحد — أو null لو أي حتة من كود القالب مش موجودة مرة واحدة بالظبط (نسيبها على الفيديوهين) */
+function oneVideo(html) {
+  // الملف لازم يكون موجود (asset بيرجّع اللينك من غير ?v= لو مش لاقيه) — وإلا الفيديوهين القدام
+  if (OPEN_SRC.indexOf('?v=') === -1) {
+    console.warn(`[${SHORT}] one-video patch skipped: ${OWN}open.mp4 missing`);
+    return null;
+  }
+  let out = html;
+  // نفس الملف بنهايات سطور ويندوز (\r\n) عندنا ولينكس (\n) على السيرفر
+  const eol = html.includes('\r\n') ? '\r\n' : '\n';
+  for (const [a, b] of ONE_VIDEO) {
+    const from = a.split('\n').join(eol);
+    const to = b.split('\n').join(eol);
+    const n = out.split(from).length - 1;
+    if (n !== 1) {
+      console.warn(`[${SHORT}] one-video patch skipped (template piece found ${n}×): ${from.trim().slice(0, 60)}`);
+      return null;
+    }
+    out = out.replace(from, () => to);
+  }
+  return out.split(T + 'v1.mp4').join(OPEN_SRC);
+}
+
 function cut(html, startMark, endMark) {
   const a = html.indexOf(startMark);
   const b = a === -1 ? -1 : html.indexOf(endMark, a);
@@ -211,8 +405,9 @@ module.exports = {
   },
 
   transform(html) {
-    let out = html;
-    for (const [from, to] of SWAP) out = out.split(T + from).join(asset(to));
+    // فيديو فتح واحد (open.mp4) — ولو كود القالب اتغيّر، الفيديوهين القدام (v1.mp4 بتاعنا + فيونكة القالب)
+    let out = oneVideo(html) || html;
+    for (const [from, to] of SWAP_URLS) out = out.split(from).join(to);
     // (2026-11-16 المالك: أحمد الأول — "Ahmed & Eman") ترتيب القالب نفسه: العريس الأول في الكارت والختام
     // جملة الترحيب تحت القاعة في الكارت
     const withLine = /<p class="ht-with" data-elem-id="mp4"><\/p>\s*/;
@@ -227,7 +422,7 @@ module.exports = {
     const dc = cut(out, '<!-- 7) الدريس كود', '<!-- 8)');
     if (dc) out = out.slice(0, dc[0]) + NOTE + out.slice(dc[1]);
     // الختم اللي في الختام (جوه الدعوة) برجندي — اللي بره على المظروف زي ما هو
-    out = out.replace(/(<img class="ft-seal" src=")[^"]*(")/, (m, a, b) => `${a}${asset(OWN + 'seal-wine.webp')}${b}`);
+    out = out.replace(/(<img class="ft-seal" src=")[^"]*(")/, (m, a, b) => `${a}${SEAL_WINE}${b}`);
     return out;
   },
 };
