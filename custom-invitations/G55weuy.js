@@ -155,6 +155,8 @@ module.exports = {
 
   transform(html) {
     let out = html;
+    // (2026-11-18 بطلب المالك) الأغنية: "من غير كلام" — الملف اللي بعته (فيد صغير في الأول والآخر عشان اللفّة)
+    out = out.split('/templates/pearl-peony/song.mp3').join(asset(`${DIR}song.mp3`));
     out = out.split('/templates/pearl-peony/pin.webp').join(asset(`${DIR}pin.webp`));
     out = out.split('/templates/pearl-peony/cover-bg.webp').join(asset(`${DIR}cover-bg.webp`));
     out = out.split('/templates/pearl-peony/envelope.webp').join(asset(`${DIR}envelope.webp`));
