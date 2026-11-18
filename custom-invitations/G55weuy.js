@@ -64,7 +64,8 @@ body{background-color:#faf5ee}
 /* الأسامي على الظرف → المونوجرام "خ ب" */
 .env-names{display:none!important}
 /* (.env img بيمدّ أي صورة على الظرف كله — هنا مقاس ومكان المونوجرام بالظبط) */
-.env .kb-mono-art{position:absolute;inset:auto;left:50%;top:27.4%;width:31cqw;height:auto;transform:translateX(-50%);pointer-events:none}
+/* (2026-11-18) مونوجرام المالك الجديد (طولي، وردي زي صورته بالظبط) — المقاس بالطول عشان مايخبطش في التاريخ */
+.env .kb-mono-art{position:absolute;inset:auto;left:50%;top:27.4%;width:auto;height:20cqw;transform:translateX(-50%);pointer-events:none}
 .env-date{color:#85544a}
 .cv-top{color:#7e4a3f}
 .cv-hint{color:#61372a}
