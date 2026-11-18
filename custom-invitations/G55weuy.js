@@ -76,6 +76,16 @@ body{background-color:#faf5ee}
 .kb-hijri{font-family:'Reem Kufi',var(--ar);font-size:4.4cqw;font-weight:500;color:#986a4f;margin-top:1.6cqw;letter-spacing:0}
 .big-day{color:#7a4a3e}
 .month,.year{color:#5b3b33}
+/* (المالك 2026-11-18) "موعد فرحتنا": التاريخ أرقام جنب بعض 12/12/2026 بدل اليوم الكبير والشهر والسنة تحت بعض */
+.s-date [data-elem-id="pp12"],.s-date [data-elem-id="pp13"],.s-date [data-elem-id="pp14"]{display:none!important}
+.kb-date-row{direction:ltr;unicode-bidi:isolate;display:flex;justify-content:center;align-items:baseline;gap:2.6cqw;margin:5cqw auto 3cqw;
+  font-family:'Cormorant Garamond',serif;font-weight:500;font-size:15cqw;line-height:1;color:#7a4a3e;font-variant-numeric:lining-nums;font-feature-settings:"lnum"}
+.kb-date-row i{font-style:normal;font-weight:300;font-size:.62em;color:#c9a26b;transform:translateY(-.08em)}
+/* تحت "شكرًا لردّكم، ولكم منّا كل المحبة" في الختام */
+.kb-end-date{direction:ltr;unicode-bidi:isolate;margin-top:3.2cqw;font-family:'Cormorant Garamond',serif;font-weight:500;font-size:5.6cqw;
+  letter-spacing:.14em;color:#986a4f;font-variant-numeric:lining-nums;font-feature-settings:"lnum"}
+/* الجملة اللي فوق على الظرف من بره: أعلى شوية — مسافة بينها وبين الظرف */
+.cv-top{top:16.6%}
 .cd>div{border-color:#dcc6a3;background:rgba(255,250,245,.6)}
 .cd b{color:#7a4a3e}
 .cd span{font-family:'Reem Kufi',var(--ar);color:#986a4f}
@@ -157,6 +167,10 @@ module.exports = {
     // (المالك 2026-11-18) سطر التاريخ في آخر الكارت الأولاني (السبت 12 ديسمبر 2026 + الهجري تحته) اتشال —
     // الموعد مكتوب في "موعد فرحنا" تحته على طول: "مش عايز يبقى الميعاد مكرر مرتين"
     out = out.replace(/<p class="date-line[^"]*"[^>]*data-elem-id="pp10"[^>]*><\/p>\s*/, '');
+    // (المالك 2026-11-18) "موعد فرحتنا": 12/12/2026 أرقام جنب بعض (اليوم/الشهر/السنة القدام مستخبيين بالـ CSS)
+    out = out.replace(/(<div class="big-day[^"]*"[^>]*data-elem-id="pp12"[^>]*><\/div>)/, (m) => `<p class="kb-date-row r d1" dir="ltr"><span>12</span><i>/</i><span>12</span><i>/</i><span>2026</span></p>\n    ${m}`);
+    // ... وتحت "شكرًا لردّكم، ولكم منّا كل المحبة" في الختام
+    out = out.replace(/(<p class="p r d1" data-elem-id="pp60"><\/p>)/, (m) => `${m}\n    <p class="kb-end-date r d2" dir="ltr">12/12/2026</p>`);
     // تنويه المسبح (المالك 2026-11-13) — جوه رسالة الترحيب بعد آخر جملة وقبل "مستنيينكم بكل الحب"
     out = out.replace(/(<p class="p r" data-elem-id="pp49"><\/p>)/, (m) => `${m}
     <svg class="orn sm r" viewBox="0 0 240 22" aria-hidden="true"><use href="#orn-dot"/></svg>
