@@ -33,18 +33,28 @@ html:root{--foreground:358 67% 26%!important;--primary:358 62% 31%!important;--a
 .ye-has-img{display:none!important}
 .ye-end-nm{display:inline-block;vertical-align:middle;height:1.05em;width:auto}
 .ye-hijri{margin-top:6px;font-family:'Amiri',serif;font-size:15px;line-height:1.6;color:hsl(var(--foreground)/.75)}
-/* أيقونات الفقرات من الكارت */
-.ye-ic{width:100%;height:100%;object-fit:contain;pointer-events:none;-webkit-user-select:none;user-select:none}
-/* أجواء الحفل */
+/* فقرات الحفل (المالك 2026-11-18): الأيقونات كلها عمود واحد تحت بعض، نفس المقاس، والكلام جنبها */
+.ye-tl{position:relative;width:max-content;max-width:min(340px,100%);min-width:250px;margin:0 auto;padding:4px 0}
+.ye-tl::before{content:"";position:absolute;top:44px;bottom:44px;right:47px;width:1px;background:linear-gradient(hsl(var(--foreground)/0),hsl(var(--foreground)/.35) 12%,hsl(var(--foreground)/.35) 88%,hsl(var(--foreground)/0))}
+.ye-tl-row{position:relative;display:grid;grid-template-columns:96px minmax(0,1fr);align-items:center;column-gap:18px;padding:14px 0}
+.ye-tl-ic{position:relative;z-index:1;width:96px;height:80px;display:flex;align-items:center;justify-content:center;background:hsl(var(--background))}
+.ye-tl-ic img{width:100%;height:100%;object-fit:contain;pointer-events:none;-webkit-user-select:none;user-select:none}
+.ye-tl-tx{display:flex;flex-direction:column;align-items:flex-start;text-align:right;min-width:0}
+.ye-tl-time{display:inline-block;padding:3px 14px 4px;border-radius:99px;background:hsl(var(--foreground));color:hsl(var(--background));font-family:'Amiri',serif;font-weight:700;font-size:14px;line-height:1.45;white-space:nowrap}
+.ye-tl-title{margin-top:7px;font-family:'Amiri',serif;font-weight:700;font-size:20px;line-height:1.35;color:hsl(var(--foreground))}
+.ye-tl-desc{margin-top:1px;font-family:'Amiri',serif;font-size:14px;line-height:1.45;color:hsl(var(--foreground)/.72)}
+@media (min-width:768px){.ye-tl{max-width:420px}.ye-tl-title{font-size:23px}.ye-tl-time{font-size:15px}}
+/* أجواء الحفل: الصور كبيرة وواضحة، كل واحدة في سطرها */
 .ye-am{position:relative;padding:72px 20px 40px;text-align:center}
 .ye-am-t{font-size:44px;line-height:1.15}
-.ye-am-orn{display:block;width:120px;height:14px;margin:14px auto 34px;color:hsl(var(--foreground)/.55)}
-.ye-am-main img{display:block;width:min(86vw,400px);height:auto;margin:0 auto}
-.ye-am-row{display:grid;grid-template-columns:1fr 1fr;gap:18px;max-width:440px;margin:30px auto 0;align-items:end}
-.ye-am-row img{display:block;width:100%;height:150px;object-fit:contain;margin:0 auto}
-.ye-pill{display:inline-block;margin-top:12px;padding:7px 20px;border-radius:99px;background:linear-gradient(#f1dfd2,#e7cdbb);color:hsl(var(--foreground));
-  font-family:'Amiri',serif;font-weight:700;font-size:17px;line-height:1.4;box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 2px 6px rgba(110,40,40,.08)}
-@media (min-width:768px){.ye-am-t{font-size:64px}.ye-am-row img{height:190px}.ye-am-row{max-width:560px}}
+.ye-am-orn{display:block;width:120px;height:14px;margin:14px auto 30px;color:hsl(var(--foreground)/.55)}
+.ye-am-it{margin:0 auto 34px}
+.ye-am-it img{display:block;height:auto;margin:0 auto;-webkit-user-select:none;user-select:none}
+.ye-am-it.big img{width:min(90vw,430px)}
+.ye-am-it.mid img{width:min(70vw,320px)}
+.ye-pill{display:inline-block;margin-top:12px;padding:7px 22px;border-radius:99px;background:linear-gradient(#f1dfd2,#e7cdbb);color:hsl(var(--foreground));
+  font-family:'Amiri',serif;font-weight:700;font-size:18px;line-height:1.4;box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 2px 6px rgba(110,40,40,.08)}
+@media (min-width:768px){.ye-am-t{font-size:64px}.ye-am-it.big img{width:520px}.ye-am-it.mid img{width:380px}}
 /* التنويه (مكان المواصلات) */
 .ye-nocam{width:96px!important;height:auto}
 .ye-kids-wrap{margin-top:34px;display:flex;align-items:center;justify-content:center;gap:12px}
@@ -59,12 +69,22 @@ const ORN = '<svg class="ye-am-orn" viewBox="0 0 120 14" fill="none" stroke="cur
 const AMBIENCE = `<section class="ye-am" aria-label="أجواء الحفل">
       <h2 class="ye-am-t font-display text-foreground" data-elem-id="ya1">أجواء الحفل</h2>
       ${ORN}
-      <div class="ye-am-main rvf"><img loading="lazy" decoding="async" src="${A['am-table']}" alt="الطاولة المدينية" draggable="false" data-elem-id="ya5"><span class="ye-pill" data-elem-id="ya2">الطاولة المدينية</span></div>
-      <div class="ye-am-row">
-        <div class="rvf"><img loading="lazy" decoding="async" src="${A['am-coffee']}" alt="ركن القهوة" draggable="false" data-elem-id="ya6"><span class="ye-pill" data-elem-id="ya3">ركن القهوة</span></div>
-        <div class="rvf"><img loading="lazy" decoding="async" src="${A['am-photo']}" alt="الفوتو شوت" draggable="false" data-elem-id="ya7"><span class="ye-pill" data-elem-id="ya4">الفوتو شوت</span></div>
-      </div>
+      <div class="ye-am-it big rvf"><img loading="lazy" decoding="async" src="${A['am-table']}" alt="الطاولة المدينية" draggable="false" data-elem-id="ya5"><span class="ye-pill" data-elem-id="ya2">الطاولة المدينية</span></div>
+      <div class="ye-am-it mid rvf"><img loading="lazy" decoding="async" src="${A['am-coffee']}" alt="ركن القهوة" draggable="false" data-elem-id="ya6"><span class="ye-pill" data-elem-id="ya3">ركن القهوة</span></div>
+      <div class="ye-am-it mid rvf"><img loading="lazy" decoding="async" src="${A['am-photo']}" alt="الفوتو شوت" draggable="false" data-elem-id="ya7"><span class="ye-pill" data-elem-id="ya4">الفوتو شوت</span></div>
     </section>`;
+
+// فقرات الحفل: نفس أرقام عناصر القالب (lc25–lc36) عشان الكلام يتعدّل من المحرر زي ما هو، والأيقونات lc97/lc106/lc98/lc107
+const TL_ROWS = [
+  ['lc97', 'ic-reception', 'lc25', 'lc26', 'lc27'],
+  ['lc106', 'ic-zaffa', 'lc28', 'lc29', 'lc30'],
+  ['lc98', 'ic-rings', 'lc31', 'lc32', 'lc33'],
+  ['lc107', 'ic-dinner', 'lc34', 'lc35', 'lc36'],
+];
+const TIMELINE = () => `<div class="ye-tl">${TL_ROWS.map(([icId, ic, t, n, d]) => `
+      <div class="ye-tl-row rvf"><div class="ye-tl-ic"><img loading="lazy" decoding="async" src="${A[ic]}" alt="" draggable="false" data-elem-id="${icId}"></div>
+        <div class="ye-tl-tx"><span class="ye-tl-time" data-elem-id="${t}"></span><span class="ye-tl-title" data-elem-id="${n}"></span><span class="ye-tl-desc" data-elem-id="${d}"></span></div></div>`).join('')}
+    </div>`;
 
 /** آخر الـ div اللي بيبدأ عند start (عدّ الفتح والقفل) */
 function divEnd(html, start) {
@@ -75,16 +95,6 @@ function divEnd(html, start) {
     if (m[0] === '</div>') { depth--; if (depth === 0) return re.lastIndex; } else depth++;
   }
   return -1;
-}
-/** المحتوى جوه الـ div اللي عليه data-elem-id ده */
-function replaceDivInner(html, id, inner) {
-  const at = html.indexOf(`data-elem-id="${id}"`);
-  if (at === -1) return html;
-  const s = html.lastIndexOf('<div', at);
-  const open = html.indexOf('>', at) + 1;
-  const e = divEnd(html, s);
-  if (s === -1 || e === -1 || open <= 0) return html;
-  return html.slice(0, open) + inner + html.slice(e - 6);
 }
 function setImg(html, id, src) {
   return html.replace(new RegExp(`(<img\\b[^>]*?)src="[^"]*"([^>]*data-elem-id="${id}")`), (m, a, b) => `${a}src="${src}"${b}`);
@@ -125,19 +135,11 @@ module.exports = {
     // التاريخ الهجري تحت التاريخ
     out = out.replace(/(<p\b[^>]*data-f="dateDots"[^>]*data-elem-id="lc6"[^>]*>[^<]*<\/p>)/, `$1<p class="ye-hijri" data-elem-id="ya8">الخميس ٨ رجب ١٤٤٨ هـ</p>`);
 
-    // أيقونات فقرات الحفل (من الكارت)
-    const ic = (k, alt) => `<img class="ye-ic" src="${A[k]}" alt="${alt}" draggable="false">`;
-    out = replaceDivInner(out, 'lc97', ic('ic-reception', ''));
-    out = setImg(out, 'lc106', A['ic-zaffa']);
-    out = replaceDivInner(out, 'lc98', ic('ic-rings', ''));
-    out = setImg(out, 'lc107', A['ic-dinner']);
-    // الفقرة الخامسة (الرقص) — الصف كله
-    const r5 = out.indexOf('data-elem-id="lc99"');
-    if (r5 !== -1) {
-      const rowStart = out.lastIndexOf('<div class="relative grid grid-cols-[minmax(0,1fr)_12px_minmax(0,1fr)]', r5);
-      const rowEnd = rowStart === -1 ? -1 : divEnd(out, rowStart);
-      if (rowEnd !== -1 && out.slice(rowStart, rowEnd).includes('data-elem-id="lc39"')) out = out.slice(0, rowStart) + out.slice(rowEnd);
-    }
+    // فقرات الحفل: قايمة القالب كلها (5 فقرات بالتبادل يمين وشمال) → 4 فقرات تحت بعض بأيقونات الكارت في عمود واحد
+    const f1 = out.indexOf('data-elem-id="lc97"');
+    const tl = f1 === -1 ? -1 : out.lastIndexOf('<div class="relative max-w-md mx-auto">', f1);
+    const tlEnd = tl === -1 ? -1 : divEnd(out, tl);
+    if (tlEnd !== -1 && out.slice(tl, tlEnd).includes('data-elem-id="lc39"')) out = out.slice(0, tl) + TIMELINE() + out.slice(tlEnd);
 
     // الزي المقترح → أجواء الحفل
     const dc = out.indexOf('<div class="rv" data-section="dressCode">');
