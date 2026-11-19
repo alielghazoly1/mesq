@@ -141,7 +141,7 @@ body{background-color:#faf5ee}
 //    بيتسلّم لسفاري (x-safari، iOS 17+)، ولو مانفعش جملة صغيرة تقوله يفتح في Safari.
 //  • أندرويد والكمبيوتر: لوحة صغيرة بلون الدعوة فيها اختيارين: تقويم الموبايل (سامسونج وغيره — نفس الملف بالتنبيه)
 //    أو تقويم Google (بيفتح الأبلكيشن والحدث جاهز). جوه متصفح التطبيقات على أندرويد الملف بيتفتح في كروم.
-//  القالب كان بيفتح تقويم جوجل بس وباسم "بلال صبري" — دلوقتي العنوان "خطوبة خلود وبلال" والساعة 8 مساءً زي الدعوة.
+//  القالب كان بيفتح تقويم جوجل بس وباسم "بلال صبري" — دلوقتي العنوان "خطوبة خلود وبلال" وساعة الدعوة (7 مساءً من 2026-11-19).
 const CAL_TITLE = 'خطوبة خلود وبلال';
 const CAL_CSS = `<style id="kb-cal-style">
 .kb-cal-note{margin:3.2cqw auto 0;font-family:'Amiri',serif;font-size:4cqw;line-height:1.5;color:#986a4f}
@@ -181,7 +181,7 @@ const CAL_JS = `<script id="kb-cal">(function () {
   note.textContent = 'ويفكّركم قبل الخطوبة بـ ٣ أيام 🤍';
   a.parentNode.insertBefore(note, a.nextSibling);
 
-  // تقويم Google: نفس الساعة اللي في الدعوة (8 مساءً) لحد 1 بالليل
+  // تقويم Google: نفس الساعة اللي في الدعوة (7 مساءً بساعة الرياض) و5 ساعات بعدها
   function gLink() {
     var t = (C.countdown || {}), p = function (n) { return (n < 10 ? '0' : '') + n; };
     var s = new Date(Date.UTC(t.year, t.monthIndex, t.day, t.hour, t.minute)), e = new Date(s.getTime() + 5 * 3600e3);
@@ -256,7 +256,7 @@ const CAL_JS = `<script id="kb-cal">(function () {
 module.exports = {
   shortId: SHORT,
 
-  // ملف الموعد (routes/invitations.js → /i/G55weuy/calendar.ics): 8 مساءً لحد 1 بالليل، تنبيه قبلها بـ 3 أيام
+  // ملف الموعد (routes/invitations.js → /i/G55weuy/calendar.ics): 7 مساءً لحد 12 بالليل (ساعة الرياض)، تنبيه قبلها بـ 3 أيام
   calendar: { title: CAL_TITLE, hours: 5, alarms: ['-P3D'] },
 
   // كارت لينك المشاركة: الظرف والأسامي والتاريخين والمكان (1200×630)
@@ -266,7 +266,8 @@ module.exports = {
     height: 630,
     overrideImage: true,
     title: 'دعوة خطوبة خلود وبلال',
-    description: 'السبت ١٢ ديسمبر ٢٠٢٦ · منتجع أوراق ٢ — الرياض',
+    // (المالك 2026-11-19) الكلام اللي تحت العنوان لما اللينك يتبعت
+    description: 'She Said Yes! 💍 Khloud & Belal Engagement 🤍 Save the date, bring your smile, and get ready to dance! · 12/12/2026 7:00 PM',
   },
 
   // في المحرر الزرار مابيتداسش (الضغط = تعديل) — فمفيش داعي للسكريبت
@@ -276,6 +277,12 @@ module.exports = {
 
   transform(html) {
     let out = html;
+    // العدّاد بساعة الرياض (UTC+3): الساعة المكتوبة في الدعوة (countdown) هي ساعة الرياض — كان بيعدّ على ساعة مصر
+    const cd = out.match(/"countdown":\{"year":(\d{4}),"monthIndex":(\d{1,2}),"day":(\d{1,2}),"hour":(\d{1,2}),"minute":(\d{1,2})/);
+    if (cd) {
+      const iso = new Date(Date.UTC(+cd[1], +cd[2], +cd[3], +cd[4] - 3, +cd[5])).toISOString();
+      out = out.replace(/"weddingDateTimeISO":"[^"]*"/, `"weddingDateTimeISO":"${iso}"`);
+    }
     // (2026-11-18 بطلب المالك) الأغنية: "من غير كلام" — الملف اللي بعته (فيد صغير في الأول والآخر عشان اللفّة)
     out = out.split('/templates/pearl-peony/song.mp3').join(asset(`${DIR}song.mp3`));
     out = out.split('/templates/pearl-peony/pin.webp').join(asset(`${DIR}pin.webp`));

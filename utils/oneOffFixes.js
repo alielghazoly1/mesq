@@ -2011,6 +2011,20 @@ const FIXES = [
       return set;
     },
   },
+  {
+    // G55weuy (خطوبة خلود وبلال) — بطلب المالك (2026-11-19): الساعة 7 بالليل بدل 8 (نفس اليوم 12/12/2026).
+    // سطر الساعة في الدعوة والعدّاد وملف التقويم وتقويم جوجل كلهم بيتحسبوا من weddingDateTime. نفس طريقة
+    // utils/invitationData.js (ساعة الدعوة مكتوبة كساعة السيرفر UTC). بيتعمل بس لو الساعة لسه 8:00.
+    name: 'G55weuy-7pm',
+    shortId: 'G55weuy',
+    select: 'templateId weddingDateTime',
+    when: (c, inv) => inv.templateId === 'pearl-peony' && inv.weddingDateTime
+      && new Date(inv.weddingDateTime).getUTCHours() === 20 && new Date(inv.weddingDateTime).getUTCMinutes() === 0,
+    apply(c, inv) {
+      const d = new Date(inv.weddingDateTime);
+      return { weddingDateTime: new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 19, 0, 0)) };
+    },
+  },
 ];
 
 let done = false;
