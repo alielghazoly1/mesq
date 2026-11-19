@@ -2069,6 +2069,33 @@ const FIXES = [
       'customizations.hidden': (c.hidden || []).filter((id) => !['cl62', 'cl63', 'cl64', 'cl65'].includes(id)),
     }),
   },
+  {
+    // 25gFXIO (دعوة كاستم — فيروز وزياد) — بطلب المالك (2026-11-19): البيانات الحقيقية مكان المسودة (Groom/Bride)
+    // عشان عنوان الدعوة واللوحة وملف التقويم: الجمعة 18/12/2026 الساعة 7 مساءً، InterContinental Cairo Semiramis.
+    // الصفحة نفسها في custom-invitations/25gFXIO.html. بيتعمل بس لو الدعوة لسه مسودة القالب.
+    name: '25gFXIO-fayrouz-ziad',
+    shortId: '25gFXIO',
+    select: '-__v',
+    when: (c, inv) => inv.groomName === 'Groom' && inv.brideName === 'Bride' && inv.venueName === 'Venue',
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const link = 'https://maps.app.goo.gl/EhxNyKNSxFVQSnRg6';
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: 'en', occasionType: 'wedding',
+        hiddenSections: inv.hiddenSections, timeline: inv.timeline, name: inv.name,
+        groomName: 'Ziad', groomNameAr: 'زياد', brideName: 'Fayrouz', brideNameAr: 'فيروز',
+        venueName: 'InterContinental Cairo Semiramis', venueCity: 'Cairo', venueAddress: 'Nile Corniche, Garden City',
+        venueMapQuery: link,
+        weddingDate: '2026-12-18', weddingTime: '19:00',
+      }, { ownsTemplate: true, skipMapNetwork: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.venueMapQuery = link;
+      set.venueMapDirectLink = link;
+      set.venueMapEmbedSrc = 'https://www.google.com/maps?q=' + encodeURIComponent('InterContinental Cairo Semiramis, Nile Corniche, Cairo') + '&z=16&output=embed';
+      return set;
+    },
+  },
 ];
 
 let done = false;
