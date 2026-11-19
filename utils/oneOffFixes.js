@@ -2056,6 +2056,19 @@ const FIXES = [
       return set;
     },
   },
+  {
+    // rMMB3F1 (Champagne Lace — محمد وشمس) — بطلب المالك (2026-11-19): ألبوم الذكريات (cl62–cl65) يظهر تاني
+    // (العميل كان مخبّيه) — الصور نفسها (الـ4 اللي المالك بعتها) في custom-invitations/rMMB3F1.js.
+    // بيتعمل بس لو صور العميل القديمة لسه موجودة والألبوم لسه مستخبي.
+    name: 'rMMB3F1-album-photos',
+    shortId: 'rMMB3F1',
+    select: 'customizations templateId',
+    when: (c, inv) => inv.templateId === 'champagne-lace' && /tz1llcnaple0lcogqtdm/.test(((c.images || {}).cl62) || '')
+      && (c.hidden || []).includes('cl62'),
+    apply: (c) => ({
+      'customizations.hidden': (c.hidden || []).filter((id) => !['cl62', 'cl63', 'cl64', 'cl65'].includes(id)),
+    }),
+  },
 ];
 
 let done = false;
