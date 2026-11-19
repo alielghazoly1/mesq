@@ -2036,6 +2036,26 @@ const FIXES = [
       'customizations.texts': { ...(c.texts || {}), pp2: 'بلال', pp62: 'خلود', pp7: 'بلال', pp63: 'خلود' },
     }),
   },
+  {
+    // cF6HMkh (Ivory Swans — محمد وزهراء) — بطلب المالك (2026-11-19): الميعاد 6:30 مساءً (كان 6:00)،
+    // "نرجوا" → "نرجو"، و"بقلوب... المباركة" ترجع الجملة كاملة (جملة القالب الأصلية اللي العميل شال نصها).
+    // بيتعمل بس لو iv27 لسه "بقلوب... المباركة".
+    name: 'cF6HMkh-630-texts',
+    shortId: 'cF6HMkh',
+    select: 'customizations templateId weddingDateTime',
+    when: (c, inv) => inv.templateId === 'ivory-swans' && (c.texts || {}).iv27 === 'بقلوب... المباركة',
+    apply(c, inv) {
+      const t = { ...(c.texts || {}) };
+      t.iv27 = 'بقلوب مفعمة بالفرح والامتنان، يتشرف الأهل بدعوتكم للمشاركة في هذه الليلة المباركة';
+      if (t.iv20) t.iv20 = t.iv20.replace('نرجوا', 'نرجو');
+      const set = { 'customizations.texts': t };
+      const d = new Date(inv.weddingDateTime);
+      if (inv.weddingDateTime && d.getUTCHours() === 18 && d.getUTCMinutes() === 0) {
+        set.weddingDateTime = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 18, 30, 0));
+      }
+      return set;
+    },
+  },
 ];
 
 let done = false;

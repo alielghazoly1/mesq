@@ -6,11 +6,17 @@
 //    (محمد وزهراء — بدل صورة القالب) كاملة من غير تكبير ولا فلتر، من غير كلمة "Starts" تحتها.
 //  • كارت لينك المشاركة = صورة الدعوة اللي المالك بعتها (كاملة في النص، 1200×630).
 // البيانات نفسها ماتلمستش (العرض بس).
+// (المالك، الجولة التانية 2026-11-19):
+//  • الأسامي في أول الدعوة (Mohamed & Zahraa بالإنجليزي) → الخط العربي "محمد زهراء" مقصوص من صورتهم (Real-ESRGAN
+//    ×4 + فصل الحبر عن السما) ومتشكّل: مُحَمَّد زَهْرَاء (حركات Aref Ruqaa بنفس لون الحبر) — names.webp.
+//  • تحت مربع Save the date: "الساعة 6:30 مساءً" (والميعاد نفسه بقى 6:30 — oneOffFix cF6HMkh-630-texts).
+//  • "نرجوا" → "نرجو"، و"بقلوب... المباركة" رجعت الجملة كاملة (نفس الـ oneOffFix).
 const { asset } = require('./_asset');
 
 const SHORT = 'cF6HMkh';
 const DIR = `/custom/${SHORT}/`;
 const COUPLE = asset(`${DIR}couple.webp`);
+const NAMES = asset(`${DIR}names.webp`);
 
 const CSS = `<style id="cf-style">
 /* صورة القاعة فوق الخريطة */
@@ -29,6 +35,13 @@ const CSS = `<style id="cf-style">
 #mithaq-rsvp #mrsvp-note{display:none!important}
 #mithaq-rsvp .mrsvp-title{font-size:27px}
 #mithaq-rsvp .mrsvp-sub{font-family:'Amiri',serif;font-size:17px;color:#7a6a52}
+/* الأسامي بالخط العربي مكان Mohamed & Zahraa */
+.tn-elem[data-elem-id="1779566247730000001"].cf-has-nm .tn-atom{visibility:hidden}
+.tn-elem[data-elem-id="1779566247730000001"].cf-has-nm{overflow:visible!important}
+.tn-elem[data-elem-id="1779566247730000001"] .cf-nm{position:absolute;left:50%;top:50%;width:286px;max-width:none;height:auto;transform:translate(-50%,-52%);pointer-events:none;user-select:none}
+.tn-elem[data-elem-id="1779566247730000004"].cf-hide{display:none!important}
+/* الساعة تحت مربع Save the date */
+.std-sub.cf-time{margin-top:6px;font-family:'Amiri',serif;font-size:19px;direction:rtl}
 </style>`;
 
 // الكلام بالعربي قبل ما سكربت القالب يقرا الإعداد (بيقراه عند DOMContentLoaded)
@@ -69,7 +82,16 @@ module.exports = {
   },
 
   // الصورة اللي في النص (iv3) = صورة الدعوة بتاعتهم — لو العميل حط صورة من المحرر، صورته هي اللي بتظهر
-  transform(html) {
-    return html.replace(/(<img\b[^>]*?)src="\/templates\/ivory-swans\/couple-1\.webp"([^>]*data-elem-id="iv3")/, (m, a, b) => `${a}src="${COUPLE}"${b}`);
+  transform(html, { editMode } = {}) {
+    let out = html.replace(/(<img\b[^>]*?)src="\/templates\/ivory-swans\/couple-1\.webp"([^>]*data-elem-id="iv3")/, (m, a, b) => `${a}src="${COUPLE}"${b}`);
+    // الساعة تحت مربع Save the date (بتتعدّل من المحرر)
+    out = out.replace(/(<div class="std-sub" data-elem-id="iv40">[^<]*<\/div>)/, '$1\n                <div class="std-sub cf-time" data-elem-id="cf1">الساعة 6:30 مساءً</div>');
+    // الأسامي بالخط العربي مكان Mohamed & Zahraa — في المحرر بتفضل كلام عشان تتعدّل
+    if (!editMode) {
+      out = out.replace(/(<div class="t396__elem tn-elem )([^"]*" data-elem-id="1779566247730000001"[^>]*>\s*<div class="tn-atom" field="tn_text_1779566247730000001">[\s\S]*?<\/div>)/,
+        (m, a, b) => `${a}cf-has-nm ${b}<img class="cf-nm" src="${NAMES}" alt="محمد وزهراء" draggable="false">`);
+      out = out.replace(/(<div class="t396__elem tn-elem )([^"]*" data-elem-id="1779566247730000004")/, '$1cf-hide $2');
+    }
+    return out;
   },
 };
