@@ -38,7 +38,9 @@ const CSS = `<style id="cf-style">
 /* الأسامي بالخط العربي مكان Mohamed & Zahraa */
 .tn-elem[data-elem-id="1779566247730000001"].cf-has-nm .tn-atom{visibility:hidden}
 .tn-elem[data-elem-id="1779566247730000001"].cf-has-nm{overflow:visible!important}
-.tn-elem[data-elem-id="1779566247730000001"] .cf-nm{position:absolute;left:50%;top:50%;width:286px;max-width:none;height:auto;transform:translate(-50%,-52%);pointer-events:none;user-select:none}
+.tn-elem[data-elem-id="1779566247730000001"] .cf-nm{position:absolute;left:50%;top:50%;width:222px;max-width:none;height:auto;transform:translate(-50%,-61%);pointer-events:none;user-select:none}
+/* الشاشات القصيرة (زي آيفون SE): أصغر وأعلى شوية عشان مايتلمسش في SCROLL DOWN اللي تحت */
+@media (max-height:600px){.tn-elem[data-elem-id="1779566247730000001"] .cf-nm{width:186px;transform:translate(-50%,-74%)}}
 .tn-elem[data-elem-id="1779566247730000004"].cf-hide{display:none!important}
 /* الساعة تحت مربع Save the date */
 .std-sub.cf-time{margin-top:6px;font-family:'Amiri',serif;font-size:19px;direction:rtl}
