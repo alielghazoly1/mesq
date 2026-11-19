@@ -1944,6 +1944,45 @@ const FIXES = [
       return set;
     },
   },
+  {
+    // 5vKDyVK (Mother of Pearl EN — Muhammad & Runah) — بطلب المالك (2026-11-19): أول صفحة
+    // "بسم الله الرحمن الرحيم / The Wedding of / Muhammad & Runah / Together with their families".
+    // العميل كان كاتب "THE WEDDING OF" مكان اسم العريس و﷽ مكان "The Wedding of" → الاسم
+    // Muhammad، والسطر mp1 رجع "The Wedding of" بمقاسه الأصلي، والبسملة سطر لوحدها
+    // (custom-invitations/5vKDyVK.js). مقاس وخط اسم العريس اللي كانوا للجملة اتشالوا عشان
+    // الاسم يبقى بنفس خط ومقاس Runah. بيتعمل بس لو اسم العريس لسه "THE WEDDING OF".
+    name: '5vKDyVK-muhammad-runah',
+    shortId: '5vKDyVK',
+    select: '-__v',
+    when: (c, inv) => inv.templateId === 'mother-of-pearl' && /^the wedding of$/i.test((inv.groomName || '').trim()),
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const d = new Date(inv.weddingDateTime);
+      const p2 = (n) => String(n).padStart(2, '0');
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: inv.language, occasionType: inv.occasionType,
+        hiddenSections: inv.hiddenSections, timeline: inv.timeline, name: inv.name,
+        groomName: 'Muhammad', groomNameAr: inv.groomNameAr === inv.groomName ? 'Muhammad' : inv.groomNameAr,
+        brideName: inv.brideName, brideNameAr: inv.brideNameAr,
+        venueName: inv.venueName, venueCity: inv.venueCity, venueAddress: inv.venueAddress,
+        venueMapQuery: inv.venueMapQuery,
+        // نفس طريقة utils/invitationData.js (ساعة مصر مكتوبة كساعة السيرفر)
+        weddingDate: `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`,
+        weddingTime: `${p2(d.getHours())}:${p2(d.getMinutes())}`,
+      }, { ownsTemplate: true, skipMapNetwork: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      // الخريطة زي ما العميل حطها بالظبط
+      ['venueMapQuery', 'venueMapEmbedSrc', 'venueMapDirectLink'].forEach((k) => { set[k] = inv[k]; });
+      if (inv.coverStyle) set.coverStyle = inv.coverStyle;
+      set['customizations.texts'] = { ...(c.texts || {}), mp1: 'The Wedding of' };
+      const sizes = { ...(c.sizes || {}) }; delete sizes.mp1; delete sizes.mp2;
+      set['customizations.sizes'] = sizes;
+      const fonts = { ...(c.elemFonts || {}) }; delete fonts.mp1; delete fonts.mp2;
+      set['customizations.elemFonts'] = fonts;
+      return set;
+    },
+  },
 ];
 
 let done = false;
