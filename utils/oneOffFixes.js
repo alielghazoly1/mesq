@@ -2025,6 +2025,17 @@ const FIXES = [
       return { weddingDateTime: new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 19, 0, 0)) };
     },
   },
+  {
+    // G55weuy — بطلب المالك (2026-11-19): بلال الأول (على اليمين) وخلود بعده — على الظرف (pp2/pp62) وفي
+    // الصفحة (pp7/pp63). بيتعمل بس لو الترتيب لسه خلود الأول.
+    name: 'G55weuy-belal-first',
+    shortId: 'G55weuy',
+    select: 'customizations templateId',
+    when: (c, inv) => inv.templateId === 'pearl-peony' && (c.texts || {}).pp7 === 'خلود' && (c.texts || {}).pp63 === 'بلال',
+    apply: (c) => ({
+      'customizations.texts': { ...(c.texts || {}), pp2: 'بلال', pp62: 'خلود', pp7: 'بلال', pp63: 'خلود' },
+    }),
+  },
 ];
 
 let done = false;
