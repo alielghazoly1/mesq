@@ -1901,6 +1901,49 @@ const FIXES = [
       return set;
     },
   },
+  {
+    // 1KKXOzW (Velvet Voice عربي — خطوبة أحمد وتسنيم) — بطلب المالك (2026-11-19): الاثنين 30/11/2026
+    // الساعة 7 مساءً، نادي الحرية — صالة "ست الكل" (حلب) بلينك الخريطة بتاعه، وآية الفرقان ٧٤.
+    // صفحة "ممنوع الأطفال" وكارت المشاركة والعدّاد بتوقيت سوريا في custom-invitations/1KKXOzW.js.
+    // الأهل اللي في القالب (عائلة إبراهيم/خيري…) مش بتوعهم → اتخفوا لحد ما يبعت أساميهم.
+    // بيتعمل بس لو الدعوة لسه بأسامي المسودة ومكانها.
+    name: '1KKXOzW-ahmed-tasneem',
+    shortId: '1KKXOzW',
+    select: '-__v',
+    when: (c, inv) => inv.templateId === 'velvet-voice' && (inv.groomNameAr || inv.groomName) === 'العريس'
+      && (inv.brideNameAr || inv.brideName) === 'العروسة' && inv.venueName === 'Venue',
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const link = 'https://maps.app.goo.gl/gA8eALq1N2oj8ovk9';
+      const data = await buildInvitationDataFromRequest({
+        // (المالك) الدعوة دي خطوبة مش فرح
+        templateId: inv.templateId, language: inv.language, occasionType: 'engagement',
+        hiddenSections: inv.hiddenSections, timeline: inv.timeline, name: inv.name,
+        groomName: 'أحمد', groomNameAr: 'أحمد',
+        brideName: 'تسنيم', brideNameAr: 'تسنيم',
+        venueName: 'نادي الحرية — صالة ست الكل', venueCity: 'حلب',
+        venueMapQuery: link,
+        weddingDate: '2026-11-30', weddingTime: '19:00',
+      }, { ownsTemplate: true, skipMapNetwork: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.venueMapQuery = link;
+      set.venueMapDirectLink = link;
+      // اللينك بيفتح "ست الكل مسبح و مطعم نادي الحرية العائلي" (السريان، حلب)
+      set.venueMapEmbedSrc = 'https://www.google.com/maps?q=' + encodeURIComponent('ست الكل مسبح و مطعم نادي الحرية العائلي، نادي الحرية الرياضي، السريان، حلب، سوريا') + '&hl=ar&z=16&output=embed';
+      if (inv.coverStyle) set.coverStyle = inv.coverStyle;
+      set['customizations.texts'] = {
+        ...(c.texts || {}),
+        vv9: 'وَٱلَّذِينَ يَقُولُونَ رَبَّنَا هَبْ لَنَا مِنْ أَزْوَٰجِنَا وَذُرِّيَّٰتِنَا قُرَّةَ أَعْيُنٍ وَٱجْعَلْنَا لِلْمُتَّقِينَ إِمَامًا',
+        vv10: '۝٧٤',
+        vv11: 'سورة الفرقان',
+        vv12: 'يتبقّى على يوم الخطوبة',
+        vv34: 'بقلوبٍ مفعمة بالفرح والامتنان، يتشرّف الأهل بدعوتكم لمشاركتنا فرحة الخطوبة.',
+      };
+      set['customizations.hidden'] = [...new Set([...(c.hidden || []), 'vv26', 'vv27', 'vv28', 'vv29', 'vv30', 'vv31', 'vv32', 'vv33'])];
+      return set;
+    },
+  },
 ];
 
 let done = false;
