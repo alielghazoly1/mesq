@@ -265,9 +265,9 @@ module.exports = {
     width: 1200,
     height: 630,
     overrideImage: true,
-    title: 'دعوة خطوبة خلود وبلال',
-    // (المالك 2026-11-19) الكلام اللي تحت العنوان لما اللينك يتبعت
-    description: 'She Said Yes! 💍 Khloud & Belal Engagement 🤍 Save the date, bring your smile, and get ready to dance! · 12/12/2026 7:00 PM',
+    // (المالك 2026-11-19) العنوان "She Said Yes! 💍" بدل "دعوة خطوبة خلود وبلال"، وباقي كلامه تحته
+    title: 'She Said Yes! 💍',
+    description: 'Khloud & Belal Engagement 🤍 Save the date, bring your smile, and get ready to dance! · 12/12/2026 7:00 PM',
   },
 
   // في المحرر الزرار مابيتداسش (الضغط = تعديل) — فمفيش داعي للسكريبت
