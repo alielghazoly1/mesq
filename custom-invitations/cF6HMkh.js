@@ -2,13 +2,15 @@
 //  • تأكيد الحضور بالعربي: العنوان "تأكيد الحضور" مرة واحدة (السطر الدهبي الصغير اللي فوقه اتشال)،
 //    "نتمنّى منكم تأكيد الحضور"، "نتواجد إن شاء الله" / "مع الأسف لا نستطيع"، وخانة الحساسية اتشالت.
 //  • صورة القاعة اللي فوق الخريطة اتشالت.
-//  • الصور التلاتة → الصورة اللي في النص بس، أكبر (مناسبة للموبايل).
+//  • الصور التلاتة → الصورة اللي في النص بس، أكبر (مناسبة للموبايل)، وهي صورة الدعوة اللي المالك بعتها
+//    (محمد وزهراء — بدل صورة القالب) كاملة من غير تكبير ولا فلتر، من غير كلمة "Starts" تحتها.
 //  • كارت لينك المشاركة = صورة الدعوة اللي المالك بعتها (كاملة في النص، 1200×630).
 // البيانات نفسها ماتلمستش (العرض بس).
 const { asset } = require('./_asset');
 
 const SHORT = 'cF6HMkh';
 const DIR = `/custom/${SHORT}/`;
+const COUPLE = asset(`${DIR}couple.webp`);
 
 const CSS = `<style id="cf-style">
 /* صورة القاعة فوق الخريطة */
@@ -19,6 +21,8 @@ const CSS = `<style id="cf-style">
 #hf-section .hf-col.b{flex:0 0 auto!important;max-width:none!important}
 #hf-section .hf-col.b .hf-frame{width:min(74vw,300px)!important;height:auto!important;aspect-ratio:3/4;border-radius:22px!important}
 #hf-section .hf-col.b .hf-frame::after{border-radius:16px!important}
+#hf-section .hf-col.b .hf-frame img{filter:none!important;transform:none!important;object-fit:cover}
+#hf-section .hf-col.b .hf-caption{display:none!important}
 @media (min-width:768px){#hf-section .hf-col.b .hf-frame{width:340px!important}}
 /* تأكيد الحضور: العنوان مرة واحدة ومن غير خانة الحساسية */
 #mithaq-rsvp .mrsvp-eyebrow{display:none!important}
@@ -62,5 +66,10 @@ module.exports = {
 
   render() {
     return { head: CSS, bodyEnd: RSVP_AR };
+  },
+
+  // الصورة اللي في النص (iv3) = صورة الدعوة بتاعتهم — لو العميل حط صورة من المحرر، صورته هي اللي بتظهر
+  transform(html) {
+    return html.replace(/(<img\b[^>]*?)src="\/templates\/ivory-swans\/couple-1\.webp"([^>]*data-elem-id="iv3")/, (m, a, b) => `${a}src="${COUPLE}"${b}`);
   },
 };
