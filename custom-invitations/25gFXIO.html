@@ -8,12 +8,13 @@
 <title>Fayrouz &amp; Ziad — The Wedding</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Cinzel:wght@400;500&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Playfair+Display:wght@400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Aref+Ruqaa:wght@700&family=Cinzel:wght@400;500&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Playfair+Display:wght@400&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="assets/door-l.webp">
 <link rel="preload" as="image" href="assets/door-r.webp">
 <link rel="preload" as="image" href="assets/seal.webp">
 <style>
-/* فيروز وزياد — بطلب المالك (2026-11-19): من صوره الأربعة —
+/* فيروز وزياد — بطلب المالك (2026-11-19؛ الجولة التانية 2026-11-20: الغلاف كامل من غير قص، الكارت مستطيل طويل
+   بحروفهم (ف ز) في النص وأساميهم عربي وإنجليزي تحتها، حروفهم على الختم، ومن غير عدد الحضور): من صوره الأربعة —
    الغلاف = باب الدانتيل بالختم اللؤلؤ (الختم يكبر سنة والضلفتين يتفتحوا لبره من النص)،
    جوه = ورق الكتان بالورد البارز على الجناب، وكارت قوس نبيتي مخملي بالكلام الدهبي والبسملة الدهب (صورته التالتة)
    ووردتين الليلي اللؤلؤ في الركنين (صورته التانية). كلام قليل: الأسامي والميعاد، عدّاد، المكان، وتأكيد حضور. */
@@ -35,7 +36,7 @@ main{position:relative;z-index:1;overflow-x:hidden;overflow-x:clip}
 .cv{position:fixed;inset:0;z-index:100;overflow:hidden;cursor:pointer;background:#e9e3d8;outline:none;-webkit-user-select:none;user-select:none;touch-action:manipulation}
 .cv .bk{position:absolute;inset:-60px;background:url(assets/door-l.webp) left center/50% 100% no-repeat,url(assets/door-r.webp) right center/50% 100% no-repeat;filter:blur(30px) brightness(.98);opacity:.85}
 .cv .st{position:absolute;left:50%;top:50%;width:max(100vw,calc(100vh * __DOOR_AR__));aspect-ratio:__DOOR_W__/__DOOR_H__;transform:translate(-50%,-50%);perspective:1150px;perspective-origin:50% 48%}
-@media (min-aspect-ratio:3/4){.cv .st{width:calc(100vh * __DOOR_AR__)}}
+@media (min-aspect-ratio:3/4){.cv .st{width:calc(100vh * 0.60427)}}
 .cv .cam{position:absolute;inset:0;transform-style:preserve-3d;transform-origin:50% 49%}
 .cv .glow{position:absolute;inset:0;opacity:0;transform:translateZ(-900px) scale(1.6);background:radial-gradient(ellipse 34% 40% at 50% 49%,rgba(255,251,240,.95),rgba(255,238,206,.5) 50%,rgba(255,230,190,0) 80%)}
 .cv .lf{position:absolute;top:0;width:50%;height:100%;transform-style:preserve-3d;backface-visibility:hidden;-webkit-backface-visibility:hidden;will-change:transform}
@@ -49,8 +50,8 @@ main{position:relative;z-index:1;overflow-x:hidden;overflow-x:clip}
 .cv .seal{position:absolute;z-index:3;left:__SEAL_L__%;top:__SEAL_T__%;width:__SEAL_W__%;height:__SEAL_H__%;background:url(assets/seal.webp) center/100% 100% no-repeat;
   filter:drop-shadow(0 3px 5px rgba(90,70,40,.22));animation:sBreath 3.2s ease-in-out infinite}
 .cv .seal::after{content:"";position:absolute;inset:6%;border-radius:50%;background:linear-gradient(115deg,transparent 38%,rgba(255,250,236,.6) 50%,transparent 62%);background-size:260% 100%;mix-blend-mode:soft-light;animation:sShine 4.2s ease-in-out 1s infinite}
-.cv .tap{position:absolute;left:0;right:0;bottom:max(6vh,calc(env(safe-area-inset-bottom) + 28px));z-index:4;text-align:center;font:500 11px/1 var(--cap);letter-spacing:.42em;padding-left:.42em;color:#8d7a5e;opacity:.9;animation:tapP 2.6s ease-in-out infinite}
-@keyframes tapP{0%,100%{opacity:.45}50%{opacity:1}}
+.cv .tap{position:absolute;left:50%;bottom:max(5vh,calc(env(safe-area-inset-bottom) + 24px));z-index:4;transform:translateX(-50%);white-space:nowrap;padding:10px 18px 10px calc(18px + .38em);border-radius:999px;font:500 10.5px/1 var(--cap);letter-spacing:.38em;color:#6e5a3e;background:rgba(250,246,238,.72);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);box-shadow:0 0 0 1px rgba(201,164,106,.45),0 6px 16px -10px rgba(80,60,30,.5);animation:tapP 2.6s ease-in-out infinite}
+@keyframes tapP{0%,100%{opacity:.6}50%{opacity:1}}
 @keyframes sBreath{0%,100%{transform:scale(1)}50%{transform:scale(1.025)}}
 @keyframes sShine{0%,45%{background-position:130% 0}85%,100%{background-position:-30% 0}}
 .cv.go{cursor:default}
@@ -81,20 +82,26 @@ main{position:relative;z-index:1;overflow-x:hidden;overflow-x:clip}
 .hero{min-height:100vh;min-height:100svh;display:flex;align-items:center;justify-content:center;padding:28px 0 34px}
 .arch{position:relative;width:min(84vw,420px);container-type:inline-size;opacity:0;transform:translateY(26px) scale(.985);transition:opacity 1.4s ease,transform 1.6s cubic-bezier(.2,.7,.2,1)}
 .on .arch{opacity:1;transform:none}
-.velvet{position:relative;border-radius:50cqw 50cqw 3cqw 3cqw;overflow:hidden;
+.velvet{position:relative;border-radius:2.4cqw;overflow:hidden;
   background:radial-gradient(120% 70% at 30% 18%,#7a2233 0%,rgba(122,34,51,0) 60%),radial-gradient(90% 60% at 80% 78%,#6a1a2b 0%,rgba(106,26,43,0) 65%),linear-gradient(170deg,#5d1525,#45101b 55%,#531424);
   box-shadow:0 18px 40px -18px rgba(62,12,23,.55),0 2px 6px rgba(62,12,23,.25)}
 .velvet::before{content:"";position:absolute;inset:0;opacity:.55;mix-blend-mode:overlay;pointer-events:none;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
-.velvet::after{content:"";position:absolute;inset:2.6cqw;border:1px solid rgba(214,182,125,.55);border-radius:48cqw 48cqw 1.6cqw 1.6cqw;pointer-events:none}
-.ai{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;text-align:center;padding:22cqw 9cqw 22cqw;color:var(--gold-l)}
+.velvet::after{content:"";position:absolute;inset:2.6cqw;border:1px solid rgba(214,182,125,.6);border-radius:1.2cqw;box-shadow:inset 0 0 0 1.4cqw rgba(0,0,0,0),inset 0 0 0 calc(1.4cqw + 1px) rgba(214,182,125,.28);pointer-events:none}
+.ai{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;text-align:center;padding:15cqw 9cqw 17cqw;color:var(--gold-l)}
+.mono{width:auto;height:58cqw;margin-top:7cqw;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}
+.nm-ar{margin-top:6cqw;font:700 9cqw/1.5 'Aref Ruqaa',serif;direction:rtl;white-space:nowrap;background:linear-gradient(180deg,#f1dfb4 0%,#cfa966 55%,#a8803f 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.nm-en{margin-top:1.4cqw;font:500 3.9cqw/1.4 var(--cap);letter-spacing:.34em;padding-left:.34em;color:#e9d8b6}
+.corner{position:absolute;z-index:1;width:9cqw;height:9cqw;border-color:rgba(214,182,125,.75);border-style:solid;border-width:0;pointer-events:none}
+.corner.a{left:4.6cqw;top:4.6cqw;border-left-width:1px;border-top-width:1px}.corner.b{right:4.6cqw;top:4.6cqw;border-right-width:1px;border-top-width:1px}
+.corner.c{left:4.6cqw;bottom:4.6cqw;border-left-width:1px;border-bottom-width:1px}.corner.d{right:4.6cqw;bottom:4.6cqw;border-right-width:1px;border-bottom-width:1px}
 .bsm{width:62cqw;height:auto;filter:drop-shadow(0 1px 1px rgba(0,0,0,.35))}
 .inv{margin-top:7cqw;font:500 3.1cqw/1.6 var(--cap);letter-spacing:.3em;padding-left:.3em;color:#e9d8b6;opacity:.92}
 .nm{font:400 15.5cqw/1.12 var(--script);color:var(--gold);white-space:nowrap;
   background:linear-gradient(180deg,#f1dfb4 0%,#cfa966 48%,#a8803f 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;padding:0 2cqw}
 .nm.a{margin-top:5.5cqw}
 .amp{font:500 italic 6.2cqw/1 var(--serif);color:#e9d8b6;margin:.6cqw 0 1.4cqw;opacity:.9}
-.dt{display:flex;align-items:center;justify-content:center;gap:4.4cqw;margin-top:8cqw;color:#ecdcbb}
+.dt{display:flex;align-items:center;justify-content:center;gap:4.4cqw;margin-top:7cqw;color:#ecdcbb}
 .dt span{font:500 3.6cqw/1.3 var(--cap);letter-spacing:.18em;width:24cqw}
 .dt span:first-child{text-align:right}.dt span:last-child{text-align:left}
 .dt b{display:flex;align-items:center;gap:3.6cqw;font:400 12cqw/1 var(--num);font-weight:400;color:#f1e2c2}
@@ -102,8 +109,8 @@ main{position:relative;z-index:1;overflow-x:hidden;overflow-x:clip}
 .tm{margin-top:4.6cqw;font:500 4cqw/1.4 var(--cap);letter-spacing:.24em;padding-left:.24em;color:#ecdcbb}
 .pl{margin-top:2.4cqw;font:500 italic 4.6cqw/1.45 var(--serif);color:#e3cfa9}
 .lily{position:absolute;z-index:2;pointer-events:none;filter:drop-shadow(0 6px 8px rgba(40,20,10,.28))}
-.lily.tr{width:40cqw;right:-13cqw;top:-12cqw;transform-origin:70% 20%}
-.lily.bl{width:38cqw;left:-14cqw;bottom:-15cqw;transform-origin:20% 80%}
+.lily.tr{width:38cqw;right:-12cqw;top:-11cqw;transform-origin:70% 20%}
+.lily.bl{width:36cqw;left:-13cqw;bottom:-13cqw;transform-origin:20% 80%}
 .on .lily.tr{animation:sway 7s ease-in-out 1.6s infinite}
 .on .lily.bl{animation:sway 8s ease-in-out 2.2s infinite reverse}
 @keyframes sway{0%,100%{transform:rotate(0)}50%{transform:rotate(2.2deg)}}
@@ -207,12 +214,13 @@ body.static .fx{opacity:1;transform:none}
     <div class="hero-wrap">
       <div class="arch">
         <div class="velvet">
+          <i class="corner a"></i><i class="corner b"></i><i class="corner c"></i><i class="corner d"></i>
           <div class="ai">
             <img class="bsm" src="assets/bsm.webp" alt="بسم الله الرحمن الرحيم" draggable="false">
             <p class="inv">WE INVITE YOU TO OUR WEDDING</p>
-            <h1 class="nm a">Fayrouz</h1>
-            <p class="amp">&amp;</p>
-            <h1 class="nm">Ziad</h1>
+            <img class="mono" src="assets/mono-gold.webp" alt="ف ز" draggable="false">
+            <h1 class="nm-ar">فيروز و زياد</h1>
+            <p class="nm-en">FAYROUZ &amp; ZIAD</p>
             <div class="dt"><span>FRIDAY</span><b>18</b><span>DECEMBER<br>2026</span></div>
             <p class="tm">7:00 PM</p>
             <p class="pl">InterContinental Semiramis</p>
@@ -263,10 +271,6 @@ body.static .fx{opacity:1;transform:none}
               <button type="button" class="on" data-a="yes" role="radio" aria-checked="true">Joyfully accept</button>
               <button type="button" data-a="no" role="radio" aria-checked="false">Regretfully decline</button>
             </div>
-          </div>
-          <div class="row" id="rsCntRow">
-            <span class="lb">NUMBER OF GUESTS</span>
-            <div class="cnt"><button type="button" id="rsMinus" aria-label="Fewer">−</button><b id="rsCnt">1</b><button type="button" id="rsPlus" aria-label="More">+</button></div>
           </div>
           <div class="row">
             <label class="lb" for="rsNote">A NOTE FOR THE COUPLE</label>
@@ -373,18 +377,16 @@ body.static .fx{opacity:1;transform:none}
 
   /* ---------- تأكيد الحضور → /i/:id/rsvp (لوحة العميل، و"Guests: N" بتتعدّ في صفحة الإحصائيات) ---------- */
   (function () {
-    var sec = $('#rs'), form = $('#rsForm'), msg = $('#rsMsg'), send = $('#rsSend'), cntRow = $('#rsCntRow'), cntB = $('#rsCnt');
-    var att = 'yes', n = 1, KEY = 'mithaq_rsvp_' + ID;
+    var sec = $('#rs'), form = $('#rsForm'), msg = $('#rsMsg'), send = $('#rsSend');
+    var att = 'yes', KEY = 'mithaq_rsvp_' + ID;
     var btns = $$('.att button');
     btns.forEach(function (b) {
       b.addEventListener('click', function () {
         att = b.getAttribute('data-a');
         btns.forEach(function (x) { x.classList.toggle('on', x === b); x.setAttribute('aria-checked', x === b ? 'true' : 'false'); });
-        cntRow.classList.toggle('off', att !== 'yes'); msg.textContent = '';
+        msg.textContent = '';
       });
     });
-    $('#rsMinus').addEventListener('click', function () { n = Math.max(1, n - 1); cntB.textContent = n; });
-    $('#rsPlus').addEventListener('click', function () { n = Math.min(10, n + 1); cntB.textContent = n; });
     function showDone(a, first) {
       $('#rsDoneH').textContent = a === 'no' ? 'Thank you' : 'See you there';
       $('#rsDoneTxt').textContent = a === 'no' ? 'We will miss you' + (first ? ', ' + first : '') + '. Thank you for letting us know.' : 'Your attendance is confirmed' + (first ? ', ' + first : '') + '. We can’t wait to celebrate with you.';
@@ -392,9 +394,9 @@ body.static .fx{opacity:1;transform:none}
     }
     try { var prev = !EDIT && localStorage.getItem(KEY); if (prev) showDone(prev === 'no' ? 'no' : 'yes', ''); } catch (e) {}
     $('#rsAgain').addEventListener('click', function () {
-      sec.classList.remove('sent'); form.reset(); att = 'yes'; n = 1; cntB.textContent = '1';
+      sec.classList.remove('sent'); form.reset(); att = 'yes';
       btns.forEach(function (x) { var on = x.getAttribute('data-a') === 'yes'; x.classList.toggle('on', on); x.setAttribute('aria-checked', on ? 'true' : 'false'); });
-      cntRow.classList.remove('off'); send.disabled = false; msg.textContent = '';
+      send.disabled = false; msg.textContent = '';
       try { localStorage.removeItem(KEY); } catch (e) {}
     });
     form.addEventListener('submit', function (e) {
@@ -403,7 +405,7 @@ body.static .fx{opacity:1;transform:none}
       if (nm.length < 2) { msg.textContent = 'Please write your name.'; $('#rsName').focus(); return; }
       if (EDIT || !BASE) { msg.textContent = 'Preview only — the reply was not sent.'; return; }
       var note = $('#rsNote').value.trim().replace(/\s+/g, ' ').slice(0, 140);
-      var body = (att === 'yes' ? 'Guests: ' + n : '') + (note ? (att === 'yes' ? ' — ' : '') + note : '');
+      var body = note;
       send.disabled = true; msg.textContent = '';
       fetch(BASE + '/rsvp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin',
         body: JSON.stringify({ guestName: nm, attending: att, note: body.slice(0, 200) }) })
