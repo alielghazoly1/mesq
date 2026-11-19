@@ -1983,6 +1983,34 @@ const FIXES = [
       return set;
     },
   },
+  {
+    // 5vKDyVK — بطلب المالك (2026-11-19، الجولة التانية): الاسم بيتكتب Mohamed مش Muhammad.
+    // بيتعمل بس لو الاسم لسه "Muhammad" (اللي اتحط في 5vKDyVK-muhammad-runah).
+    name: '5vKDyVK-mohamed',
+    shortId: '5vKDyVK',
+    select: '-__v',
+    when: (c, inv) => inv.templateId === 'mother-of-pearl' && (inv.groomName || '').trim() === 'Muhammad',
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const d = new Date(inv.weddingDateTime);
+      const p2 = (n) => String(n).padStart(2, '0');
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: inv.language, occasionType: inv.occasionType,
+        hiddenSections: inv.hiddenSections, timeline: inv.timeline, name: inv.name,
+        groomName: 'Mohamed', groomNameAr: inv.groomNameAr === 'Muhammad' ? 'Mohamed' : inv.groomNameAr,
+        brideName: inv.brideName, brideNameAr: inv.brideNameAr,
+        venueName: inv.venueName, venueCity: inv.venueCity, venueAddress: inv.venueAddress,
+        venueMapQuery: inv.venueMapQuery,
+        weddingDate: `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`,
+        weddingTime: `${p2(d.getHours())}:${p2(d.getMinutes())}`,
+      }, { ownsTemplate: true, skipMapNetwork: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      ['venueMapQuery', 'venueMapEmbedSrc', 'venueMapDirectLink'].forEach((k) => { set[k] = inv[k]; });
+      if (inv.coverStyle) set.coverStyle = inv.coverStyle;
+      return set;
+    },
+  },
 ];
 
 let done = false;
