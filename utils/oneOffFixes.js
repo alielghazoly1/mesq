@@ -1630,6 +1630,13 @@ const FIXES = [
     apply: () => ({ 'customizations.texts.pp8': 'عائلة البغدادي  ·  عائلة سعد' }),
   },
   {
+    // G55weuy — المالك (2026-11-20): العيلتين عكس بعض — عائلة سعد (أهل بلال) على اليمين زي ما بلال الأول.
+    name: 'G55weuy-family-swap-nov20',
+    shortId: 'G55weuy',
+    when: (c) => !!(c.texts && c.texts.pp8 === 'عائلة البغدادي  ·  عائلة سعد'),
+    apply: () => ({ 'customizations.texts.pp8': 'عائلة سعد  ·  عائلة البغدادي' }),
+  },
+  {
     // G55weuy — المالك (2026-11-13): كلام جديد (من العميلة) — بالظبط زي ما اتبعت:
     //  • البسملة و"بقلوبٍ يملؤها الحبّ..." (pp5+pp6) → فقرة "ومن بين أقدار الله الجميلة..." فوق الأسامي، و"نبدأ معًا حكاية
     //    عمر..." (pp9) → فقرة "على وعدٍ بالحب..." تحت الأسامي. الأسامي "خلود و بلال" وسطر العيلتين زي ما هم.
@@ -2218,6 +2225,10 @@ async function runSupportFixes() {
 // (InvitationDay: الزيارات، الزوار، المصادر، الأجهزة، الساعات). ردود الضيوف (Rsvp) مابتتلمسش. القيم القديمة بتتسجّل في اللوج.
 const STATS_RESETS = [
   { name: 'l47wr2d-stats-reset-20261116', shortId: 'l47wr2d', mark: 'statsReset20261116' },
+  // G55weuy (خطوبة خلود وبلال) — المالك (2026-11-20) "نصفر الداشبورد": الإحصائيات + ردود الحضور والفويسات
+  // والصور والتهاني اللي اتبعتت قبل كده (تجارب). الردود مابتتمسحش: بتتنقل لـ shortId أرشيف
+  // ("G55weuy~reset-20261120") فمابتظهرش في أي مكان، وممكن ترجع بتغيير الـ shortId تاني.
+  { name: 'G55weuy-dashboard-reset-20261120', shortId: 'G55weuy', mark: 'statsReset20261120', guests: true },
 ];
 async function runStatsResets() {
   const InvitationDay = require('../models/InvitationDay');
@@ -2230,6 +2241,13 @@ async function runStatsResets() {
       const tot = days.reduce((a, d) => ({ views: a.views + (d.views || 0), uniques: a.uniques + (d.uniques || 0) }), { views: 0, uniques: 0 });
       console.log(`[oneOffFix] ${r.name} before: ${JSON.stringify({ viewCount: inv.viewCount || 0, days: days.length, ...tot })}`);
       await InvitationDay.deleteMany({ shortId: r.shortId });
+      if (r.guests) {
+        const archive = `${r.shortId}~reset-${r.mark.replace(/\D/g, '')}`;
+        for (const m of ['Rsvp', 'GuestVoice', 'GuestPhoto', 'GuestWish']) {
+          const res = await require(`../models/${m}`).collection.updateMany({ shortId: r.shortId }, { $set: { shortId: archive } });
+          console.log(`[oneOffFix] ${r.name} ${m} archived → ${archive}: ${res.modifiedCount}`);
+        }
+      }
       await col.updateOne({ _id: inv._id }, { $set: { viewCount: 0, [`fixes.${r.mark}`]: new Date() } });
       console.log(`[oneOffFix] ${r.name} applied`);
     } catch (err) {

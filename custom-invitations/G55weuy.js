@@ -146,7 +146,7 @@ body{background-color:#faf5ee}
 //    أو تقويم Google (بيفتح الأبلكيشن والحدث جاهز). جوه متصفح التطبيقات على أندرويد الملف بيتفتح في كروم.
 //  القالب كان بيفتح تقويم جوجل بس وباسم "بلال صبري" — دلوقتي العنوان "خطوبة خلود وبلال" وساعة الدعوة (7 مساءً من 2026-11-19).
 // (المالك 2026-11-19) اسم الموعد في تطبيق التقويم بالإنجليزي
-const CAL_TITLE = 'Khloud & Belal Engagement';
+const CAL_TITLE = 'Khloud & Belal 💍 Engagement';
 const CAL_CSS = `<style id="kb-cal-style">
 .kb-cal-note{margin:3.2cqw auto 0;font-family:'Amiri',serif;font-size:4cqw;line-height:1.5;color:#986a4f}
 .kb-cal{position:fixed;inset:0;z-index:2147482000;display:flex;align-items:flex-end;justify-content:center;background:rgba(60,36,28,0);transition:background .3s ease;direction:rtl}
