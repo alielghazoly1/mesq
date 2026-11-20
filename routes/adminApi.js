@@ -1139,11 +1139,11 @@ router.post('/admin/api/orders/:id/activate', requireAdminSession, async (req, r
     // أوردر من غير فلوس (هدية/خصم 100%) مش "شراء" — مانعلّمش ميتا إنه بيع
     if (Number(order.price) > 0 && !(order.metaSent && order.metaSent.purchase)) {
       Order.updateOne({ _id: order._id }, { $set: { 'metaSent.purchase': new Date() } }).catch(() => {});
-      const mc = order.metaCtx || {};
+      // fbc المقصوص في الأوردرات القديمة (قبل 2026-11-16) مابيتبعتش — metaCapi.storedContext
       metaCapi.fire('Purchase', {
         eventId: 'purchase_' + order._id,
         user,
-        ctx: { fbp: mc.fbp, fbc: mc.fbc, ip: mc.ip, ua: mc.ua, url: mc.url },
+        ctx: metaCapi.storedContext(order.metaCtx),
         custom: metaCapi.orderCustom(order),
       });
     }

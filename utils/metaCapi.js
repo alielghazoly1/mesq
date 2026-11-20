@@ -14,6 +14,7 @@
 const crypto = require('crypto');
 const { PIXEL_ID } = require('./metaPixel');
 const { toWhatsAppNumber } = require('./whatsapp/phone');
+const { captureMetaParams, validFbx } = require('./metaParams');
 
 const API_VERSION = 'v24.0';
 const SITE = 'https://mithaq-invitation.com';
@@ -53,23 +54,33 @@ function clearConfigCache() { cache = { at: 0, cfg: null }; }
 const sha = (v) => crypto.createHash('sha256').update(String(v)).digest('hex');
 const norm = (v) => String(v || '').trim().toLowerCase();
 
-const keepCookie = (v, max) => { const t = String(v || '').trim(); return t && t.length <= max ? t : undefined; };
-
 /** بيانات المتصفح وقت الطلب — بتتحفظ على الأوردر عشان حدث الشراء (بيحصل من جهاز الأدمن) */
 function contextFromReq(req) {
   if (!req) return {};
-  const c = req.cookies || {};
   const ref = String(req.get('referer') || '');
+  // _fbp/_fbc من مكتبة ميتا الرسمية (utils/metaParams.js): زي ما هما بالحرف — ميتا بتعتبر أي تعديل
+  // (قص أو تصغير حروف) "fbclid متعدّل". ولو الصفحة اللي العميل فيها جاية من ضغطة إعلان أحدث من
+  // الكوكي، الضغطة الأحدث هي اللي بتتبعت (وبتتكتب في الكوكي). قيمة بشكل غلط مابتتبعتش خالص.
+  const mp = captureMetaParams(req, req.res);
   return {
-    // _fbp/_fbc بيتبعتوا زي ما هما بالحرف: ميتا بتعتبر أي تعديل (قص أو تصغير حروف) "fbclid متعدّل" وبتضعّف
-    // ربط الحدث بالإعلان (تشخيص ميتا 2026-11-16). كان فيه قص لـ 300 حرف — والـ fbclid ممكن يوصل 500.
-    // لو القيمة طويلة بشكل مش طبيعي مابنبعتهاش خالص بدل ما نبعتها مقصوصة.
-    fbp: keepCookie(c._fbp, 300),
-    fbc: keepCookie(c._fbc, 1000),
+    fbp: mp.fbp,
+    fbc: mp.fbc,
     ip: String(req.ip || '').replace(/^::ffff:/, '').slice(0, 60) || undefined,
     ua: String(req.get('user-agent') || '').slice(0, 400) || undefined,
     url: ref.startsWith(SITE) ? ref.slice(0, 500) : undefined,
   };
+}
+
+/**
+ * بيانات المتصفح المحفوظة على الأوردر (Order.metaCtx) لحدث الشراء — بيحصل بعدين من جهاز الأدمن.
+ * ميتا (Diagnostics 2026-11-20 "fbclid متعدّل"): الأوردرات اللي بياناتها اتحفظت قبل 2026-11-16 فيها
+ * fbc مقصوص على 300 حرف بالظبط (كان فيه قص وقتها) — ده "fbclid متعدّل" عند ميتا، فمابيتبعتش. وأي قيمة
+ * بشكل غلط كمان. الباقي (الإيميل والتليفون والـ IP و fbp) بيربطوا الشراء بالعميل.
+ */
+function storedContext(mc) {
+  const m = mc || {};
+  const fbc = m.fbc && String(m.fbc).length !== 300 ? validFbx(m.fbc) : undefined;
+  return { fbp: validFbx(m.fbp), fbc, ip: m.ip, ua: m.ua, url: m.url };
 }
 
 /**
@@ -113,39 +124,50 @@ async function record(doc) {
  * @param {string} name   PageView | ViewContent | CompleteRegistration | InitiateCheckout | AddPaymentInfo | Purchase
  * @param {object} o      { eventId, user, ctx, custom: {value, currency, content_ids...}, eventTime, test }
  */
+/** الحدث بالشكل اللي ميتا مستنياه (بيتبني وقت ما الحاجة حصلت — عشان الوقت يبقى مظبوط حتى لو اتبعت في دفعة) */
+function buildEvent(name, o = {}) {
+  const ctx = o.ctx || {};
+  const event = {
+    event_name: name,
+    event_time: Math.floor((o.eventTime ? new Date(o.eventTime).getTime() : Date.now()) / 1000),
+    action_source: 'website',
+    event_source_url: ctx.url || SITE + '/',
+    user_data: userData(o.user, ctx),
+  };
+  if (o.eventId) event.event_id = o.eventId;
+  if (o.custom) event.custom_data = o.custom;
+  return event;
+}
+
+/** طلب واحد لميتا بحدث أو أكتر (لحد 1000 في الطلب) */
+async function postEvents(cfg, events, testCode) {
+  const body = { data: events };
+  if (testCode) body.test_event_code = testCode;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 8000);
+  let json = null; let ok = false; let error = '';
+  try {
+    const r = await fetch(`https://graph.facebook.com/${API_VERSION}/${PIXEL_ID}/events?access_token=${encodeURIComponent(cfg.token)}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: ctrl.signal,
+    });
+    json = await r.json().catch(() => null);
+    ok = r.ok && json && json.events_received >= events.length;
+    if (!ok) error = (json && json.error && (json.error.error_user_msg || json.error.message)) || `HTTP ${r.status}`;
+  } catch (e) {
+    error = e.name === 'AbortError' ? 'timeout' : String(e.message || e);
+  } finally {
+    clearTimeout(timer);
+  }
+  return { ok, error, json };
+}
+
 async function sendEvent(name, o = {}) {
   try {
     const cfg = await config();
     if (!cfg.token || !cfg.enabled) return { skipped: true };
-    const ctx = o.ctx || {};
-    const event = {
-      event_name: name,
-      event_time: Math.floor((o.eventTime ? new Date(o.eventTime).getTime() : Date.now()) / 1000),
-      action_source: 'website',
-      event_source_url: ctx.url || SITE + '/',
-      user_data: userData(o.user, ctx),
-    };
-    if (o.eventId) event.event_id = o.eventId;
-    if (o.custom) event.custom_data = o.custom;
-    const body = { data: [event] };
+    const event = buildEvent(name, o);
     const testCode = o.test || (cfg.testLive ? cfg.testCode : '');
-    if (testCode) body.test_event_code = testCode;
-
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), 8000);
-    let json = null; let ok = false; let error = '';
-    try {
-      const r = await fetch(`https://graph.facebook.com/${API_VERSION}/${PIXEL_ID}/events?access_token=${encodeURIComponent(cfg.token)}`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal: ctrl.signal,
-      });
-      json = await r.json().catch(() => null);
-      ok = r.ok && json && json.events_received >= 1;
-      if (!ok) error = (json && json.error && (json.error.error_user_msg || json.error.message)) || `HTTP ${r.status}`;
-    } catch (e) {
-      error = e.name === 'AbortError' ? 'timeout' : String(e.message || e);
-    } finally {
-      clearTimeout(timer);
-    }
+    const { ok, error, json } = await postEvents(cfg, [event], testCode);
     const matchKeys = Object.keys(event.user_data).filter((k) => !['client_user_agent'].includes(k));
     // فتح ديمو تصميم بيحصل كتير — نسجّل لو فشل بس، عشان سجل اللوحة يفضل
     // للأحداث المهمة (التسجيل والدفع والشراء)
@@ -164,6 +186,52 @@ async function sendEvent(name, o = {}) {
 
 /** للأحداث اللي مش لازم نستناها (الرد للعميل مايتأخرش) */
 function fire(name, o) { sendEvent(name, o).catch(() => {}); }
+
+// ===== PageView من السيرفر (2026-11-20) =====
+// "جودة المطابقة" (Event Match Quality) في ميتا بتتحسب من أحداث السيرفر بس. الـ PageView مكانش
+// بيتبعت من سيرفرنا خالص — النسخة اللي على السيرفر كانت من ميتا نفسها (Conversions API "Web-only")
+// والتقييم بتاعها نزل لـ 0 من 10. دلوقتي كل صفحة بتتبعت من سيرفرنا كمان بنفس event_id اللي البيكسل
+// بيبعته (ميتا بتعدّها مرة واحدة) ومعاها IP والمتصفح و fbp/fbc، وبيانات العميل المسجّل متشفّرة.
+// عشان دول كتير (كل صفحة)، بيتجمعوا ويتبعتوا دفعة واحدة كل 4 ثواني (أو كل 50 حدث) في طلب واحد.
+const BATCH_MS = 4000;
+const BATCH_MAX = 50;
+const batch = { events: [], timer: null, sending: false };
+
+async function flushBatch() {
+  if (batch.timer) { clearTimeout(batch.timer); batch.timer = null; }
+  if (batch.sending || !batch.events.length) return;
+  batch.sending = true;
+  const events = batch.events.splice(0, 1000);
+  try {
+    const cfg = await config();
+    if (!cfg.token || !cfg.enabled) return;
+    const testCode = cfg.testLive ? cfg.testCode : '';
+    const { ok, error, json } = await postEvents(cfg, events, testCode);
+    if (!ok) {
+      // سجل واحد للدفعة كلها (مش لكل صفحة) عشان سجل اللوحة يفضل للأحداث المهمة
+      await record({
+        name: events[0].event_name, eventId: `batch:${events.length}`, ok: false, error: String(error).slice(0, 300),
+        test: !!testCode, matchKeys: [], fbtrace: (json && json.fbtrace_id) || '',
+      });
+      console.error(`[meta-capi] ${events[0].event_name} batch (${events.length}) failed:`, error);
+    }
+  } catch (e) {
+    console.error('[meta-capi] batch unexpected:', e.message);
+  } finally {
+    batch.sending = false;
+    if (batch.events.length) batch.timer = setTimeout(flushBatch, BATCH_MS);
+  }
+}
+
+/** حدث كتير ومش مستعجل (PageView): بيتبني دلوقتي ويتبعت مع الدفعة الجاية */
+function queue(name, o) {
+  try {
+    if (batch.events.length >= 5000) return; // ميتا مش بترد بقالها كتير — مانملاش الذاكرة
+    batch.events.push(buildEvent(name, o));
+    if (batch.events.length >= BATCH_MAX) flushBatch();
+    else if (!batch.timer) batch.timer = setTimeout(flushBatch, BATCH_MS);
+  } catch { /* */ }
+}
 
 /** بيانات الباقة/الأوردر بالشكل اللي ميتا مستنياه */
 // ميتا بترفض value = 0 ("يجب أن يكون رقمًا أكبر من 0") وبتطلّع تحذير في Events
@@ -210,4 +278,4 @@ async function tokenExpiry(token) {
   }
 }
 
-module.exports = { tokenFor, PIXEL_ID, sendEvent, fire, contextFromReq, orderCustom, checkToken, tokenExpiry, hashedUser, config, clearConfigCache, API_VERSION };
+module.exports = { tokenFor, PIXEL_ID, sendEvent, fire, queue, flushBatch, contextFromReq, storedContext, orderCustom, checkToken, tokenExpiry, hashedUser, config, clearConfigCache, API_VERSION };

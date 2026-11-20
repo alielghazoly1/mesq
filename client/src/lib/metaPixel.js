@@ -1,6 +1,8 @@
+import { guessCountry } from './guessCountry.js';
+
 // بيكسل ميتا (فيسبوك/إنستجرام) — بيبلّغ ميتا بخطوات الزائر عشان الإعلانات
 // توصل لناس شبه اللي بيدفعوا فعلًا:
-//   PageView              كل صفحة في الموقع
+//   PageView              كل صفحة في الموقع (ومن السيرفر كمان بنفس الرقم — routes/metaPx.js)
 //   CompleteRegistration  عمل حساب جديد            event_id: reg_<user>
 //   InitiateCheckout      فتح صفحة الدفع            event_id: ic_<order>
 //   AddPaymentInfo        رفع الإيصال / كتب رقمه     event_id: pay_<order>
@@ -48,9 +50,40 @@ function load() {
     if ('requestIdleCallback' in window) window.requestIdleCallback(inject, { timeout: 3000 });
     else window.setTimeout(inject, 1500);
   };
-  if (document.readyState === 'complete') later();
+  // جاي من ضغطة إعلان (fbclid في اللينك): كود فيسبوك بيتحمّل على طول (2026-11-20). ميتا بتحسب "زيارة
+  // صفحة الهبوط" للإعلان من PageView ده — ولو الزائر قفل أو دخل صفحة تانية قبل ما الكود يتحمّل كانت
+  // بتضيع. باقي الزوار زي ما هم (بعد ما الصفحة تخلص — الرئيسية أسرع).
+  if (/[?&]fbclid=/.test(window.location.search)) inject();
+  else if (document.readyState === 'complete') later();
   else window.addEventListener('load', later, { once: true });
+  rememberCountry();
   return true;
+}
+
+/**
+ * دولة الزائر المتوقعة من جهازه (نفس اللي بتتختار له جاهزة وهو بيسجّل) — السيرفر بيستخدمها في قيمة
+ * "فتح ديمو تصميم" (ViewContent) لميتا بعملة الزائر بدل الجنيه للكل. العميل المسجّل: دولة حسابه.
+ */
+function rememberCountry() {
+  try {
+    if (/(?:^|;\s*)mithaq_cc=/.test(document.cookie)) return;
+    const cc = guessCountry();
+    if (!/^[A-Z]{2}$/.test(cc)) return;
+    document.cookie = `mithaq_cc=${cc}; Max-Age=31536000; Path=/; SameSite=Lax${window.location.protocol === 'https:' ? '; Secure' : ''}`;
+  } catch { /* */ }
+}
+
+/** رقم عشوائي للحدث (نفس الرقم من المتصفح والسيرفر = ميتا بتعدّه مرة واحدة) */
+function newEventId(prefix) {
+  try {
+    const a = new Uint8Array(8);
+    window.crypto.getRandomValues(a);
+    return prefix + '_' + Array.from(a, (b) => b.toString(16).padStart(2, '0')).join('');
+  } catch {
+    let s = '';
+    for (let i = 0; i < 16; i++) s += Math.floor(Math.random() * 16).toString(16);
+    return prefix + '_' + s;
+  }
 }
 
 /** صفحة اتفتحت (components/JourneyTracker.jsx بينادي عليها مع كل تغيير مسار) */
@@ -58,7 +91,19 @@ export function pixelPageView(path) {
   if (path.startsWith('/admin') || path === lastPath) return;
   if (!load()) return;
   lastPath = path;
-  window.fbq('track', 'PageView');
+  // نفس الصفحة بتتبعت من السيرفر كمان بنفس الرقم (routes/metaPx.js) — "جودة المطابقة" في ميتا بتتحسب
+  // من أحداث السيرفر، والـ PageView كان 0 من 10 لأنه مكانش بيتبعت من سيرفرنا خالص
+  const eventID = newEventId('pv');
+  window.fbq('track', 'PageView', {}, { eventID });
+  try {
+    fetch('/api/px/pv', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      keepalive: true,
+      body: JSON.stringify({ id: eventID, p: window.location.pathname + window.location.search }),
+    }).catch(() => {});
+  } catch { /* */ }
 }
 
 /** العميل المسجّل (Advanced Matching) — مرة واحدة لكل حساب */

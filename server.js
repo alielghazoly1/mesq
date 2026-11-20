@@ -22,6 +22,8 @@ const guestPhotosRouter = require('./routes/guestPhotos');
 const guestVoicesRouter = require('./routes/guestVoices');
 const presenceRouter = require('./routes/presence');
 const trackRouter = require('./routes/track');
+const metaPxRouter = require('./routes/metaPx');
+const { captureMetaParams } = require('./utils/metaParams');
 const adminJourneysRouter = require('./routes/adminJourneys');
 const clientErrorsRouter = require('./routes/clientErrors');
 const campaignsRouter = require('./routes/campaigns');
@@ -191,13 +193,14 @@ app.use('/api/account', requireDB);
 app.use('/api/editor', requireDB);
 app.use('/api/presence', requireDB);
 app.use('/api/client-error', requireDB);
+app.use('/api/px', requireDB);
 
 // لو فيه جلسة دخول صالحة (كوكي wda_session)، بيحط req.user؛ غير كده
 // req.user = null من غير ما يوقف الطلب (middleware/auth.js). مربوط بس
 // بالمسارات اللي فعلاً محتاجة تعرف حالة الدخول — مش عالميًا على كل الموقع
 // (زي الملفات الثابتة أو صفحة الدعوة نفسها)، عشان نفس فلسفة الأداء
 // والمرونة اللي requireDB بتتبعها.
-app.use(['/api/preview', '/preview-sample', '/api/invitations', '/api/auth', '/api/packages', '/api/uploads', '/api/dashboard', '/api/account', '/api/editor', '/api/presence', '/api/track', '/api/client-error'], attachUser);
+app.use(['/api/preview', '/preview-sample', '/api/invitations', '/api/auth', '/api/packages', '/api/uploads', '/api/dashboard', '/api/account', '/api/editor', '/api/presence', '/api/track', '/api/client-error', '/api/px'], attachUser);
 
 // الموقع التسويقي/فورم الإنشاء بقى React (client/) مبني بـ Vite — الملفات
 // الثابتة الناتجة (client/dist) هي اللي بتتقدم هنا بدل public/ القديم.
@@ -415,6 +418,16 @@ const clientErrorLimiter = rateLimit({
 });
 app.use('/api/client-error', clientErrorLimiter);
 
+// PageView لميتا من السيرفر (utils/metaCapi.js) — طلب صغير لكل صفحة؛ الحد لمنع الإغراق بس
+const metaPxLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 400,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'عدد كبير جدًا من الطلبات.' },
+});
+app.use('/api/px', metaPxLimiter);
+
 app.use('/', invitationsRouter);
 app.use('/', adminRouter);
 app.use('/', adminApiRouter);
@@ -432,6 +445,7 @@ app.use('/', guestPhotosRouter);
 app.use('/', guestVoicesRouter);
 app.use('/', presenceRouter);
 app.use('/', trackRouter);
+app.use('/', metaPxRouter);
 app.use('/', adminJourneysRouter);
 
 // حالة خدمة الواتساب (من غير أي رقم أو بيانات) — للتشخيص من بره من غير لوحة التحكم
@@ -559,6 +573,10 @@ app.get('*', (req, res, next) => {
     // اللوحة مش لازم تتفهرس ولا يتبعت معاها أي رابط لمواقع تانية
     res.setHeader('X-Robots-Tag', 'noindex, nofollow');
     res.setHeader('Referrer-Policy', 'no-referrer');
+  } else {
+    // ميتا: رقم ضغطة الإعلان (_fbc) ورقم المتصفح (_fbp) يتحفظوا من أول ما الصفحة تفتح، ككوكي من
+    // السيرفر — مش بعد ما كود البيكسل يتحمّل (utils/metaParams.js). الصفحة دي no-store فمابتتخزّنش.
+    captureMetaParams(req, res);
   }
   const meta = pageMeta(req.path);
   if (meta) {

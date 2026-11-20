@@ -31,6 +31,12 @@ const { getPublicStats } = require('../utils/publicStats');
 const { getTemplate, TEMPLATES } = require('../templates/registry');
 const { injectPixel } = require('../utils/metaPixel');
 const { viewContentMoney } = require('../utils/pricing');
+const { captureMetaParams, isPrefetchReq } = require('../utils/metaParams');
+/** دولة الزائر اللي لسه مسجّلش زي ما الموقع خمّنها من جهازه (client/src/lib/metaPixel.js ← كوكي mithaq_cc) */
+const guessedCountry = (req) => {
+  const v = String((req.cookies && req.cookies.mithaq_cc) || '').toUpperCase();
+  return /^[A-Z]{2}$/.test(v) ? v : undefined;
+};
 const metaCapi = require('../utils/metaCapi');
 const { buildEventIcs } = require('../utils/calendarIcs');
 const { buildDisplayFields } = require('../utils/dateFormatter');
@@ -718,21 +724,34 @@ router.get('/preview-sample/:templateId', async (req, res) => {
     // بتقول إن السيرفر بيبعت أقل بكتير من البيكسل في ViewContent. الزوار اللي
     // مانعين البيكسل (آيفون/مانع إعلانات) بيوصلوا كده. بوتات المعاينة لأ.
     const vcId = 'vc_' + crypto.randomBytes(8).toString('hex');
+    // PageView بـ event_id كمان، ونفس الحدث من السيرفر (2026-11-20: "جودة المطابقة" لـ PageView كانت 0 من 10
+    // لأنه مكانش بيتبعت من سيرفرنا خالص)
+    const pvId = 'pv_' + crypto.randomBytes(8).toString('hex');
     // ميتا (Diagnostics 2026-11-15): "100% من ViewContent مالهاش عملة صالحة" — بنبعت قيمة وعملة
-    // (أرخص باقة بعملة الزائر) من المتصفح والسيرفر بنفس الأرقام
-    const money = await viewContentMoney(req.user && req.user.country);
-    html = injectPixel(html, { viewContent: { id: template.id, name: template.name, ...money }, eventId: vcId });
+    // (أرخص باقة بعملة الزائر) من المتصفح والسيرفر بنفس الأرقام. الزائر اللي لسه مسجّلش: بدولته
+    // المتوقعة من جهازه (كوكي mithaq_cc من الموقع — نفس اللي بتتختار له وهو بيسجّل)، وإلا مصر.
+    const money = await viewContentMoney((req.user && req.user.country) || guessedCountry(req));
+    html = injectPixel(html, { viewContent: { id: template.id, name: template.name, ...money }, eventId: vcId, pageViewId: pvId });
     if (!PREVIEW_BOT_RE.test(String(req.get('user-agent') || ''))) {
+      // fbc/fbp من أول لحظة (لو اللينك جاي من إعلان): كوكي من السيرفر — utils/metaParams.js
+      captureMetaParams(req, res);
+    }
+    // تحميل مسبق (تطبيق فيسبوك/إنستجرام بيجيب الصفحة قبل الضغط): لسه محدش شافها — مفيش أحداث من السيرفر
+    if (!PREVIEW_BOT_RE.test(String(req.get('user-agent') || '')) && !isPrefetchReq(req)) {
+      const ctx = { ...metaCapi.contextFromReq(req), url: 'https://mithaq-invitation.com' + req.originalUrl.slice(0, 300) };
+      metaCapi.queue('PageView', { eventId: pvId, user: req.user || undefined, ctx });
       metaCapi.fire('ViewContent', {
         eventId: vcId,
         // عميل مسجّل بيتفرّج على تصميم: إيميله وتليفونه متشفّرين (ميتا كانت بتقترحهم لـ View content)
         user: req.user || undefined,
-        ctx: { ...metaCapi.contextFromReq(req), url: 'https://mithaq-invitation.com' + req.originalUrl.slice(0, 300) },
+        ctx,
         custom: { content_ids: [template.id], content_name: template.name || template.id, content_type: 'product', ...money },
       });
     }
   }
   res.set('Content-Type', 'text/html; charset=utf-8');
+  // كل فتحة ليها أرقام أحداث خاصة بيها (ميتا) وكوكيز — الصفحة دي عمرها ما تتخزّن في الـ CDN أو المتصفح
+  res.set('Cache-Control', 'no-store');
   return res.send(html);
   } catch (err) {
     console.error('Error rendering preview sample:', err);

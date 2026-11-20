@@ -21,6 +21,7 @@ const { HAS_PROOF, hasProof } = require('../utils/orderProof');
 const Invitation = require('../models/Invitation');
 const { requireAdminSession, ADMIN_COOKIE_NAME } = require('../middleware/adminAuth');
 const { ensureDeviceId } = require('../middleware/deviceLimiter');
+const { captureMetaParams } = require('../utils/metaParams');
 const { logAdminAction } = require('../utils/adminAudit');
 const { sanitizeText } = require('../utils/sanitize');
 const { cairoParts, cairoWallToDate } = require('../utils/cairoTime');
@@ -116,18 +117,14 @@ function deviceOf(ua) {
 // fbclid: ميتا بتزوّده على لينك الإعلان (رقم الضغطة على الإعلان). التحويل لصفحة الهبوط كان
 // بيشيله، فالبيكسل مكانش بيعمل كوكي _fbc، والسيرفر مكانش بيبعت fbc مع الأحداث (metaCapi)
 // — وده أهم حاجة بتربط الشراء (اللي بيتأكد بعدين لما المالك يفعّل) بالضغطة على الإعلان.
-// دلوقتي بيفضل في اللينك، وبنكتب كوكي _fbc من السيرفر كمان بنفس شكل البيكسل
-// (fb.1.<وقت الإنشاء بالملي>.<fbclid> — 1 يعني mithaq-invitation.com) وعلى نفس الدومين،
-// فالبيكسل بيقراه ويكمّل عليه، وسفاري مابيقصّرش عمره زي الكوكي اللي بيتعمل بالجافاسكربت.
-const FBCLID_RE = /^[A-Za-z0-9_-]{8,500}$/;
+// دلوقتي بيفضل في اللينك، وكوكي _fbc و _fbp بيتكتبوا من السيرفر كمان — من 2026-11-20 بمكتبة ميتا
+// الرسمية (utils/metaParams.js، نفس صفحات الموقع): الضغطة الجديدة بتكسب على أي ضغطة قديمة في الكوكي،
+// والقيمة بالشكل اللي ميتا مستنياه بالظبط. سفاري مابيقصّرش عمرهم زي الكوكي اللي بيتعمل بالجافاسكربت.
+const FBCLID_RE = /^[A-Za-z0-9_\-.]{4,1000}$/;
 function keepClickId(req, res, landing) {
+  captureMetaParams(req, res);
   const fbclid = typeof req.query.fbclid === 'string' && FBCLID_RE.test(req.query.fbclid) ? req.query.fbclid : '';
   if (!fbclid) return landing;
-  const host = String(req.hostname || '');
-  res.cookie('_fbc', `fb.1.${Date.now()}.${fbclid}`, {
-    httpOnly: false, sameSite: 'lax', secure: process.env.NODE_ENV === 'production', maxAge: 90 * 24 * 60 * 60 * 1000, path: '/',
-    ...(/(^|\.)mithaq-invitation\.com$/.test(host) ? { domain: 'mithaq-invitation.com' } : {}),
-  });
   return `${landing}?fbclid=${encodeURIComponent(fbclid)}`;
 }
 
