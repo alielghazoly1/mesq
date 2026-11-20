@@ -11,6 +11,8 @@
 //  • في آخر الدعوة: تنويه التصوير + "جنة الأطفال منازلهم".
 //  • العدّاد بتوقيت السعودية (المدينة +3).
 // الأقسام المستخبية (الإقامة/الهدية/المواصلات/الخريطة) والكلام القديم اتشالوا بـ oneOffFix Ye053hU-natural-nov20.
+// الجولة 4 (2026-11-20): أول صفحة = حرفين ف ص + "كُتب لديسمبر أن يكون استثنائياً" بس، رسمة القاعة نزلت مكان صورة القاعة (اتشالت)،
+// برنامج اليوم من غير العنوان + صف العشاء ١:٠٠، و"الزي المقترح" بقى كلام ليلة ديسمبر والعروسين بيرقصوا.
 const { asset } = require('./_asset');
 
 const SHORT = 'Ye053hU';
@@ -19,19 +21,44 @@ const KSA_OFFSET_H = 3;
 const COVER = asset(`${DIR}cover.webp`);
 const OPEN = asset(`${DIR}open.mp4`);
 const SONG = asset(`${DIR}song.mp3`);   // (المالك 2026-11-20) أغنية LACE اللي بعتها
-const HALL = asset(`${DIR}hall.webp`);   // (المالك 2026-11-20) صورة القاعة مكان رسمة المكان
+// (المالك 2026-11-20، الجولة الرابعة) أول صفحة: حرفين ف ص (الصورة اللي بعتها قبل كده) وتحتهم "كُتب لديسمبر أن يكون
+// استثنائياً" بس. رسمة القاعة اللي كانت في أول صفحة نزلت مكان صورة القاعة (اللي اتشالت).
+const MONO = asset(`${DIR}mono.webp`);
+const VILLA = '/templates/lace/villa-illustration-thick.svg';
+// العروسين اللي كانوا ماشيين في "الزي المقترح" — اتفصلوا (العروسة لوحدها والعريس لوحده) وبيرقصوا
+const BRIDE = asset(`${DIR}bride.webp`);
+const GROOM = asset(`${DIR}groom.webp`);
 
 // الكلام لكل لغة (بيتحط بس لو العميل ماكتبش حاجة مكانه من المحرر)
 const TEXTS = {
   ar: {
     lc25: '٩:٠٠ م', lc26: 'حضور الضيوف', lc27: 'نستقبلكم بكل الحب والفرح',
-    lc28: '١٠:٠٠ م', lc29: 'مراسم الزفاف', lc30: 'دخول العروسين وبداية ليلة العمر',
+    lc28: '١٠:٠٠ م', lc29: 'مراسم الزفاف', lc30: 'تبدأ مراسم الزفاف وبداية العمر',
+    lc34: '١:٠٠', lc35: 'العشاء', lc36: 'نجتمع على مائدة العشاء بكل الحب',
   },
   en: {
     lc25: '9:00 PM', lc26: 'Guests Arrival', lc27: 'Welcoming you with love and joy.',
-    lc28: '10:00 PM', lc29: 'Wedding Ceremony', lc30: 'The grand entrance of the bride and groom.',
+    lc28: '10:00 PM', lc29: 'Wedding Ceremony', lc30: 'The wedding ceremony begins, and so does a lifetime.',
+    lc34: '1:00 AM', lc35: 'Dinner', lc36: 'Gathering around the dinner table with love.',
   },
 };
+// أول صفحة + مكان "الزي المقترح" (نفس كلام الصورة اللي بعتها وشكلها)
+const HERO = {
+  ar: 'كُتب لديسمبر أن يكون استثنائياً',
+  en: 'December was written to be extraordinary',
+};
+const STORY = {
+  ar: ['في إحدى ليالي ديسمبر، نال الحبيب محبوبته', 'رفاق العمر، أحباب الروح', 'بكل حب ندعوكم لحضور حفل زفاف'],
+  en: ['On one of December’s nights, the beloved won his beloved', 'Lifelong friends, dearest souls', 'With love, we invite you to the wedding of'],
+};
+const heroHtml = (l) => `<div class="ye-hero"><img class="ye-mono" src="${MONO}" alt="ف ص" draggable="false"><p class="ye-hero-t font-display" data-elem-id="yh1">${HERO[l]}</p></div>`;
+const storyHtml = (l) => `<div class="ye-story">
+  <p class="ye-s1 font-display" data-elem-id="ys1">${STORY[l][0]}</p>
+  <p class="ye-s2 font-display" data-elem-id="ys2">${STORY[l][1]}</p>
+  <p class="ye-s2 font-display" data-elem-id="ys3">${STORY[l][2]}</p>
+  <div class="ye-dance" aria-hidden="true"><img class="ye-bride" src="${BRIDE}" alt="" draggable="false"><img class="ye-groom" src="${GROOM}" alt="" draggable="false"></div>
+  <p class="ye-names" data-elem-id="ys4">Fares &amp; Safaa</p>
+  <p class="ye-date font-display" data-elem-id="ys5">17-12-2026</p></div>`;
 // الأسامي والمكان بالإنجليزي في نسخة /en (البيانات نفسها عربي)
 const EN_FIELDS = {
   groomName: 'Fares', brideName: 'Safaa',
@@ -44,7 +71,7 @@ const NOTICE = {
 
 const CSS = `<style id="ye-style">
 /* برنامج الحفل: سطرين بس (الحضور ومراسم الزفاف) */
-[data-section="timeline"] .grid:has([data-elem-id="lc31"]),[data-section="timeline"] .grid:has([data-elem-id="lc34"]),[data-section="timeline"] .grid:has([data-elem-id="lc37"]){display:none!important}
+[data-section="timeline"] .grid:has([data-elem-id="lc31"]),[data-section="timeline"] .grid:has([data-elem-id="lc37"]){display:none!important}
 /* تأكيد الحضور: الاسم والحضور بس */
 #lcForm div:has(> [data-elem-id="lc80"]),#lcForm div:has(> [data-elem-id="lc83"]),#lcForm div:has(> [data-elem-id="lc84"]),#lcForm div:has(> [data-elem-id="lc85"]){display:none!important}
 /* زرار الاتجاهات بأيقونة جوجل ماب (من غير الخريطة) */
@@ -54,10 +81,43 @@ const CSS = `<style id="ye-style">
 /* مسافة تحتها عشان دانتيل الختام (اللي بيطلع لفوق) مايغطيش عليها */
 .ye-nt{position:relative;margin:24px auto 0;max-width:520px;padding:0 26px calc(30vw + 40px);text-align:center}
 @media (min-width:768px){.ye-nt{padding-bottom:230px}}
-/* صورة القاعة مكان رسمة المكان */
-div:has(> img.ye-hall){width:88%!important}
-@media (min-width:768px){div:has(> img.ye-hall){width:100%!important}}
-img.ye-hall{display:block;width:100%;height:auto;aspect-ratio:1100/912;object-fit:cover;border-radius:14px;padding:6px;background:hsl(var(--background));border:1px solid hsl(var(--foreground)/.25);box-shadow:0 14px 30px -18px hsl(var(--foreground)/.55);pointer-events:none;-webkit-user-select:none;user-select:none}
+/* برنامج اليوم: من غير كلمة "برنامج اليوم" — "يوم للفرح…" هي العنوان. والصف الرابع (العشاء) ظاهر */
+[data-elem-id="lc23"]{display:none!important}
+[data-section="timeline"] [data-elem-id="lc24"]{font-size:17px!important;line-height:1.8!important;margin-top:0!important;color:hsl(var(--foreground))!important}
+@media (min-width:768px){[data-section="timeline"] [data-elem-id="lc24"]{font-size:20px!important}}
+html.ar [data-section="timeline"] [data-elem-id="lc24"]{font-family:'Amiri',serif}
+/* أول صفحة: الحرفين وتحتهم الجملة بس */
+#heroTxt>:not(.ye-hero){display:none!important}
+.ye-hero{display:flex;flex-direction:column;align-items:center}
+.ye-mono{display:block;width:auto;height:min(34vh,250px);pointer-events:none;-webkit-user-select:none;user-select:none;opacity:0;transform:translateY(10px) scale(.96);transition:opacity 1.8s ease,transform 2.2s cubic-bezier(.2,.7,.2,1)}
+.ye-hero-t{margin-top:30px;padding:0 8px;font-size:23px;line-height:1.5;color:hsl(var(--foreground));opacity:0;transition:opacity 1.6s ease .9s}
+@media (min-width:768px){.ye-mono{height:300px}.ye-hero-t{font-size:32px}}
+#heroTxt.opacity-100 .ye-mono,#heroTxt:not(.opacity-0) .ye-mono{opacity:1;transform:none}
+#heroTxt.opacity-100 .ye-hero-t,#heroTxt:not(.opacity-0) .ye-hero-t{opacity:1}
+/* رسمة القاعة (اللي كانت في أول صفحة) مكان صورة القاعة — زي ما هي من غير إطار */
+img.ye-villa{display:block;width:100%;height:auto;margin:0 auto;pointer-events:none;-webkit-user-select:none;user-select:none}
+/* مكان "الزي المقترح": كلام ليلة ديسمبر جوه نفس إطار الدانتيل */
+.ye-story{display:flex;flex-direction:column;align-items:center;text-align:center;color:hsl(var(--foreground));pointer-events:none;-webkit-user-select:none;user-select:none}
+.ye-s1{font-size:21px;line-height:1.5}
+.ye-s2{font-size:14.5px;line-height:1.75;color:hsl(var(--foreground)/.78);margin-top:8px}
+.ye-s2+.ye-s2{margin-top:0}
+.ye-names{font-family:'Ballet',cursive!important;font-size:25px;line-height:1.6;white-space:nowrap;direction:ltr;margin-top:2px;-webkit-text-stroke:0!important}
+.ye-date{font-size:15px;direction:ltr;letter-spacing:.06em;color:hsl(var(--foreground)/.8)}
+html.ar .ye-s1,html.ar .ye-s2,html.ar .ye-hero-t{font-family:'Amiri',serif}
+html:not(.ar) .ye-s1{font-size:19px}
+html:not(.ar) .ye-hero-t{font-size:20px;max-width:310px}
+@media (min-width:768px){.ye-s1{font-size:30px}.ye-s2{font-size:18px}.ye-names{font-size:44px}.ye-date{font-size:19px}}
+/* العروسين بيرقصوا: بيتمايلوا مع بعض ويقربوا ويبعدوا (رقصة هادية) */
+.ye-dance{position:relative;height:118px;aspect-ratio:600/930;margin:12px auto 4px}
+@media (min-width:768px){.ye-dance{height:200px}}
+.ye-dance img{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.ye-dance{animation:yeSway 4.8s ease-in-out infinite}
+.ye-bride{transform-origin:30% 100%;animation:yeBride 2.4s ease-in-out infinite}
+.ye-groom{transform-origin:75% 100%;animation:yeGroom 2.4s ease-in-out infinite}
+@keyframes yeSway{0%,100%{transform:translateX(-5%) rotate(-1.5deg)}50%{transform:translateX(5%) rotate(1.5deg)}}
+@keyframes yeBride{0%,100%{transform:translateX(0) rotate(-3deg)}50%{transform:translateX(4%) translateY(-1.5%) rotate(3.5deg)}}
+@keyframes yeGroom{0%,100%{transform:translateX(0) rotate(3deg)}50%{transform:translateX(-3.5%) translateY(-1%) rotate(-3deg)}}
+@media (prefers-reduced-motion:reduce){.ye-dance,.ye-dance img{animation:none}}
 .ye-nt-card{position:relative;padding:38px 26px 34px;border:1px solid hsl(var(--foreground)/.28);border-radius:4px;background:hsl(var(--background)/.65)}
 .ye-nt-card::before{content:"";position:absolute;inset:5px;border:1px solid hsl(var(--foreground)/.14);border-radius:2px;pointer-events:none}
 .ye-nt-ic{width:30px;height:30px;margin:0 auto 12px;color:hsl(var(--foreground)/.75)}
@@ -100,8 +160,12 @@ module.exports = {
 
     // الأغنية (لو العميل اختار أغنية من المحرر، بتاعته هي اللي بتشتغل)
     out = out.split('/templates/lace/song.mp3').join(SONG);
-    // صورة القاعة مكان رسمة المكان (lc105)
-    out = out.replace(/(<img\b[^>]*?)src="\/templates\/lace\/transport-lace-oval\.webp"([^>]*?)class="([^"]*)"([^>]*data-elem-id="lc105")/, (x, a, b, c, d) => `${a}src="${HALL}"${b.replace(/alt="[^"]*"/, 'alt="Adwaa Hall"')}class="${c} ye-hall"${d}`);
+    // رسمة القاعة (من أول صفحة) مكان رسمة المكان (lc105)
+    out = out.replace(/(<img\b[^>]*?)src="\/templates\/lace\/transport-lace-oval\.webp"([^>]*?)class="([^"]*)"([^>]*data-elem-id="lc105")/, (x, a, b, c, d) => `${a}src="${VILLA}"${b.replace(/alt="[^"]*"/, 'alt=""')}class="${c} ye-villa"${d}`);
+    // أول صفحة: الحرفين + "كُتب لديسمبر أن يكون استثنائياً" (الباقي مستخبي بالـ CSS)
+    out = out.replace(/(<div [^>]*id="heroTxt"[^>]*>)/, (x) => x + heroHtml(lang));
+    // "الزي المقترح" → كلام ليلة ديسمبر والعروسين بيرقصوا والأسامي والتاريخ (جوه نفس الإطار)
+    out = out.replace(/<p class="font-display text-\[43px\][^"]*" data-elem-id="lc40">[\s\S]*?data-elem-id="lc42">[\s\S]*?<\/p>/, () => storyHtml(lang));
     // الختم بحروفهم (ف ص): الغلاف وفيديو الفتح
     out = out.split('/templates/lace/cover.webp?v=2').join(COVER).split('/templates/lace/open.mp4?v=2').join(OPEN);
 
