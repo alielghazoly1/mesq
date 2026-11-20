@@ -312,6 +312,9 @@ module.exports = {
       <p class="kb-note-t" data-elem-id="kbn1">${POOL_T}</p>
       <p class="kb-note-p" data-elem-id="kbn2">${POOL_P}</p>
     </div>`);
+    // (2026-11-20) بعد تصفير الداشبورد (الردود القديمة اتنقلت للأرشيف): الأجهزة اللي ردّت قبل التصفير كانت لسه
+    // بتعرض "تم الإرسال" ومش بتسيب الضيف يبعت تاني، وردّه مش ظاهر للعميلة — مفتاح جديد فالفورم يرجع لهم
+    out = out.split("var SENT_KEY = 'mithaq_rsvp_' + (sid || 'preview');").join("var SENT_KEY = 'mithaq_rsvp_' + (sid || 'preview') + '~20261120';");
     // التهنئة الصوتية ورفع الصور: جوه قسم تأكيد الحضور، تحت الفورم على طول
     out = out.replace(/<\/head>/i, () => `${CSS}\n${EXTRAS_OPTS}\n</head>`);
     return out;
