@@ -1,121 +1,90 @@
-// دعوة Ye053hU (قالب Lace عربي) — زفاف فارس وصفاء، الخميس 17/12/2026 (8 رجب 1448)، قاعة أضواء (2) —
-// قاعات أضواء للاحتفالات، المدينة المنورة. بطلب المالك (2026-11-18) من كارت التفاصيل اللي بعته:
-//  • الأسامي "فارس & صفاء" مقصوصة من الكارت بتاعه نفسه (نفس الشكل واللون) — في الكارت الأول والختام.
-//  • "بارك الله لهما…" فوق الأسامي، والتاريخ الهجري تحت التاريخ.
-//  • "تشرف السيدة رقية عصر بدعوتكم…" في كارت الترحيب.
-//  • فقرات الحفل الأربعة بأيقونات الكارت (استقبال الضيوف، الزفة المدينية، زفة العروسين، العشاء) — الفقرة الخامسة اتشالت.
-//  • مكان "الزي المقترح": أجواء الحفل (ركن القهوة، الطاولة المدينية، الفوتو شوت) بصور الكارت.
-//  • مكان "المواصلات": تنويه التصوير + "جنة الأطفال منازلهم"؛ والأطفال اتشالوا من تأكيد الحضور.
-//  • الإقامة والهدية مستخبيين (oneOffFix Ye053hU-fares-safaa، مع الأسامي والميعاد والمكان والكلام كله — يتعدّل من المحرر).
-//  • العدّاد بتوقيت السعودية (المدينة +3): الساعة 9 مساءً هناك مش 9 بتوقيت القاهرة.
-// لو أي حتة من القالب مش لاقيينها بتتساب زي ما هي (ولا حاجة بتبوظ). في المحرر: الأسامي كلام عادي (عشان تتعدّل).
+// دعوة Ye053hU (قالب Lace) — زفاف فارس وصفاء، الخميس 17/12/2026 — قاعات أضواء للاحتفالات، المدينة المنورة.
+// بطلب المالك (2026-11-20): الدعوة رجعت لشكل القالب الطبيعي بألوانه وصوره (اتشالت كل الإضافات القديمة: البرجندي،
+// صور الكارت، الأيقونات، أجواء الحفل…)، وفوقه بس:
+//  • حروفهم (ف ص — الصورة اللي بعتها) محفورة في الشمع على الختم بره: صورة الغلاف + فيديو الفتح فريم فريم.
+//  • نسخة إنجليزي على /en (والعربي الافتراضي، و /ar كمان) — كل الكلام والأسامي والمكان وكارت المشاركة باللغة دي.
+//  • برنامج الحفل سطرين: الحضور 9 ومراسم الزفاف 10 (باقي الفقرات مستخبية).
+//  • من غير خريطة iframe — زرار الاتجاهات بس بأيقونة جوجل ماب.
+//  • تأكيد الحضور: الاسم والحضور بس (من غير +1 والأطفال والأكل والرسالة).
+//  • في آخر الدعوة: تنويه التصوير + "جنة الأطفال منازلهم".
+//  • العدّاد بتوقيت السعودية (المدينة +3).
+// الأقسام المستخبية (الإقامة/الهدية/المواصلات/الخريطة) والكلام القديم اتشالوا بـ oneOffFix Ye053hU-natural-nov20.
 const { asset } = require('./_asset');
 
 const SHORT = 'Ye053hU';
 const DIR = `/custom/${SHORT}/`;
 const KSA_OFFSET_H = 3;
+const COVER = asset(`${DIR}cover.webp`);
+const OPEN = asset(`${DIR}open.mp4`);
 
-const A = {};
-['name-fares', 'name-safaa', 'ic-reception', 'ic-zaffa', 'ic-rings', 'ic-dinner', 'am-photo', 'am-table', 'am-coffee', 'ic-nocam-light']
-  .forEach((n) => { A[n] = asset(`${DIR}${n}.webp`); });
+// الكلام لكل لغة (بيتحط بس لو العميل ماكتبش حاجة مكانه من المحرر)
+const TEXTS = {
+  ar: {
+    lc25: '٩:٠٠ م', lc26: 'حضور الضيوف', lc27: 'نستقبلكم بكل الحب والفرح',
+    lc28: '١٠:٠٠ م', lc29: 'مراسم الزفاف', lc30: 'دخول العروسين وبداية ليلة العمر',
+  },
+  en: {
+    lc25: '9:00 PM', lc26: 'Guests Arrival', lc27: 'Welcoming you with love and joy.',
+    lc28: '10:00 PM', lc29: 'Wedding Ceremony', lc30: 'The grand entrance of the bride and groom.',
+  },
+};
+// الأسامي والمكان بالإنجليزي في نسخة /en (البيانات نفسها عربي)
+const EN_FIELDS = {
+  groomName: 'Fares', brideName: 'Safaa',
+  venueName: 'Adwaa Hall (2)', venueCity: 'Al Madinah Al Munawwarah', venueAddress: 'Adwaa Celebration Halls',
+};
+const NOTICE = {
+  ar: { t: 'تنويه مهم', p: 'نرجو من ضيوفنا الكرام الاستمتاع بتصوير فقرات الحفل واللقطات التذكارية الخاصة، مع الالتزام بعدم تصوير العروسين وأهل العروسين، حفاظًا على خصوصيتهم وتقديرًا لهم.', k: 'جنة الأطفال منازلهم' },
+  en: { t: 'Kind Notice', p: 'We warmly invite our guests to enjoy capturing the celebration and their own special moments, while kindly refraining from photographing the bride, the groom and their families, out of respect for their privacy.', k: 'Children are best enjoyed at home 🤍' },
+};
 
-// (المالك 2026-11-18) البرجندي بتاع الدعوة كلها = نفس برجندي الكارت والأيقونات بتاعته (#701619) بدل نبيتي القالب
-['art-1', 'art-4', 'villa-illustration-thick'].forEach((n) => { A[n] = asset(`${DIR}${n}.svg`); });
-A.tulle = asset(`${DIR}tulle-texture-burgundy.webp`);
 const CSS = `<style id="ye-style">
-html:root{--foreground:358 67% 26%!important;--primary:358 62% 31%!important;--accent:358 62% 31%!important;--ring:358 62% 31%!important;
-  --card-foreground:358 62% 31%!important;--muted-foreground:358 62% 31%!important;--popover-foreground:358 62% 31%!important;--secondary-foreground:358 62% 31%!important}
-#countdown{background-color:#701619!important}
-/* الأسامي صور (من كارت المالك) */
-.ye-nm{display:block;height:auto;margin:0 auto;pointer-events:none;-webkit-user-select:none;user-select:none}
-.ye-hero-nm{width:min(46vw,210px)}
-.ye-hero-nm.s{width:min(45vw,205px)}
-.ye-has-img{display:none!important}
-.ye-end-nm{display:inline-block;vertical-align:middle;height:1.05em;width:auto}
-.ye-hijri{margin-top:6px;font-family:'Amiri',serif;font-size:15px;line-height:1.6;color:hsl(var(--foreground)/.75)}
-/* فقرات الحفل (المالك 2026-11-18): الأيقونات كلها عمود واحد تحت بعض، نفس المقاس، والكلام جنبها */
-.ye-tl{position:relative;width:max-content;max-width:min(340px,100%);min-width:250px;margin:0 auto;padding:4px 0}
-.ye-tl::before{content:"";position:absolute;top:44px;bottom:44px;right:47px;width:1px;background:linear-gradient(hsl(var(--foreground)/0),hsl(var(--foreground)/.35) 12%,hsl(var(--foreground)/.35) 88%,hsl(var(--foreground)/0))}
-.ye-tl-row{position:relative;display:grid;grid-template-columns:96px minmax(0,1fr);align-items:center;column-gap:18px;padding:14px 0}
-.ye-tl-ic{position:relative;z-index:1;width:96px;height:80px;display:flex;align-items:center;justify-content:center;background:hsl(var(--background))}
-.ye-tl-ic img{width:100%;height:100%;object-fit:contain;pointer-events:none;-webkit-user-select:none;user-select:none}
-.ye-tl-tx{display:flex;flex-direction:column;align-items:flex-start;text-align:right;min-width:0}
-.ye-tl-time{display:inline-block;padding:3px 14px 4px;border-radius:99px;background:hsl(var(--foreground));color:hsl(var(--background));font-family:'Amiri',serif;font-weight:700;font-size:14px;line-height:1.45;white-space:nowrap}
-.ye-tl-title{margin-top:7px;font-family:'Amiri',serif;font-weight:700;font-size:20px;line-height:1.35;color:hsl(var(--foreground))}
-.ye-tl-desc{margin-top:1px;font-family:'Amiri',serif;font-size:14px;line-height:1.45;color:hsl(var(--foreground)/.72)}
-@media (min-width:768px){.ye-tl{max-width:420px}.ye-tl-title{font-size:23px}.ye-tl-time{font-size:15px}}
-/* أجواء الحفل: الصور كبيرة وواضحة، كل واحدة في سطرها */
-.ye-am{position:relative;padding:72px 20px 40px;text-align:center}
-.ye-am-t{font-size:44px;line-height:1.15}
-.ye-am-orn{display:block;width:120px;height:14px;margin:14px auto 30px;color:hsl(var(--foreground)/.55)}
-.ye-am-it img{display:block;margin:0 auto;-webkit-user-select:none;user-select:none}
-.ye-am-it.big img{width:min(72vw,320px);height:auto}
-.ye-am-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:330px;margin:28px auto 0;align-items:end}
-.ye-am-row img{width:100%;height:118px;object-fit:contain}
-.ye-pill{display:inline-block;margin-top:12px;padding:6px 18px;border-radius:99px;background:linear-gradient(#f1dfd2,#e7cdbb);color:hsl(var(--foreground));
-  font-family:'Amiri',serif;font-weight:700;font-size:16px;line-height:1.4;box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 2px 6px rgba(110,40,40,.08)}
-@media (min-width:768px){.ye-am-t{font-size:64px}.ye-am-it.big img{width:400px}.ye-am-row{max-width:420px}.ye-am-row img{height:150px}}
-/* التنويه (مكان المواصلات) */
-.ye-nocam{width:96px!important;height:auto}
-.ye-kids-wrap{margin-top:34px;display:flex;align-items:center;justify-content:center;gap:12px}
-.ye-kids-wrap .ye-kd{flex:none;width:30px;height:1px;background:hsl(var(--background)/.55)}
-.ye-kids-wrap p.ye-kids{margin:0!important;max-width:none!important;font-family:'Amiri',serif;font-weight:700;font-size:21px!important;line-height:1.5;color:hsl(var(--background))!important}
-/* تأكيد الحضور من غير أطفال (جنة الأطفال منازلهم) */
-#mithaq-rsvp div:has(> [data-elem-id="lc83"]){display:none!important}
+/* برنامج الحفل: سطرين بس (الحضور ومراسم الزفاف) */
+[data-section="timeline"] .grid:has([data-elem-id="lc31"]),[data-section="timeline"] .grid:has([data-elem-id="lc34"]),[data-section="timeline"] .grid:has([data-elem-id="lc37"]){display:none!important}
+/* تأكيد الحضور: الاسم والحضور بس */
+#lcForm div:has(> [data-elem-id="lc80"]),#lcForm div:has(> [data-elem-id="lc83"]),#lcForm div:has(> [data-elem-id="lc84"]),#lcForm div:has(> [data-elem-id="lc85"]){display:none!important}
+/* زرار الاتجاهات بأيقونة جوجل ماب (من غير الخريطة) */
+#mapBtn{display:inline-flex!important;align-items:center;gap:10px;color:hsl(var(--foreground))!important;border-color:hsl(var(--foreground)/.45)!important;padding-left:30px!important;padding-right:30px!important}
+#mapBtn .ye-gm{width:20px;height:20px;flex:none}
+/* التنويه في آخر الدعوة */
+.ye-nt{position:relative;margin:24px auto 0;max-width:520px;padding:0 26px;text-align:center}
+.ye-nt-card{position:relative;padding:38px 26px 34px;border:1px solid hsl(var(--foreground)/.28);border-radius:4px;background:hsl(var(--background)/.65)}
+.ye-nt-card::before{content:"";position:absolute;inset:5px;border:1px solid hsl(var(--foreground)/.14);border-radius:2px;pointer-events:none}
+.ye-nt-ic{width:30px;height:30px;margin:0 auto 12px;color:hsl(var(--foreground)/.75)}
+.ye-nt-t{font-size:34px;line-height:1.15}
+.ye-nt-p{margin-top:14px;font-size:14px;line-height:1.9;color:hsl(var(--foreground)/.82)}
+.ye-nt-k{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:22px;font-size:21px;line-height:1.4;color:hsl(var(--foreground))}
+.ye-nt-k::before,.ye-nt-k::after{content:"";width:28px;height:1px;background:hsl(var(--foreground)/.4)}
+html.ar .ye-nt-p{font-family:'Amiri',serif;font-size:16px}
+html.ar .ye-nt-t,html.ar .ye-nt-k{font-family:'Aref Ruqaa','Amiri',serif}
 </style>`;
 
-const ORN = '<svg class="ye-am-orn" viewBox="0 0 120 14" fill="none" stroke="currentColor" stroke-width="1" aria-hidden="true"><path d="M2 7h44M74 7h44"/><path d="M60 2l5 5-5 5-5-5z"/><circle cx="50" cy="7" r="1.4" fill="currentColor"/><circle cx="70" cy="7" r="1.4" fill="currentColor"/></svg>';
-
-const AMBIENCE = `<section class="ye-am" aria-label="أجواء الحفل">
-      <h2 class="ye-am-t font-display text-foreground" data-elem-id="ya1">أجواء الحفل</h2>
-      ${ORN}
-      <div class="ye-am-it big rvf"><img loading="lazy" decoding="async" src="${A['am-table']}" alt="الطاولة المدينية" draggable="false" data-elem-id="ya5"><span class="ye-pill" data-elem-id="ya2">الطاولة المدينية</span></div>
-      <div class="ye-am-row">
-        <div class="ye-am-it rvf"><img loading="lazy" decoding="async" src="${A['am-coffee']}" alt="ركن القهوة" draggable="false" data-elem-id="ya6"><span class="ye-pill" data-elem-id="ya3">ركن القهوة</span></div>
-        <div class="ye-am-it rvf"><img loading="lazy" decoding="async" src="${A['am-photo']}" alt="الفوتو شوت" draggable="false" data-elem-id="ya7"><span class="ye-pill" data-elem-id="ya4">الفوتو شوت</span></div>
-      </div>
-    </section>`;
-
-// فقرات الحفل: نفس أرقام عناصر القالب (lc25–lc36) عشان الكلام يتعدّل من المحرر زي ما هو، والأيقونات lc97/lc106/lc98/lc107
-const TL_ROWS = [
-  ['lc97', 'ic-reception', 'lc25', 'lc26', 'lc27'],
-  ['lc106', 'ic-zaffa', 'lc28', 'lc29', 'lc30'],
-  ['lc98', 'ic-rings', 'lc31', 'lc32', 'lc33'],
-  ['lc107', 'ic-dinner', 'lc34', 'lc35', 'lc36'],
-];
-const TIMELINE = () => `<div class="ye-tl">${TL_ROWS.map(([icId, ic, t, n, d]) => `
-      <div class="ye-tl-row rvf"><div class="ye-tl-ic"><img loading="lazy" decoding="async" src="${A[ic]}" alt="" draggable="false" data-elem-id="${icId}"></div>
-        <div class="ye-tl-tx"><span class="ye-tl-time" data-elem-id="${t}"></span><span class="ye-tl-title" data-elem-id="${n}"></span><span class="ye-tl-desc" data-elem-id="${d}"></span></div></div>`).join('')}
-    </div>`;
-
-/** آخر الـ div اللي بيبدأ عند start (عدّ الفتح والقفل) */
-function divEnd(html, start) {
-  const re = /<div\b|<\/div>/g;
-  re.lastIndex = start;
-  let depth = 0, m;
-  while ((m = re.exec(html))) {
-    if (m[0] === '</div>') { depth--; if (depth === 0) return re.lastIndex; } else depth++;
-  }
-  return -1;
-}
-function setImg(html, id, src) {
-  return html.replace(new RegExp(`(<img\\b[^>]*?)src="[^"]*"([^>]*data-elem-id="${id}")`), (m, a, b) => `${a}src="${src}"${b}`);
-}
+const GM = '<svg class="ye-gm" viewBox="0 0 24 24" aria-hidden="true"><path fill="#EA4335" d="M12 2a7 7 0 0 0-7 7c0 5.2 7 13 7 13s7-7.8 7-13a7 7 0 0 0-7-7z"/><circle cx="12" cy="9" r="2.6" fill="#fff"/></svg>';
+const CAM = '<svg class="ye-nt-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M9.5 5H15l1.5 2H19a2 2 0 0 1 2 2v8.5M17 19H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.5"/><path d="M9.8 10.2a3 3 0 0 0 4 4"/></svg>';
+const noticeHtml = (l) => `<div class="rv"><section class="ye-nt" aria-label="${NOTICE[l].t}"><div class="ye-nt-card">${CAM}
+  <p class="ye-nt-t font-display text-foreground" data-elem-id="yn1">${NOTICE[l].t}</p>
+  <p class="ye-nt-p font-helvetica" data-elem-id="yn2">${NOTICE[l].p}</p>
+  <p class="ye-nt-k font-display" data-elem-id="yn3">${NOTICE[l].k}</p></div></section></div>`;
 
 module.exports = {
   shortId: SHORT,
-
-  share: {
-    title: 'دعوة زفاف فارس وصفاء',
-    description: 'الخميس ١٧ ديسمبر ٢٠٢٦ — قاعات أضواء للاحتفالات، المدينة المنورة',
+  // العربي الافتراضي (لغة البيانات) — /en أو ?lang=en للإنجليزي
+  langs: ['ar', 'en'],
+  shareByLang: {
+    ar: { title: 'دعوة زفاف فارس وصفاء', description: 'الخميس ١٧ ديسمبر ٢٠٢٦ · قاعات أضواء للاحتفالات — المدينة المنورة' },
+    en: { title: 'Fares & Safaa — Wedding Invitation', description: 'Thursday, 17 December 2026 · Adwaa Celebration Halls, Al Madinah' },
   },
 
-  render({ editMode } = {}) {
+  render() {
     return { head: CSS };
   },
 
   transform(html, { editMode } = {}) {
     let out = html;
+    const lang = /"language":"en"/.test(out) ? 'en' : 'ar';
+
+    // الختم بحروفهم (ف ص): الغلاف وفيديو الفتح
+    out = out.split('/templates/lace/cover.webp?v=2').join(COVER).split('/templates/lace/open.mp4?v=2').join(OPEN);
 
     // العدّاد بتوقيت السعودية: الساعة المكتوبة (countdown) هي ساعة المدينة
     const m = out.match(/"countdown":\{"year":(\d{4}),"monthIndex":(\d{1,2}),"day":(\d{1,2}),"hour":(\d{1,2}),"minute":(\d{1,2})/);
@@ -124,38 +93,28 @@ module.exports = {
       out = out.replace(/"weddingDateTimeISO":"[^"]*"/, `"weddingDateTimeISO":"${iso}"`);
     }
 
-    // الأسامي (صور من كارت المالك) — في المحرر بتفضل كلام عشان تتعدّل
-    if (!editMode) {
-      out = out.replace(/(<h1\b[^>]*?)class="([^"]*)"([^>]*data-elem-id="lc3"[^>]*>[^<]*<\/h1>)/, (x, a, c, b) => `${a}class="${c} ye-has-img"${b}<img class="ye-nm ye-hero-nm" src="${A['name-fares']}" alt="فارس" draggable="false">`);
-      out = out.replace(/(<h1\b[^>]*?)class="([^"]*)"([^>]*data-elem-id="lc5"[^>]*>[^<]*<\/h1>)/, (x, a, c, b) => `${a}class="${c} ye-has-img"${b}<img class="ye-nm ye-hero-nm s" src="${A['name-safaa']}" alt="صفاء" draggable="false">`);
-      out = out.replace(/(<span data-f="name1" data-elem-id="lc91")>[^<]*<\/span>/, `$1 class="ye-has-img"></span><img class="ye-end-nm" src="${A['name-fares']}" alt="فارس" draggable="false">`);
-      out = out.replace(/(<span data-f="name2" data-elem-id="lc93")>[^<]*<\/span>/, `$1 class="ye-has-img"></span><img class="ye-end-nm" src="${A['name-safaa']}" alt="صفاء" draggable="false">`);
-    }
-    // الرسومات اللي لونها جوه الملف نفسه → نسخ بلون الكارت
-    for (const n of ['art-1', 'art-4', 'villa-illustration-thick']) out = out.split(`/templates/lace/${n}.svg`).join(A[n]);
-    out = out.split('/templates/lace/tulle-texture-burgundy.webp').join(A.tulle);
-    // التاريخ الهجري تحت التاريخ
-    out = out.replace(/(<p\b[^>]*data-f="dateDots"[^>]*data-elem-id="lc6"[^>]*>[^<]*<\/p>)/, `$1<p class="ye-hijri" data-elem-id="ya8">الخميس ٨ رجب ١٤٤٨ هـ</p>`);
-
-    // فقرات الحفل: قايمة القالب كلها (5 فقرات بالتبادل يمين وشمال) → 4 فقرات تحت بعض بأيقونات الكارت في عمود واحد
-    const f1 = out.indexOf('data-elem-id="lc97"');
-    const tl = f1 === -1 ? -1 : out.lastIndexOf('<div class="relative max-w-md mx-auto">', f1);
-    const tlEnd = tl === -1 ? -1 : divEnd(out, tl);
-    if (tlEnd !== -1 && out.slice(tl, tlEnd).includes('data-elem-id="lc39"')) out = out.slice(0, tl) + TIMELINE() + out.slice(tlEnd);
-
-    // الزي المقترح → أجواء الحفل
-    const dc = out.indexOf('<div class="rv" data-section="dressCode">');
-    if (dc !== -1) {
-      const e = divEnd(out, dc);
-      if (e !== -1) out = out.slice(0, dc) + `<div class="rv" data-section="dressCode">${AMBIENCE}</div>` + out.slice(e);
+    // نسخة الإنجليزي: الأسامي والمكان بالإنجليزي في إعدادات الصفحة
+    if (lang === 'en') {
+      for (const [k, v] of Object.entries(EN_FIELDS)) {
+        out = out.replace(new RegExp(`("${k}":)"(?:[^"\\\\]|\\\\.)*"`), (x, a) => `${a}${JSON.stringify(v)}`);
+      }
     }
 
-    // المواصلات → التنويه: أيقونة "ممنوع التصوير" + "جنة الأطفال منازلهم"، من غير زرار مكان التجمع
-    out = setImg(out, 'lc114', A['ic-nocam-light']);
-    out = out.replace(/(<img\b[^>]*?)class="([^"]*)"([^>]*data-elem-id="lc114")/, (x, a, c, b) => `${a}class="${c} ye-nocam"${b}`);
-    out = out.replace(/<a\b[^>]*>(?:(?!<\/a>)[\s\S])*data-elem-id="lc47"[\s\S]*?<\/a>/, '');
-    out = out.replace(/(<p\b[^>]*?)class="([^"]*)"([^>]*data-elem-id="lc46")/, (x, a, c, b) => `<div class="ye-kids-wrap"><span class="ye-kd"></span>${a}class="${c} ye-kids"${b}`);
-    out = out.replace(/(data-elem-id="lc46"[^>]*>[\s\S]*?<\/p>)/, '$1<span class="ye-kd"></span></div>');
+    // الكلام (برنامج الحفل) باللغة دي — لو العميل كتب حاجة مكانه من المحرر، كلامه هو اللي بيفضل
+    out = out.replace(/var data = (\{.*?\});\n/, (whole, json) => {
+      try {
+        const d = JSON.parse(json);
+        d.texts = d.texts || {};
+        for (const [k, v] of Object.entries(TEXTS[lang])) if (!d.texts[k]) d.texts[k] = v;
+        return `var data = ${JSON.stringify(d).replace(/</g, '\\u003c')};\n`;
+      } catch (e) { return whole; }
+    });
+
+    // زرار الاتجاهات بأيقونة جوجل ماب (الخريطة نفسها مستخبية — hiddenSections: map)
+    out = out.replace(/(id="mapBtn"[^>]*>)/, `$1${GM}`);
+
+    // التنويه في آخر الدعوة (قبل الختام)
+    out = out.replace(/<div class="rv"><footer /, (x) => `${noticeHtml(lang)}${x}`);
     return out;
   },
 };

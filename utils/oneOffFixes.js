@@ -2096,6 +2096,28 @@ const FIXES = [
       return set;
     },
   },
+  {
+    // Ye053hU — بطلب المالك (2026-11-20): الدعوة ترجع لشكل قالب Lace الطبيعي. كل الكلام اللي اتحط في
+    // Ye053hU-fares-safaa (البسملة، رقية عصر، الفقرات الأربعة، التنويه القديم…) والعناصر المستخبية بيتشالوا،
+    // ويستخبى بس: الإقامة والهدية والمواصلات (عينات روما) والخريطة (المالك عايز زرار الاتجاهات بس) وجملة روما (lc20).
+    // الأسامي والميعاد والمكان زي ما هم. الكلام الجديد في custom-invitations/Ye053hU.js.
+    // بيتعمل بس لو الكلام القديم لسه موجود.
+    name: 'Ye053hU-natural-nov20',
+    shortId: 'Ye053hU',
+    select: 'customizations templateId hiddenSections',
+    when: (c, inv) => inv.templateId === 'lace' && (c.texts || {}).lc1 === 'بارك الله لهما',
+    apply: (c, inv) => {
+      const OLD = ['lc1', 'lc2', 'lc8', 'lc9', 'lc10', 'lc11', 'lc19', 'lc23', 'lc25', 'lc26', 'lc28', 'lc29', 'lc30', 'lc31',
+        'lc32', 'lc33', 'lc34', 'lc35', 'lc43', 'lc44', 'lc46', 'ya1', 'ya2', 'ya3', 'ya4', 'ya8'];
+      const texts = { ...(c.texts || {}) };
+      OLD.forEach((k) => { delete texts[k]; });
+      return {
+        'customizations.texts': texts,
+        'customizations.hidden': ['lc20'],
+        hiddenSections: [...new Set([...(inv.hiddenSections || []).filter((x) => x !== 'dressCode'), 'stay', 'gift', 'transport', 'map'])],
+      };
+    },
+  },
 ];
 
 let done = false;
