@@ -80,9 +80,14 @@ module.exports = {
   shortId: SHORT,
   // العربي الافتراضي (لغة البيانات) — /en أو ?lang=en للإنجليزي
   langs: ['ar', 'en'],
+  // كارت لينك المشاركة (المالك 2026-11-20): الختم بحروفهم F & S جنب الأسامي عربي وإنجليزي والتاريخ والمكان (1200×630)
+  share: {
+    image: asset(`${DIR}share.jpg`), width: 1200, height: 630, overrideImage: true,
+    title: 'دعوة زفاف فارس وصفاء 🤍', description: 'الخميس ١٧ ديسمبر ٢٠٢٦ · الساعة ٩ مساءً · قاعات أضواء للاحتفالات — المدينة المنورة',
+  },
   shareByLang: {
-    ar: { title: 'دعوة زفاف فارس وصفاء', description: 'الخميس ١٧ ديسمبر ٢٠٢٦ · قاعات أضواء للاحتفالات — المدينة المنورة' },
-    en: { title: 'Fares & Safaa — Wedding Invitation', description: 'Thursday, 17 December 2026 · Adwaa Celebration Halls, Al Madinah' },
+    ar: { overrideImage: true, title: 'دعوة زفاف فارس وصفاء 🤍', description: 'الخميس ١٧ ديسمبر ٢٠٢٦ · الساعة ٩ مساءً · قاعات أضواء للاحتفالات — المدينة المنورة' },
+    en: { overrideImage: true, title: 'Fares & Safaa — Wedding Invitation 🤍', description: 'Thursday, 17 December 2026 · 9:00 PM · Adwaa Celebration Halls, Al Madinah' },
   },
 
   render() {
