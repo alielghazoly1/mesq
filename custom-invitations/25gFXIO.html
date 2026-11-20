@@ -135,20 +135,22 @@ main{position:relative;z-index:1;overflow-x:hidden;overflow-x:clip}
 
 /* العدّاد */
 /* Save the Date — كارت ورق بإطار دهبي مزدوج وكالندر ديسمبر، والقلب النبيتي على يوم الفرح */
-.sd{position:relative;width:min(100%,390px);padding:34px 18px 28px;background:#fbf7f0;border-radius:4px;
-  box-shadow:0 0 0 1px rgba(201,164,106,.75),0 0 0 6px #fbf7f0,0 0 0 7px rgba(201,164,106,.55),0 22px 40px -24px rgba(90,20,35,.55)}
-.sd-t{font:400 52px/1.05 var(--script);color:var(--wine)}
-.sd-m{margin-top:14px;font:500 12px/1 var(--cap);letter-spacing:.42em;padding-left:.42em;color:var(--ink)}
-.sd-g{display:grid;grid-template-columns:repeat(7,1fr);row-gap:12px;margin:22px 2px 0;align-items:center}
-.sd-g i{font:500 10.5px/1 var(--cap);font-style:normal;letter-spacing:.1em;color:var(--gold-d);padding-bottom:4px}
-.sd-g span{position:relative;font:500 19px/1 var(--serif);color:var(--ink);font-variant-numeric:oldstyle-nums;height:34px;display:flex;align-items:center;justify-content:center}
+/* (2026-11-20 الجولة 4) كارت Save the Date = ورق كريمي بإطار دانتيل نبيتي (من Pinterest، متكبّر AI) — المقاسات بالـ cqw
+   عشان الكلام يفضل جوه الإطار على أي موبايل */
+.sd{position:relative;width:min(100%,380px);aspect-ratio:900/1250;container-type:inline-size;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:4cqw 14cqw 0;background:url(assets/sd-card.webp) center/100% 100% no-repeat;filter:drop-shadow(0 18px 26px rgba(20,2,6,.45))}
+.sd-t{font:400 15cqw/1.05 var(--script);color:var(--wine)}
+.sd-m{margin-top:3cqw;font:500 3.6cqw/1 var(--cap);letter-spacing:.42em;padding-left:.42em;color:var(--ink)}
+.sd-g{display:grid;grid-template-columns:repeat(7,1fr);row-gap:1.4cqw;width:100%;margin:4.5cqw 0 0;align-items:center}
+.sd-g i{font:500 3cqw/1 var(--cap);font-style:normal;letter-spacing:.1em;color:var(--gold-d);padding-bottom:1cqw}
+.sd-g span{position:relative;font:500 6cqw/1 var(--serif);color:var(--ink);font-variant-numeric:oldstyle-nums;height:9.2cqw;display:flex;align-items:center;justify-content:center}
 .sd-g span.o{color:#b9a98f}
-.sd-g .day svg{position:absolute;left:50%;top:50%;width:44px;height:40px;transform:translate(-50%,-48%);fill:var(--wine);filter:drop-shadow(0 3px 5px rgba(90,20,35,.35));overflow:visible}
-.sd-g .day b{position:relative;font:600 16px/1 var(--serif);color:#f6e7c9;margin-top:-2px}
+.sd-g .day svg{position:absolute;left:50%;top:50%;width:13.6cqw;height:12.4cqw;transform:translate(-50%,-48%);fill:var(--wine);filter:drop-shadow(0 .8cqw 1.3cqw rgba(90,20,35,.35));overflow:visible}
+.sd-g .day b{position:relative;font:600 5cqw/1 var(--serif);color:#f6e7c9;margin-top:-.5cqw}
 .fx.in .sd-g .day svg{animation:beat 1.6s ease-in-out .9s 2}
 @keyframes beat{0%,100%{transform:translate(-50%,-48%) scale(1)}30%{transform:translate(-50%,-48%) scale(1.16)}60%{transform:translate(-50%,-48%) scale(.98)}}
-.sd-w{margin-top:22px;font:400 34px/1.1 var(--script);color:var(--wine)}
-.sd-d{margin-top:8px;font:500 11.5px/1 var(--cap);letter-spacing:.3em;padding-left:.3em;color:var(--ink)}
+.sd-w{margin-top:5cqw;font:400 10.6cqw/1.1 var(--script);color:var(--wine)}
+.sd-d{margin-top:2cqw;font:500 3.4cqw/1 var(--cap);letter-spacing:.3em;padding-left:.3em;color:var(--ink)}
 /* العدّاد: أرقام كبيرة وبينها معيّن دهبي صغير — من غير خانات */
 .cd{display:flex;align-items:flex-start;justify-content:center;gap:12px;margin-top:34px}
 .cd div{min-width:52px}
@@ -159,9 +161,18 @@ main{position:relative;z-index:1;overflow-x:hidden;overflow-x:clip}
 .cal svg{width:14px;height:14px}
 
 /* المكان */
-.vn-n{margin-top:20px;font:400 min(52px,12vw)/1.15 var(--script);white-space:nowrap;color:var(--wine)}
-.vn-c{margin-top:8px;font:500 15px/1 var(--cap);letter-spacing:.42em;padding-left:.42em;color:var(--ink)}
-.vn-s{margin-top:14px;font:500 italic 17px/1.4 var(--serif);color:#7d6a52}
+/* (2026-11-20 الجولة 4) المكان = دانتيل عاجي وفي النص كارتوش نبيتي (من Pinterest) — اسم الأوتيل وتحته اللوكيشن جوه الكارتوش */
+.vn{position:relative;display:flex;justify-content:center;background:#d6cebf}
+.vn-art{position:relative;width:min(100%,480px);aspect-ratio:900/1600;container-type:inline-size;background:url(assets/venue.webp) center/100% 100% no-repeat}
+.vn-in{position:absolute;left:25%;right:25%;top:31.5%;height:36%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.vn .kick{font-size:2.5cqw;color:#e2c891}
+.vn-orn{width:20cqw;height:1px;margin:2.6cqw 0 0;background:linear-gradient(90deg,transparent,#d9b77c,transparent)}
+.vn-n{margin-top:3cqw;font:400 8.6cqw/1.15 var(--script);white-space:nowrap;background:linear-gradient(180deg,#f3e3bb,#d2ad6c 60%,#b48a48);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;padding:0 1cqw}
+.vn-c{margin-top:1.6cqw;font:500 3.2cqw/1 var(--cap);letter-spacing:.32em;padding-left:.32em;color:#f1e3c6;white-space:nowrap}
+.vn-s{margin-top:3cqw;font:500 italic 3.6cqw/1.35 var(--serif);color:#e6d3ad}
+.vn-b{display:inline-flex;align-items:center;gap:1.8cqw;margin-top:5cqw;padding:2.6cqw 4.4cqw 2.6cqw calc(4.4cqw + .22em);border-radius:999px;text-decoration:none;
+  font:600 2.5cqw/1 var(--cap);letter-spacing:.22em;color:#4a0f1c;background:linear-gradient(180deg,#f2deae,#c9a05e);box-shadow:0 1.6cqw 3cqw -1.6cqw rgba(0,0,0,.6)}
+.vn-b svg{width:3.2cqw;height:3.2cqw}
 .map{position:relative;margin:22px auto 0;width:min(100%,400px);aspect-ratio:4/3;border-radius:16px;overflow:hidden;padding:5px;background:rgba(255,252,246,.85);border:1px solid rgba(201,164,106,.6);box-shadow:0 14px 28px -20px rgba(90,20,35,.55)}
 .map iframe{width:100%;height:100%;border:0;border-radius:12px;filter:sepia(.18) saturate(.85)}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;margin-top:20px;padding:15px 26px;border:0;border-radius:999px;cursor:pointer;text-decoration:none;
@@ -203,14 +214,13 @@ textarea.fld{resize:none;height:82px}
 .end p.q{font:400 34px/1.3 var(--script);color:#ecd29c}
 .end .nm2{margin-top:18px;font:500 11px/1 var(--cap);letter-spacing:.42em;padding-left:.42em;color:#d9c08e}
 /* خلفية كل قسم */
-.wine{background:radial-gradient(120% 60% at 25% 10%,#7a2233 0%,rgba(122,34,51,0) 60%),radial-gradient(90% 50% at 80% 90%,#6a1a2b 0%,rgba(106,26,43,0) 65%),linear-gradient(170deg,#5d1525,#45101b 55%,#531424)}
-.wine::before,.wine::after{content:"";position:absolute;left:0;right:0;height:11px;z-index:2;pointer-events:none;
-  background:radial-gradient(circle at 11px 11px,#5d1525 10px,rgba(93,21,37,0) 10.5px) 0 0/22px 22px repeat-x}
-.wine::before{top:-10px}
-.wine::after{bottom:-10px;transform:scaleY(-1);background:radial-gradient(circle at 11px 11px,#4b111e 10px,rgba(75,17,30,0) 10.5px) 0 0/22px 22px repeat-x}
-.wine .cd b{color:#f1e2c2}.wine .cd span{color:#d9c08e}.wine .cd em{background:#d9b77c}
-.wine .cal{color:#f1e3c6;border-color:rgba(214,182,125,.7);background:rgba(255,248,236,.06)}
-.cream{background:linear-gradient(180deg,#f8f3ea,#f1e9dc);box-shadow:inset 0 1px 0 rgba(201,164,106,.5),inset 0 -1px 0 rgba(201,164,106,.5)}
+/* قماش نبيتي بشريطة دانتيل عاجي فوق وتحت (من Pinterest) — بدل الدواير. الشريطة متكررة بالمراية عشان مايبانش لزق على الشاشات العريضة */
+.vel{--lb:clamp(104px,31vw,150px);background:url(assets/vel-top.webp) top center/auto var(--lb) repeat-x,url(assets/vel-bot.webp) bottom center/auto var(--lb) repeat-x,#4d0f1b url(assets/vel-mid.webp) center/cover no-repeat}
+.sec.vel{padding-top:calc(var(--lb) + 22px);padding-bottom:calc(var(--lb) + 28px)}
+.end.vel{padding-top:calc(var(--lb) + 30px);padding-bottom:calc(var(--lb) + 40px)}
+.vel .cd b{color:#f1e2c2}.vel .cd span{color:#d9c08e}.vel .cd em{background:#d9b77c}
+.vel .cal{color:#f1e3c6;border-color:rgba(214,182,125,.7);background:rgba(255,248,236,.06)}
+.vel .orn{color:#d9b77c}
 .linen{background:var(--paper) url(assets/bg.webp) center/cover no-repeat}
 
 /* زرار الصوت */
@@ -261,7 +271,7 @@ body.static .fx>*{opacity:1;transform:none}
   </section>
 
   <!-- (2026-11-20) Save the Date: كالندر ديسمبر بقلب على يوم الفرح + العدّاد (من غير القباب) -->
-  <section class="sec scr fx wine" id="countdown">
+  <section class="sec scr fx vel" id="countdown">
     <div class="sd">
       <h2 class="sd-t">Save the Date</h2>
       <p class="sd-m">DECEMBER 2026</p>
@@ -286,14 +296,17 @@ body.static .fx>*{opacity:1;transform:none}
   </section>
 
   <!-- (2026-11-20) المكان في شاشة لوحده: اسم الأوتيل كبير وتحته اللوكيشن -->
-  <section class="sec scr fx cream" id="venue">
-    <p class="kick">JOIN US AT</p>
-    <div class="orn"><b></b></div>
-    <h2 class="vn-n">InterContinental</h2>
-    <p class="vn-c">CAIRO SEMIRAMIS</p>
-    <p class="vn-s">Nile Corniche, Garden City · Cairo</p>
-    <div class="map"><iframe id="mapFrame" title="Map — InterContinental Cairo Semiramis" loading="lazy" referrerpolicy="no-referrer-when-downgrade" data-src="https://www.google.com/maps?q=InterContinental+Cairo+Semiramis,+Nile+Corniche,+Cairo&amp;z=16&amp;output=embed"></iframe></div>
-    <a class="btn" id="mapBtn" href="https://maps.app.goo.gl/EhxNyKNSxFVQSnRg6" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5a7 7 0 0 0-7 7c0 5.1 6 11.3 6.3 11.6a1 1 0 0 0 1.4 0C13 20.8 19 14.6 19 9.5a7 7 0 0 0-7-7zm0 9.6a2.6 2.6 0 1 1 0-5.2 2.6 2.6 0 0 1 0 5.2z"/></svg>GET DIRECTIONS</a>
+  <section class="vn" id="venue">
+    <div class="vn-art fx">
+      <div class="vn-in">
+        <p class="kick">JOIN US AT</p>
+        <i class="vn-orn"></i>
+        <h2 class="vn-n">InterContinental</h2>
+        <p class="vn-c">CAIRO SEMIRAMIS</p>
+        <p class="vn-s">Nile Corniche · Garden City</p>
+        <a class="vn-b" id="mapBtn" href="https://maps.app.goo.gl/EhxNyKNSxFVQSnRg6" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5a7 7 0 0 0-7 7c0 5.1 6 11.3 6.3 11.6a1 1 0 0 0 1.4 0C13 20.8 19 14.6 19 9.5a7 7 0 0 0-7-7zm0 9.6a2.6 2.6 0 1 1 0-5.2 2.6 2.6 0 0 1 0 5.2z"/></svg>LOCATION</a>
+      </div>
+    </div>
   </section>
 
   <section class="sec scr fx linen" id="mithaq-rsvp">
@@ -328,7 +341,7 @@ body.static .fx>*{opacity:1;transform:none}
     </div>
   </section>
 
-  <section class="end fx wine">
+  <section class="end fx vel">
     <div class="orn"><b></b></div>
     <p class="q" style="margin-top:18px">Your presence will make<br>our day special</p>
     <p class="nm2">FAYROUZ &amp; ZIAD · 18.12.2026</p>
