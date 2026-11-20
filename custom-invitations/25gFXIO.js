@@ -63,12 +63,12 @@ module.exports = {
     width: 1200,
     height: 630,
     overrideImage: true,
-    title: 'Fayrouz & Ziad — Wedding Invitation 🤍',
+    title: 'Ziad & Fayrouz — Wedding Invitation 🤍',
     description: 'Friday, 18 December 2026 · 7:00 PM · InterContinental Semiramis, Cairo',
   },
 
   // زرار "Save the date": /i/25gFXIO/calendar.ics (الساعة من بيانات الدعوة)
-  calendar: { title: 'Fayrouz & Ziad — The Wedding', hours: 5 },
+  calendar: { title: 'Ziad & Fayrouz — The Wedding', hours: 5 },
 
   render() {
     return {};
