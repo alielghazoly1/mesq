@@ -10,6 +10,7 @@
 //  • الكلام كله إنجليزي بكلام المالك. البيانات (الأسامي، الميعاد، القاعة، اللينك) في oneOffFix AxAg1X0-eman-ahmed.
 // الأغنية (2026-11-15): الملف اللي المالك بعته (مقطع 27 ثانية) — مقصوص عند النقطة اللي اللحن بيرجع فيها لأوله
 // عشان اللفّة ماتبانش، وصوته على مستوى أغاني الموقع. (قبلها كانت نفس أغنية cPcTTdw.)
+const { glideScript } = require('./_glide');
 const { asset } = require('./_asset');
 
 const SHORT = 'AxAg1X0';
@@ -447,7 +448,9 @@ module.exports = {
 
   render({ editMode } = {}) {
     if (editMode) return { head: STYLE, bodyEnd: SCRATCH_JS };
-    return { head: STYLE + SCROLL_STYLE, bodyEnd: SCRATCH_JS + SCROLL_JS };
+    // (المالك 2026-11-20) بعد ما الدعوة تتفتح بتنزل لوحدها بالراحة لحد آخرها؛ لمسة الضيف بتوقّفها
+    // وبترجع تكمّل لو ساب الشاشة شوية (نفس OPZMQ1q — custom-invitations/_glide.js)
+    return { head: STYLE + SCROLL_STYLE, bodyEnd: SCRATCH_JS + SCROLL_JS + glideScript({ playSel: '#heroText', playClass: 'on', after: 3000, speed: 75 }) };
   },
 
   transform(html, { editMode } = {}) {
