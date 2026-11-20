@@ -5,12 +5,15 @@
 //   والضلفتين يتفتحوا لبره من النص (نفس حركة mHdbDd1 اللي المالك وافق عليها) والموسيقى تشتغل.
 // - جوه: ورق الكتان بالورد البارز (صورته الأولى) ثابت ورا الصفحة، وكارت قوس نبيتي مخملي بالبسملة الدهب (مقصوصة
 //   من صورته التالتة) والأسامي والميعاد، ووردة الليلي اللؤلؤ (صورته التانية) في ركنين القوس.
+// - (2026-11-20) كل حاجة في شاشة لوحدها والدعوة بتنزل لوحدها: الأول البسملة والحرفين والأسامي، بعدها Save the Date (كالندر
+//   ديسمبر بقلب على 18 + العدّاد من غير قباب)، الأوتيل لوحده وتحته اللوكيشن، تأكيد الحضور. نقطة الـ ز = نقطة الـ ف بالظبط.
 // - عدّاد + حفظ في التقويم، المكان بالخريطة، وتأكيد حضور (بيوصل للوحة العميل، و"Guests: N" بيتعدّ في الإحصائيات).
 // الصور في client/public/custom/25gFXIO/. البيانات في utils/oneOffFixes.js (25gFXIO-fayrouz-ziad).
 const fs = require('fs');
 const path = require('path');
 const { asset } = require('./_asset');
 const { escapeHtml } = require('../utils/sanitize');
+const { glideScript } = require('./_glide');
 
 const SHORT = '25gFXIO';
 const DIR = `/custom/${SHORT}/`;
@@ -84,6 +87,9 @@ module.exports = {
       out = out.replace(/<head>/i, (m) => `${m}\n${tags}`);
     }
     out = out.replace(/<head>/i, (m) => `${m}\n<script>window.MQ_ID = '${SHORT}';${editMode ? 'window.MQ_EDIT = true;' : ''}</script>`);
+    // (2026-11-20 بطلب المالك) بعد ما الباب يتفتح الدعوة بتنزل لوحدها بالراحة (أي لمسة بتوقّفها وترجع تكمّل بعد شوية)
+    if (!editMode) out = out.replace(/<\/body>/i, () => `${glideScript({ playSel: 'main', playClass: 'on', after: 4500, speed: 75 })}
+</body>`);
     if (editMode) {
       out = out.replace(/<body[^>]*>/i, (m) => `${m}<div class="edit-bar">الدعوة دي معمولة مخصوص — لأي تعديل كلّمنا وهنعدّله لك</div>`);
     }
