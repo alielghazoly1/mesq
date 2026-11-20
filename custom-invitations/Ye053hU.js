@@ -35,7 +35,7 @@ const EN_FIELDS = {
 };
 const NOTICE = {
   ar: { t: 'تنويه مهم', p: 'نرجو من ضيوفنا الكرام الاستمتاع بتصوير فقرات الحفل واللقطات التذكارية الخاصة، مع الالتزام بعدم تصوير العروسين وأهل العروسين، حفاظًا على خصوصيتهم وتقديرًا لهم.', k: 'جنة الأطفال منازلهم' },
-  en: { t: 'Kind Notice', p: 'We warmly invite our guests to enjoy capturing the celebration and their own special moments, while kindly refraining from photographing the bride, the groom and their families, out of respect for their privacy.', k: 'Children are best enjoyed at home 🤍' },
+  en: { t: 'Kind Notice', p: 'We warmly invite our guests to enjoy capturing the celebration and their own special moments, while kindly refraining from photographing the bride, the groom and their families, out of respect for their privacy.', k: 'Children are best enjoyed at home' },
 };
 
 const CSS = `<style id="ye-style">
