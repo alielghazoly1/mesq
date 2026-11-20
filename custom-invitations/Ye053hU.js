@@ -1,7 +1,8 @@
 // دعوة Ye053hU (قالب Lace) — زفاف فارس وصفاء، الخميس 17/12/2026 — قاعات أضواء للاحتفالات، المدينة المنورة.
 // بطلب المالك (2026-11-20): الدعوة رجعت لشكل القالب الطبيعي بألوانه وصوره (اتشالت كل الإضافات القديمة: البرجندي،
 // صور الكارت، الأيقونات، أجواء الحفل…)، وفوقه بس:
-//  • حروفهم (ف ص — الصورة اللي بعتها) محفورة في الشمع على الختم بره: صورة الغلاف + فيديو الفتح فريم فريم.
+//  • حروفهم (ف ص — الصورة اللي بعتها) محفورة في الشمع على الختم بره: صورة الغلاف + فيديو الفتح فريم فريم
+//    (من 2026-11-20 من غير الورق اللي حواليهم وأكبر)، وصورة القاعة مكان رسمة المكان، وأغنيته.
 //  • نسخة إنجليزي على /en (والعربي الافتراضي، و /ar كمان) — كل الكلام والأسامي والمكان وكارت المشاركة باللغة دي.
 //  • برنامج الحفل سطرين: الحضور 9 ومراسم الزفاف 10 (باقي الفقرات مستخبية).
 //  • من غير خريطة iframe — زرار الاتجاهات بس بأيقونة جوجل ماب.
@@ -16,6 +17,8 @@ const DIR = `/custom/${SHORT}/`;
 const KSA_OFFSET_H = 3;
 const COVER = asset(`${DIR}cover.webp`);
 const OPEN = asset(`${DIR}open.mp4`);
+const SONG = asset(`${DIR}song.mp3`);   // (المالك 2026-11-20) أغنية LACE اللي بعتها
+const HALL = asset(`${DIR}hall.webp`);   // (المالك 2026-11-20) صورة القاعة مكان رسمة المكان
 
 // الكلام لكل لغة (بيتحط بس لو العميل ماكتبش حاجة مكانه من المحرر)
 const TEXTS = {
@@ -47,7 +50,13 @@ const CSS = `<style id="ye-style">
 #mapBtn{display:inline-flex!important;align-items:center;gap:10px;color:hsl(var(--foreground))!important;border-color:hsl(var(--foreground)/.45)!important;padding-left:30px!important;padding-right:30px!important}
 #mapBtn .ye-gm{width:20px;height:20px;flex:none}
 /* التنويه في آخر الدعوة */
-.ye-nt{position:relative;margin:24px auto 0;max-width:520px;padding:0 26px;text-align:center}
+/* مسافة تحتها عشان دانتيل الختام (اللي بيطلع لفوق) مايغطيش عليها */
+.ye-nt{position:relative;margin:24px auto 0;max-width:520px;padding:0 26px calc(30vw + 40px);text-align:center}
+@media (min-width:768px){.ye-nt{padding-bottom:230px}}
+/* صورة القاعة مكان رسمة المكان */
+div:has(> img.ye-hall){width:88%!important}
+@media (min-width:768px){div:has(> img.ye-hall){width:100%!important}}
+img.ye-hall{display:block;width:100%;height:auto;aspect-ratio:1100/912;object-fit:cover;border-radius:14px;padding:6px;background:hsl(var(--background));border:1px solid hsl(var(--foreground)/.25);box-shadow:0 14px 30px -18px hsl(var(--foreground)/.55);pointer-events:none;-webkit-user-select:none;user-select:none}
 .ye-nt-card{position:relative;padding:38px 26px 34px;border:1px solid hsl(var(--foreground)/.28);border-radius:4px;background:hsl(var(--background)/.65)}
 .ye-nt-card::before{content:"";position:absolute;inset:5px;border:1px solid hsl(var(--foreground)/.14);border-radius:2px;pointer-events:none}
 .ye-nt-ic{width:30px;height:30px;margin:0 auto 12px;color:hsl(var(--foreground)/.75)}
@@ -83,6 +92,10 @@ module.exports = {
     let out = html;
     const lang = /"language":"en"/.test(out) ? 'en' : 'ar';
 
+    // الأغنية (لو العميل اختار أغنية من المحرر، بتاعته هي اللي بتشتغل)
+    out = out.split('/templates/lace/song.mp3').join(SONG);
+    // صورة القاعة مكان رسمة المكان (lc105)
+    out = out.replace(/(<img\b[^>]*?)src="\/templates\/lace\/transport-lace-oval\.webp"([^>]*?)class="([^"]*)"([^>]*data-elem-id="lc105")/, (x, a, b, c, d) => `${a}src="${HALL}"${b.replace(/alt="[^"]*"/, 'alt="Adwaa Hall"')}class="${c} ye-hall"${d}`);
     // الختم بحروفهم (ف ص): الغلاف وفيديو الفتح
     out = out.split('/templates/lace/cover.webp?v=2').join(COVER).split('/templates/lace/open.mp4?v=2').join(OPEN);
 
