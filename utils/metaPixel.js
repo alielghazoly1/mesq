@@ -6,7 +6,7 @@
 // — القديم (1073401149053954) كان في بيزنس تاني مش مربوط بالإعلانات
 const PIXEL_ID = '1657786149035318';
 
-function pixelHeadTag({ viewContent, eventId, pageViewId } = {}) {
+function pixelHeadTag({ viewContent, eventId, pageViewId, match } = {}) {
   // eventId / pageViewId: نفس اللي السيرفر بيبعته (Conversions API) — ميتا بتعدّهم مرة واحدة
   const opts = eventId ? `,${JSON.stringify({ eventID: String(eventId) })}` : '';
   const pv = pageViewId ? `fbq('track','PageView',{},${JSON.stringify({ eventID: String(pageViewId) })});` : "fbq('track','PageView');";
@@ -19,7 +19,7 @@ function pixelHeadTag({ viewContent, eventId, pageViewId } = {}) {
       ...(viewContent.value > 0 && viewContent.currency ? { value: viewContent.value, currency: viewContent.currency } : {}),
     }).replace(/</g, '\\u003c')}${opts});`
     : '';
-  return `<script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${PIXEL_ID}');${pv}${vc}</script>`;
+  return `<script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','${PIXEL_ID}'${match && Object.keys(match).length ? ',' + JSON.stringify(match).replace(/</g, '\\u003c') : ''});${pv}${vc}</script>`;
 }
 
 /** بيحط البيكسل قبل </head> */

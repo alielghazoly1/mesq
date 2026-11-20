@@ -731,11 +731,17 @@ router.get('/preview-sample/:templateId', async (req, res) => {
     // (أرخص باقة بعملة الزائر) من المتصفح والسيرفر بنفس الأرقام. الزائر اللي لسه مسجّلش: بدولته
     // المتوقعة من جهازه (كوكي mithaq_cc من الموقع — نفس اللي بتتختار له وهو بيسجّل)، وإلا مصر.
     const money = await viewContentMoney((req.user && req.user.country) || guessedCountry(req));
-    html = injectPixel(html, { viewContent: { id: template.id, name: template.name, ...money }, eventId: vcId, pageViewId: pvId });
+    let mp = {};
     if (!PREVIEW_BOT_RE.test(String(req.get('user-agent') || ''))) {
       // fbc/fbp من أول لحظة (لو اللينك جاي من إعلان): كوكي من السيرفر — utils/metaParams.js
-      captureMetaParams(req, res);
+      mp = captureMetaParams(req, res) || {};
     }
+    // مطابقة البيكسل في المتصفح (ميتا 2026-11-20 "Increase coverage" لـ ViewContent): نفس اللي السيرفر
+    // بيبعته — العميل المسجّل ببياناته المتشفّرة، والزائر برقمه (External ID) ودولته المتوقعة من جهازه
+    const match = req.user ? { ...metaCapi.hashedUser(req.user) } : {};
+    if (!match.external_id && mp.xid) match.external_id = mp.xid;
+    if (!match.country && guessedCountry(req)) match.country = guessedCountry(req).toLowerCase();
+    html = injectPixel(html, { viewContent: { id: template.id, name: template.name, ...money }, eventId: vcId, pageViewId: pvId, match });
     // تحميل مسبق (تطبيق فيسبوك/إنستجرام بيجيب الصفحة قبل الضغط): لسه محدش شافها — مفيش أحداث من السيرفر
     if (!PREVIEW_BOT_RE.test(String(req.get('user-agent') || '')) && !isPrefetchReq(req)) {
       const ctx = { ...metaCapi.contextFromReq(req), url: 'https://mithaq-invitation.com' + req.originalUrl.slice(0, 300) };

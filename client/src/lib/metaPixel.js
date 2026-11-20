@@ -39,7 +39,8 @@ function load() {
     if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0'; n.queue = [];
   }(window);
   /* eslint-enable */
-  window.fbq('init', PIXEL_ID);
+  rememberCountry();
+  window.fbq('init', PIXEL_ID, visitorMatch());
   const inject = () => {
     const t = document.createElement('script');
     t.async = true;
@@ -56,8 +57,23 @@ function load() {
   if (/[?&]fbclid=/.test(window.location.search)) inject();
   else if (document.readyState === 'complete') later();
   else window.addEventListener('load', later, { once: true });
-  rememberCountry();
   return true;
+}
+
+/**
+ * الزائر اللي لسه مسجّلش (ميتا 2026-11-20: "Increase coverage" لـ External ID والدولة — كانوا 42% بس):
+ * رقمه الثابت من كوكي _mq_xid (السيرفر بيعمله — utils/metaParams.js، ونفس الرقم بيتبعت من السيرفر)
+ * ودولته المتوقعة من جهازه. العميل المسجّل بياناته بتتبعت بعدين في pixelUser.
+ */
+function visitorMatch() {
+  const d = {};
+  try {
+    const x = /(?:^|;\s*)_mq_xid=([a-f0-9]{64})(?:;|$)/.exec(document.cookie);
+    if (x) d.external_id = x[1];
+    const c = /(?:^|;\s*)mithaq_cc=([A-Z]{2})(?:;|$)/.exec(document.cookie);
+    if (c) d.country = c[1].toLowerCase();
+  } catch { /* */ }
+  return d;
 }
 
 /**

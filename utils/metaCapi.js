@@ -14,7 +14,7 @@
 const crypto = require('crypto');
 const { PIXEL_ID } = require('./metaPixel');
 const { toWhatsAppNumber } = require('./whatsapp/phone');
-const { captureMetaParams, validFbx } = require('./metaParams');
+const { captureMetaParams, validFbx, validXid } = require('./metaParams');
 
 const API_VERSION = 'v24.0';
 const SITE = 'https://mithaq-invitation.com';
@@ -62,9 +62,13 @@ function contextFromReq(req) {
   // (قص أو تصغير حروف) "fbclid متعدّل". ولو الصفحة اللي العميل فيها جاية من ضغطة إعلان أحدث من
   // الكوكي، الضغطة الأحدث هي اللي بتتبعت (وبتتكتب في الكوكي). قيمة بشكل غلط مابتتبعتش خالص.
   const mp = captureMetaParams(req, req.res);
+  // دولة الزائر اللي لسه مسجّلش زي ما الموقع خمّنها من جهازه (كوكي mithaq_cc — client/src/lib/metaPixel.js)
+  const cc = String((req.cookies && req.cookies.mithaq_cc) || '').toUpperCase();
   return {
     fbp: mp.fbp,
     fbc: mp.fbc,
+    xid: mp.xid,
+    cc: /^[A-Z]{2}$/.test(cc) ? cc : undefined,
     ip: String(req.ip || '').replace(/^::ffff:/, '').slice(0, 60) || undefined,
     ua: String(req.get('user-agent') || '').slice(0, 400) || undefined,
     url: ref.startsWith(SITE) ? ref.slice(0, 500) : undefined,
@@ -80,7 +84,7 @@ function contextFromReq(req) {
 function storedContext(mc) {
   const m = mc || {};
   const fbc = m.fbc && String(m.fbc).length !== 300 ? validFbx(m.fbc) : undefined;
-  return { fbp: validFbx(m.fbp), fbc, ip: m.ip, ua: m.ua, url: m.url };
+  return { fbp: validFbx(m.fbp), fbc, ip: m.ip, ua: m.ua, url: m.url, xid: validXid(m.xid) };
 }
 
 /**
@@ -107,6 +111,10 @@ function userData(user, ctx) {
   const u = {};
   Object.entries(hashedUser(user)).forEach(([k, v]) => { u[k] = [v]; });
   if (ctx) {
+    // رقم الزائر (utils/metaParams.js): للزائر لوحده، وللمسجّل جنب رقم حسابه
+    if (ctx.xid) u.external_id = [...(u.external_id || []), ctx.xid];
+    // الزائر اللي مالوش حساب: دولته المتوقعة من جهازه
+    if (!u.country && ctx.cc) u.country = [sha(norm(ctx.cc))];
     if (ctx.ip) u.client_ip_address = ctx.ip;
     if (ctx.ua) u.client_user_agent = ctx.ua;
     if (ctx.fbp) u.fbp = ctx.fbp;

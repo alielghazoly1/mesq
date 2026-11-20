@@ -38,7 +38,7 @@ const orderSchema = new mongoose.Schema({
   // خطوة عملها — عشان حدث الشراء اللي بيتبعت لما الأدمن يفعّل يتنسب للإعلان الصح.
   // metaSent: كل حدث اتبعت امتى (مايتكررش).
   metaCtx: {
-    fbp: String, fbc: String, ip: String, ua: String, url: String,
+    fbp: String, fbc: String, ip: String, ua: String, url: String, xid: String,
   },
   metaSent: {
     ic: Date, pay: Date, purchase: Date,

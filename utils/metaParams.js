@@ -23,6 +23,13 @@ const BOT_RE = /bot|crawl|spider|slurp|facebookexternalhit|facebot|whatsapp|tele
 // رقم الضغطة من ميتا: حروف وأرقام و _ و - (ونقط نادرًا — البيكسل بيكتبها __DOT__ جوه الكوكي)
 const FBCLID_RE = /^[A-Za-z0-9_\-.]{4,1000}$/;
 const APPENDIX_V1 = new Set(['AQ', 'Ag', 'Aw', 'BA', 'BQ', 'Bg']);
+// رقم الزائر (External ID لميتا) — ميتا (Events Manager، 2026-11-20) كانت بتقول "Increase coverage" لـ
+// External ID في ViewContent: 42% بس، لأنه كان رقم الحساب بس (للمسجّلين). دلوقتي كل زائر ليه رقم عشوائي
+// ثابت (64 حرف hex — مش بيانات شخصية، ومش بيتشفّر تاني) في كوكي سنة، بيتبعت من المتصفح والسيرفر بنفس
+// القيمة. المسجّل بيتبعت معاه رقم حسابه كمان (utils/metaCapi.js)، فميتا بتربط زياراته قبل وبعد التسجيل.
+const XID_COOKIE = '_mq_xid';
+const XID_RE = /^[a-f0-9]{64}$/;
+const validXid = (v) => (typeof v === 'string' && XID_RE.test(v.trim()) ? v.trim() : undefined);
 
 /**
  * قيمة fbc/fbp بالشكل اللي ميتا بتقبله (نفس فحص البيكسل نفسه SignalsFBEventsPixelCookie.unpack):
@@ -79,7 +86,7 @@ function captureMetaParams(req, res) {
   if (!req) return {};
   if (req.metaParams) return req.metaParams;
   const c = req.cookies || {};
-  const readOnly = () => ({ fbc: validFbx(c._fbc), fbp: validFbx(c._fbp) });
+  const readOnly = () => ({ fbc: validFbx(c._fbc), fbp: validFbx(c._fbp), xid: validXid(c[XID_COOKIE]) });
   try {
     if (isBotReq(req)) return (req.metaParams = readOnly());
     const host = String(req.hostname || '');
@@ -106,10 +113,21 @@ function captureMetaParams(req, res) {
         });
       });
     }
-    return (req.metaParams = { fbc: validFbx(b.getFbc()), fbp: keepFbp ? undefined : validFbx(b.getFbp()) });
+    let xid = validXid(c[XID_COOKIE]);
+    if (!xid) {
+      xid = require('crypto').randomBytes(32).toString('hex');
+      if (res && !res.headersSent) {
+        res.cookie(XID_COOKIE, xid, {
+          maxAge: 365 * 24 * 3600 * 1000, path: '/', sameSite: 'lax',
+          secure: process.env.NODE_ENV === 'production', httpOnly: false, // البيكسل في المتصفح بيقراه
+          ...(onSite ? { domain: SITE_DOMAIN } : {}),
+        });
+      } else xid = undefined; // مااتحفظش عند الزائر = مالوش لازمة
+    }
+    return (req.metaParams = { fbc: validFbx(b.getFbc()), fbp: keepFbp ? undefined : validFbx(b.getFbp()), xid });
   } catch (e) {
     return (req.metaParams = readOnly());
   }
 }
 
-module.exports = { captureMetaParams, validFbx, isBotReq, isPrefetchReq, fbclidOf, SITE_DOMAIN };
+module.exports = { captureMetaParams, validFbx, validXid, XID_COOKIE, isBotReq, isPrefetchReq, fbclidOf, SITE_DOMAIN };
