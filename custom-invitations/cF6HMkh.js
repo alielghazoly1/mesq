@@ -75,7 +75,7 @@ module.exports = {
     width: 1200,
     height: 630,
     overrideImage: true,
-    title: 'دعوة زفاف محمد وزهراء',
+    title: 'دعوة خطوبة محمد وزهراء',
     description: 'الأحد 29-11-2026',
   },
 
