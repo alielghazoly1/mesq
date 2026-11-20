@@ -46,7 +46,9 @@ const {
   getPackage, PACKAGES, packageAllowedInCountry, EDIT_WINDOW_DAYS, editDaysFor,
 } = require('../packages/registry');
 const PricingSettings = require('../models/PricingSettings');
-const { getPaymentSettings, updatePaymentSettings, TAPTAP_COUNTRIES } = require('../utils/paymentSettings');
+const {
+  getPaymentSettings, updatePaymentSettings, TAPTAP_COUNTRIES, SEPA_COUNTRIES, sepaAllowed,
+} = require('../utils/paymentSettings');
 const {
   getPricingSettings, getPricingSettingsCached, priceFor, clampPercent,
   invalidateCache: invalidatePricingCache,
@@ -1908,6 +1910,9 @@ router.get('/admin/api/payment-settings', requireAdminSession, async (req, res) 
       taptap: doc.taptap || { enabled: false, phone: '', recipientName: '', location: '', note: '' },
       // البلاد اللي بتشوف Taptap Send (للعرض في اللوحة)
       taptapCountries: [...TAPTAP_COUNTRIES],
+      // تحويل SEPA باليورو (KAST) + البلاد اللي بتشوفه فعلًا (أوروبا اللي بتدفع باليورو)
+      sepa: doc.sepa || { enabled: false, beneficiary: '', iban: '', bic: '', bankName: '', bankAddress: '', note: '' },
+      sepaCountries: [...SEPA_COUNTRIES].filter(sepaAllowed),
       // طرق الدفع للعملاء في السعودية (بالريال)
       saudi: doc.saudi || {},
       whatsapp: doc.whatsapp || '',

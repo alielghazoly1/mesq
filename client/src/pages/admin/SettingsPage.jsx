@@ -25,6 +25,7 @@ export default function SettingsPage() {
         kast: data.kast || { enabled: false, link: '', holderName: '', note: '' },
         usdt: data.usdt || { enabled: false, address: '', note: '' },
         taptap: data.taptap || { enabled: false, phone: '', recipientName: '', location: '', note: '' },
+        sepa: { enabled: false, beneficiary: '', iban: '', bic: '', bankName: '', bankAddress: '', note: '', ...(data.sepa || {}) },
         saudi: {
           bank: { enabled: false, bankName: '', accountName: '', iban: '', accountNumber: '', note: '', ...(data.saudi?.bank || {}) },
           barq: { enabled: false, phone: '', name: '', note: '', ...(data.saudi?.barq || {}) },
@@ -135,6 +136,51 @@ export default function SettingsPage() {
           <Landmark size={13} className="mt-0.5 shrink-0" />
           العميل بيشوف لوجو KAST + QR بيتولّد من اللينك تلقائيًا + اللينك نفسه. غيّر اللينك أي وقت والـ QR بيتغيّر معاه.
         </p>
+      </Panel>
+
+      {/* ===== SEPA — تحويل بنكي باليورو لعملاء أوروبا (حساب اليورو على KAST) ===== */}
+      <Panel
+        title="تحويل بنكي باليورو — SEPA"
+        subtitle="لعملاء أوروبا اللي بيدفعوا باليورو بس — وبيبقى أول تبويب عندهم"
+        action={(
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#003399] py-1 pe-3 ps-1 text-white" dir="ltr">
+            <span className="grid h-[18px] w-[18px] place-items-center rounded-full bg-[#FFCC00] text-[11px] font-black leading-none text-[#003399]">€</span>
+            <span className="text-[11px] font-extrabold">SEPA</span>
+          </span>
+        )}
+      >
+        <label className="mb-3.5 flex cursor-pointer items-center gap-2.5 rounded-xl border border-ivory/10 bg-ivory/[0.03] p-3">
+          <input type="checkbox" {...register('sepa.enabled')} className="h-4 w-4 accent-brass" />
+          <span className="text-[13px] font-bold text-ivory">اعرض SEPA لعملاء أوروبا</span>
+          <span className="text-[11.5px] text-ivory/40">— لو اتقفل، مش هيظهر خالص</span>
+        </label>
+        <div className="grid gap-3.5 sm:grid-cols-2">
+          <Field label="اسم المستفيد (زي ما هو في KAST بالظبط)" dir="ltr" {...register('sepa.beneficiary')} />
+          <Field label="IBAN" dir="ltr" className="font-mono" placeholder="MT67CFTE..." {...register('sepa.iban')} />
+          <Field label="BIC / SWIFT" dir="ltr" className="font-mono" placeholder="CFTEMTM1XXX" {...register('sepa.bic')} />
+          <Field label="اسم البنك" dir="ltr" {...register('sepa.bankName')} />
+          <Field label="عنوان البنك" dir="ltr" {...register('sepa.bankAddress')} />
+          <Field label="ملاحظة للعميل (اختياري)" placeholder="بعد التحويل صوّر الإيصال وارفعه هنا..." {...register('sepa.note')} />
+        </div>
+        <div className="mt-4 space-y-2 rounded-xl bg-ivory/[0.04] p-3 text-[11.5px] leading-relaxed text-ivory/50">
+          <p className="flex items-start gap-2">
+            <Landmark size={13} className="mt-0.5 shrink-0" />
+            <span>
+              SEPA = نظام التحويل باليورو بين بنوك أوروبا (41 دولة): العميل بيحوّل من تطبيق بنكه بالاسم والـ IBAN بس، كأنه تحويل محلي —
+              رسومه زي التحويل المحلي، وبيوصل في العادة خلال يوم عمل.
+              KAST بتستقبله بس لو كان SEPA باليورو (مش SWIFT)، وبتاخد 0.5% من المبلغ، وبتحطه في رصيدك USDC.
+            </span>
+          </p>
+          <p className="flex items-start gap-2">
+            <Landmark size={13} className="mt-0.5 shrink-0 opacity-0" />
+            <span>
+              العميل بيشوف: الخطوات من تطبيق بنكه + الاسم والـ IBAN والـ BIC (كل واحد بينتسخ بضغطة) + المبلغ باليورو + تنبيه إن التحويل يبقى SEPA باليورو بس.
+              السيرفر بيرفض أي IBAN رقم التحقق بتاعه غلط.
+              بيظهر لعملاء {data?.sepaCountries?.length || 35} دولة/إقليم (اللي أسعارهم عندنا باليورو): {(data?.sepaCountries || []).map((c) => countryName(c)).join('، ')}.
+              بريطانيا وسويسرا والسويد والنرويج والدنمارك وبولندا بيدفعوا بالدولار عندنا، فمش بيشوفوه.
+            </span>
+          </p>
+        </div>
       </Panel>
 
       <Panel

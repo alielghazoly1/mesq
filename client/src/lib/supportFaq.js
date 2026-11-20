@@ -35,8 +35,8 @@ export const FAQ = [
     icon: 'wallet',
     q: { ar: 'أدفع إزاي؟', en: 'How do I pay?' },
     a: {
-      ar: 'من مصر: فودافون كاش أو InstaPay.\nمن بره مصر: تحويل بنكي، أو Taptap Send، أو KAST، أو USDT.\n\nبعد ما تحوّل ارفع صورة الإيصال في صفحة الدفع، وبنفعّل باقتك في العادة خلال دقايق.',
-      en: 'From Egypt: Vodafone Cash or InstaPay.\nFrom abroad: bank transfer, Taptap Send, KAST or USDT.\n\nAfter you transfer, upload the receipt on the payment page — we usually activate your package within minutes.',
+      ar: 'من مصر: فودافون كاش أو InstaPay.\nمن بره مصر: تحويل بنكي، أو Taptap Send، أو KAST، أو USDT.\nومن أوروبا كمان: تحويل بنكي باليورو (SEPA).\n\nبعد ما تحوّل ارفع صورة الإيصال في صفحة الدفع، وبنفعّل باقتك في العادة خلال دقايق.',
+      en: 'From Egypt: Vodafone Cash or InstaPay.\nFrom abroad: bank transfer, Taptap Send, KAST or USDT.\nFrom Europe: a euro bank transfer (SEPA) too.\n\nAfter you transfer, upload the receipt on the payment page — we usually activate your package within minutes.',
     },
     action: { to: '/packages', label: { ar: 'اختار باقتك', en: 'Choose a package' } },
   },

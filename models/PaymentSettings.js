@@ -78,6 +78,21 @@ const paymentSettingsSchema = new mongoose.Schema({
     note: { type: String, default: '', maxlength: 400 },
   },
 
+  // تحويل بنكي باليورو (SEPA) — لعملاء أوروبا اللي بيدفعوا باليورو بس
+  // (utils/paymentSettings.js: SEPA_COUNTRIES). الحساب = حساب اليورو بتاع
+  // المالك على تطبيق KAST (آيبان مالطي من OpenPayd) — بطلب المالك 2026-11-20،
+  // فالافتراضي هو بياناته ومفعّل، ويقدر يقفله أو يغيّره من "بيانات الدفع".
+  // KAST بتستقبل SEPA بس (مش SWIFT)، وبتاخد 0.5% من كل تحويل وبتحوّله USDC.
+  sepa: {
+    enabled: { type: Boolean, default: true },
+    beneficiary: { type: String, default: 'ALI MOHAMED HASSAN EL GHAZOULI', maxlength: 120 },
+    iban: { type: String, default: 'MT67CFTE28004000000000006865774', maxlength: 34 },
+    bic: { type: String, default: 'CFTEMTM1XXX', maxlength: 11 },
+    bankName: { type: String, default: 'OPENPAYD FINANCIAL SERVICES MALTA LTD', maxlength: 120 },
+    bankAddress: { type: String, default: "Floor 3, 137 Spinola Road, St. Julian's, Eastern Region STJ 3011", maxlength: 300 },
+    note: { type: String, default: '', maxlength: 400 },
+  },
+
   // ===== السعودية (العملاء اللي مسجّلين من السعودية — بيدفعوا بالريال) =====
   // تلات طرق، كل واحدة بتتفعّل لوحدها من "بيانات الدفع" وبتظهر للعميل
   // السعودي بس لما بياناتها تكون مكتوبة:

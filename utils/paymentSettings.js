@@ -5,6 +5,7 @@
 const PaymentSettings = require('../models/PaymentSettings');
 const { sanitizeText } = require('./sanitize');
 const { qrDataUrl } = require('./qr');
+const { currencyForCountry } = require('../packages/registry');
 
 const KEY = 'default';
 
@@ -34,6 +35,52 @@ const TAPTAP_COUNTRIES = new Set([
   'DE', 'GR', 'HU', 'IE', 'IT', 'LU', 'MT', 'YT', 'NL', 'NO', 'PL', 'PT', 'RE',
   'RO', 'SK', 'ES', 'SE', 'AE', 'GB', 'US',
 ]);
+
+// SEPA (تحويل اليورو بين بنوك أوروبا): الدول اللي في نطاق SEPA حسب قايمة
+// مجلس المدفوعات الأوروبي (EPC409-09 v8.0، 2026) — 41 دولة: الاتحاد الأوروبي
+// (27) + أيسلندا، ليختنشتاين، النرويج + سويسرا، بريطانيا، موناكو، سان مارينو،
+// الفاتيكان، أندورا + ألبانيا، مولدوفا، الجبل الأسود، مقدونيا الشمالية، صربيا
+// (دخلوا 2025). ومعاهم الأقاليم اللي ليها كود دولة لوحدها وهي جوه SEPA مع
+// بلدها: جويانا الفرنسية، جوادلوب، مارتينيك، ريونيون، مايوت، سان بارتيلمي،
+// سان مارتن، سان بيير وميكلون، جزر أولاند، جبل طارق، جيرنزي، جيرزي، جزيرة مان.
+// كوسوفو بتستخدم اليورو بس مش في SEPA.
+const SEPA_COUNTRIES = new Set([
+  'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'DE', 'GR', 'HU', 'IE',
+  'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE',
+  'IS', 'LI', 'NO', 'CH', 'GB', 'MC', 'SM', 'VA', 'AD',
+  'AL', 'MD', 'ME', 'MK', 'RS',
+  'GF', 'GP', 'MQ', 'RE', 'YT', 'BL', 'MF', 'PM', 'AX', 'GI', 'GG', 'JE', 'IM',
+]);
+
+/**
+ * العميل ده يشوف تبويب SEPA؟ — لازم يكون بيدفع باليورو (سعره بالـ €) وبلده في
+ * SEPA. اللي في بريطانيا/سويسرا/السويد... بيدفع بالدولار عندنا فمش بيشوفه
+ * (التحويل ده باليورو بس، والمبلغ لازم يبقى نفس سعر الباقة).
+ */
+function sepaAllowed(countryCode) {
+  const cc = String(countryCode || '').toUpperCase();
+  return SEPA_COUNTRIES.has(cc) && currencyForCountry(cc) === 'EUR';
+}
+
+/** IBAN سليم؟ (الشكل + رقم التحقق mod 97 — ISO 13616). رقم غلط = فلوس العميل ترجع أو تتأخر */
+function isValidIban(v) {
+  const s = String(v || '').replace(/\s+/g, '').toUpperCase();
+  if (!/^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$/.test(s)) return false;
+  const digits = (s.slice(4) + s.slice(0, 4)).replace(/[A-Z]/g, (c) => String(c.charCodeAt(0) - 55));
+  let m = 0;
+  for (const d of digits) m = (m * 10 + Number(d)) % 97;
+  return m === 1;
+}
+// BIC/SWIFT: 4 حروف البنك + 2 الدولة + 2 المكان + (3 الفرع اختياري)
+const BIC_RE = /^[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}([A-Z0-9]{3})?$/;
+
+// عنوان البنك: نفس sanitizeText بس من غير ما نشيل الـ ' ("St. Julian's") —
+// بيتعرض كنص عادي في React فمفيش منه خطر
+function cleanAddress(input, maxLen) {
+  if (typeof input !== 'string') return '';
+  // eslint-disable-next-line no-control-regex -- بنشيل حروف التحكم بالقصد (زي sanitizeText)
+  return input.replace(/<[^>]*>/g, '').replace(/[<>"`]/g, '').replace(/[\u0000-\u001F\u007F]/g, '').trim().slice(0, maxLen);
+}
 
 /** بيرجع المستند (وبينشئه فاضي أول مرة) */
 async function getPaymentSettings() {
@@ -93,6 +140,20 @@ async function updatePaymentSettings(body) {
       address: String((b.usdt && b.usdt.address) || '').trim().slice(0, 64),
       note: sanitizeText(b.usdt && b.usdt.note, 400),
     },
+    sepa: (() => {
+      const e = b.sepa || {};
+      return {
+        enabled: !!e.enabled,
+        // اسم المستفيد بالحروف الكبيرة زي ما KAST كاتباه (البنك بيقارنه بالاسم المسجّل)
+        beneficiary: sanitizeText(e.beneficiary, 120).replace(/\s+/g, ' '),
+        // الآيبان والـ BIC من غير مسافات وبحروف كبيرة — أسهل في النسخ والفحص
+        iban: String(e.iban || '').replace(/\s+/g, '').toUpperCase().slice(0, 34),
+        bic: String(e.bic || '').replace(/\s+/g, '').toUpperCase().slice(0, 11),
+        bankName: sanitizeText(e.bankName, 120),
+        bankAddress: cleanAddress(e.bankAddress, 300),
+        note: sanitizeText(e.note, 400),
+      };
+    })(),
     saudi: (() => {
       const sa = b.saudi || {};
       const bk = sa.bank || {}; const bq = sa.barq || {}; const w = sa.wallet || {};
@@ -152,6 +213,17 @@ async function updatePaymentSettings(body) {
     const err = new Error('Taptap Send محتاجة رقم فودافون كاش واسم المستلم قبل ما تتفعّل.');
     err.status = 400;
     throw err;
+  }
+  // SEPA: آيبان غلط = التحويل يرجع للعميل بعد أيام، فمبنحفظوش أصلًا
+  const sp = update.sepa;
+  if (sp.iban && !isValidIban(sp.iban)) {
+    throw Object.assign(new Error('الـ IBAN بتاع SEPA مش صحيح (رقم التحقق مش مظبوط) — انسخه تاني من تطبيق KAST.'), { status: 400 });
+  }
+  if (sp.bic && !BIC_RE.test(sp.bic)) {
+    throw Object.assign(new Error('كود BIC / SWIFT لازم يكون 8 أو 11 حرف (زي CFTEMTM1XXX).'), { status: 400 });
+  }
+  if (sp.enabled && (!sp.iban || !sp.beneficiary)) {
+    throw Object.assign(new Error('تحويل SEPA محتاج الـ IBAN واسم المستفيد قبل ما يتفعّل.'), { status: 400 });
   }
   if (update.usdt.enabled && !update.usdt.address) {
     const err = new Error('اكتب عنوان محفظة USDT الأول قبل ما تفعّلها.');
@@ -239,6 +311,20 @@ function publicPaymentInfo(doc, countryCode) {
     };
   }
 
+  // SEPA (تحويل بنكي باليورو) — لعملاء أوروبا اللي بيدفعوا باليورو بس
+  // (sepaAllowed). أول تبويب عندهم في صفحة الدفع.
+  const sp = doc.sepa;
+  if (sp?.enabled && sp?.beneficiary && isValidIban(sp?.iban) && sepaAllowed(cc)) {
+    info.sepa = {
+      beneficiary: sp.beneficiary,
+      iban: String(sp.iban).replace(/\s+/g, '').toUpperCase(),
+      bic: sp.bic || '',
+      bankName: sp.bankName || '',
+      bankAddress: sp.bankAddress || '',
+      note: sp.note || '',
+    };
+  }
+
   // السعودية (بالريال): برق أول طريقة — تحويل دولي لمصر على محفظة الجوال
   // (ميزة) بيوصل فودافون كاش. وبعده نفس طرق العميل الدولي (البنك المصري
   // تحويل دولي، KAST، USDT). الرقم الافتراضي = رقم فودافون كاش الأساسي.
@@ -254,4 +340,7 @@ function publicPaymentInfo(doc, countryCode) {
   return info;
 }
 
-module.exports = { getPaymentSettings, updatePaymentSettings, publicPaymentInfo, TAPTAP_COUNTRIES };
+module.exports = {
+  getPaymentSettings, updatePaymentSettings, publicPaymentInfo, TAPTAP_COUNTRIES,
+  SEPA_COUNTRIES, sepaAllowed, isValidIban,
+};

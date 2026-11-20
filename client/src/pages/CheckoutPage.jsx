@@ -31,6 +31,7 @@ import Footer from '../components/Footer.jsx';
 import { ReviewsStrip } from '../components/ReviewsTeaser.jsx';
 import BarqPay from '../components/BarqPay.jsx';
 import InstaPay from '../components/InstaPay.jsx';
+import SepaPay from '../components/SepaPay.jsx';
 import { pixelTrack, pixelPackage } from '../lib/metaPixel.js';
 
 /**
@@ -285,16 +286,23 @@ export default function CheckoutPage() {
   const taptap = payInfo?.taptap || null;
   // برق — للعميل اللي في السعودية بس (السيرفر بيبعته ليه بس)، وبييجي الأول
   const barq = payInfo?.barq || null;
+  // SEPA (تحويل بنكي باليورو) — لعملاء أوروبا اللي بيدفعوا باليورو بس (السيرفر
+  // بيبعته ليهم بس)، وبييجي أول تبويب عندهم
+  const sepa = payInfo?.sepa || null;
   // إنستاباي — للعميل المصري بس، جنب فودافون كاش
   const instapay = isVodafone ? (payInfo?.instapay || null) : null;
   const egActive = !v.number ? 'instapay' : (instapay && egTab === 'instapay' ? 'instapay' : 'vodafone');
   // تبويبات العميل الدولي: Taptap (لو متاحة لبلده — الأسهل، فبتيجي الأول)
   // + البنك دايمًا + KAST و USDT لو المالك مفعّلهم
-  const intlTabs = [...(barq ? ['barq'] : []), ...(taptap ? ['taptap'] : []), 'bank', ...(kast ? ['kast'] : []), ...(usdt ? ['usdt'] : [])];
+  const intlTabs = [...(barq ? ['barq'] : []), ...(sepa ? ['sepa'] : []), ...(taptap ? ['taptap'] : []), 'bank', ...(kast ? ['kast'] : []), ...(usdt ? ['usdt'] : [])];
   // التبويب المفتوح: اللي العميل اختاره، وإلا أول واحد متاح
   const activeTab = intlTabs.includes(payTab) ? payTab : intlTabs[0];
+  // 5 تبويبات (أوروبا: SEPA + Taptap + البنك + KAST + USDT): على الموبايل صفين —
+  // أول اتنين عريضين فوق والتلاتة الباقيين تحتهم؛ وعلى الشاشة الأكبر صف واحد
+  const tabSpan = (id) => (intlTabs.length !== 5 ? ''
+    : intlTabs.indexOf(id) < 2 ? 'col-span-3 sm:col-span-1' : 'col-span-2 sm:col-span-1');
   const hasPayData = isVodafone ? !!(v.number || instapay)
-    : !!(b.accountNumber || b.iban || barq);
+    : !!(b.accountNumber || b.iban || barq || sepa);
   // مدة التعديل بعد التفعيل — من السيرفر، و0 = القاعدة متقفلة
   const days = pkgData?.editWindowDays ?? 30;
 
@@ -496,7 +504,7 @@ export default function CheckoutPage() {
                 {intlTabs.length > 1 ? (
                   /* زرار لكل وسيلة: البنك (الافتراضي) و KAST و USDT — كل
                      واحدة بتعرض تفاصيلها لوحدها، عشان الشاشة ماتطولش */
-                  <div className={`mb-4 grid gap-1.5 rounded-2xl bg-ink/[0.05] p-1 ${intlTabs.length === 4 ? 'grid-cols-2 sm:grid-cols-4' : intlTabs.length === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
+                  <div className={`mb-4 grid gap-1.5 rounded-2xl bg-ink/[0.05] p-1 ${intlTabs.length === 5 ? 'grid-cols-6 sm:grid-cols-5' : intlTabs.length === 4 ? 'grid-cols-2 sm:grid-cols-4' : intlTabs.length === 3 ? 'grid-cols-3' : 'grid-cols-2'}`} data-pay-tabs>
                     {barq && (
                       <button
                         type="button"
@@ -506,11 +514,22 @@ export default function CheckoutPage() {
                         <img src="/img/barq-logo.svg" alt="" className="h-[18px] w-[18px] rounded-[5px]" /> {t('saPay.barq')}
                       </button>
                     )}
+                    {sepa && (
+                      <button
+                        type="button"
+                        onClick={() => setPayTab('sepa')}
+                        data-tab-sepa
+                        className={`${tabSpan('sepa')} inline-flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-[12.5px] font-extrabold transition ${activeTab === 'sepa' ? 'bg-[#003399] text-white shadow-sm' : 'text-ink-dim'}`}
+                      >
+                        <span className="grid h-[18px] w-[18px] place-items-center rounded-full bg-[#FFCC00] text-[11px] font-black leading-none text-[#003399]">€</span>
+                        <span className="whitespace-nowrap" dir="ltr">SEPA</span>
+                      </button>
+                    )}
                     {taptap && (
                       <button
                         type="button"
                         onClick={() => setPayTab('taptap')}
-                        className={`inline-flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-[12.5px] font-extrabold transition ${activeTab === 'taptap' ? 'bg-[#02681f] text-white shadow-sm' : 'text-ink-dim'}`}
+                        className={`${tabSpan('taptap')} inline-flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-[12.5px] font-extrabold transition ${activeTab === 'taptap' ? 'bg-[#02681f] text-white shadow-sm' : 'text-ink-dim'}`}
                       >
                         <img src="/img/taptap-icon.webp" alt="" className="h-5 w-5" />
                         <span className="whitespace-nowrap" dir="ltr">{intlTabs.length === 3 ? 'Taptap' : 'Taptap Send'}</span>
@@ -519,7 +538,7 @@ export default function CheckoutPage() {
                     <button
                       type="button"
                       onClick={() => setPayTab('bank')}
-                      className={`inline-flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-[12.5px] font-bold transition ${activeTab === 'bank' ? 'bg-white text-ink shadow-sm' : 'text-ink-dim'}`}
+                      className={`${tabSpan('bank')} inline-flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-[12.5px] font-bold transition ${activeTab === 'bank' ? 'bg-white text-ink shadow-sm' : 'text-ink-dim'}`}
                     >
                       {/* اسم قصير في الزرار (الطويل كان بيلف على 3 سطور جنب KAST و USDT) */}
                       <BankMark size={17} /> <span className="whitespace-nowrap">{t('payment.bankShort')}</span>
@@ -528,7 +547,7 @@ export default function CheckoutPage() {
                     <button
                       type="button"
                       onClick={() => setPayTab('kast')}
-                      className={`inline-flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-[12.5px] font-extrabold tracking-wide transition ${activeTab === 'kast' ? 'bg-[#0a0a0a] text-white shadow-sm' : 'text-ink-dim'}`}
+                      className={`${tabSpan('kast')} inline-flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-[12.5px] font-extrabold tracking-wide transition ${activeTab === 'kast' ? 'bg-[#0a0a0a] text-white shadow-sm' : 'text-ink-dim'}`}
                     >
                       KAST
                     </button>
@@ -537,7 +556,7 @@ export default function CheckoutPage() {
                       <button
                         type="button"
                         onClick={() => setPayTab('usdt')}
-                        className={`inline-flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-[12.5px] font-extrabold transition ${activeTab === 'usdt' ? 'bg-[#26A17B] text-white shadow-sm' : 'text-ink-dim'}`}
+                        className={`${tabSpan('usdt')} inline-flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-[12.5px] font-extrabold transition ${activeTab === 'usdt' ? 'bg-[#26A17B] text-white shadow-sm' : 'text-ink-dim'}`}
                       >
                         <img src="/img/usdt-logo.svg" alt="" className="h-[17px] w-[17px] rounded-full ring-2 ring-white/90" /> USDT
                       </button>
@@ -663,6 +682,11 @@ export default function CheckoutPage() {
                       <p className="mt-3 text-[12.5px] leading-relaxed text-ink-dim">{kast.note}</p>
                     )}
                   </div>
+                )}
+
+                {/* ===== SEPA — تحويل بنكي باليورو لعملاء أوروبا ===== */}
+                {sepa && activeTab === 'sepa' && (
+                  <SepaPay sepa={sepa} amount={`${pkg.price} ${pkg.currencyLabel}`} />
                 )}
 
                 {/* ===== برق — للعميل اللي في السعودية ===== */}
@@ -898,7 +922,7 @@ export default function CheckoutPage() {
               </div>
               <p className="mb-3 text-[12.5px] leading-relaxed text-ink-dim">{t('checkout.otherBody')}</p>
               <a
-                href={whatsappLink(t('checkout.otherMsg', { name: pkg.name, amount: '$' + pkg.price }))}
+                href={whatsappLink(t('checkout.otherMsg', { name: pkg.name, amount: pkg.currency === 'USD' ? '$' + pkg.price : `${pkg.price} ${pkg.currencyLabel}` }))}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-night py-3 text-[13px] font-bold text-ivory transition hover:bg-emerald"
