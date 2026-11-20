@@ -12,7 +12,7 @@
 //  • العدّاد بتوقيت السعودية (المدينة +3).
 // الأقسام المستخبية (الإقامة/الهدية/المواصلات/الخريطة) والكلام القديم اتشالوا بـ oneOffFix Ye053hU-natural-nov20.
 // الجولة 4 (2026-11-20): أول صفحة = حرفين ف ص + "كُتب لديسمبر أن يكون استثنائياً" بس، رسمة القاعة نزلت مكان صورة القاعة (اتشالت)،
-// برنامج اليوم من غير العنوان + صف العشاء ١:٠٠، و"الزي المقترح" بقى كلام ليلة ديسمبر والعروسين بيرقصوا.
+// برنامج اليوم من غير العنوان + صف العشاء ١:٠٠، و"الزي المقترح" بقى كلام ليلة ديسمبر والعروسين (رسمة القالب).
 const { asset } = require('./_asset');
 
 const SHORT = 'Ye053hU';
@@ -25,9 +25,8 @@ const SONG = asset(`${DIR}song.mp3`);   // (المالك 2026-11-20) أغنية 
 // استثنائياً" بس. رسمة القاعة اللي كانت في أول صفحة نزلت مكان صورة القاعة (اللي اتشالت).
 const MONO = asset(`${DIR}mono.webp`);
 const VILLA = '/templates/lace/villa-illustration-thick.svg';
-// العروسين اللي كانوا ماشيين في "الزي المقترح" — اتفصلوا (العروسة لوحدها والعريس لوحده) وبيرقصوا
-const BRIDE = asset(`${DIR}bride.webp`);
-const GROOM = asset(`${DIR}groom.webp`);
+// العروسين اللي ماشيين (رسمة القالب الأصلية زي ما هي — المالك رفض نسخة الرقص 2026-11-20)
+const COUPLE = '/templates/lace/dresscode-couple-new-transparent.webp';
 
 // الكلام لكل لغة (بيتحط بس لو العميل ماكتبش حاجة مكانه من المحرر)
 const TEXTS = {
@@ -56,7 +55,7 @@ const storyHtml = (l) => `<div class="ye-story">
   <p class="ye-s1 font-display" data-elem-id="ys1">${STORY[l][0]}</p>
   <p class="ye-s2 font-display" data-elem-id="ys2">${STORY[l][1]}</p>
   <p class="ye-s2 font-display" data-elem-id="ys3">${STORY[l][2]}</p>
-  <div class="ye-dance" aria-hidden="true"><img class="ye-bride" src="${BRIDE}" alt="" draggable="false"><img class="ye-groom" src="${GROOM}" alt="" draggable="false"></div>
+  <img class="ye-couple" src="${COUPLE}" alt="" aria-hidden="true" draggable="false">
   <p class="ye-names" data-elem-id="ys4">Fares &amp; Safaa</p>
   <p class="ye-date font-display" data-elem-id="ys5">17-12-2026</p></div>`;
 // الأسامي والمكان بالإنجليزي في نسخة /en (البيانات نفسها عربي)
@@ -107,17 +106,9 @@ html.ar .ye-s1,html.ar .ye-s2,html.ar .ye-hero-t{font-family:'Amiri',serif}
 html:not(.ar) .ye-s1{font-size:19px}
 html:not(.ar) .ye-hero-t{font-size:20px;max-width:310px}
 @media (min-width:768px){.ye-s1{font-size:30px}.ye-s2{font-size:18px}.ye-names{font-size:44px}.ye-date{font-size:19px}}
-/* العروسين بيرقصوا: بيتمايلوا مع بعض ويقربوا ويبعدوا (رقصة هادية) */
-.ye-dance{position:relative;height:118px;aspect-ratio:600/930;margin:12px auto 4px}
-@media (min-width:768px){.ye-dance{height:200px}}
-.ye-dance img{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-.ye-dance{animation:yeSway 4.8s ease-in-out infinite}
-.ye-bride{transform-origin:30% 100%;animation:yeBride 2.4s ease-in-out infinite}
-.ye-groom{transform-origin:75% 100%;animation:yeGroom 2.4s ease-in-out infinite}
-@keyframes yeSway{0%,100%{transform:translateX(-5%) rotate(-1.5deg)}50%{transform:translateX(5%) rotate(1.5deg)}}
-@keyframes yeBride{0%,100%{transform:translateX(0) rotate(-3deg)}50%{transform:translateX(4%) translateY(-1.5%) rotate(3.5deg)}}
-@keyframes yeGroom{0%,100%{transform:translateX(0) rotate(3deg)}50%{transform:translateX(-3.5%) translateY(-1%) rotate(-3deg)}}
-@media (prefers-reduced-motion:reduce){.ye-dance,.ye-dance img{animation:none}}
+/* العروسين ماشيين — رسمة القالب الأصلية */
+.ye-couple{display:block;height:118px;width:auto;margin:12px auto 4px;pointer-events:none}
+@media (min-width:768px){.ye-couple{height:200px}}
 .ye-nt-card{position:relative;padding:38px 26px 34px;border:1px solid hsl(var(--foreground)/.28);border-radius:4px;background:hsl(var(--background)/.65)}
 .ye-nt-card::before{content:"";position:absolute;inset:5px;border:1px solid hsl(var(--foreground)/.14);border-radius:2px;pointer-events:none}
 .ye-nt-ic{width:30px;height:30px;margin:0 auto 12px;color:hsl(var(--foreground)/.75)}
@@ -164,7 +155,7 @@ module.exports = {
     out = out.replace(/(<img\b[^>]*?)src="\/templates\/lace\/transport-lace-oval\.webp"([^>]*?)class="([^"]*)"([^>]*data-elem-id="lc105")/, (x, a, b, c, d) => `${a}src="${VILLA}"${b.replace(/alt="[^"]*"/, 'alt=""')}class="${c} ye-villa"${d}`);
     // أول صفحة: الحرفين + "كُتب لديسمبر أن يكون استثنائياً" (الباقي مستخبي بالـ CSS)
     out = out.replace(/(<div [^>]*id="heroTxt"[^>]*>)/, (x) => x + heroHtml(lang));
-    // "الزي المقترح" → كلام ليلة ديسمبر والعروسين بيرقصوا والأسامي والتاريخ (جوه نفس الإطار)
+    // "الزي المقترح" → كلام ليلة ديسمبر والعروسين ماشيين (رسمة القالب) والأسامي والتاريخ (جوه نفس الإطار)
     out = out.replace(/<p class="font-display text-\[43px\][^"]*" data-elem-id="lc40">[\s\S]*?data-elem-id="lc42">[\s\S]*?<\/p>/, () => storyHtml(lang));
     // الختم بحروفهم (ف ص): الغلاف وفيديو الفتح
     out = out.split('/templates/lace/cover.webp?v=2').join(COVER).split('/templates/lace/open.mp4?v=2').join(OPEN);
