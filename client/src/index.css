@@ -162,3 +162,9 @@ iframe {
   content-visibility: auto;
   contain-intrinsic-size: auto 700px;
 }
+
+/* /wedding-planner (معرض شغل كريم): الكروت بتظهر بالراحة وهي داخلة الشاشة */
+.karim-card { opacity: 0; transform: translateY(22px); transition: opacity .8s ease, transform .9s cubic-bezier(.2, .7, .2, 1); }
+.karim-card.is-in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .karim-card { opacity: 1; transform: none; transition: none; } }
+

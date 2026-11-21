@@ -57,6 +57,8 @@ const AccountPage = lazyWithReload(importAccount, 'account');
 const EditorPage = lazyWithReload(importEditor, 'editor');
 // سياسة الخصوصية والشروط (جوجل بتطلب لينك الخصوصية للدخول بجوجل)
 const LegalPage = lazyWithReload(() => import('./pages/LegalPage.jsx'), 'legal');
+// معرض شغل كريم (منسّق حفلات، صاحب المالك) — صفحة مخفية مش متلينكة من أي حتة (pages/WeddingPlannerPage.jsx)
+const WeddingPlannerPage = lazyWithReload(() => import('./pages/WeddingPlannerPage.jsx'), 'wedding-planner');
 
 // نافذة الدخول/التسجيل فيها مكتبة الفورم وقايمة الدول — تقيلة ومش
 // محتاجينها غير لما الزائر يدوس "دخول". بتتحمّل أول مرة تتفتح (أو في
@@ -141,6 +143,7 @@ export default function App() {
         <Route path="/terms" element={<Suspense fallback={<PageFallback />}><LegalPage kind="terms" /></Suspense>} />
         <Route path="/refund" element={<Suspense fallback={<PageFallback />}><LegalPage kind="refund" /></Suspense>} />
         <Route path="/contact" element={<Suspense fallback={<PageFallback />}><LegalPage kind="contact" /></Suspense>} />
+        <Route path="/wedding-planner" element={<Suspense fallback={<PageFallback />}><WeddingPlannerPage /></Suspense>} />
         <Route path="/dashboard" element={<Suspense fallback={<PageFallback />}><DashboardPage /></Suspense>} />
         <Route path="/account" element={<Suspense fallback={<PageFallback />}><AccountPage /></Suspense>} />
         <Route path="/editor/:shortId" element={<Suspense fallback={<div className="min-h-screen bg-ivory" />}><EditorPage /></Suspense>} />

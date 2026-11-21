@@ -16,3 +16,13 @@ const HIDDEN_PREFIXES = ['/editor/', '/admin', '/checkout/', '/create/'];
 export function hasBottomNav(pathname) {
   return !HIDDEN_PREFIXES.some((p) => pathname.startsWith(p));
 }
+
+// صفحات من غير الشريط اللي تحت نفسه بس (بطلب المالك) — زرار الدعم العايم بيفضل مستخبي على الموبايل
+// زي ما هو (SupportLauncher بيسأل hasBottomNav)، فمفيش حاجة جديدة بتطلع مكان الشريط:
+//   • /wedding-planner — معرض شغل كريم (pages/WeddingPlannerPage.jsx)
+const BAR_HIDDEN_PREFIXES = ['/wedding-planner'];
+
+/** الشريط السفلي نفسه ظاهر في الصفحة دي؟ @param {string} pathname */
+export function showsBottomBar(pathname) {
+  return hasBottomNav(pathname) && !BAR_HIDDEN_PREFIXES.some((p) => pathname.startsWith(p));
+}

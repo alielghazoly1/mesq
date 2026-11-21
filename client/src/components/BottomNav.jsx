@@ -26,7 +26,7 @@ import {
 import { useGetMeQuery } from '../store/api.js';
 import { openAuthModal, setSupportOpen, toggleSupport } from '../store/uiSlice.js';
 import { readAuthHint } from '../lib/authHint.js';
-import { hasBottomNav } from '../lib/bottomNav.js';
+import { showsBottomBar } from '../lib/bottomNav.js';
 import WhatsAppFloat from './WhatsAppFloat.jsx';
 
 const SPRING = { type: 'spring', stiffness: 420, damping: 32 };
@@ -208,7 +208,7 @@ export default function BottomNav() {
   const supportUnread = useSelector((s) => s.support.unread);
   const unread = (serverUser && supportUnread) || 0;
 
-  const enabled = hasBottomNav(pathname);
+  const enabled = showsBottomBar(pathname);
 
   // ===== أي قسم ظاهر في الرئيسية (الرئيسية ولا التصاميم) =====
   const [homeSection, setHomeSection] = useState('home');
