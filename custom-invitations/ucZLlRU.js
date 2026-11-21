@@ -53,6 +53,12 @@ html body .hv{--hv-ink:var(--uc-wine);--hv-paper:var(--uc-paper)}
 .hv .hv-tile__face{background:linear-gradient(rgba(40,4,12,.12),rgba(40,4,12,.12)),url("${asset(DIR + 'extra-1.webp')}") center/cover!important;box-shadow:inset 0 0 0 1px rgba(220,187,128,.35),inset 0 0 18px rgba(12,0,4,.35)!important}
 .hv .hv-tile__val{color:var(--uc-gold-l)!important}
 .hv .hv-tile__label{color:var(--uc-rose)!important}
+/* (2026-11-21) بطلب المالك: التاريخ ظاهر على طول من غير خربشة — الكروت مكشوفة، جملة "امسح" اتشالت، و"You're invited!"
+   ظاهرة (نفس طريقة I0wY2Rx) */
+#hv-hero .hv-tile__coat{display:none!important}
+#hv-hero .hv-reveal__hint{display:none!important}
+#hv-hero .hv-tile{cursor:default}
+#hv-hero .hv-reveal__msg{opacity:1!important;transform:none!important}
 /* ظرف الآية: الظرف دانتيل برجندي، والورقة اللي طالعة منه بيضا (طلب المالك) — الكلام عليها برجندي ودهبي غامق */
 #rec2442651013 .bsm{color:#9a733c!important}
 #rec2442651013 .vl>span{color:#5a1424!important}
