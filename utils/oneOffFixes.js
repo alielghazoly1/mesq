@@ -11,6 +11,25 @@
 // فشل أي تعديل مايأثرش على تشغيل السيرفر.
 const Invitation = require('../models/Invitation');
 
+/**
+ * "ألف الصلاة وألف السلام" لحسين الجسمي من مكتبة الموسيقى (المالك رافعها من لوحة التحكم) — كأن العميل
+ * اختارها من تبويب الموسيقى في المحرر. لو مش لاقيها في المكتبة مابنغيّرش حاجة في الأغنية.
+ */
+async function alfSalatSong(tag) {
+  const Track = require('../models/Track');
+  const norm = (t) => String(t || '').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').toLowerCase();
+  const isSong = (t) => /الف\s*(ال)?صلا|صلاه\s*و\s*(ال)?سلام|alf\W*(a|e)?l?\W*sala/.test(norm(t.title));
+  const isJasmi = (t) => /جسمي|jas+mi/.test(norm(`${t.artist} ${t.title}`));
+  const tracks = await Track.find({ active: true }).sort({ createdAt: -1 }).select('title artist url').lean();
+  const pick = tracks.filter(isSong).sort((a, b) => Number(isJasmi(b)) - Number(isJasmi(a)))[0];
+  if (!pick || !/^https:\/\/res\.cloudinary\.com\//.test(pick.url)) {
+    console.log(`[oneOffFix] ${tag}: track not found in the library`);
+    return { 'customizations.audioUrl': '' };
+  }
+  console.log(`[oneOffFix] ${tag}: ${pick.title} — ${pick.artist} (${pick.url})`);
+  return { 'customizations.audioUrl': pick.url, 'customizations.audioStart': 0, 'customizations.audioEnd': 0 };
+}
+
 const FIXES = [
   {
     // FcVHj3j (Royal Maroon) — برنامج اليوم: ٣ نقط بس (الاستقبال، كتب الكتاب،
@@ -1081,20 +1100,7 @@ const FIXES = [
     name: 'j4jpczb-song-aljasmi',
     shortId: 'j4jpczb',
     when: (c) => !c.audioUrl,
-    async apply() {
-      const Track = require('../models/Track');
-      const norm = (t) => String(t || '').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').toLowerCase();
-      const isSong = (t) => /الف\s*(ال)?صلا|صلاه\s*و\s*(ال)?سلام|alf\W*(a|e)?l?\W*sala/.test(norm(t.title));
-      const isJasmi = (t) => /جسمي|jas+mi/.test(norm(`${t.artist} ${t.title}`));
-      const tracks = await Track.find({ active: true }).sort({ createdAt: -1 }).select('title artist url').lean();
-      const pick = tracks.filter(isSong).sort((a, b) => Number(isJasmi(b)) - Number(isJasmi(a)))[0];
-      if (!pick || !/^https:\/\/res\.cloudinary\.com\//.test(pick.url)) {
-        console.log('[oneOffFix] j4jpczb-song-aljasmi: track not found in the library');
-        return { 'customizations.audioUrl': '' };
-      }
-      console.log(`[oneOffFix] j4jpczb-song-aljasmi: ${pick.title} — ${pick.artist} (${pick.url})`);
-      return { 'customizations.audioUrl': pick.url, 'customizations.audioStart': 0, 'customizations.audioEnd': 0 };
-    },
+    apply: () => alfSalatSong('j4jpczb-song-aljasmi'),
   },
   {
     // j4jpczb — العريس بيتكتب Sary مش Sari (بطلب المالك 2026-11-07). الصفحة نفسها في
@@ -2124,6 +2130,45 @@ const FIXES = [
         hiddenSections: [...new Set([...(inv.hiddenSections || []).filter((x) => x !== 'dressCode'), 'stay', 'gift', 'transport', 'map'])],
       };
     },
+  },
+  {
+    // ucZLlRU (Champagne Lace EN برجندي — custom-invitations/ucZLlRU.js) — بطلب المالك (2026-11-21): إبراهيم وعبير،
+    // السبت 5/12/2026 من 7 لـ 11 مساءً، Tia Vie (Askar Group) أكتوبر. الخريطة على المكان نفسه (كود المكان 23W4+5C بيطلّع
+    // "Tia vie askargroup october" في جوجل)، وزرار الاتجاهات على لينك المالك. سطرين الميعاد (cl9/cl10) بالمدة واليوم،
+    // والدريس كود (cl13/cl14) اتشال من الكارت بنفس "الحذف" بتاع المحرر (صاحبها يقدر يرجّعه).
+    // بيتعمل بس لو الدعوة لسه بأسامي المسودة.
+    name: 'ucZLlRU-ebraheem-abeer',
+    shortId: 'ucZLlRU',
+    select: '-__v',
+    when: (c, inv) => inv.templateId === 'champagne-lace' && inv.groomName === 'Groom' && inv.brideName === 'Bride',
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const link = 'https://maps.app.goo.gl/BnQcZATe8cFEqafx5';
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: 'en', occasionType: inv.occasionType || 'wedding',
+        hiddenSections: inv.hiddenSections, timeline: inv.timeline, name: inv.name,
+        groomName: 'Ebraheem', groomNameAr: 'إبراهيم', brideName: 'Abeer', brideNameAr: 'عبير',
+        venueName: 'Tia Vie', venueCity: '6th of October', venueAddress: 'Askar Group, 6th of October',
+        venueMapQuery: link,
+        weddingDate: '2026-12-05', weddingTime: '19:00',
+      }, { ownsTemplate: true, skipMapNetwork: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.venueMapQuery = link;
+      set.venueMapDirectLink = link;
+      set.venueMapEmbedSrc = 'https://www.google.com/maps?q=' + encodeURIComponent('23W4+5C Tia Vie, Kerdasa, Giza') + '&z=16&output=embed';
+      set['customizations.texts'] = { ...(c.texts || {}), cl9: 'on Saturday, from seven', cl10: 'until eleven in the evening' };
+      set['customizations.hidden'] = [...new Set([...(c.hidden || []), 'cl13', 'cl14'])];
+      return set;
+    },
+  },
+  {
+    // ucZLlRU — بطلب المالك (2026-11-21): "ألف الصلاة وألف السلام" لحسين الجسمي من مكتبة الموسيقى.
+    // بيتعمل بس لو مفيش أغنية متختارة، فلو اتغيّرت بعد كده مابنرجّعهاش.
+    name: 'ucZLlRU-song-aljasmi',
+    shortId: 'ucZLlRU',
+    when: (c) => !c.audioUrl,
+    apply: () => alfSalatSong('ucZLlRU-song-aljasmi'),
   },
 ];
 
