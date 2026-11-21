@@ -30,6 +30,20 @@ const PAGES = {
   '/contact': { title: 'تواصل معانا | ميثاق', description: 'تواصل مع ميثاق للدعوات الإلكترونية — التليفون والواتساب والإيميل والعنوان.' },
 };
 
+// صفحات مخفية (مش لجوجل) بس ليها كارت مشاركة: لما اللينك يتبعت على واتساب/فيسبوك يطلع عنوانها وصورتها.
+// السيرفر بيبعتها noindex. مش في خريطة الموقع (sitemapXml تحت مكتوبة بالإيد).
+const SHARE_CARDS = {
+  // معرض شغل كريم (client/src/pages/WeddingPlannerPage.jsx) — بطلب المالك (2026-11-21): العنوان
+  // "Wedding Planner with Karim" والصورة تلات تصميمات من شغله (من غير كلام عليها)
+  '/wedding-planner': {
+    title: 'Wedding Planner with Karim',
+    description: 'اتفرّج على تصميمات كريم لديكورات الحفلات والبالونات، واطلب اللي يعجبك على واتساب على طول.',
+    image: '/karim/share.jpg',
+    width: 1200,
+    height: 630,
+  },
+};
+
 function esc(s) {
   return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
@@ -51,6 +65,41 @@ function applyPageMeta(html, meta) {
     .replace(/(<meta name="description" content=")[^"]*(")/i, `$1${esc(meta.description)}$2`)
     .replace(/(<link rel="canonical" href=")[^"]*(")/i, `$1${esc(url)}$2`)
     .replace(/(<meta property="og:url" content=")[^"]*(")/i, `$1${esc(url)}$2`);
+}
+
+/** كارت مشاركة صفحة مخفية (SHARE_CARDS) أو null */
+function shareCardFor(pathname) {
+  const p = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname;
+  return SHARE_CARDS[p] ? { path: p, ...SHARE_CARDS[p] } : null;
+}
+
+/**
+ * index.html → نفس الصفحة بكارت مشاركة الصفحة دي (العنوان والوصف والصورة لواتساب/فيسبوك/تويتر)
+ * وrobots noindex. وسوم الـ head بس — السكريبتات زي ما هي.
+ */
+function applyShareCard(html, card) {
+  if (!card) return html;
+  const { asset } = require('../custom-invitations/_asset');
+  const url = SITE + card.path;
+  const img = SITE + asset(card.image);   // ?v=بصمة → واتساب بيجيب الصورة الجديدة لو اتغيّرت
+  const set = (re, val) => (h) => h.replace(re, `$1${esc(val)}$2`);
+  return [
+    (h) => h.replace(/<title>[\s\S]*?<\/title>/i, `<title>${esc(card.title)}</title>`),
+    set(/(<meta name="description" content=")[^"]*(")/i, card.description),
+    set(/(<meta name="robots" content=")[^"]*(")/i, 'noindex, nofollow'),
+    set(/(<link rel="canonical" href=")[^"]*(")/i, url),
+    set(/(<meta property="og:title" content=")[^"]*(")/i, card.title),
+    set(/(<meta property="og:description" content=")[^"]*(")/i, card.description),
+    set(/(<meta property="og:url" content=")[^"]*(")/i, url),
+    set(/(<meta property="og:image" content=")[^"]*(")/i, img),
+    set(/(<meta property="og:image:secure_url" content=")[^"]*(")/i, img),
+    set(/(<meta property="og:image:width" content=")[^"]*(")/i, String(card.width)),
+    set(/(<meta property="og:image:height" content=")[^"]*(")/i, String(card.height)),
+    set(/(<meta property="og:image:alt" content=")[^"]*(")/i, card.title),
+    set(/(<meta name="twitter:title" content=")[^"]*(")/i, card.title),
+    set(/(<meta name="twitter:description" content=")[^"]*(")/i, card.description),
+    set(/(<meta name="twitter:image" content=")[^"]*(")/i, img),
+  ].reduce((h, f) => f(h), String(html));
 }
 
 /** عنوان ووصف صفحة معاينة تصميم (/preview-sample/:id) */
@@ -136,4 +185,4 @@ function sitemapXml() {
     + '\n</urlset>\n';
 }
 
-module.exports = { SITE, pageMeta, applyPageMeta, applyPreviewMeta, previewMeta, sitemapXml };
+module.exports = { SITE, pageMeta, applyPageMeta, applyPreviewMeta, previewMeta, sitemapXml, shareCardFor, applyShareCard };

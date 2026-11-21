@@ -34,7 +34,7 @@ const { ensureDeviceId, deviceInvitationLimiter } = require('./middleware/device
 const { attachUser } = require('./middleware/auth');
 const { requireAdminSession } = require('./middleware/adminAuth');
 const { requestLogger, installProcessHandlers, write: logLine, LOG_FILE } = require('./utils/requestLogger');
-const { pageMeta, applyPageMeta, sitemapXml } = require('./utils/seo');
+const { pageMeta, applyPageMeta, sitemapXml, shareCardFor, applyShareCard } = require('./utils/seo');
 const { landingKeyFor, landingHtml } = require('./utils/landingPages');
 
 // بنمسك أي عطل بيوقّع عملية Node ونسجّله في اللوج قبل ما يطلع.
@@ -577,6 +577,14 @@ app.get('*', (req, res, next) => {
     // ميتا: رقم ضغطة الإعلان (_fbc) ورقم المتصفح (_fbp) يتحفظوا من أول ما الصفحة تفتح، ككوكي من
     // السيرفر — مش بعد ما كود البيكسل يتحمّل (utils/metaParams.js). الصفحة دي no-store فمابتتخزّنش.
     captureMetaParams(req, res);
+  }
+  // صفحات مخفية ليها كارت مشاركة لواتساب بس مش لجوجل (utils/seo.js SHARE_CARDS) — /wedding-planner
+  const card = shareCardFor(req.path);
+  if (card) {
+    res.setHeader('X-Robots-Tag', 'noindex');
+    const html = spaHtml();
+    if (html) return res.type('html').send(applyShareCard(html, card));
+    return res.sendFile(path.join(CLIENT_DIST, 'index.html'));
   }
   const meta = pageMeta(req.path);
   if (meta) {
