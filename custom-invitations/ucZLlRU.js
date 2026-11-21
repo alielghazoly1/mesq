@@ -76,6 +76,10 @@ html body .al{--al-ink:var(--uc-wine);--al-soft:var(--uc-rose);--al-gold:var(--u
 .al-card::after{border-color:rgba(220,187,128,.55)!important}
 #al-album .al-btn{border-color:rgba(91,21,38,.45)!important}
 #al-album .al-btn:hover,#al-album .al-btn:focus-visible{background:var(--uc-wine)!important;color:var(--uc-ink)!important}
+/* صورة واحدة بس (وهم صغيرين) — أكبر: 300×400 بدل 220×344، ومن غير أسهم ولا نقط */
+#al-album .al-track{height:420px;cursor:default}
+#al-album .al-card{width:300px;height:400px;margin-left:-150px}
+#al-album .al-nav,#al-album .al-dots{display:none!important}
 /* تأكيد الحضور: العنوان على الورقة البيضا برجندي — الكارت برجندي وكلامه عاجي */
 html body .rs{--rs-ink:var(--uc-wine);--rs-soft:var(--uc-rose);--rs-gold:var(--uc-gold-d);--rs-paper:var(--uc-paper)}
 html body .rs-card{--rs-ink:var(--uc-ink);--rs-soft:var(--uc-soft);--rs-gold:var(--uc-gold);--rs-line:rgba(220,187,128,.45);--rs-err:#f3a993;background:var(--uc-card)!important}
@@ -98,13 +102,9 @@ html body .rs-card{--rs-ink:var(--uc-ink);--rs-soft:var(--uc-soft);--rs-gold:var
 #audio-icon{fill:#ecd3a0!important}
 `;
 
-// (2026-11-21) ألبوم "Our Memories" = صور إبراهيم وعبير التلاتة اللي المالك بعتها (زي ما هي، الكارت بيقص بـ object-fit):
-// وهم صغيرين، بعدين صورتهم سوا، بعدين منديل كتب الكتاب. صورة العميل اللي يرفعها من المحرر (cl62–cl64) بتكسب.
-const ALBUM = [
-  { id: 'cl62', src: asset(`${DIR}album-1.webp`), pos: '50% 45%', alt: 'Ibraheem & Abeer as children' },
-  { id: 'cl63', src: asset(`${DIR}album-2.webp`), pos: '54% 50%', alt: 'Ibraheem & Abeer' },
-  { id: 'cl64', src: asset(`${DIR}album-3.webp`), pos: '50% 52%', alt: 'Ibraheem & Abeer — katb el-ketab' },
-];
+// (2026-11-21) ألبوم "Our Memories" = صورة إبراهيم وعبير وهم صغيرين بس (المالك شال صورتهم سوا وصورة المنديل)، أكبر من
+// كروت الألبوم العادية ومن غير أسهم/نقط. صورة العميل اللي يرفعها من المحرر (cl62) بتكسب.
+const ALBUM = { id: 'cl62', src: asset(`${DIR}album-1.webp`), pos: '50% 45%', alt: 'Ibraheem & Abeer as children' };
 
 module.exports = {
   shortId: SHORT,
@@ -132,15 +132,13 @@ module.exports = {
     out = out.replace("'#f5ede0', '#1a1916', '#d4c090'", "'#f5ede0', '#8a2238', '#d4c090'");
     // العريس الأول في الأسامي (الكارت والختام) زي ما المالك بيكتبها: Ibraheem & Abeer
     out = out.replace("var n1 = LANG === 'ar' ? groom : bride, n2 = LANG === 'ar' ? bride : groom;", 'var n1 = groom, n2 = bride;');
-    // الألبوم: 3 صور بدل 4 (الكارت الرابع والنقطة الرابعة اتشالوا، والعدّاد / 03)
+    // الألبوم: كارت واحد بس (صورتهم وهم صغيرين) — الكروت التانية والنقط اتشالت، والعدّاد والأسهم مستخبيين (CSS)
     const fig = /\s*<figure class="al-card" data-i="(\d)"><img data-elem-id="(cl6[2-5])" src="[^"]*" alt="[^"]*" style="object-position:[^"]*"/g;
     if ((out.match(fig) || []).length === 4) {
-      out = out.replace(/\s*<figure class="al-card" data-i="3">[\s\S]*?<\/figure>/, '');
-      ALBUM.forEach((a, i) => {
-        out = out.replace(new RegExp(`(<figure class="al-card" data-i="${i}"><img data-elem-id="${a.id}" src=")[^"]*(" alt=")[^"]*(" style="object-position:)[^"]*"`),
-          `$1${a.src}$2${a.alt}$3${a.pos}"`);
-      });
-      out = out.replace('<span>/ 04</span>', '<span>/ 03</span>').replace('<i data-i="3"></i></div>', '</div>');
+      out = out.replace(/\s*<figure class="al-card" data-i="[123]">[\s\S]*?<\/figure>/g, '');
+      out = out.replace(new RegExp(`(<figure class="al-card" data-i="0"><img data-elem-id="${ALBUM.id}" src=")[^"]*(" alt=")[^"]*(" style="object-position:)[^"]*"`),
+        `$1${ALBUM.src}$2${ALBUM.alt}$3${ALBUM.pos}"`);
+      out = out.replace('<span>/ 04</span>', '<span>/ 01</span>').replace('<i data-i="1"></i><i data-i="2"></i><i data-i="3"></i></div>', '</div>');
     }
     return out;
   },
