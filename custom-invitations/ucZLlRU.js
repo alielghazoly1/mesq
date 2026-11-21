@@ -110,7 +110,7 @@ html body .rs-card{--rs-ink:var(--uc-ink);--rs-soft:var(--uc-soft);--rs-gold:var
 
 // (2026-11-21) ألبوم "Our Memories" = صورة إبراهيم وعبير وهم صغيرين بس (المالك شال صورتهم سوا وصورة المنديل)، أكبر من
 // كروت الألبوم العادية ومن غير أسهم/نقط. صورة العميل اللي يرفعها من المحرر (cl62) بتكسب.
-const ALBUM = { id: 'cl62', src: asset(`${DIR}album-1.webp`), pos: '50% 45%', alt: 'Ibraheem & Abeer as children' };
+const ALBUM = { id: 'cl62', src: asset(`${DIR}album-1.webp`), pos: '50% 45%', alt: 'Ibrahim & Abeer as children' };
 
 module.exports = {
   shortId: SHORT,
@@ -136,7 +136,7 @@ module.exports = {
       "g.addColorStop(0, '#ffffff'); g.addColorStop(.5, '#fbf3e4'); g.addColorStop(1, '#f2e4c8');");
     // الكونفيتي بعد الخربشة: دهب وعاجي وبرجندي (كان فيه قطع سودا)
     out = out.replace("'#f5ede0', '#1a1916', '#d4c090'", "'#f5ede0', '#8a2238', '#d4c090'");
-    // العريس الأول في الأسامي (الكارت والختام) زي ما المالك بيكتبها: Ibraheem & Abeer
+    // العريس الأول في الأسامي (الكارت والختام) زي ما المالك بيكتبها: Ibrahim & Abeer
     out = out.replace("var n1 = LANG === 'ar' ? groom : bride, n2 = LANG === 'ar' ? bride : groom;", 'var n1 = groom, n2 = bride;');
     // الألبوم: كارت واحد بس (صورتهم وهم صغيرين) — الكروت التانية والنقط اتشالت، والعدّاد والأسهم مستخبيين (CSS)
     const fig = /\s*<figure class="al-card" data-i="(\d)"><img data-elem-id="(cl6[2-5])" src="[^"]*" alt="[^"]*" style="object-position:[^"]*"/g;

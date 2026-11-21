@@ -2147,7 +2147,7 @@ const FIXES = [
       const data = await buildInvitationDataFromRequest({
         templateId: inv.templateId, language: 'en', occasionType: inv.occasionType || 'wedding',
         hiddenSections: inv.hiddenSections, timeline: inv.timeline, name: inv.name,
-        groomName: 'Ibraheem', groomNameAr: 'إبراهيم', brideName: 'Abeer', brideNameAr: 'عبير',
+        groomName: 'Ibrahim', groomNameAr: 'إبراهيم', brideName: 'Abeer', brideNameAr: 'عبير',
         venueName: 'Tia Vie', venueCity: '6th of October', venueAddress: 'Askar Group, 6th of October',
         venueMapQuery: link,
         weddingDate: '2026-12-05', weddingTime: '19:00',
@@ -2171,12 +2171,13 @@ const FIXES = [
     apply: () => alfSalatSong('ucZLlRU-song-aljasmi'),
   },
   {
-    // ucZLlRU — المالك (2026-11-21): اسم العريس بالإنجليزي Ibraheem (بالـ I) مش Ebraheem — الكارت والختام وعنوان اللينك.
-    name: 'ucZLlRU-ibraheem',
+    // ucZLlRU — المالك (2026-11-21): اسم العريس بالإنجليزي Ibrahim (كان Ebraheem وبعدين Ibraheem) — الكارت والختام
+    // وعنوان اللينك.
+    name: 'ucZLlRU-ibrahim',
     shortId: 'ucZLlRU',
     select: 'customizations groomName',
-    when: (c, inv) => inv.groomName === 'Ebraheem',
-    apply: () => ({ groomName: 'Ibraheem' }),
+    when: (c, inv) => inv.groomName === 'Ebraheem' || inv.groomName === 'Ibraheem',
+    apply: () => ({ groomName: 'Ibrahim' }),
   },
 ];
 
