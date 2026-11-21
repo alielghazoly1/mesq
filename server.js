@@ -214,6 +214,25 @@ app.get('/sitemap.xml', (req, res) => {
 });
 // /gallery مكانتش صفحة أصلًا (كانت بتفتح فاضية) — التصاميم في الرئيسية
 app.get('/gallery', (req, res) => res.redirect(301, '/#gallery'));
+// صفحة كريم (Wedding & Event Planner) — بطلب المالك (2026-11-21): معرض تصميماته وكل "اطلب الآن" بيفتح واتساب كريم
+// على طول باسم التصميم. صفحة لوحدها ومخفية: مش متلينكة من أي حتة في الموقع، مش في خريطة الموقع، وnoindex لجوجل.
+// الصفحة views/wedding-planner.html والصور client/public/karim/
+const WEDDING_PLANNER_HTML = path.join(__dirname, 'views', 'wedding-planner.html');
+let weddingPlannerCache = null;
+app.get(['/wedding-planner', '/wedding-planner/'], (req, res, next) => {
+  try {
+    const { mtimeMs } = require('fs').statSync(WEDDING_PLANNER_HTML);
+    if (!weddingPlannerCache || weddingPlannerCache.mtime !== mtimeMs) {
+      weddingPlannerCache = { mtime: mtimeMs, html: require('fs').readFileSync(WEDDING_PLANNER_HTML, 'utf8') };
+    }
+    const origin = `${req.protocol}://${req.get('host')}`;
+    res.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
+    res.set('Cache-Control', 'no-cache');
+    res.type('html').send(weddingPlannerCache.html.split('__ORIGIN__').join(origin));
+  } catch (err) {
+    next(err);
+  }
+});
 app.use(express.static(CLIENT_DIST, {
   // الصفحة الرئيسية مابتتبعتش من هنا: بتعدّي على آخر الملف عشان تاخد
   // عنوانها ووصفها لجوجل (utils/seo.js) زي باقي الصفحات
