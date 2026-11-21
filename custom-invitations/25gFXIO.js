@@ -16,7 +16,8 @@ const { glideScript } = require('./_glide');
 
 const SHORT = '25gFXIO';
 const DIR = `/custom/${SHORT}/`;
-const OWNER_SONG = asset(`${DIR}song.mp3`);
+// (2026-11-21) أغنية المالك من مكتبة الموسيقى بتاعة الموقع — اللينك زي ما هو
+const OWNER_SONG = 'https://res.cloudinary.com/dxtkmyscw/video/upload/v1789344858/mithaq/library/music/t3uegfchmkj2soo00unm.mp3';
 // مقاس صورة الباب ومكان الختم عليها (scratch fz/door.py)
 const GEO = JSON.parse(fs.readFileSync(path.join(__dirname, `${SHORT}-door.json`), 'utf8'));
 
@@ -60,7 +61,7 @@ module.exports = {
   transform(templateHtml, { editMode } = {}) {
     if (!PAGE) PAGE = page();
     let out = PAGE;
-    // (2026-11-21 بطلب المالك) أغنية "موسيقى دخلة عروس تجنن" من عنده — بتشتغل دايمًا من أولها (مش أغنية المحرر ولا القص بتاعه)
+    // (2026-11-21 بطلب المالك) أغنية "موسيقى دخلة عروس تجنن" (لينك المكتبة اللي بعته) — بتشتغل دايمًا من أولها (مش أغنية المحرر ولا القص بتاعه)
     out = out.split('__SONG__').join(OWNER_SONG).split('__A_START__').join('0').split('__A_END__').join('0');
     const tags = shareTags(templateHtml);
     if (tags) {
