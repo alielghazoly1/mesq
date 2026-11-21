@@ -12,13 +12,11 @@
 const fs = require('fs');
 const path = require('path');
 const { asset } = require('./_asset');
-const { escapeHtml } = require('../utils/sanitize');
 const { glideScript } = require('./_glide');
 
 const SHORT = '25gFXIO';
 const DIR = `/custom/${SHORT}/`;
-// بيانو هادي (نفس أغنية Golden Calla) لو العميل مااختارش أغنية من المحرر
-const DEFAULT_SONG = '/templates/golden-calla/song.mp3';
+const OWNER_SONG = asset(`${DIR}song.mp3`);
 // مقاس صورة الباب ومكان الختم عليها (scratch fz/door.py)
 const GEO = JSON.parse(fs.readFileSync(path.join(__dirname, `${SHORT}-door.json`), 'utf8'));
 
@@ -38,21 +36,6 @@ function shareTags(templateHtml) {
   const tags = head.match(/<meta\s+(?:property="og:[^"]+"|name="twitter:[^"]+"|name="description")[^>]*>|<link\s+rel="canonical"[^>]*>|<link\s+rel="(?:icon|apple-touch-icon|shortcut icon)"[^>]*>|<title>[^<]*<\/title>/gi);
   return tags ? tags.join('\n') : '';
 }
-
-/** قيمة نصية من JSON الإعدادات اللي جوه صفحة القالب ("key":"...") */
-function configValue(html, key) {
-  const m = html.match(new RegExp(`"${key}":("(?:[^"\\\\]|\\\\.)*")`));
-  if (!m) return '';
-  try { return JSON.parse(m[1]) || ''; } catch (e) { return ''; }
-}
-
-/** رقم من بيانات التخصيصات ("audioStart":12) */
-function numValue(html, key) {
-  const m = html.match(new RegExp(`"${key}":(\\d+(?:\\.\\d+)?)`));
-  const n = m ? Number(m[1]) : 0;
-  return Number.isFinite(n) && n >= 0 && n < 3600 ? n : 0;
-}
-const okUrl = (u) => /^https:\/\//.test(u) || /^\/[a-z]/.test(u);
 
 module.exports = {
   shortId: SHORT,
@@ -77,10 +60,8 @@ module.exports = {
   transform(templateHtml, { editMode } = {}) {
     if (!PAGE) PAGE = page();
     let out = PAGE;
-    const song = configValue(templateHtml, 'audioUrl');
-    out = out.split('__SONG__').join(escapeHtml(okUrl(song) ? song : DEFAULT_SONG))
-      .split('__A_START__').join(String(numValue(templateHtml, 'audioStart')))
-      .split('__A_END__').join(String(numValue(templateHtml, 'audioEnd')));
+    // (2026-11-21 بطلب المالك) أغنية "موسيقى دخلة عروس تجنن" من عنده — بتشتغل دايمًا من أولها (مش أغنية المحرر ولا القص بتاعه)
+    out = out.split('__SONG__').join(OWNER_SONG).split('__A_START__').join('0').split('__A_END__').join('0');
     const tags = shareTags(templateHtml);
     if (tags) {
       out = out.replace(/<title>[^<]*<\/title>\s*/i, '');
