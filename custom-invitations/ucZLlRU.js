@@ -101,9 +101,9 @@ html body .rs-card{--rs-ink:var(--uc-ink);--rs-soft:var(--uc-soft);--rs-gold:var
 // (2026-11-21) ألبوم "Our Memories" = صور إبراهيم وعبير التلاتة اللي المالك بعتها (زي ما هي، الكارت بيقص بـ object-fit):
 // وهم صغيرين، بعدين صورتهم سوا، بعدين منديل كتب الكتاب. صورة العميل اللي يرفعها من المحرر (cl62–cl64) بتكسب.
 const ALBUM = [
-  { id: 'cl62', src: asset(`${DIR}album-1.webp`), pos: '50% 45%', alt: 'Ebraheem & Abeer as children' },
-  { id: 'cl63', src: asset(`${DIR}album-2.webp`), pos: '54% 50%', alt: 'Ebraheem & Abeer' },
-  { id: 'cl64', src: asset(`${DIR}album-3.webp`), pos: '50% 52%', alt: 'Ebraheem & Abeer — katb el-ketab' },
+  { id: 'cl62', src: asset(`${DIR}album-1.webp`), pos: '50% 45%', alt: 'Ibraheem & Abeer as children' },
+  { id: 'cl63', src: asset(`${DIR}album-2.webp`), pos: '54% 50%', alt: 'Ibraheem & Abeer' },
+  { id: 'cl64', src: asset(`${DIR}album-3.webp`), pos: '50% 52%', alt: 'Ibraheem & Abeer — katb el-ketab' },
 ];
 
 module.exports = {
@@ -130,7 +130,7 @@ module.exports = {
       "g.addColorStop(0, '#ffffff'); g.addColorStop(.5, '#fbf3e4'); g.addColorStop(1, '#f2e4c8');");
     // الكونفيتي بعد الخربشة: دهب وعاجي وبرجندي (كان فيه قطع سودا)
     out = out.replace("'#f5ede0', '#1a1916', '#d4c090'", "'#f5ede0', '#8a2238', '#d4c090'");
-    // العريس الأول في الأسامي (الكارت والختام) زي ما المالك بيكتبها: Ebraheem & Abeer
+    // العريس الأول في الأسامي (الكارت والختام) زي ما المالك بيكتبها: Ibraheem & Abeer
     out = out.replace("var n1 = LANG === 'ar' ? groom : bride, n2 = LANG === 'ar' ? bride : groom;", 'var n1 = groom, n2 = bride;');
     // الألبوم: 3 صور بدل 4 (الكارت الرابع والنقطة الرابعة اتشالوا، والعدّاد / 03)
     const fig = /\s*<figure class="al-card" data-i="(\d)"><img data-elem-id="(cl6[2-5])" src="[^"]*" alt="[^"]*" style="object-position:[^"]*"/g;
