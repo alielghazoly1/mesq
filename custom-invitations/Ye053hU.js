@@ -14,7 +14,7 @@
 // الجولة 4 (2026-11-20): أول صفحة = حرفين ف ص + "كُتب لديسمبر أن يكون استثنائياً" بس، رسمة القاعة نزلت مكان صورة القاعة (اتشالت)،
 // برنامج اليوم من غير العنوان + صف العشاء ١:٠٠، و"الزي المقترح" بقى كلام ليلة ديسمبر والعروسين (رسمة القالب).
 // (2026-11-23) كارت اللينك: "دعوة زفاف فارس وصفاء" بس من غير الوصف اللي تحته، و Fares & Safaa اللي فوق التاريخ أغمق،
-// والتاريخ أكبر وأغمق.
+// والتاريخ أكبر وأغمق. وساعة العشاء "١:٠٠ ص" (زي "م" في الصفين اللي فوقها).
 const { asset } = require('./_asset');
 
 const SHORT = 'Ye053hU';
@@ -35,7 +35,8 @@ const TEXTS = {
   ar: {
     lc25: '٩:٠٠ م', lc26: 'حضور الضيوف', lc27: 'نستقبلكم بكل الحب والفرح',
     lc28: '١٠:٠٠ م', lc29: 'مراسم الزفاف', lc30: 'تبدأ مراسم الزفاف وبداية العمر',
-    lc34: '١:٠٠', lc35: 'العشاء', lc36: 'نجتمع على مائدة العشاء بكل الحب',
+    // (المالك 2026-11-23) جنب الساعة ١ "ص" — زي "م" اللي في الصفين اللي فوقها (مش "صباحاً")
+    lc34: '١:٠٠ ص', lc35: 'العشاء', lc36: 'نجتمع على مائدة العشاء بكل الحب',
   },
   en: {
     lc25: '9:00 PM', lc26: 'Guests Arrival', lc27: 'Welcoming you with love and joy.',
@@ -43,6 +44,8 @@ const TEXTS = {
     lc34: '1:00 AM', lc35: 'Dinner', lc36: 'Gathering around the dinner table with love.',
   },
 };
+// الكلام الافتراضي اللي اتغيّر (لو لقيناه متخزّن زي ما هو بيتبدّل بالجديد): ساعة العشاء كانت "١:٠٠" من غير "ص"
+const OLD_DEFAULTS = { lc34: '١:٠٠' };
 // أول صفحة + مكان "الزي المقترح" (نفس كلام الصورة اللي بعتها وشكلها)
 const HERO = {
   ar: 'كُتب لديسمبر أن يكون استثنائياً',
@@ -87,6 +90,8 @@ const CSS = `<style id="ye-style">
 [data-section="timeline"] [data-elem-id="lc24"]{font-size:17px!important;line-height:1.8!important;margin-top:0!important;color:hsl(var(--foreground))!important}
 @media (min-width:768px){[data-section="timeline"] [data-elem-id="lc24"]{font-size:20px!important}}
 html.ar [data-section="timeline"] [data-elem-id="lc24"]{font-family:'Amiri',serif}
+/* "١:٠٠ ص" أعرض شوية من "٩:٠٠ م": على الشاشات الضيقة (٣٦٠) رسمة العشاء كانت بتلمس طرف الشاشة — أصغر سنة هناك بس */
+@media (max-width:370px){html.ar div:has(> img[data-elem-id="lc107"]){width:68px!important;height:68px!important}}
 /* أول صفحة: الحرفين وتحتهم الجملة بس */
 #heroTxt>:not(.ye-hero){display:none!important}
 .ye-hero{display:flex;flex-direction:column;align-items:center}
@@ -184,7 +189,8 @@ module.exports = {
       try {
         const d = JSON.parse(json);
         d.texts = d.texts || {};
-        for (const [k, v] of Object.entries(TEXTS[lang])) if (!d.texts[k]) d.texts[k] = v;
+        // الافتراضي القديم لو اتحفظ من المحرر زي ما هو (مش كلام العميل) → الجديد ياخد مكانه
+        for (const [k, v] of Object.entries(TEXTS[lang])) if (!d.texts[k] || d.texts[k] === OLD_DEFAULTS[k]) d.texts[k] = v;
         return `var data = ${JSON.stringify(d).replace(/</g, '\\u003c')};\n`;
       } catch (e) { return whole; }
     });
