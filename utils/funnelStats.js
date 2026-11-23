@@ -87,6 +87,17 @@ async function logFunnelStats(days = 30) {
   console.warn(`[funnel-${days}d] signups ${signups} (google ${googleSignups}, ${pct(signups, tot.devices)} of visitors) · countries ${topCountries.map((c) => `${c._id || '?'} ${c.n}`).join(' · ')} · made an invitation ${draftOwners.length} · published ${publishedOwners.length}`);
   console.warn(`[funnel-${days}d] orders ${orders.length} by ${buyers.size} customers (new signups who ordered: ${newBuyers}, median signup→order ${human(signupToOrder)}) → sent payment proof ${withProof.length} (${pct(withProof.length, orders.length)}) → activated ${activated.length} (${pct(activated.length, orders.length)}) · cancelled ${cancelled.length} · stuck without proof >24h ${stuck.length} · waiting activation now ${waiting.length}`);
   console.warn(`[funnel-${days}d] median order→proof ${human(proofMin)} · proof→activation ${human(activateMin)} · packages ${count(orders, 'packageId')} · currencies ${count(orders, 'currency')} · payers by device ${payerKinds.map((k) => `${k._id} ${k.n}`).join(' · ') || '-'}`);
+
+  // نسبة الدفع لكل عملة ولكل باقة — فين الناس بتقف عند الدفع بالظبط
+  const hasProof = (o) => !!(o.paymentProofAt || o.paymentProofUrl || o.paymentSenderPhone);
+  const rateBy = (key) => Object.entries(orders.reduce((m, o) => {
+    const k = o[key] || '?';
+    m[k] = m[k] || { n: 0, p: 0, a: 0 };
+    m[k].n += 1; if (hasProof(o)) m[k].p += 1; if (o.status === 'activated') m[k].a += 1;
+    return m;
+  }, {})).sort((a, b) => b[1].n - a[1].n).map(([k, v]) => `${k} ${v.p}/${v.n} paid (${pct(v.p, v.n)})`).join(' · ');
+  const viaPhone = withProof.filter((o) => o.paymentSenderPhone).length;
+  console.warn(`[funnel-${days}d] pay rate by currency: ${rateBy('currency')} | by package: ${rateBy('packageId')} | proof type: sender phone ${viaPhone} · receipt image ${withProof.length - viaPhone}`);
 }
 
 module.exports = { logFunnelStats };
