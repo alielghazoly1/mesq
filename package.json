@@ -29,7 +29,7 @@
     "helmet": "^7.1.0",
     "interactjs": "^1.10.28",
     "libphonenumber-js": "^1.13.16",
-    "mongoose": "^8.6.0",
+    "mongoose": "^8.24.10",
     "multer": "^2.3.0"
   }
 }

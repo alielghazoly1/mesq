@@ -6,6 +6,7 @@ const helmet = require('helmet');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const rateLimit = require('express-rate-limit');
+const inputGuard = require('./utils/inputGuard');
 const path = require('path');
 
 const connectDB = require('./config/db');
@@ -151,6 +152,10 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '20kb' }));
 app.use(cookieParser());
+// حماية من حقن استعلامات قاعدة البيانات (utils/inputGuard.js): كوكي قيمتها
+// مش نص بتتشال، وطلب فيه مفاتيح زي $gt أو __proto__ بيرجع 400 — قبل أي مسار
+app.use(inputGuard.dropNonStringCookies);
+app.use(inputGuard.rejectOperatorKeys);
 // أجهزة محظورة بطلب المالك (utils/banGate.js) — صفحات الدعوات ولوحة التحكم مابتتقفلش
 app.use(require('./utils/banGate').banGate);
 // ?_ad=<كود> — الشخص خرج من متصفح إنستجرام لكروم/سفاري: نفس الإعلان يفضل متعلّم

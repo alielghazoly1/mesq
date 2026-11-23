@@ -114,6 +114,9 @@ function hashToken(token) {
  * @returns {Promise<{session: object|null, stolen?: object}>}
  */
 async function findSessionByToken(token) {
+  // لازم نص — أوبجكت (من كوكي "j:{...}") كان بيتحوّل لشرط زي $gt في البحث عن
+  // الجلسات القديمة ويفتح اللوحة من غير باسورد (utils/inputGuard.js بيشيله قبل هنا كمان)
+  if (typeof token !== 'string' || !token) return { session: null };
   const h = hashToken(token);
   const current = await AdminSession.findOne({ token: h, hashed: true });
   if (current) return { session: current };
@@ -126,6 +129,17 @@ async function findSessionByToken(token) {
   }
   // جلسات قديمة جدًا (قبل التشفير)
   const legacy = await AdminSession.findOne({ token, hashed: { $ne: true } });
+  if (legacy) {
+    // بنحوّلها للشكل المشفّر من أول استخدام: بنخزّن بصمة التوكن بدل التوكن نفسه.
+    // نفس الكوكي بيفضل شغال (البصمة بتتحسب منه)، ومايفضلش توكن صريح في قاعدة البيانات.
+    try {
+      const r = await AdminSession.updateOne(
+        { _id: legacy._id, token, hashed: { $ne: true } },
+        { $set: { token: h, hashed: true } },
+      );
+      if (r.modifiedCount) { legacy.token = h; legacy.hashed = true; }
+    } catch { /* لو فشلت، الجلسة بتشتغل المرة دي زي ما هي وبتتحوّل المرة الجاية */ }
+  }
   return { session: legacy };
 }
 
@@ -153,7 +167,7 @@ async function createAdminSession(req, res) {
 
 async function destroyAdminSession(req, res) {
   const token = req.cookies && req.cookies[ADMIN_COOKIE_NAME];
-  if (token) {
+  if (typeof token === 'string' && token) {
     const h = hashToken(token);
     try { await AdminSession.deleteMany({ $or: [{ token: { $in: [h, token] } }, { prevToken: h }] }); } catch { /* تجاهل، المهم مسح الكوكي في كل الأحوال */ }
   }
@@ -167,7 +181,7 @@ async function destroyAdminSession(req, res) {
 async function hasValidAdminSession(req, res) {
   try {
     const token = req.cookies && req.cookies[ADMIN_COOKIE_NAME];
-    if (!token) return false;
+    if (typeof token !== 'string' || !token) return false;
     await connectDB();
 
     const { session, stolen } = await findSessionByToken(token);
@@ -199,6 +213,9 @@ async function hasValidAdminSession(req, res) {
       }
       set.fingerprint = fingerprintOf(req);
     }
+    // جلسة قديمة من قبل ميزة البصمة (فاضية): بتتربط بالجهاز اللي بيستخدمها دلوقتي،
+    // فلو الكوكي اتنسخ لجهاز تاني بعد كده بيترفض زي باقي الجلسات
+    if (!session.fingerprint) set.fingerprint = fingerprintOf(req);
     const ip = maskedIp(req);
     if (ip && ip !== session.ip) set.ip = ip;
     if (!session.device) { const ua = uaOf(req); set.device = `${osOf(ua)} · ${browserOf(ua)}`; }
@@ -250,7 +267,7 @@ async function destroyOtherAdminSessions(req) {
   const keep = req.adminSessionId;
   if (!keep) {
     const token = req.cookies && req.cookies[ADMIN_COOKIE_NAME];
-    const ids = token ? [hashToken(token), token] : [];
+    const ids = typeof token === 'string' && token ? [hashToken(token), token] : [];
     const r = await AdminSession.deleteMany({ token: { $nin: ids }, prevToken: { $nin: ids } });
     return r.deletedCount || 0;
   }

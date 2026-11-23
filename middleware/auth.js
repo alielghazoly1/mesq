@@ -79,7 +79,7 @@ async function createSession(res, userId) {
 /** بتلغي الجلسة فعليًا من الداتابيز (مش بس مسح الكوكي) — خروج حقيقي */
 async function destroySession(req, res) {
   const raw = req.cookies && req.cookies[SESSION_COOKIE_NAME];
-  if (raw) {
+  if (typeof raw === 'string' && raw) {
     const h = hashToken(raw);
     try {
       // بنلغي العيلة كلها: لو الجلسة اتدوّرت، مايبقاش فيه توكن قديم
@@ -97,6 +97,10 @@ async function destroySession(req, res) {
  * @returns {Promise<{session: object|null, reused: boolean, legacy: boolean}>}
  */
 async function findSession(raw) {
+  // التوكن لازم يكون نص: أوبجكت (من كوكي "j:{...}") كان بيتحوّل لشرط زي $gt
+  // في البحث عن الجلسات القديمة ويطابق جلسة أي عميل. utils/inputGuard.js
+  // بيشيل الكوكيز دي قبل هنا — وده خط دفاع تاني لو الترتيب اتغيّر في يوم.
+  if (typeof raw !== 'string' || !raw) return { session: null, reused: false, legacy: false };
   const h = hashToken(raw);
 
   const current = await Session.findOne({ tokenHash: h });
@@ -127,7 +131,7 @@ async function attachUser(req, res, next) {
   req.user = null;
   try {
     const raw = req.cookies && req.cookies[SESSION_COOKIE_NAME];
-    if (!raw) return next();
+    if (typeof raw !== 'string' || !raw) return next();
 
     // لازم نستدعيها هنا صراحة (مش بس نعتمد إن requireDB اتنادت قبلها على
     // نفس المسار) — بعض المسارات اللي محتاجة تعرف حالة الدخول (زي

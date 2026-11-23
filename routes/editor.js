@@ -339,6 +339,14 @@ const PROPAGATED_FIELDS = [
 // نفس الشخص بلغتين
 const NAME_PAIRS = [['brideNameAr', 'brideName'], ['groomNameAr', 'groomName']];
 
+/** النص يدخل في الحقل الأساسي؟ (اسم القاعة 120 حرف، الأسماء 80، التليفون 40 — من الـ schema نفسها) */
+function fitsField(field, text) {
+  const p = Invitation.schema.path(field);
+  let max = p && p.options && p.options.maxlength;
+  if (Array.isArray(max)) max = max[0];
+  return !max || String(text).length <= max;
+}
+
 // PATCH /api/editor/:shortId/text — تعديل نص بالضغط عليه في الدعوة
 router.patch('/api/editor/:shortId/text', requireAuth, async (req, res) => {
   try {
@@ -388,6 +396,10 @@ router.patch('/api/editor/:shortId/text', requireAuth, async (req, res) => {
     // ده بس، وبيانات العرسان نفسها مابتتلخبطش.
     const takenByOther = PROPAGATED_FIELDS.some((f) => valueOf(f) === newText && valueOf(f) !== previous);
     if (takenByOther) propagated = null;
+    // النص أطول من المسموح للحقل الأساسي (زي آية مكتوبة مكان اسم القاعة): قبل
+    // كده الحفظ كان بيقع بـ 500 "حصل خطأ في الحفظ" (L819xwV). دلوقتي بيتحفظ على
+    // العنصر ده بس — الحقل الأساسي (الخريطة/كارت اللينك) بيفضل زي ما هو.
+    if (propagated && !fitsField(propagated, newText)) propagated = null;
 
     if (propagated) {
       // النص ده هو حقل أساسي — نعدّله في مكانه الأصلي فيتغيّر في الدعوة كلها.
@@ -423,6 +435,11 @@ router.patch('/api/editor/:shortId/text', requireAuth, async (req, res) => {
       details: detailsOf(invitation),
     });
   } catch (err) {
+    // قيمة مرفوضة في حقل من الحقول اللي بتتعدّل هنا — رسالة مفهومة بدل "حصل خطأ"
+    if (err && err.name === 'ValidationError' && Object.keys(err.errors || {}).every((p) => PROPAGATED_FIELDS.includes(p))) {
+      console.warn('Inline text rejected by validation:', err.message);
+      return res.status(400).json({ error: 'النص ده مش هينفع يتحفظ في المكان ده — جرّب نص أقصر.' });
+    }
     console.error('Error saving inline text:', err);
     return res.status(500).json({ error: 'حصل خطأ في الحفظ.' });
   }
