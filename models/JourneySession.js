@@ -42,7 +42,8 @@ const journeySessionSchema = new mongoose.Schema({
 });
 
 journeySessionSchema.index({ userId: 1, startedAt: -1 });
-// شهرين كفاية للرحلات التفصيلية — بعدها بتتمسح لوحدها
-journeySessionSchema.index({ startedAt: 1 }, { expireAfterSeconds: 60 * 24 * 3600 });
+// شهر كفاية للرحلات التفصيلية — بعدها بتتمسح لوحدها (كانت شهرين؛ قصّرناها بطلب المالك
+// 2026-11-24 عشان كانت أكبر جدول في القاعدة المجانية). لو اتغيّرت: نفس الرقم في utils/ensureIndexes.js
+journeySessionSchema.index({ startedAt: 1 }, { expireAfterSeconds: 30 * 24 * 3600 });
 
 module.exports = mongoose.model('JourneySession', journeySessionSchema);

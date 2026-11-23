@@ -36,7 +36,9 @@ const siteDeviceDaySchema = new mongoose.Schema({
 siteDeviceDaySchema.index({ day: 1, device: 1 }, { unique: true });
 // أجهزة عميل معيّن (صفحة طلبات اليوم) — كانت بتلفّ على كل الأجهزة
 siteDeviceDaySchema.index({ userId: 1, lastSeen: -1 });
-// سنة وشوية بيانات تفصيلية كفاية — بعدها بتتمسح لوحدها
-siteDeviceDaySchema.index({ firstSeen: 1 }, { expireAfterSeconds: 400 * 24 * 3600 });
+// 190 يوم بيانات تفصيلية كفاية — بتغطي أطول فترة في صفحة التحليلات (90 يوم) ومقارنتها باللي
+// قبلها، وبعدها بتتمسح لوحدها (كانت 400؛ قصّرناها بطلب المالك 2026-11-24 عشان القاعدة المجانية).
+// لو اتغيّرت: نفس الرقم في utils/ensureIndexes.js
+siteDeviceDaySchema.index({ firstSeen: 1 }, { expireAfterSeconds: 190 * 24 * 3600 });
 
 module.exports = mongoose.model('SiteDeviceDay', siteDeviceDaySchema);

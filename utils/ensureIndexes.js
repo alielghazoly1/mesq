@@ -15,6 +15,37 @@
 // فشل: تصليح الفهارس مايصحش يمنع السيرفر إنه يقوم.
 const mongoose = require('mongoose');
 
+// مدة الحذف التلقائي (TTL) لبيانات التتبّع — لازم تفضل نفس الأرقام اللي في الموديلات.
+// مونجو مابيغيّرش المدة لوحده لما نغيّرها في السكيما: الفهرس القديم بيفضل بالمدة القديمة،
+// فبنحدّثه هنا. بطلب المالك (2026-11-24) عشان القاعدة المجانية (حدها 512 ميجا) ماتتملاش:
+//   خطوات الزوار (صفحة "مباشر") 60 → 30 يوم
+//   إحصائيات الأجهزة اليومية 400 → 190 يوم (بتغطي مقارنة آخر 90 يوم باللي قبلها)
+// بيانات الشغل (الدعوات، العملاء، الطلبات، الردود، الدعم) مالهاش حذف تلقائي أصلًا.
+const DAY = 24 * 3600;
+const TTL_TARGETS = [
+  ['journeysessions', 'startedAt', 30 * DAY],
+  ['sitedevicedays', 'firstSeen', 190 * DAY],
+];
+
+async function syncTtl(collName, field, seconds) {
+  try {
+    const col = mongoose.connection.collection(collName);
+    const idx = (await col.indexes()).find((i) => i.key && Object.keys(i.key).length === 1
+      && i.key[field] === 1 && typeof i.expireAfterSeconds === 'number');
+    if (!idx || idx.expireAfterSeconds === seconds) return; // مفيش فهرس لسه (مونجوس هيبنيه بالجديد) أو متظبط خلاص
+    try {
+      await mongoose.connection.db.command({ collMod: collName, index: { name: idx.name, expireAfterSeconds: seconds } });
+    } catch {
+      // لو collMod مش مسموح في الباقة: نشيل الفهرس ونعمله تاني بنفس الاسم والمدة الجديدة
+      await col.dropIndex(idx.name);
+      await col.createIndex({ [field]: 1 }, { name: idx.name, expireAfterSeconds: seconds });
+    }
+    console.warn(`[ttl] ${collName}.${field}: ${Math.round(idx.expireAfterSeconds / DAY)} → ${Math.round(seconds / DAY)} days`);
+  } catch (err) {
+    console.error(`ensureIndexes (ttl ${collName}) skipped:`, err.message);
+  }
+}
+
 let done = false;
 
 async function ensureIndexes() {
@@ -74,6 +105,9 @@ async function ensureIndexes() {
     // مش مشكلة: لو فشل، السكيما هي اللي بتحكم والسيرفر بيكمّل شغل
     console.error('ensureIndexes skipped:', err.message);
   }
+
+  // ===== مدة حفظ بيانات التتبّع =====
+  for (const [coll, field, seconds] of TTL_TARGETS) await syncTtl(coll, field, seconds);
 }
 
 module.exports = ensureIndexes;
