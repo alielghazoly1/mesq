@@ -42,6 +42,8 @@ async function connectDB() {
         require('../utils/oneOffFixes')().catch(() => {});
         // أرقام الموبايل القديمة → الشكل الدولي الموحّد (utils/phoneMigration.js) — في الخلفية
         require('../utils/phoneMigration').runPhoneMigration().catch(() => {});
+        // حجم قاعدة البيانات في لوج هوستنجر — قراءة بس (utils/dbStats.js)
+        require('../utils/dbStats').logDbStats().catch((e) => console.warn('[db-stats] failed:', e.message));
         return m;
       })
       .catch((err) => {
