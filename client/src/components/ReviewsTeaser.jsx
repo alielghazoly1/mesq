@@ -223,7 +223,12 @@ function ReviewsViewer({ onClose, start = 0 }) {
  * - section: عنوان + صف كروت بالرسايل نفسها بتتسحب بالصباع، أي كارت بيفتح العارض عليه
  * - compact: سطر واحد (صور متراصّة + نجوم) — للدفع، عشان مايزقّش بيانات التحويل
  */
-export function ReviewsStrip({ variant = 'section', className = '' }) {
+/**
+ * @param {{ variant?: 'section'|'compact', className?: string, priority?: boolean }} props
+ *   priority: الشريط ظاهر في أول شاشة (الباقات للزائر الجديد) — أول رسالتين بيتحمّلوا على طول
+ *   (eager) بدل ما يستنوا لحد ما الصفحة تترسم وتتقاس. في الرئيسية الشريط تحت خالص فبيفضل lazy.
+ */
+export function ReviewsStrip({ variant = 'section', className = '', priority = false }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(null); // رقم الرسالة المفتوحة
   const viewer = (
@@ -292,7 +297,8 @@ export function ReviewsStrip({ variant = 'section', className = '' }) {
             <img
               src={r.full}
               alt=""
-              loading="lazy"
+              loading={priority && i < 2 ? 'eager' : 'lazy'}
+              fetchPriority={priority && i < 2 ? 'high' : undefined}
               decoding="async"
               draggable={false}
               // الرسالة الطويلة تتقص من تحت (أولها باين)، والعريضة تبان كاملة —

@@ -519,7 +519,24 @@ function spaHtml() {
 function withAuthHint(html, req) {
   const raw = req.cookies && req.cookies.wda_session;
   const has = typeof raw === 'string' && raw !== '';
-  return html.replace('<html ', `<html data-auth="${has ? 1 : 0}" `);
+  const out = html.replace('<html ', `<html data-auth="${has ? 1 : 0}" `);
+  const preloads = pagePreloads(req.path, has);
+  return preloads ? out.replace('</head>', `${preloads}\n  </head>`) : out;
+}
+
+// أكبر صورة في أول شاشة (LCP) كانت بتبدأ تتحمّل بعد ما الجافاسكريبت يخلص ويرسم الصفحة
+// (حوالي الثانية التانية على موبايل متوسط بنت 4G) — فأول شاشة كانت بتكمل على 3.6 ثانية.
+// كده المتصفح بيعرفها من أول سطر في الـ HTML ويحمّلها جنب الجافاسكريبت مش بعده.
+function pagePreloads(pathname, loggedIn) {
+  // الرئيسية: بوستر فيديو المحرر في الهيرو
+  if (pathname === '/') return '<link rel="preload" as="image" href="/video/hero-demo-poster.jpg" fetchpriority="high">';
+  // الباقات للزائر الجديد: أول رسالتين في شريط الآراء (تحت كارت "سجّل الأول" على طول).
+  // المسجّل الشريط عنده تحت الكروت بعيد، فمش بنحمّله بدري.
+  if (pathname === '/packages' && !loggedIn) {
+    return ['/img/reviews/review-8.webp', '/img/reviews/review-9.webp']
+      .map((href) => `<link rel="preload" as="image" href="${href}">`).join('\n  ');
+  }
+  return '';
 }
 
 let adminCspCache = { mtime: 0, value: '' };

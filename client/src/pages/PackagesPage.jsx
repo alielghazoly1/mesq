@@ -489,7 +489,7 @@ export default function PackagesPage() {
         )}
 
         {/* آراء العرسان تحت الأسعار على طول — طمأنة قبل ما يدوس "اطلب" */}
-        <ReviewsStrip className="mt-10 sm:mt-14" />
+        <ReviewsStrip className="mt-10 sm:mt-14" priority={likelyGuest} />
 
         {/* الشرح والفيديو بعد الأسعار — اللي عايز يفهم أكتر ينزل لهم */}
         <div className="mt-10 sm:mt-14" />
