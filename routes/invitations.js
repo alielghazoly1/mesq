@@ -18,6 +18,7 @@ const { sanitizeText } = require('../utils/sanitize');
 const { generateShortId } = require('../utils/idGenerator');
 const { renderNewPathHtml, renderLegacyHtml } = require('../utils/renderInvitation');
 const { getCustomInvitation, applyCustomData, customLang, injectCustomInvitation } = require('../utils/customInvitations');
+const { optimizeTemplateAssets } = require('../utils/assetOptimize');
 const { injectBeforeBodyEnd } = require('../utils/templateFixes');
 const { guestExtrasTags, hasGuestExtras } = require('../utils/guestExtras');
 const { shareImageSize: shareImageSize_ } = require('../utils/shareImageSize');
@@ -282,6 +283,8 @@ router.get('/i/:shortId', async (req, res) => {
     if (custom) html = injectCustomInvitation(html, custom, { editMode });
     // إضافات للضيوف على الدعوة دي بالذات (تهنئة صوتية / رفع صور) — utils/guestExtras.js
     if (invitation.templateId && hasGuestExtras(invitation)) html = injectBeforeBodyEnd(html, guestExtrasTags(invitation, { editMode }));
+    // الصور والفيديوهات التقيلة في قوالب Tilda → نسخ خفيفة عندنا (للضيوف بس، بعد تعديلات الكاستم)
+    if (!editMode) html = optimizeTemplateAssets(html);
 
     res.set('Content-Type', 'text/html; charset=utf-8');
     // مهم: الصفحة دي لازم تتقدّم طازة كل مرة — لو اتكاشت (في المتصفح أو أي
@@ -719,7 +722,8 @@ router.get('/preview-sample/:templateId', async (req, res) => {
   };
 
   // عنوان ووصف ورابط أصلي لجوجل بدل "دعوة فرح يوسف و أميرة" ورابط Tilda
-  let html = applyPreviewMeta(renderNewPathHtml(data), template);
+  // + الصور والفيديوهات التقيلة في قوالب Tilda → نسخ خفيفة عندنا (utils/assetOptimize.js)
+  let html = optimizeTemplateAssets(applyPreviewMeta(renderNewPathHtml(data), template));
   // بيكسل ميتا: الزائر فتح ديمو التصميم ده (على الموقع الحقيقي بس)
   if (process.env.NODE_ENV === 'production' || process.env.META_PIXEL_ON === '1') {
     // نفس الحدث من السيرفر كمان (Conversions API) بنفس event_id: ميتا كانت
