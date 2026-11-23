@@ -29,6 +29,8 @@ const MAP = {
   'https://static.tildacdn.net/tild3766-3833-4138-b137-393561366461/decor-line_1.png': '/templates/blossom-oud/opt/decor-line_1.webp',
   'https://static.tildacdn.net/tild6131-6532-4465-a338-653839313434/Group_204_2.png': '/templates/blossom-oud/opt/Group_204_2.webp',
   'https://static.tildacdn.net/tild6566-6361-4436-a235-323435366264/line_flower_1.png': '/templates/blossom-oud/opt/line_flower_1.webp',
+  // فيديو الفتح (fadeVideo): نفس الصورة بالظبط (MD5 الفريمات متطابق) من غير تراك الصوت — هو muted أصلًا (-131 ك.ب)
+  'https://pub-4dc8201144ca418fb604349c73e8c724.r2.dev/Luxury_illustration_with_atmosph%E2%80%A6_202605232035%20(1).mp4': '/templates/blossom-oud/opt/fade.mp4',
 };
 
 /**
