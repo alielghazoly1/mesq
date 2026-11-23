@@ -31,7 +31,7 @@ const baseQuery = async (args, api, extra) => {
 export const adminApi = createApi({
   reducerPath: 'adminApi',
   baseQuery,
-  tagTypes: ['Overview', 'Users', 'User', 'Orders', 'Invitations', 'Support', 'SupportUnread', 'Settings', 'Pricing', 'Thread', 'Audit', 'Tracks', 'Withdrawals', 'Ugc', 'SiteTemplates', 'Security', 'Cleanup', 'WhatsApp', 'Campaigns', 'GoogleLogin', 'Finance', 'Pins', 'MetaTracking'],
+  tagTypes: ['Overview', 'Users', 'User', 'Orders', 'Invitations', 'Support', 'SupportUnread', 'Settings', 'Pricing', 'Thread', 'Audit', 'Tracks', 'Withdrawals', 'Ugc', 'SiteTemplates', 'Security', 'Cleanup', 'WhatsApp', 'Campaigns', 'GoogleLogin', 'Finance', 'Pins', 'MetaTracking', 'Backups'],
   endpoints: (builder) => ({
     // ===== المثبّتين (عملاء ودعوات بيفضلوا فوق على طول) =====
     getPins: builder.query({ query: () => '/pins', providesTags: ['Pins'] }),
@@ -57,6 +57,9 @@ export const adminApi = createApi({
     getAdminDevices: builder.query({ query: () => '/security/devices', providesTags: ['Security'] }),
     closeAdminDevice: builder.mutation({ query: (id) => ({ url: `/security/devices/${id}`, method: 'DELETE' }), invalidatesTags: ['Security', 'Audit'] }),
     closeOtherAdminDevices: builder.mutation({ query: () => ({ url: '/security/devices/close-others', method: 'POST' }), invalidatesTags: ['Security', 'Audit'] }),
+    // ===== النسخ الاحتياطي اليومي (utils/backup.js) =====
+    getBackups: builder.query({ query: () => '/backups', providesTags: ['Backups'] }),
+    runBackup: builder.mutation({ query: () => ({ url: '/backups/run', method: 'POST' }), invalidatesTags: ['Backups', 'Audit'] }),
     start2fa: builder.mutation({ query: () => ({ url: '/security/2fa/setup', method: 'POST' }) }),
     enable2fa: builder.mutation({
       query: (code) => ({ url: '/security/2fa/enable', method: 'POST', body: { code } }),
@@ -371,6 +374,7 @@ export const {
   useGetMetaTrackingQuery, useSaveMetaTrackingMutation, useSendMetaTestMutation,
   useGetSecurityQuery, useStart2faMutation, useEnable2faMutation, useDisable2faMutation, useNewBackupCodesMutation,
   useGetAdminDevicesQuery, useCloseAdminDeviceMutation, useCloseOtherAdminDevicesMutation,
+  useGetBackupsQuery, useRunBackupMutation,
   useGetCleanupPreviewQuery, useRunCleanupMutation,
   useGetWhatsAppQuery, useLinkWhatsAppMutation, useUnlinkWhatsAppMutation, useSaveWhatsAppSettingsMutation, useTestWhatsAppMutation,
   useGetOverviewQuery,

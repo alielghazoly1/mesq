@@ -44,6 +44,8 @@ async function connectDB() {
         require('../utils/phoneMigration').runPhoneMigration().catch(() => {});
         // حجم قاعدة البيانات في لوج هوستنجر — قراءة بس (utils/dbStats.js)
         require('../utils/dbStats').logDbStats().catch((e) => console.warn('[db-stats] failed:', e.message));
+        // نسخة احتياطية يومية الساعة 4 الفجر بتوقيت القاهرة (utils/backup.js) — مش في الاختبارات
+        require('../utils/backup').startBackupScheduler();
         return m;
       })
       .catch((err) => {

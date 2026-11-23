@@ -13,6 +13,7 @@ import {
   useGetSecurityQuery, useStart2faMutation, useEnable2faMutation,
   useDisable2faMutation, useNewBackupCodesMutation,
   useGetAdminDevicesQuery, useCloseAdminDeviceMutation, useCloseOtherAdminDevicesMutation,
+  useGetBackupsQuery, useRunBackupMutation,
 } from '../../store/adminApi.js';
 import { Panel, Btn, Spinner, fmtDate } from '../../components/admin/ui.jsx';
 import CodeInput from '../../components/admin/CodeInput.jsx';
@@ -222,6 +223,71 @@ function CodeAction({ title, body, cta, tone, onRun, onCancel }) {
  * وصفحتين الأرباح والمصاريف بيختفوا من القايمة. الزرار هنا بس (مش ظاهر
  * في كل صفحة)، والاختيار بيتحفظ على الجهاز ده.
  */
+const fmtSize = (b) => (b >= 1048576 ? `${(b / 1048576).toFixed(1)} ميجا` : `${Math.max(1, Math.round(b / 1024))} ك.ب`);
+
+/** التنزيل لازم يبعت هيدر اللوحة (السيرفر بيرفض من غيره) — فبنجيبه كـ blob ونحفظه */
+async function downloadBackup(name) {
+  const r = await fetch(`/admin/api/backups/file/${encodeURIComponent(name)}`, { credentials: 'include', headers: { 'X-Admin-Request': '1' } });
+  if (!r.ok) throw new Error('التنزيل فشل، جرّب تاني.');
+  const url = URL.createObjectURL(await r.blob());
+  const a = document.createElement('a');
+  a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+}
+
+/**
+ * النسخ الاحتياطي اليومي (utils/backup.js): القاعدة المجانية في Atlas مالهاش نسخ خالص،
+ * فالسيرفر بياخد نسخة كل يوم الساعة 4 الفجر وبيحتفظ بآخر 14 على هوستنجر برّه الموقع.
+ */
+function BackupsPanel() {
+  const { data, isLoading } = useGetBackupsQuery();
+  const [run, { isLoading: running }] = useRunBackupMutation();
+  const [msg, setMsg] = useState('');
+  const [busy, setBusy] = useState('');
+  const files = (data && data.files) || [];
+  const st = data && data.status;
+  const failedLast = st && st.lastError && (!st.lastOk || new Date(st.lastError.at) > new Date(st.lastOk.at));
+  return (
+    <Panel title="النسخ الاحتياطي" subtitle="نسخة من بيانات الموقع كل يوم الساعة 4 الفجر — آخر 14 يوم محفوظين على هوستنجر برّه الموقع"
+      action={(
+        <Btn size="sm" icon={RefreshCw} disabled={running}
+          onClick={async () => { setMsg(''); try { const r = await run().unwrap(); setMsg(`اتعملت نسخة دلوقتي: ${fmtSize(r.bytes)} — ${r.docs.toLocaleString('ar-EG')} عنصر.`); } catch (e) { setMsg(errOf(e)); } }}>
+          {running ? 'بيعمل نسخة…' : 'اعمل نسخة دلوقتي'}
+        </Btn>
+      )}>
+      {isLoading ? <Spinner /> : (
+        <div className="space-y-3" data-backups>
+          {failedLast && (
+            <p className="rounded-xl bg-error/10 px-3.5 py-2.5 text-[12.5px] text-error" data-backup-error>
+              آخر محاولة فشلت ({fmtDate(st.lastError.at, true)}): {st.lastError.message}
+            </p>
+          )}
+          {files.length === 0 ? (
+            <p className="text-[12.5px] text-ivory/50">لسه مفيش نسخ — أول نسخة هتتعمل الساعة 4 الفجر، أو دوس "اعمل نسخة دلوقتي".</p>
+          ) : (
+            <ul className="space-y-1.5">
+              {files.map((f, i) => (
+                <li key={f.name} className="flex items-center gap-3 rounded-xl border border-line-lite bg-night/30 px-3.5 py-2" data-backup-file={f.name}>
+                  <span className="min-w-0 flex-1 text-[12.5px] text-ivory/80">
+                    {fmtDate(f.at, true)} · {fmtSize(f.bytes)}
+                    {i === 0 && <span className="ms-2 rounded-full bg-ok/15 px-2 py-0.5 text-[10.5px] text-ok">الأحدث</span>}
+                  </span>
+                  <Btn size="sm" icon={Download} disabled={busy === f.name}
+                    onClick={async () => { setBusy(f.name); try { await downloadBackup(f.name); } catch (e) { setMsg(e.message); } setBusy(''); }}>
+                    تنزيل
+                  </Btn>
+                </li>
+              ))}
+            </ul>
+          )}
+          {msg && <p className="rounded-xl bg-ok/10 px-3.5 py-2.5 text-[12.5px] text-ok" data-backup-msg>{msg}</p>}
+          <p className="text-[11.5px] leading-[1.8] text-ivory/40">الملف فيه بيانات كل العملاء — نزّله على جهازك بس، ومتبعتهوش لأي حد.</p>
+        </div>
+      )}
+    </Panel>
+  );
+}
+
 function HideMoneyPanel() {
   const hidden = useMoneyHidden();
   return (
@@ -325,6 +391,7 @@ export default function SecurityPage() {
         )}
       </Panel>
       <DevicesPanel />
+      <BackupsPanel />
     </div>
   );
 }
