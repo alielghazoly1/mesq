@@ -512,6 +512,16 @@ function spaHtml() {
   }
 }
 
+// تلميح للواجهة: الزائر معاه كوكي دخول ولا لأ — من غير ما نلمس قاعدة البيانات. صفحة
+// الباقات بترسم كارت "سجّل الأول" في مكانه من أول لحظة للزائر الجديد، بدل ما يظهر فجأة
+// فوق العنوان لما /api/packages يرد ويزق الصفحة كلها (CLS 0.24 على الموبايل).
+// مجرد تلميح: القرار الحقيقي من /api/packages زي ما هو. الصفحة no-store فمابتتخزّنش.
+function withAuthHint(html, req) {
+  const raw = req.cookies && req.cookies.wda_session;
+  const has = typeof raw === 'string' && raw !== '';
+  return html.replace('<html ', `<html data-auth="${has ? 1 : 0}" `);
+}
+
 let adminCspCache = { mtime: 0, value: '' };
 function adminCsp() {
   try {
@@ -594,7 +604,7 @@ app.get('*', (req, res, next) => {
   const meta = pageMeta(req.path);
   if (meta) {
     const html = spaHtml();
-    if (html) return res.type('html').send(applyPageMeta(html, meta));
+    if (html) return res.type('html').send(withAuthHint(applyPageMeta(html, meta), req));
   } else if (!res.getHeader('X-Robots-Tag')) {
     // صفحات الحساب والدفع والمحرر، وأي مسار مش موجود: مش لجوجل
     res.setHeader('X-Robots-Tag', 'noindex');

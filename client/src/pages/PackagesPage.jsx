@@ -331,6 +331,12 @@ export default function PackagesPage() {
   const { data, isLoading } = useGetPackagesQuery(i18n.language);
   const { data: meData } = useGetMeQuery();
   const user = meData?.user ?? null;
+  // زائر جديد (مش مسجّل)؟ بيانات /api/auth/me لو وصلت هي اللي بتحكم، ولحد ما توصل بناخد
+  // تلميح السيرفر (server.js withAuthHint: مفيش كوكي دخول). كده كارت "سجّل الأول" بيترسم
+  // في مكانه من أول لحظة بدل ما يظهر فجأة فوق العنوان ويزق الصفحة (CLS 0.24 على الموبايل).
+  const guestHint = typeof document !== 'undefined' && document.documentElement.dataset.auth === '0';
+  const likelyGuest = meData ? !meData.user : guestHint;
+  const showAuthCard = isLoading ? likelyGuest : !!data?.requiresAuth;
 
   /**
    * الضغط على الباقة بيوديه صفحة الدفع — مش بيغيّر كلمة الزرار ويسيبه
@@ -369,7 +375,7 @@ export default function PackagesPage() {
 
         {/* مش مسجّل؟ "سجّل الأول عشان تشوف الأسعار" أول حاجة في الصفحة خالص —
             الأسعار بتختلف حسب دولة العميل، فبنستناه يسجّل قبل ما نوريه رقم */}
-        {!isLoading && data?.requiresAuth && (
+        {showAuthCard && (
             <motion.div
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
@@ -427,7 +433,14 @@ export default function PackagesPage() {
           </div>
         )}
         {isLoading ? (
-          <p className="py-10 text-center text-ink-dim">{t('packages.loading')}</p>
+          // الزائر الجديد مش هيشوف كروت أصلًا (لازم يسجّل الأول) — فمفيش "بيحمّل" يختفي ويزق اللي تحته
+          // والعميل المسجّل: المكان محجوز بطول الكروت تقريبًا (موبايل 1640–2085، كمبيوتر 641–717
+          // بكسل) — قبل كده سطر "بيحمّل" صغير وبعدين الكروت بتنزل وبتزق الآراء والشرح (CLS ‎0.6)
+          likelyGuest ? null : (
+            <div className="min-h-[1200px] lg:min-h-[650px]">
+              <p className="py-10 text-center text-ink-dim">{t('packages.loading')}</p>
+            </div>
+          )
         ) : data?.requiresAuth ? null : (
           <>
             {/* الباقات تحت بعض على الموبايل، وجنب بعض على الشاشة الكبيرة.
