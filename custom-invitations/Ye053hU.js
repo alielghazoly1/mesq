@@ -13,6 +13,8 @@
 // الأقسام المستخبية (الإقامة/الهدية/المواصلات/الخريطة) والكلام القديم اتشالوا بـ oneOffFix Ye053hU-natural-nov20.
 // الجولة 4 (2026-11-20): أول صفحة = حرفين ف ص + "كُتب لديسمبر أن يكون استثنائياً" بس، رسمة القاعة نزلت مكان صورة القاعة (اتشالت)،
 // برنامج اليوم من غير العنوان + صف العشاء ١:٠٠، و"الزي المقترح" بقى كلام ليلة ديسمبر والعروسين (رسمة القالب).
+// (2026-11-23) كارت اللينك: "دعوة زفاف فارس وصفاء" بس من غير الوصف اللي تحته، و Fares & Safaa اللي فوق التاريخ أغمق،
+// والتاريخ أكبر وأغمق.
 const { asset } = require('./_asset');
 
 const SHORT = 'Ye053hU';
@@ -100,12 +102,13 @@ img.ye-villa{display:block;width:100%;height:auto;margin:0 auto;pointer-events:n
 .ye-s1{font-size:21px;line-height:1.5}
 .ye-s2{font-size:14.5px;line-height:1.75;color:hsl(var(--foreground)/.78);margin-top:8px}
 .ye-s2+.ye-s2{margin-top:0}
-.ye-names{font-family:'Ballet',cursive!important;font-size:25px;line-height:1.6;white-space:nowrap;direction:ltr;margin-top:2px;-webkit-text-stroke:0!important}
-.ye-date{font-size:15px;direction:ltr;letter-spacing:.06em;color:hsl(var(--foreground)/.8)}
+/* (المالك 2026-11-23) الأسامي اللي فوق التاريخ أغمق (لون أعمق + خط أتقل شوية)، والتاريخ أكبر وأغمق */
+.ye-names{font-family:'Ballet',cursive!important;font-size:25px;line-height:1.6;white-space:nowrap;direction:ltr;margin-top:2px;color:hsl(345 50% 15%);-webkit-text-stroke:.6px currentColor!important;paint-order:stroke fill}
+.ye-date{font-size:20px;direction:ltr;letter-spacing:.05em;color:hsl(345 50% 15%);-webkit-text-stroke:.35px currentColor!important;paint-order:stroke fill}
 html.ar .ye-s1,html.ar .ye-s2,html.ar .ye-hero-t{font-family:'Amiri',serif}
 html:not(.ar) .ye-s1{font-size:19px}
 html:not(.ar) .ye-hero-t{font-size:20px;max-width:310px}
-@media (min-width:768px){.ye-s1{font-size:30px}.ye-s2{font-size:18px}.ye-names{font-size:44px}.ye-date{font-size:19px}}
+@media (min-width:768px){.ye-s1{font-size:30px}.ye-s2{font-size:18px}.ye-names{font-size:44px;-webkit-text-stroke-width:.9px!important}.ye-date{font-size:25px;-webkit-text-stroke-width:.45px!important}}
 /* العروسين ماشيين — رسمة القالب الأصلية */
 .ye-couple{display:block;height:118px;width:auto;margin:12px auto 4px;pointer-events:none}
 @media (min-width:768px){.ye-couple{height:200px}}
@@ -131,14 +134,16 @@ module.exports = {
   shortId: SHORT,
   // العربي الافتراضي (لغة البيانات) — /en أو ?lang=en للإنجليزي
   langs: ['ar', 'en'],
-  // كارت لينك المشاركة (المالك 2026-11-20): الختم بحروفهم F & S جنب الأسامي عربي وإنجليزي والتاريخ والمكان (1200×630)
+  // كارت لينك المشاركة (المالك 2026-11-20): الختم بحروفهم F & S جنب الأسامي عربي وإنجليزي والتاريخ والمكان (1200×630).
+  // (المالك 2026-11-23) المكتوب بره "دعوة زفاف فارس وصفاء" بس — من غير سطر التاريخ والمكان اللي تحته
+  // (الوصف بيتشال كله من الكارت: NO_SHARE_DESCRIPTION في utils/shareTags.js).
   share: {
     image: asset(`${DIR}share.jpg`), width: 1200, height: 630, overrideImage: true,
-    title: 'دعوة زفاف فارس وصفاء 🤍', description: 'الخميس ١٧ ديسمبر ٢٠٢٦ · الساعة ٩ مساءً · قاعات أضواء للاحتفالات — المدينة المنورة',
+    title: 'دعوة زفاف فارس وصفاء',
   },
   shareByLang: {
-    ar: { overrideImage: true, title: 'دعوة زفاف فارس وصفاء 🤍', description: 'الخميس ١٧ ديسمبر ٢٠٢٦ · الساعة ٩ مساءً · قاعات أضواء للاحتفالات — المدينة المنورة' },
-    en: { overrideImage: true, title: 'Fares & Safaa — Wedding Invitation 🤍', description: 'Thursday, 17 December 2026 · 9:00 PM · Adwaa Celebration Halls, Al Madinah' },
+    ar: { overrideImage: true, title: 'دعوة زفاف فارس وصفاء' },
+    en: { overrideImage: true, title: 'Fares & Safaa — Wedding Invitation' },
   },
 
   render() {

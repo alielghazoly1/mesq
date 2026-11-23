@@ -126,13 +126,22 @@ const NO_SHARE_IMAGE = new Set([
   'rt8aOHR', // Lotfy & Mariam — بطلب المالك 2026-10-19
 ]);
 
+// دعوات بعينها المالك طالب لينكها يظهر بالعنوان بس — من غير سطر الوصف اللي
+// تحته. بيتشال og:description و twitter:description و meta description كلهم،
+// عشان واتساب مايرجعش لأي واحد فيهم.
+const NO_SHARE_DESCRIPTION = new Set([
+  'Ye053hU', // فارس وصفاء — "دعوة زفاف فارس وصفاء" بس، بطلب المالك 2026-11-23
+]);
+
 function buildShareTags(data, pageUrl, fallbackImage, imageSize) {
   const c = (data && data.customizations) || {};
   const share = c.share || {};
   const base = defaultShare(data || {});
 
   const title = clamp(share.title, MAX_TITLE) || base.title;
-  const description = clamp(share.description, MAX_DESC) || base.description;
+  const description = data && NO_SHARE_DESCRIPTION.has(data.shortId)
+    ? ''
+    : clamp(share.description, MAX_DESC) || base.description;
   const origin = originOf(pageUrl);
   const abs = (u) => (u && u.startsWith('/') && origin ? origin + u : u);
 
@@ -165,7 +174,7 @@ function buildShareTags(data, pageUrl, fallbackImage, imageSize) {
     `<meta property="og:site_name" content="${attr(siteName)}">`,
     url ? `<meta property="og:url" content="${attr(url)}">` : '',
     `<meta property="og:title" content="${attr(title)}">`,
-    `<meta property="og:description" content="${attr(description)}">`,
+    description ? `<meta property="og:description" content="${attr(description)}">` : '',
     `<meta property="og:locale" content="${isAr ? 'ar_EG' : 'en_US'}">`,
     image ? `<meta property="og:image" content="${attr(image)}">` : '',
     // إنستجرام/فيسبوك بيعتمدوا على secure_url والنوع والمقاس عشان يعرضوا
@@ -183,9 +192,9 @@ function buildShareTags(data, pageUrl, fallbackImage, imageSize) {
     image ? `<meta property="og:image:alt" content="${attr(title)}">` : '',
     `<meta name="twitter:card" content="${image ? 'summary_large_image' : 'summary'}">`,
     `<meta name="twitter:title" content="${attr(title)}">`,
-    `<meta name="twitter:description" content="${attr(description)}">`,
+    description ? `<meta name="twitter:description" content="${attr(description)}">` : '',
     image ? `<meta name="twitter:image" content="${attr(image)}">` : '',
-    `<meta name="description" content="${attr(description)}">`,
+    description ? `<meta name="description" content="${attr(description)}">` : '',
     canonical ? `<link rel="canonical" href="${attr(canonical)}">` : '',
     `<title>${attr(title)}</title>`,
   ].filter(Boolean).join('\n    ');
