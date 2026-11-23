@@ -17,6 +17,14 @@ const { safeJsonForScript } = require('./sanitize');
 const { injectTemplateFixes, injectBeforeBodyEnd } = require('./templateFixes');
 const { buildCustomizationTags } = require('./customizations');
 const { buildShareTags, injectShareTags } = require('./shareTags');
+const { makeOneVideo } = require('../custom-invitations/_oneVideo');
+const { asset } = require('../custom-invitations/_asset');
+
+// (المالك 2026-11-23) قالب Mother of Pearl: فيديو فتح واحد (الختم + الفيونكة في ملف واحد open.mp4) بدل
+// فيديوهين — الفيونكة كانت بتعلق في النقلة بين الملفين. نفس الكود الشغال على AxAg1X0 و 5vKDyVK
+// (custom-invitations/_oneVideo.js). لو أي حتة من كود القالب اتغيّرت أو الملف مش موجود → الفيديوهين زي ما كانوا.
+// 2.55 ميجا في 10.08 ثانية ≈ 253000 بايت في الثانية.
+const mopOneVideo = makeOneVideo({ short: 'mother-of-pearl', openSrc: asset('/templates/mother-of-pearl/open.mp4'), bps: 253000, dur: 10.08 });
 
 // بيتحقن بس في وضع التحرير (routes/invitations.js بيتأكد إن اللي فاتح هو
 // صاحب الدعوة فعلاً) — الضيوف عمرهم ما يشوفوا الملفات دي.
@@ -247,6 +255,12 @@ function renderNewPathHtml(data, options) {
     '__INVITATION_CONFIG_JSON__',
     safeJsonForScript(config)
   );
+
+  // Mother of Pearl بفيديو فتح واحد — بس للدعوات العادية. الدعوات الكاستم على القالب (cPcTTdw بختمها هي على
+  // الفيديوهين، AxAg1X0 و 5vKDyVK بفيديوهم الواحد) بتعدّل كود القالب الأصلي بنفسها، فلازم توصلها زي ما هو.
+  if (template.id === 'mother-of-pearl' && !(options && options.customInvitation)) {
+    html = mopOneVideo(html) || html;
+  }
 
   // غلاف المظروف: بنخفي غلاف التصميم الأبيض **من أول لحظة** عبر CSS في
   // الـ <head> — من غير كده كان بيظهر جزء من الثانية قبل ما سكريبت

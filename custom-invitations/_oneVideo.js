@@ -2,11 +2,11 @@
 // (المالك 2026-11-18: "الفيونكة بتعلق")، منقول هنا عشان دعوات تانية تستخدمه. AxAg1X0.js نفسه ماتلمسش.
 // الاستخدام: makeOneVideo({ short, openSrc: asset('/custom/<id>/open.mp4'), bps, dur })(html)
 //   → الصفحة بفيديو واحد، أو null لو أي حتة من كود القالب اتغيّرت (الدعوة بتفضل على الفيديوهين — ولا حاجة بتبوظ).
+// (2026-11-23) القالب نفسه بيستخدمه كمان للدعوات العادية: utils/renderInvitation.js (short = 'mother-of-pearl').
 const T = '/templates/mother-of-pearl/';
 
 function makeOneVideo({ short, openSrc, bps, dur }) {
 const SHORT = short;
-const OWN = `/custom/${SHORT}/`;
 const OPEN_SRC = openSrc;
 const ONE_VIDEO = [
   // 1) الضغطة: فيديو واحد — ولو نسخة الذاكرة لسه جاية، نستنى عليها شوية
@@ -167,7 +167,7 @@ const ONE_VIDEO = [
 function oneVideo(html) {
   // الملف لازم يكون موجود (asset بيرجّع اللينك من غير ?v= لو مش لاقيه) — وإلا الفيديوهين القدام
   if (OPEN_SRC.indexOf('?v=') === -1) {
-    console.warn(`[${SHORT}] one-video patch skipped: ${OWN}open.mp4 missing`);
+    console.warn(`[${SHORT}] one-video patch skipped: ${OPEN_SRC} missing`);
     return null;
   }
   let out = html;

@@ -5,8 +5,12 @@
   ─────────────────────────────────────────────
   • نسختين: إنجليزي وعربي (C.language). الفتح: فيديو الظرف (ختم الشمع بقلب) ← فيديو الفيونكة ← الكارت.
   • الفيديوهين بيتحمّلوا كاملين قبل الضغطة، وأي وقفة 1.5 ثانية بتظهر الدعوة على طول (مافيش تعليق).
+    (المالك 2026-11-23) الدعوات العادية على القالب ده بقت بفيديو فتح واحد open.mp4 (الختم + الفيونكة في ملف واحد):
+    utils/renderInvitation.js بيعدّل الكود ده وقت العرض (custom-invitations/_oneVideo.js). الكود هنا زي ما هو —
+    الدعوات الكاستم (cPcTTdw/AxAg1X0/5vKDyVK) بتعدّله بنفسها، فأي تغيير في سكريبت الفيديو لازم يتجرّب عليهم.
   • كل جملة عليها data-elem-id (mp1…mp53) → المحرر بيعدّلها. الأسامي/التاريخ/الساعة/القاعة من بيانات
     الدعوة (data-f) وتعديل صاحب الدعوة بيغلب. الصور الأربعة + رسمة القاعة + رسمة اللبس بتتغيّر.
+    (المالك 2026-11-23) كلام الدريس كود كان مش بيتختار في المحرر: .dr-in كان عليه pointer-events:none — اتشال.
   • زرار الخريطة (#mapBtn) لينكه من C.venueMapDirectLink — المحرر بيغيّر المكان منه.
   • الأقسام (data-section): countdown gallery venue rsvp dressCode
 -->
@@ -232,7 +236,7 @@ main{background:var(--bg);color:var(--fg);overflow-x:hidden;overflow-x:clip}
 .dr-frame{position:relative;width:100%;aspect-ratio:726/1265}
 .dr-frame img{position:absolute;left:-.661%;top:-.3856%;width:101.322%;height:100.7463%;max-width:none;pointer-events:none}
 .dr-seal{position:absolute;right:2%;bottom:4%;width:26%;height:auto;aspect-ratio:1/1;transform:rotate(24deg);filter:drop-shadow(0 2px 3px rgba(var(--fg-rgb),.15));z-index:20;pointer-events:none}
-.dr-in{position:absolute;left:0;top:0;right:0;bottom:0;transform:translateY(-5px);display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:0 26% 7%;pointer-events:none}
+.dr-in{position:absolute;left:0;top:0;right:0;bottom:0;transform:translateY(-5px);display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:0 26% 7%}
 .dr-t{font-family:var(--serif);font-size:43px;line-height:1}
 .dr-s{font-family:var(--script);font-size:30px;line-height:1;white-space:nowrap;margin-top:8px}
 .dr-pic{margin:30px 0 9px;width:100%}

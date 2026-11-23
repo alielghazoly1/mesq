@@ -274,6 +274,8 @@ router.get('/i/:shortId', async (req, res) => {
         editMode,
         pageUrl,
         shareImageSize,
+        // الدعوة الكاستم بتعدّل كود القالب الأصلي بنفسها (زي فيديوهات Mother of Pearl) — من غير تعديلات القالب العامة
+        customInvitation: !!custom,
         ...(custom && custom.share && custom.share.image ? { shareFallbackImage: `${req.protocol}://${req.get('host')}${custom.share.image}` } : {}),
       })
       : renderLegacyHtml(invitation, { pageUrl });
