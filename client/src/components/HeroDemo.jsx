@@ -65,12 +65,12 @@ export default function HeroDemo() {
           style={{ background: 'radial-gradient(circle at 50% 40%, rgba(201,120,138,0.3), transparent 62%)' }}
         />
 
+        {/* من غير حركة دخول: التليفون أكبر حاجة في أول شاشة (LCP)، وكان بيبدأ شفاف
+            (opacity 0) ومابيبانش غير لما الحركة تشتغل — على موبايل متوسط حوالي الثانية 3.5،
+            مع إن صورته بتكون جاهزة من الثانية 1.2. كده بيبان مع أول رسمة للصفحة. */}
         <motion.div
           className="relative"
-          initial={{ opacity: 0, y: 22, rotate: -2 }}
-          whileInView={{ opacity: 1, y: 0, rotate: 0 }}
-          viewport={{ once: true, margin: '-60px' }}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          initial={false}
         >
           <div className="relative rounded-[22px] border-[5px] border-[#050b08] bg-[#050b08] shadow-[0_28px_60px_-24px_rgba(0,0,0,.85)] sm:rounded-[28px] sm:border-[6px] lg:rounded-[34px] lg:border-[7px]">
             <span className="absolute start-1/2 top-1.5 z-10 h-1 w-10 -translate-x-1/2 rounded-full bg-[#1c2b24] sm:top-2 sm:h-1.5 sm:w-14" />
