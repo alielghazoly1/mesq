@@ -74,9 +74,12 @@ export default function HeroDemo() {
         >
           <div className="relative rounded-[22px] border-[5px] border-[#050b08] bg-[#050b08] shadow-[0_28px_60px_-24px_rgba(0,0,0,.85)] sm:rounded-[28px] sm:border-[6px] lg:rounded-[34px] lg:border-[7px]">
             <span className="absolute start-1/2 top-1.5 z-10 h-1 w-10 -translate-x-1/2 rounded-full bg-[#1c2b24] sm:top-2 sm:h-1.5 sm:w-14" />
+            {/* aspect-[568/1248] = مقاس البوستر والفيديو نفسه (284×624 ×2). من غيره المتصفح
+                بيرسم الفيديو 2:1 لحد ما البوستر يوصل، وبعدها التليفون بيطول فجأة وبيزق الصفحة
+                كلها لتحت (CLS ‎0.66 على الموبايل). كده المكان محجوز من أول لحظة — الشكل النهائي زي ما هو */}
             <video
               ref={videoRef}
-              className="block w-full rounded-[17px] sm:rounded-[22px] lg:rounded-[27px]"
+              className="block aspect-[568/1248] w-full rounded-[17px] sm:rounded-[22px] lg:rounded-[27px]"
               poster={POSTER}
               muted
               loop
