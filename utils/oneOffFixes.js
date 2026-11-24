@@ -2242,9 +2242,11 @@ const FIXES = [
       const tracks = await Track.find({ active: true }).sort({ createdAt: -1 }).select('title artist url').lean();
       const pick = tracks.find((t) => /دخله عروس تجنن/.test(norm(t.title)) && /2023|٢٠٢٣/.test(t.title))
         || tracks.find((t) => /دخله عروس تجنن/.test(norm(t.title)));
-      if (!pick || !/^https:\/\/res\.cloudinary\.com\//.test(pick.url)) throw new Error('track not found in the library');
-      console.log(`[oneOffFix] qCUFp1B-song-dakhla: ${pick.title} (${pick.url})`);
-      return { 'customizations.audioUrl': pick.url, 'customizations.audioStart': 0, 'customizations.audioEnd': 0 };
+      // لو الاسم في المكتبة مكتوب بشكل تاني: نفس ملف المكتبة اللي المالك بعته لـ 25gFXIO ("موسيقى دخلة عروس تجنن")
+      const LIB = 'https://res.cloudinary.com/dxtkmyscw/video/upload/v1789344858/mithaq/library/music/t3uegfchmkj2soo00unm.mp3';
+      const url = pick && /^https:\/\/res\.cloudinary\.com\//.test(pick.url) ? pick.url : LIB;
+      console.log(`[oneOffFix] qCUFp1B-song-dakhla: ${pick ? pick.title : '(library file from 25gFXIO)'} (${url})`);
+      return { 'customizations.audioUrl': url, 'customizations.audioStart': 0, 'customizations.audioEnd': 0 };
     },
   },
 ];
