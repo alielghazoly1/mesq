@@ -2210,6 +2210,39 @@ const FIXES = [
     },
   },
   {
+    // 7j2tOWl (Mother of Pearl عربي — custom-invitations/7j2tOWl.js) — بطلب المالك (2026-11-24): خطوبة مريم ومعاذ،
+    // الثلاثاء 8/12/2026 الساعة 8 مساءً، قاعة الإليزيه — الإسكندرية (لينك المالك)، وتهاني صوتية من الضيوف (فويس نوت
+    // تحت تأكيد الحضور → لوحة صاحبة الدعوة). الأسامي بترتيب المالك: مريم الأول. بيتعمل بس لو الدعوة لسه مسودة.
+    name: '7j2tOWl-mariam-moaz',
+    shortId: '7j2tOWl',
+    select: '-__v',
+    when: (c, inv) => inv.templateId === 'mother-of-pearl' && ['Groom', 'العريس'].includes(inv.groomName)
+      && ['Bride', 'العروسة'].includes(inv.brideName) && ['Venue', ''].includes(inv.venueName || ''),
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const link = 'https://maps.app.goo.gl/drVmw6ALacMbdXCEA';
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: 'ar', occasionType: 'engagement',
+        hiddenSections: inv.hiddenSections || [], timeline: inv.timeline, name: inv.name,
+        groomName: 'معاذ', groomNameAr: 'معاذ', brideName: 'مريم', brideNameAr: 'مريم',
+        venueName: 'قاعة الإليزيه', venueCity: 'الإسكندرية', venueAddress: '',
+        venueMapQuery: link,
+        weddingDate: '2026-12-08', weddingTime: '20:00',
+      }, { ownsTemplate: true, skipMapNetwork: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.language = 'ar';
+      set.occasionType = 'engagement';
+      set.venueMapQuery = link;
+      set.venueMapDirectLink = link;
+      set.venueMapEmbedSrc = 'https://www.google.com/maps?q=31.2019399,29.9961984&z=17&output=embed';
+      set['guestExtras.voice'] = true;
+      // مريم الأول (زي ما المالك كتبها) — في أول صفحة وفي الختام
+      set['customizations.texts'] = { ...(c.texts || {}), mp2: 'مريم', mp3: 'معاذ', mp50: 'مريم', mp51: 'معاذ' };
+      return set;
+    },
+  },
+  {
     // qCUFp1B — المالك (2026-11-24، الجولة 4): أماكن الإقامة ترجع (فندق الحفل نفسه)، الهدية تتشال خالص، أول صفحة:
     // "بارك الله لكما وبارك عليكما / وجمع بينكما في خير" والمكان بالإنجليزي Golden Jewel Hotel / Ismailia.
     // الكلام في customizations.texts (صاحبها يقدر يعدّله من المحرر). بيتعمل مرة واحدة (لو lc1 لسه فاضي).
