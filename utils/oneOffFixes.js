@@ -2179,6 +2179,36 @@ const FIXES = [
     when: (c, inv) => inv.groomName === 'Ebraheem' || inv.groomName === 'Ibraheem',
     apply: () => ({ groomName: 'Ibrahim' }),
   },
+  {
+    // qCUFp1B (Lace عربي — custom-invitations/qCUFp1B.js) — بطلب المالك (2026-11-24): عمران وفاطمة، الخميس 24/12/2026
+    // الساعة 8 مساءً، فندق جولدن جويل — قاعة لازوردي، الإسماعيلية (لينك المالك). برنامج اليوم والمواصلات والإقامة
+    // مستخبيين (صاحبها يقدر يرجّعهم من المحرر). بيتعمل بس لو الدعوة لسه بأسامي المسودة.
+    name: 'qCUFp1B-omran-fatma',
+    shortId: 'qCUFp1B',
+    select: '-__v',
+    when: (c, inv) => inv.templateId === 'lace' && ['Groom', 'العريس'].includes(inv.groomName) && ['Bride', 'العروسة'].includes(inv.brideName)
+      && ['Venue', ''].includes(inv.venueName || ''),
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const link = 'https://maps.app.goo.gl/GEpALf2qQ3V3AhsB6';
+      const hiddenSections = [...new Set([...(inv.hiddenSections || []), 'timeline', 'transport', 'stay'])];
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: inv.language || 'ar', occasionType: inv.occasionType || 'wedding',
+        hiddenSections, timeline: inv.timeline, name: inv.name,
+        groomName: 'عمران', groomNameAr: 'عمران', brideName: 'فاطمة', brideNameAr: 'فاطمة',
+        venueName: 'فندق جولدن جويل - قاعة لازوردي', venueCity: 'الإسماعيلية', venueAddress: '',
+        venueMapQuery: link,
+        weddingDate: '2026-12-24', weddingTime: '20:00',
+      }, { ownsTemplate: true, skipMapNetwork: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.hiddenSections = hiddenSections;
+      set.venueMapQuery = link;
+      set.venueMapDirectLink = link;
+      set.venueMapEmbedSrc = 'https://www.google.com/maps?q=' + encodeURIComponent('H8Q3+68 Golden Jewel, Ismailia') + '&z=16&output=embed';
+      return set;
+    },
+  },
 ];
 
 let done = false;
