@@ -35,6 +35,9 @@ const CSS = `<style id="mj-css">
 .dr-in [data-elem-id="mp45"]::before{content:"";display:inline-block;width:.9em;height:.9em;border-radius:50%;margin-inline-end:.45em;vertical-align:-.1em;
   background:radial-gradient(circle at 35% 30%,#6b4a37,#3b2418 75%);box-shadow:0 0 0 1.5px #fdfcfa,0 0 0 2.5px rgba(76,95,118,.35)}
 /* الثلاث رسومات أعرض من صورة القالب (طولية) — بتاخد عرض الكارت من جوه الإطار */
+/* (المالك 2026-11-24) "الزي المقترح / رسمي وأنيق" كانت لازقة في قوس الإطار — المحتوى كله نازل لتحت شوية (فيه مسافة تحت البني الغامق) */
+.dr-in.qw-dr{transform:translateY(30px)}
+@media (min-width:768px){.dr-in.qw-dr{transform:translateY(40px)}}
 .dr-pic:has(> .mj-att){display:flex;justify-content:center}
 .dr-pic div.mj-att{flex:none;width:236px;height:auto;aspect-ratio:640/481;position:relative;left:auto;right:auto;margin:0;transform:none}
 .dr-pic div.mj-att img{position:static;width:100%;height:100%;left:auto;top:auto;object-fit:contain}
