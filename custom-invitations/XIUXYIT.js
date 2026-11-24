@@ -40,8 +40,8 @@ const EN = {
 const VENUE_EN = { 'فندق راديسون بلو': ['Radisson Blu', 'Hotel'] };
 const VENUE_EN_ONE = { 'فندق راديسون بلو': 'Radisson Blu Hotel' };
 // اسم العريس الكبير (مؤقتًا بخط Mirza، ونفس الطريقة بالإنجليزي بخط القالب)
-const GROOM_AR = 'أحمد';
-const GROOM_EN = 'Ahmed';
+const GROOM_AR = 'أحمد شاهين';
+const GROOM_EN = 'Ahmed Shaheen';
 
 const AR_DAYS = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
 const EN_DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -266,7 +266,7 @@ html:not(.xi-en) .xi-l-en,html.xi-en .xi-l-ar{display:none!important}
 .xi-h.xi-l-ar{font-family:'Amiri','Amiri Ar Local',serif;font-weight:400;letter-spacing:0}
 /* (المالك 2026-11-24) نفس خط الدعوة الأصلي: الكلام Amiri والأسامي Aref Ruqaa زي الكارت القديم */
 .xi-l-ar .xi-f span:last-child,.xi-l-ar .xi-to span:last-child{font-family:'Aref Ruqaa','Aref Ruqaa Ar Local',serif;font-size:1.12em}
-.xi-h.xi-l-ar .xi-name{font-family:'Aref Ruqaa','Aref Ruqaa Ar Local',serif;line-height:1.35;margin-top:14px}
+.xi-h.xi-l-ar .xi-name{font-family:'Aref Ruqaa','Aref Ruqaa Ar Local',serif;font-size:50px;line-height:1.35;margin-top:12px;white-space:nowrap}
 .xi-h .xi-h1{font-size:16px;line-height:1.4}
 .xi-h .xi-fam{display:flex;align-items:center;justify-content:center;gap:calc(4px * var(--xi-fk,1));width:100%;margin-top:18px}
 .xi-h .xi-f{flex:0 0 auto;width:var(--xi-cw,auto);display:flex;flex-direction:column;align-items:center;font-size:calc(13.5px * var(--xi-fk,1));line-height:1.65}
@@ -287,13 +287,13 @@ html:not(.xi-en) .xi-l-en,html.xi-en .xi-l-ar{display:none!important}
 .xi-l-en .xi-f{font-size:calc(14.5px * var(--xi-fk,1));line-height:1.3;padding:0 4px}
 .xi-l-en .xi-and{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:calc(24px * var(--xi-fk,1));transform:none}
 .xi-l-en .xi-inv{font-size:16px;line-height:1.4;font-style:italic;margin-top:18px}
-.xi-l-en .xi-name{font-family:'Monsieur La Doulaise Local',cursive;font-size:56px;line-height:1.1;margin-top:16px;margin-bottom:2px}
+.xi-l-en .xi-name{font-family:'Monsieur La Doulaise Local',cursive;font-size:44px;line-height:1.15;margin-top:16px;margin-bottom:2px;white-space:nowrap}
 .xi-l-en .xi-to{font-size:16.5px;line-height:1.4;margin-top:4px}
 .xi-l-en .xi-to span:first-child{font-style:italic}
 .xi-l-en .xi-gw{margin-top:16px}
 .xi-l-en .xi-info>div{font-size:calc(15.5px * var(--xi-ik,1));line-height:1.35}
-@media (max-height:700px){.xi-h .xi-fam{margin-top:14px}.xi-h .xi-inv{margin-top:14px}.xi-h .xi-gw{margin-top:12px}.xi-h .xi-info{margin-top:16px}.xi-h .xi-name{font-size:54px}.xi-l-en .xi-name{font-size:48px;margin-top:10px}.xi-l-en .xi-inv{font-size:15px;margin-top:12px}.xi-l-en .xi-to{font-size:15px}.xi-l-en .xi-info svg{width:24px;height:24px;margin-bottom:5px}}
-@media (min-width:768px){.xi-h{width:340px}.xi-h .xi-h1{font-size:17px}.xi-h .xi-f{font-size:calc(15px * var(--xi-fk,1))}.xi-h .xi-to{font-size:15px}.xi-h .xi-inv,.xi-h .xi-gw{font-size:15.5px}.xi-h .xi-name{font-size:68px}.xi-l-en .xi-f{font-size:calc(17px * var(--xi-fk,1))}.xi-l-en .xi-name{font-size:64px}}
+@media (max-height:700px){.xi-h .xi-fam{margin-top:14px}.xi-h .xi-inv{margin-top:14px}.xi-h .xi-gw{margin-top:12px}.xi-h .xi-info{margin-top:16px}.xi-l-en .xi-name{font-size:40px;margin-top:10px}.xi-l-en .xi-inv{font-size:15px;margin-top:12px}.xi-l-en .xi-to{font-size:15px}.xi-l-en .xi-info svg{width:24px;height:24px;margin-bottom:5px}}
+@media (min-width:768px){.xi-h{width:340px}.xi-h .xi-h1{font-size:17px}.xi-h .xi-f{font-size:calc(15px * var(--xi-fk,1))}.xi-h .xi-to{font-size:15px}.xi-h .xi-inv,.xi-h .xi-gw{font-size:15.5px}.xi-h.xi-l-ar .xi-name{font-size:58px}.xi-l-en .xi-f{font-size:calc(17px * var(--xi-fk,1))}.xi-l-en .xi-name{font-size:52px}}
 
 /* "اسحب للأسفل" تحت خالص في الكارت */
 .xi-scroll{position:absolute;left:50%;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:22;display:flex;flex-direction:column;align-items:center;gap:7px;
