@@ -15,7 +15,10 @@ const HALL = asset(`/custom/${SHORT}/hall.webp`);
 const ATTIRE = asset(`/custom/${SHORT}/attire.webp`);
 // (المالك 2026-11-24، الجولة 3) صور العروسين الأربعة مكان صور المعرض (mp16–19) — مقصوصة 2:3 من الصور اللي بعتها
 const GALLERY = [1, 2, 3, 4].map((n) => asset(`/custom/${SHORT}/g${n}.webp`));
-const oneVideo = makeOneVideo({ short: 'mother-of-pearl', openSrc: asset(`${T}open.mp4`), bps: 253000, dur: 10.08 });
+// (المالك 2026-11-24، الجولة 4) الحرفين (م م — مخطوطة المالك) محفورين على الختم بره مكان القلب: فيديو الفتح الواحد بتاعنا
+// (الظرف + الفيونكة، 242 فريم، High@4.1 ref=4) وصورة الغلاف = أول فريم منه (scratch 7js — نفس تتبّع 5vKDyVK للختم)
+const oneVideo = makeOneVideo({ short: SHORT, openSrc: asset(`/custom/${SHORT}/open.mp4`), bps: 265000, dur: 10.08 });
+const POSTER = asset(`/custom/${SHORT}/poster.webp`);
 
 const CSS = `<style id="mj-css">
 /* الصورة مايصحش تتلوّن بالـ multiply بتاع كلام القسم */
@@ -108,6 +111,8 @@ module.exports = {
 
   transform(html) {
     let out = oneVideo(html) || html;
+    // صورة الغلاف بالحرفين على الختم
+    out = out.split(`${T}poster.webp`).join(POSTER);
     // صورة القاعة مكان رسمة المكان (mp27 — لو العميل غيّرها من المحرر، صورته هي اللي بتكسب)
     out = out.replace(/<div class="loc-img"><img data-elem-id="mp27"([^>]*?)src="\/templates\/mother-of-pearl\/venue\.webp"/,
       `<div class="loc-img mj-hall"><img data-elem-id="mp27"$1src="${HALL}" width="960" height="615"`);
