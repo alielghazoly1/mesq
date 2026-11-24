@@ -6,6 +6,7 @@
 // الدعوة الكاستم مابتاخدش فيديو الفتح الواحد تلقائي (utils/renderInvitation.js)، فبنطبّقه هنا زي XIUXYIT.
 const { asset } = require('./_asset');
 const { makeOneVideo } = require('./_oneVideo');
+const { glideScript } = require('./_glide');
 
 const SHORT = '7j2tOWl';
 const T = '/templates/mother-of-pearl/';
@@ -88,7 +89,45 @@ const CSS = `<style id="mj-css">
 #mithaq-extras .gx-bar{background:#fdfcfa;box-shadow:0 0 0 1px rgba(159,177,198,.6),0 6px 16px -10px rgba(40,55,75,.4)}
 #mithaq-extras .gx-toast{font-family:'Amiri','Amiri Ar Local',serif;font-size:15px}
 #mithaq-extras .gx-sent-t{color:#4c5f76}
+/* (المالك 2026-11-24) "اسحب للأسفل" في أول صفحة من تحت — تحت سنّ الإطار وبين الورد (مش لازقة في آخر الشاشة عشان تبان
+   على الموبايل). الإطار بيتمد بطول الشاشة، فالمكان نسبة من الطول (svh). بتظهر بعد ظهور الكارت وبتختفي أول ما الضيف ينزل. */
+.mj-scroll{position:absolute;left:50%;bottom:5.5vh;bottom:calc(5.5svh + env(safe-area-inset-bottom,0px));z-index:22;display:flex;flex-direction:column;align-items:center;gap:6px;
+  padding:6px 20px 4px;border-radius:40px;background:radial-gradient(closest-side,rgba(var(--bg-rgb),.85),rgba(var(--bg-rgb),0));color:var(--fg);text-decoration:none;
+  opacity:0;transform:translate(-50%,12px);transition:opacity 1.4s ease,transform 1.4s cubic-bezier(.2,.7,.2,1);pointer-events:none;-webkit-tap-highlight-color:transparent}
+.mj-scroll.on{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.mj-scroll.gone{opacity:0;transform:translate(-50%,8px);pointer-events:none;transition-duration:.6s}
+.mj-scroll-t{font-family:'Amiri','Amiri Ar Local',serif;font-size:15px;line-height:1.2;white-space:nowrap;opacity:.92}
+.mj-scroll-chev{display:block;width:16px;height:10px;overflow:visible;animation:mjBob 2.2s ease-in-out infinite}
+.mj-scroll-chev + .mj-scroll-chev{margin-top:-4px;animation-delay:.18s;opacity:.6}
+.mj-scroll-chev path{fill:none;stroke:var(--fg);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+@keyframes mjBob{0%,45%{transform:translateY(-2px);opacity:.35}70%{transform:translateY(3px);opacity:1}100%{transform:translateY(-2px);opacity:.35}}
+@media (min-width:768px){.mj-scroll{bottom:34px}}
+@media (prefers-reduced-motion:reduce){.mj-scroll-chev{animation:none}}
 </style>`;
+// "اسحب للأسفل" — جوه الكارت الأول (للضيوف بس)
+const SCROLL_HINT = `<a class="mj-scroll" id="mjScroll" href="#" aria-label="اسحب للأسفل"><span class="mj-scroll-t">اسحب للأسفل</span><svg class="mj-scroll-chev" viewBox="0 0 24 14" aria-hidden="true"><path d="M2 2l10 10L22 2"/></svg><svg class="mj-scroll-chev" viewBox="0 0 24 14" aria-hidden="true"><path d="M2 2l10 10L22 2"/></svg></a>`;
+const SCROLL_JS = `<script>(function () {
+  var ht = document.getElementById('heroText'), a = document.getElementById('mjScroll');
+  if (!ht || !a) return;
+  var shown = false, gone = false;
+  function hide() { if (gone) return; gone = true; a.classList.remove('on'); a.classList.add('gone'); }
+  function opened() {
+    if (shown) return; shown = true;
+    setTimeout(function () { if (gone || (window.pageYOffset || 0) >= 40) return; a.classList.add('on'); }, 1500);
+  }
+  if (ht.classList.contains('on')) opened();
+  else if (window.MutationObserver) new MutationObserver(function (m, o) { if (ht.classList.contains('on')) { o.disconnect(); opened(); } }).observe(ht, { attributes: true, attributeFilter: ['class'] });
+  else setTimeout(opened, 12000);
+  addEventListener('scroll', function () { if ((window.pageYOffset || 0) > 60) hide(); }, { passive: true });
+  a.addEventListener('click', function (e) {
+    e.preventDefault();
+    var t = document.querySelector('main > .sec:not(.off)');
+    var y = t ? t.getBoundingClientRect().top + (window.pageYOffset || 0) - 10 : innerHeight;
+    try { scrollTo({ top: y, behavior: 'smooth' }); } catch (x) { scrollTo(0, y); }
+  });
+})();</script>`;
+// (المالك 2026-11-24) بعد ما الضيف يقرا أول صفحة الدعوة بتنزل لوحدها بالراحة (_glide.js — لمسة بتوقّفها وبترجع تكمّل)
+const GLIDE = glideScript({ playSel: '#heroText', playClass: 'on', after: 3500, speed: 85 });
 // كلام التهنئة الصوتية (خطوبة مريم ومعاذ) — الاسم بيتطلب قبل الإرسال، و"هتحضر؟" لازم تتختار (attend)
 const EXTRAS_OPTS = `<script>window.MITHAQ_EXTRAS_OPTS = { anchor: '#mithaq-rsvp', lang: 'ar', attend: true, t: {
   vEyebrow: 'رسالة بصوتك', vTitle: 'سيبوا لنا تهنئة بصوتكم',
@@ -159,12 +198,16 @@ module.exports = {
   },
 
   render({ editMode } = {}) {
-    return { head: CSS + EXTRAS_OPTS + (editMode ? '' : HOLD_HEAD) };
+    if (editMode) return { head: CSS + EXTRAS_OPTS };
+    return { head: CSS + EXTRAS_OPTS + HOLD_HEAD, bodyEnd: SCROLL_JS + GLIDE };
   },
 
   transform(html, { editMode } = {}) {
     let out = oneVideo(html) || html;
     if (!editMode) {
+      // "اسحب للأسفل" جوه الكارت الأول (قبل كلام الكارت)
+      const heroTextTag = '<div class="hero-text" id="heroText">';
+      if (out.split(heroTextTag).length === 2) out = out.replace(heroTextTag, () => `${SCROLL_HINT}\n    ${heroTextTag}`);
       // الصور بتفضل lazy بعد الفتح (مش كلها مرة واحدة)
       out = stripEager(out);
       // إطار الكارت الأول بيتأخر لحد ما فيديو الفتح يجهز / الضغطة (من غير preload في أول الصفحة)
