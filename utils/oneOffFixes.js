@@ -2386,6 +2386,9 @@ const STATS_RESETS = [
   // والصور والتهاني اللي اتبعتت قبل كده (تجارب). الردود مابتتمسحش: بتتنقل لـ shortId أرشيف
   // ("G55weuy~reset-20261120") فمابتظهرش في أي مكان، وممكن ترجع بتغيير الـ shortId تاني.
   { name: 'G55weuy-dashboard-reset-20261120', shortId: 'G55weuy', mark: 'statsReset20261120', guests: true },
+  // 7j2tOWl (خطوبة مريم ومعاذ) — المالك (2026-11-24) "نصفر الداشبورد": المشاهدات + أي فويسات/ردود اتبعتت قبل كده
+  // (تجارب) بتتنقل لأرشيف "7j2tOWl~reset-20261124" — مابتتمسحش. اللي هيبعت من دلوقتي بس هو اللي يظهر.
+  { name: '7j2tOWl-dashboard-reset-20261124', shortId: '7j2tOWl', mark: 'statsReset20261124', guests: true },
 ];
 async function runStatsResets() {
   const InvitationDay = require('../models/InvitationDay');
