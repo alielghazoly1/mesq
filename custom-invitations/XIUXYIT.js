@@ -23,6 +23,9 @@ const T = '/templates/mother-of-pearl/';
 const oneVideo = makeOneVideo({ short: 'mother-of-pearl', openSrc: asset(`${T}open.mp4`), bps: 253000, dur: 10.08 });
 
 const UAE_UTC_OFFSET = 4; // العين: توقيت الخليج UTC+4 طول السنة (من غير توقيت صيفي)
+// حرف الإطار من جوّه في hero-frame.webp (941×1672): كل 10 بكسل من y=340 لـ y=1310 — [شمال، يمين]. اتقاس من الصورة نفسها
+// (أول حتة بعد الورق ناحية الحبيبات، وأضيق قيمة في ±14 بكسل عشان نبقى في الأمان) — بيستخدمه fitCard في الصفحة.
+const EDGE = [[308,629],[294,640],[288,644],[286,649],[286,651],[272,662],[253,682],[240,694],[234,702],[230,706],[228,708],[228,708],[228,708],[228,709],[223,711],[220,716],[207,723],[198,736],[191,745],[184,752],[181,754],[181,755],[181,755],[181,755],[181,755],[180,755],[180,755],[180,754],[180,754],[180,754],[180,754],[180,754],[180,754],[180,755],[180,755],[180,755],[180,755],[180,755],[180,755],[181,755],[181,755],[181,755],[181,755],[180,755],[180,755],[181,755],[181,755],[181,755],[180,755],[180,755],[180,755],[180,755],[180,755],[181,755],[181,755],[181,755],[181,755],[181,755],[181,755],[180,755],[181,755],[181,755],[181,755],[180,755],[180,755],[180,755],[180,754],[180,754],[180,754],[180,754],[180,755],[180,755],[180,755],[180,755],[180,755],[181,754],[183,753],[189,749],[200,745],[212,732],[220,722],[224,716],[225,712],[227,710],[227,710],[228,709],[231,706],[238,703],[244,699],[258,685],[283,658],[285,652],[287,650],[290,648],[294,643],[307,636],[329,608],[333,608]];
 
 // أسامي اتكتبت بـ"تطويل" زي صورة المالك (محـمـد صـالـح الهاشمي)، وترجمتها الإنجليزي. أي اسم تاني يظهر زي ما هو.
 const STYLED = {
@@ -216,13 +219,17 @@ function sectionsHtml(f) {
               <button type="button" role="radio" aria-checked="false" data-a="no"><span>${L('للأسف، لن أتمكّن', 'Sadly, no')}</span></button>
             </div>
           </div>
-          <div class="rs-row xi-cnt" id="xiCntRow" hidden>
-            <span class="rs-l" id="xiCntL">${L('عدد الأشخاص (بمن فيهم أنت)', 'Number of guests (including you)')}</span>
-            <div class="xi-step" role="group" aria-labelledby="xiCntL">
-              <button type="button" data-d="-1" aria-label="-"><span aria-hidden="true">&minus;</span></button>
-              <output id="xiCount" aria-live="polite">1</output>
-              <button type="button" data-d="1" aria-label="+"><span aria-hidden="true">+</span></button>
-            </div>
+          <div class="rs-row xi-cnt" id="xiCntRow">
+            <span class="rs-l" id="xiCntL">${L('عدد الحضور', 'Number of guests')}</span>
+            <div class="xi-cbox"><div class="xi-cin" role="group" aria-labelledby="xiCntL">
+              <button type="button" class="xi-cb" data-d="-1" aria-label="-"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12"/></svg></button>
+              <div class="xi-cnum">
+                <input id="xiCount" type="text" inputmode="numeric" maxlength="2" value="1" autocomplete="off" aria-labelledby="xiCntL">
+                <span class="xi-cunit" id="xiCntUnit"></span>
+              </div>
+              <button type="button" class="xi-cb" data-d="1" aria-label="+"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h12M12 6v12"/></svg></button>
+            </div></div>
+            <p class="xi-chint">${L('بمن فيهم أنت · يمكنك كتابة الرقم مباشرة', 'Including you · you can also type the number')}</p>
           </div>
           <div class="rs-row">
             <label class="rs-l" for="xiNote">${L('اكتبوا لنا تهنئتكم', 'Write your congratulations')}</label>
@@ -254,30 +261,30 @@ html:not(.xi-en) .xi-l-en,html.xi-en .xi-l-ar{display:none!important}
 
 /* ===== 1) الكارت الأول — ترتيب صورة المالك ===== */
 /* الكارت متوسّط في نص الإطار (الإطار نفسه أعلى من نص الشاشة) — top مش transform عشان fitHero بيكتب transform */
-.xi-h{position:relative;top:calc(var(--xi-up,-20px));display:flex;flex-direction:column;align-items:center;width:292px;max-width:100%;text-align:center;color:var(--fg)}
+.xi-h{position:relative;top:var(--xi-up,-20px);transform:scale(var(--xi-k,1));display:flex;flex-direction:column;align-items:center;width:292px;max-width:100%;text-align:center;color:var(--fg)}
 .xi-h p{margin:0}
 .xi-h.xi-l-ar{font-family:'Changa','Amiri',sans-serif;font-weight:300;letter-spacing:0}
 .xi-h .xi-h1{font-size:16px;line-height:1.4}
-.xi-h .xi-fam{display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:20px}
-.xi-h .xi-f{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;font-size:calc(14px * var(--xi-fk,1));line-height:1.75}
+.xi-h .xi-fam{display:flex;align-items:center;justify-content:center;gap:calc(4px * var(--xi-fk,1));width:100%;margin-top:18px}
+.xi-h .xi-f{flex:0 0 auto;width:var(--xi-cw,auto);display:flex;flex-direction:column;align-items:center;font-size:calc(13.5px * var(--xi-fk,1));line-height:1.65}
 .xi-h .xi-f span{white-space:nowrap}
-.xi-h .xi-and{flex:none;width:30px;font-family:'Aref Ruqaa','Aref Ruqaa Ar Local',serif;font-size:29px;line-height:1;text-align:center;transform:translateY(-4px)}
-.xi-h .xi-inv{font-size:14.5px;line-height:1.6;margin-top:20px}
-.xi-h .xi-name{font-family:'Mirza','Amiri',serif;font-weight:400;font-size:60px;line-height:1.3;margin-top:2px}
-.xi-h .xi-to{display:flex;flex-direction:column;align-items:center;font-size:14px;line-height:1.75;margin-top:2px}
-.xi-h .xi-gw{font-size:14.5px;line-height:1.6;margin-top:18px}
-.xi-h .xi-info{display:flex;justify-content:space-between;align-items:flex-start;width:94%;margin-top:22px}
+.xi-h .xi-and{flex:none;width:calc(26px * var(--xi-fk,1));font-family:'Aref Ruqaa','Aref Ruqaa Ar Local',serif;font-size:calc(27px * var(--xi-fk,1));line-height:1;text-align:center;transform:translateY(-4px)}
+.xi-h .xi-inv{font-size:14.5px;line-height:1.6;margin-top:16px}
+.xi-h .xi-name{font-family:'Mirza','Amiri',serif;font-weight:400;font-size:60px;line-height:1.15;margin-top:6px}
+.xi-h .xi-to{display:flex;flex-direction:column;align-items:center;font-size:14px;line-height:1.65;margin-top:4px}
+.xi-h .xi-gw{font-size:14.5px;line-height:1.6;margin-top:14px}
+.xi-h .xi-info{display:flex;justify-content:space-between;align-items:flex-start;width:calc(82% * var(--xi-ik,1));margin-top:16px}
 .xi-h .xi-info>div{flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;font-size:calc(13px * var(--xi-ik,1));line-height:1.5}
-.xi-h .xi-info svg{display:block;width:28px;height:28px;margin:0 auto 8px;color:var(--fg)}
+.xi-h .xi-info svg{display:block;width:calc(27px * var(--xi-ik,1));height:calc(27px * var(--xi-ik,1));margin:0 auto 6px;color:var(--fg)}
 .xi-h .xi-info span{white-space:nowrap}
 .xi-h .xi-info span:empty{display:none}
 /* الإنجليزي: خطوط القالب الإنجليزي */
 .xi-h.xi-l-en{font-family:'Cormorant Garamond',serif;font-weight:400}
 .xi-l-en .xi-h1,.xi-l-en .xi-gw{font-family:'Jost',sans-serif;font-weight:300;font-size:10.5px;letter-spacing:.3em;text-transform:uppercase;line-height:1.6}
-.xi-l-en .xi-f{font-size:calc(15.5px * var(--xi-fk,1));line-height:1.3;padding:0 6px}
-.xi-l-en .xi-and{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:24px;transform:none}
+.xi-l-en .xi-f{font-size:calc(14.5px * var(--xi-fk,1));line-height:1.3;padding:0 4px}
+.xi-l-en .xi-and{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:calc(24px * var(--xi-fk,1));transform:none}
 .xi-l-en .xi-inv{font-size:16px;line-height:1.4;font-style:italic;margin-top:18px}
-.xi-l-en .xi-name{font-family:'Monsieur La Doulaise Local',cursive;font-size:56px;line-height:1.1;margin-top:20px;margin-bottom:2px}
+.xi-l-en .xi-name{font-family:'Monsieur La Doulaise Local',cursive;font-size:56px;line-height:1.1;margin-top:16px;margin-bottom:2px}
 .xi-l-en .xi-to{font-size:16.5px;line-height:1.4;margin-top:4px}
 .xi-l-en .xi-to span:first-child{font-style:italic}
 .xi-l-en .xi-gw{margin-top:16px}
@@ -308,6 +315,8 @@ html:not(.xi-en) .xi-l-en,html.xi-en .xi-l-ar{display:none!important}
 .xi-lang{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));right:14px;z-index:46;display:block;border-radius:999px;border:1px solid rgba(var(--fg-rgb),.3);padding:3px;
   background:rgba(var(--bg-rgb),.74);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);color:var(--fg);opacity:0;transform:translateY(-6px);transition:opacity .9s ease,transform .9s ease,border-color .4s;pointer-events:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .xi-lang.on{opacity:1;transform:none;pointer-events:auto}
+/* بيستخبّى وانت نازل (عشان مايغطيش الكلام) ويرجع أول ما تطلع لفوق أو توصل آخر الدعوة */
+.xi-lang.on.tuck{opacity:0;transform:translateY(-14px);pointer-events:none}
 .xi-lang>span{display:flex;align-items:center;gap:7px;height:34px;padding:0 15px 0 12px;border-radius:999px;border:1px solid rgba(var(--fg-rgb),.15);direction:ltr}
 .xi-lang svg{width:15px;height:15px;flex:none;opacity:.85}
 .xi-lang .xi-l-ar{font-family:'Jost',sans-serif;font-weight:300;font-size:11px;letter-spacing:.24em;text-transform:uppercase;line-height:1;margin-right:-.24em}
@@ -340,15 +349,25 @@ html[dir=rtl] .xi-cal-note{font-family:'Amiri','Amiri Ar Local',serif;font-size:
 /* ===== 4) تأكيد الحضور ===== */
 .xi-main #xi-rsvp{padding-top:40px}
 .rs-ch button span span{display:inline;border:0;padding:0;background:none;color:inherit;font:inherit}
-.xi-cnt{animation:xiIn .45s ease both}
-@keyframes xiIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
-.xi-step{display:flex;align-items:center;justify-content:center;width:max-content;margin:2px auto 0;direction:ltr;border:1px solid rgba(var(--fg-rgb),.35);padding:3px}
-.xi-step button{display:grid;place-items:center;width:48px;height:46px;border:1px solid rgba(var(--fg-rgb),.15);background:transparent;color:var(--fg);font:300 26px/1 var(--sans);cursor:pointer;transition:background-color .3s,color .3s;-webkit-tap-highlight-color:transparent}
-.xi-step button:active{background:var(--fg);color:var(--bg)}
-.xi-step output{display:block;min-width:76px;text-align:center;font-family:var(--serif);font-size:26px;line-height:46px}
-html[dir=rtl] .xi-step output{font-family:'Amiri','Amiri Ar Local',serif}
-html[dir=rtl] .xi-cnt .rs-l{text-align:center}
+/* عدد الحضور: ظاهر من الأول (بيستخبّى بس لو الضيف اختار إنه مش هيحضر) — بنفس الإطار المزدوج بتاع زراير الفورم */
+.xi-cnt{overflow:hidden;max-height:260px;transition:max-height .45s ease,opacity .35s ease,margin .45s ease}
+.xi-cnt.xi-off{max-height:0;opacity:0;margin-bottom:0;pointer-events:none}
 .xi-cnt .rs-l{text-align:center}
+.xi-cbox{width:100%;max-width:300px;margin:4px auto 0;border:1px solid rgba(var(--fg-rgb),.35);padding:3px;direction:ltr}
+.xi-cin{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid rgba(var(--fg-rgb),.15);padding:12px 14px;background:rgba(255,255,255,.35)}
+.xi-cb{flex:none;display:grid;place-items:center;width:46px;height:46px;border-radius:50%;border:1px solid rgba(var(--fg-rgb),.4);background:transparent;color:var(--fg);cursor:pointer;transition:background-color .3s,color .3s,border-color .3s,transform .15s;-webkit-tap-highlight-color:transparent}
+.xi-cb svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round}
+.xi-cb:active{background:var(--fg);color:var(--bg);border-color:var(--fg);transform:scale(.94)}
+.xi-cb[disabled]{opacity:.3;pointer-events:none}
+@media (hover:hover){.xi-cb:hover{background:var(--fg);color:var(--bg);border-color:var(--fg)}}
+.xi-cnum{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;align-items:center}
+.rs-f .xi-cnum input{width:84px;padding:0;border:0;border-bottom:1px solid rgba(var(--fg-rgb),.25);background:transparent;text-align:center;font-family:'Cormorant Garamond',serif;font-size:36px;line-height:1.15;color:var(--fg);border-radius:0}
+html[dir=rtl] .rs-f .xi-cnum input{font-family:'Amiri','Amiri Ar Local',serif;font-size:32px;line-height:1.35}
+.rs-f .xi-cnum input:focus{border-bottom-color:var(--fg)}
+.xi-cunit{margin-top:4px;font-family:var(--script);font-size:22px;line-height:1.1;color:rgba(var(--fg-rgb),.85)}
+html[dir=rtl] .xi-cunit{font-family:'Aref Ruqaa','Aref Ruqaa Ar Local',serif;font-size:17px;line-height:1.5}
+.xi-chint{margin:8px 0 0;text-align:center;font-family:var(--sans);font-weight:300;font-size:10.5px;letter-spacing:.06em;color:rgba(var(--fg-rgb),.55)}
+html[dir=rtl] .xi-chint{font-family:'Amiri','Amiri Ar Local',serif;font-size:13.5px;letter-spacing:0}
 
 /* ===== 5) المكان آخر حاجة — نفس المسافة اللي بين باقي الأقسام ===== */
 .xi-main>[data-section="venue"] .loc{padding-top:64px;padding-bottom:104px}
@@ -440,20 +459,43 @@ function xiClient(X) {
   /* ---------- 4) تأكيد الحضور بعدد الأشخاص ---------- */
   var form = $('#xiForm'), sec = $('#xi-rsvp');
   var msg = $('#xiMsg'), send = $('#xiSend'), name = $('#xiName'), note = $('#xiNote'), ncnt = $('#xiNoteCnt');
-  var cntRow = $('#xiCntRow'), out = $('#xiCount');
+  var cntRow = $('#xiCntRow'), out = $('#xiCount'), unit = $('#xiCntUnit');
   var SENT_KEY = 'mithaq_rsvp_' + X.short;
   var att = null, count = 1;
-  function stepRender() { if (out) out.textContent = dg(count); }
+  // "شخص واحد" / "شخصان" / "٣ أشخاص" / "١٢ شخصًا" — والإنجليزي person / people
+  function unitText(n) {
+    if (isEn()) return n === 1 ? 'person' : 'people';
+    return n === 1 ? 'شخص واحد' : n === 2 ? 'شخصان' : n <= 10 ? 'أشخاص' : 'شخصًا';
+  }
+  function stepRender() {
+    if (!out) return;
+    if (document.activeElement !== out) out.value = dg(count);
+    if (unit) unit.textContent = unitText(count);
+    $$('.xi-cb', cntRow).forEach(function (b) { var d = +b.getAttribute('data-d'); b.disabled = d < 0 ? count <= 1 : count >= X.maxGuests; });
+  }
+  // الضيف يقدر يكتب العدد بنفسه (أرقام عربي أو إنجليزي)
+  function readTyped() {
+    var v = String(out.value || '').replace(/[٠-٩]/g, function (c) { return AD.indexOf(c); }).replace(/\D/g, '');
+    return v ? parseInt(v, 10) : NaN;
+  }
   if (form) {
-    $$('.xi-step button', form).forEach(function (b) {
-      b.addEventListener('click', function () { count = Math.max(1, Math.min(X.maxGuests, count + (+b.getAttribute('data-d')))); stepRender(); });
+    $$('.xi-cb', form).forEach(function (b) {
+      b.addEventListener('click', function () { count = Math.max(1, Math.min(X.maxGuests, count + (+b.getAttribute('data-d')))); out.blur(); stepRender(); });
     });
+    out.addEventListener('input', function () {
+      var n = readTyped();
+      if (!isNaN(n)) { count = Math.max(1, Math.min(X.maxGuests, n)); if (unit) unit.textContent = unitText(count); }
+    });
+    out.addEventListener('focus', function () { try { out.select(); } catch (e) { /* */ } });
+    out.addEventListener('blur', stepRender);
+    out.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); out.blur(); } });
     var btns = $$('.rs-ch button', form);
     btns.forEach(function (b) {
       b.addEventListener('click', function () {
         att = b.getAttribute('data-a') === 'yes';
         btns.forEach(function (x) { var on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-checked', on ? 'true' : 'false'); });
-        cntRow.hidden = !att;
+        // العدد ظاهر من الأول — بيستخبّى بس لو الضيف مش هيحضر
+        cntRow.classList.toggle('xi-off', !att);
         msg.textContent = '';
       });
     });
@@ -464,6 +506,9 @@ function xiClient(X) {
       var n = name.value.trim().replace(/\s+/g, ' ');
       if (n.length < 2) { msg.textContent = tx('errName'); name.focus(); return; }
       if (att === null) { msg.textContent = tx('errAtt'); return; }
+      var typed = readTyped();
+      if (!isNaN(typed)) count = Math.max(1, Math.min(X.maxGuests, typed));
+      stepRender();
       var words = note.value.trim().slice(0, 170);
       // العدد بيتكتب في الرد نفسه بنفس الشكل اللي لوحة العميل وصفحة الإحصائيات بتقراه (utils/statsPage.js noteCounts)
       var body = att ? ('عدد الحضور: ' + count + (words ? ' — ' + words : '')) : words;
@@ -600,32 +645,102 @@ function xiClient(X) {
   if (cal) cal.setAttribute('href', icsPath());
 
   /* ---------- الكارت جوه الإطار على أي موبايل ----------
-     الإطار (hero-frame.webp، object-fit:cover) جوّاه من x=171 لـ x=770 في الصورة (X.frame = 599)، والقالب بيصغّر
-     الكلام كله بـ scale(min(1, sc/0.43)) (fitHero). على الشاشات اللي الإطار فيها أضيق (آيفون SE) الكارت بيضيق معاه،
-     وسطر العائلتين / الأيقونات بيصغر خطه بس لو اسم مش داخل في عموده. */
-  function fitCard() {
+     (المالك 2026-11-24: "Mr. Nazmy… داخل في أطراف الإطار") — خريطة حرف الإطار من hero-frame.webp (X.edge: كل 10 بكسل
+     في الصورة من y=340، [شمال، يمين] جوّه الحبيبات). الإطار بيتعرض object-fit:cover، والقالب بيصغّر الكلام كله
+     بـ scale(min(1, sc/0.43)) (fitHero).
+       1) الكارت بيتوسّط على نص الإطار (X.midY في الصورة) مش نص الشاشة.
+       2) كل سطر لازم يبعد عن حرف الإطار عند ارتفاعه بـ X.gap (في الصورة) على الأقل: سطر العائلتين وسطر الأيقونات
+          بيصغروا لوحدهم لو احتاجوا (--xi-fk / --xi-ik)، ولو لسه في حاجة قريبة الكارت كله بيصغر سنة (--xi-k). */
+  function geom() {
     var img = $('.hero-img'), box = $('.hero');
-    if (!img || !box || !box.clientWidth) return;
+    if (!img || !box || !box.clientWidth || !box.clientHeight) return null;
     var iw = img.naturalWidth || 941, ih = img.naturalHeight || 1672;
-    var sc = Math.max(box.clientWidth / iw, box.clientHeight / ih);
-    var s = Math.min(1, sc / 0.43);
-    var max = innerWidth >= 768 ? 340 : 292;
-    var W = Math.max(200, Math.min(max, Math.floor((X.frame * sc - 24) / s)));
+    var bw = box.clientWidth, bh = box.clientHeight, r = box.getBoundingClientRect();
+    var sc = Math.max(bw / iw, bh / ih);
+    return { sc: sc, s: Math.min(1, sc / 0.43), ox: r.left + (bw - iw * sc) / 2, oy: r.top + (bh - ih * sc) / 2, gap: X.gap * sc };
+  }
+  // حرف الإطار على الشاشة (أضيق حتة بين y1 و y2) — بره الخريطة = مقفول
+  function edges(g, y1, y2) {
+    var a = (y1 - g.oy) / g.sc, b = (y2 - g.oy) / g.sc, l = -Infinity, r = Infinity;
+    for (var y = Math.floor(a / 10) * 10; y <= b + 9; y += 10) {
+      var i = Math.round((y - X.edgeY0) / 10);
+      var e = i >= 0 && i < X.edge.length ? X.edge[i] : [470, 471];
+      if (e[0] > l) l = e[0];
+      if (e[1] < r) r = e[1];
+    }
+    return { l: g.ox + l * g.sc, r: g.ox + r * g.sc };
+  }
+  // مستطيلات الكلام الحقيقي (مش عرض العنصر) + الأيقونات
+  function inkRects(root) {
+    var out = [];
+    $$('p, span, svg', root).forEach(function (el) {
+      if (el.tagName.toLowerCase() === 'svg') { var rb = el.getBoundingClientRect(); if (rb.width) out.push(rb); return; }
+      if (el.children.length) return;
+      var rg = document.createRange();
+      rg.selectNodeContents(el);
+      Array.prototype.forEach.call(rg.getClientRects(), function (r) { if (r.width > 1 && r.height > 1) out.push(r); });
+    });
+    return out;
+  }
+  // أقل مسافة بين الكلام وحرف الإطار (بكسل الشاشة) + معامل التصغير اللي يخلّي الكل بعيد بـ gap
+  function measure(g, root) {
+    var worst = Infinity, k = 1, cx = g.ox + 470 * g.sc;
+    inkRects(root).forEach(function (r) {
+      var e = edges(g, r.top, r.bottom);
+      worst = Math.min(worst, r.left - e.l, e.r - r.right);
+      var half = Math.max(cx - r.left, r.right - cx), room = Math.min(cx - e.l, e.r - cx) - g.gap;
+      if (half > 0 && room < half) k = Math.min(k, Math.max(0, room) / half);
+    });
+    return { worst: worst, k: k };
+  }
+  function center(g, b) {
+    var r = b.getBoundingClientRect();
+    if (!r.height) return;
+    var want = g.oy + X.midY * g.sc, top = parseFloat(b.style.getPropertyValue('--xi-up')) || 0;
+    var next = top + (want - (r.top + r.bottom) / 2) / g.s;
+    b.style.setProperty('--xi-up', next.toFixed(1) + 'px');
+  }
+  function shrink(g, b, sel, v) {
+    var row = $(sel, b);
+    if (!row) return;
+    for (var n = 0; n < 4; n += 1) {
+      var m = measure(g, row);
+      if (m.k >= 0.995) return;
+      var cur = parseFloat(b.style.getPropertyValue(v)) || 1;
+      b.style.setProperty(v, Math.max(0.62, cur * m.k * 0.985).toFixed(3));
+    }
+  }
+  function fitCard() {
+    var g = geom();
+    if (!g) return;
+    var W = innerWidth >= 768 ? 340 : 292;
+    // الكارت كله بيصغر بنفس نسبة الإطار تحت مقاس الأساس (آيفون 13 من غير شريط المتصفح: sc = X.refSc) — نفس التصميم بس أصغر
+    var base = Math.min(1, g.sc / X.refSc) / g.s;
     $$('.xi-h').forEach(function (b) {
       if (b.style.width !== W + 'px') b.style.width = W + 'px';
       if (!b.offsetHeight) return;
-      b.style.removeProperty('--xi-fk');
-      b.style.removeProperty('--xi-ik');
-      [['.xi-fam .xi-f', '--xi-fk'], ['.xi-info > div', '--xi-ik']].forEach(function (p) {
-        var k = 1;
-        $$(p[0], b).forEach(function (col) {
-          var have = col.clientWidth;
-          $$('span', col).forEach(function (sp) { var need = sp.offsetWidth; if (have > 0 && need > have) k = Math.min(k, have / need); });
-        });
-        if (k < 1) b.style.setProperty(p[1], Math.max(0.7, k * 0.97).toFixed(3));
-      });
+      ['--xi-fk', '--xi-ik', '--xi-cw'].forEach(function (v) { b.style.removeProperty(v); });
+      b.style.setProperty('--xi-k', Math.min(1, base).toFixed(3));
+      // عمودين العائلتين بنفس العرض (عشان "و" تفضل في النص بالظبط) — بالـ em عشان يصغروا مع الخط
+      var cols = $$('.xi-fam .xi-f', b), cw = 0;
+      cols.forEach(function (c) { cw = Math.max(cw, c.offsetWidth / (parseFloat(getComputedStyle(c).fontSize) || 14)); });
+      if (cw) b.style.setProperty('--xi-cw', cw.toFixed(3) + 'em');
+      center(g, b);
+      shrink(g, b, '.xi-fam', '--xi-fk');
+      shrink(g, b, '.xi-info', '--xi-ik');
+      center(g, b);
+      for (var n = 0; n < 6; n += 1) {
+        var m = measure(g, b);
+        if (m.worst >= g.gap - 0.5) break;
+        var k = parseFloat(b.style.getPropertyValue('--xi-k')) || 1;
+        if (k <= 0.6) break;
+        b.style.setProperty('--xi-k', Math.max(0.6, k * 0.96).toFixed(3));
+        center(g, b);
+      }
     });
   }
+  // للاختبار: أقل مسافة بين كلام الكارت وحرف الإطار دلوقتي
+  window.__xiRoom = function () { var g = geom(), b = $$('.xi-h').filter(function (x) { return x.offsetHeight; })[0]; return g && b ? Math.round(measure(g, b).worst * 10) / 10 : null; };
   fitCard();
   addEventListener('resize', fitCard);
   addEventListener('load', fitCard);
@@ -655,6 +770,19 @@ function xiClient(X) {
     } catch (e) { setTimeout(opened, 12000); }
   }
   addEventListener('resize', function () { if (shown && !gone) fitHint(); });
+  // زرار اللغة: بيستخبّى وانت نازل ويرجع لما تطلع لفوق (أو في أول الصفحة / آخرها)
+  var lastY = scrollY, tuckRaf = 0;
+  addEventListener('scroll', function () {
+    if (!btn || tuckRaf) return;
+    tuckRaf = requestAnimationFrame(function () {
+      tuckRaf = 0;
+      var y = scrollY, end = y + innerHeight >= document.documentElement.scrollHeight - 4;
+      if (y < 120 || end) btn.classList.remove('tuck');
+      else if (y > lastY + 6) btn.classList.add('tuck');
+      else if (y < lastY - 10) btn.classList.remove('tuck');
+      if (Math.abs(y - lastY) > 6 || y < 120 || end) lastY = y;
+    });
+  }, { passive: true });
   addEventListener('scroll', function () {
     if (!gone && hintA && scrollY > 60) { gone = true; hintA.classList.remove('on'); hintA.classList.add('gone'); }
   }, { passive: true });
@@ -691,7 +819,13 @@ function clientScript(f) {
   const X = {
     short: SHORT,
     tz: UAE_UTC_OFFSET,
-    frame: 599, // عرض جوّه الإطار في hero-frame.webp (من x=171 لـ x=770)
+    // الإطار في hero-frame.webp (941×1672): الجزء المستقيم من x=181 لـ x=755، والخريطة كاملة في EDGE
+    frame: 574,
+    midY: 820,
+    refSc: 0.5048,
+    gap: 36,
+    edgeY0: 340,
+    edge: EDGE,
     cd: f.cd,
     maxGuests: 20,
     langKey: `xi_lang_${SHORT}`,
