@@ -10,6 +10,9 @@ const { makeOneVideo } = require('./_oneVideo');
 const SHORT = '7j2tOWl';
 const T = '/templates/mother-of-pearl/';
 const HALL = asset(`/custom/${SHORT}/hall.webp`);
+// (المالك 2026-11-24، الجولة 4) الدريس كود: الثلاث رسومات اللي بعتها (مقصوصة من الخلفية) مكان البدلة والفستان (mp42)
+// — البنت اللي كانت بالبنفسجي بقت لابسة بني غامق، والتانية والراجل زي ما هم (scratch 7jd/cut.py)
+const ATTIRE = asset(`/custom/${SHORT}/attire.webp`);
 // (المالك 2026-11-24، الجولة 3) صور العروسين الأربعة مكان صور المعرض (mp16–19) — مقصوصة 2:3 من الصور اللي بعتها
 const GALLERY = [1, 2, 3, 4].map((n) => asset(`/custom/${SHORT}/g${n}.webp`));
 const oneVideo = makeOneVideo({ short: 'mother-of-pearl', openSrc: asset(`${T}open.mp4`), bps: 253000, dur: 10.08 });
@@ -28,6 +31,12 @@ const CSS = `<style id="mj-css">
 /* (الجولة 3) الدريس كود: لون واحد — بني غامق (مع دايرة باللون جنب الاسم) */
 .dr-in [data-elem-id="mp45"]::before{content:"";display:inline-block;width:.9em;height:.9em;border-radius:50%;margin-inline-end:.45em;vertical-align:-.1em;
   background:radial-gradient(circle at 35% 30%,#6b4a37,#3b2418 75%);box-shadow:0 0 0 1.5px #fdfcfa,0 0 0 2.5px rgba(76,95,118,.35)}
+/* الثلاث رسومات أعرض من صورة القالب (طولية) — بتاخد عرض الكارت من جوه الإطار */
+.dr-pic:has(> .mj-att){display:flex;justify-content:center}
+.dr-pic div.mj-att{flex:none;width:236px;height:auto;aspect-ratio:640/481;position:relative;left:auto;right:auto;margin:0;transform:none}
+.dr-pic div.mj-att img{position:static;width:100%;height:100%;left:auto;top:auto;object-fit:contain}
+@media (max-width:360px){.dr-pic div.mj-att{width:200px}}
+@media (min-width:768px){.dr-pic div.mj-att{width:280px}}
 #mithaq-rsvp > .rs-in{display:none!important}
 #mithaq-rsvp{padding-top:8px}
 /* التهنئة الصوتية بألوان Mother of Pearl (كحلي هادي + لؤلؤي) */
@@ -102,6 +111,9 @@ module.exports = {
     // صورة القاعة مكان رسمة المكان (mp27 — لو العميل غيّرها من المحرر، صورته هي اللي بتكسب)
     out = out.replace(/<div class="loc-img"><img data-elem-id="mp27"([^>]*?)src="\/templates\/mother-of-pearl\/venue\.webp"/,
       `<div class="loc-img mj-hall"><img data-elem-id="mp27"$1src="${HALL}" width="960" height="615"`);
+    // الدريس كود: الثلاث رسومات (لو العميل غيّر الصورة من المحرر، صورته هي اللي بتكسب)
+    out = out.replace(/<div class="dr-pic"><div><img data-elem-id="mp42"([^>]*?)src="\/templates\/mother-of-pearl\/attire\.webp"/,
+      `<div class="dr-pic"><div class="mj-att"><img data-elem-id="mp42"$1src="${ATTIRE}" width="640" height="481"`);
     // صور المعرض (لو العميل غيّر صورة من المحرر، صورته هي اللي بتكسب)
     GALLERY.forEach((u, i) => { out = out.split(`src="/templates/mother-of-pearl/g${i + 1}.webp"`).join(`src="${u}"`); });
     // الدريس كود: بني غامق بس (الكلام الافتراضي — لو العميل كتب حاجة من المحرر، كلامه هو اللي بيظهر)
