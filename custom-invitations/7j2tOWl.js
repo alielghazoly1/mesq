@@ -99,6 +99,54 @@ const EXTRAS_OPTS = `<script>window.MITHAQ_EXTRAS_OPTS = { anchor: '#mithaq-rsvp
   sent: 'وصلت تهنئتك لمريم ومعاذ 🤍',
 } };</script>`;
 
+// (المالك 2026-11-24، "الدعوة بتعلق في التحميل — الصور ماتتحملش على طول، الفيديو الأول") — للضيوف بس (مش المحرر):
+//  1) كل الأقسام اللي تحت الكارت الأول (main > .sec) مستخبية لحد ما الظرف يفتح (القالب بيشيل html.lock وقت ظهور
+//     الكارت) — قبل كده المتصفح كان بيحمّل صور المعرض والقاعة والدريس كود قبل الضغطة وهي بتزاحم فيديو الفتح.
+//  2) بعد الفتح الصور بتفضل lazy (بتتحمّل لما الضيف يقرب منها) — سطر القالب اللي كان بيحوّلها كلها eager مع
+//     ظهور الكارت اتشال للدعوة دي بس (stripEager).
+//  3) إطار الكارت الأول (hero-frame) مابيتحمّلش مع أول الصفحة: بيبدأ لما فيديو الفتح يبقى في الذاكرة، أو مع ضغطة
+//     الضيف، أو بعد 7 ثواني — اللي ييجي الأول (الكارت بيظهر بعد الضغطة بحوالي 8 ثواني).
+// أمان: لو القالب ماحطّش lock (محرر/معاينة) الأقسام بتظهر على طول، ولو أي حاجة وقفت بتظهر بعد 25 ثانية بالكتير.
+const HOLD_HEAD = `<style id="mj-hold-css">html.mj-hold main>.sec{display:none!important}</style>
+<script>(function () {
+  var r = document.documentElement, seen = false, done = false, mo = null;
+  r.classList.add('mj-hold');
+  function release() { if (done) return; done = true; r.classList.remove('mj-hold'); if (mo) mo.disconnect(); }
+  if (window.MutationObserver) {
+    mo = new MutationObserver(function () { if (r.classList.contains('lock')) seen = true; else if (seen) release(); });
+    mo.observe(r, { attributes: true, attributeFilter: ['class'] });
+  }
+  document.addEventListener('DOMContentLoaded', function () { setTimeout(function () { if (!r.classList.contains('lock')) release(); }, 0); });
+  setTimeout(release, 25000);
+})();</script>`;
+const HERO_FRAME = `${T}hero-frame.webp`;
+const HERO_LATE = `<script>(function () {
+  var img = document.querySelector('img.hero-img[data-mj-src]');
+  if (!img) return;
+  var set = false;
+  function go() { if (set) return; set = true; img.src = img.getAttribute('data-mj-src'); img.removeAttribute('data-mj-src'); }
+  var cover = document.getElementById('coverScreen'), v1 = document.getElementById('v1');
+  if (!cover || !v1) { go(); return; }
+  cover.addEventListener('click', go, true);
+  cover.addEventListener('keydown', go, true);
+  var t = setInterval(function () { if (/^blob:/.test(v1.currentSrc || v1.src || '')) { clearInterval(t); go(); } }, 200);
+  setTimeout(function () { clearInterval(t); go(); }, 7000);
+})();</script>`;
+// سطر القالب اللي بيحوّل كل الصور eager وقت ظهور الكارت (جوه showHero) — بيتشال للدعوة دي بس.
+// لو اتغيّر في القالب (مش لاقيينه مرة واحدة بالظبط) مابنعملش حاجة.
+function stripEager(html) {
+  const eol = html.includes('\r\n') ? '\r\n' : '\n';
+  const from = ['    setTimeout(function () { heroText.classList.add(\'on\'); }, 800);',
+    '    $$(\'img[loading=lazy]\').forEach(function (i) { i.loading = \'eager\'; });',
+    '  }',
+    '  function removeCover() {'].join(eol);
+  const to = ['    setTimeout(function () { heroText.classList.add(\'on\'); }, 800);',
+    '  }',
+    '  function removeCover() {'].join(eol);
+  if (html.split(from).length !== 2) { console.warn(`[${SHORT}] stripEager skipped (template changed)`); return html; }
+  return html.replace(from, () => to);
+}
+
 module.exports = {
   shortId: SHORT,
   // عنوان لينك المشاركة: خطوبة (مش فرح) ومريم الأول — الصورة والوصف زي ما هم من المحرر
@@ -110,12 +158,24 @@ module.exports = {
     title: 'Moaz & Maryem’s Engagement Invitation 🤍',
   },
 
-  render() {
-    return { head: CSS + EXTRAS_OPTS };
+  render({ editMode } = {}) {
+    return { head: CSS + EXTRAS_OPTS + (editMode ? '' : HOLD_HEAD) };
   },
 
-  transform(html) {
+  transform(html, { editMode } = {}) {
     let out = oneVideo(html) || html;
+    if (!editMode) {
+      // الصور بتفضل lazy بعد الفتح (مش كلها مرة واحدة)
+      out = stripEager(out);
+      // إطار الكارت الأول بيتأخر لحد ما فيديو الفتح يجهز / الضغطة (من غير preload في أول الصفحة)
+      const pre = `<link rel="preload" as="image" href="${HERO_FRAME}">`;
+      const img = `<img class="hero-img" src="${HERO_FRAME}"`;
+      if (out.split(img).length === 2) {
+        out = out.split(pre).join('');
+        out = out.replace(img, () => `<img class="hero-img" data-mj-src="${HERO_FRAME}"`);
+        out = out.replace(/<\/body>/i, () => `${HERO_LATE}\n</body>`);
+      }
+    }
     // صورة الغلاف بالحرفين على الختم
     out = out.split(`${T}poster.webp`).join(POSTER);
     // صورة القاعة مكان رسمة المكان (mp27 — لو العميل غيّرها من المحرر، صورته هي اللي بتكسب)

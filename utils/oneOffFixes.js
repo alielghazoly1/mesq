@@ -2243,6 +2243,24 @@ const FIXES = [
     },
   },
   {
+    // 7j2tOWl — بعد تصفير اللوحة (7j2tOWl-dashboard-reset-20261124) فحوصات السرعة بتاعتنا على الدعوة الحقيقية زوّدت
+    // viewCount (العدّاد ده بيعدّ أي فتحة حتى البوتات/curl)، فاللوحة كانت هتبيّن مشاهدات مش حقيقية. العدّاد بيرجع
+    // = مجموع InvitationDay.views للدعوة (دي بتعدّ الضيوف الحقيقيين بس، واتمسحت وقت التصفير — يعني من بعده بس).
+    // مرة واحدة (fixes.viewResync20261124).
+    name: '7j2tOWl-views-resync-20261124',
+    shortId: '7j2tOWl',
+    select: 'customizations viewCount fixes',
+    when: (c, inv) => !(inv.fixes && inv.fixes.viewResync20261124) && !!(inv.fixes && inv.fixes.statsReset20261124),
+    async apply() {
+      const InvitationDay = require('../models/InvitationDay');
+      const days = await InvitationDay.find({ shortId: '7j2tOWl' }).select('views').lean();
+      const real = days.reduce((a, d) => a + (d.views || 0), 0);
+      // العلامة بتتكتب مباشرة (fixes مش في الـ schema، فـ Mongoose كان هيشيلها من $set) — زي runStatsResets
+      await Invitation.collection.updateOne({ shortId: '7j2tOWl' }, { $set: { 'fixes.viewResync20261124': new Date() } });
+      return { viewCount: real };
+    },
+  },
+  {
     // qCUFp1B — المالك (2026-11-24، الجولة 4): أماكن الإقامة ترجع (فندق الحفل نفسه)، الهدية تتشال خالص، أول صفحة:
     // "بارك الله لكما وبارك عليكما / وجمع بينكما في خير" والمكان بالإنجليزي Golden Jewel Hotel / Ismailia.
     // الكلام في customizations.texts (صاحبها يقدر يعدّله من المحرر). بيتعمل مرة واحدة (لو lc1 لسه فاضي).
