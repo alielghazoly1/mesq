@@ -1701,6 +1701,29 @@
     showTools(w.host, 'idle');
   }
 
+  // ===== المحذوفات كـ CSS =====
+  // السيرفر بيكتب الأجزاء المحذوفة المحفوظة كقواعد display:none !important في
+  // <style id="wda-hidden-css"> (utils/customizations.js). قبل كده "رجّعه" كان بيشيل
+  // علامة الحذف (wda-hidden-el) بس، والقاعدة اللي جت من السيرفر تفضل مخبّية العنصر
+  // لحد ما الصفحة تتفتح من جديد — والصورة كانت بتختفي من شبكة الصور كمان (شكوى
+  // Golden Calla "لحظاتنا" 2026-11-24). دلوقتي بنعيد كتابة القواعد من القايمة الحالية
+  // مع كل تجهيز وحذف واسترجاع ورجوع — بنفس شكل قواعد السيرفر بالظبط.
+  function syncHiddenCss(hidden) {
+    var st = document.getElementById('wda-hidden-css');
+    if (!st) {
+      st = document.createElement('style');
+      st.id = 'wda-hidden-css';
+      (document.body || document.documentElement).appendChild(st);
+    }
+    var css = '';
+    (hidden || []).forEach(function (id) {
+      id = String(id);
+      if (!/^[A-Za-z0-9_-]{1,64}$/.test(id) || Object.prototype.hasOwnProperty.call(Object.prototype, id)) return;
+      css += '[data-elem-id="' + id + '"] { display: none !important; }\n';
+    });
+    if (st.textContent !== css) st.textContent = css;
+  }
+
   // ===== الحذف =====
   function removeElement(el) {
     if (!el) return;
@@ -1977,6 +2000,7 @@
         var el = byUid(hid);
         if (el) el.classList.add('wda-hidden-el');
       });
+      syncHiddenCss(hidden);
       rescan();
     }
 
@@ -2020,6 +2044,7 @@
         var el = byUid(hid);
         if (el) el.classList.add('wda-hidden-el');
       });
+      syncHiddenCss(p.hidden || []);
       // نطبّق الإزاحات المحفوظة على طول
       Object.keys(state.offsets).forEach(function (id) {
         var el = byUid(id);
@@ -2355,6 +2380,7 @@
         var el = byUid(hid);
         if (el) el.classList.add('wda-hidden-el');
       });
+      syncHiddenCss(hidden);
 
       // 5) الصور
       Object.keys(c.images || {}).forEach(function (iid) {

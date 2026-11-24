@@ -759,9 +759,22 @@ html.ar .seal-t{letter-spacing:.01em!important}
   tick(); setInterval(tick, 1000);
 
   /* ---------- الصور: الكارت اللي في النص ظاهر كامل، والنقط والأسهم بتتحرك معاه + عرض الصورة كبيرة ---------- */
-  (function () {
+  // بيشتغل بعد ما الصفحة تخلص (DOMContentLoaded): قواعد الصور اللي صاحب الدعوة شالها من المحرر
+  // (display:none — utils/customizations.js) بتتحط آخر الصفحة بعد السكريبت ده، فلازم نستناها.
+  function initGallery() {
     var tr = $('#gtrack'); if (!tr) return;
     var items = $$('.gitem', tr), dots = $('#gdots');
+    // للضيوف: الصورة المشالة كان بيفضل مكانها برواز فاضي، ولو اتشالوا كلهم يفضل العنوان لوحده تحته
+    // خطوط فاضية (Golden Calla "لحظاتنا"، 2026-11-24). دلوقتي البرواز بيستخبّى، والنقط والأسهم بعدد
+    // الصور اللي فاضلة بس، ولو مفيش ولا صورة الجزء كله بيستخبّى. في المحرر البراويز بتفضل مكانها.
+    if (!EDIT) {
+      var shown = items.filter(function (it) { var im = it.querySelector('img'); return !im || getComputedStyle(im).display !== 'none'; });
+      if (shown.length !== items.length) {
+        items.forEach(function (it) { if (shown.indexOf(it) === -1) { it.style.display = 'none'; it.classList.remove('on'); } });
+        if (!shown.length) { var gsec = tr.closest('[data-section]'); if (gsec) gsec.classList.add('off'); return; }
+        items = shown;
+      }
+    }
     var prev = $('#gal .garr.p'), next = $('#gal .garr.n'), cur = -1;
     items.forEach(function (it, i) {
       var b = document.createElement('button'); b.type = 'button'; b.setAttribute('aria-label', 'Photo ' + (i + 1));
@@ -805,7 +818,8 @@ html.ar .seal-t{letter-spacing:.01em!important}
     lb.addEventListener('touchstart', function (e) { sx = e.touches[0].clientX; }, { passive: true });
     lb.addEventListener('touchend', function (e) { var dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 45) show(lbI + (dx < 0 ? 1 : -1)); }, { passive: true });
     document.addEventListener('keydown', function (e) { if (!lb.classList.contains('on')) return; if (e.key === 'Escape') closeLb(); if (e.key === 'ArrowRight') show(lbI + 1); if (e.key === 'ArrowLeft') show(lbI - 1); });
-  })();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initGallery); else initGallery();
 
   /* ---------- تأكيد الحضور (بيوصل للوحة صاحب الدعوة) ---------- */
   (function () {
