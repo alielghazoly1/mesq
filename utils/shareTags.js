@@ -131,6 +131,7 @@ const NO_SHARE_IMAGE = new Set([
 // عشان واتساب مايرجعش لأي واحد فيهم.
 const NO_SHARE_DESCRIPTION = new Set([
   'Ye053hU', // فارس وصفاء — "دعوة زفاف فارس وصفاء" بس، بطلب المالك 2026-11-23
+  '7j2tOWl', // مريم ومعاذ — "Moaz & Maryem’s Engagement Invitation 🤍" + صورتهم بس، بطلب المالك 2026-11-24
 ]);
 
 function buildShareTags(data, pageUrl, fallbackImage, imageSize) {

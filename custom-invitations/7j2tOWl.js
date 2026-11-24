@@ -105,8 +105,9 @@ module.exports = {
   // (المالك 2026-11-24، الجولة 4) صورتهم وهما قاعدين على البحر + كلام حلو تحت العنوان
   share: {
     image: asset(`/custom/${SHORT}/share.jpg`), width: 1200, height: 630, overrideImage: true,
-    title: 'دعوة خطوبة مريم ومعاذ 🤍',
-    description: 'بقلوب مليانة فرحة، مستنيينكم تشاركونا أحلى بداية 🤍 الثلاثاء ٨ ديسمبر · الساعة ٨ مساءً · قاعة الإليزيه، الإسكندرية',
+    // (المالك 2026-11-24، بعدها) المكتوب بره بس: "Moaz & Maryem’s Engagement Invitation" وقلب أبيض على يمينها —
+    // من غير أي سطر تحتها (الوصف بيتشال كله: NO_SHARE_DESCRIPTION في utils/shareTags.js) + صورتهم على البحر
+    title: 'Moaz & Maryem’s Engagement Invitation 🤍',
   },
 
   render() {
