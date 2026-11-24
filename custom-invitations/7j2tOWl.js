@@ -86,7 +86,12 @@ const EXTRAS_OPTS = `<script>window.MITHAQ_EXTRAS_OPTS = { anchor: '#mithaq-rsvp
 module.exports = {
   shortId: SHORT,
   // عنوان لينك المشاركة: خطوبة (مش فرح) ومريم الأول — الصورة والوصف زي ما هم من المحرر
-  share: { title: 'دعوة خطوبة مريم ومعاذ 🤍', description: 'الثلاثاء ٨ ديسمبر ٢٠٢٦ · الساعة ٨ مساءً · قاعة الإليزيه، الإسكندرية' },
+  // (المالك 2026-11-24، الجولة 4) صورتهم وهما قاعدين على البحر + كلام حلو تحت العنوان
+  share: {
+    image: asset(`/custom/${SHORT}/share.jpg`), width: 1200, height: 630, overrideImage: true,
+    title: 'دعوة خطوبة مريم ومعاذ 🤍',
+    description: 'بقلوب مليانة فرحة، مستنيينكم تشاركونا أحلى بداية 🤍 الثلاثاء ٨ ديسمبر · الساعة ٨ مساءً · قاعة الإليزيه، الإسكندرية',
+  },
 
   render() {
     return { head: CSS + EXTRAS_OPTS };
