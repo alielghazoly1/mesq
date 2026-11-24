@@ -40,7 +40,7 @@ const EN = {
 const VENUE_EN = { 'فندق راديسون بلو': ['Radisson Blu', 'Hotel'] };
 const VENUE_EN_ONE = { 'فندق راديسون بلو': 'Radisson Blu Hotel' };
 // اسم العريس الكبير (مؤقتًا بخط Mirza، ونفس الطريقة بالإنجليزي بخط القالب)
-const GROOM_AR = 'أحمـــــد';
+const GROOM_AR = 'أحمد';
 const GROOM_EN = 'Ahmed';
 
 const AR_DAYS = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
@@ -250,7 +250,7 @@ function sectionsHtml(f) {
 const SCROLL_HINT = `<a class="xi-scroll" id="xiScroll" href="#xi-countdown" aria-label="Scroll down"><span class="xi-scroll-t">${L('اسحب للأسفل', 'Scroll down')}</span><span class="xi-scroll-line"><i></i></span><svg class="xi-scroll-chev" viewBox="0 0 24 14" aria-hidden="true"><path d="M2 2l10 10L22 2"/></svg></a>`;
 const LANG_BTN = `<button type="button" class="xi-lang" id="xiLang" aria-label="Switch to English"><span>${ICON.globe}${L('English', 'عربي')}</span></button>`;
 
-const FONTS = '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Changa:wght@300;400&family=Mirza&display=swap">';
+const FONTS = '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@400;700&display=swap">';
 
 const STYLE = `<style id="xi-style">
 /* اللغة: العربي الافتراضي (html.xi-en = إنجليزي) */
@@ -263,7 +263,10 @@ html:not(.xi-en) .xi-l-en,html.xi-en .xi-l-ar{display:none!important}
 /* الكارت متوسّط في نص الإطار (الإطار نفسه أعلى من نص الشاشة) — top مش transform عشان fitHero بيكتب transform */
 .xi-h{position:relative;top:var(--xi-up,-20px);transform:scale(var(--xi-k,1));display:flex;flex-direction:column;align-items:center;width:292px;max-width:100%;text-align:center;color:var(--fg)}
 .xi-h p{margin:0}
-.xi-h.xi-l-ar{font-family:'Changa','Amiri',sans-serif;font-weight:300;letter-spacing:0}
+.xi-h.xi-l-ar{font-family:'Amiri','Amiri Ar Local',serif;font-weight:400;letter-spacing:0}
+/* (المالك 2026-11-24) نفس خط الدعوة الأصلي: الكلام Amiri والأسامي Aref Ruqaa زي الكارت القديم */
+.xi-l-ar .xi-f span:last-child,.xi-l-ar .xi-to span:last-child{font-family:'Aref Ruqaa','Aref Ruqaa Ar Local',serif;font-size:1.12em}
+.xi-h.xi-l-ar .xi-name{font-family:'Aref Ruqaa','Aref Ruqaa Ar Local',serif;line-height:1.35;margin-top:14px}
 .xi-h .xi-h1{font-size:16px;line-height:1.4}
 .xi-h .xi-fam{display:flex;align-items:center;justify-content:center;gap:calc(4px * var(--xi-fk,1));width:100%;margin-top:18px}
 .xi-h .xi-f{flex:0 0 auto;width:var(--xi-cw,auto);display:flex;flex-direction:column;align-items:center;font-size:calc(13.5px * var(--xi-fk,1));line-height:1.65}
@@ -279,8 +282,8 @@ html:not(.xi-en) .xi-l-en,html.xi-en .xi-l-ar{display:none!important}
 .xi-h .xi-info span{white-space:nowrap}
 .xi-h .xi-info span:empty{display:none}
 /* الإنجليزي: خطوط القالب الإنجليزي */
-.xi-h.xi-l-en{font-family:'Cormorant Garamond',serif;font-weight:400}
-.xi-l-en .xi-h1,.xi-l-en .xi-gw{font-family:'Jost',sans-serif;font-weight:300;font-size:10.5px;letter-spacing:.3em;text-transform:uppercase;line-height:1.6}
+.xi-h.xi-l-en{font-family:'Cormorant Garamond',serif;font-weight:500}
+.xi-l-en .xi-h1,.xi-l-en .xi-gw{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:13px;letter-spacing:.16em;text-transform:uppercase;line-height:1.6}
 .xi-l-en .xi-f{font-size:calc(14.5px * var(--xi-fk,1));line-height:1.3;padding:0 4px}
 .xi-l-en .xi-and{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:calc(24px * var(--xi-fk,1));transform:none}
 .xi-l-en .xi-inv{font-size:16px;line-height:1.4;font-style:italic;margin-top:18px}
@@ -301,7 +304,7 @@ html:not(.xi-en) .xi-l-en,html.xi-en .xi-l-ar{display:none!important}
 .xi-scroll.tight .xi-scroll-line{height:24px}
 .xi-scroll-t{white-space:nowrap}
 .xi-scroll-t .xi-l-ar{font-family:'Amiri','Amiri Ar Local',serif;font-size:14px;line-height:1;opacity:.9}
-.xi-scroll-t .xi-l-en{font-family:'Jost',sans-serif;font-weight:300;font-size:9.5px;letter-spacing:.42em;text-transform:uppercase;line-height:1;margin-right:-.42em;opacity:.85}
+.xi-scroll-t .xi-l-en{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:12px;letter-spacing:.3em;text-transform:uppercase;line-height:1;margin-right:-.3em;opacity:.9}
 .xi-scroll-line{position:relative;display:block;width:1px;height:34px;overflow:hidden;background:rgba(var(--fg-rgb),.18)}
 .xi-scroll-line i{position:absolute;left:0;top:-40%;width:1px;height:40%;background:linear-gradient(to bottom,rgba(var(--fg-rgb),0),var(--fg));animation:xiDrop 2.2s cubic-bezier(.6,0,.3,1) infinite}
 .xi-scroll-chev{width:15px;height:9px;overflow:visible;animation:xiBob 2.2s ease-in-out infinite}
@@ -336,6 +339,17 @@ html:not(.xi-en) .xi-ft .xi-s53{font-size:20px}
 /* الإنجليزي أطول من جملة القالب الأصلية — بتنزل سطرين بدل ما تخرج بره الشاشة */
 html.xi-en .xi-ft .ft-en-h{white-space:normal;font-size:min(40px,calc((100vw - 40px) * .115));line-height:1.2;max-width:330px}
 html.xi-en .xi-ft .ft-l{max-width:320px;margin-left:auto;margin-right:auto;line-height:1.6}
+/* (المالك 2026-11-24) الإنجليزي أوضح: الجمل الطويلة اللي كانت بخط اليد الرفيع بقت Cormorant مايل واضح */
+html.xi-en .xi-ft .ft-en-h,html.xi-en #xi-rsvp .rs-s,html.xi-en #xi-rsvp .rs-done p:first-child,html.xi-en #xi-countdown .cd-soon,html.xi-en .xi-ft .ft-n,html.xi-en .xi-main [data-section="venue"] .loc-s{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500;letter-spacing:.01em}
+html.xi-en .xi-ft .ft-en-h{font-size:30px;line-height:1.25}
+html.xi-en #xi-rsvp .rs-s{font-size:26px}
+html.xi-en #xi-countdown .cd-soon{font-size:7vw}
+html.xi-en .xi-ft .ft-n{font-size:30px;line-height:1.3;white-space:normal}
+html.xi-en .xi-ft .ft-n .ft-nm{font-size:1em}
+html.xi-en .xi-main [data-section="venue"] .loc-s{font-size:34px;white-space:normal}
+html.xi-en .xi-ft .ft-en,html.xi-en .xi-main .loc-en,html.xi-en .xi-main .loc-when,html.xi-en .xi-main .loc-addr,html.xi-en #xi-rsvp .rs-ch button span{font-weight:500}
+html.xi-en .xi-ft .ft-l,html.xi-en .xi-cal-note,html.xi-en .xi-chint{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:16px;letter-spacing:.01em;color:rgba(var(--fg-rgb),.8)}
+html.xi-en .xi-cunit{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:19px}
 .xi-calw{margin-top:28px;display:flex;flex-direction:column;align-items:center}
 .xi-cal>span{border-color:rgba(var(--fg-rgb),.5)}
 .xi-cal>span>span{display:flex;align-items:center;justify-content:center;background:var(--fg);color:var(--bg);border-color:var(--fg);padding:12px 26px}
@@ -861,6 +875,16 @@ const once = (s, a) => s.indexOf(a) !== -1 && s.indexOf(a) === s.lastIndexOf(a);
 
 module.exports = {
   shortId: SHORT,
+
+  // كارت اللينك (واتساب/فيسبوك) — بإطار الدعوة وخطوطها ولونها (المالك 2026-11-24: "صورة اللينك والكلام اللي تحتها شيك")
+  share: {
+    image: asset(`/custom/${SHORT}/share.jpg`),
+    width: 1200,
+    height: 630,
+    overrideImage: true,
+    title: 'دعوة حفل زفاف · عائلة السيد نظمي أحمد شاهين وعائلة السيد عادل أحمد عزب',
+    description: 'السبت ١٦ يناير ٢٠٢٧ · الساعة ٨:٠٠ مساءً · فندق راديسون بلو — العين',
+  },
 
   // ملف الموعد: /i/XIUXYIT/calendar.ics?e=ar|en (الزرار بيختار حسب لغة الضيف)، وتنبيهين: قبلها بيومين وقبلها بيوم
   calendar: {
