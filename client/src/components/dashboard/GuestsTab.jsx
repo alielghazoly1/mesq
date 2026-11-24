@@ -18,6 +18,14 @@ function csvCell(v) {
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
+// "شخص واحد" / "شخصين" / "3 أشخاص" / "12 شخص"
+function peopleLabel(n, lang) {
+  if (lang === 'en') return n === 1 ? '1 person' : `${n} people`;
+  if (n === 1) return 'شخص واحد';
+  if (n === 2) return 'شخصين';
+  return n <= 10 ? `${fmtNum(n, 'ar')} أشخاص` : `${fmtNum(n, 'ar')} شخص`;
+}
+
 export default function GuestsTab({ shortId, title }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.language === 'en' ? 'en' : 'ar';
@@ -29,6 +37,8 @@ export default function GuestsTab({ shortId, title }) {
 
   const all = data?.rsvps || [];
   const yes = all.filter((r) => r.attending).length;
+  // عدد الأشخاص — بييجي من السيرفر بس للدعوات اللي فورم الحضور فيها بيسأل عن العدد (routes/dashboard.js)
+  const people = data?.people || null;
   const list = useMemo(() => {
     const q = query.trim().toLowerCase();
     return all.filter((r) => (filter === 'all' || (filter === 'yes' ? r.attending : !r.attending))
@@ -36,8 +46,9 @@ export default function GuestsTab({ shortId, title }) {
   }, [all, filter, query]);
 
   function exportCsv() {
-    const head = [t('dash2.csvName'), t('dash2.csvStatus'), t('dash2.csvNote'), t('dash2.csvDate')];
-    const rows = all.map((r) => [r.guestName, r.attending ? t('dash.attending') : t('dash.notAttending'), r.note || '',
+    const head = [t('dash2.csvName'), t('dash2.csvStatus'), ...(people ? [t('dash2.csvPeople')] : []), t('dash2.csvNote'), t('dash2.csvDate')];
+    const rows = all.map((r) => [r.guestName, r.attending ? t('dash.attending') : t('dash.notAttending'),
+      ...(people ? [r.attending ? (r.n != null ? r.n : 1) : ''] : []), r.note || '',
       new Date(r.createdAt).toLocaleString(lang === 'en' ? 'en-GB' : 'ar-EG')]);
     const csv = '﻿' + [head, ...rows].map((row) => row.map(csvCell).join(',')).join('\r\n');
     const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
@@ -82,6 +93,20 @@ export default function GuestsTab({ shortId, title }) {
         </div>
       </div>
 
+      {people && (
+        <div className="flex items-center gap-3 rounded-2xl border border-[#1f7a4d]/25 bg-[#1f7a4d]/[0.06] px-4 py-3" data-people>
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#1f7a4d]/10 text-[#1f7a4d]"><Users size={19} /></span>
+          <div className="min-w-0">
+            <p className="text-[12px] font-bold text-ink-dim">{t('dash2.peopleTotal')}</p>
+            <p className="text-[20px] font-extrabold leading-tight text-[#1f7a4d]" data-people-total>{peopleLabel(people.people, lang)}</p>
+            {people.split && (
+              <p className="text-[11.5px] text-ink-dim">{t('dash2.peopleSplit', { a: fmtNum(people.adults, lang), k: fmtNum(people.kids, lang) })}</p>
+            )}
+            {people.dupes > 0 && <p className="text-[11px] text-ink-dim/80">{t('dash2.peopleRepeat')}</p>}
+          </div>
+        </div>
+      )}
+
       <div className="relative">
         <Search size={15} className="pointer-events-none absolute start-3.5 top-1/2 -translate-y-1/2 text-ink-dim" />
         <input value={query} onChange={(e) => dispatch(setGuestQuery(e.target.value))} placeholder={t('dash2.searchGuests')} data-guest-search
@@ -111,6 +136,11 @@ export default function GuestsTab({ shortId, title }) {
                   <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10.5px] font-extrabold ${r.attending ? 'bg-[#1f7a4d]/10 text-[#1f7a4d]' : 'bg-[#a2465e]/10 text-[#a2465e]'}`}>
                     {r.attending ? <Check size={10} /> : <XIcon size={10} />} {r.attending ? t('dash.attending') : t('dash.notAttending')}
                   </span>
+                  {r.n != null && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-brass/10 px-2 py-0.5 text-[10.5px] font-extrabold text-brass" data-guest-people>
+                      <Users size={10} /> {peopleLabel(r.n, lang)}
+                    </span>
+                  )}
                   <span className="ms-auto text-[11px] text-ink-dim">
                     {new Date(r.createdAt).toLocaleDateString(lang === 'en' ? 'en-GB' : 'ar-EG', { day: 'numeric', month: 'short' })}
                   </span>

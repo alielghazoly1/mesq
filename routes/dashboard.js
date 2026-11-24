@@ -16,7 +16,7 @@ const GuestPhoto = require('../models/GuestPhoto');
 const GuestVoice = require('../models/GuestVoice');
 const { requireAuth } = require('../middleware/auth');
 const { sanitizeText } = require('../utils/sanitize');
-const { ensureStatsToken } = require('../utils/statsPage');
+const { ensureStatsToken, headcount, noteCounts } = require('../utils/statsPage');
 const { computeUgcStats, CURRENCIES } = require('../utils/ugc');
 const { getPackage, EDIT_WINDOW_DAYS } = require('../packages/registry');
 const { editWindowInfo } = require('../utils/editWindow');
@@ -256,6 +256,26 @@ router.get('/api/dashboard/rsvps/:shortId', requireAuth, async (req, res) => {
       .limit(500)
       .select('guestName attending note createdAt')
       .lean();
+
+    // عدد الأشخاص (المالك 2026-11-24 — XIUXYIT): فورم الحضور اللي بيسأل "كام شخص" بيكتب العدد في رسالة الرد
+    // ("عدد الحضور: 3"، "Guests: 3"، "الكبار: 2 · الأطفال: 1" — utils/statsPage.js، نفس حساب صفحة الإحصائيات).
+    // بنحسبه بس لو فيه رد فيه عدد — غير كده الرد زي الأول بالظبط (من غير people ولا n).
+    const countOf = (note) => {
+      const c = noteCounts(note);
+      return c.adults != null || c.kids != null ? (c.adults || 0) + (c.kids || 0) : c.total;
+    };
+    if (rsvps.some((r) => r.attending && countOf(r.note) != null)) {
+      const going = await Rsvp.find({ shortId: req.params.shortId, attending: true })
+        .sort({ createdAt: -1 })
+        .limit(5000)
+        .select('guestName attending note deviceId')
+        .lean();
+      const people = headcount(going);
+      if (people) {
+        rsvps.forEach((r) => { const n = r.attending ? countOf(r.note) : null; if (n != null) r.n = n; });
+        return res.json({ rsvps, people });
+      }
+    }
 
     return res.json({ rsvps });
   } catch (err) {

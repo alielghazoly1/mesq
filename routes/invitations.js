@@ -635,13 +635,16 @@ router.get('/i/:shortId/calendar.ics', async (req, res) => {
     if (!invitation || invitation.status === 'draft' || !invitation.weddingDateTime) {
       return res.status(404).type('text/plain; charset=utf-8').send('Not found');
     }
-    const isAr = String(invitation.language || 'ar').toLowerCase() === 'ar';
     const pageUrl = `${req.protocol}://${req.get('host')}/i/${invitation.shortId}`;
     // دعوة فيها أكتر من مناسبة (زي lqxsipV: كتب الكتاب والفرح): ?e=<key> بيختار مناسبة من
-    // custom.calendar.events {title, start:'YYYY-MM-DDTHH:mm', hours, location, map}. من غيره زي الأول.
+    // custom.calendar.events {title, start:'YYYY-MM-DDTHH:mm', hours, location, map, lang?}. من غيره زي الأول.
     const events = custom.calendar.events || null;
     const evKey = typeof req.query.e === 'string' ? req.query.e : '';
     const ev = events && evKey && Object.prototype.hasOwnProperty.call(events, evKey) ? events[evKey] : null;
+    // الدعوة اللي بلغتين (XIUXYIT): ?e=ar|en — سطور الملاحظات (الخريطة/الدعوة) بلغة الضيف. غير كده لغة الدعوة زي الأول.
+    const isAr = ev && (ev.lang === 'ar' || ev.lang === 'en')
+      ? ev.lang === 'ar'
+      : String(invitation.language || 'ar').toLowerCase() === 'ar';
     const evStart = ev && /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(String(ev.start || ''));
     const map = ev ? (ev.map || '') : (invitation.venueMapDirectLink || '');
     const ics = buildEventIcs({
