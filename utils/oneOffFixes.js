@@ -2209,6 +2209,44 @@ const FIXES = [
       return set;
     },
   },
+  {
+    // qCUFp1B — المالك (2026-11-24، الجولة 4): أماكن الإقامة ترجع (فندق الحفل نفسه)، الهدية تتشال خالص، أول صفحة:
+    // "بارك الله لكما وبارك عليكما / وجمع بينكما في خير" والمكان بالإنجليزي Golden Jewel Hotel / Ismailia.
+    // الكلام في customizations.texts (صاحبها يقدر يعدّله من المحرر). بيتعمل مرة واحدة (لو lc1 لسه فاضي).
+    name: 'qCUFp1B-round4',
+    shortId: 'qCUFp1B',
+    select: 'customizations templateId hiddenSections',
+    when: (c, inv) => inv.templateId === 'lace' && !(c.texts || {}).lc1,
+    apply: (c, inv) => ({
+      'customizations.texts': {
+        ...(c.texts || {}),
+        lc1: 'بارك الله لكما وبارك عليكما',
+        lc2: 'وجمع بينكما في خير',
+        lc7: 'Golden Jewel Hotel',
+        lc8: 'Ismailia',
+        lc49: 'لضيوفنا القادمين من خارج الإسماعيلية، تقدروا تستريحوا وتقيموا في نفس فندق الحفل.',
+        lc51: 'فندق جولدن جويل',
+        lc58: 'في نفس مكان الحفل، إقامة مريحة وهادئة على بُعد خطوات من قاعة لازوردي.',
+      },
+      hiddenSections: [...new Set([...(inv.hiddenSections || []).filter((x) => x !== 'stay'), 'gift'])],
+    }),
+  },
+  {
+    // qCUFp1B — المالك (2026-11-24): أغنية "دخلة عروس تجنن 2023" من مكتبة الموسيقى. بيتعمل بس لو مفيش أغنية متختارة.
+    name: 'qCUFp1B-song-dakhla',
+    shortId: 'qCUFp1B',
+    when: (c) => !c.audioUrl,
+    async apply() {
+      const Track = require('../models/Track');
+      const norm = (t) => String(t || '').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/\s+/g, ' ').trim();
+      const tracks = await Track.find({ active: true }).sort({ createdAt: -1 }).select('title artist url').lean();
+      const pick = tracks.find((t) => /دخله عروس تجنن/.test(norm(t.title)) && /2023|٢٠٢٣/.test(t.title))
+        || tracks.find((t) => /دخله عروس تجنن/.test(norm(t.title)));
+      if (!pick || !/^https:\/\/res\.cloudinary\.com\//.test(pick.url)) throw new Error('track not found in the library');
+      console.log(`[oneOffFix] qCUFp1B-song-dakhla: ${pick.title} (${pick.url})`);
+      return { 'customizations.audioUrl': pick.url, 'customizations.audioStart': 0, 'customizations.audioEnd': 0 };
+    },
+  },
 ];
 
 let done = false;
