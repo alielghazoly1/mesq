@@ -143,7 +143,15 @@ const TAIL = `<div class="ek-lang" role="group" aria-label="Language"><button ty
 
 module.exports = {
   shortId: SHORT,
-  share: { title: 'Azad & Najbir — دعوة خطوبة 🤍', description: 'السبت 26.12.2026 · من الساعة 15:00 حتى 00:00' },
+  // (المالك 2026-11-25) كارت لينك شيك: الكارت الوردي بالأسامي جنب الأسامي والتاريخ على نفس الورق (scratch erc/share/make.js)
+  share: {
+    image: asset(`${DIR}share.jpg`),
+    width: 1200,
+    height: 630,
+    overrideImage: true,
+    title: 'Azad & Najbir 🤍 دعوة خطوبة',
+    description: 'بكل سرور وفخر ندعوكم لحضور حفل خطوبتنا 🤍 السبت 26.12.2026 · من الساعة 15:00 حتى 00:00 · هانوفر',
+  },
 
   render({ editMode } = {}) {
     return { head: HEAD, bodyEnd: editMode ? '' : TAIL };
