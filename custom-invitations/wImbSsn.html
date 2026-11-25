@@ -29,7 +29,7 @@ body{font-family:'Times New Roman',serif}
 .sec.on .el.mono{clip-path:inset(0 0 0 0);transition:opacity .6s ease,clip-path 2s cubic-bezier(.45,.05,.3,1);transition-delay:var(--d,0s)}
 .el.names{filter:none;transform:none;clip-path:inset(0 0 0 100%)}
 .sec.on .el.names{clip-path:inset(0 0 0 0);transition:opacity .5s ease,clip-path 2.2s cubic-bezier(.45,.05,.3,1);transition-delay:var(--d,0s)}
-.locbtn{position:absolute;left:190px;top:930px;width:340px;height:62px;z-index:6;display:flex;align-items:center;justify-content:center;gap:12px;box-sizing:border-box;
+.locbtn{position:absolute;left:190px;top:880px;width:340px;height:62px;z-index:6;display:flex;align-items:center;justify-content:center;gap:12px;box-sizing:border-box;
   border-radius:40px;border:1.5px solid rgba(122,84,62,.55);background:linear-gradient(180deg,rgba(255,251,246,.92),rgba(244,233,222,.92));
   color:#5f4333;font:700 25px 'Segoe UI',Tahoma,Arial,sans-serif;text-decoration:none;pointer-events:auto;box-shadow:0 8px 18px -10px rgba(90,60,40,.55)}
 .locbtn svg{width:28px;height:28px;flex:none}
@@ -132,6 +132,19 @@ __ELEMENTS__
     b.setAttribute('data-d', '3.9'); b.style.setProperty('--d', '3.9s');
     secs[4].appendChild(b);
   })();
+  // صفحات السكرول الشفافة فوق المسرح بتاخد الضغطة — فالضغطة على زرار/أيقونة/اسم المكان بتتحوّل هنا للوكيشن
+  document.addEventListener('click', function (e) {
+    if (!ready || cur < 0) return;
+    var hit = false;
+    secs[cur].querySelectorAll('a.map, a.locbtn').forEach(function (a) {
+      var r = a.getBoundingClientRect();
+      if (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom) hit = true;
+    });
+    if (!hit) return;
+    e.preventDefault();
+    var w = null; try { w = window.open(MAP, '_blank'); } catch (x) {}
+    if (!w) location.href = MAP;
+  });
   // لمعة حوالين الأسامي (المشهد 4)
   [[150, 720], [210, 800], [300, 700], [420, 815], [520, 710], [575, 790], [250, 760], [470, 760], [360, 690], [380, 835]].forEach(function (p, i) {
     var k = document.createElement('i'); k.className = 'spk';
