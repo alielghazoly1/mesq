@@ -1261,6 +1261,25 @@ const FIXES = [
     when: (c) => !!(c.texts && c.texts.pp52 === 'Kindly let us know at your earliest convenience.'),
     apply: () => ({ 'customizations.texts.pp52': 'Kindly let us know\nat your earliest convenience.' }),
   },
+  ...[['ErcJsBi', null], ['wImbSsn', null], ['MslhLFz', 30]].map(([sid, fetched]) => ({
+    // فحوصات النشر بتاعتنا (2026-11-25) فتحت /i/<id> كذا مرة بـ curl وزوّدت viewCount (العدّاد ده بيعدّ أي فتحة حتى
+    // البوتات). ErcJsBi و wImbSsn: العدّاد = مجموع InvitationDay.views (الضيوف الحقيقيين بس — زي 7j2tOWl).
+    // MslhLFz (دعوة شغالة من بدري): بنشيل بس عدد فتحاتنا (~30) ومن غير ما ينزل عن مجموع الضيوف الحقيقيين.
+    // مرة واحدة (fixes.viewResync20261125).
+    name: `${sid}-views-resync-20261125`,
+    shortId: sid,
+    select: 'customizations viewCount fixes',
+    when: (c, inv) => !(inv.fixes && inv.fixes.viewResync20261125),
+    async apply(c, inv) {
+      const InvitationDay = require('../models/InvitationDay');
+      const days = await InvitationDay.find({ shortId: sid }).select('views').lean();
+      const real = days.reduce((a, d) => a + (d.views || 0), 0);
+      const next = fetched == null ? real : Math.max(real, (inv.viewCount || 0) - fetched);
+      await Invitation.collection.updateOne({ shortId: sid }, { $set: { 'fixes.viewResync20261125': new Date() } });
+      console.log(`[oneOffFix] ${sid} viewCount ${inv.viewCount} → ${next} (real guests ${real})`);
+      return { viewCount: next };
+    },
+  })),
   {
     // MslhLFz — بطلب المالك (2026-11-25): الجملة اللي على الغلاف قبل فتح الدعوة كانت "With all our love," بس —
     // كمّلناها: "With all our love," / "we invite you to share our joy" (سطرين). بس لو النص لسه زي ما العميل كتبه.
