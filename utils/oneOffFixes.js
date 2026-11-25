@@ -2261,6 +2261,31 @@ const FIXES = [
     },
   },
   {
+    // wImbSsn (custom-invitations/wImbSsn.js — نسخة من فيديو المالك) — بطلب المالك (2026-11-25): زفاف حسين وتسنيم،
+    // الجمعة 16/10/2026 الساعة 8 مساءً، قاعات النعمان (قاعة رم) — نفس تفاصيل الفيديو. عشان عنوان الدعوة واللوحة والتقويم.
+    // بيتعمل بس لو الدعوة لسه مسودة.
+    name: 'wImbSsn-husain-tasneem',
+    shortId: 'wImbSsn',
+    select: '-__v',
+    when: (c, inv) => ['Groom', 'العريس'].includes(inv.groomName) && ['Bride', 'العروسة'].includes(inv.brideName)
+      && ['Venue', ''].includes(inv.venueName || ''),
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: 'ar', occasionType: 'wedding',
+        hiddenSections: inv.hiddenSections || [], timeline: inv.timeline, name: inv.name,
+        groomName: 'حسين', groomNameAr: 'حسين', brideName: 'تسنيم', brideNameAr: 'تسنيم',
+        venueName: 'قاعات النعمان', venueCity: 'قاعة رم', venueAddress: '',
+        venueMapQuery: 'قاعات النعمان',
+        weddingDate: '2026-10-16', weddingTime: '20:00',
+      }, { ownsTemplate: true, skipMapNetwork: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.language = 'ar';
+      return set;
+    },
+  },
+  {
     // qCUFp1B — المالك (2026-11-24، الجولة 4): أماكن الإقامة ترجع (فندق الحفل نفسه)، الهدية تتشال خالص، أول صفحة:
     // "بارك الله لكما وبارك عليكما / وجمع بينكما في خير" والمكان بالإنجليزي Golden Jewel Hotel / Ismailia.
     // الكلام في customizations.texts (صاحبها يقدر يعدّله من المحرر). بيتعمل مرة واحدة (لو lc1 لسه فاضي).

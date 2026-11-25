@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#efe4d6">
+<link rel="preload" as="image" href="assets/poster.webp">
+<style>
+html,body{margin:0;height:100%;background:#efe4d6;overflow:hidden;overscroll-behavior:none;-webkit-tap-highlight-color:transparent}
+body{font-family:'Amiri','Times New Roman',serif}
+/* الخلفية على الكمبيوتر: نفس أول لقطة مغبّشة، والفيديو في النص بمقاس الموبايل */
+.bgblur{position:fixed;inset:-40px;background:url(assets/poster.webp) center/cover;filter:blur(28px) brightness(1.02);opacity:.85}
+.stage{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+.frame{position:relative;width:100%;height:100%;overflow:hidden;background:#efe4d6}
+@media (min-aspect-ratio:10/16){.frame{width:auto;height:100%;aspect-ratio:9/16;box-shadow:0 30px 80px -30px rgba(80,55,40,.45)}}
+video,.poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.poster{z-index:2;transition:opacity .35s ease}
+.poster.off{opacity:0;pointer-events:none}
+/* "اضغط لفتح الدعوة" */
+.tap{position:absolute;left:50%;bottom:calc(11% + env(safe-area-inset-bottom,0px));z-index:3;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;
+  padding:10px 26px;border-radius:40px;background:radial-gradient(closest-side,rgba(255,250,244,.88),rgba(255,250,244,0));color:#7a5a44;font-size:18px;white-space:nowrap;
+  animation:tapPulse 2.4s ease-in-out infinite;cursor:pointer;transition:opacity .4s ease}
+.tap svg{width:26px;height:26px;stroke:#8a6650;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.tap.off{opacity:0;pointer-events:none;animation:none}
+@keyframes tapPulse{0%,100%{opacity:.75;transform:translateX(-50%) scale(1)}50%{opacity:1;transform:translateX(-50%) scale(1.04)}}
+.cover{position:absolute;inset:0;z-index:4;cursor:pointer}
+.cover.off{display:none}
+/* زراير صغيرة: الصوت + إعادة */
+.btn{position:absolute;z-index:5;width:44px;height:44px;border-radius:50%;border:0;padding:0;display:grid;place-items:center;cursor:pointer;
+  background:rgba(255,250,244,.82);box-shadow:0 4px 14px -6px rgba(80,55,40,.5);opacity:0;pointer-events:none;transition:opacity .5s ease}
+.btn.on{opacity:1;pointer-events:auto}
+.btn svg{width:20px;height:20px;stroke:#7a5a44;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.mute{left:14px;top:calc(14px + env(safe-area-inset-top,0px))}
+.mute .off-i{display:none}.mute.muted .on-i{display:none}.mute.muted .off-i{display:block}
+.again{left:50%;bottom:calc(5% + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:auto;height:40px;padding:0 18px;border-radius:22px;gap:8px;display:flex;align-items:center;
+  font:16px 'Amiri',serif;color:#7a5a44}
+</style>
+</head>
+<body>
+<div class="bgblur" aria-hidden="true"></div>
+<div class="stage">
+  <div class="frame" id="frame">
+    <video id="vid" playsinline webkit-playsinline preload="auto" poster="assets/poster.webp" src="assets/invite.mp4"></video>
+    <img class="poster" id="poster" src="assets/poster.webp" alt="" draggable="false">
+    <div class="tap" id="tap" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V11m0-1.5a1.5 1.5 0 0 1 3 0V11m0-.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-.6a6 6 0 0 1-4.9-2.5L5 15.6a1.6 1.6 0 0 1 2.4-2.1L9 15"/></svg>
+      <span>اضغط لفتح الدعوة</span>
+    </div>
+    <div class="cover" id="cover" role="button" tabindex="0" aria-label="افتح الدعوة"></div>
+    <button class="btn mute" id="mute" type="button" aria-label="الصوت">
+      <svg class="on-i" viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+      <svg class="off-i" viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="m16 9 5 6m0-6-5 6"/></svg>
+    </button>
+    <button class="btn again" id="again" type="button"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg><span>شاهد الدعوة مرة أخرى</span></button>
+  </div>
+</div>
+<script>
+(function () {
+  var v = document.getElementById('vid'), poster = document.getElementById('poster'), tap = document.getElementById('tap'),
+      cover = document.getElementById('cover'), mute = document.getElementById('mute'), again = document.getElementById('again');
+  var started = false;
+  function showPlaying() { poster.classList.add('off'); }
+  v.addEventListener('playing', showPlaying);
+  v.addEventListener('timeupdate', function () { if (v.currentTime > 0.05) showPlaying(); });
+  function start() {
+    if (started) return; started = true;
+    tap.classList.add('off'); cover.classList.add('off');
+    v.muted = false;
+    var p = v.play();
+    if (p && p.catch) p.catch(function () {
+      // المتصفح رفض الصوت: نشغّل من غير صوت، وزرار الصوت يرجّعه
+      v.muted = true; mute.classList.add('muted');
+      var q = v.play(); if (q && q.catch) q.catch(function () { started = false; tap.classList.remove('off'); cover.classList.remove('off'); });
+    });
+    mute.classList.add('on');
+  }
+  cover.addEventListener('click', start);
+  cover.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); start(); } });
+  mute.addEventListener('click', function () {
+    v.muted = !v.muted; mute.classList.toggle('muted', v.muted);
+    if (!v.muted && v.paused && !v.ended) v.play().catch(function () {});
+  });
+  // آخر الفيديو: بيفضل على آخر لقطة (الحرفين والتاريخ) + زرار "شاهد الدعوة مرة أخرى"
+  v.addEventListener('ended', function () { again.classList.add('on'); });
+  again.addEventListener('click', function () { again.classList.remove('on'); try { v.currentTime = 0; } catch (e) {} v.play().catch(function () {}); });
+  // الضيف خرج من الموبايل ورجع: الفيديو يكمّل
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) { if (!v.paused) { v.pause(); v.__hid = 1; } }
+    else if (v.__hid) { v.__hid = 0; v.play().catch(function () {}); }
+  });
+})();
+</script>
+</body>
+</html>
