@@ -2286,6 +2286,32 @@ const FIXES = [
     },
   },
   {
+    // wImbSsn — المالك (2026-11-25، بعدها): نفس الدعوة ببيانات محمود وإيمان — الخميس 31/12/2026 ليلة رأس السنة الساعة
+    // 8:30 مساءً، ستار كلوب عند مرور شبرا أمام كورنيش النيل (لينك المالك). بيتعمل بس لو البيانات لسه حسين وتسنيم.
+    name: 'wImbSsn-mahmoud-eman',
+    shortId: 'wImbSsn',
+    select: '-__v',
+    when: (c, inv) => inv.groomName === 'حسين' && inv.brideName === 'تسنيم',
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const link = 'https://maps.app.goo.gl/7v59yV5ovAHuSWdr7';
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: 'ar', occasionType: 'wedding',
+        hiddenSections: inv.hiddenSections || [], timeline: inv.timeline, name: inv.name,
+        groomName: 'محمود', groomNameAr: 'محمود', brideName: 'إيمان', brideNameAr: 'إيمان',
+        venueName: 'ستار كلوب', venueCity: 'مرور شبرا - كورنيش النيل', venueAddress: '',
+        venueMapQuery: link,
+        weddingDate: '2026-12-31', weddingTime: '20:30',
+      }, { ownsTemplate: true, skipMapNetwork: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.language = 'ar';
+      set.venueMapQuery = link;
+      set.venueMapDirectLink = link;
+      return set;
+    },
+  },
+  {
     // qCUFp1B — المالك (2026-11-24، الجولة 4): أماكن الإقامة ترجع (فندق الحفل نفسه)، الهدية تتشال خالص، أول صفحة:
     // "بارك الله لكما وبارك عليكما / وجمع بينكما في خير" والمكان بالإنجليزي Golden Jewel Hotel / Ismailia.
     // الكلام في customizations.texts (صاحبها يقدر يعدّله من المحرر). بيتعمل مرة واحدة (لو lc1 لسه فاضي).
