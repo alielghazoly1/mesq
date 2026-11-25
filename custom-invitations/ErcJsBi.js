@@ -42,7 +42,14 @@ const HEAD = `<link rel="stylesheet" href="https://fonts.googleapis.com/css2?fam
   if (l === 'ku') { document.documentElement.classList.add('ek-ku'); document.documentElement.dir = 'ltr'; document.documentElement.lang = 'ku'; }
 })();</script>
 <style id="ek-css">
-:root{--bg:#e3cbc0;--bg-rgb:227,203,192;--fg:#704f50;--fg-rgb:112,79,80}
+:root{--bg:#dacac0;--bg-rgb:218,202,192;--fg:#6e4c50;--fg-rgb:110,76,80;--rose:#c59a94;--rose-rgb:197,154,148}
+/* (المالك 2026-11-25، الجولة 2) ألوان صورته: ورق بيج رمادي دافي، زخارف وردي باهت، لؤلؤ أبيض، كلام موف غامق */
+.cd-title,.cd-soon{color:var(--fg)!important}
+/* زرار اللوكيشن: لؤلؤي بحرف وردي بدل البلوك الغامق */
+.btn-map>span{border-color:rgba(var(--rose-rgb),.9)!important;border-radius:40px}
+.btn-map>span>span{background:linear-gradient(180deg,#fbf6f3,#efe3de)!important;color:var(--fg)!important;border-color:rgba(var(--rose-rgb),.55)!important;border-radius:36px;box-shadow:0 8px 20px -12px rgba(110,76,80,.5)}
+.btn-map:hover>span>span{background:var(--fg)!important;color:#fbf6f3!important}
+.btn-map .b-pin{filter:saturate(.35) hue-rotate(-10deg)}
 html:not(.ek-ku) .ek-ku,html.ek-ku .ek-ar{display:none!important}
 .ek-ar{font-family:'Amiri','Amiri Ar Local',serif;letter-spacing:0}
 .ek-ku{font-family:'Cormorant Garamond',serif;letter-spacing:.01em}
@@ -54,7 +61,9 @@ html:not(.ek-ku) .ek-ku,html.ek-ku .ek-ar{display:none!important}
 .ht-with .ek-ku{font-style:italic;font-size:1.1em}
 /* كارت كلام الدعوة (جمل المالك) */
 .ekw{padding:70px 26px 40px;text-align:center;color:var(--fg)}
-.ekw-in{max-width:420px;margin:0 auto;padding:34px 22px;border:1px solid rgba(var(--fg-rgb),.28);outline:1px solid rgba(var(--fg-rgb),.12);outline-offset:6px;background:rgba(255,248,245,.35)}
+.ekw-in{position:relative;max-width:420px;margin:0 auto;padding:38px 24px;border:1px solid rgba(var(--rose-rgb),.75);outline:1px solid rgba(var(--rose-rgb),.4);outline-offset:6px;background:rgba(251,246,243,.5);box-shadow:0 10px 30px -18px rgba(110,76,80,.35)}
+.ekw-in::before,.ekw-in::after{content:"";position:absolute;left:50%;width:12px;height:12px;margin-left:-6px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff 0,#f6eeea 35%,#d9c9c3 75%,#bfaaa4 100%);box-shadow:0 1px 2px rgba(110,76,80,.35)}
+.ekw-in::before{top:-13px}.ekw-in::after{bottom:-13px}
 .ekw p{margin:0}
 .ekw .b{font-size:24px;line-height:1.7}
 .ekw .b .ek-ku{font-size:21px;font-style:italic}
@@ -65,8 +74,8 @@ html:not(.ek-ku) .ek-ku,html.ek-ku .ek-ar{display:none!important}
 .ekw .n{margin-top:12px;font-family:'Monsieur La Doulaise Local',cursive;font-size:46px;line-height:1.2;direction:ltr}
 .ekw .w{margin-top:10px;font-size:18px;line-height:1.8}
 .ekw .w .ek-ku{font-size:18px;line-height:1.5}
-.ekw .sep{display:block;width:120px;height:9px;margin:16px auto 0;background:linear-gradient(to right,transparent,rgba(var(--fg-rgb),.5)) left 4px/52px 1px no-repeat,linear-gradient(to left,transparent,rgba(var(--fg-rgb),.5)) right 4px/52px 1px no-repeat;position:relative}
-.ekw .sep::after{content:"";position:absolute;left:50%;top:1px;width:6px;height:6px;margin-left:-3px;border:1px solid rgba(var(--fg-rgb),.6);transform:rotate(45deg)}
+.ekw .sep{display:block;width:140px;height:10px;margin:16px auto 0;position:relative;background:linear-gradient(to right,transparent,rgba(var(--rose-rgb),.9)) left 5px/58px 1px no-repeat,linear-gradient(to left,transparent,rgba(var(--rose-rgb),.9)) right 5px/58px 1px no-repeat}
+.ekw .sep::after{content:"";position:absolute;left:50%;top:0;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff 0,#f6eeea 35%,#d9c9c3 75%,#bfaaa4 100%);box-shadow:0 1px 2px rgba(110,76,80,.35)}
 /* الختام */
 .ft-en-h .ek-ar{font-size:1.05em}
 .ft-en-2,.ft-l{display:none!important}
@@ -80,7 +89,7 @@ html:not(.ek-ku) .ek-ku,html.ek-ku .ek-ar{display:none!important}
   background:rgba(255,248,245,.82);box-shadow:0 0 0 1px rgba(var(--fg-rgb),.25),0 6px 18px -8px rgba(80,50,50,.45);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 .ek-lang button{border:0;background:transparent;padding:7px 14px;border-radius:24px;font:600 14px/1 'Cormorant Garamond',serif;color:var(--fg);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .3s,color .3s}
 .ek-lang button.ar{font:700 14px/1 'Amiri',serif}
-html:not(.ek-ku) .ek-lang button.ar,html.ek-ku .ek-lang button.ku{background:linear-gradient(150deg,#8a6264,#6c4c4e);color:#fff7f3}
+html:not(.ek-ku) .ek-lang button.ar,html.ek-ku .ek-lang button.ku{background:linear-gradient(150deg,#8c6468,#6e4c50);color:#fff7f3}
 </style>`;
 
 const WORDS = `
