@@ -25,6 +25,10 @@ const TX = {
   venueW: ['السبت 26.12.2026 | 15:00 – 00:00', 'Şemî 26.12.2026 | 15:00 – 00:00'],
   map: ['افتح اللوكيشن', 'Cih li ser nexşeyê'],
   // (المالك 2026-11-25) أسامي الوالدين فوق أسامي العرسان — بالعربي "الوالد …"، وبالكردي زي ما بعتها
+  // (المالك 2026-11-25) أسامي العرسان: في العربي بالعربي بخط الرقعة، وفي الكردي بالإنجليزي (Cormorant)
+  g: ['أزاد', 'Azad'],
+  b: ['نجبير', 'Najbir'],
+  amp: ['و', '&amp;'],
   dad1: ['الوالد نزار عيسى', 'Nizar Issa'],
   dad2: ['الوالد رضوان حسين', 'Radwan Hussain'],
   joy: ['لكم الفرحة ولنا العمر سوياً', 'Şahî ji bo we, û temenê me bi hev re'],
@@ -37,7 +41,7 @@ const TX = {
 };
 const bi = (k) => `<span class="ek-ar">${TX[k][0]}</span><span class="ek-ku">${TX[k][1]}</span>`;
 
-const HEAD = `<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap">
+const HEAD = `<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap">
 <script>(function () {
   var q = /[?&]lang=(ku|ar)/.exec(location.search), s = null;
   try { s = localStorage.getItem('ek_lang_${SHORT}'); } catch (e) {}
@@ -106,6 +110,11 @@ html:not(.ek-ku) .ek-ku,html.ek-ku .ek-ar{display:none!important}
 .ek-lang button{border:0;background:transparent;padding:7px 14px;border-radius:24px;font:600 14px/1 'Cormorant Garamond',serif;color:var(--fg);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .3s,color .3s}
 .ek-lang button.ar{font:700 14px/1 'Amiri',serif}
 html:not(.ek-ku) .ek-lang button.ar,html.ek-ku .ek-lang button.ku{background:linear-gradient(150deg,#8c6468,#6e4c50);color:#fff7f3}
+/* الأسامي بالعربي بخط الرقعة */
+.ht-names h1 .ek-ar,.ft-nm .ek-ar,.ekw .n b .ek-ar{font-family:'Aref Ruqaa','Aref Ruqaa Ar Local',serif!important;font-weight:700;letter-spacing:0!important;font-size:1.08em;line-height:1.35}
+.ht-amp .ek-ar,.ft-amp .ek-ar,.ekw .n>i .ek-ar{font-family:'Aref Ruqaa','Aref Ruqaa Ar Local',serif!important;font-style:normal;letter-spacing:0}
+html:not(.ek-ku) .ekw .n{direction:rtl}
+.ht-names h1 .ek-ku,.ft-nm .ek-ku,.ekw .n b .ek-ku{font-family:'Cormorant Garamond',serif!important;font-style:normal}
 </style>`;
 
 const WORDS = `
@@ -117,7 +126,7 @@ const WORDS = `
       <p class="h">${bi('hamd')}</p>
       <i class="sep"></i>
       <p class="i">${bi('inv')}</p>
-      <div class="n"><div><span class="ek-dad">${bi('dad1')}</span><b>Azad</b></div><i>&amp;</i><div><span class="ek-dad">${bi('dad2')}</span><b>Najbir</b></div></div>
+      <div class="n"><div><span class="ek-dad">${bi('dad1')}</span><b>${bi('g')}</b></div><i>${bi('amp')}</i><div><span class="ek-dad">${bi('dad2')}</span><b>${bi('b')}</b></div></div>
       <p class="w">${bi('when')}</p>
     </div></section>
   </div>
@@ -142,7 +151,9 @@ const TAIL = `<div class="ek-lang" role="group" aria-label="Language"><button ty
     var d52 = document.querySelector('[data-elem-id="mp52"]'); if (d52) d52.textContent = '26 . 12 . 2026';
     var t53 = document.querySelector('[data-elem-id="mp53"]'); if (t53) t53.textContent = '15:00 – 00:00';
     var m47 = document.querySelector('[data-elem-id="mp47"]'); if (m47) m47.style.display = 'none';
-    document.querySelectorAll('[data-f="amp"]').forEach(function (el) { el.textContent = '&'; });
+    document.querySelectorAll('[data-f="amp"]').forEach(function (el) { el.innerHTML = bi('amp'); });
+    document.querySelectorAll('[data-f="groom"]').forEach(function (el) { el.innerHTML = bi('g'); });
+    document.querySelectorAll('[data-f="bride"]').forEach(function (el) { el.innerHTML = bi('b'); });
     var h = document.getElementById('cvHint'); if (h) h.innerHTML = bi('tap');
     document.querySelectorAll('[data-cdl]').forEach(function (el) { var i = +el.getAttribute('data-cdl'); el.innerHTML = '<span class="ek-ar">' + TX.cdl[0][i] + '</span><span class="ek-ku">' + TX.cdl[1][i] + '</span>'; });
   }
