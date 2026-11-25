@@ -90,7 +90,8 @@ __ELEMENTS__
   var music = document.getElementById('music'), mute = document.getElementById('mute');
   // المسرح: الكارت كله باين (ممكن يتقص من الجنبين لحد 25 بكسل فيديو بس)
   function fit() {
-    var w = innerWidth, h = innerHeight, k = Math.min(w / 670, h / 1280);
+    // (المالك 2026-11-25) فول سكرين على الموبايل: الطول كله (الجنبين بيتقصوا شوية)؛ الكمبيوتر بمقاس الموبايل في النص
+    var w = innerWidth, h = innerHeight, k = h / 1280;
     stage.style.transform = 'translate(' + ((w - 720 * k) / 2) + 'px,' + ((h - 1280 * k) / 2) + 'px) scale(' + k + ')';
   }
   fit(); addEventListener('resize', fit);
@@ -107,6 +108,7 @@ __ELEMENTS__
     var img = document.createElement('img'); img.src = ASSET[e.src]; img.alt = ''; img.draggable = false;
     img.className = 'el' + (e.k === 'mono' || e.k === 'names' ? ' ' + e.k : '');
     img.style.cssText = 'left:' + e.x + 'px;top:' + e.y + 'px;width:' + e.w + 'px;height:' + e.h + 'px;transition-delay:' + (0.25 + i * 0.42).toFixed(2) + 's';
+    img.setAttribute('data-d', (0.25 + i * Math.min(0.42, 3.6 / count[e.s])).toFixed(2));
     sec.appendChild(img);
     if (e.k === 'pin') {
       var a = document.createElement('a'); a.className = 'map'; a.href = MAP; a.target = '_blank'; a.rel = 'noopener'; a.setAttribute('aria-label', 'الموقع على الخريطة');
@@ -132,7 +134,25 @@ __ELEMENTS__
     secs.forEach(function (sc, j) { sc.classList.toggle('on', j === i); });
     if (i > 0) hint.classList.remove('on');
   }
-  function onScroll() { if (!ready) return; show(Math.max(0, Math.min(N - 1, Math.round(scrollY / innerHeight)))); }
+  function onScroll() { if (!ready) return; show(Math.max(0, Math.min(N - 1, Math.round(scrollY / innerHeight)))); armAuto(); }
+  // (المالك 2026-11-25) الدعوة بتنزل لوحدها مشهد مشهد (بعد ما كلام المشهد يظهر ويتقري). لو الضيف لمس الشاشة بتقف
+  // خالص؛ ولو نزل/طلع بإيده لمشهد تاني بتكمّل من عنده.
+  var HOLD = [3.6, 3.4, 3.4, 4.2, 6, 3.2], autoT = 0, paused = false, lastArm = -1;
+  function lastDelay(i) { var m = 0; secs[i].querySelectorAll('.el').forEach(function (el) { m = Math.max(m, +el.getAttribute('data-d') || 0); }); return m; }
+  function armAuto() {
+    if (!ready || cur === lastArm) return; lastArm = cur; paused = false;
+    clearTimeout(autoT);
+    if (cur >= N - 1) return;
+    var wait = (lastDelay(cur) + 1.3 + HOLD[cur]) * 1000;
+    autoT = setTimeout(next, wait);
+  }
+  function next() {
+    if (window.__mqNoAuto || paused || cur >= N - 1) return;
+    lastArm = -1;
+    try { scrollTo({ top: (cur + 1) * innerHeight, behavior: 'smooth' }); } catch (e) { scrollTo(0, (cur + 1) * innerHeight); }
+  }
+  function poke() { if (!ready) return; paused = true; clearTimeout(autoT); lastArm = cur; }
+  ['touchstart', 'wheel', 'mousedown', 'keydown'].forEach(function (ev) { addEventListener(ev, poke, { passive: true }); });
   addEventListener('scroll', onScroll, { passive: true });
   // الفتح
   var started = false, opened = false;
@@ -140,7 +160,7 @@ __ELEMENTS__
     if (opened) return; opened = true;
     bg.classList.add('on'); try { bg.play().catch(function () {}); } catch (e) {}
     intro.classList.add('off');
-    root.classList.remove('lock'); ready = true; scrollTo(0, 0); show(0);
+    root.classList.remove('lock'); ready = true; scrollTo(0, 0); show(0); armAuto();
     setTimeout(function () { if (cur === 0) hint.classList.add('on'); }, 4200);
   }
   function start() {
