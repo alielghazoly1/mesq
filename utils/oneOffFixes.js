@@ -2312,6 +2312,38 @@ const FIXES = [
     },
   },
   {
+    // ErcJsBi (Mother of Pearl — custom-invitations/ErcJsBi.js) — بطلب المالك (2026-11-25): خطوبة Azad & Najbir، السبت
+    // 26/12/2026 الساعة 15:00 (لحد 00:00)، عربي (والكردي من زرار في الصفحة). الصور والدريس كود وتأكيد الحضور مستخبيين.
+    // المكان: Am Eisenwerk 18, 30519 Hannover (لينك المالك). بيتعمل بس لو الدعوة لسه مسودة.
+    name: 'ErcJsBi-azad-najbir',
+    shortId: 'ErcJsBi',
+    select: '-__v',
+    when: (c, inv) => inv.templateId === 'mother-of-pearl' && ['Groom', 'العريس'].includes(inv.groomName)
+      && ['Bride', 'العروسة'].includes(inv.brideName),
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const hiddenSections = ['gallery', 'rsvp', 'dressCode'];
+      const link = 'https://maps.app.goo.gl/uCeAY6VcSC8cAmkRA';
+      const data = await buildInvitationDataFromRequest({
+        templateId: inv.templateId, language: 'ar', occasionType: 'engagement',
+        hiddenSections, timeline: inv.timeline, name: inv.name,
+        groomName: 'Azad', groomNameAr: 'Azad', brideName: 'Najbir', brideNameAr: 'Najbir',
+        venueName: 'Am Eisenwerk 18', venueCity: '30519 Hannover', venueAddress: 'Am Eisenwerk 18, 30519 Hannover-Döhren-Wülfel',
+        venueMapQuery: link,
+        weddingDate: '2026-12-26', weddingTime: '15:00',
+      }, { ownsTemplate: true, skipMapNetwork: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.language = 'ar';
+      set.occasionType = 'engagement';
+      set.hiddenSections = hiddenSections;
+      set.venueMapQuery = link;
+      set.venueMapDirectLink = link;
+      set.venueMapEmbedSrc = 'https://www.google.com/maps?q=' + encodeURIComponent('Am Eisenwerk 18, 30519 Hannover') + '&z=16&output=embed';
+      return set;
+    },
+  },
+  {
     // qCUFp1B — المالك (2026-11-24، الجولة 4): أماكن الإقامة ترجع (فندق الحفل نفسه)، الهدية تتشال خالص، أول صفحة:
     // "بارك الله لكما وبارك عليكما / وجمع بينكما في خير" والمكان بالإنجليزي Golden Jewel Hotel / Ismailia.
     // الكلام في customizations.texts (صاحبها يقدر يعدّله من المحرر). بيتعمل مرة واحدة (لو lc1 لسه فاضي).
