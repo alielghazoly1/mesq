@@ -54,7 +54,9 @@ html:not(.ek-ku) .ek-ku,html.ek-ku .ek-ar{display:none!important}
 .ek-ar{font-family:'Amiri','Amiri Ar Local',serif;letter-spacing:0}
 .ek-ku{font-family:'Cormorant Garamond',serif;letter-spacing:.01em}
 /* أسامي الكارت الأول: نفس الخط المزخرف في اللغتين */
-.ht-names h1,.ft-nm{font-family:'Monsieur La Doulaise Local',cursive!important;letter-spacing:0!important}
+.ht-names h1,.ft-nm{font-family:'Cormorant Garamond',serif!important;font-weight:500!important;letter-spacing:.04em!important}
+/* (المالك 2026-11-25) أسامي العرسان بالإنجليزي بخط واضح يتقري (Cormorant) بدل الخط المزخرف */
+.ht-names h1{font-size:calc(46px*var(--fit,1))!important;line-height:1.15!important}
 .ht-of{display:none!important}
 .ht-with{font-style:normal!important}
 .ht-with .ek-ar{font-size:1.18em}
@@ -71,7 +73,8 @@ html:not(.ek-ku) .ek-ku,html.ek-ku .ek-ar{display:none!important}
 .ekw .h .ek-ku{font-size:19px;line-height:1.5}
 .ekw .i{margin-top:20px;font-size:19px;line-height:1.8}
 .ekw .i .ek-ku{font-size:19px;line-height:1.5}
-.ekw .n{margin-top:12px;font-family:'Monsieur La Doulaise Local',cursive;font-size:46px;line-height:1.2;direction:ltr}
+.ekw .n{margin-top:14px;font-family:'Cormorant Garamond',serif;font-weight:500;font-size:36px;letter-spacing:.04em;line-height:1.2;direction:ltr}
+.ekw .n i{font-style:italic;font-weight:400;color:#b08680;padding:0 .12em}
 .ekw .w{margin-top:10px;font-size:18px;line-height:1.8}
 .ekw .w .ek-ku{font-size:18px;line-height:1.5}
 .ekw .sep{display:block;width:140px;height:10px;margin:16px auto 0;position:relative;background:linear-gradient(to right,transparent,rgba(var(--rose-rgb),.9)) left 5px/58px 1px no-repeat,linear-gradient(to left,transparent,rgba(var(--rose-rgb),.9)) right 5px/58px 1px no-repeat}
@@ -83,7 +86,7 @@ html:not(.ek-ku) .ek-ku,html.ek-ku .ek-ar{display:none!important}
 .ft-en-h .ek-ku{font-size:24px}
 /* التاريخ والساعة بيتقروا من الشمال لليمين في العربي كمان */
 [data-elem-id="mp5"],[data-elem-id="mp7"],[data-elem-id="mp52"],[data-elem-id="mp53"],.ek-ltr{direction:ltr;unicode-bidi:isolate}
-.ht-amp,.ft-amp{font-family:'Monsieur La Doulaise Local',cursive!important;font-size:30px!important;line-height:1.2!important}
+.ht-amp,.ft-amp{font-family:'Cormorant Garamond',serif!important;font-style:italic!important;font-weight:400!important;color:#b08680!important;font-size:28px!important;line-height:1.1!important;margin:4px 0!important}
 /* زرار اللغة (فوق على اليمين) */
 .ek-lang{position:fixed;z-index:60;top:calc(14px + env(safe-area-inset-top,0px));right:14px;display:flex;padding:3px;border-radius:30px;direction:ltr;
   background:rgba(255,248,245,.82);box-shadow:0 0 0 1px rgba(var(--fg-rgb),.25),0 6px 18px -8px rgba(80,50,50,.45);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
@@ -101,7 +104,7 @@ const WORDS = `
       <p class="h">${bi('hamd')}</p>
       <i class="sep"></i>
       <p class="i">${bi('inv')}</p>
-      <p class="n">Azad &amp; Najbir</p>
+      <p class="n">Azad <i>&amp;</i> Najbir</p>
       <p class="w">${bi('when')}</p>
     </div></section>
   </div>
