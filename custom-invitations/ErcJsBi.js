@@ -13,6 +13,8 @@ const T = '/templates/mother-of-pearl/';
 const DIR = `/custom/${SHORT}/`;
 const oneVideo = makeOneVideo({ short: 'mother-of-pearl', openSrc: asset(`${T}open.mp4`), bps: 253000, dur: 10.08 });
 const HERO = asset(`${DIR}hero-frame.webp`);
+// (المالك 2026-11-25) أسامي العرسان بالعربي = خط رقم 10 (الفرشاة) من صورة المالك نفسها، مقصوصة ومتلوّنة موف (scratch erc/brush)
+const NMI = { g: asset(`${DIR}g_azad.webp`), b: asset(`${DIR}g_najbir.webp`) };
 const CDF = asset(`${DIR}countdown-frame.webp`);
 
 // [عربي, كردي]
@@ -31,7 +33,8 @@ const TX = {
   amp: ['و', '&amp;'],
   dad1: ['الوالد نزار عيسى', 'Nizar Issa'],
   dad2: ['الوالد رضوان حسين', 'Radwan Hussain'],
-  joy: ['لكم الفرحة ولنا العمر سوياً', 'Şahî ji bo we, û temenê me bi hev re'],
+  // (المالك 2026-11-25) جملة أول صفحة الجديدة (عربي + كردي من المالك)
+  joy: ['الحمد لله الذي جمع بين القلوب بالمودة والرحمة، ونسأله أن يتمم فرحتنا على خير', 'Spas ji Xwedê re ku dil bi hezkirin û dilovaniyê gihandin hev, û em jê dixwazin ku şahiya me bi xêrê temam bike.'],
   day: ['يوم السبت', 'Roja Şemiyê'],
   close1: ['سنكون في غاية الفرح والسعادة بمشاركتكم', 'Em ê bi beşdarbûna we şad û bextewar bibin.'],
   // (المالك 2026-11-25) العدّاد بالإنجليزي في العربي؛ في الكردي العنوان كردي و"Em bi kelecan…" (جملة المالك)
@@ -40,6 +43,7 @@ const TX = {
   tap: ['اضغط لفتح الدعوة', 'Ji bo vekirinê bitikîne'],
   cdl: [['Days', 'Hours', 'Minutes', 'Seconds'], ['Days', 'Hours', 'Minutes', 'Seconds']],
 };
+const nm = (k) => `<img class="ek-ar ek-ni ek-ni-${k}" src="${NMI[k]}" alt="${TX[k][0]}" draggable="false"><span class="ek-ku">${TX[k][1]}</span>`;
 const bi = (k) => `<span class="ek-ar">${TX[k][0]}</span><span class="ek-ku">${TX[k][1]}</span>`;
 
 const HEAD = `<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap">
@@ -67,8 +71,9 @@ html:not(.ek-ku) .ek-ku,html.ek-ku .ek-ar{display:none!important}
 .ht-names h1{font-size:calc(46px*var(--fit,1))!important;line-height:1.15!important}
 .ht-of{display:none!important}
 .ht-with{font-style:normal!important}
-.ht-with .ek-ar{font-size:1.18em}
-.ht-with .ek-ku{font-style:italic;font-size:1.1em}
+.ht-with{max-width:250px;margin-left:auto!important;margin-right:auto!important}
+.ht-with .ek-ar{display:block;font-size:15.5px;line-height:1.85}
+.ht-with .ek-ku{display:block;font-style:italic;font-size:15px;line-height:1.5}
 /* كارت كلام الدعوة (جمل المالك) */
 .ekw{padding:70px 26px 40px;text-align:center;color:var(--fg)}
 .ekw-in{position:relative;max-width:420px;margin:0 auto;padding:38px 24px;border:1px solid rgba(var(--rose-rgb),.75);outline:1px solid rgba(var(--rose-rgb),.4);outline-offset:6px;background:rgba(251,246,243,.5);box-shadow:0 10px 30px -18px rgba(110,76,80,.35)}
@@ -125,6 +130,18 @@ html:not(.ek-ku) .ekw .n{direction:rtl}
 .cd-soon{font-family:'Cormorant Garamond',serif!important;font-style:italic;font-weight:400}
 .cd-soon .ek-ku{display:inline-block;font-size:.74em;line-height:1.15;max-width:86vw}
 .cd-n{font-family:'Cormorant Garamond',serif!important;font-weight:500;font-variant-numeric:lining-nums tabular-nums}
+/* (المالك 2026-11-25) من غير "و" / "&" بين الاسمين في اللغتين؛ الأسامي بالعربي صور خط الفرشاة */
+.ht-amp,.ft-amp{display:none!important}
+.ek-ni{display:inline-block;width:auto;max-width:none;vertical-align:middle;-webkit-user-drag:none;user-select:none}
+.ht-names h1{line-height:1!important}
+.ht-names .ek-ni-g{height:66px}.ht-names .ek-ni-b{height:63px}
+html:not(.ek-ku) .ht-names [data-f="bride"]{margin-top:22px}
+html.ek-ku .ht-names [data-f="bride"]{margin-top:10px}
+.ekw .n .ek-ni-g{height:53px}.ekw .n .ek-ni-b{height:50px}
+.ekw .n{gap:34px}
+html:not(.ek-ku) .ekw .n{align-items:flex-start}
+.ft-nm .ek-ni-g{height:48px}.ft-nm .ek-ni-b{height:46px}
+.ft-n{display:flex;justify-content:center;align-items:center;gap:26px}
 </style>`;
 
 const WORDS = `
@@ -136,7 +153,7 @@ const WORDS = `
       <p class="h">${bi('hamd')}</p>
       <i class="sep"></i>
       <p class="i">${bi('inv')}</p>
-      <div class="n"><div><span class="ek-dad">${bi('dad1')}</span><b>${bi('g')}</b></div><i>${bi('amp')}</i><div><span class="ek-dad">${bi('dad2')}</span><b>${bi('b')}</b></div></div>
+      <div class="n"><div><span class="ek-dad">${bi('dad1')}</span><b>${nm('g')}</b></div><div><span class="ek-dad">${bi('dad2')}</span><b>${nm('b')}</b></div></div>
       <p class="w">${bi('when')}</p>
     </div></section>
   </div>
@@ -146,6 +163,8 @@ const TAIL = `<div class="ek-lang" role="group" aria-label="Language"><button ty
 <script>(function () {
   var TX = ${JSON.stringify(TX)};
   function bi(k) { return '<span class="ek-ar">' + TX[k][0] + '</span><span class="ek-ku">' + TX[k][1] + '</span>'; }
+  var NMI = ${JSON.stringify(NMI)};
+  function nm(k) { return '<img class="ek-ar ek-ni ek-ni-' + k + '" src="' + NMI[k] + '" alt="' + TX[k][0] + '" draggable="false"><span class="ek-ku">' + TX[k][1] + '</span>'; }
   function set(id, k) { var el = document.querySelector('[data-elem-id="' + id + '"]'); if (el) el.innerHTML = bi(k); }
   function fill() {
     set('mp4', 'joy'); set('mp6', 'day'); set('mp8', 'cdTitle'); set('mp13', 'soon'); set('mp46', 'close1'); set('mp47', 'close1'); set('mp21', 'venueT'); set('mp25', 'venueW'); set('mp28', 'map');
@@ -155,9 +174,8 @@ const TAIL = `<div class="ek-lang" role="group" aria-label="Language"><button ty
     var d52 = document.querySelector('[data-elem-id="mp52"]'); if (d52) d52.textContent = '26 . 12 . 2026';
     var t53 = document.querySelector('[data-elem-id="mp53"]'); if (t53) t53.textContent = '15:00 – 00:00';
     var m47 = document.querySelector('[data-elem-id="mp47"]'); if (m47) m47.style.display = 'none';
-    document.querySelectorAll('[data-f="amp"]').forEach(function (el) { el.innerHTML = bi('amp'); });
-    document.querySelectorAll('[data-f="groom"]').forEach(function (el) { el.innerHTML = bi('g'); });
-    document.querySelectorAll('[data-f="bride"]').forEach(function (el) { el.innerHTML = bi('b'); });
+    document.querySelectorAll('[data-f="groom"]').forEach(function (el) { el.innerHTML = nm('g'); });
+    document.querySelectorAll('[data-f="bride"]').forEach(function (el) { el.innerHTML = nm('b'); });
     var h = document.getElementById('cvHint'); if (h) h.innerHTML = bi('tap');
     document.querySelectorAll('[data-cdl]').forEach(function (el) { var i = +el.getAttribute('data-cdl'); el.innerHTML = '<span class="ek-ar">' + TX.cdl[0][i] + '</span><span class="ek-ku">' + TX.cdl[1][i] + '</span>'; });
   }
