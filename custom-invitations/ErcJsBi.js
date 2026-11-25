@@ -14,7 +14,8 @@ const DIR = `/custom/${SHORT}/`;
 const oneVideo = makeOneVideo({ short: 'mother-of-pearl', openSrc: asset(`${T}open.mp4`), bps: 253000, dur: 10.08 });
 const HERO = asset(`${DIR}hero-frame.webp`);
 // (المالك 2026-11-25) أسامي العرسان بالعربي = خط رقم 10 (الفرشاة) من صورة المالك نفسها، مقصوصة ومتلوّنة موف (scratch erc/brush)
-const NMI = { g: asset(`${DIR}g_azad.webp`), b: asset(`${DIR}g_najbir.webp`) };
+const NMI = { g: asset(`${DIR}g_azad.webp`), b: asset(`${DIR}g_najbir.webp`), r: asset(`${DIR}rings.webp`) };
+// (المالك 2026-11-25) الخاتمين بين أسامي العرسان — مقصوصين من صورته (images/11.jpg) بلونهم
 const CDF = asset(`${DIR}countdown-frame.webp`);
 
 // [عربي, كردي]
@@ -132,14 +133,19 @@ html:not(.ek-ku) .ekw .n{direction:rtl}
 .cd-soon .ek-ku{display:inline-block;font-size:.74em;line-height:1.15;max-width:86vw}
 .cd-n{font-family:'Cormorant Garamond',serif!important;font-weight:500;font-variant-numeric:lining-nums tabular-nums}
 /* (المالك 2026-11-25) من غير "و" / "&" بين الاسمين في اللغتين؛ الأسامي بالعربي صور خط الفرشاة */
-.ht-amp,.ft-amp{display:none!important}
+.ht-amp,.ft-amp{display:block!important;font-size:0!important;line-height:0!important;margin:0!important;min-height:0!important}
+.ek-rings{display:block;height:auto;max-width:none;-webkit-user-drag:none;user-select:none;opacity:.92}
+.ht-amp .ek-rings{width:66px;margin:16px auto 14px}
+.ekw .n>.ek-rings{width:54px;align-self:center;margin-top:28px}
+.ft-amp .ek-rings{width:46px}
+html:not(.ek-ku) .ht-names [data-f="bride"],html.ek-ku .ht-names [data-f="bride"]{margin-top:0}
 .ek-ni{display:inline-block;width:auto;max-width:none;vertical-align:middle;-webkit-user-drag:none;user-select:none}
 .ht-names h1{line-height:1!important}
 .ht-names .ek-ni-g{height:66px}.ht-names .ek-ni-b{height:63px}
 html:not(.ek-ku) .ht-names [data-f="bride"]{margin-top:22px}
 html.ek-ku .ht-names [data-f="bride"]{margin-top:10px}
 .ekw .n .ek-ni-g{height:53px}.ekw .n .ek-ni-b{height:50px}
-.ekw .n{gap:34px}
+.ekw .n{gap:16px}
 html:not(.ek-ku) .ekw .n{align-items:flex-start}
 .ft-nm .ek-ni-g{height:48px}.ft-nm .ek-ni-b{height:46px}
 .ft-n{display:flex;justify-content:center;align-items:center;gap:26px}
@@ -155,7 +161,7 @@ const WORDS = `
       <p class="h">${bi('hamd')}</p>
       <i class="sep"></i>
       <p class="i">${bi('inv')}</p>
-      <div class="n"><div><span class="ek-dad">${bi('dad1')}</span><b>${nm('g')}</b></div><div><span class="ek-dad">${bi('dad2')}</span><b>${nm('b')}</b></div></div>
+      <div class="n"><div><span class="ek-dad">${bi('dad1')}</span><b>${nm('g')}</b></div><img class="ek-rings" src="${NMI.r}" alt="" draggable="false"><div><span class="ek-dad">${bi('dad2')}</span><b>${nm('b')}</b></div></div>
       <p class="w">${bi('when')}</p>
     </div></section>
   </div>
@@ -176,6 +182,7 @@ const TAIL = `<div class="ek-lang" role="group" aria-label="Language"><button ty
     var d52 = document.querySelector('[data-elem-id="mp52"]'); if (d52) d52.textContent = '26 . 12 . 2026';
     var t53 = document.querySelector('[data-elem-id="mp53"]'); if (t53) t53.textContent = '15:00 – 00:00';
     var m47 = document.querySelector('[data-elem-id="mp47"]'); if (m47) m47.style.display = 'none';
+    document.querySelectorAll('[data-f="amp"]').forEach(function (el) { el.innerHTML = '<img class="ek-rings" src="' + NMI.r + '" alt="" draggable="false">'; });
     document.querySelectorAll('[data-f="groom"]').forEach(function (el) { el.innerHTML = nm('g'); });
     document.querySelectorAll('[data-f="bride"]').forEach(function (el) { el.innerHTML = nm('b'); });
     var h = document.getElementById('cvHint'); if (h) h.innerHTML = bi('tap');
