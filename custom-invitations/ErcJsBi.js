@@ -19,14 +19,14 @@ const CDF = asset(`${DIR}countdown-frame.webp`);
 const TX = {
   bism: ['بسم الله الرحمن الرحيم', 'Bi navê Xwedayê dilovan û dilovîn'],
   hamd: ['الحمد لله الذي بنعمته تتم الصالحات', 'Spasî ji bo wî Xwedayê ku bi nîmata wî qancîkarî (xêrxwazî) temam dibin.'],
-  inv: ['بكل سرور وفخر ندعوكم لحضور حفل خطوبة', 'Em bi dilxweşî û şanazî we vedixwînin ahenga nîşankirina (Azad) û (Najbîr)'],
+  inv: ['بكل سرور وفخر ندعوكم لحضور حفل خطوبة', 'Em bi dilxweşî û şanazî we vedixwînin ahenga nîşankirina'],
   when: ['يوم السبت 26.12.2026<br>من الساعة 15:00 حتى 00:00<br>في Am Eisenwerk 18، هانوفر', 'ku dê roja Şemiyê, Dem 26.12.2026,<br>Demjimêr 15:00 – 00:00<br>li Am Eisenwerk 18, Hannover bê lidarxistin.'],
   venueT: ['مكان الحفل', 'Cihê ahengê'],
   venueW: ['السبت 26.12.2026 | 15:00 – 00:00', 'Şemî 26.12.2026 | 15:00 – 00:00'],
   map: ['افتح اللوكيشن', 'Cih li ser nexşeyê'],
   // (المالك 2026-11-25) أسامي الوالدين فوق أسامي العرسان — بالعربي "الوالد …"، وبالكردي زي ما بعتها
   // (المالك 2026-11-25) أسامي العرسان: في العربي بالعربي بخط الرقعة، وفي الكردي بالإنجليزي (Cormorant)
-  g: ['أزاد', 'Azad'],
+  g: ['آزاد', 'Azad'],
   b: ['نجبير', 'Najbir'],
   amp: ['و', '&amp;'],
   dad1: ['الوالد نزار عيسى', 'Nizar Issa'],
@@ -34,9 +34,9 @@ const TX = {
   joy: ['لكم الفرحة ولنا العمر سوياً', 'Şahî ji bo we, û temenê me bi hev re'],
   day: ['يوم السبت', 'Roja Şemiyê'],
   close1: ['سنكون في غاية الفرح والسعادة بمشاركتكم', 'Em ê bi beşdarbûna we şad û bextewar bibin.'],
-  // (المالك 2026-11-25) العدّاد بالإنجليزي في اللغتين
-  cdTitle: ['Countdown', 'Countdown'],
-  soon: ['See you soon', 'See you soon'],
+  // (المالك 2026-11-25) العدّاد بالإنجليزي في العربي؛ في الكردي العنوان كردي و"Em bi kelecan…" (جملة المالك)
+  cdTitle: ['Countdown', 'Heta roja me'],
+  soon: ['See you soon', 'Em bi kelecan li benda dîtina we ne'],
   tap: ['اضغط لفتح الدعوة', 'Ji bo vekirinê bitikîne'],
   cdl: [['Days', 'Hours', 'Minutes', 'Seconds'], ['Days', 'Hours', 'Minutes', 'Seconds']],
 };
@@ -123,6 +123,7 @@ html:not(.ek-ku) .ekw .n{direction:rtl}
 .cd-grid{direction:ltr}
 .cd-title{font-family:'Cormorant Garamond',serif!important;font-weight:500;letter-spacing:.06em}
 .cd-soon{font-family:'Cormorant Garamond',serif!important;font-style:italic;font-weight:400}
+.cd-soon .ek-ku{display:inline-block;font-size:.74em;line-height:1.15;max-width:86vw}
 .cd-n{font-family:'Cormorant Garamond',serif!important;font-weight:500;font-variant-numeric:lining-nums tabular-nums}
 </style>`;
 
