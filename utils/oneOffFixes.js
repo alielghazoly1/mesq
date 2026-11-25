@@ -1281,6 +1281,16 @@ const FIXES = [
     },
   })),
   {
+    // eHbQM45 (Pearl Peony) — بطلب المالك (2026-11-26): "يسعدنا أن ندعوكم لمشاركتنا فرحتنا" كانت لازقة جنب الآية في نفس
+    // السطر — بقت في سطر لوحدها تحت الآية (الجملة كاملة). بس لو النص لسه زي ما العميل كتبه.
+    name: 'eHbQM45-phrase-under-verse',
+    shortId: 'eHbQM45',
+    // (الآية نفسها بتفضل بحروفها زي ما العميل كتبها — بنضيف سطر جديد بس قبل "يسعدنا")
+    when: (c) => !!(c.texts && typeof c.texts.pp6 === 'string' && c.texts.pp6.startsWith('﴿')
+      && /﴾ يسعدنا أن ندعوكم لمشاركتنا فرحتنا$/.test(c.texts.pp6) && c.texts.pp6.indexOf('\n') === -1),
+    apply: (c) => ({ 'customizations.texts.pp6': c.texts.pp6.replace('﴾ يسعدنا', '﴾\nيسعدنا') }),
+  },
+  {
     // MslhLFz — بطلب المالك (2026-11-25): الجملة اللي على الغلاف قبل فتح الدعوة كانت "With all our love," بس —
     // كمّلناها: "With all our love," / "we invite you to share our joy" (سطرين). بس لو النص لسه زي ما العميل كتبه.
     name: 'MslhLFz-cover-share-our-joy',
