@@ -31,8 +31,9 @@ const TX = {
   g: ['آزاد', 'Azad'],
   b: ['نجبير', 'Najbir'],
   amp: ['و', '&amp;'],
-  dad1: ['الوالد نزار عيسى', 'Nizar Issa'],
-  dad2: ['الوالد رضوان حسين', 'Radwan Hussain'],
+  // (المالك 2026-11-25) "السيد الوالد" قبل اسم كل أب — بالكردي Bavê birêz
+  dad1: ['السيد الوالد نزار عيسى', '<em>Bavê birêz</em>Nizar Issa'],
+  dad2: ['السيد الوالد رضوان حسين', '<em>Bavê birêz</em>Radwan Hussain'],
   // (المالك 2026-11-25) جملة أول صفحة الجديدة (عربي + كردي من المالك)
   joy: ['الحمد لله الذي جمع بين القلوب بالمودة والرحمة، ونسأله أن يتمم فرحتنا على خير', 'Spas ji Xwedê re ku dil bi hezkirin û dilovaniyê gihandin hev, û em jê dixwazin ku şahiya me bi xêrê temam bike.'],
   day: ['يوم السبت', 'Roja Şemiyê'],
@@ -142,6 +143,7 @@ html.ek-ku .ht-names [data-f="bride"]{margin-top:10px}
 html:not(.ek-ku) .ekw .n{align-items:flex-start}
 .ft-nm .ek-ni-g{height:48px}.ft-nm .ek-ni-b{height:46px}
 .ft-n{display:flex;justify-content:center;align-items:center;gap:26px}
+.ek-dad .ek-ku em{display:block;font-style:italic;font-weight:500;font-size:14px;letter-spacing:.02em;text-transform:none;line-height:1.3;margin-bottom:1px}
 </style>`;
 
 const WORDS = `
