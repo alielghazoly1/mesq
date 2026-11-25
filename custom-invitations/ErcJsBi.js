@@ -34,10 +34,11 @@ const TX = {
   joy: ['لكم الفرحة ولنا العمر سوياً', 'Şahî ji bo we, û temenê me bi hev re'],
   day: ['يوم السبت', 'Roja Şemiyê'],
   close1: ['سنكون في غاية الفرح والسعادة بمشاركتكم', 'Em ê bi beşdarbûna we şad û bextewar bibin.'],
-  cdTitle: ['العدّ التنازلي', 'Heta roja me'],
-  soon: ['نراكم قريبًا', 'Em ê we zû bibînin'],
+  // (المالك 2026-11-25) العدّاد بالإنجليزي في اللغتين
+  cdTitle: ['Countdown', 'Countdown'],
+  soon: ['See you soon', 'See you soon'],
   tap: ['اضغط لفتح الدعوة', 'Ji bo vekirinê bitikîne'],
-  cdl: [['يوم', 'ساعة', 'دقيقة', 'ثانية'], ['Roj', 'Saet', 'Deqîqe', 'Çirke']],
+  cdl: [['Days', 'Hours', 'Minutes', 'Seconds'], ['Days', 'Hours', 'Minutes', 'Seconds']],
 };
 const bi = (k) => `<span class="ek-ar">${TX[k][0]}</span><span class="ek-ku">${TX[k][1]}</span>`;
 
@@ -115,6 +116,14 @@ html:not(.ek-ku) .ek-lang button.ar,html.ek-ku .ek-lang button.ku{background:lin
 .ht-amp .ek-ar,.ft-amp .ek-ar,.ekw .n>i .ek-ar{font-family:'Aref Ruqaa','Aref Ruqaa Ar Local',serif!important;font-style:normal;letter-spacing:0}
 html:not(.ek-ku) .ekw .n{direction:rtl}
 .ht-names h1 .ek-ku,.ft-nm .ek-ku,.ekw .n b .ek-ku{font-family:'Cormorant Garamond',serif!important;font-style:normal}
+/* (المالك 2026-11-25) أول صفحة: من غير أسامي الوالدين ومن غير "يوم السبت" والساعة تحت التاريخ */
+.ht-venue{display:none!important}
+/* العدّاد بالإنجليزي: نفس الخط والترتيب في اللغتين */
+.cd .ek-ar{font-family:inherit!important}
+.cd-grid{direction:ltr}
+.cd-title{font-family:'Cormorant Garamond',serif!important;font-weight:500;letter-spacing:.06em}
+.cd-soon{font-family:'Cormorant Garamond',serif!important;font-style:italic;font-weight:400}
+.cd-n{font-family:'Cormorant Garamond',serif!important;font-weight:500;font-variant-numeric:lining-nums tabular-nums}
 </style>`;
 
 const WORDS = `
@@ -138,12 +147,6 @@ const TAIL = `<div class="ek-lang" role="group" aria-label="Language"><button ty
   function bi(k) { return '<span class="ek-ar">' + TX[k][0] + '</span><span class="ek-ku">' + TX[k][1] + '</span>'; }
   function set(id, k) { var el = document.querySelector('[data-elem-id="' + id + '"]'); if (el) el.innerHTML = bi(k); }
   function fill() {
-    [['mp2', 'dad1', 'd1'], ['mp3', 'dad2', 'd2']].forEach(function (x) {
-      var h = document.querySelector('.ht-names [data-elem-id="' + x[0] + '"]');
-      if (h && !h.previousElementSibling || h && !h.previousElementSibling.classList.contains('ek-dad')) {
-        var d = document.createElement('span'); d.className = 'ek-dad ' + x[2]; d.innerHTML = bi(x[1]); h.parentNode.insertBefore(d, h);
-      }
-    });
     set('mp4', 'joy'); set('mp6', 'day'); set('mp8', 'cdTitle'); set('mp13', 'soon'); set('mp46', 'close1'); set('mp47', 'close1'); set('mp21', 'venueT'); set('mp25', 'venueW'); set('mp28', 'map');
     ['mp22', 'mp26'].forEach(function (id) { var el = document.querySelector('[data-elem-id="' + id + '"]'); if (el) el.style.display = 'none'; });
     var c7 = document.querySelector('[data-elem-id="mp7"]'); if (c7) c7.textContent = '15:00 – 00:00';
@@ -158,12 +161,13 @@ const TAIL = `<div class="ek-lang" role="group" aria-label="Language"><button ty
     document.querySelectorAll('[data-cdl]').forEach(function (el) { var i = +el.getAttribute('data-cdl'); el.innerHTML = '<span class="ek-ar">' + TX.cdl[0][i] + '</span><span class="ek-ku">' + TX.cdl[1][i] + '</span>'; });
   }
   fill();
-  // العدّاد في الكردي بأرقام لاتيني (القالب العربي بيكتبها ٠١٢…)
+  // العدّاد بأرقام إنجليزي في اللغتين (القالب العربي بيكتبها ٠١٢…) — بتتغيّر لحظة ما القالب يكتبها
   var AD = '٠١٢٣٤٥٦٧٨٩';
-  setInterval(function () {
-    if (!document.documentElement.classList.contains('ek-ku')) return;
-    ['cdD', 'cdH', 'cdM', 'cdS'].forEach(function (id) { var el = document.getElementById(id); if (el && /[٠-٩]/.test(el.textContent)) el.textContent = el.textContent.replace(/[٠-٩]/g, function (c) { return AD.indexOf(c); }); });
-  }, 250);
+  function latin(el) { if (el && /[٠-٩]/.test(el.textContent)) el.textContent = el.textContent.replace(/[٠-٩]/g, function (c) { return AD.indexOf(c); }); }
+  ['cdD', 'cdH', 'cdM', 'cdS'].forEach(function (id) {
+    var el = document.getElementById(id); if (!el) return; latin(el);
+    if (window.MutationObserver) new MutationObserver(function () { latin(el); }).observe(el, { childList: true, characterData: true, subtree: true });
+  });
   document.querySelectorAll('.ek-lang button').forEach(function (b) {
     b.addEventListener('click', function (e) {
       e.stopPropagation();
