@@ -24,6 +24,9 @@ const TX = {
   venueT: ['مكان الحفل', 'Cihê ahengê'],
   venueW: ['السبت 26.12.2026 | 15:00 – 00:00', 'Şemî 26.12.2026 | 15:00 – 00:00'],
   map: ['افتح اللوكيشن', 'Cih li ser nexşeyê'],
+  // (المالك 2026-11-25) أسامي الوالدين فوق أسامي العرسان — بالعربي "الوالد …"، وبالكردي زي ما بعتها
+  dad1: ['الوالد نزار عيسى', 'Nizar Issa'],
+  dad2: ['الوالد رضوان حسين', 'Radwan Hussain'],
   joy: ['لكم الفرحة ولنا العمر سوياً', 'Şahî ji bo we, û temenê me bi hev re'],
   day: ['يوم السبت', 'Roja Şemiyê'],
   close1: ['سنكون في غاية الفرح والسعادة بمشاركتكم', 'Em ê bi beşdarbûna we şad û bextewar bibin.'],
@@ -73,8 +76,18 @@ html:not(.ek-ku) .ek-ku,html.ek-ku .ek-ar{display:none!important}
 .ekw .h .ek-ku{font-size:19px;line-height:1.5}
 .ekw .i{margin-top:20px;font-size:19px;line-height:1.8}
 .ekw .i .ek-ku{font-size:19px;line-height:1.5}
-.ekw .n{margin-top:14px;font-family:'Cormorant Garamond',serif;font-weight:500;font-size:36px;letter-spacing:.04em;line-height:1.2;direction:ltr}
-.ekw .n i{font-style:italic;font-weight:400;color:#b08680;padding:0 .12em}
+.ekw .n{margin-top:18px;display:flex;align-items:flex-end;justify-content:center;gap:14px;direction:ltr}
+.ekw .n>div{display:flex;flex-direction:column;align-items:center;min-width:0}
+.ekw .n b{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:36px;letter-spacing:.04em;line-height:1.1}
+.ekw .n>i{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:400;font-size:30px;line-height:1.2;color:#b08680}
+/* أسامي الوالدين: سطر صغير هادي فوق كل اسم، وبينه وبين الاسم خط وردي رفيع ومسافة */
+.ek-dad{display:block;white-space:nowrap;color:rgba(var(--fg-rgb),.88)}
+.ek-dad .ek-ar{font-family:'Amiri',serif;font-size:16px;line-height:1.5}
+.ek-dad .ek-ku{font-family:'Cormorant Garamond',serif;font-size:12.5px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;line-height:1.5}
+.ek-dad::after{content:"";display:block;width:34px;height:1px;margin:7px auto 9px;background:linear-gradient(to right,transparent,rgba(var(--rose-rgb),1),transparent)}
+.ht-names .ek-dad .ek-ar{font-size:17px}
+.ht-names .ek-dad .ek-ku{font-size:13px}
+.ht-names .ek-dad.d2{margin-top:8px}
 .ekw .w{margin-top:10px;font-size:18px;line-height:1.8}
 .ekw .w .ek-ku{font-size:18px;line-height:1.5}
 .ekw .sep{display:block;width:140px;height:10px;margin:16px auto 0;position:relative;background:linear-gradient(to right,transparent,rgba(var(--rose-rgb),.9)) left 5px/58px 1px no-repeat,linear-gradient(to left,transparent,rgba(var(--rose-rgb),.9)) right 5px/58px 1px no-repeat}
@@ -104,7 +117,7 @@ const WORDS = `
       <p class="h">${bi('hamd')}</p>
       <i class="sep"></i>
       <p class="i">${bi('inv')}</p>
-      <p class="n">Azad <i>&amp;</i> Najbir</p>
+      <div class="n"><div><span class="ek-dad">${bi('dad1')}</span><b>Azad</b></div><i>&amp;</i><div><span class="ek-dad">${bi('dad2')}</span><b>Najbir</b></div></div>
       <p class="w">${bi('when')}</p>
     </div></section>
   </div>
@@ -116,6 +129,12 @@ const TAIL = `<div class="ek-lang" role="group" aria-label="Language"><button ty
   function bi(k) { return '<span class="ek-ar">' + TX[k][0] + '</span><span class="ek-ku">' + TX[k][1] + '</span>'; }
   function set(id, k) { var el = document.querySelector('[data-elem-id="' + id + '"]'); if (el) el.innerHTML = bi(k); }
   function fill() {
+    [['mp2', 'dad1', 'd1'], ['mp3', 'dad2', 'd2']].forEach(function (x) {
+      var h = document.querySelector('.ht-names [data-elem-id="' + x[0] + '"]');
+      if (h && !h.previousElementSibling || h && !h.previousElementSibling.classList.contains('ek-dad')) {
+        var d = document.createElement('span'); d.className = 'ek-dad ' + x[2]; d.innerHTML = bi(x[1]); h.parentNode.insertBefore(d, h);
+      }
+    });
     set('mp4', 'joy'); set('mp6', 'day'); set('mp8', 'cdTitle'); set('mp13', 'soon'); set('mp46', 'close1'); set('mp47', 'close1'); set('mp21', 'venueT'); set('mp25', 'venueW'); set('mp28', 'map');
     ['mp22', 'mp26'].forEach(function (id) { var el = document.querySelector('[data-elem-id="' + id + '"]'); if (el) el.style.display = 'none'; });
     var c7 = document.querySelector('[data-elem-id="mp7"]'); if (c7) c7.textContent = '15:00 – 00:00';
