@@ -9,6 +9,11 @@
 import { Component } from 'react';
 import { reportError } from '../lib/reportError.js';
 
+// ملف صفحة ماوصلش (النت قطع وهو بيتحمّل) — مش "مشكلة غير متوقعة": رسالة واضحة، وإعادة تحميل لوحدها
+// أول ما النت يرجع.
+const CHUNK_ERR = /Importing a module script failed|Failed to fetch dynamically imported module|error loading dynamically imported module|Loading chunk|ChunkLoadError|Unable to preload CSS/i;
+export const isChunkError = (e) => CHUNK_ERR.test(String((e && (e.message || e)) || ''));
+
 export default class ErrorBoundary extends Component {
   constructor(props) {
     super(props);
@@ -24,11 +29,37 @@ export default class ErrorBoundary extends Component {
     console.error('انهيار في الواجهة:', error, info && info.componentStack);
     // السبب بيوصل للوحة التحكم ← "أعطال الواجهة"
     reportError(error, { where: 'page', componentStack: info && info.componentStack });
+    if (isChunkError(error) && typeof window !== 'undefined') {
+      this.onOnline = () => window.location.reload();
+      window.addEventListener('online', this.onOnline, { once: true });
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.onOnline) window.removeEventListener('online', this.onOnline);
   }
 
   render() {
     const { error } = this.state;
     if (!error) return this.props.children;
+
+    if (isChunkError(error)) {
+      return (
+        <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-ivory p-8 text-center">
+          <p className="font-serif text-[19px] font-bold text-ink">النت فصل وإحنا بنحمّل الصفحة</p>
+          <p className="max-w-[420px] text-[13.5px] leading-[1.9] text-ink-dim">
+            مفيش حاجة ضاعت. اتأكد إن النت شغال واضغط "حمّل تاني" — والصفحة هتتحمّل لوحدها أول ما النت يرجع.
+          </p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="rounded-full bg-night px-6 py-2.5 text-[13px] font-bold text-ivory hover:bg-emerald"
+          >
+            حمّل تاني
+          </button>
+        </div>
+      );
+    }
 
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-ivory p-8 text-center">

@@ -47,6 +47,8 @@ export default function TemplateCard({ template, index }) {
     setStartError('');
     try {
       const res = await createDraft({ templateId: template.id, ...(language ? { language } : {}) }).unwrap();
+      // رد غريب (صفحة من الـ CDN بدل JSON مثلًا) → مانفتحش /editor/undefined
+      if (!res || typeof res.shortId !== 'string' || !/^[A-Za-z0-9]{4,16}$/.test(res.shortId)) throw new Error('bad draft response');
       navigate(`/editor/${res.shortId}`);
     } catch (err) {
       // لو حصل أي مانع (رصيد خلص، مسودات كتير مفتوحة) بنقوله السبب

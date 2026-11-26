@@ -1,3 +1,4 @@
+import { installDomGuard } from './lib/domGuard.js';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
@@ -6,6 +7,9 @@ import { store } from './store/store.js';
 import App from './App.jsx';
 import './i18n/index.js';
 import './index.css';
+
+// قبل أول رسمة: ترجمة جوجل/الإضافات مابقتش توقّع الصفحة (lib/domGuard.js)
+installDomGuard();
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

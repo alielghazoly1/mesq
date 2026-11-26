@@ -184,12 +184,28 @@
           } catch (e) { return false; }
         }
 
+        // (أعطال الواجهة نوفمبر 2026) قطع نت لحظي على الموبايل كان بيتحسب "ملف اختفى بعد رفع" — فالصفحة
+        // كانت بتعمل ريفرش أو تعرض "في مشكلة في تحميل الصفحة" على الفاضي. دلوقتي:
+        //  • <link rel="modulepreload"> فشل = تلميح بس، والاستيراد نفسه بيحاول تاني (lib/lazyWithReload.js) → مالوش دعوة.
+        //  • سكريبت/ستايل فشل والجهاز فاصل → نستنى النت يرجع وبعدين نعيد التحميل (بدل رسالة الخطأ على طول).
+        //    غير كده → إعادة التحميل زي الأول.
+        function onAssetFail(el, tag) {
+          if (navigator.onLine === false) {
+            var go = function () { window.removeEventListener('online', go); recover(tag); };
+            window.addEventListener('online', go);
+            return;
+          }
+          recover(tag);
+        }
+
         // فشل تحميل ملف (سكريبت/ستايل) — بيتبلّغ في مرحلة الالتقاط بس
         window.addEventListener('error', function (e) {
           var el = e && e.target;
           if (!el || !el.tagName) return;
           var tag = el.tagName.toUpperCase();
-          if ((tag === 'SCRIPT' || tag === 'LINK') && isOurAsset(el)) recover(tag);
+          if (!(tag === 'SCRIPT' || tag === 'LINK') || !isOurAsset(el)) return;
+          if (tag === 'LINK' && String(el.rel || '').toLowerCase() === 'modulepreload') return;
+          onAssetFail(el, tag);
         }, true);
 
         // استيراد كسول فشل (زي ملف لوحة التحكم).

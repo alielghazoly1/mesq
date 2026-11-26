@@ -2638,13 +2638,13 @@ export default function EditorPage() {
                                   key={seal.id}
                                   type="button"
                                   onClick={() => chooseSeal(seal.url)}
-                                  title={seal.label.ar}
+                                  title={(seal.label?.ar || seal.label?.en || '')}
                                   className={`rounded-xl border p-2 transition ${
                                     active ? 'border-rose bg-rose/[0.07]' : 'border-line hover:border-ink/25'
                                   }`}
                                 >
-                                  <img src={seal.url} alt={seal.label.ar} className="aspect-square w-full object-contain" />
-                                  <span className="mt-1 block truncate text-[10px] text-ink-dim">{seal.label.ar}</span>
+                                  <img src={seal.url} alt={(seal.label?.ar || seal.label?.en || '')} className="aspect-square w-full object-contain" />
+                                  <span className="mt-1 block truncate text-[10px] text-ink-dim">{(seal.label?.ar || seal.label?.en || '')}</span>
                                 </button>
                               );
                             })}
