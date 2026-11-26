@@ -33,6 +33,30 @@ const MAP = {
   'https://pub-4dc8201144ca418fb604349c73e8c724.r2.dev/Luxury_illustration_with_atmosph%E2%80%A6_202605232035%20(1).mp4': '/templates/blossom-oud/opt/fade.mp4',
 };
 
+// ===== الأغنية ماتتحمّلش قبل ضغطة الفتح (فحص السرعة 2026-11-26) =====
+// Blossom & Oud (والقديمة) و Dolce Vita و Viktor & Paula (من غير preload) و Velvet Voice (preload="auto")
+// وأغنية Royal Maroon (بتتعمل من utils/templateFixes.js) كانوا بيحمّلوا ميجات من الأغنية والضيف لسه قاعد
+// على الغلاف — على نت بطيء ده بيزاحم صورة الغلاف وفيديو الفتح. وكمان applyAudio (utils/customizations.js)
+// كانت بتنادي load() على الأغنية اللي العميل اختارها، وكروم بيحمّلها ساعتها حتى مع preload="none" — يعني
+// حتى قوالب زي Lace كانت بتحمّلها بدري.
+// الحل للضيوف بس: preload="none" + علامة data-wda-tap-song على عنصر الأغنية (#invitation-audio)، و applyAudio
+// مابتناديش load() على العنصر المعلّم. الأغنية بتبدأ تتحمّل مع play() في ضغطة الفتح نفسها.
+// الأغنية نفسها (الملف واللينك والقص) ماتغيّرتش. المحرر من غير العلامة فبيفضل زي ما هو.
+const SONG_TAG_RE = /<audio\b[^>]*\sid="invitation-audio"[^>]*>/g;
+const PRELOAD_ATTR_RE = /\spreload(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'>]+))?(?=[\s/>])/i;
+// عنصر Royal Maroon اللي بيتعمل بالجافاسكربت (fixMissingAudio في utils/templateFixes.js)
+const ROYAL_SONG_RE = /(audio\.id = 'invitation-audio';\s*audio\.loop = true;\s*)audio\.preload = 'auto';/g;
+
+function songWaitsForTap(html) {
+  let out = html.replace(SONG_TAG_RE, (tag) => {
+    let t = PRELOAD_ATTR_RE.test(tag) ? tag.replace(PRELOAD_ATTR_RE, ' preload="none"') : tag.replace(/\s*(\/?)>$/, ' preload="none"$1>');
+    if (!/\sdata-wda-tap-song[\s=/>]/.test(t)) t = t.replace(/\s*(\/?)>$/, ' data-wda-tap-song="1"$1>');
+    return t;
+  });
+  out = out.replace(ROYAL_SONG_RE, "$1audio.preload = 'none'; audio.setAttribute('data-wda-tap-song', '1');");
+  return out;
+}
+
 /**
  * @param {string} html الصفحة النهائية
  * @returns {string}
@@ -43,7 +67,7 @@ function optimizeTemplateAssets(html) {
   for (const [from, to] of Object.entries(MAP)) {
     if (out.includes(from)) out = out.split(from).join(to);
   }
-  return out;
+  return songWaitsForTap(out);
 }
 
 module.exports = { optimizeTemplateAssets, ASSET_MAP: MAP };

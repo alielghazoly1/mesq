@@ -137,6 +137,8 @@ const TEMPLATE_FIX_SCRIPT = `
     if (document.getElementById('invitation-audio')) return;   // فيه صوت خلاص
     btn.setAttribute('data-wda-audio-wired', '1');
 
+    // للضيوف utils/assetOptimize.js بيقلب السطر 'auto' ده لـ 'none' (الأغنية تتحمّل مع ضغطة الفتح بس) —
+    // لو غيّرت شكل السطور الأربعة دي، غيّر ROYAL_SONG_RE هناك كمان
     var audio = document.createElement('audio');
     audio.id = 'invitation-audio';
     audio.loop = true;
@@ -396,6 +398,17 @@ const TEMPLATE_FIX_SCRIPT = `
       // أمان: لو الفيديو ما رضيش يشتغل أو مفيش مدة، نفتح الدعوة على طول
       var fb = setTimeout(function () { if (!finished && video.paused) finish(); }, 1400);
       video.addEventListener('playing', function () { clearTimeout(fb); }, { once: true });
+      // (فحص السرعة 2026-11-26) نت بيقطع: الفيديو واقف — وقته مابيتحركش ~2.5 ثانية — بنفتح الدعوة على طول
+      // (قبل كده المظروف كان بيفضل لحد 'ended': 13-16 ثانية على نت بطيء). والفتحة كلها 10 ثواني بالكتير
+      // بعد الضغطة. الفيديو 4.5 ثانية، فعلى نت كويس ولا واحد فيهم بيشتغل.
+      var lastT = -1, still = 0;
+      var watch = setInterval(function () {
+        if (finished) { clearInterval(watch); return; }
+        if (video.ended) return;
+        if (video.currentTime !== lastT) { lastT = video.currentTime; still = 0; return; }
+        if ((still += 250) >= 2500) { clearInterval(watch); finish(); }
+      }, 250);
+      setTimeout(function () { if (!finished) finish(); }, 10000);
       var p = video.play();
       if (p && p.catch) p.catch(function () { clearTimeout(fb); finish(); });
     }
