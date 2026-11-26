@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { AnimatePresence } from 'motion/react';
 import {
-  Users, Crown, FileText, Eye, MessageSquare, Wallet, Clock, Ban, PauseCircle, ArrowLeft,
+  Users, Crown, FileText, Eye, MessageSquare, Clock, Ban, PauseCircle, ArrowLeft,
 } from 'lucide-react';
 import { useGetOverviewQuery } from '../../store/adminApi.js';
 import { setPeriod, closeUser } from '../../store/adminSlice.js';
@@ -69,6 +69,82 @@ function CountriesPanel({ rows, other, total, users }) {
   );
 }
 
+/**
+ * الفلوس اللي دخلت — كارتين واضحين بدل 4–8 مربعات أرقام جنب بعض:
+ *  • "الفترة" (التاب اللي فوق: آخر أسبوع/شهر/...) و"من أول يوم".
+ *  • في كل كارت: الإجمالي بالجنيه (كل عملة اتحوّلت بأسعار الصرف بتاعة صفحة الأرباح)،
+ *    وتحته كل عملة لوحدها: المبلغ بعملته + عدد الطلبات (+ قيمته بالجنيه للعملات التانية).
+ *  العملات اللي مفيهاش طلبات خالص مابتظهرش (الجنيه دايمًا ظاهر).
+ */
+const CUR_META = [
+  { c: 'EGP', name: 'جنيه مصري', note: 'فودافون كاش / إنستاباي' },
+  { c: 'USD', name: 'دولار', note: 'الدفع الدولي' },
+  { c: 'SAR', name: 'ريال سعودي', note: 'السعودية' },
+  { c: 'EUR', name: 'يورو', note: 'دول اليورو' },
+];
+
+function MoneyCard({ title, subtitle, data, rates, tone }) {
+  const rows = CUR_META.filter(({ c }) => c === 'EGP' || (data[c] && data[c].orders > 0));
+  const toEgp = (c) => Math.round(((data[c] && data[c].total) || 0) * ((rates && rates[c]) || 0));
+  const totalEgp = rows.reduce((a, { c }) => a + toEgp(c), 0);
+  const orders = rows.reduce((a, { c }) => a + ((data[c] && data[c].orders) || 0), 0);
+  const ratesOk = !!rates;
+  return (
+    <section className={`rounded-2xl border p-5 ${tone === 'gold' ? 'border-brass/40 bg-brass/[0.07]' : 'border-line-lite bg-panel'}`}>
+      <div className="flex items-baseline justify-between gap-3">
+        <h3 className="font-serif text-[15px] font-bold text-ivory">{title}</h3>
+        <span className="text-[11.5px] text-ivory/45">{subtitle}</span>
+      </div>
+      <div className="mt-3">
+        <div className="text-[11.5px] font-bold text-ivory/50">
+          {ratesOk ? 'الإجمالي محوّل لجنيه' : 'بالجنيه'}
+        </div>
+        <div className={`mt-0.5 font-serif text-[28px] font-bold leading-tight ${tone === 'gold' ? 'text-brass-soft' : 'text-ivory'}`}>
+          {ratesOk ? fmtMoney(totalEgp, 'EGP') : fmtMoney((data.EGP && data.EGP.total) || 0, 'EGP')}
+        </div>
+        <div className="mt-0.5 text-[11.5px] text-ivory/45">{fmtNum(orders)} طلب مفعّل</div>
+      </div>
+      <ul className="mt-4 divide-y divide-ivory/[0.06] border-t border-ivory/[0.08]">
+        {rows.map(({ c, name, note }) => {
+          const d = data[c] || { total: 0, orders: 0 };
+          return (
+            <li key={c} className="flex items-center justify-between gap-3 py-2.5">
+              <div className="min-w-0">
+                <div className="text-[13px] font-bold text-ivory/85">{name}</div>
+                <div className="text-[11px] text-ivory/40">{note} · {fmtNum(d.orders)} طلب</div>
+              </div>
+              <div className="shrink-0 text-end">
+                <div className="text-[14px] font-bold text-ivory">{fmtMoney(d.total, c)}</div>
+                {c !== 'EGP' && ratesOk && d.total > 0 && (
+                  <div className="text-[11px] text-ivory/40">≈ {fmtMoney(toEgp(c), 'EGP')}</div>
+                )}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
+function MoneySummary({ revenue, periodLabel }) {
+  const rates = revenue.rates || null;
+  const used = CUR_META.filter(({ c }) => c !== 'EGP' && revenue.all[c] && revenue.all[c].orders > 0);
+  return (
+    <div>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <MoneyCard title="الفترة دي" subtitle={periodLabel} data={revenue.period} rates={rates} tone="gold" />
+        <MoneyCard title="من أول يوم" subtitle="كل الوقت" data={revenue.all} rates={rates} />
+      </div>
+      {rates && used.length > 0 && (
+        <p className="mt-2 text-[11px] text-ivory/35">
+          التحويل لجنيه بأسعار صفحة الأرباح: {used.map(({ c }) => `${fmtMoney(1, c)} = ${fmtNum(rates[c])} ج.م`).join(' · ')}
+        </p>
+      )}
+    </div>
+  );
+}
+
 const PERIODS = [
   { value: 7, label: 'آخر أسبوع' },
   { value: 30, label: 'آخر شهر' },
@@ -110,75 +186,21 @@ export default function OverviewPage() {
 
       {/* الأرباح — بتتشال خالص لما "إخفاء الفلوس" شغال (صفحة الأمان) */}
       {!hideMoney && (<>
-      <div className="flex items-center justify-between">
-        <h2 className="font-serif text-[15px] font-bold text-ivory/80">الأرباح</h2>
+      <div className="flex flex-wrap items-end justify-between gap-2">
+        <div>
+          <h2 className="font-serif text-[15px] font-bold text-ivory/80">الفلوس اللي دخلت</h2>
+          <p className="mt-0.5 text-[11.5px] text-ivory/40">
+            اللي العملاء دفعوه في الطلبات المفعّلة — قبل مصاريف الإعلانات والعمولات.
+          </p>
+        </div>
         <Link
           to="/admin/earnings"
           className="inline-flex items-center gap-1 text-[12.5px] font-bold text-brass-soft hover:text-brass"
         >
-          شوف مين دفع <ArrowLeft size={13} />
+          صافي الربح بعد المصاريف + مين دفع <ArrowLeft size={13} />
         </Link>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatTile
-          icon={Wallet} tone="gold" delay={0}
-          label="أرباح بالجنيه (كل الوقت)"
-          value={fmtMoney(revenue.all.EGP.total, 'EGP')}
-          hint={`${revenue.all.EGP.orders} طلب`}
-        />
-        <StatTile
-          icon={Wallet} tone="gold" delay={0.04}
-          label="أرباح بالدولار (كل الوقت)"
-          value={fmtMoney(revenue.all.USD.total, 'USD')}
-          hint={`${revenue.all.USD.orders} طلب`}
-        />
-        <StatTile
-          icon={Wallet} delay={0.08}
-          label={`أرباح الفترة (جنيه)`}
-          value={fmtMoney(revenue.period.EGP.total, 'EGP')}
-          hint={`${revenue.period.EGP.orders} طلب`}
-        />
-        <StatTile
-          icon={Wallet} delay={0.12}
-          label={`أرباح الفترة (دولار)`}
-          value={fmtMoney(revenue.period.USD.total, 'USD')}
-          hint={`${revenue.period.USD.orders} طلب`}
-        />
-        {/* العملاء في السعودية بيدفعوا بالريال — بيظهروا لما يبقى فيه طلبات بالريال */}
-        {(revenue.all.SAR?.orders > 0) && (
-          <>
-            <StatTile
-              icon={Wallet} tone="gold" delay={0.16}
-              label="أرباح بالريال (كل الوقت)"
-              value={fmtMoney(revenue.all.SAR.total, 'SAR')}
-              hint={`${revenue.all.SAR.orders} طلب`}
-            />
-            <StatTile
-              icon={Wallet} delay={0.2}
-              label={`أرباح الفترة (ريال)`}
-              value={fmtMoney(revenue.period.SAR?.total || 0, 'SAR')}
-              hint={`${revenue.period.SAR?.orders || 0} طلب`}
-            />
-          </>
-        )}
-        {/* العملاء في دول اليورو بيدفعوا باليورو — بيظهروا لما يبقى فيه طلبات باليورو */}
-        {(revenue.all.EUR?.orders > 0) && (
-          <>
-            <StatTile
-              icon={Wallet} tone="gold" delay={0.22}
-              label="أرباح باليورو (كل الوقت)"
-              value={fmtMoney(revenue.all.EUR.total, 'EUR')}
-              hint={`${revenue.all.EUR.orders} طلب`}
-            />
-            <StatTile
-              icon={Wallet} delay={0.26}
-              label={`أرباح الفترة (يورو)`}
-              value={fmtMoney(revenue.period.EUR?.total || 0, 'EUR')}
-              hint={`${revenue.period.EUR?.orders || 0} طلب`}
-            />
-          </>
-        )}
-      </div>
+      <MoneySummary revenue={revenue} periodLabel={periodLabel} />
 
       {/* الأرباح شهر بشهر */}
       <MonthlyRevenue />
@@ -208,7 +230,7 @@ export default function OverviewPage() {
       {/* الرسوم */}
       <div className="grid gap-5 xl:grid-cols-2">
         {!hideMoney && (
-        <Panel title="الأرباح يوم بيوم" subtitle="الطلبات المفعّلة بس — العملتين منفصلين">
+        <Panel title="الفلوس اللي دخلت يوم بيوم" subtitle="الطلبات المفعّلة بس — كل عملة لوحدها">
           <BarTrend
             money
             data={series.revenue}

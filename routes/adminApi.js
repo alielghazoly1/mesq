@@ -31,7 +31,7 @@ const Visit = require('../models/Visit');
 const Campaign = require('../models/Campaign');
 const SiteDeviceDay = require('../models/SiteDeviceDay');
 const AdminPin = require('../models/AdminPin');
-const { activatedRangeFilter } = require('../utils/finance');
+const { activatedRangeFilter, getRates } = require('../utils/finance');
 const { cairoParts, cairoWallToDate } = require('../utils/cairoTime');
 const {
   onlineUserIds, allOnlineUserIds, onlineSince, liveCounts, cairoTodayStart, cairoMonthStart, ONLINE_WINDOW_MS,
@@ -329,7 +329,8 @@ router.get('/admin/api/overview', requireAdminSession, async (req, res) => {
         rsvps: totalRsvps + (ar.archivedRsvps || 0),
         pendingOrders,
       },
-      revenue: { all: revenueBy(revenueAll), period: revenueBy(revenuePeriod) },
+      // rates: أسعار الصرف اللي المالك حاطها في صفحة الأرباح (جنيه لكل وحدة) — عشان "الإجمالي بالجنيه" في النظرة العامة
+      revenue: { all: revenueBy(revenueAll), period: revenueBy(revenuePeriod), rates: await getRates().catch(() => null) },
       series: {
         users: fillDailySeries(usersSeries, from, period, ['count']),
         invitations: fillDailySeries(withArchived(invitationsSeries, ar.archivedDaily), from, period, ['count', 'premium']),

@@ -201,7 +201,7 @@ export default function LivePanel() {
           <StatTile icon={Receipt} label="طلبات باقات النهارده" value={fmtNum(today?.orders || 0)} delay={0.09}
             onClick={goOrders} cta="شوفهم" />
           {!hideMoney && <StatTile
-            icon={Wallet} label="أرباح النهارده" delay={0.12} onClick={() => navigate('/admin/orders-day')} cta="الطلبات"
+            icon={Wallet} label="فلوس دخلت النهارده" delay={0.12} onClick={() => navigate('/admin/orders-day')} cta="الطلبات"
             value={fmtMoney(today?.revenue?.EGP?.total || 0, 'EGP')}
             hint={(today?.revenue?.USD?.total || today?.revenue?.SAR?.total || today?.revenue?.EUR?.total)
               ? [today.revenue.USD?.total ? `+ ${fmtMoney(today.revenue.USD.total, 'USD')}` : '', today.revenue.SAR?.total ? `+ ${fmtMoney(today.revenue.SAR.total, 'SAR')}` : '', today.revenue.EUR?.total ? `+ ${fmtMoney(today.revenue.EUR.total, 'EUR')}` : ''].filter(Boolean).join(' ')

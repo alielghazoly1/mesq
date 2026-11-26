@@ -50,7 +50,7 @@ function ChartTip({ active, payload, currency }) {
   return (
     <div className="rounded-xl border border-line-lite bg-night px-3 py-2 text-[12px] shadow-xl">
       <div className="mb-1 font-bold text-ivory/85">{monthName(r.month, true)}</div>
-      <div className="text-ivory/70">الأرباح: <b className="text-ivory">{fmtMoney(r[currency], CODE[currency])}</b></div>
+      <div className="text-ivory/70">اللي دخل: <b className="text-ivory">{fmtMoney(r[currency], CODE[currency])}</b></div>
       <div className="text-ivory/55">{r[`${currency}Orders`] || 0} طلب · {r.signups} تسجيل</div>
     </div>
   );
@@ -74,7 +74,7 @@ export default function MonthlyRevenue() {
 
   return (
     <Panel
-      title="الأرباح شهر بشهر"
+      title="الفلوس اللي دخلت شهر بشهر"
       subtitle={`كل شهر لوحده بتوقيت مصر — الطلبات المفعّلة بس${isFetching ? ' · بيحدّث...' : ''}`}
       action={(
         <div className="flex flex-wrap gap-2">
@@ -108,7 +108,7 @@ export default function MonthlyRevenue() {
               <div className="mt-1 font-serif text-[22px] font-bold text-ivory">
                 {best && best[currency] > 0 ? fmtMoney(best[currency], cur) : 'لسه مفيش'}
               </div>
-              <div className="mt-0.5 text-[11.5px] text-ivory/45">{best && best[currency] > 0 ? monthName(best.month, true) : 'لسه مفيش أرباح بالعملة دي'}</div>
+              <div className="mt-0.5 text-[11.5px] text-ivory/45">{best && best[currency] > 0 ? monthName(best.month, true) : 'لسه مفيش فلوس دخلت بالعملة دي'}</div>
             </div>
           </div>
 
@@ -160,7 +160,7 @@ export default function MonthlyRevenue() {
                     <td className="py-2.5 text-ivory/70">{fmtNum(r.signups)}</td>
                     <td className="py-2.5">
                       {!r.g ? <span className="text-ivory/25">—</span>
-                        : r.g.pct === null ? <span className="text-[11.5px] font-bold text-ok">أول أرباح</span>
+                        : r.g.pct === null ? <span className="text-[11.5px] font-bold text-ok">أول دخل</span>
                           : (
                             <span className={`inline-flex items-center gap-1 text-[11.5px] font-bold ${r.g.pct > 0 ? 'text-ok' : r.g.pct < 0 ? 'text-error' : 'text-ivory/45'}`}>
                               {r.g.pct > 0 ? <TrendingUp size={12} /> : r.g.pct < 0 ? <TrendingDown size={12} /> : <Minus size={12} />}

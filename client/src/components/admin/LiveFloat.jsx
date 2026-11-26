@@ -324,7 +324,7 @@ function LiveFloatInner() {
                 {fmtNum(today?.orders || 0)}
               </Stat>
               {!hideMoney && (
-              <Stat icon={Wallet} label="أرباح النهارده" accent="text-brass-soft" onClick={() => navigate('/admin/orders-day')}>
+              <Stat icon={Wallet} label="فلوس دخلت النهارده" accent="text-brass-soft" onClick={() => navigate('/admin/orders-day')}>
                 <span title={extraRev.join(' + ')}>{fmtMoney(rev.EGP?.total || 0, 'EGP')}</span>
               </Stat>
               )}
