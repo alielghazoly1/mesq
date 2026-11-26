@@ -21,7 +21,7 @@ const { getCustomInvitation, applyCustomData, customLang, injectCustomInvitation
 const { optimizeTemplateAssets } = require('../utils/assetOptimize');
 const { injectBeforeBodyEnd } = require('../utils/templateFixes');
 const { guestExtrasTags, hasGuestExtras } = require('../utils/guestExtras');
-const { shareImageSize: shareImageSize_ } = require('../utils/shareImageSize');
+const { shareImageSize: shareImageSize_, cachedShareImageSize, warmShareImageSize } = require('../utils/shareImageSize');
 const { cloudinaryShareImageOf } = require('../utils/shareTags');
 const { applyPreviewMeta } = require('../utils/seo');
 const { buildInvitationDataFromRequest, hasActivePackage } = require('../utils/invitationData');
@@ -43,6 +43,16 @@ const { buildEventIcs } = require('../utils/calendarIcs');
 const { buildDisplayFields } = require('../utils/dateFormatter');
 // بوتات معاينة اللينكات والكرولرز — مش زوار حقيقيين، مانبلّغش ميتا عنهم
 const PREVIEW_BOT_RE = /bot|crawl|spider|slurp|facebookexternalhit|facebot|whatsapp|telegram|preview|headless|lighthouse/i;
+// مقاس صورة كارت المشاركة: بوت المعاينة (واتساب/فيسبوك/إنستجرام) بس هو اللي بيستنى سؤال Cloudinary (لحد ثانيتين ونص)
+// زي الأول — هو اللي محتاج og:image:width/height. الضيف الحقيقي مابيستناش: المقاس لو متخزّن بيتكتب، ولو لأ
+// السؤال بيبدأ في الخلفية (للمرة الجاية) والصفحة بتطلع على طول من غير المقاس — الضيف مابيشوفش الوسوم دي أصلًا.
+function shareImageSizeFor(req, url) {
+  if (PREVIEW_BOT_RE.test(String(req.get('user-agent') || ''))) return shareImageSize_(url);
+  const known = cachedShareImageSize(url);
+  if (known !== undefined) return known;
+  warmShareImageSize(url);
+  return null;
+}
 const {
   getHiddenTemplateIds, getTemplateLayout, sortByOrder, defaultTemplateLayout,
 } = require('../utils/siteConfig');
@@ -269,7 +279,7 @@ router.get('/i/:shortId', async (req, res) => {
     const shareImageSize = custom && custom.share && custom.share.overrideImage && custom.share.width
       // كارت كاستم مقاسه معروف — بنكتبه على طول (إنستجرام محتاجه من أول مشاركة)
       ? { width: custom.share.width, height: custom.share.height, fixed: true }
-      : (renderData && !editMode ? await shareImageSize_(cloudinaryShareImageOf(renderData)) : null);
+      : (renderData && !editMode ? await shareImageSizeFor(req, cloudinaryShareImageOf(renderData)) : null);
     let html = invitation.templateId
       ? renderNewPathHtml(renderData, {
         editMode,

@@ -14,6 +14,12 @@ const API_TARGETS = [
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  // dist/.vite/manifest.json: خريطة "صفحة ← ملفات الجافاسكريبت بتاعتها". السيرفر (utils/spaPreloads.js)
+  // بيقرا منها ملف صفحة الدفع/الباقات/المحرر... ويخلّي المتصفح يبدأ يحمّله مع الـ HTML على طول، بدل ما
+  // يستنى الجافاسكريبت الأساسي يخلص الأول. الملف ده مابيتقدّمش للزوار (express.static بيتجاهل .vite).
+  build: {
+    manifest: true,
+  },
   server: {
     proxy: Object.fromEntries(
       API_TARGETS.map((p) => [p, { target: 'http://localhost:3000', changeOrigin: true }])

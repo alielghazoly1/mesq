@@ -15,7 +15,7 @@ const { buildMainParagraph } = require('../i18n/invitationText');
 const { getTemplate, getDefaultTemplate } = require('../templates/registry');
 const { safeJsonForScript } = require('./sanitize');
 const { injectTemplateFixes, injectBeforeBodyEnd } = require('./templateFixes');
-const { buildCustomizationTags } = require('./customizations');
+const { buildCustomizationTags, isAllowedMediaUrl, isSafeElemId } = require('./customizations');
 const { buildShareTags, injectShareTags } = require('./shareTags');
 const { makeOneVideo } = require('../custom-invitations/_oneVideo');
 const { asset } = require('../custom-invitations/_asset');
@@ -305,7 +305,32 @@ function renderNewPathHtml(data, options) {
   if (options && options.editMode) {
     html = injectBeforeBodyEnd(html, EDITOR_RUNTIME_TAGS);
   }
-  return html;
+  return usesCloudinaryMedia(data.customizations) ? withCloudinaryPreconnect(html) : html;
+}
+
+// صور/أغنية العميل على Cloudinary: المتصفح بيعرف إنه هيحتاجهم بس لما يوصل لسكريبت التخصيصات
+// في آخر الصفحة — على نت الموبايل فتح الاتصال لوحده (DNS + TCP + TLS) بياخد ثانية تقريبًا.
+// السطر ده في أول الـ <head> بيخلي الاتصال يتفتح من أول لحظة. مابيتحطش لو التخصيصات مافيهاش
+// صورة/أغنية على Cloudinary أو الصفحة فيها preconnect ليه أصلًا — وغير كده الصفحة زي ما هي بالظبط.
+// نفس الحقول ونفس الفلتر اللي utils/customizations.js بيحط بيهم الروابط في الصفحة (صورة كارت المشاركة
+// مش منهم: دي لواتساب بس، المتصفح مابيحمّلهاش).
+const CLOUDINARY_PRECONNECT = '<link rel="preconnect" href="https://res.cloudinary.com">';
+const isCloudinaryMedia = (url) => isAllowedMediaUrl(url) && /^https:\/\/res\.cloudinary\.com\//.test(String(url));
+function usesCloudinaryMedia(c) {
+  if (!c) return false;
+  const images = c.images || {};
+  return Object.keys(images).some((id) => isSafeElemId(id) && isCloudinaryMedia(images[id]))
+    || isCloudinaryMedia(c.audioUrl)
+    || isCloudinaryMedia((c.rsvp || {}).image);
+}
+function withCloudinaryPreconnect(html) {
+  const already = (html.match(/<link\b[^>]*>/gi) || []).some((tag) => /\brel\s*=\s*["']?[^"'>]*\bpreconnect\b/i.test(tag)
+    && /\bhref\s*=\s*["']?https:\/\/res\.cloudinary\.com(?:[/"'\s>]|$)/i.test(tag));
+  if (already) return html;
+  const head = /<head(?=[\s>])[^>]*>/i.exec(html);
+  if (!head) return html;
+  const at = head.index + head[0].length;
+  return html.slice(0, at) + CLOUDINARY_PRECONNECT + html.slice(at);
 }
 
 function renderLegacyHtml(invitation, options) {
