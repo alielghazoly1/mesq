@@ -1,10 +1,8 @@
 // تبويب "نظرة عامة": أرقام الفترة + رسم المشاهدات يوم بيوم + الضيوف جايين
 // منين + موبايل ولا كمبيوتر + أكتر ساعة بيفتحوا فيها + نسبة الحضور.
+import { Suspense, lazy, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import {
-  ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
-} from 'recharts';
 import {
   Eye, UserRound, Check, X as XIcon, Smartphone, Monitor, Tablet, Clock, ArrowUpRight, ArrowDownRight,
   Loader2, Sparkles,
@@ -12,6 +10,21 @@ import {
 import { useGetInsightsQuery } from '../../store/api.js';
 import { setRange } from '../../store/dashboardSlice.js';
 import { fmtNum, pctDelta, shortDay, hourLabel } from './dashUtils.js';
+import { importWithReload } from '../../lib/lazyWithReload.js';
+
+// الرسم نفسه (مكتبة recharts ~100KB) ملف كسول: لوحة العميل بتفتح على تبويب المشاركة غالبًا، والمكتبة
+// كانت بتنزل قبل ما /api/dashboard حتى يبدأ (أول شاشة كانت ~9 ثواني على نت الموبايل). بيبدأ يتحمّل أول
+// ما التبويب ده يفتح (جنب طلب الأرقام)، ومكانه محجوز بنفس المقاس. لو فشل خالص (بعد إعادة التحميل
+// مرة) المكان بيفضل فاضي بدل ما اللوحة كلها تقع.
+let chartModule = null;
+const loadViewsChart = () => {
+  if (!chartModule) {
+    chartModule = importWithReload(() => import('./ViewsChart.jsx'), 'views-chart')
+      .catch(() => ({ default: () => null }));
+  }
+  return chartModule;
+};
+const ViewsChart = lazy(loadViewsChart);
 
 const SOURCE_META = {
   direct: { color: '#25D366', key: 'dash2.srcDirect' },
@@ -101,6 +114,8 @@ export default function OverviewTab({ shortId }) {
   const dispatch = useDispatch();
   const range = useSelector((s) => s.dashboard.range);
   const { data, isFetching, isError, refetch } = useGetInsightsQuery({ shortId, range }, { pollingInterval: 60000, skipPollingIfUnfocused: true });
+  // ملف الرسم بيتحمّل في نفس وقت الأرقام (مش بعد ما توصل)
+  useEffect(() => { loadViewsChart(); }, []);
 
   const RANGES = [{ v: 7, k: 'dash2.r7' }, { v: 30, k: 'dash2.r30' }, { v: 90, k: 'dash2.r90' }, { v: 0, k: 'dash2.rAll' }];
 
@@ -165,30 +180,11 @@ export default function OverviewTab({ shortId }) {
       )}
 
       <Card title={t('dash2.chartTitle')} icon={Eye}>
+        {/* المقاس ثابت (210) — اللي جواه بيتبدّل من المكان المحجوز للرسم من غير ما حاجة تتحرك */}
         <div className="h-[210px] w-full" dir="ltr" data-chart>
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={series} margin={{ top: 6, right: 6, left: -22, bottom: 0 }}>
-              <defs>
-                <linearGradient id="gv" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#c9a24a" stopOpacity={0.45} />
-                  <stop offset="100%" stopColor="#c9a24a" stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id="gu" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#0f1d18" stopOpacity={0.22} />
-                  <stop offset="100%" stopColor="#0f1d18" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(15,29,24,.07)" vertical={false} />
-              <XAxis dataKey="label" tick={{ fontSize: 10.5, fill: '#8a7a68' }} tickLine={false} axisLine={false} interval="preserveStartEnd" minTickGap={18} />
-              <YAxis allowDecimals={false} tick={{ fontSize: 10.5, fill: '#8a7a68' }} tickLine={false} axisLine={false} />
-              <Tooltip
-                contentStyle={{ borderRadius: 14, border: '1px solid rgba(15,29,24,.1)', fontSize: 12, direction: lang === 'en' ? 'ltr' : 'rtl' }}
-                formatter={(v, n) => [fmtNum(v, lang), n === 'views' ? t('dash2.mViews') : t('dash2.mUniques')]}
-              />
-              <Area type="monotone" dataKey="views" stroke="#b08d57" strokeWidth={2.2} fill="url(#gv)" />
-              <Area type="monotone" dataKey="uniques" stroke="#0f1d18" strokeWidth={1.6} fill="url(#gu)" />
-            </AreaChart>
-          </ResponsiveContainer>
+          <Suspense fallback={<div className="h-full w-full rounded-xl bg-ink/[0.03]" data-chart-loading />}>
+            <ViewsChart series={series} lang={lang} />
+          </Suspense>
         </div>
         <div className="mt-2 flex items-center gap-4 text-[11.5px] font-bold text-ink-dim">
           <span className="flex items-center gap-1.5"><span className="h-2 w-4 rounded-full bg-[#b08d57]" /> {t('dash2.mViews')}</span>

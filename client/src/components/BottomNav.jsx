@@ -62,10 +62,12 @@ function scrollToSection(id) {
 
 /** أيقونة عادية في الشريط */
 function NavItem({ item, active }) {
-  const { icon: Icon, label, onClick, badge, dot, tone } = item;
+  const { icon: Icon, label, onClick, badge, dot, tone, authIntent } = item;
   return (
     <motion.button
       type="button"
+      // زراير الدخول/التسجيل للزائر: أول لمسة بتبدأ تحميل النافذة (lib/authModalPreload.js)
+      data-auth-intent={authIntent ? '' : undefined}
       onClick={onClick}
       whileTap={{ scale: 0.86 }}
       aria-label={label}
@@ -170,8 +172,10 @@ function Tip({ title, body, cta, onCta, onClose, tone }) {
         <div className={`text-[12.5px] font-extrabold ${tone === 'vip' ? 'text-brass-soft' : 'text-ivory'}`}>{title}</div>
         <p className="mt-0.5 text-[11px] leading-[1.6] text-ivory/70">{body}</p>
         {cta && (
+          // زرار "سجّل دخولك" (إشعار الزائر بس) — أول لمسة بتبدأ تحميل نافذة الدخول (lib/authModalPreload.js)
           <button
             type="button"
+            data-auth-intent=""
             onClick={onCta}
             className="mt-2 inline-flex items-center gap-1 rounded-full bg-gradient-to-l from-brass to-brass-soft px-3 py-1.5 text-[11px] font-extrabold text-[#241608] active:scale-95"
           >
@@ -349,6 +353,7 @@ export default function BottomNav() {
         icon: UserRoundPlus,
         label: t('bottomNav.join'),
         onClick: () => { closeGuestTip(); dispatch(setSupportOpen(false)); dispatch(openAuthModal('register')); },
+        authIntent: true,
       },
     {
       key: 'support',
@@ -366,7 +371,7 @@ export default function BottomNav() {
         tone: vip ? 'vip' : undefined,
       }
       : {
-        key: 'account', icon: LogIn, label: t('bottomNav.login'), onClick: openLogin, dot: true,
+        key: 'account', icon: LogIn, label: t('bottomNav.login'), onClick: openLogin, dot: true, authIntent: true,
       },
   ];
 

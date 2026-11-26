@@ -1,5 +1,5 @@
 // أدوات صغيرة مشتركة بين أجزاء لوحة العميل
-import { templateThumb } from '../../lib/thumbs.js';
+import { templateThumb, templateThumbSet } from '../../lib/thumbs.js';
 
 // القوالب اللي ليها صورة مختلفة لكل لغة
 const LANG_THUMBS = new Set(['champagne-lace', 'lily-garden', 'velvet-voice', 'pearl-peony', 'mother-of-pearl', 'golden-calla', 'lace', 'birthday-gift']);
@@ -10,6 +10,20 @@ export function thumbFor(templateId, lang) {
   const suffix = LANG_THUMBS.has(templateId) ? `-${lang === 'en' ? 'en' : 'ar'}` : '';
   return templateThumb(templateId, suffix);
 }
+
+/**
+ * نسخ WebP من نفس الصورة (لـ <source type="image/webp">، والـ jpg فوق بيفضل للمتصفحات القديمة) —
+ * صورة كارت الدعوة كانت أكبر حاجة في أول شاشة في اللوحة: jpg ‏134KB قصاد webp ‏59KB بنفس المقاس.
+ */
+export function thumbSetFor(templateId, lang) {
+  if (!templateId) return templateThumbSet('ivory-swans');
+  const suffix = LANG_THUMBS.has(templateId) ? `-${lang === 'en' ? 'en' : 'ar'}` : '';
+  return templateThumbSet(templateId, suffix);
+}
+
+// عرض الصورة في كارت شريط الدعوات (220 / 240 بكسل) — الموبايل بياخد نسخة الـ 640 (نفس دقة الـ jpg)،
+// وصورة راس لوحة الدعوة الصغيرة بتاخد نفس المقاس بالقصد: نفس الملف، فبينزل مرة واحدة للاتنين
+export const THUMB_SIZES = '(min-width: 640px) 240px, 220px';
 
 /** كام يوم فاضل على تاريخ (سالب = عدّى) */
 export function daysUntil(date) {

@@ -126,6 +126,33 @@ function TaptapCopy({ label, value, display, big, field }) {
   );
 }
 
+// ===== مكان كارت بيانات التحويل وهو بيتحمّل =====
+// كان سطر "جاري التحميل" صغير، وبعدين الكارت (~330 بكسل) بيظهر مكانه ويزق الخطوتين 2 و3 لتحت
+// قدام عين العميل (CLS 0.18 على الموبايل — وممكن يدوس على حاجة غير اللي قصده). دلوقتي بنحجز مكان
+// قد الكارت: آخر مقاس اتشاف على الجهاز ده لنفس العملة، وأول مرة تقدير حسب العملة.
+const PAY_BOX_KEY = 'mithaq:pay-box';
+// مقاس الكارت (موبايل، شاشة أكبر من 640) بإعدادات الدفع الحالية: المصري فودافون كاش + تبويب إنستاباي،
+// الدولار تبويب البنك، السعودية برق، اليورو SEPA (مقاسة 2026-11-26)
+const PAY_BOX_GUESS = { EGP: [344, 344], USD: [385, 365], SAR: [664, 596], EUR: [1191, 916] };
+
+function payBoxHeight(currency) {
+  try {
+    const saved = JSON.parse(localStorage.getItem(PAY_BOX_KEY) || '{}')[currency];
+    // نفس عرض الشاشة تقريبًا (الكلام بيلف حسب العرض) ورقم معقول
+    if (saved && Math.abs(saved.w - window.innerWidth) < 40 && saved.h >= 40 && saved.h <= 1600) return saved.h;
+  } catch { /* تصفح خاص */ }
+  const g = PAY_BOX_GUESS[currency] || PAY_BOX_GUESS.USD;
+  return window.innerWidth < 640 ? g[0] : g[1];
+}
+
+function rememberPayBox(currency, h) {
+  try {
+    const all = JSON.parse(localStorage.getItem(PAY_BOX_KEY) || '{}');
+    all[currency] = { w: window.innerWidth, h: Math.round(h) };
+    localStorage.setItem(PAY_BOX_KEY, JSON.stringify(all));
+  } catch { /* */ }
+}
+
 /** خطوة مرقّمة */
 function Step({ n, title, done, children }) {
   return (
@@ -153,8 +180,13 @@ export default function CheckoutPage() {
 
   const { data: meData, isLoading: meLoading } = useGetMeQuery();
   const { data: pkgData, isLoading: pkgLoading } = useGetPackagesQuery(i18n.language);
+  // تلميح السيرفر: المتصفح معاه كوكي دخول (<html data-auth="1">) — يبقى بيانات التحويل تتطلب على طول
+  // جنب /api/auth/me بدل ما تستنى رده (لفّة نت كاملة أقل على الموبايل). مجرد تلميح: لو الجلسة طلعت
+  // منتهية، /me بيقول "مش داخل" والصفحة بتعرض "سجّل الأول" زي الأول بالظبط (والسيرفر بيرفض الطلب ده).
+  // من غير التلميح (أو "0") = زي الأول: بتستنى /me.
+  const signedInHint = typeof document !== 'undefined' && document.documentElement.dataset.auth === '1';
   const { data: payInfo, isLoading: payLoading } = useGetPaymentInfoQuery(undefined, {
-    skip: !meData?.user,
+    skip: !meData?.user && !(signedInHint && meLoading),
   });
   const [orderPackage] = useOrderPackageMutation();
   const [uploadProof, { isLoading: uploading }] = useUploadPaymentProofMutation();
@@ -163,6 +195,9 @@ export default function CheckoutPage() {
   const [senderPhone, setSenderPhone] = useState('');
 
   const fileRef = useRef(null);
+  // كارت بيانات التحويل — مقاسه بيتحفظ أول ما يظهر عشان المرة الجاية نحجز مكانه بالظبط
+  const payBoxRef = useRef(null);
+  const payBoxSaved = useRef(false);
   const [uploaded, setUploaded] = useState(false);
   const [error, setError] = useState('');
   const [orderReady, setOrderReady] = useState(false);
@@ -208,6 +243,31 @@ export default function CheckoutPage() {
       });
     return () => { alive = false; };
   }, [user, pkg, orderReady, orderPackage, t]);
+
+  // أول ما كارت التحويل يظهر نحفظ مقاسه للزيارة الجاية. اللوجوهات والخطوط بتكبّره شوية بعد ما يظهر،
+  // فبنتابعه لحد أول لمسة من العميل (التبويبات بتغيّر مقاسه) أو 5 ثواني.
+  useEffect(() => {
+    const el = payBoxRef.current;
+    if (payBoxSaved.current || payLoading || !payInfo || !pkg || !el) return undefined;
+    payBoxSaved.current = true;
+    const currency = pkg.currency;
+    const save = () => rememberPayBox(currency, el.getBoundingClientRect().height);
+    save();
+    if (typeof ResizeObserver === 'undefined') return undefined;
+    const ro = new ResizeObserver(save);
+    ro.observe(el);
+    let timer = 0;
+    const stop = () => {
+      ro.disconnect();
+      window.clearTimeout(timer);
+      window.removeEventListener('pointerdown', stop, true);
+      window.removeEventListener('keydown', stop, true);
+    };
+    timer = window.setTimeout(stop, 5000);
+    window.addEventListener('pointerdown', stop, true);
+    window.addEventListener('keydown', stop, true);
+    return stop;
+  }, [payLoading, payInfo, pkg]);
 
   async function onPickFile(e) {
     const file = e.target.files?.[0];
@@ -256,8 +316,10 @@ export default function CheckoutPage() {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-8 text-center">
         <p className="font-serif text-[19px] font-bold text-ink">{t('packages.authTitle')}</p>
+        {/* data-auth-intent: أول لمسة بتبدأ تحميل نافذة الدخول قبل الضغطة (lib/authModalPreload.js) */}
         <button
           type="button"
+          data-auth-intent=""
           onClick={() => dispatch(openAuthModal('register'))}
           className="rounded-full bg-gradient-to-l from-brass to-brass-soft px-7 py-3 font-extrabold text-[#241608]"
         >
@@ -396,10 +458,17 @@ export default function CheckoutPage() {
         <div className="space-y-4 lg:order-1">
           {/* ===== 1) التحويل — أول وأهم حاجة على الشاشة ===== */}
           <Step n="1" title={t('checkout.step1')}>
+            <div ref={payBoxRef} data-pay-box>
             {payLoading ? (
-              <p className="flex items-center gap-2 text-[13px] text-ink-dim">
-                <Loader2 size={13} className="animate-spin" /> {t('packages.loading')}
-              </p>
+              // مكان الكارت محجوز بمقاسه وهو بيتحمّل (payBoxHeight فوق) — الخطوات اللي تحته ماتتحركش
+              <div
+                className="flex flex-col items-center justify-center gap-2 rounded-2xl bg-ink/[0.03] text-[13px] text-ink-dim"
+                style={{ minHeight: payBoxHeight(pkg.currency) }}
+                aria-busy="true"
+                data-pay-loading
+              >
+                <Loader2 size={16} className="animate-spin" /> {t('packages.loading')}
+              </div>
             ) : !hasPayData ? (
               <p className="rounded-xl bg-brass/10 px-4 py-3 text-[12.5px] text-[#7a5a1a]">
                 {t('checkout.noPayData')}
@@ -808,6 +877,7 @@ export default function CheckoutPage() {
                 )}
               </>
             )}
+            </div>
 
           </Step>
 

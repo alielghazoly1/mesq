@@ -14,7 +14,7 @@ import OverviewTab from './OverviewTab.jsx';
 import GuestsTab from './GuestsTab.jsx';
 import ShareTab from './ShareTab.jsx';
 import MediaTab from './MediaTab.jsx';
-import { thumbFor, fmtNum } from './dashUtils.js';
+import { thumbFor, thumbSetFor, THUMB_SIZES, fmtNum } from './dashUtils.js';
 import { countdownLabel, invTitle } from './InvitationRail.jsx';
 
 export default function InvitationPanel({ inv, lang, editEnded }) {
@@ -52,7 +52,11 @@ export default function InvitationPanel({ inv, lang, editEnded }) {
     <section className="overflow-hidden rounded-[26px] border border-line bg-card shadow-[0_24px_60px_-44px_rgba(15,29,24,.6)]" data-panel={inv.shortId}>
       {/* الرأس */}
       <div className="flex flex-wrap items-center gap-4 border-b border-line bg-gradient-to-l from-ivory/40 to-card p-4 sm:p-5">
-        <img src={thumbFor(inv.templateId, inv.language)} alt="" className="h-16 w-16 shrink-0 rounded-2xl object-cover object-top shadow-sm ring-1 ring-line" />
+        {/* نفس صورة كارت الشريط (THUMB_SIZES) — ملف واحد بينزل للاتنين */}
+        <picture className="shrink-0">
+          <source type="image/webp" srcSet={thumbSetFor(inv.templateId, inv.language)} sizes={THUMB_SIZES} />
+          <img src={thumbFor(inv.templateId, inv.language)} alt="" className="h-16 w-16 shrink-0 rounded-2xl object-cover object-top shadow-sm ring-1 ring-line" />
+        </picture>
         <div className="min-w-0 flex-1">
           {renaming ? (
             <div className="flex flex-wrap items-center gap-2">
