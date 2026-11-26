@@ -655,13 +655,14 @@ app.get('*', (req, res, next) => {
       // صفحات الحساب والدفع والمحرر، وأي مسار مش موجود: مش لجوجل
       res.setHeader('X-Robots-Tag', 'noindex');
     }
-    // الدفع/الإنشاء/لوحة العميل/المحرر: ملف الصفحة يبدأ يتحمّل مع الـ HTML (utils/spaPreloads.js).
+    // الدفع/الإنشاء/لوحة العميل/المحرر: ملف الصفحة يبدأ يتحمّل مع الـ HTML (utils/spaPreloads.js — عن طريق
+    // pagePreloads)، و<html data-auth> زي صفحة الباقات (الدفع بيستخدمه عشان يبدأ بيانات الدفع من غير ما يستنى /me).
     // أي صفحة تانية (أو مفيش خريطة) → index.html زي ما هو بالظبط
     const html = spaHtml();
     const modules = html ? modulePreloadTags(req.path, CLIENT_DIST, html) : '';
     // نفس Content-Type اللي sendFile كان بيبعته لـ index.html بالظبط
     // (Buffer: res.send مع النص كان بيصغّر charset لـ utf-8)
-    if (modules) return res.set('Content-Type', 'text/html; charset=UTF-8').send(Buffer.from(html.replace('</head>', `${modules}\n  </head>`), 'utf8'));
+    if (modules) return res.set('Content-Type', 'text/html; charset=UTF-8').send(Buffer.from(withAuthHint(html, req), 'utf8'));
   }
   return res.sendFile(path.join(CLIENT_DIST, 'index.html'));
 });
