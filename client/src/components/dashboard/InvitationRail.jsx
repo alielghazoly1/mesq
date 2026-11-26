@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import { Eye, Check, FileText, CalendarHeart } from 'lucide-react';
 import { selectInvitation } from '../../store/dashboardSlice.js';
-import { thumbFor, daysUntil, fmtNum } from './dashUtils.js';
+import { thumbFor, thumbSetFor, THUMB_SIZES, daysUntil, fmtNum } from './dashUtils.js';
 
 export function countdownLabel(t, date) {
   const d = daysUntil(date);
@@ -47,8 +47,12 @@ export default function InvitationRail({ invitations, lang, selected }) {
               }`}
             >
               <div className="relative h-[118px] overflow-hidden bg-ivory">
-                <img src={thumbFor(inv.templateId, inv.language)} alt="" loading="lazy"
-                  className="h-full w-full object-cover object-top transition duration-500 group-hover:scale-[1.04]" />
+                {/* WebP (أخف بكتير) والـ jpg للمتصفحات القديمة — نفس المقاس على الشاشة */}
+                <picture>
+                  <source type="image/webp" srcSet={thumbSetFor(inv.templateId, inv.language)} sizes={THUMB_SIZES} />
+                  <img src={thumbFor(inv.templateId, inv.language)} alt="" loading="lazy"
+                    className="h-full w-full object-cover object-top transition duration-500 group-hover:scale-[1.04]" />
+                </picture>
                 <span className="absolute inset-0 bg-gradient-to-t from-night/70 via-night/10 to-transparent" />
                 {cd && (
                   <span className={`absolute start-2.5 top-2.5 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10.5px] font-extrabold backdrop-blur ${

@@ -385,9 +385,11 @@ export default function PackagesPage() {
                 <Lock size={20} className="text-brass" />
               </div>
               <h2 className="mb-2 font-serif text-xl font-bold text-ink">{t('packages.authTitle')}</h2>
+              {/* data-auth-intent: أول لمسة بتبدأ تحميل نافذة الدخول قبل الضغطة (lib/authModalPreload.js) */}
               <div className="flex flex-col gap-2.5 sm:flex-row sm:justify-center">
                 <button
                   type="button"
+                  data-auth-intent=""
                   onClick={() => dispatch(openAuthModal('register'))}
                   className="rounded-full bg-gradient-to-l from-brass to-brass-soft px-7 py-3.5 font-extrabold text-[#241608] hover:brightness-105"
                 >
@@ -395,6 +397,7 @@ export default function PackagesPage() {
                 </button>
                 <button
                   type="button"
+                  data-auth-intent=""
                   onClick={() => dispatch(openAuthModal('login'))}
                   className="rounded-full border border-ink px-7 py-3.5 font-bold text-ink hover:bg-ink/5"
                 >
@@ -513,6 +516,7 @@ export default function PackagesPage() {
             </p>
             <button
               type="button"
+              data-auth-intent=""
               onClick={() => dispatch(openAuthModal('register'))}
               className="inline-flex rounded-full bg-gradient-to-l from-brass to-brass-soft px-7 py-3 font-extrabold text-[#241608] hover:brightness-105"
             >

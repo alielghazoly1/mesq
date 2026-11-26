@@ -1,4 +1,4 @@
-import { Suspense, lazy, useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { Routes, Route, useLocation, useNavigationType } from 'react-router-dom';
 import AuthBar from './components/AuthBar.jsx';
 import { useSelector } from 'react-redux';
@@ -14,27 +14,9 @@ import JourneyTracker from './components/JourneyTracker.jsx';
 import { startCampaignBeacon } from './lib/campaignBeacon.js';
 import GalleryPage from './pages/GalleryPage.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
-
-/**
- * استيراد كسول بيعرف يصحّى نفسه.
- *
- * الملف الكسول اسمه فيه بصمة المحتوى، فبيتغيّر مع كل رفع. تاب مفتوح من
- * قبل الرفع بيفضل يطلب الاسم القديم اللي اتشال — الاستيراد بيفشل
- * والصفحة بتطلع بيضا. هنا بنجرّب تاني مرة، ولو فشلت بنعيد تحميل الصفحة
- * من السيرفر مرة واحدة بس عشان تيجي بأسماء الملفات الجديدة.
- */
-function lazyWithReload(factory, key) {
-  return lazy(() => factory().catch(() => factory().catch((err) => {
-    const flag = 'mithaq:chunk-reload:' + key;
-    let tried = false;
-    try { tried = sessionStorage.getItem(flag) === '1'; } catch { /* تصفح خاص */ }
-    if (tried) throw err;
-    try { sessionStorage.setItem(flag, '1'); } catch { /* */ }
-    window.location.reload();
-    // بنرجّع وعد مش بيخلص عشان React مايرسمش حاجة والصفحة بتتحمّل
-    return new Promise(() => {});
-  })));
-}
+// استيراد كسول بيعرف يصحّى نفسه بعد أي رفع جديد (الشرح جوه الملف)
+import { lazyWithReload } from './lib/lazyWithReload.js';
+import { importAuthModal, watchAuthIntent, preloadAuthModalOnFirstScroll } from './lib/authModalPreload.js';
 
 // لوحة التحكم بتتحمّل كسول: زائر الموقع العادي عمره ما ينزّل كودها ولا
 // مكتبة الرسوم البيانية اللي جواها (recharts).
@@ -61,9 +43,8 @@ const LegalPage = lazyWithReload(() => import('./pages/LegalPage.jsx'), 'legal')
 const WeddingPlannerPage = lazyWithReload(() => import('./pages/WeddingPlannerPage.jsx'), 'wedding-planner');
 
 // نافذة الدخول/التسجيل فيها مكتبة الفورم وقايمة الدول — تقيلة ومش
-// محتاجينها غير لما الزائر يدوس "دخول". بتتحمّل أول مرة تتفتح (أو في
-// وقت فراغ المتصفح قبلها)، وبعدها بتفضل موجودة عشان أنيميشن القفل.
-const importAuthModal = () => import('./components/AuthModal.jsx');
+// محتاجينها غير لما الزائر يدوس "دخول". بتتحمّل أول مرة تتفتح (أو قبلها
+// على نيّة الضغط: lib/authModalPreload.js)، وبعدها بتفضل موجودة عشان أنيميشن القفل.
 const AuthModal = lazyWithReload(importAuthModal, 'auth');
 function AuthModalGate() {
   const open = useSelector((s) => s.ui.authModalOpen);
@@ -71,6 +52,15 @@ function AuthModalGate() {
   useEffect(() => { if (open) setNeeded(true); }, [open]);
   if (!needed) return null;
   return <Suspense fallback={null}><AuthModal /></Suspense>;
+}
+
+/** الزائر (مش داخل بحسابه) — ملف نافذة الدخول بيتحمّل على أول لمسة لزرار دخول/تسجيل، أو أول
+ *  سكرول بإيده. المحرر ولوحة التحكم مفيهمش النافذة دي أصلًا فمش بنحمّلها هناك على السكرول. */
+function useAuthModalWarmup(isFullScreen) {
+  const { data: me, isLoading: meLoading } = useGetMeQuery();
+  const guest = !meLoading && !me?.user;
+  useEffect(() => watchAuthIntent(), []);
+  useEffect(() => (guest && !isFullScreen ? preloadAuthModalOnFirstScroll() : undefined), [guest, isFullScreen]);
 }
 
 /** بعد ما الصفحة تخلص تحميل ويبقى المتصفح فاضي، بنجهّز الصفحات اللي
@@ -86,14 +76,18 @@ function usePrefetchPages() {
     let cancelled = false;
     const run = () => {
       if (cancelled) return;
-      // على شبكة موفّرة للبيانات مبنحمّلش حاجة زيادة
+      // المحرر: شغل تقيل على الشاشة (المعاينة وصورها) — مفيش داعي ننزّل صفحات تانية جنبه
+      if (window.location.pathname.startsWith('/editor/')) return;
+      // على شبكة موفّرة للبيانات أو بطيئة (لحد 3G — أغلب الموبايلات في مصر) مبنحمّلش حاجة زيادة:
+      // التحميل ده كان بيزاحم الصفحة المفتوحة نفسها على النت
       const c = navigator.connection;
-      if (c && (c.saveData || /2g/.test(c.effectiveType || ''))) return;
+      if (c && (c.saveData || /^(slow-2g|2g|3g)$/.test(c.effectiveType || ''))) return;
       // زائر مش مسجّل: نافذة الدخول والباقات بس (دول اللي هيدوس عليهم). لوحة العميل والدفع
       // (ومعاهم مكتبة الرسوم، ~0.5 ميجا) للّي داخل بحسابه — كانوا بينزلوا ويتنفّذوا لكل زائر
       // في نفس اللحظة اللي الصفحة بتنزل فيها للمعرض، فالحركة كانت بتعلّق.
+      // اللي داخل بحسابه مش محتاج نافذة الدخول (~100KB) — مابتتحمّلش له غير لو فتحها فعلًا.
       const list = loggedIn
-        ? [importAuthModal, importPackages, importDashboard, importCreate, importCheckout]
+        ? [importPackages, importDashboard, importCreate, importCheckout]
         : [importAuthModal, importPackages];
       list.forEach((f) => f().catch(() => {}));
     };
@@ -130,6 +124,7 @@ export default function App() {
   // ولوحة التحكم ليها شريطها الخاص — فشريط الحساب العلوي بيتشال منهم.
   const isFullScreen = pathname.startsWith('/editor/') || pathname.startsWith('/admin');
   usePrefetchPages();
+  useAuthModalWarmup(isFullScreen);
 
   return (
     <ErrorBoundary>

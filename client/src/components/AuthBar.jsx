@@ -154,8 +154,10 @@ export default function AuthBar() {
               </>
             ) : (
               <>
+                {/* data-auth-intent: أول لمسة بتبدأ تحميل نافذة الدخول قبل الضغطة (lib/authModalPreload.js) */}
                 <button
                   type="button"
+                  data-auth-intent=""
                   onClick={() => dispatch(openAuthModal('login'))}
                   className="text-ivory hover:text-rose-bright"
                 >
@@ -163,6 +165,7 @@ export default function AuthBar() {
                 </button>
                 <button
                   type="button"
+                  data-auth-intent=""
                   onClick={() => dispatch(openAuthModal('register'))}
                   className="rounded-full bg-brass px-4 py-1.5 font-bold text-[#241608] hover:brightness-105"
                 >
@@ -183,8 +186,10 @@ export default function AuthBar() {
               <Languages size={13} />
               {i18n.language === 'ar' ? 'EN' : 'ع'}
             </button>
+            {/* للزائر: القايمة فيها زراير الدخول والتسجيل — فتحها بيبدأ تحميل النافذة */}
             <button
               type="button"
+              data-auth-intent={user ? undefined : ''}
               onClick={() => setMenuOpen((v) => !v)}
               aria-label={t('nav.menu')}
               aria-expanded={menuOpen}
@@ -279,6 +284,7 @@ export default function AuthBar() {
                   <div className="flex flex-col gap-2">
                     <button
                       type="button"
+                      data-auth-intent=""
                       onClick={() => { dispatch(openAuthModal('register')); setMenuOpen(false); }}
                       className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-l from-brass to-brass-soft py-3 text-[13.5px] font-extrabold text-[#241608]"
                     >
@@ -286,6 +292,7 @@ export default function AuthBar() {
                     </button>
                     <button
                       type="button"
+                      data-auth-intent=""
                       onClick={() => { dispatch(openAuthModal('login')); setMenuOpen(false); }}
                       className="flex w-full items-center justify-center gap-2 rounded-full border border-ivory/20 py-3 text-[13.5px] font-bold text-ivory/85"
                     >

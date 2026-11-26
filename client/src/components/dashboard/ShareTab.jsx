@@ -5,12 +5,15 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AnimatePresence, motion } from 'motion/react';
-import QRCode from 'qrcode';
 import {
   Copy, Check, ExternalLink, QrCode, Download, X as XIcon, Loader2, Mail, BarChart3, AlertTriangle,
 } from 'lucide-react';
 import { useGetShareLinksQuery } from '../../store/api.js';
 import { absUrl, copyText, waShareUrl, withFrom } from './dashUtils.js';
+import { importWithReload } from '../../lib/lazyWithReload.js';
+
+// مكتبة الـ QR بتتحمّل بس لما العميل يفتح الـ QR — كانت بتنزل مع لوحة العميل كلها قبل ما تفتح
+const loadQrCode = () => importWithReload(() => import('qrcode'), 'qrcode').then((m) => m.default || m);
 
 function WaIcon({ size = 14 }) {
   return (
@@ -25,7 +28,8 @@ function QrModal({ url, title, onClose }) {
   const { t } = useTranslation();
   const [src, setSrc] = useState('');
   useEffect(() => {
-    QRCode.toDataURL(url, { width: 720, margin: 2, errorCorrectionLevel: 'M', color: { dark: '#22150c', light: '#ffffff' } })
+    loadQrCode()
+      .then((QRCode) => QRCode.toDataURL(url, { width: 720, margin: 2, errorCorrectionLevel: 'M', color: { dark: '#22150c', light: '#ffffff' } }))
       .then(setSrc).catch(() => setSrc(''));
   }, [url]);
   return (
