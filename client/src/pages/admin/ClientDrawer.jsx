@@ -10,7 +10,7 @@ import {
   Megaphone, Copy, MousePointerClick, UserPlus, Smartphone, Tablet, Activity, Pencil,
 } from 'lucide-react';
 import {
-  useGetUserQuery, useUpdateSubscriptionMutation, useBlockUserMutation,
+  useGetUserQuery, useUpdateSubscriptionMutation, useBlockUserMutation, useGetRemovalPreviewQuery,
   useGetAdminPackagesQuery, useSetUserUgcMutation, useGetUserVisitsQuery, useSetUserPhoneMutation,
 } from '../../store/adminApi.js';
 import {
@@ -110,6 +110,75 @@ function Confirm({ text, onYes, onCancel, busy }) {
       </p>
       <div className="flex gap-2">
         <Btn tone="danger" size="sm" loading={busy} onClick={onYes}>أيوه، نفّذ</Btn>
+        <Btn size="sm" onClick={onCancel}>لأ</Btn>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * تأكيد "ألغِ الباقة" / "إزالة الباقة نهائيًا" — بيعرض بالظبط إيه اللي هيتشال قبل أي حاجة
+ * (من السيرفر: removal-preview). الإزالة النهائية محتاجة تكتب كلمة "إزالة" عشان ماتحصلش بالغلط.
+ * اللي بيتشال بيتنقل لأرشيف في قاعدة البيانات (مش مسح للأبد) — يرجع لو حصل غلط.
+ */
+function RemovalConfirm({ userId, mode, onYes, onCancel, busy }) {
+  const { data, isFetching, isError } = useGetRemovalPreviewQuery(userId);
+  const [typed, setTyped] = useState('');
+  const remove = mode === 'remove';
+  const hideMoney = useMoneyHidden();
+  const ready = !!data && !isFetching;
+  const canGo = ready && (!remove || typed.trim() === 'إزالة');
+  const activeOrders = (data?.orders || []).filter((o) => o.status === 'activated');
+  return (
+    <div className="rounded-xl border border-error/40 bg-error/10 p-4 text-[12.5px] text-ivory/85">
+      <p className="mb-2 flex items-start gap-2 font-bold text-ivory">
+        <ShieldAlert size={15} className="mt-0.5 shrink-0 text-error" />
+        {remove ? 'إزالة الباقة نهائيًا' : 'إلغاء الباقة'}
+      </p>
+      <ul className="mb-3 list-disc space-y-1 ps-5 leading-relaxed">
+        <li>الباقة والرصيد بيتشالوا، والعميل يبقى زي العميل المجاني: مش هيقدر يعدّل ولا يعمل دعوات جديدة خالص.</li>
+        <li>
+          المسودات بتتشال من عنده
+          {ready && <b className="text-ivory"> ({fmtNum(data.drafts)} مسودة)</b>}.
+        </li>
+        {remove ? (
+          <>
+            <li>
+              كل دعواته المنشورة بتتشال ولينكاتها بتقفل
+              {ready && <b className="text-ivory"> ({fmtNum(data.published.length)} دعوة)</b>}
+              {ready && data.published.length > 0 && (
+                <span className="text-ivory/60"> — {data.published.slice(0, 6).map((i) => `${i.shortId}${i.names ? ` (${i.names})` : ''}`).join('، ')}{data.published.length > 6 ? '…' : ''}</span>
+              )}.
+            </li>
+            <li>
+              كل طلباته بتتشال — مش هتظهر في "طلبات اليوم" ولا في الفلوس اللي دخلت
+              {ready && <b className="text-ivory"> ({fmtNum(data.orders.length)} طلب{activeOrders.length ? `، منهم ${fmtNum(activeOrders.length)} مفعّل` : ''})</b>}
+              {ready && !hideMoney && activeOrders.length > 0 && (
+                <span className="text-ivory/60"> — {activeOrders.slice(0, 4).map((o) => fmtMoney(o.price, o.currency)).join(' + ')}</span>
+              )}.
+            </li>
+          </>
+        ) : (
+          <li>الدعوات المنشورة بتفضل شغالة للضيوف زي ما هي (من غير تعديل). عايز تشيلها هي كمان؟ استخدم "إزالة الباقة نهائيًا".</li>
+        )}
+        <li className="text-ivory/55">اللي بيتشال بيتنقل للأرشيف مش بيتمسح للأبد — لو ضغطت بالغلط يرجع.</li>
+      </ul>
+      {isError && <p className="mb-2 text-error">مقدرناش نجيب التفاصيل — جرّب تاني.</p>}
+      {!ready && !isError && <p className="mb-2 text-ivory/50">بنجيب التفاصيل...</p>}
+      {remove && ready && (
+        <label className="mb-3 block">
+          <span className="mb-1 block text-[11.5px] text-ivory/60">اكتب كلمة <b className="text-ivory">إزالة</b> للتأكيد:</span>
+          <input
+            value={typed}
+            onChange={(e) => setTyped(e.target.value)}
+            className="w-40 rounded-lg border border-line-lite bg-night/60 px-3 py-2 text-[13px] text-ivory focus:border-error/60 focus:outline-none"
+          />
+        </label>
+      )}
+      <div className="flex gap-2">
+        <Btn tone="danger" size="sm" loading={busy} disabled={!canGo} onClick={onYes}>
+          {remove ? 'أزل الباقة نهائيًا' : 'ألغِ الباقة'}
+        </Btn>
         <Btn size="sm" onClick={onCancel}>لأ</Btn>
       </div>
     </div>
@@ -373,7 +442,15 @@ export default function ClientDrawer({ userId, onClose }) {
             <ClientJourneysPanel userId={userId} />
 
             <Panel title="التحكم في الاشتراك" subtitle="كل إجراء هنا بيتسجّل في سجل الإجراءات">
-              {confirm ? (
+              {confirm && confirm.kind ? (
+                <RemovalConfirm
+                  userId={userId}
+                  mode={confirm.kind}
+                  busy={saving}
+                  onYes={() => act({ action: confirm.kind })}
+                  onCancel={() => setConfirm(null)}
+                />
+              ) : confirm ? (
                 <Confirm
                   text={confirm.text}
                   busy={saving || blocking}
@@ -400,14 +477,13 @@ export default function ClientDrawer({ userId, onClose }) {
                       </Btn>
                     )}
                     {data.user.subscription.packageId && (
-                      <Btn
-                        tone="danger" icon={Trash2}
-                        onClick={() => setConfirm({
-                          text: 'الإلغاء الكامل هيشيل الباقة ويصفّر الرصيد نهائيًا. لو قصدك توقف مؤقت بس، استخدم "أوقف الباقة".',
-                          run: () => act({ action: 'cancel' }),
-                        })}
-                      >
-                        ألغِ الباقة نهائيًا
+                      <Btn tone="danger" icon={Trash2} onClick={() => setConfirm({ kind: 'cancel' })}>
+                        ألغِ الباقة
+                      </Btn>
+                    )}
+                    {(data.user.subscription.packageId || data.totals.invitations > 0 || data.totals.drafts > 0) && (
+                      <Btn tone="danger" icon={Trash2} onClick={() => setConfirm({ kind: 'remove' })}>
+                        إزالة الباقة نهائيًا
                       </Btn>
                     )}
                     <Btn

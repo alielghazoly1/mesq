@@ -34,6 +34,9 @@ function asDate(v) {
  * @param {Date} [now]
  */
 function isEditWindowOpen(sub, now = new Date()) {
+  // الأدمن لغى الباقة (cancelledAt) ومفيش باقة دلوقتي → مفيش تعديل خالص. أول ما يتفعّل له باقة
+  // (packageId) بيرجع زي ما كان. الحسابات اللي مالهاش cancelledAt مش متأثرة.
+  if (sub && sub.cancelledAt && !sub.packageId) return false;
   const until = asDate(sub && sub.editUntil);
   if (!until) return true;
   return until.getTime() > now.getTime();
@@ -95,6 +98,15 @@ function editWindowInfo(sub, now = new Date()) {
 /** الرد اللي بيتبعت لما حد يحاول يعدّل بعد ما المدة تخلص */
 function editWindowEndedBody(sub) {
   const until = asDate(sub && sub.editUntil);
+  if (sub && sub.cancelledAt && !sub.packageId) {
+    return {
+      code: 'EDIT_WINDOW_ENDED',
+      error: 'باقتك اتلغت — مش هتقدر تعدّل أو تعمل دعوات لحد ما تشترك في باقة. لو ده غلط كلّمنا على واتساب.',
+      editUntil: null,
+      editWindowDays: EDIT_WINDOW_DAYS,
+      cancelled: true,
+    };
+  }
   return {
     code: 'EDIT_WINDOW_ENDED',
     error: 'انتهت مدة التعديل على باقتك — دعواتك لسه شغالة زي ما هي. '

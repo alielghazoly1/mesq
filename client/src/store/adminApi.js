@@ -115,7 +115,13 @@ export const adminApi = createApi({
     }),
     updateSubscription: builder.mutation({
       query: ({ id, ...body }) => ({ url: `/users/${id}/subscription`, method: 'PATCH', body }),
-      invalidatesTags: (r, e, { id }) => [{ type: 'User', id }, 'Users', 'Overview', 'Audit'],
+      // إلغاء/إزالة الباقة بيشيلوا دعوات وطلبات كمان → صفحات الطلبات والدعوات والأرباح تتحدّث
+      invalidatesTags: (r, e, { id }) => [{ type: 'User', id }, 'Users', 'Overview', 'Audit', 'Orders', 'Invitations', 'Finance'],
+    }),
+    // اللي هيتشال لو الأدمن لغى/أزال الباقة (شاشة التأكيد) — دايمًا طازة
+    getRemovalPreview: builder.query({
+      query: (id) => `/users/${id}/removal-preview`,
+      keepUnusedDataFor: 0,
     }),
     blockUser: builder.mutation({
       query: ({ id, blocked }) => ({ url: `/users/${id}/block`, method: 'PATCH', body: { blocked } }),
@@ -383,6 +389,7 @@ export const {
   useGetUserQuery,
   useGetUserVisitsQuery,
   useUpdateSubscriptionMutation,
+  useGetRemovalPreviewQuery,
   useSetUserUgcMutation,
   useGetWithdrawalsQuery,
   useGetUgcQuery,

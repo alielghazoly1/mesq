@@ -32,6 +32,7 @@ const Campaign = require('../models/Campaign');
 const SiteDeviceDay = require('../models/SiteDeviceDay');
 const AdminPin = require('../models/AdminPin');
 const { activatedRangeFilter, getRates } = require('../utils/finance');
+const { removalPreview, archiveForUser } = require('../utils/packageRemoval');
 const { cairoParts, cairoWallToDate } = require('../utils/cairoTime');
 const {
   onlineUserIds, allOnlineUserIds, onlineSince, liveCounts, cairoTodayStart, cairoMonthStart, ONLINE_WINDOW_MS,
@@ -102,6 +103,7 @@ function subscriptionOf(user) {
     // بيتكتب هنا لأن الكتابة بتستبدل الاشتراك كله — لو اتنسى هنا أي إجراء
     // من اللوحة كان هيمسح تاريخ انتهاء التعديل من غير ما حد يلاحظ
     editUntil: sub.editUntil || null,
+    cancelledAt: sub.cancelledAt || null,
   };
 }
 
@@ -776,6 +778,17 @@ router.get('/admin/api/users/:id/visits', requireAdminSession, async (req, res) 
 });
 
 // التحكم في اشتراك العميل: إيقاف / تشغيل / إلغاء / تعديل الرصيد / منح باقة
+// اللي هيتشال لو الأدمن ضغط "ألغِ الباقة" / "إزالة الباقة نهائيًا" — شاشة التأكيد بتعرضه قبل أي حاجة
+router.get('/admin/api/users/:id/removal-preview', requireAdminSession, async (req, res) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) return res.status(404).json({ error: 'العميل ده مش موجود.' });
+    return res.json(await removalPreview(req.params.id));
+  } catch (err) {
+    console.error('Error loading removal preview:', err);
+    return res.status(500).json({ error: 'حصل خطأ في السيرفر' });
+  }
+});
+
 router.patch('/admin/api/users/:id/subscription', requireAdminSession, async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
@@ -797,12 +810,14 @@ router.patch('/admin/api/users/:id/subscription', requireAdminSession, async (re
     } else if (action === 'resume') {
       user.subscription.status = 'active';
       user.subscription.suspendedAt = null;
-    } else if (action === 'cancel') {
-      // إلغاء كامل — الرصيد بيروح والباقة بتتشال
+    } else if (action === 'cancel' || action === 'remove') {
+      // إلغاء كامل — الرصيد بيروح والباقة بتتشال، و cancelledAt بيقفل التعديل والدعوات الجديدة خالص
+      // (utils/editWindow.js — زي العميل المجاني). المسودات بتتشال (للأرشيف). "remove" = إزالة نهائية:
+      // كمان كل دعواته وطلباته (utils/packageRemoval.js) — بعد ما حالة الاشتراك تتحفظ تحت.
       user.subscription = {
         packageId: null, invitationsLeft: 0, activatedAt: null,
         status: 'active', suspendedAt: null, adminNote: sub.adminNote || '',
-        editUntil: null,
+        editUntil: null, cancelledAt: new Date(),
       };
     } else if (action === 'grant') {
       const pkg = getPackage(String((req.body || {}).packageId || ''));
@@ -817,6 +832,7 @@ router.patch('/admin/api/users/:id/subscription', requireAdminSession, async (re
       user.subscription.status = 'active';
       user.subscription.suspendedAt = null;
       user.subscription.editUntil = editUntil;
+      user.subscription.cancelledAt = null;
     } else if (action === 'extendEdit') {
       // مدّ فترة التعديل (مثلًا لعميل محتاج تعديل بعد ما مدته خلصت)
       if (!sub.packageId) return res.status(400).json({ error: 'العميل ده مش مشترك أصلًا.' });
@@ -843,6 +859,12 @@ router.patch('/admin/api/users/:id/subscription', requireAdminSession, async (re
 
     await saveUserFields(user, { subscription: subscriptionOf(user) });
 
+    // بعد ما الباقة اتقفلت فعلًا: المسودات (إلغاء) أو كل الدعوات والطلبات (إزالة) للأرشيف
+    let removed = null;
+    if (action === 'cancel' || action === 'remove') {
+      removed = await archiveForUser(user._id, action, 'admin');
+    }
+
     logAdminAction(req, `subscription.${action}`, {
       type: 'user', id: user._id, label: user.email,
     }, {
@@ -853,9 +875,10 @@ router.patch('/admin/api/users/:id/subscription', requireAdminSession, async (re
         status: user.subscription.status,
         editUntil: user.subscription.editUntil || null,
       },
+      removed,
     });
 
-    return res.json({ ok: true });
+    return res.json({ ok: true, removed });
   } catch (err) {
     console.error('Error updating subscription:', err);
     // رسالة أوضح للأدمن بدل "خطأ في السيرفر" الصمّاء — ده مسار محمي
@@ -1194,6 +1217,8 @@ router.post('/admin/api/orders/:id/cancel', requireAdminSession, async (req, res
           user.subscription.packageId = null;
           user.subscription.activatedAt = null;
           user.subscription.editUntil = null;
+          // مفيش باقة خالص → مفيش تعديل (زي إلغاء الباقة من ملف العميل)
+          user.subscription.cancelledAt = new Date();
         }
         await saveUserFields(user, { subscription: subscriptionOf(user) });
       }
