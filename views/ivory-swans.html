@@ -1917,7 +1917,7 @@
                                 <br>Asmaa
                             </div>
                         </div>
-                        <div class="t396__elem tn-elem tn-elem__24434337231779566247730000003 t-animate" data-elem-id="1779566247730000003" data-elem-type="text" data-field-top-value="466" data-field-left-value="320" data-field-height-value="37" data-field-width-value="560" data-field-axisy-value="top" data-field-axisx-value="left" data-field-container-value="grid" data-field-topunits-value="px" data-field-leftunits-value="px" data-field-heightunits-value="px" data-field-widthunits-value="px" data-animate-style="fadeinup" data-animate-duration="2.3" data-animate-delay="3" data-animate-distance="20" data-animate-mobile="y" data-field-textfit-value="fixedsize" data-field-fontsize-value="19" data-field-top-res-320-value="464" data-field-left-res-320-value="-118" data-animate-delay-res-320="3" data-field-left-res-480-value="-40" data-field-left-res-640-value="40" data-field-left-res-960-value="200">
+                        <div class="t396__elem tn-elem tn-elem__24434337231779566247730000003 t-animate" data-elem-id="1779566247730000003" data-wda-live data-elem-type="text" data-field-top-value="466" data-field-left-value="320" data-field-height-value="37" data-field-width-value="560" data-field-axisy-value="top" data-field-axisx-value="left" data-field-container-value="grid" data-field-topunits-value="px" data-field-leftunits-value="px" data-field-heightunits-value="px" data-field-widthunits-value="px" data-animate-style="fadeinup" data-animate-duration="2.3" data-animate-delay="3" data-animate-distance="20" data-animate-mobile="y" data-field-textfit-value="fixedsize" data-field-fontsize-value="19" data-field-top-res-320-value="464" data-field-left-res-320-value="-118" data-animate-delay-res-320="3" data-field-left-res-480-value="-40" data-field-left-res-640-value="40" data-field-left-res-960-value="200">
                             <div class="tn-atom" field="tn_text_1779566247730000003">10.10.2026</div>
                         </div>
                         <!-- <div class='t396__elem tn-elem tn-elem__24434337231779626065755000001 t-animate' data-elem-id='1779626065755000001' data-elem-type='text' data-field-top-value="491" data-field-left-value="320" data-field-height-value="37" data-field-width-value="560" data-field-axisy-value="top" data-field-axisx-value="left" data-field-container-value="grid" data-field-topunits-value="px" data-field-leftunits-value="px" data-field-heightunits-value="px" data-field-widthunits-value="px" data-animate-style="fadeinup" data-animate-duration="2.3" data-animate-delay="3" data-animate-distance="20" data-animate-mobile="y" data-field-textfit-value="fixedsize" data-field-fontsize-value="19" data-field-top-res-320-value="487" data-field-left-res-320-value="-118" data-animate-delay-res-320="3" data-field-left-res-480-value="-40" data-field-left-res-640-value="40" data-field-left-res-960-value="200">
@@ -2982,7 +2982,22 @@
                     </div>
                 </div>
 
-                <div class="std-sub" data-elem-id="iv40">السبت ١٠ / ١٠ / ٢٠٢٦</div>
+                <div class="std-sub" data-elem-id="iv40" data-wda-live>السبت ١٠ / ١٠ / ٢٠٢٦</div>
+                <script>
+                  // (2026-11-27) التاريخ اللي تحت الأسامي في أول الدعوة كان نص ثابت (10.10.2026) — دلوقتي من ميعاد الفرح
+                  // نفسه (بتوقيت الفرح من countdown)، فبيتغيّر مع منتقي التاريخ في المحرر. سطر "احفظ الموعد" ده (التاريخ +
+                  // الساعة) بيتكتب تحت في apply(). لو صاحب الدعوة كاتب نص بإيده، طبقة التخصيص بتغلب زي الأول.
+                  (function () {
+                    var C = window.WEDDING_CONFIG || {}; var cd = C.countdown || {};
+                    var d = C.weddingDateTimeISO ? new Date(C.weddingDateTimeISO) : null;
+                    var num = function (v) { return typeof v === 'number' && isFinite(v); };
+                    var Y = num(cd.year) ? cd.year : (d && d.getFullYear()), M = num(cd.monthIndex) ? cd.monthIndex : (d && d.getMonth()),
+                      D = num(cd.day) ? cd.day : (d && d.getDate());
+                    if (!num(Y) || !num(M) || !num(D)) return;
+                    var hero = document.querySelector('[data-elem-id="1779566247730000003"] .tn-atom');
+                    if (hero) hero.textContent = String(D).padStart(2, '0') + '.' + String(M + 1).padStart(2, '0') + '.' + Y;
+                  })();
+                </script>
 
                 <script>
                     (function() {
@@ -6142,7 +6157,9 @@
 
     // التاريخ في الوش
     var d = document.querySelector('.std-sub');
-    if (d && C.heroDateDisplay) d.textContent = C.heroDateDisplay;
+    // (2026-11-27) + الساعة من ميعاد الفرح (العميل بيغيّرها من المحرر) — عيد الميلاد يوم من غير ساعة
+    // (دعوة خاصة عندها سطر ساعة لوحدها بتحط window.WDA_NO_AUTO_TIME — custom-invitations/cF6HMkh.js)
+    if (d && C.heroDateDisplay) d.textContent = C.heroDateDisplay + (C.heroTimeDisplay && C.occasionType !== 'birthday' && !window.WDA_NO_AUTO_TIME ? ' — ' + C.heroTimeDisplay : '');
     // اسم القاعة (قيمة افتراضية — لو المالك عدّلها من المحرر تعديله بيغلبها)
     if (C.venueName){
       document.querySelectorAll('.loc-hall-name, .loc-hall .name, .loc-map-labels .name').forEach(function(e){ e.textContent = C.venueName; });

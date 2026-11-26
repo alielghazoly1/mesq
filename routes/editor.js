@@ -263,6 +263,12 @@ router.get('/api/editor/:shortId', requireAuth, async (req, res) => {
   }
 });
 
+// عناصر التاريخ/الساعة اللي التصميم بيكتبها لوحده من ميعاد الفرح (data-wda-live) — Ivory Swans:
+// التاريخ تحت الأسامي في أول الدعوة، وسطر "احفظ الموعد" (التاريخ + الساعة).
+const LIVE_DATE_TEXT_IDS = {
+  'ivory-swans': ['1779566247730000003', 'iv40'],
+};
+
 // PATCH /api/editor/:shortId/details — بيانات الدعوة (أسماء/تاريخ/قاعة)
 // بتعدي على نفس التحقق بتاع الإنشاء بالظبط (utils/invitationData.js)،
 // فمفيش طريق جانبي بيدخل منه إدخال مش متفحوص.
@@ -280,7 +286,19 @@ router.patch('/api/editor/:shortId/details', requireAuth, async (req, res) => {
       { user: req.user, ownsTemplate: true }
     );
 
+    const beforeWhen = invitation.weddingDateTime ? new Date(invitation.weddingDateTime).getTime() : null;
     Object.assign(invitation, data);
+    // العميل غيّر ميعاد الفرح (تاريخ أو ساعة) → عناصر التاريخ "الحية" في التصميم ترجع تكتب الميعاد الجديد
+    // لوحدها: أي نص قديم كان كاتبه بإيده عليها بيتشال (من غير كده يفضل التاريخ القديم مكتوب والعدّاد بالجديد).
+    const afterWhen = invitation.weddingDateTime ? new Date(invitation.weddingDateTime).getTime() : null;
+    const liveIds = LIVE_DATE_TEXT_IDS[invitation.templateId];
+    if (liveIds && beforeWhen !== afterWhen) {
+      const c = cloneCustomizations(invitation.customizations || {});
+      if (liveIds.some((id) => Object.prototype.hasOwnProperty.call(c.texts, id))) {
+        liveIds.forEach((id) => { delete c.texts[id]; });
+        invitation.customizations = c;
+      }
+    }
     await invitation.save();
 
     return res.json({ ok: true, details: detailsOf(invitation) });
@@ -463,13 +481,24 @@ router.post('/api/editor/:shortId/reset', requireAuth, async (req, res) => {
   }
 });
 
+/** لينك صفحة الإحصائيات (بيتعمل لو مش موجود) — لو حصل أي مشكلة: null والنشر نفسه مايتأثرش */
+async function statsPathOf(invitation) {
+  try {
+    const { ensureStatsToken } = require('../utils/statsPage');
+    const token = invitation.statsToken || await ensureStatsToken(invitation);
+    return token ? `/s/${token}` : null;
+  } catch (e) {
+    return null;
+  }
+}
+
 router.post('/api/editor/:shortId/publish', requireAuth, async (req, res) => {
   try {
     const invitation = await loadOwnedInvitation(req, res);
     if (!invitation) return undefined;
 
     if (invitation.status !== 'draft') {
-      return res.json({ ok: true, alreadyPublished: true, path: `/i/${invitation.shortId}` });
+      return res.json({ ok: true, alreadyPublished: true, path: `/i/${invitation.shortId}`, statsPath: await statsPathOf(invitation) });
     }
 
     if (isSuspended(req.user)) {
@@ -500,6 +529,8 @@ router.post('/api/editor/:shortId/publish', requireAuth, async (req, res) => {
     return res.json({
       ok: true,
       path: `/i/${invitation.shortId}`,
+      // لينك صفحة الإحصائيات الخاصة (/s/:token) — بيظهر للعميل في رسالة "دعوتك اتنشرت"
+      statsPath: await statsPathOf(invitation),
       invitationsLeft: (consumed.subscription && consumed.subscription.invitationsLeft) || 0,
     });
   } catch (err) {

@@ -80,14 +80,16 @@ module.exports = {
   },
 
   render() {
-    return { head: CSS, bodyEnd: RSVP_AR };
+    // سطر الساعة بتاعهم (cf1) لوحده تحت التاريخ — القالب مايضيفش الساعة جنب التاريخ كمان
+    return { head: '<script>window.WDA_NO_AUTO_TIME = true;</script>' + CSS, bodyEnd: RSVP_AR };
   },
 
   // الصورة اللي في النص (iv3) = صورة الدعوة بتاعتهم — لو العميل حط صورة من المحرر، صورته هي اللي بتظهر
   transform(html, { editMode } = {}) {
     let out = html.replace(/(<img\b[^>]*?)src="\/templates\/ivory-swans\/couple-1\.webp"([^>]*data-elem-id="iv3")/, (m, a, b) => `${a}src="${COUPLE}"${b}`);
     // الساعة تحت مربع Save the date (بتتعدّل من المحرر)
-    out = out.replace(/(<div class="std-sub" data-elem-id="iv40">[^<]*<\/div>)/, '$1\n                <div class="std-sub cf-time" data-elem-id="cf1">الساعة 6:30 مساءً</div>');
+    // (2026-11-27: القالب بقى بيعلّم السطر data-wda-live وبيضيف الساعة لوحده — سطر الساعة بتاعهم هنا زي ما كان)
+    out = out.replace(/(<div class="std-sub" data-elem-id="iv40"[^>]*>[^<]*<\/div>)/, '$1\n                <div class="std-sub cf-time" data-elem-id="cf1">الساعة 6:30 مساءً</div>');
     // الأسامي بالخط العربي مكان Mohamed & Zahraa — في المحرر بتفضل كلام عشان تتعدّل
     if (!editMode) {
       out = out.replace(/(<div class="t396__elem tn-elem )([^"]*" data-elem-id="1779566247730000001"[^>]*>\s*<div class="tn-atom" field="tn_text_1779566247730000001">[\s\S]*?<\/div>)/,

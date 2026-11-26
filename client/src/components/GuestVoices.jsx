@@ -4,6 +4,7 @@
 // Voice). هنا صاحب الدعوة بيسمعهم واحدة واحدة باسم صاحبها، ينزّل أي تهنئة
 // أو الكل مرة واحدة، ويمسح اللي مش عايزه. اللي لسه ماسمعهاش عليها "جديدة".
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useConfirm } from './ConfirmDialog.jsx';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'motion/react';
 import { X, Mic, Play, Pause, Download, Trash2, Loader2, EyeOff } from 'lucide-react';
@@ -24,6 +25,7 @@ function countLabel(n, lang, t) {
 
 export default function GuestVoices({ shortId, title, onClose }) {
   const { t, i18n } = useTranslation();
+  const confirm = useConfirm();
   const lang = i18n.language === 'ar' ? 'ar' : 'en';
   const [fetchPage, { isFetching }] = useLazyGetGuestVoicesQuery();
   const [deleteVoice] = useDeleteGuestVoiceMutation();
@@ -121,7 +123,7 @@ export default function GuestVoices({ shortId, title, onClose }) {
   }
 
   async function remove(v) {
-    if (!window.confirm(t('dash.voicesDeleteAsk'))) return;
+    if (!(await confirm({ title: t('dash.voicesDeleteTitle'), message: t('dash.voicesDeleteAsk'), confirmText: t('editor.deleteYes'), tone: 'danger' }))) return;
     setBusyId(v.id);
     try {
       await deleteVoice({ shortId, id: v.id }).unwrap();

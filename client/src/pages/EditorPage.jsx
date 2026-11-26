@@ -8,6 +8,8 @@
 // الأمان: كل ميزة بتتقفل مرتين — هنا في الواجهة (للشكل) وفي
 // routes/editor.js على السيرفر (للجد). الواجهة مش مصدر ثقة.
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import { useConfirm } from '../components/ConfirmDialog.jsx';
+import PublishedDialog from '../components/editor/PublishedDialog.jsx';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AnimatePresence, motion } from 'motion/react';
@@ -190,6 +192,8 @@ export default function EditorPage() {
   const { shortId } = useParams();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
+  const confirm = useConfirm();
+  const [publishedInfo, setPublishedInfo] = useState(null); // { inviteUrl, statsUrl } بعد النشر
 
   // loadError مش error: اسم error متاخد تحت لرسالة الحفظ
   const { data, isLoading, isError, error: loadError, refetch } = useGetEditorQuery(shortId);
@@ -1342,8 +1346,13 @@ export default function EditorPage() {
   async function publish() {
     setError('');
     try {
-      await publishInvitation(shortId).unwrap();
+      const res = await publishInvitation(shortId).unwrap();
       await refetch();
+      // رسالة "دعوتك اتنشرت" بلينك الدعوة ولينك الإحصائيات (components/editor/PublishedDialog.jsx)
+      setPublishedInfo({
+        inviteUrl: invitationShareUrl(window.location.origin, shortId, data?.customizations?.share),
+        statsUrl: res && res.statsPath ? window.location.origin + res.statsPath : '',
+      });
     } catch (err) {
       setError(err?.data?.error || t('editor.errorSave'));
     }
@@ -1432,7 +1441,7 @@ export default function EditorPage() {
 
   // رجّع الدعوة لأصلها — يمسح كل التخصيصات ويبدأ من جديد
   async function resetAll() {
-    if (!window.confirm(t('editor.resetConfirm'))) return;
+    if (!(await confirm({ title: t('editor.resetTitle'), message: t('editor.resetConfirm'), confirmText: t('editor.resetYes'), tone: 'danger' }))) return;
     setError('');
     try {
       await resetInvitation(shortId).unwrap();
@@ -1450,7 +1459,7 @@ export default function EditorPage() {
   }
 
   async function discardDraft() {
-    if (!window.confirm(t('editor.discardConfirm'))) return;
+    if (!(await confirm({ title: t('editor.discardTitle'), message: t('editor.discardConfirm'), confirmText: t('editor.deleteYes'), tone: 'danger' }))) return;
     try {
       await deleteDraft(shortId).unwrap();
       navigate('/dashboard');
@@ -1580,6 +1589,12 @@ export default function EditorPage() {
     // dvh مش vh: على الموبايل شريط عنوان المتصفح بيدخل ويطلع، و vh
     // بيحسبه غلط فيطلع جزء من الصفحة تحت الشاشة
     <div className="flex h-dvh flex-col overflow-hidden bg-ivory">
+      <PublishedDialog
+        open={!!publishedInfo}
+        inviteUrl={publishedInfo ? publishedInfo.inviteUrl : ''}
+        statsUrl={publishedInfo ? publishedInfo.statsUrl : ''}
+        onClose={() => setPublishedInfo(null)}
+      />
       {/* النصيحة بتظهر فوق كل حاجة على الموبايل */}
       <AnimatePresence>
         {showBigScreenHint && <BigScreenNotice onClose={() => setShowBigScreenHint(false)} />}

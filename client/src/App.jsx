@@ -14,6 +14,7 @@ import JourneyTracker from './components/JourneyTracker.jsx';
 import { startCampaignBeacon } from './lib/campaignBeacon.js';
 import GalleryPage from './pages/GalleryPage.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
+import { ConfirmProvider } from './components/ConfirmDialog.jsx';
 // استيراد كسول بيعرف يصحّى نفسه بعد أي رفع جديد (الشرح جوه الملف)
 import { lazyWithReload } from './lib/lazyWithReload.js';
 import { importAuthModal, watchAuthIntent, preloadAuthModalOnFirstScroll } from './lib/authModalPreload.js';
@@ -128,6 +129,8 @@ export default function App() {
 
   return (
     <ErrorBoundary>
+    {/* رسايل التأكيد الشيك (بدل window.confirm) — components/ConfirmDialog.jsx */}
+    <ConfirmProvider>
       {!isFullScreen && <AuthBar />}
       <Routes>
         <Route path="/" element={<GalleryPage />} />
@@ -171,6 +174,7 @@ export default function App() {
       {/* "أنا فاتح الموقع" للوحة التحكم (مبيشتغلش في صفحات اللوحة نفسها) */}
       <PresencePing />
       <JourneyTracker />
+    </ConfirmProvider>
     </ErrorBoundary>
   );
 }

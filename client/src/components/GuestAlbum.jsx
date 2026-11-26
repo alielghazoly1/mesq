@@ -4,6 +4,7 @@
 // القوالب اللي بتدعمه). هنا صاحب الدعوة بيشوفهم كلهم، ينزّل أي صورة
 // بجودتها الأصلية، يمسح اللي مش عايزه، ويبعت لينك صفحة الألبوم لأي حد.
 import { useCallback, useEffect, useState } from 'react';
+import { useConfirm } from './ConfirmDialog.jsx';
 import { useTranslation } from 'react-i18next';
 import { AnimatePresence, motion } from 'motion/react';
 import {
@@ -32,6 +33,7 @@ function countLabel(n, lang, t) {
 
 export default function GuestAlbum({ shortId, title, onClose }) {
   const { t, i18n } = useTranslation();
+  const confirm = useConfirm();
   const lang = i18n.language === 'ar' ? 'ar' : 'en';
   const [fetchPage, { isFetching }] = useLazyGetGuestPhotosQuery();
   const [deletePhoto] = useDeleteGuestPhotoMutation();
@@ -109,7 +111,7 @@ export default function GuestAlbum({ shortId, title, onClose }) {
   }
 
   async function remove(p) {
-    if (!window.confirm(t('dash.albumDeleteAsk'))) return;
+    if (!(await confirm({ title: t('dash.albumDeleteTitle'), message: t('dash.albumDeleteAsk'), confirmText: t('editor.deleteYes'), tone: 'danger' }))) return;
     setBusyId(p.id);
     try {
       await deletePhoto({ shortId, id: p.id }).unwrap();
