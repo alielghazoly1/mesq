@@ -38,6 +38,7 @@ const { requireAdminSession } = require('./middleware/adminAuth');
 const { requestLogger, installProcessHandlers, write: logLine, LOG_FILE } = require('./utils/requestLogger');
 const { pageMeta, applyPageMeta, sitemapXml, shareCardFor, applyShareCard } = require('./utils/seo');
 const { landingKeyFor, landingHtml } = require('./utils/landingPages');
+const { modulePreloadTags } = require('./utils/spaPreloads');
 
 // بنمسك أي عطل بيوقّع عملية Node ونسجّله في اللوج قبل ما يطلع.
 installProcessHandlers();
@@ -220,6 +221,12 @@ app.get('/sitemap.xml', (req, res) => {
 });
 // /gallery مكانتش صفحة أصلًا (كانت بتفتح فاضية) — التصاميم في الرئيسية
 app.get('/gallery', (req, res) => res.redirect(301, '/#gallery'));
+// جافاسكريبت وستايل /assets/ بالنسخة المضغوطة الجاهزة (brotli/gzip من وقت الـ build) للمتصفح اللي
+// بيقبلها — وإلا الملف الأصلي من السطر اللي تحت زي ما هو. PRECOMPRESS_ASSETS=off بيقفله (utils/precompressedAssets.js)
+app.use('/assets', require('./utils/precompressedAssets').precompressedAssets(path.join(CLIENT_DIST, 'assets')));
+// خريطة الـ build (client/dist/.vite/manifest.json — utils/spaPreloads.js بيقراها من الهارد) مش للزوار:
+// نفس رد أي ملف مش موجود، زي قبل ما الخريطة تتعمل
+app.all(/^\/\.vite(?:\/|$)/i, (req, res) => res.status(404).type('text/plain').send('Not found'));
 app.use(express.static(CLIENT_DIST, {
   // الصفحة الرئيسية مابتتبعتش من هنا: بتعدّي على آخر الملف عشان تاخد
   // عنوانها ووصفها لجوجل (utils/seo.js) زي باقي الصفحات
@@ -360,14 +367,29 @@ app.patch('/api/account', accountEditLimiter);
 
 // قراءة حالة الدخول والخروج: حد واسع — دول مش بيتخمّن فيهم أي سر،
 // و/me بتتنادى مع كل صفحة. الحد هنا لمنع الإغراق بس.
+// GET /api/auth/me (قراية حالة الدخول بس) مش داخلة في الـ 600 دي: ليها حدها لوحدها أوسع بكتير (تحت).
+// السبب: زوار كتير على نفس شبكة الموبايل في مصر بيطلعوا بنفس الـ IP (CGNAT)، فكانوا بيخلّصوا الـ 600
+// المشتركة سوا — و429 على /me الموقع بيقراها "مش مسجّل"، فالعميل بيلاقي نفسه خارج حسابه من غير سبب.
+const isSessionCheck = (req) => req.method === 'GET' && /^\/me\/?$/i.test(req.path);
 const sessionReadLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 600,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'عدد كبير جدًا من الطلبات، استنى شوية.' },
+  skip: isSessionCheck,
 });
 app.use('/api/auth', sessionReadLimiter);
+// /me لوحدها: لمنع الإغراق بس (10 أضعاف)
+const sessionCheckLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 6000,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'عدد كبير جدًا من الطلبات، استنى شوية.' },
+  skip: (req) => !isSessionCheck(req),
+});
+app.use('/api/auth', sessionCheckLimiter);
 
 // 5) الرفع: حد لكل IP عشان محدش يغرق مساحة التخزين (وفاتورتها) بملفات
 //    كتير. الفحص الأمني نفسه في utils/uploadSecurity.js — ده حد الكمية بس.
@@ -530,15 +552,19 @@ function withAuthHint(html, req) {
 // (حوالي الثانية التانية على موبايل متوسط بنت 4G) — فأول شاشة كانت بتكمل على 3.6 ثانية.
 // كده المتصفح بيعرفها من أول سطر في الـ HTML ويحمّلها جنب الجافاسكريبت مش بعده.
 function pagePreloads(pathname, loggedIn) {
+  const tags = [];
   // الرئيسية: بوستر فيديو المحرر في الهيرو
-  if (pathname === '/') return '<link rel="preload" as="image" href="/video/hero-demo-poster.jpg" fetchpriority="high">';
+  if (pathname === '/') tags.push('<link rel="preload" as="image" href="/video/hero-demo-poster.jpg" fetchpriority="high">');
   // الباقات للزائر الجديد: أول رسالتين في شريط الآراء (تحت كارت "سجّل الأول" على طول).
   // المسجّل الشريط عنده تحت الكروت بعيد، فمش بنحمّله بدري.
   if (pathname === '/packages' && !loggedIn) {
-    return ['/img/reviews/review-8.webp', '/img/reviews/review-9.webp']
-      .map((href) => `<link rel="preload" as="image" href="${href}">`).join('\n  ');
+    tags.push(['/img/reviews/review-8.webp', '/img/reviews/review-9.webp']
+      .map((href) => `<link rel="preload" as="image" href="${href}">`).join('\n  '));
   }
-  return '';
+  // ملف الصفحة الكسول نفسه (الباقات/الدفع/الإنشاء/لوحة العميل/المحرر) يبدأ مع الـ HTML — utils/spaPreloads.js
+  const modules = modulePreloadTags(pathname, CLIENT_DIST, spaHtml());
+  if (modules) tags.push(modules);
+  return tags.join('\n  ');
 }
 
 let adminCspCache = { mtime: 0, value: '' };
@@ -624,9 +650,18 @@ app.get('*', (req, res, next) => {
   if (meta) {
     const html = spaHtml();
     if (html) return res.type('html').send(withAuthHint(applyPageMeta(html, meta), req));
-  } else if (!res.getHeader('X-Robots-Tag')) {
-    // صفحات الحساب والدفع والمحرر، وأي مسار مش موجود: مش لجوجل
-    res.setHeader('X-Robots-Tag', 'noindex');
+  } else {
+    if (!res.getHeader('X-Robots-Tag')) {
+      // صفحات الحساب والدفع والمحرر، وأي مسار مش موجود: مش لجوجل
+      res.setHeader('X-Robots-Tag', 'noindex');
+    }
+    // الدفع/الإنشاء/لوحة العميل/المحرر: ملف الصفحة يبدأ يتحمّل مع الـ HTML (utils/spaPreloads.js).
+    // أي صفحة تانية (أو مفيش خريطة) → index.html زي ما هو بالظبط
+    const html = spaHtml();
+    const modules = html ? modulePreloadTags(req.path, CLIENT_DIST, html) : '';
+    // نفس Content-Type اللي sendFile كان بيبعته لـ index.html بالظبط
+    // (Buffer: res.send مع النص كان بيصغّر charset لـ utf-8)
+    if (modules) return res.set('Content-Type', 'text/html; charset=UTF-8').send(Buffer.from(html.replace('</head>', `${modules}\n  </head>`), 'utf8'));
   }
   return res.sendFile(path.join(CLIENT_DIST, 'index.html'));
 });

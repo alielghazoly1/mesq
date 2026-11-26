@@ -56,4 +56,24 @@ async function shareImageSize(url, timeoutMs = 2500) {
   return size;
 }
 
-module.exports = { shareImageSize, infoUrl };
+/**
+ * المقاس لو متخزّن خلاص — من غير أي انتظار ولا طلب لـ Cloudinary.
+ * @returns {{width:number,height:number}|null|undefined} undefined = لسه مااتسألش (أو فشل قديم انتهى)
+ */
+function cachedShareImageSize(url) {
+  if (typeof url !== 'string' || !/^https:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload\//.test(url)) return null;
+  const hit = cache.get(url);
+  if (hit && (hit.size || Date.now() - hit.at < FAIL_TTL_MS)) return hit.size;
+  return undefined;
+}
+
+// سؤال واحد في الخلفية لكل صورة في نفس الوقت (ضيوف كتير فاتحين نفس الدعوة سوا بعد ما السيرفر يصحى)
+const warming = new Set();
+/** بيسأل Cloudinary في الخلفية عشان المقاس يبقى جاهز للمرة الجاية — مابيتستناش */
+function warmShareImageSize(url) {
+  if (cachedShareImageSize(url) !== undefined || warming.has(url)) return;
+  warming.add(url);
+  shareImageSize(url).catch(() => {}).finally(() => warming.delete(url));
+}
+
+module.exports = { shareImageSize, infoUrl, cachedShareImageSize, warmShareImageSize };
