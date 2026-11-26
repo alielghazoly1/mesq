@@ -2,11 +2,49 @@
 // المحرر وقف) بتتسجّل هنا بسببها الحقيقي: الرسالة، الصفحة، كان بيعمل
 // إيه، والجهاز. بتتمسح لوحدها بعد 60 يوم.
 import { useState } from 'react';
-import { AlertTriangle, ChevronDown, Monitor, Smartphone, User } from 'lucide-react';
+import { AlertTriangle, ChevronDown, Download, Loader2, Monitor, Smartphone, User } from 'lucide-react';
 import { useGetClientErrorsQuery } from '../../store/adminApi.js';
 import { Panel, Spinner, Empty, fmtDate } from '../../components/admin/ui.jsx';
 
 const WHERE = { page: 'الصفحة كلها', 'editor-panel': 'الشريط الجانبي في المحرر' };
+
+/** زرار "نزّل ملف الأعطال": كل الأعطال (آخر 60 يوم) في ملف JSON واحد — ملخص متجمّع + التفاصيل — يتبعت للمطوّر */
+function ExportButton() {
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  async function download() {
+    setBusy(true); setErr('');
+    try {
+      const r = await fetch('/admin/api/client-errors/export', { credentials: 'include', headers: { 'X-Admin-Request': '1' } });
+      if (!r.ok) throw new Error(String(r.status));
+      const blob = await r.blob();
+      const name = (/filename="([^"]+)"/.exec(r.headers.get('Content-Disposition') || '') || [])[1] || 'mithaq-client-errors.json';
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+    } catch {
+      setErr('مقدرناش ننزّل الملف — جرّب تاني.');
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <div className="flex flex-col items-end gap-1">
+      <button
+        type="button"
+        onClick={download}
+        disabled={busy}
+        className="inline-flex items-center gap-2 rounded-full bg-gradient-to-l from-brass to-brass-soft px-4 py-2 text-[12.5px] font-extrabold text-[#241608] disabled:opacity-60"
+      >
+        {busy ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+        نزّل ملف الأعطال
+      </button>
+      {err && <span className="text-[11px] text-error">{err}</span>}
+    </div>
+  );
+}
 
 export default function ClientErrorsPage() {
   const { data, isLoading } = useGetClientErrorsQuery(undefined, { pollingInterval: 60000 });
@@ -16,11 +54,14 @@ export default function ClientErrorsPage() {
 
   return (
     <div className="space-y-5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
       <div>
         <h1 className="font-serif text-[21px] font-bold text-ivory">أعطال الواجهة</h1>
         <p className="mt-0.5 text-[12.5px] leading-relaxed text-ivory/45">
           أي خطأ حصل عند عميل في الموقع أو المحرر بيتسجّل هنا بسببه — عشان نصلّحه من أول مرة. بتتمسح لوحدها بعد 60 يوم.
         </p>
+      </div>
+      <ExportButton />
       </div>
       <Panel title={`آخر الأعطال (${rows.length})`}>
         {!rows.length ? <Empty>مفيش أعطال متسجّلة — كله تمام.</Empty> : (
