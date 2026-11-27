@@ -2440,6 +2440,14 @@ const FIXES = [
       'customizations.texts.lc59': 'موقع الفندق',
     }),
   },
+  {
+    // Ol5uJoA — المالك (2026-11-28): "نرجّع الموسيقى بتاعتها الأساسية" → موسيقى قالب Velvet Voice.
+    // بنشيل أغنية المكتبة اللي كانت متختارة بس لو لسه هي نفسها (لو العميل اختار غيرها بعد كده مابنلمسهاش).
+    name: 'Ol5uJoA-template-music',
+    shortId: 'Ol5uJoA',
+    when: (c) => c.audioUrl === 'https://res.cloudinary.com/dxtkmyscw/video/upload/v1790882611/mithaq/library/music/yioeqw9kekdxie32eu2a.mp3',
+    apply: () => ({ 'customizations.audioUrl': '', 'customizations.audioStart': 0, 'customizations.audioEnd': 0 }),
+  },
 ];
 
 let done = false;
