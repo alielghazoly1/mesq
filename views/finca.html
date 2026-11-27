@@ -1,0 +1,660 @@
+<!doctype html>
+<html lang="en" dir="ltr" translate="no" style="color-scheme:light only">
+<!--
+  FINCA — قالب Mithaq (views/finca.html) — نسخة طبق الأصل من تصميم "Finca" (The Digital Yes —
+  finca-demo.thedigitalyes.com) بطلب المالك (2026-11-27). الصفحة المرسومة بتاعتهم + الـ CSS بتاعهم زي ما هو
+  في /templates/finca/finca.css (Tailwind).
+  • من غير العلامة المائية (لوجو The Digital Yes اللي كان بيطير فوق الصفحة كلها)، ومن غير سطر
+    "Hecho por The Digital Yes" تحت، ومن غير زرار ES/FR (لغة الدعوة بيختارها صاحبها).
+  • نسختين: إنجليزي (التصميم الأصلي متترجم من الإسباني) وعربي (C.language) — الكلام العربي في L تحت (زي Lace).
+  • الغلاف: الظرف بختم M&J → ضغطة → فيديو فتح الظرف (من غير صوت؛ الأغنية بتبدأ مع الضغطة) → الهيرو بفيديو
+    الفينكا. جملة "Esta invitación es exclusiva para ti" اتشالت من صورة الغلاف والفيديو وبقت نص فوقهم بلغة الدعوة (fc1).
+  • كل جملة عليها data-elem-id (fc1–fc103) وكل صورة/فيديو/خريطة (fc201–fc206) → المحرر.
+  • الأسامي/التاريخ/القاعة/المواعيد من بيانات الدعوة (data-f) وتعديل صاحب الدعوة بيغلب. مواعيد برنامج اليوم
+    بتتحسب من ساعة الدعوة (نفس فرق الأصل: 0، +30د، +1س، +2س، +4س، +7س، +10س).
+  • الأقسام (data-section): countdown venue map timeline stay faq gift rsvp — الهيرو والختام ثابتين.
+  • تأكيد الحضور بيوصل للوحة صاحب الدعوة (/i/:shortId/rsvp). بعد "هحضر" فيديو البوابة بيتفتح وبعده رسالة الشكر
+    (زي الأصل)، وبعد "مش هقدر" رسالة الاعتذار.
+-->
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="google" content="notranslate">
+<meta name="theme-color" content="#f1ebdf">
+<title>Finca</title>
+<script>window.WEDDING_CONFIG = __INVITATION_CONFIG_JSON__;</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script>
+  // اللغة والاتجاه قبل أول رسمة (مفيش ومضة)
+  (function () { var C = window.WEDDING_CONFIG || {}; if (C.language === 'ar') { var h = document.documentElement; h.lang = 'ar'; h.dir = 'rtl'; h.classList.add('ar'); var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = 'https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Aref+Ruqaa:wght@400;700&family=Noto+Naskh+Arabic:wght@400;500;600&display=swap'; document.head.appendChild(l); } })();
+</script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Great+Vibes&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Satisfy&display=swap">
+<link rel="stylesheet" href="/templates/finca/finca.css">
+<link rel="preload" as="image" href="/templates/finca/cover.webp">
+<style>
+html.lock,html.lock body{overflow:hidden;height:100%}
+.off{display:none!important}
+/* دخول الأقسام (زي framer-motion في الأصل: whileInView مرة واحدة) */
+.rv,.rvf,.rvs,.rvx{transition-timing-function:cubic-bezier(.22,1,.36,1);transition-duration:var(--t,.6s);transition-delay:var(--d,0s);transition-property:opacity,transform}
+.rv{opacity:0;transform:translate3d(0,var(--y,20px),0)}
+.rvf{opacity:0;--t:.8s;transition-timing-function:ease}
+.rvs{opacity:0;transform:scale(.9);--t:.5s}
+.rvx{opacity:0;transform:translate3d(var(--x,-20px),0,0);--t:.4s}
+html.ar .rvx{--x:20px}
+.rv.in,.rvf.in,.rvs.in,.rvx.in{opacity:1;transform:none}
+.fc-static .rv,.fc-static .rvf,.fc-static .rvs,.fc-static .rvx{opacity:1;transform:none;transition:none}
+/* الهيرو: بيظهر بعد ما الغلاف يختفي (الأصل بيركّب الصفحة بعد الفتح) */
+#fcHero .ha,#fcHero .hf{opacity:0;transition:opacity var(--t,.8s) cubic-bezier(.22,1,.36,1) var(--d,0s),transform var(--t,.8s) cubic-bezier(.22,1,.36,1) var(--d,0s)}
+#fcHero .ha{transform:translate3d(0,var(--y,20px),0)}
+#fcHero.go .ha,#fcHero.go .hf{opacity:1;transform:none}
+.fc-bob{animation:fcBob 1.5s ease-in-out infinite}
+@keyframes fcBob{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}
+/* الغلاف: الظرف بمقاس الفيديو بالظبط وبيغطّي الشاشة (object-fit: cover) — الجملة فوقه في نفس مكانها */
+#fcCover{position:fixed;inset:0;z-index:50;cursor:pointer;background:#f5f0e8;overflow:hidden;opacity:1;transition:opacity .8s ease-in-out;container-type:size;-webkit-tap-highlight-color:transparent}
+#fcCover.fade{opacity:0;pointer-events:none}
+#fcCover .fc-box{position:absolute;left:50%;top:50%;width:max(100vw,55.81vh);height:max(100vh,179.18vw);transform:translate(-50%,-50%);container-type:inline-size}
+@supports (width:1cqw){#fcCover .fc-box{width:max(100cqw,55.81cqh);height:max(100cqh,179.18cqw)}}
+#fcCover img,#fcCover video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+#fcCover video{opacity:0;transition:opacity .4s ease}
+#fcCover.play.vis video{opacity:1}
+.fc-line{position:absolute;left:8%;right:8%;top:61.4%;margin:0;text-align:center;font-family:'Satisfy',cursive;color:#7f776d;font-size:28px;font-size:7.9cqw;line-height:1.165;letter-spacing:.005em;pointer-events:none;user-select:none;-webkit-user-select:none}
+html.ar .fc-line{font-family:'Aref Ruqaa','Amiri',serif;font-size:26px;font-size:7.4cqw;line-height:1.32;top:61%}
+/* زرار الصوت */
+#fcMus{opacity:0;pointer-events:none;transition:opacity .5s ease}
+#fcMus.on{opacity:1;pointer-events:auto}
+#fcMus .mu-off{display:none}#fcMus.muted .mu-off{display:block}#fcMus.muted .mu-on{display:none}
+/* الأسئلة الشائعة والهدية: فتح وقفل بالارتفاع */
+.fc-panel{overflow:hidden;transition:height .2s ease-out}
+.fc-panel[hidden]{display:none}
+#fcGiftBody{overflow:hidden;transition:height .3s ease-in-out,opacity .3s ease-in-out}
+#fcGiftChev{transition:transform .3s ease}
+#fcGiftChev.up{transform:rotate(180deg)}
+#fcConfetti{opacity:0;transition:opacity .3s ease}
+#fcConfetti.on{opacity:1}
+.fc-pop{animation:fcPop .3s ease both}
+@keyframes fcPop{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+/* الخريطة (المحرر بيعرفها من data-wda-map-src) */
+#map{display:block;width:100%;height:200px;border:0;filter:sepia(.15);transition:filter .5s}
+#map:hover{filter:none}
+/* فورم تأكيد الحضور */
+#fcForm button[role=radio] .fc-dot,#fcForm button[role=checkbox] .fc-tick{display:none}
+#fcForm button[role=radio][aria-checked=true] .fc-dot,#fcForm button[role=checkbox][aria-checked=true] .fc-tick{display:flex}
+#fcForm input[type=number]{-moz-appearance:textfield}
+#fcErr{color:hsl(var(--destructive));font-size:.875rem;text-align:center;min-height:0;margin:0}
+#fcErr:empty{display:none}
+.fc-again{display:inline-block;margin-top:1.75rem;font-size:.75rem;letter-spacing:.08em;color:hsl(var(--sage-dark)/.5);text-decoration:underline;text-underline-offset:4px;background:none;border:0;cursor:pointer;font-family:var(--font-body)}
+/* رسالة الشكر بعد التأكيد (حركة الأصل) */
+.fc-in{opacity:0;transform:translate3d(0,var(--y,0px),0);animation:fcIn var(--t,.8s) cubic-bezier(.22,1,.36,1) var(--d,0s) forwards}
+@keyframes fcIn{to{opacity:1;transform:none}}
+.fc-zoom{animation:fcZoom .5s cubic-bezier(.22,1,.36,1) both}
+@keyframes fcZoom{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:none}}
+#fcGate{position:fixed;inset:0;z-index:60;background:hsl(var(--ivory));display:flex;align-items:center;justify-content:center}
+#fcGate video{width:100%;height:100%;object-fit:cover}
+#fcGateFade{position:absolute;inset:0;background:hsl(var(--ivory));opacity:0;pointer-events:none;transition:opacity 1.5s ease-in-out}
+#fcGate.out{opacity:0;transition:opacity .4s ease}
+/* في المحرر: كل حاجة مفتوحة عشان صاحب الدعوة يعدّلها */
+.fc-edit .fc-panel[hidden]{display:block!important}
+.fc-edit #fcDoneYes,.fc-edit #fcDoneNo{display:block!important;min-height:0!important;padding:3rem 0 0}
+.fc-edit .fc-in{opacity:1;transform:none;animation:none}
+.fc-edit .fc-again{display:none}
+.fc-edit #fcComp{display:block!important}
+/* ===== النسخة العربي ===== */
+html.ar .font-display,html.ar h1,html.ar h2,html.ar h3{font-family:'Amiri','Times New Roman',serif}
+html.ar .font-script{font-family:'Aref Ruqaa','Amiri',serif;line-height:1.5}
+html.ar body,html.ar .font-body{font-family:'Noto Naskh Arabic','Amiri',Tahoma,sans-serif}
+html.ar .tracking-\[0\.5em\],html.ar .tracking-\[0\.3em\],html.ar .tracking-\[0\.2em\],html.ar .tracking-wide,html.ar .tracking-wider{letter-spacing:0}
+html.ar .uppercase{text-transform:none}
+html.ar h2.font-script{font-size:2rem}
+html.ar #fcHero .font-script{font-size:2.6rem;line-height:1.6}
+html.ar footer .font-script{font-size:1.7rem}
+html.ar .text-left{text-align:right}
+html.ar .left-6{left:auto;right:1.5rem}
+html.ar .space-x-2>:not([hidden])~:not([hidden]){margin-left:0;margin-right:.5rem}
+html.ar #fcForm input,html.ar #fcForm textarea{text-align:right}
+html.ar #fcForm input[type=email],html.ar .fc-ltr{direction:ltr;text-align:left;unicode-bidi:isolate}
+html.ar #fcIbanNo{direction:ltr;unicode-bidi:isolate}
+@media (min-width:768px){html.ar #fcHero .font-script{font-size:3.75rem}html.ar h2.font-script{font-size:2.6rem}}
+</style>
+</head>
+<body>
+<script>if (!(window.WEDDING_CONFIG || {}).autoOpen) document.documentElement.classList.add('lock');</script>
+<div id="root">
+<div id="fcCover" role="button" tabindex="0" aria-label="Tap to open the invitation"><div class="fc-box"><img src="/templates/finca/cover.webp" alt="" draggable="false" fetchpriority="high"><video id="fcOpen" src="/templates/finca/open.mp4" poster="/templates/finca/cover.webp" muted playsinline webkit-playsinline preload="metadata"></video><p class="fc-line" data-elem-id="fc1">This invitation is<br>exclusively for you</p></div></div>
+<main class="bg-background" id="fcMain">
+
+<section class="relative min-h-screen flex items-center justify-center overflow-hidden bg-ivory" id="fcHero"><div class="absolute inset-0" id="fcHvBox" data-elem-id="fc201"><video id="fcHv" src="/templates/finca/hero.mp4" poster="/templates/finca/hero.webp" class="w-full h-full object-cover object-center" muted loop playsinline webkit-playsinline preload="none"></video><div class="absolute inset-0 bg-black/55"></div></div><div class="relative z-10 text-center px-6 max-w-4xl mx-auto"><p class="text-xs md:text-sm tracking-[0.5em] uppercase text-white/80 mb-6 font-body ha" style="--d:.2s" data-elem-id="fc2">We're getting married</p><h1 class="mb-4 ha" style="--d:.4s;--y:30px;--t:1s"><span class="font-script text-5xl md:text-7xl lg:text-8xl text-white block leading-tight drop-shadow-lg" data-f="name1" data-elem-id="fc3">Mar</span><span class="font-display text-2xl md:text-3xl lg:text-4xl font-light text-gold my-2 md:my-4 block italic drop-shadow-md" data-f="amp" data-elem-id="fc4">&amp;</span><span class="font-script text-5xl md:text-7xl lg:text-8xl text-white block leading-tight drop-shadow-lg" data-f="name2" data-elem-id="fc5">Jaume</span></h1><div class="flex items-center justify-center gap-4 my-6 md:my-8 hf" style="--d:.8s"><span class="h-px bg-white/50 w-12 md:w-20"></span><span class="text-gold text-lg drop-shadow-md">✦</span><span class="h-px bg-white/50 w-12 md:w-20"></span></div><p class="text-base md:text-lg font-display tracking-wider text-white/90 italic drop-shadow-md ha" style="--d:1s" data-f="dateLong" data-elem-id="fc6">8 May 2027</p></div><button type="button" id="fcToRsvp" class="absolute bottom-8 inset-x-0 z-10 flex flex-col items-center gap-2 text-center text-white hover:text-white/80 transition-colors cursor-pointer hf" style="--d:1.4s"><span class="text-xs tracking-[0.3em] uppercase font-body" data-elem-id="fc7">Confirm your attendance</span><div class="fc-bob"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down w-5 h-5"><path d="m6 9 6 6 6-6"></path></svg></div></button></section>
+
+<div data-section="countdown"><section id="countdown" class="section-padding bg-countdown"><div class="max-w-4xl mx-auto text-center"><h2 class="font-script text-4xl md:text-5xl text-white mb-2 rv" data-elem-id="fc8">Countdown</h2><p class="text-white/70 text-lg font-body tracking-wide mb-12 rv" style="--d:.1s" data-elem-id="fc9">To the most special day of our lives</p><div class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 rv" style="--d:.2s;--y:30px;--t:.8s"><div class="bg-white/10 backdrop-blur-sm p-6 md:p-8 border border-white/20 rounded-lg rvs" style="--d:.3s"><span class="block font-display text-4xl md:text-6xl font-light text-white" id="cdD">00</span><span class="block mt-2 text-xs tracking-[0.2em] uppercase text-white/70 font-body" data-elem-id="fc10">Days</span></div><div class="bg-white/10 backdrop-blur-sm p-6 md:p-8 border border-white/20 rounded-lg rvs" style="--d:.4s"><span class="block font-display text-4xl md:text-6xl font-light text-white" id="cdH">00</span><span class="block mt-2 text-xs tracking-[0.2em] uppercase text-white/70 font-body" data-elem-id="fc11">Hours</span></div><div class="bg-white/10 backdrop-blur-sm p-6 md:p-8 border border-white/20 rounded-lg rvs" style="--d:.5s"><span class="block font-display text-4xl md:text-6xl font-light text-white" id="cdM">00</span><span class="block mt-2 text-xs tracking-[0.2em] uppercase text-white/70 font-body" data-elem-id="fc12">Minutes</span></div><div class="bg-white/10 backdrop-blur-sm p-6 md:p-8 border border-white/20 rounded-lg rvs" style="--d:.6s"><span class="block font-display text-4xl md:text-6xl font-light text-white" id="cdS">00</span><span class="block mt-2 text-xs tracking-[0.2em] uppercase text-white/70 font-body" data-elem-id="fc13">Seconds</span></div></div></div></section></div>
+
+<div data-section="venue"><section class="section-padding bg-ivory"><div class="max-w-4xl mx-auto"><div class="text-center mb-16 rv"><img src="/templates/finca/champagne.webp" alt="" class="w-64 mx-auto mb-6" loading="lazy" decoding="async" data-elem-id="fc202"><h2 class="font-script text-4xl md:text-5xl text-sage-dark mb-2" data-elem-id="fc14">Details of the Day</h2><p class="text-sage-dark/70 font-body tracking-wide" data-elem-id="fc15">Everything you need to know</p></div><div class="bg-white/80 backdrop-blur-sm border border-sage/30 p-8 md:p-12 rounded-lg shadow-sm text-center rv" style="--y:30px"><div class="w-16 h-16 mx-auto mb-6 rounded-full bg-sage/30 flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin w-7 h-7 text-sage-dark"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg></div><h3 class="font-display text-2xl text-sage-dark mb-4" data-elem-id="fc16">Location</h3><div class="space-y-3 mb-6"><div class="flex items-center justify-center gap-2"><span class="font-display text-xl text-sage-dark" data-f="venue" data-elem-id="fc17">Finca Biniagual</span></div><p class="text-sm text-sage-dark/70 font-body" data-f="address" data-elem-id="fc18"></p><div class="flex items-center justify-center gap-2 mt-4 text-sage-dark/70"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock w-4 h-4"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg><span class="font-body" data-f="hours" data-elem-id="fc19">From 17:00 to 01:00</span></div></div><div class="mb-6 rounded-lg overflow-hidden border border-sage/30 relative group"><img src="/templates/finca/venue.webp" alt="" class="w-full h-64 md:h-80 object-cover transition-transform duration-700 group-hover:scale-105" loading="lazy" decoding="async" data-elem-id="fc203"><div class="absolute inset-0 bg-gradient-to-t from-sage-dark/40 via-transparent to-transparent pointer-events-none"></div></div><div class="mb-6 rounded-lg overflow-hidden border border-sage/30" data-section="map" data-elem-id="fc204"><iframe id="map" title="Map" data-wda-map-deferred="1" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div><div class="flex flex-col sm:flex-row gap-3 justify-center"><a id="mapBtn" href="#" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 border bg-background h-9 rounded-md px-3 gap-2 border-sage-dark/40 text-sage-dark hover:bg-sage-dark hover:text-white"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin w-4 h-4"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path><circle cx="12" cy="10" r="3"></circle></svg><span data-elem-id="fc20">Open in Maps</span></a><a id="calBtn" href="#" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 border bg-background h-9 rounded-md px-3 gap-2 border-sage-dark/40 text-sage-dark hover:bg-sage-dark hover:text-white"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar w-4 h-4"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path></svg><span data-elem-id="fc21">Add to calendar</span></a></div></div></div></section></div>
+
+<div data-section="timeline"><div class="flex items-center justify-center py-2 bg-ivory rvf"><span class="h-px bg-sage-dark/40 w-16 md:w-24"></span><span class="mx-4 text-sage-dark/50 text-sm">✦</span><span class="h-px bg-sage-dark/40 w-16 md:w-24"></span></div><section class="section-padding bg-ivory"><div class="max-w-5xl mx-auto"><div class="text-center mb-16 rv"><img src="/templates/finca/party.webp" alt="" class="w-full max-w-2xl mx-auto mb-8" loading="lazy" decoding="async" data-elem-id="fc205"><h2 class="font-script text-4xl md:text-5xl text-sage-dark mb-2" data-elem-id="fc22">Order of the Day</h2><p class="text-sage-dark/70 font-body tracking-wide" data-elem-id="fc23">What we have prepared for you</p></div><div class="relative"><div class="hidden md:block"><div class="absolute top-16 left-0 right-0 h-px bg-sage/30"></div><div class="grid grid-cols-7 gap-2" id="fcTlD"></div></div><div class="md:hidden relative" id="fcTlM"><div class="absolute left-6 top-0 bottom-0 w-px bg-sage/30"></div><div class="space-y-6"><div class="flex items-start gap-4 pl-1 rvx" style="--d:0s" data-tl=""><div class="w-11 h-11 rounded-full bg-white border-2 border-sage/40 flex items-center justify-center text-sage-dark flex-shrink-0 shadow-sm z-10"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart w-5 h-5"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg></div><div class="flex-1 pt-1"><div class="flex items-baseline gap-3 mb-0.5"><span class="bg-sage-dark text-primary-foreground px-2 py-0.5 rounded text-xs font-display font-medium" data-k="t" data-f="t0" data-elem-id="fc24">17:00</span><h3 class="font-display text-lg text-sage-dark" data-k="h" data-elem-id="fc25">Guest arrival</h3></div><p class="text-sage-dark/60 font-body text-sm" data-k="p" data-elem-id="fc26">Reception and welcome at the venue</p></div></div><div class="flex items-start gap-4 pl-1 rvx" style="--d:.05s" data-tl=""><div class="w-11 h-11 rounded-full bg-white border-2 border-sage/40 flex items-center justify-center text-sage-dark flex-shrink-0 shadow-sm z-10"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wine w-5 h-5"><path d="M8 22h8"></path><path d="M7 10h10"></path><path d="M12 15v7"></path><path d="M12 15a5 5 0 0 0 5-5c0-2-.5-4-2-8H9c-1.5 4-2 6-2 8a5 5 0 0 0 5 5Z"></path></svg></div><div class="flex-1 pt-1"><div class="flex items-baseline gap-3 mb-0.5"><span class="bg-sage-dark text-primary-foreground px-2 py-0.5 rounded text-xs font-display font-medium" data-k="t" data-f="t1" data-elem-id="fc27">17:30</span><h3 class="font-display text-lg text-sage-dark" data-k="h" data-elem-id="fc28">Welcome Drink</h3></div><p class="text-sage-dark/60 font-body text-sm" data-k="p" data-elem-id="fc29">A welcome cocktail while we wait</p></div></div><div class="flex items-start gap-4 pl-1 rvx" style="--d:.1s" data-tl=""><div class="w-11 h-11 rounded-full bg-white border-2 border-sage/40 flex items-center justify-center text-sage-dark flex-shrink-0 shadow-sm z-10"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-church w-5 h-5"><path d="M10 9h4"></path><path d="M12 7v5"></path><path d="M14 22v-4a2 2 0 0 0-4 0v4"></path><path d="M18 22V5.618a1 1 0 0 0-.553-.894l-4.553-2.277a2 2 0 0 0-1.788 0L6.553 4.724A1 1 0 0 0 6 5.618V22"></path><path d="m18 7 3.447 1.724a1 1 0 0 1 .553.894V20a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9.618a1 1 0 0 1 .553-.894L6 7"></path></svg></div><div class="flex-1 pt-1"><div class="flex items-baseline gap-3 mb-0.5"><span class="bg-sage-dark text-primary-foreground px-2 py-0.5 rounded text-xs font-display font-medium" data-k="t" data-f="t2" data-elem-id="fc30">18:00</span><h3 class="font-display text-lg text-sage-dark" data-k="h" data-elem-id="fc31">Ceremony</h3></div><p class="text-sage-dark/60 font-body text-sm" data-k="p" data-elem-id="fc32">The most special moment of the day</p></div></div><div class="flex items-start gap-4 pl-1 rvx" style="--d:.15s" data-tl=""><div class="w-11 h-11 rounded-full bg-white border-2 border-sage/40 flex items-center justify-center text-sage-dark flex-shrink-0 shadow-sm z-10"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wine w-5 h-5"><path d="M8 22h8"></path><path d="M7 10h10"></path><path d="M12 15v7"></path><path d="M12 15a5 5 0 0 0 5-5c0-2-.5-4-2-8H9c-1.5 4-2 6-2 8a5 5 0 0 0 5 5Z"></path></svg></div><div class="flex-1 pt-1"><div class="flex items-baseline gap-3 mb-0.5"><span class="bg-sage-dark text-primary-foreground px-2 py-0.5 rounded text-xs font-display font-medium" data-k="t" data-f="t3" data-elem-id="fc33">19:00</span><h3 class="font-display text-lg text-sage-dark" data-k="h" data-elem-id="fc34">Cocktail</h3></div><p class="text-sage-dark/60 font-body text-sm" data-k="p" data-elem-id="fc35">Appetisers and drinks in the gardens</p></div></div><div class="flex items-start gap-4 pl-1 rvx" style="--d:.2s" data-tl=""><div class="w-11 h-11 rounded-full bg-white border-2 border-sage/40 flex items-center justify-center text-sage-dark flex-shrink-0 shadow-sm z-10"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-utensils-crossed w-5 h-5"><path d="m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8"></path><path d="M15 15 3.3 3.3a4.2 4.2 0 0 0 0 6l7.3 7.3c.7.7 2 .7 2.8 0L15 15Zm0 0 7 7"></path><path d="m2.1 21.8 6.4-6.3"></path><path d="m19 5-7 7"></path></svg></div><div class="flex-1 pt-1"><div class="flex items-baseline gap-3 mb-0.5"><span class="bg-sage-dark text-primary-foreground px-2 py-0.5 rounded text-xs font-display font-medium" data-k="t" data-f="t4" data-elem-id="fc36">21:00</span><h3 class="font-display text-lg text-sage-dark" data-k="h" data-elem-id="fc37">Banquet</h3></div><p class="text-sage-dark/60 font-body text-sm" data-k="p" data-elem-id="fc38">Dinner and celebration</p></div></div><div class="flex items-start gap-4 pl-1 rvx" style="--d:.25s" data-tl=""><div class="w-11 h-11 rounded-full bg-white border-2 border-sage/40 flex items-center justify-center text-sage-dark flex-shrink-0 shadow-sm z-10"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-music w-5 h-5"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg></div><div class="flex-1 pt-1"><div class="flex items-baseline gap-3 mb-0.5"><span class="bg-sage-dark text-primary-foreground px-2 py-0.5 rounded text-xs font-display font-medium" data-k="t" data-f="t5" data-elem-id="fc39">00:00</span><h3 class="font-display text-lg text-sage-dark" data-k="h" data-elem-id="fc40">Party</h3></div><p class="text-sage-dark/60 font-body text-sm" data-k="p" data-elem-id="fc41">Let's dance until dawn!</p></div></div><div class="flex items-start gap-4 pl-1 rvx" style="--d:.3s" data-tl=""><div class="w-11 h-11 rounded-full bg-white border-2 border-sage/40 flex items-center justify-center text-sage-dark flex-shrink-0 shadow-sm z-10"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-party-popper w-5 h-5"><path d="M5.8 11.3 2 22l10.7-3.79"></path><path d="M4 3h.01"></path><path d="M22 8h.01"></path><path d="M15 2h.01"></path><path d="M22 20h.01"></path><path d="m22 2-2.24.75a2.9 2.9 0 0 0-1.96 3.12c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10"></path><path d="m22 13-.82-.33c-.86-.34-1.82.2-1.98 1.11c-.11.7-.72 1.22-1.43 1.22H17"></path><path d="m11 2 .33.82c.34.86-.2 1.82-1.11 1.98C9.52 4.9 9 5.52 9 6.23V7"></path><path d="M11 13c1.93 1.93 2.83 4.17 2 5-.83.83-3.07-.07-5-2-1.93-1.93-2.83-4.17-2-5 .83-.83 3.07.07 5 2Z"></path></svg></div><div class="flex-1 pt-1"><div class="flex items-baseline gap-3 mb-0.5"><span class="bg-sage-dark text-primary-foreground px-2 py-0.5 rounded text-xs font-display font-medium" data-k="t" data-f="t6" data-elem-id="fc42">03:00</span><h3 class="font-display text-lg text-sage-dark" data-k="h" data-elem-id="fc43">End of the party</h3></div><p class="text-sage-dark/60 font-body text-sm" data-k="p" data-elem-id="fc44">Farewells and lovely memories</p></div></div></div></div></div></div></section></div>
+
+<div data-section="stay"><div class="flex items-center justify-center py-2 bg-ivory rvf"><span class="h-px bg-sage-dark/40 w-16 md:w-24"></span><span class="mx-4 text-sage-dark/50 text-sm">✦</span><span class="h-px bg-sage-dark/40 w-16 md:w-24"></span></div><section class="section-padding bg-ivory"><div class="max-w-5xl mx-auto"><div class="text-center mb-16 rv"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bed w-8 h-8 mx-auto mb-4 text-sage-dark"><path d="M2 4v16"></path><path d="M2 8h18a2 2 0 0 1 2 2v10"></path><path d="M2 17h20"></path><path d="M6 8v9"></path></svg><h2 class="font-script text-4xl md:text-5xl text-sage-dark mb-2" data-elem-id="fc45">Accommodation</h2><p class="text-sage-dark/70 font-body tracking-wide" data-elem-id="fc46">Recommendations for your stay</p></div><div class="grid md:grid-cols-2 gap-6"><div class="card-elegant rv" style="--y:30px"><h3 class="font-display text-xl text-sage-dark mb-2" data-elem-id="fc47">Agroturismo Es Quatre Cantons</h3><p class="text-sage-dark/70 font-body text-sm mb-4" data-elem-id="fc48">Closest to the wedding</p><div class="flex flex-wrap gap-3 mb-4"></div><a href="#" data-hotel="fc47" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 border bg-background h-9 rounded-md px-3 gap-2 border-sage-dark/40 text-sage-dark hover:bg-sage-dark hover:text-white"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-external-link w-4 h-4"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg><span data-elem-id="fc49">See details</span></a></div><div class="card-elegant rv" style="--y:30px;--d:.1s"><h3 class="font-display text-xl text-sage-dark mb-2" data-elem-id="fc50">La Pérgola</h3><p class="text-sage-dark/70 font-body text-sm mb-4" data-elem-id="fc51">Recommended stay</p><div class="flex flex-wrap gap-3 mb-4"></div><a href="#" data-hotel="fc50" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 border bg-background h-9 rounded-md px-3 gap-2 border-sage-dark/40 text-sage-dark hover:bg-sage-dark hover:text-white"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-external-link w-4 h-4"><path d="M15 3h6v6"></path><path d="M10 14 21 3"></path><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path></svg><span data-elem-id="fc52">See details</span></a></div></div></div></section></div>
+
+<div data-section="faq"><div class="flex items-center justify-center py-2 bg-ivory rvf"><span class="h-px bg-sage-dark/40 w-16 md:w-24"></span><span class="mx-4 text-sage-dark/50 text-sm">✦</span><span class="h-px bg-sage-dark/40 w-16 md:w-24"></span></div><section class="section-padding bg-ivory"><div class="max-w-3xl mx-auto"><div class="text-center mb-12 rv"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-help w-8 h-8 mx-auto mb-4 text-sage-dark"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><path d="M12 17h.01"></path></svg><h2 class="font-script text-4xl md:text-5xl text-sage-dark" data-elem-id="fc53">Frequently Asked Questions</h2></div><div class="rv" style="--d:.2s"><div class="space-y-4" id="fcFaq"><div data-state="closed" class="bg-white/80 backdrop-blur-sm border border-sage/30 px-6 rounded-lg fc-acc"><h3 class="flex"><button type="button" aria-expanded="false" data-state="closed" class="flex flex-1 items-center justify-between py-4 font-medium transition-all [&amp;[data-state=open]&gt;svg]:rotate-180 text-left font-display text-lg text-sage-dark hover:no-underline"><span data-elem-id="fc54">Can I bring a plus-one?</span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down h-4 w-4 shrink-0 transition-transform duration-200"><path d="m6 9 6 6 6-6"></path></svg></button></h3><div role="region" class="fc-panel text-sm" hidden><div class="pb-4 pt-0 text-sage-dark/80 font-body" data-elem-id="fc55">Every invitation includes a +1. Please add their full name in the form. If there are more of you, or you're coming as a family, that's no problem — just add them in the form.</div></div></div><div data-state="closed" class="bg-white/80 backdrop-blur-sm border border-sage/30 px-6 rounded-lg fc-acc"><h3 class="flex"><button type="button" aria-expanded="false" data-state="closed" class="flex flex-1 items-center justify-between py-4 font-medium transition-all [&amp;[data-state=open]&gt;svg]:rotate-180 text-left font-display text-lg text-sage-dark hover:no-underline"><span data-elem-id="fc56">Will there be parking?</span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down h-4 w-4 shrink-0 transition-transform duration-200"><path d="m6 9 6 6 6-6"></path></svg></button></h3><div role="region" class="fc-panel text-sm" hidden><div class="pb-4 pt-0 text-sage-dark/80 font-body" data-elem-id="fc57">Yes, the venue has plenty of free parking.</div></div></div><div data-state="closed" class="bg-white/80 backdrop-blur-sm border border-sage/30 px-6 rounded-lg fc-acc"><h3 class="flex"><button type="button" aria-expanded="false" data-state="closed" class="flex flex-1 items-center justify-between py-4 font-medium transition-all [&amp;[data-state=open]&gt;svg]:rotate-180 text-left font-display text-lg text-sage-dark hover:no-underline"><span data-elem-id="fc58">What is the dress code?</span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down h-4 w-4 shrink-0 transition-transform duration-200"><path d="m6 9 6 6 6-6"></path></svg></button></h3><div role="region" class="fc-panel text-sm" hidden><div class="pb-4 pt-0 text-sage-dark/80 font-body" data-elem-id="fc59">Elegant formal. Please avoid white, which is reserved for the bride.</div></div></div><div data-state="closed" class="bg-white/80 backdrop-blur-sm border border-sage/30 px-6 rounded-lg fc-acc"><h3 class="flex"><button type="button" aria-expanded="false" data-state="closed" class="flex flex-1 items-center justify-between py-4 font-medium transition-all [&amp;[data-state=open]&gt;svg]:rotate-180 text-left font-display text-lg text-sage-dark hover:no-underline"><span data-elem-id="fc60">Can I take photos during the ceremony?</span><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down h-4 w-4 shrink-0 transition-transform duration-200"><path d="m6 9 6 6 6-6"></path></svg></button></h3><div role="region" class="fc-panel text-sm" hidden><div class="pb-4 pt-0 text-sage-dark/80 font-body" data-elem-id="fc61">We'd love an unplugged ceremony. Once it's over, take all the photos you like!</div></div></div></div></div></div></section></div>
+
+<div data-section="gift"><div class="flex items-center justify-center py-2 bg-ivory rvf"><span class="h-px bg-sage-dark/40 w-16 md:w-24"></span><span class="mx-4 text-sage-dark/50 text-sm">✦</span><span class="h-px bg-sage-dark/40 w-16 md:w-24"></span></div><section class="section-padding bg-ivory relative"><div id="fcConfetti" class="absolute inset-x-0 top-4 pointer-events-none z-50 flex justify-center off"></div><div class="max-w-2xl mx-auto"><div class="text-center mb-12 rv"><h2 class="font-script text-4xl md:text-5xl text-sage-dark mb-6" data-elem-id="fc62">Gifts</h2><p class="text-sage-dark/80 font-body leading-relaxed max-w-lg mx-auto"><span data-elem-id="fc63">Your presence is the most important thing to us.</span><br class="hidden md:block"> <span data-elem-id="fc64">Should you wish to give us a gift, you can do so in whichever way is most convenient for you.</span></p></div><div class="card-elegant overflow-hidden !p-0 rv" style="--d:.2s"><button type="button" id="fcGiftBtn" class="w-full px-6 py-5 flex items-center justify-between text-left hover:bg-sage/5 transition-colors"><span class="font-display text-lg text-sage-dark" data-elem-id="fc65">Contribution</span><div id="fcGiftChev"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down w-5 h-5 text-sage-dark/60"><path d="m6 9 6 6 6-6"></path></svg></div></button><div id="fcGiftBody" class="off"><div class="px-6 pb-6 pt-2 border-t border-sage/20"><p class="text-sage-dark/70 font-body text-sm leading-relaxed mb-6"><span data-elem-id="fc66">If you prefer, the gift can be in cash.</span><br><span data-elem-id="fc67">If it's more convenient for you, you can also make a bank transfer:</span></p><div class="text-center"><button type="button" id="fcIbanBtn" class="text-sm text-sage-dark/60 hover:text-sage-dark underline underline-offset-4 decoration-sage/40 hover:decoration-sage-dark/60 transition-colors font-body" data-elem-id="fc68">Show IBAN</button><div id="fcIban" class="space-y-2 off"><p class="text-xs text-sage-dark/50 font-body uppercase tracking-wider" data-elem-id="fc69">IBAN</p><p class="font-mono text-sm text-sage-dark/80 tracking-wide select-all" id="fcIbanNo" data-elem-id="fc70">EG00 0000 0000 0000 0000 0000 0000 0</p></div></div></div></div></div></div></section></div>
+
+<div data-section="rsvp"><div class="flex items-center justify-center py-2 bg-ivory rvf"><span class="h-px bg-sage-dark/40 w-16 md:w-24"></span><span class="mx-4 text-sage-dark/50 text-sm">✦</span><span class="h-px bg-sage-dark/40 w-16 md:w-24"></span></div><section id="mithaq-rsvp" class="section-padding bg-ivory"><div class="max-w-xl mx-auto" id="fcRsvpBox"><div class="text-center mb-12 rv" id="fcRsvpHead"><img src="/templates/finca/rings.webp" alt="" class="w-48 mx-auto mb-6" loading="lazy" decoding="async" data-elem-id="fc206"><h2 class="font-script text-4xl md:text-5xl text-sage-dark mb-2" data-elem-id="fc71">Confirm your attendance</h2><p class="text-sage-dark/70 font-body tracking-wide" data-elem-id="fc72">We hope you can join us</p></div><form id="fcForm" novalidate class="bg-white/80 backdrop-blur-sm border border-sage/30 rounded-lg p-8 space-y-6 shadow-sm rv" style="--d:.2s"><div><label class="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sage-dark font-medium" for="name" data-elem-id="fc73">Full name *</label><input class="flex h-10 w-full rounded-md border px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm mt-2 bg-ivory border-sage/30 text-sage-dark placeholder:text-sage-dark/50 focus:border-sage-dark" id="name" maxlength="80" autocomplete="name" placeholder="Your name" value=""></div><div><label class="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sage-dark font-medium" for="email" data-elem-id="fc74">Email (optional)</label><input type="email" class="flex h-10 w-full rounded-md border px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm mt-2 bg-ivory border-sage/30 text-sage-dark placeholder:text-sage-dark/50 focus:border-sage-dark" id="email" maxlength="80" autocomplete="email" placeholder="you@email.com" value=""></div><div><label class="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sage-dark font-medium" data-elem-id="fc75">Will you attend? *</label><div role="radiogroup" id="fcAtt" class="flex gap-6 mt-3"><div class="flex items-center space-x-2"><button type="button" role="radio" aria-checked="true" data-state="checked" value="yes" class="aspect-square h-4 w-4 rounded-full border ring-offset-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 border-sage-dark text-sage-dark" id="yes"><span class="fc-dot items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle h-2.5 w-2.5 fill-current text-current"><circle cx="12" cy="12" r="10"></circle></svg></span></button><label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer text-sage-dark" for="yes" data-elem-id="fc76">Yes, I'll be there</label></div><div class="flex items-center space-x-2"><button type="button" role="radio" aria-checked="false" data-state="unchecked" value="no" class="aspect-square h-4 w-4 rounded-full border ring-offset-background focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 border-sage-dark text-sage-dark" id="no"><span class="fc-dot items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle h-2.5 w-2.5 fill-current text-current"><circle cx="12" cy="12" r="10"></circle></svg></span></button><label class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer text-sage-dark" for="no" data-elem-id="fc77">I can't make it</label></div></div></div><div class="fc-yes"><label class="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sage-dark font-medium" for="guests" data-elem-id="fc78">Number of guests (including you)</label><input type="number" inputmode="numeric" class="flex h-10 rounded-md border px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm mt-2 w-24 bg-ivory border-sage/30 text-sage-dark focus:border-sage-dark" id="guests" min="1" max="10" value="1"></div><div class="space-y-3 fc-yes off" id="fcComp"><label class="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sage-dark font-medium" data-elem-id="fc79">Names of your companions *</label><p class="text-sm text-sage-dark/70 font-body" data-elem-id="fc80">Please tell us the names of the people coming with you:</p><div id="fcCompList" class="space-y-3"></div></div><div class="space-y-4 fc-yes"><div class="flex items-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-triangle-alert w-4 h-4 text-gold"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg><label class="peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-base text-sage-dark font-medium" data-elem-id="fc81">Food allergies and intolerances</label></div><p class="text-sm text-sage-dark/70 font-body" data-elem-id="fc82">It's very important for us to know about any dietary restrictions. Select all that apply:</p><div class="grid grid-cols-2 gap-3" id="fcAllergy"><div class="flex items-center space-x-2"><button type="button" role="checkbox" aria-checked="false" data-state="unchecked" value="on" class="peer h-4 w-4 shrink-0 rounded-sm border ring-offset-background data-[state=checked]:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 border-sage-dark data-[state=checked]:bg-sage-dark data-[state=checked]:border-sage-dark" id="gluten"><span class="fc-tick items-center justify-center text-current" style="pointer-events:none"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check h-4 w-4"><path d="M20 6 9 17l-5-5"></path></svg></span></button><label class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm cursor-pointer text-sage-dark" for="gluten" data-elem-id="fc83">Gluten-free / Coeliac</label></div><div class="flex items-center space-x-2"><button type="button" role="checkbox" aria-checked="false" data-state="unchecked" value="on" class="peer h-4 w-4 shrink-0 rounded-sm border ring-offset-background data-[state=checked]:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 border-sage-dark data-[state=checked]:bg-sage-dark data-[state=checked]:border-sage-dark" id="lactose"><span class="fc-tick items-center justify-center text-current" style="pointer-events:none"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check h-4 w-4"><path d="M20 6 9 17l-5-5"></path></svg></span></button><label class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm cursor-pointer text-sage-dark" for="lactose" data-elem-id="fc84">Lactose-free</label></div><div class="flex items-center space-x-2"><button type="button" role="checkbox" aria-checked="false" data-state="unchecked" value="on" class="peer h-4 w-4 shrink-0 rounded-sm border ring-offset-background data-[state=checked]:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 border-sage-dark data-[state=checked]:bg-sage-dark data-[state=checked]:border-sage-dark" id="vegetarian"><span class="fc-tick items-center justify-center text-current" style="pointer-events:none"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check h-4 w-4"><path d="M20 6 9 17l-5-5"></path></svg></span></button><label class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm cursor-pointer text-sage-dark" for="vegetarian" data-elem-id="fc85">Vegetarian</label></div><div class="flex items-center space-x-2"><button type="button" role="checkbox" aria-checked="false" data-state="unchecked" value="on" class="peer h-4 w-4 shrink-0 rounded-sm border ring-offset-background data-[state=checked]:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 border-sage-dark data-[state=checked]:bg-sage-dark data-[state=checked]:border-sage-dark" id="vegan"><span class="fc-tick items-center justify-center text-current" style="pointer-events:none"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check h-4 w-4"><path d="M20 6 9 17l-5-5"></path></svg></span></button><label class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm cursor-pointer text-sage-dark" for="vegan" data-elem-id="fc86">Vegan</label></div><div class="flex items-center space-x-2"><button type="button" role="checkbox" aria-checked="false" data-state="unchecked" value="on" class="peer h-4 w-4 shrink-0 rounded-sm border ring-offset-background data-[state=checked]:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 border-sage-dark data-[state=checked]:bg-sage-dark data-[state=checked]:border-sage-dark" id="nuts"><span class="fc-tick items-center justify-center text-current" style="pointer-events:none"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check h-4 w-4"><path d="M20 6 9 17l-5-5"></path></svg></span></button><label class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm cursor-pointer text-sage-dark" for="nuts" data-elem-id="fc87">Nut allergy</label></div><div class="flex items-center space-x-2"><button type="button" role="checkbox" aria-checked="false" data-state="unchecked" value="on" class="peer h-4 w-4 shrink-0 rounded-sm border ring-offset-background data-[state=checked]:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 border-sage-dark data-[state=checked]:bg-sage-dark data-[state=checked]:border-sage-dark" id="seafood"><span class="fc-tick items-center justify-center text-current" style="pointer-events:none"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check h-4 w-4"><path d="M20 6 9 17l-5-5"></path></svg></span></button><label class="font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm cursor-pointer text-sage-dark" for="seafood" data-elem-id="fc88">Shellfish allergy</label></div></div><div><label class="peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm text-sage-dark font-medium" for="other-allergy" data-elem-id="fc89">Other allergies or restrictions:</label><input class="flex h-10 w-full rounded-md border px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm mt-2 bg-ivory border-sage/30 text-sage-dark placeholder:text-sage-dark/50 focus:border-sage-dark" id="other-allergy" maxlength="80" placeholder="E.g. egg allergy, fructose intolerance..." value=""></div></div><div><label class="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sage-dark font-medium" for="message" data-elem-id="fc90">Message for the couple (optional)</label><textarea class="flex min-h-[80px] w-full rounded-md border px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 mt-2 bg-ivory border-sage/30 text-sage-dark placeholder:text-sage-dark/50 focus:border-sage-dark" id="message" maxlength="160" placeholder="Write us a few words..." rows="3"></textarea></div><p id="fcErr" role="alert"></p><button type="submit" id="fcSend" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 h-10 px-4 py-2 w-full gap-2 bg-sage-dark hover:bg-sage-dark/90 text-white font-medium"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send w-4 h-4"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"></path><path d="m21.854 2.147-10.94 10.939"></path></svg><span data-elem-id="fc91">Send confirmation</span><span class="off" id="fcSending">Sending...</span></button></form><div id="fcDoneYes" class="off w-full flex flex-col items-center justify-center text-center py-20"><h2 class="font-script text-4xl md:text-5xl lg:text-6xl text-sage-dark mb-8 text-center fc-in" style="--y:20px;--d:.5s" data-elem-id="fc92">Thank you for confirming your attendance</h2><div class="space-y-6 max-w-2xl text-center fc-in" style="--y:20px;--d:.8s"><p class="text-sage-dark/90 font-body text-lg md:text-xl leading-relaxed" data-elem-id="fc93">We're so excited to know you'll be with us on this very special day.</p><p class="text-sage-dark/90 font-body text-lg md:text-xl leading-relaxed" data-elem-id="fc94">Thank you for being part of our story.</p><p class="text-sage-dark/80 font-body text-base md:text-lg" data-f="waitYou" data-elem-id="fc95">We look forward to seeing you on 8 May at Finca Biniagual.</p></div><p class="text-sage-dark/60 font-script text-2xl md:text-3xl mt-10 fc-in" style="--d:1.2s" data-f="sig" data-elem-id="fc96">— Mar &amp; Jaume</p><div class="mt-12 flex flex-col items-center gap-6 fc-in" style="--y:20px;--d:1.5s"><a id="calBtn2" href="#" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 border bg-background h-10 px-4 py-2 gap-2 border-sage-dark/30 text-sage-dark hover:bg-sage-dark hover:text-white transition-colors"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar w-5 h-5"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path></svg><span data-elem-id="fc97">Add to calendar</span></a><p class="text-sage-dark/50 font-body text-sm max-w-md text-center leading-relaxed" data-elem-id="fc98">If for any reason you can't attend, we'd really appreciate you letting us know in advance. You can contact us on WhatsApp.</p></div><button type="button" class="fc-again fc-in" style="--d:1.8s">Send another reply</button></div><div id="fcDoneNo" class="off max-w-lg mx-auto text-center"><h2 class="font-script text-4xl md:text-5xl text-sage-dark mb-6" data-elem-id="fc99">Thank you</h2><p class="text-sage-dark/80 font-body text-lg leading-relaxed" data-elem-id="fc100">We're so sorry you can't join us. We'll keep you close to our hearts on this very special day.</p><p class="text-sage-dark/60 font-script text-2xl mt-8" data-f="sig" data-elem-id="fc101">— Mar &amp; Jaume</p><button type="button" class="fc-again">Send another reply</button></div></div></section></div>
+
+<footer class="py-16 bg-sage-dark text-center"><div class="rvf"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart w-6 h-6 mx-auto mb-4 text-white/70"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"></path></svg><p class="font-script text-3xl text-white mb-2" data-f="couple" data-elem-id="fc102">Mar &amp; Jaume</p><p class="text-sm text-white/80 font-body tracking-wide" data-f="dateLong" data-elem-id="fc103">8 May 2027</p></div></footer>
+</main>
+<button id="fcMus" type="button" class="fixed bottom-6 right-6 z-50 p-3 rounded-full bg-primary/90 text-primary-foreground shadow-lg hover:bg-primary transition-all duration-300 backdrop-blur-sm" aria-label="Mute"><span class="mu-on"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-volume2"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"></path><path d="M16 9a5 5 0 0 1 0 6"></path><path d="M19.364 18.364a9 9 0 0 0 0-12.728"></path></svg></span><span class="mu-off"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-volume-x"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"></path><line x1="22" x2="16" y1="9" y2="15"></line><line x1="16" x2="22" y1="9" y2="15"></line></svg></span></button>
+<div id="fcGate" class="off"><video id="fcGateV" src="/templates/finca/gates.mp4" muted playsinline webkit-playsinline preload="none"></video><div id="fcGateFade"></div></div>
+</div>
+<audio id="invitation-audio" src="/templates/finca/song.mp3" loop preload="none" playsinline></audio>
+<script>
+(function () {
+  'use strict';
+  var C = window.WEDDING_CONFIG || {};
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var byId = function (id) { return document.querySelector('[data-elem-id="' + id + '"]'); };
+  var root = document.documentElement;
+  var STATIC = !!C.autoOpen;
+  var EDIT = STATIC && /[?&]edit=1(&|$)/.test(location.search);
+  var AR = C.language === 'ar';
+  var ENGAGED = C.occasionType === 'engagement';
+  if (STATIC) document.body.classList.add('fc-static');
+  if (EDIT) document.body.classList.add('fc-edit');
+
+  /* ---------- الأقسام اللي صاحب الدعوة شالها ---------- */
+  var HIDDEN = Array.isArray(C.hiddenSections) ? C.hiddenSections : [];
+  var isHidden = function (k) { return HIDDEN.indexOf(k) !== -1; };
+  $$('[data-section]').forEach(function (s) { if (isHidden(s.getAttribute('data-section'))) s.classList.add('off'); });
+
+  /* ---------- الأرقام والتواريخ (ساعة الحائط بتوقيت مصر من C.countdown) ---------- */
+  var AD = '٠١٢٣٤٥٦٧٨٩';
+  var dg = function (s) { s = String(s); return AR ? s.replace(/\d/g, function (c) { return AD[c]; }) : s; };
+  var MONTHS = AR ? ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر']
+    : ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  var cd0 = C.countdown || {}, now0 = new Date();
+  var num = function (v, d) { return typeof v === 'number' && isFinite(v) ? v : d; };
+  var Y = num(cd0.year, now0.getFullYear()), M = num(cd0.monthIndex, now0.getMonth()), D = num(cd0.day, now0.getDate());
+  var H = num(cd0.hour, 17), MI = num(cd0.minute, 0);
+  var START = (function () { var d = C.weddingDateTimeISO ? new Date(C.weddingDateTimeISO) : null; return d && !isNaN(d) ? d : new Date(Y, M, D, H, MI); })();
+  var pad2 = function (n) { return (n < 10 ? '0' : '') + n; };
+  // الأصل بالـ 24 ساعة (17:00)؛ العربي ٥:٠٠ م
+  function clock(mins) {
+    mins = ((mins % 1440) + 1440) % 1440;
+    var h = Math.floor(mins / 60), m = mins % 60;
+    if (!AR) return pad2(h) + ':' + pad2(m);
+    return dg((h % 12 || 12) + ':' + pad2(m)) + ' ' + (h < 12 ? 'ص' : 'م');
+  }
+  var BASE = H * 60 + MI;
+  // نفس فروق برنامج الأصل (17:00 → 17:30، 18:00، 19:00، 21:00، 00:00، 03:00) والحفلة 8 ساعات (17:00 → 01:00)
+  var STEPS = [0, 30, 60, 120, 240, 420, 600];
+
+  /* ---------- الكلام العربي (كل سطر صاحب الدعوة عدّله بيغلب — طبقة التخصيص بتشتغل بعد كده) ---------- */
+  var groom = C.groomName || '', bride = C.brideName || '';
+  var venue = C.venueName || '';
+  var vn = venue || (AR ? 'مكان الحفل' : 'Finca Biniagual');
+  if (AR) {
+    var L = {
+      fc1: 'هذه الدعوة<br>خاصة بك',
+      fc2: ENGAGED ? 'نحتفل بخطوبتنا' : 'نحتفل بزفافنا',
+      fc7: 'تأكيد الحضور',
+      fc8: 'العدّ التنازلي', fc9: 'لأجمل يوم في حياتنا',
+      fc10: 'يوم', fc11: 'ساعة', fc12: 'دقيقة', fc13: 'ثانية',
+      fc14: 'تفاصيل اليوم', fc15: 'كل ما تحتاج معرفته', fc16: 'المكان',
+      fc20: 'افتح الخريطة', fc21: 'أضف إلى التقويم',
+      fc22: 'برنامج اليوم', fc23: 'ما أعددناه لكم',
+      fc25: 'وصول الضيوف', fc26: 'الاستقبال والترحيب بضيوفنا',
+      fc28: 'مشروب الترحيب', fc29: 'مشروبات الترحيب في انتظار بدء الحفل',
+      fc31: ENGAGED ? 'تلبيس الدبل' : 'عقد القران', fc32: 'أجمل لحظة في اليوم',
+      fc34: 'الضيافة', fc35: 'مقبلات ومشروبات في الحديقة',
+      fc37: 'العشاء', fc38: 'عشاء واحتفال',
+      fc40: 'الحفلة', fc41: 'رقص حتى آخر الليل!',
+      fc43: 'ختام الحفل', fc44: 'وداع وذكريات جميلة',
+      fc45: 'أماكن الإقامة', fc46: 'اقتراحاتنا لإقامتكم',
+      fc47: 'فندق الحديقة', fc48: 'الأقرب لمكان الحفل', fc49: 'عرض التفاصيل',
+      fc50: 'فندق النخيل', fc51: 'إقامة مقترحة', fc52: 'عرض التفاصيل',
+      fc53: 'الأسئلة الشائعة',
+      fc54: 'هل يمكنني اصطحاب مرافق؟',
+      fc55: 'كل دعوة تشمل مرافقًا واحدًا. من فضلك اكتب اسمه بالكامل في نموذج تأكيد الحضور، ولو كنتم أكثر من شخص أو عائلة فلا مشكلة، أضيفوهم في النموذج.',
+      fc56: 'هل يوجد مكان لركن السيارات؟', fc57: 'نعم، يوجد جراج واسع ومجاني في مكان الحفل.',
+      fc58: 'ما هو الزي المطلوب؟', fc59: 'رسمي أنيق. نرجو تجنّب اللون الأبيض، فهو مخصّص للعروس.',
+      fc60: 'هل يمكنني التصوير أثناء المراسم؟', fc61: 'نتمنى أن تكون المراسم بدون موبايلات، وبعدها صوّروا كما تحبون!',
+      fc62: 'الهدايا', fc63: 'حضوركم هو أهم شيء بالنسبة لنا.',
+      fc64: 'ولمن يرغب في تقديم هدية، يمكنه ذلك بالطريقة الأنسب له.',
+      fc65: 'الهدية النقدية', fc66: 'إن أحببتم، يمكن أن تكون الهدية نقدًا.',
+      fc67: 'وإن كان أسهل لكم، يمكنكم أيضًا التحويل البنكي:', fc68: 'إظهار رقم الحساب (IBAN)', fc69: 'IBAN',
+      fc71: 'تأكيد الحضور', fc72: 'نتمنى وجودكم معنا',
+      fc73: 'الاسم بالكامل *', fc74: 'البريد الإلكتروني (اختياري)', fc75: 'هل ستحضر؟ *',
+      fc76: 'نعم، سأحضر', fc77: 'لن أتمكن من الحضور', fc78: 'عدد الضيوف (بما فيهم أنت)',
+      fc79: 'أسماء المرافقين *', fc80: 'من فضلك اكتب أسماء الأشخاص الذين سيحضرون معك:',
+      fc81: 'الحساسية وقيود الطعام', fc82: 'يهمنا جدًا معرفة أي قيود في الطعام. اختر ما ينطبق عليك:',
+      fc83: 'خالٍ من الجلوتين', fc84: 'خالٍ من اللاكتوز', fc85: 'نباتي', fc86: 'نباتي صرف',
+      fc87: 'حساسية المكسرات', fc88: 'حساسية المأكولات البحرية', fc89: 'حساسية أو قيود أخرى:',
+      fc90: 'رسالة للعروسين (اختياري)', fc91: 'إرسال التأكيد',
+      fc92: 'شكرًا لتأكيد حضورك', fc93: 'يسعدنا جدًا أنك ستكون معنا في هذا اليوم المميز.',
+      fc94: 'شكرًا لكونك جزءًا من قصتنا.', fc97: 'أضف إلى التقويم',
+      fc98: 'إذا لم تتمكن من الحضور لأي سبب، نرجو إبلاغنا مسبقًا. يمكنك التواصل معنا عبر واتساب.',
+      fc99: 'شكرًا لك', fc100: 'يؤسفنا جدًا أنك لن تتمكن من الحضور. ستكون في قلوبنا في هذا اليوم المميز.'
+    };
+    Object.keys(L).forEach(function (id) { var el = byId(id); if (el) el.innerHTML = L[id]; });
+    $('#name').placeholder = 'اسمك';
+    $('#other-allergy').placeholder = 'مثلًا: حساسية البيض أو الفركتوز...';
+    $('#message').placeholder = 'اكتبوا لنا كلمة حلوة...';
+    $('#fcSending').textContent = 'جارٍ الإرسال...';
+    $$('.fc-again').forEach(function (b) { b.textContent = 'إرسال رد آخر'; });
+    $('#fcCover').setAttribute('aria-label', 'اضغط لفتح الدعوة');
+    $('#fcAtt').setAttribute('dir', 'rtl');
+  } else if (ENGAGED) {
+    byId('fc2').textContent = "We're getting engaged";
+    byId('fc31').textContent = 'Ring Exchange';
+  }
+
+  /* ---------- بيانات الدعوة ---------- */
+  var both = groom && bride ? groom + (AR ? ' و' : ' & ') + bride : (groom || bride);
+  var where = [C.venueName, C.venueAddress || C.venueCity].filter(Boolean).join(', ');
+  var F = {
+    name1: groom, name2: bride, amp: AR ? 'و' : '&',
+    dateLong: AR ? dg(D) + ' ' + MONTHS[M] + ' ' + dg(Y) : D + ' ' + MONTHS[M] + ' ' + Y,
+    venue: vn,
+    address: C.venueAddress || C.venueCity || '',
+    hours: (AR ? 'من ' : 'From ') + clock(BASE) + (AR ? ' إلى ' : ' to ') + clock(BASE + 480),
+    couple: both,
+    sig: both ? '— ' + both : '',
+    waitYou: AR ? 'في انتظاركم يوم ' + dg(D) + ' ' + MONTHS[M] + ' في ' + vn + '.'
+      : 'We look forward to seeing you on ' + D + ' ' + MONTHS[M] + ' at ' + vn + '.'
+  };
+  STEPS.forEach(function (m, i) { F['t' + i] = clock(BASE + m); });
+  $$('[data-f]').forEach(function (el) { var v = F[el.getAttribute('data-f')]; if (v) el.textContent = v; });
+  // العنوان تحت اسم القاعة بيظهر بس لو موجود (زي الأصل)
+  (function () { var a = byId('fc18'); if (a && !F.address && !EDIT) a.classList.add('off'); })();
+  if (both) document.title = both + ' | ' + (AR ? (ENGAGED ? 'دعوة خطوبة' : 'دعوة زفاف') : (ENGAGED ? 'Engagement Invitation' : 'Wedding Invitation'));
+
+  /* ---------- تعديلات فورم الحضور من البانل (rsvpOverrides) ---------- */
+  var RO = C.rsvpOverrides || {};
+  var RO_MAP = { title: 'fc71', intro: 'fc72', nameLabel: 'fc73', comeLabel: 'fc75', yesLabel: 'fc76', noLabel: 'fc77', foodLabel: 'fc81', submit: 'fc91', button: 'fc91' };
+  Object.keys(RO_MAP).forEach(function (k) { if (RO[k] && byId(RO_MAP[k])) byId(RO_MAP[k]).textContent = RO[k]; });
+  if (RO.deadline && byId('fc72')) byId('fc72').textContent = RO.deadline;
+
+  /* ---------- الخريطة + الروابط + التقويم ---------- */
+  var venueLink = C.venueMapDirectLink || ('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(where || vn));
+  var search = function (q) { return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q); };
+  $('#mapBtn').href = venueLink;
+  var gcal = (function () {
+    var f = function (d) { return d.toISOString().replace(/-|:|\.\d\d\d/g, ''); };
+    var end = new Date(START.getTime() + 8 * 36e5);
+    var title = AR ? (ENGAGED ? 'خطوبة ' : 'زفاف ') + (both || '') : (both ? both + ' — ' : '') + (ENGAGED ? 'Engagement' : 'Wedding');
+    return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent(title.trim()) +
+      '&dates=' + f(START) + '/' + f(end) + '&location=' + encodeURIComponent(where || vn);
+  })();
+  $('#calBtn').href = gcal; $('#calBtn2').href = gcal;
+  // الفنادق: بتفتح على اسم الفندق (اللي صاحب الدعوة كاتبه) — مش خريطة القاعة
+  $$('a[data-hotel]').forEach(function (a) {
+    var h = byId(a.getAttribute('data-hotel'));
+    var set = function () { a.href = search([h ? h.textContent.trim() : '', C.venueAddress || C.venueCity].filter(Boolean).join(', ')); };
+    set(); a.addEventListener('click', set); a.addEventListener('touchstart', set, { passive: true });
+    if (h) new MutationObserver(set).observe(h, { subtree: true, characterData: true, childList: true });
+  });
+  // في المحرر اللينكات مابتفتحش (الضغط = اختيار للتعديل)
+  if (EDIT) $$('main a').forEach(function (a) { a.addEventListener('click', function (e) { e.preventDefault(); }); });
+  // الخريطة بتتحمّل مرة واحدة بس: لما الضيف يقرّب منها
+  (function () {
+    var f = $('#map'); if (!f) return;
+    var src = C.venueMapEmbedSrc || ('https://www.google.com/maps?q=' + encodeURIComponent(where || vn) + '&output=embed');
+    f.setAttribute('data-wda-map-src', src);
+    f.setAttribute('title', AR ? 'الخريطة' : 'Map');
+    var started = false;
+    function go() { if (started) return; started = true; if (!f.getAttribute('src')) f.setAttribute('src', f.getAttribute('data-wda-map-src') || src); }
+    if (STATIC) { go(); return; }
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (es) { for (var i = 0; i < es.length; i++) if (es[i].isIntersecting) { io.disconnect(); go(); } }, { rootMargin: '900px' });
+      io.observe(f);
+    } else go();
+  })();
+
+  /* ---------- برنامج اليوم على الكمبيوتر (7 أعمدة زي الأصل) — نسخة من اللي على الموبايل وبتتحدّث معاه ---------- */
+  (function () {
+    var mob = $$('#fcTlM [data-tl]'), box = $('#fcTlD'); if (!box || !mob.length) return;
+    mob.forEach(function (it, i) {
+      var d = document.createElement('div');
+      d.className = 'flex flex-col items-center text-center group rv';
+      d.style.setProperty('--d', (i * 0.08).toFixed(2) + 's'); d.style.setProperty('--t', '.5s');
+      d.innerHTML = '<div class="bg-sage-dark text-primary-foreground px-3 py-1.5 rounded-full text-sm font-display font-medium mb-4 group-hover:bg-sage transition-colors duration-300" data-k="t"></div>' +
+        '<div class="w-14 h-14 rounded-full bg-white border-2 border-sage/40 flex items-center justify-center text-sage-dark mb-4 shadow-sm group-hover:border-sage-dark group-hover:scale-110 transition-all duration-300 z-10">' + it.querySelector('svg').outerHTML + '</div>' +
+        '<h3 class="font-display text-base lg:text-lg text-sage-dark mb-1 leading-tight" data-k="h"></h3>' +
+        '<p class="text-sage-dark/50 font-body text-xs leading-relaxed px-1" data-k="p"></p>';
+      box.appendChild(d);
+    });
+    function sync() {
+      mob.forEach(function (it, i) {
+        var d = box.children[i]; if (!d) return;
+        ['t', 'h', 'p'].forEach(function (k) {
+          var a = it.querySelector('[data-k="' + k + '"]'), b = d.querySelector('[data-k="' + k + '"]');
+          if (a && b && b.textContent !== a.textContent) b.textContent = a.textContent;
+        });
+      });
+    }
+    sync();
+    new MutationObserver(sync).observe($('#fcTlM'), { subtree: true, characterData: true, childList: true });
+  })();
+
+  /* ---------- الأسئلة الشائعة (واحد مفتوح بس — زي الأصل) ---------- */
+  var accs = $$('.fc-acc');
+  function setAcc(item, on) {
+    var btn = item.querySelector('button'), panel = item.querySelector('.fc-panel');
+    if ((item.getAttribute('data-state') === 'open') === on) return;
+    var st = on ? 'open' : 'closed';
+    item.setAttribute('data-state', st); btn.setAttribute('data-state', st); btn.setAttribute('aria-expanded', on ? 'true' : 'false');
+    clearTimeout(panel._t);
+    if (on) {
+      panel.hidden = false; panel.style.height = '0px';
+      void panel.offsetHeight; panel.style.height = panel.scrollHeight + 'px';
+      panel._t = setTimeout(function () { panel.style.height = ''; }, 220);
+    } else {
+      panel.style.height = panel.scrollHeight + 'px';
+      void panel.offsetHeight; panel.style.height = '0px';
+      panel._t = setTimeout(function () { panel.hidden = true; panel.style.height = ''; }, 220);
+    }
+  }
+  accs.forEach(function (item) {
+    item.querySelector('button').addEventListener('click', function () {
+      if (EDIT) return;
+      var on = item.getAttribute('data-state') !== 'open';
+      accs.forEach(function (o) { if (o !== item) setAcc(o, false); });
+      setAcc(item, on);
+    });
+  });
+
+  /* ---------- الهدية: "المساهمة" بتتفتح (ومعاها كونفيتي ثانيتين) و"إظهار الـ IBAN" ---------- */
+  (function () {
+    var btn = $('#fcGiftBtn'), body = $('#fcGiftBody'), chev = $('#fcGiftChev'), conf = $('#fcConfetti');
+    var ibanBtn = $('#fcIbanBtn'), iban = $('#fcIban'), open = false, cT = 0, bT = 0;
+    function confetti() {
+      clearTimeout(cT);
+      conf.innerHTML = '';
+      var img = document.createElement('img');
+      img.src = '/templates/finca/confetti.gif'; img.alt = ''; img.className = 'w-[400px] h-[400px] object-contain';
+      conf.appendChild(img);
+      conf.classList.remove('off'); void conf.offsetHeight; conf.classList.add('on');
+      cT = setTimeout(function () { conf.classList.remove('on'); cT = setTimeout(function () { conf.classList.add('off'); conf.innerHTML = ''; }, 320); }, 2000);
+    }
+    function set(on) {
+      open = on; chev.classList.toggle('up', on); clearTimeout(bT);
+      if (on) {
+        body.classList.remove('off'); body.style.height = '0px'; body.style.opacity = '0';
+        void body.offsetHeight; body.style.height = body.scrollHeight + 'px'; body.style.opacity = '1';
+        bT = setTimeout(function () { body.style.height = ''; }, 320);
+      } else {
+        body.style.height = body.scrollHeight + 'px'; void body.offsetHeight;
+        body.style.height = '0px'; body.style.opacity = '0';
+        bT = setTimeout(function () { body.classList.add('off'); body.style.height = ''; }, 320);
+      }
+    }
+    // رقم الحساب المصري أطول من الإسباني (29 حرف): لو مادخلش في سطر الخط بيصغر شوية بدل ما يتكسر
+    var ibanNo = $('#fcIbanNo');
+    function fitIban() {
+      if (iban.classList.contains('off')) return;
+      ibanNo.style.fontSize = ''; ibanNo.style.whiteSpace = 'nowrap';
+      var fs = parseFloat(getComputedStyle(ibanNo).fontSize) || 14;
+      while (ibanNo.scrollWidth > ibanNo.clientWidth + 1 && fs > 10) { fs -= 0.5; ibanNo.style.fontSize = fs + 'px'; }
+    }
+    new MutationObserver(fitIban).observe(ibanNo, { subtree: true, characterData: true, childList: true });
+    window.addEventListener('resize', fitIban);
+    btn.addEventListener('click', function () { if (EDIT) return; if (!open) confetti(); set(!open); });
+    ibanBtn.addEventListener('click', function () { if (EDIT) return; ibanBtn.classList.add('off'); iban.classList.remove('off'); iban.classList.add('fc-pop'); fitIban(); });
+    if (EDIT) { body.classList.remove('off'); chev.classList.add('up'); iban.classList.remove('off'); setTimeout(fitIban, 0); }
+  })();
+
+  /* ---------- الموسيقى (بتبدأ مع ضغطة الغلاف وبتعلى بالراحة لـ 0.5 — زي الأصل) ---------- */
+  var song = $('#invitation-audio'), mus = $('#fcMus'), pausedByHide = false, rampT = 0;
+  function setPlaying(p) { mus.classList.toggle('muted', !p); mus.setAttribute('aria-label', p ? (AR ? 'كتم الصوت' : 'Mute') : (AR ? 'تشغيل الصوت' : 'Unmute')); }
+  function play(ramp) {
+    if (!song.getAttribute('src')) return;
+    clearInterval(rampT);
+    try { song.volume = ramp ? 0 : 0.5; } catch (e) {}
+    try { var pr = song.play(); if (pr && pr.catch) pr.catch(function () { setPlaying(false); }); } catch (e) { setPlaying(false); }
+    if (ramp) {
+      var v = 0;
+      rampT = setInterval(function () { v += 0.017; if (v >= 0.5) { v = 0.5; clearInterval(rampT); } try { song.volume = v; } catch (e) { clearInterval(rampT); } }, 100);
+    }
+  }
+  setPlaying(false);
+  song.addEventListener('play', function () { setPlaying(true); });
+  song.addEventListener('pause', function () { setPlaying(false); });
+  mus.addEventListener('click', function () { if (song.paused) play(false); else song.pause(); });
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) { if (!song.paused) { pausedByHide = true; song.pause(); } }
+    else if (pausedByHide) { pausedByHide = false; play(false); }
+  });
+
+  /* ---------- دخول الأقسام ---------- */
+  var observed = false;
+  function observe() {
+    if (observed) return; observed = true;
+    var els = $$('.rv,.rvf,.rvs,.rvx');
+    if (STATIC || !('IntersectionObserver' in window)) { els.forEach(function (e) { e.classList.add('in'); }); return; }
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    els.forEach(function (e) { io.observe(e); });
+  }
+
+  /* ---------- الهيرو: فيديو الفينكا بيلف + الكلام بيدخل بالترتيب ---------- */
+  var hero = $('#fcHero'), hvBox = $('#fcHvBox'), hv = $('#fcHv'), heroOn = false;
+  var replaced = function () { return !!hvBox.querySelector('[data-wda-video-img]'); };
+  new MutationObserver(function () { if (replaced()) { try { hv.pause(); } catch (e) {} } }).observe(hvBox, { childList: true });
+  function showHero() {
+    if (heroOn) return; heroOn = true;
+    if (!replaced()) { try { hv.preload = 'auto'; var p = hv.play(); if (p && p.catch) p.catch(function () {}); } catch (e) {} }
+    if (STATIC) { hero.classList.add('go'); $$('.ha,.hf', hero).forEach(function (e) { e.style.transition = 'none'; }); }
+    else requestAnimationFrame(function () { requestAnimationFrame(function () { hero.classList.add('go'); }); });
+  }
+  $('#fcToRsvp').addEventListener('click', function () { var r = $('#mithaq-rsvp'); if (r && !EDIT) r.scrollIntoView({ behavior: 'smooth' }); });
+  if (isHidden('rsvp')) $('#fcToRsvp').classList.add('off');
+
+  /* ---------- الغلاف: الظرف → ضغطة → فيديو فتح الظرف → يختفي في 0.8 ثانية والصفحة تبدأ ---------- */
+  var cv = $('#fcCover'), ov = $('#fcOpen'), opened = false, fading = false, capT = 0, watchT = 0;
+  // فيديو الفتح بيبدأ بـ preload="metadata" ويتحمّل كله بعد ما صورة الغلاف تخلص
+  if (cv && ov && !STATIC) (function () {
+    var img = cv.querySelector('img');
+    var full = function () { if (ov.preload !== 'auto') ov.preload = 'auto'; };
+    if (!img || img.complete) full();
+    else { img.addEventListener('load', full); img.addEventListener('error', full); }
+  })();
+  function reveal() { root.classList.remove('lock'); mus.classList.add('on'); observe(); }
+  function fadeCover() {
+    if (fading) return; fading = true;
+    clearTimeout(capT); clearInterval(watchT);
+    cv.classList.add('fade');
+    setTimeout(function () { showHero(); reveal(); if (cv.parentNode) cv.parentNode.removeChild(cv); }, 800);
+  }
+  function openCover() {
+    if (opened) return; opened = true;
+    play(true);
+    cv.classList.add('play');
+    var started = false;
+    try { var p = ov.play(); if (p && p.catch) p.catch(function () { fadeCover(); }); } catch (e) { fadeCover(); }
+    // لو الفيديو ماشتغلش خلال 4 ثواني (نت ضعيف) الدعوة تفتح، ولو وقف في النص ~2.5 ثانية كمان، والفتحة كلها 10 ثواني بالكتير
+    var guard = setTimeout(function () { if (!started) fadeCover(); }, 4000);
+    var lastT = -1, still = 0;
+    watchT = setInterval(function () {
+      if (fading) { clearInterval(watchT); return; }
+      if (!started) return;
+      if (ov.currentTime !== lastT) { lastT = ov.currentTime; still = 0; return; }
+      if ((still += 250) >= 2500) fadeCover();
+    }, 250);
+    capT = setTimeout(fadeCover, 10000);
+    ov.addEventListener('timeupdate', function () {
+      if (ov.currentTime > 0.03 && !started) { started = true; clearTimeout(guard); cv.classList.add('vis'); }
+      if (ov.duration && ov.duration - ov.currentTime <= 0.8) fadeCover();
+    });
+    ov.addEventListener('ended', fadeCover);
+    ov.addEventListener('error', fadeCover);
+  }
+  if (STATIC || !cv) {
+    if (cv && cv.parentNode) cv.parentNode.removeChild(cv);
+    $$('img[loading=lazy]').forEach(function (i) { i.loading = 'eager'; });
+    showHero(); reveal();
+  } else {
+    try { history.scrollRestoration = 'manual'; } catch (e) {}
+    window.scrollTo(0, 0);
+    cv.addEventListener('click', openCover);
+    cv.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openCover(); } });
+    cv.addEventListener('touchmove', function (e) { e.preventDefault(); }, { passive: false });
+  }
+
+  /* ---------- العدّاد (لحظة الفرح بتوقيت مصر) ---------- */
+  var cdEls = [$('#cdD'), $('#cdH'), $('#cdM'), $('#cdS')];
+  function tick() {
+    var ms = Math.max(0, START - Date.now());
+    var v = [Math.floor(ms / 864e5), Math.floor(ms / 36e5 % 24), Math.floor(ms / 6e4 % 60), Math.floor(ms / 1e3 % 60)];
+    for (var i = 0; i < 4; i++) { var t = dg(pad2(v[i])); if (cdEls[i] && cdEls[i].textContent !== t) cdEls[i].textContent = t; }
+  }
+  tick(); setInterval(tick, 1000);
+
+  /* ---------- تأكيد الحضور (بيوصل للوحة صاحب الدعوة) ---------- */
+  (function () {
+    var form = $('#fcForm'); if (!form) return;
+    var sec = $('#mithaq-rsvp'), head = $('#fcRsvpHead'), doneYes = $('#fcDoneYes'), doneNo = $('#fcDoneNo');
+    var nameI = $('#name'), emailI = $('#email'), guestsI = $('#guests'), comp = $('#fcComp'), compList = $('#fcCompList');
+    var otherI = $('#other-allergy'), noteI = $('#message'), send = $('#fcSend'), err = $('#fcErr');
+    var sendTxt = byId('fc91'), sending = $('#fcSending');
+    var gate = $('#fcGate'), gv = $('#fcGateV'), gFade = $('#fcGateFade');
+    var sid = C.shortId || '';
+    var SENT_KEY = 'mithaq_rsvp_' + (sid || 'preview');
+    var store = { get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} }, del: function (k) { try { localStorage.removeItem(k); } catch (e) {} } };
+    var att = 'yes', count = 1, names = [];
+    var INPUT_CLS = 'flex h-10 w-full rounded-md border px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm mt-1 bg-ivory border-sage/30 text-sage-dark placeholder:text-sage-dark/50 focus:border-sage-dark';
+
+    // نعم / لا — الأعداد والمرافقين والحساسية بيظهروا بس مع "هحضر"
+    var radios = $$('#fcAtt button[role=radio]');
+    function setAtt(v) {
+      att = v;
+      radios.forEach(function (b) { var on = b.value === v; b.setAttribute('aria-checked', on ? 'true' : 'false'); b.setAttribute('data-state', on ? 'checked' : 'unchecked'); });
+      $$('.fc-yes', form).forEach(function (el) { el.classList.toggle('off', v !== 'yes' || (el === comp && count < 2)); });
+      err.textContent = '';
+    }
+    radios.forEach(function (b) {
+      b.addEventListener('click', function () { setAtt(b.value); });
+      var lab = form.querySelector('label[for="' + b.id + '"]'); if (lab) lab.addEventListener('click', function (e) { e.preventDefault(); if (!EDIT) setAtt(b.value); });
+    });
+
+    // عدد الضيوف (1–10) → خانات أسماء المرافقين (العدد − 1)
+    function renderComp() {
+      var need = Math.max(0, count - 1);
+      var inputs = $$('input', compList);
+      inputs.forEach(function (i, k) { names[k] = i.value; });
+      while (inputs.length < need) {
+        var i = document.createElement('input');
+        i.className = INPUT_CLS; i.maxLength = 60; i.value = names[inputs.length] || '';
+        compList.appendChild(i); inputs.push(i);
+      }
+      while (inputs.length > need) compList.removeChild(inputs.pop());
+      inputs.forEach(function (i, k) { i.placeholder = (AR ? 'المرافق ' : 'Companion ') + dg(k + 1); });
+      comp.classList.toggle('off', att !== 'yes' || need === 0);
+    }
+    function setCount(n) { count = Math.max(1, Math.min(10, n)); renderComp(); }
+    guestsI.addEventListener('focus', function () { try { guestsI.select(); } catch (e) {} });
+    guestsI.addEventListener('input', function () { var n = parseInt(guestsI.value, 10); if (!isNaN(n)) setCount(n); });
+    guestsI.addEventListener('blur', function () { var n = parseInt(guestsI.value, 10); setCount(isNaN(n) ? 1 : n); guestsI.value = String(count); });
+
+    // الحساسية (مربعات اختيار زي radix)
+    var boxes = $$('#fcAllergy button[role=checkbox]');
+    boxes.forEach(function (b) {
+      function toggle() { var on = b.getAttribute('aria-checked') !== 'true'; b.setAttribute('aria-checked', on ? 'true' : 'false'); b.setAttribute('data-state', on ? 'checked' : 'unchecked'); }
+      b.addEventListener('click', toggle);
+      var lab = form.querySelector('label[for="' + b.id + '"]'); if (lab) lab.addEventListener('click', function (e) { e.preventDefault(); if (!EDIT) toggle(); });
+    });
+    setAtt('yes'); renderComp();
+
+    // بعد الإرسال
+    function settle() { sec.className = 'section-padding bg-ivory'; head.classList.remove('off'); form.classList.remove('off'); doneYes.classList.add('off'); doneNo.classList.add('off'); }
+    function showDone(a, fresh) {
+      head.classList.add('off'); form.classList.add('off');
+      if (a === 'no') {
+        doneNo.classList.remove('off'); doneNo.classList.add('fc-zoom');
+      } else {
+        sec.className = 'min-h-screen bg-ivory flex items-center justify-center relative overflow-hidden px-6';
+        doneYes.classList.remove('off');
+        // من غير الحركة لو الضيف رجع للدعوة بعد ما بعت
+        $$('.fc-in', doneYes).forEach(function (el) { el.style.animation = fresh ? '' : 'none'; el.style.opacity = fresh ? '' : '1'; el.style.transform = fresh ? '' : 'none'; });
+      }
+      sec.classList.add('in');
+    }
+    if (EDIT) { /* المحرر: الفورم + رسالتين الشكر تحت بعض */ }
+    else if (!STATIC && sid && store.get(SENT_KEY)) showDone(store.get(SENT_KEY + '_att') === 'no' ? 'no' : 'yes', false);
+    $$('.fc-again').forEach(function (b) { b.addEventListener('click', function () { store.del(SENT_KEY); settle(); sec.scrollIntoView({ block: 'start' }); }); });
+
+    // فيديو البوابة بعد "هحضر" (زي الأصل): آخر ثانية ونص بيغطّيها لون الورق وبعدها رسالة الشكر
+    function gateThenThanks() {
+      var finished = false, started = false, faded = false;
+      function finish() {
+        if (finished) return; finished = true;
+        clearTimeout(g1); clearTimeout(g2); clearInterval(w);
+        showDone('yes', true);
+        gate.classList.add('out');
+        setTimeout(function () { gate.classList.add('off'); gate.classList.remove('out'); gFade.style.opacity = '0'; try { gv.pause(); } catch (e) {} }, 420);
+      }
+      function fade() { if (faded) return; faded = true; gFade.style.opacity = '1'; setTimeout(finish, 1500 + 300); }
+      gate.classList.remove('off');
+      sec.scrollIntoView({ block: 'start' });
+      try { gv.preload = 'auto'; gv.currentTime = 0; var p = gv.play(); if (p && p.catch) p.catch(fade); } catch (e) { fade(); }
+      var g1 = setTimeout(function () { if (!started) fade(); }, 4000);
+      var g2 = setTimeout(fade, 9000);
+      var lastT = -1, still = 0;
+      var w = setInterval(function () {
+        if (faded) { clearInterval(w); return; }
+        if (!started) return;
+        if (gv.currentTime !== lastT) { lastT = gv.currentTime; still = 0; return; }
+        if ((still += 250) >= 2500) fade();
+      }, 250);
+      gv.ontimeupdate = function () {
+        if (gv.currentTime > 0.03) started = true;
+        if (gv.duration && gv.duration - gv.currentTime <= 1.5) fade();
+      };
+      gv.onended = fade; gv.onerror = fade;
+    }
+    // الفيديو بيجهز لما الضيف يقرّب من الفورم
+    if ('IntersectionObserver' in window && !STATIC) {
+      var pio = new IntersectionObserver(function (es) { if (es[0] && es[0].isIntersecting) { pio.disconnect(); try { gv.preload = 'auto'; } catch (e) {} } }, { rootMargin: '600px' });
+      pio.observe(form);
+    }
+
+    function busy(on) { send.disabled = on; sendTxt.classList.toggle('off', on); sending.classList.toggle('off', !on); }
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (EDIT) return;
+      err.textContent = '';
+      var n = nameI.value.trim().replace(/\s+/g, ' ');
+      if (n.length < 2) { err.textContent = AR ? 'من فضلك اكتب اسمك.' : 'Please write your name.'; nameI.focus(); return; }
+      var yes = att === 'yes';
+      var comps = yes ? $$('input', compList).map(function (i) { return i.value.trim().replace(/\s+/g, ' '); }) : [];
+      if (yes && comps.some(function (c) { return !c; })) {
+        err.textContent = AR ? 'من فضلك اكتب أسماء كل المرافقين.' : 'Please tell us the names of all your companions.';
+        var empty = $$('input', compList).filter(function (i) { return !i.value.trim(); })[0]; if (empty) empty.focus();
+        return;
+      }
+      // كل التفاصيل في ملاحظة واحدة (200 حرف) بتظهر في لوحة صاحب الدعوة
+      var parts = [], SEP = AR ? '، ' : ', ';
+      if (yes) {
+        parts.push((AR ? 'العدد: ' : 'Guests: ') + count + (comps.length ? ' (' + comps.join(SEP) + ')' : ''));
+        var al = boxes.filter(function (b) { return b.getAttribute('aria-checked') === 'true'; }).map(function (b) { var l = form.querySelector('label[for="' + b.id + '"]'); return l ? l.textContent.trim() : b.id; });
+        var o = otherI.value.trim(); if (o) al.push(o);
+        if (al.length) parts.push((AR ? 'الحساسية: ' : 'Allergies: ') + al.join(SEP));
+      }
+      var m = noteI.value.trim(); if (m) parts.push(m);
+      var em = emailI.value.trim(); if (em) parts.push(em);
+      var done = function () { store.set(SENT_KEY, '1'); store.set(SENT_KEY + '_att', yes ? 'yes' : 'no'); store.set('mithaq_guest_name', n); if (yes) gateThenThanks(); else showDone('no', true); };
+      if (!sid) { done(); return; }
+      busy(true);
+      fetch('/i/' + encodeURIComponent(sid) + '/rsvp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin',
+        body: JSON.stringify({ guestName: n, attending: yes ? 'yes' : 'no', note: parts.join(' — ').slice(0, 200) }) })
+        .then(function (r) { if (!r.ok) throw r; busy(false); done(); })
+        .catch(function (r) {
+          busy(false);
+          err.textContent = r && r.status === 429 ? (AR ? 'محاولات كثيرة — حاول مرة أخرى بعد قليل.' : 'Too many tries — please try again in a little while.')
+            : (AR ? 'تعذّر إرسال التأكيد — حاول مرة أخرى.' : "We couldn't send your confirmation. Please try again.");
+        });
+    });
+  })();
+})();
+</script>
+</body>
+</html>

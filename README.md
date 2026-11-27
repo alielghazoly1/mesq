@@ -95,6 +95,30 @@ npm start
 - الأغنية الرسمية: "Forever and Ever and Always" (نفس أغنية Dolce Vita،
   على r2.dev) — صاحب الدعوة يقدر يغيّرها من المحرر.
 
+### قالب Finca (`views/finca.html`)
+
+نسخة طبق الأصل من تصميم "Finca" بتاع The Digital Yes (finca-demo.thedigitalyes.com)
+بطلب المالك — الصفحة المرسومة بتاعتهم + الـ CSS بتاعهم زي ما هو
+(`client/public/templates/finca/finca.css`)، **من غير العلامة المائية** (لوجو
+The Digital Yes اللي كان بيطير فوق الصفحة) ولا سطر "Hecho por The Digital Yes" ولا زرار ES/FR.
+
+- **لسه مش في المعرض** (`UNLISTED_TEMPLATES` في `templates/registry.js`): المعاينة
+  `/preview-sample/finca` (إنجليزي) و`/preview-sample/finca?lang=ar` (عربي). لما
+  المالك يوافق، القالب بيتنقل لـ `TEMPLATES` (ومعاه `isNew: true`).
+- **الغلاف:** الظرف بختم M&J → ضغطة → فيديو فتح الظرف (`open.mp4`) والأغنية بتبدأ →
+  الهيرو بفيديو الفينكا (`hero.mp4`). جملة "Esta invitación es exclusiva para ti"
+  اتشالت من صورة الغلاف والفيديو (inpainting) وبقت نص فوقهم بلغة الدعوة (`fc1`).
+- **نسختين** (`designLanguages: ['en','ar']`): الإنجليزي متترجم من الإسباني، والعربي في
+  `L` جوه الملف (زي Lace). خطوبة ولا فرح حسب `C.occasionType`.
+- **التعديل:** كل جملة عليها `data-elem-id` (`fc1`–`fc103`) وكل صورة/فيديو/خريطة
+  (`fc201`–`fc206`). الأسامي والتاريخ والقاعة والعنوان ومواعيد البرنامج من بيانات الدعوة
+  (`data-f`) — المواعيد بتتحسب من ساعة الدعوة بنفس فروق الأصل. برنامج اليوم على
+  الكمبيوتر (7 أعمدة) نسخة من اللي على الموبايل وبيتحدّث معاه.
+- **تأكيد الحضور** (`#mithaq-rsvp`): الاسم، الإيميل، هيحضر ولا لأ، عدد الضيوف وأسماء
+  المرافقين، الحساسية، رسالة → `POST /i/:shortId/rsvp` (كل التفاصيل في الملاحظة).
+  بعد "هحضر" فيديو البوابة (`gates.mp4`) وبعده رسالة الشكر، وبعد "مش هقدر" رسالة الاعتذار.
+- الأقسام الاختيارية: `countdown`, `venue`, `map`, `timeline`, `stay`, `faq`, `gift`, `rsvp`.
+
 ### مين على الموقع دلوقتي + أرقام النهارده + الأرباح شهر بشهر (لوحة التحكم)
 
 - `client/src/components/PresencePing.jsx` بيبعت `POST /api/presence` كل 40 ثانية

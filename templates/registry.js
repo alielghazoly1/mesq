@@ -378,7 +378,37 @@ const TEMPLATES = [
 
 // قوالب جاهزة بس لسه مش في المعرض (المالك بيراجعها الأول): المعاينة والمحرر شغالين باللينك
 // المباشر، ومابتظهرش في قايمة التصاميم. لما المالك يوافق بتتنقل لـ TEMPLATES فوق.
-const UNLISTED_TEMPLATES = [];
+const UNLISTED_TEMPLATES = [
+  {
+    // 2026-11-27 (المالك: "نسخة طبق الأصل" من finca-demo.thedigitalyes.com — تصميم The Digital Yes، المالك شغال
+    // معاهم): من غير العلامة المائية (لوجو The Digital Yes الطاير) ولا سطر "Hecho por The Digital Yes" ولا زرار ES/FR.
+    // لسه مش في المعرض — المالك بيراجعها ويبعت تعديلاته: /preview-sample/finca (إنجليزي) و ?lang=ar (عربي).
+    id: 'finca',
+    name: 'Finca',
+    description: 'فينكا متوسطية مرسومة بالألوان المائية: ظرف بختم شمع بيتفتح في فيديو، والأسامي فوق فيديو الفينكا والعصافير — عدّاد، المكان والخريطة والتقويم، برنامج اليوم، أماكن الإقامة، أسئلة شائعة، الهدية، وتأكيد حضور بأسماء المرافقين والحساسية',
+    file: 'finca.html',
+    languages: SUPPORTED_LANGUAGES,
+    occasionTypes: SUPPORTED_OCCASIONS,
+    // الإخفاء في views/finca.html (data-section). الهيرو والختام ثابتين.
+    optionalSections: [
+      { key: 'countdown', label: 'العداد التنازلي' },
+      { key: 'venue', label: 'تفاصيل اليوم (المكان والمواعيد)' },
+      { key: 'map', label: 'خريطة جوجل (جوه تفاصيل اليوم)' },
+      { key: 'timeline', label: 'برنامج اليوم' },
+      { key: 'stay', label: 'أماكن الإقامة (فندقين)' },
+      { key: 'faq', label: 'الأسئلة الشائعة' },
+      { key: 'gift', label: 'الهدية (رقم الحساب)' },
+      { key: 'rsvp', label: 'تأكيد الحضور (RSVP)' },
+    ],
+    timelineStages: [],
+    extraFields: [
+      { key: 'venueAddress', label: 'العنوان (بيظهر تحت اسم القاعة — اختياري)', maxlength: 200 },
+    ],
+    // نسختين: إنجليزي (التصميم الأصلي متترجم من الإسباني — المعاينة للزوار) وعربي
+    designLanguages: ['en', 'ar'],
+    isPremium: true,
+  },
+];
 
 function getTemplate(templateId) {
   return TEMPLATES.find((t) => t.id === templateId) || UNLISTED_TEMPLATES.find((t) => t.id === templateId) || null;

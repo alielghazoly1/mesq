@@ -47,6 +47,18 @@ const TEMPLATE_TEXT = {
       rsvp: { ar: 'الرد على الهدية', en: 'Reply to the gift' },
     },
   },
+  'finca': {
+    ar: { description: 'فينكا متوسطية مرسومة بالألوان المائية: ظرف بختم شمع بيتفتح في فيديو، والأسامي فوق فيديو الفينكا والعصافير — عدّاد، المكان والخريطة والتقويم، برنامج اليوم، أماكن الإقامة، أسئلة شائعة، الهدية، وتأكيد حضور بأسماء المرافقين والحساسية' },
+    en: { description: 'A watercolour Mediterranean finca: a wax-sealed envelope that opens on video, then your names over a film of the estate and its birds — countdown, venue with map and calendar, the day\'s programme, where to stay, FAQs, gift details and an RSVP with companions and allergies' },
+    sections: {
+      venue: { ar: 'تفاصيل اليوم (المكان والمواعيد)', en: 'Details of the day (venue & times)' },
+      map: { ar: 'خريطة جوجل (جوه تفاصيل اليوم)', en: 'Google map (inside the details)' },
+      timeline: { ar: 'برنامج اليوم', en: 'Order of the day' },
+      stay: { ar: 'أماكن الإقامة (فندقين)', en: 'Where to stay (two hotels)' },
+      faq: { ar: 'الأسئلة الشائعة', en: 'FAQs' },
+      gift: { ar: 'الهدية (رقم الحساب)', en: 'Gift (bank details)' },
+    },
+  },
   'lily-garden': {
     ar: { description: 'ظرف بختم شمع وزنبق وردي ينفتح — عدّاد تنازلي، تأكيد حضور، وألبوم يرفع فيه الضيوف صور الفرح' },
     en: { description: 'A wax-sealed envelope of pink lilies that opens — countdown, RSVP, and an album where guests upload their photos' },
