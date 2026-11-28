@@ -2440,6 +2440,36 @@ const FIXES = [
       'customizations.texts.lc59': 'موقع الفندق',
     }),
   },
+  {
+    // J3dUWhh (كانت دعوة Lace فاضية: Groom & Bride / Venue، City) — بطلب المالك (2026-11-28): قالب Finca الجديد
+    // (views/finca.html) عليها عشان يشوفه على لينك حقيقي، بنفس بيانات الديمو الأصلي (finca-demo.thedigitalyes.com):
+    // Mar & Jaume، السبت 8 مايو 2027 الساعة 5 العصر (17:00 — فبرنامج اليوم بيطلع بنفس مواعيد الأصل 17:00 → 03:00)،
+    // Finca Biniagual (Mallorca). إنجليزي زي ما هي، ومن غير أقسام مخفية.
+    // بيتعمل بس لو الدعوة لسه بأسامي البداية — لو حد كتب أسامي بنفسه مابنلمسهاش.
+    name: 'J3dUWhh-finca-demo',
+    shortId: 'J3dUWhh',
+    select: '-__v',
+    when: (c, inv) => inv.templateId !== 'finca'
+      && ['Groom', 'العريس'].includes(inv.groomName || inv.groomNameAr)
+      && ['Bride', 'العروسة'].includes(inv.brideName || inv.brideNameAr),
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const data = await buildInvitationDataFromRequest({
+        templateId: 'finca', language: 'en', occasionType: 'wedding',
+        hiddenSections: [], timeline: [], name: inv.name,
+        groomName: 'Mar', groomNameAr: 'مار', brideName: 'Jaume', brideNameAr: 'جاومي',
+        venueName: 'Finca Biniagual', venueCity: 'Mallorca', venueAddress: '',
+        venueMapQuery: 'Finca Biniagual, Mallorca',
+        weddingDate: '2027-05-08', weddingTime: '17:00',
+      }, { ownsTemplate: true, skipMapNetwork: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.templateId = 'finca';
+      set.language = 'en';
+      set.hiddenSections = [];
+      return set;
+    },
+  },
 ];
 
 let done = false;
