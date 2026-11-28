@@ -2575,6 +2575,15 @@ const FIXES = [
       return set;
     },
   },
+  {
+    // kUWdiyT (Lace عربي — هشام وياسمين) — بطلب المالك (2026-11-28): فريم الدانتيل اللي بيلف ورا الأسامي في أول شاشة بعد
+    // الفتح (lc122، فيديو hero-bg) اتشال بالغلط من المحرر — بيرجع. باقي المحذوفات زي ما هي. بيتعمل لحد بكرة بس، فلو
+    // صاحب الدعوة شاله تاني بنفسه بعد كده مابنرجّعوش.
+    name: 'kUWdiyT-restore-hero-frame',
+    shortId: 'kUWdiyT',
+    when: (c) => Array.isArray(c.hidden) && c.hidden.includes('lc122') && Date.now() < Date.parse('2026-11-29T22:00:00Z'),
+    apply: (c) => ({ 'customizations.hidden': c.hidden.filter((id) => id !== 'lc122') }),
+  },
 ];
 
 let done = false;
