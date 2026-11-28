@@ -141,6 +141,8 @@ html:not(.ar) .jd-lw{right:-6px}html.ar .jd-lw{left:-6px}
 #fcHero #fcToRsvp{color:hsl(var(--sage-dark));text-shadow:0 1px 8px rgba(246,241,232,.9)}
 #fcHero .jy-nm{filter:drop-shadow(0 2px 6px rgba(246,241,232,.8))}
 #fcHero p.font-body{font-weight:500}
+#fcTlM [data-k="t"],#fcTlD [data-k="t"]{white-space:nowrap;flex:none}
+[data-section="timeline"] img[src*="couple.webp"]{width:min(50vw,210px)!important;max-width:none;margin-bottom:1.25rem}
 /* العدّاد بلون الفخار السمني (نفس فازات لوحة المالك) والعناصر جواه */
 #countdown{background:linear-gradient(180deg,#e6ceb3 0%,#dcbf9f 55%,#d2b08e 100%)!important;position:relative;overflow:hidden;padding-bottom:210px!important}
 #countdown:before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 18%,rgba(255,248,238,.55),rgba(255,248,238,0) 60%);pointer-events:none}
@@ -182,35 +184,31 @@ const TL_ICONS = [
 
 // رسومات جدول اليوم (من قالب Lace بطلب المالك 2026-11-28) — زي ما هي في Lace (من غير دواير) بس لونها أخضر Finca
 // (الدانتيل الأبيض مابيبانش على الخلفية الفاتحة)، وبتتكرر لما الفقرات أكتر من الرسومات
-const TL_ART = ['tl-fountain', 'tl-glasses', 'tl-arch', 'tl-fountain', 'tl-glasses', 'tl-plate', 'tl-arch', 'tl-dance'];
+const TL_ART = ['tl-glasses', 'tl-arch', 'tl-fountain', 'tl-plate', 'tl-arch', 'tl-dance'];
 
 // كلام المالك — [وقت، عنوان، وصف] لكل فقرة
 const PLAN = {
   ar: [
-    ['١١:٣٠ – ١:٠٠', 'جلسة تصوير العروسين', ''],
-    ['١:٣٠ – ٢:٠٠', 'استقبال الضيوف', 'الترحيب والمشروبات والموسيقى الهادئة، وتجهيز العروسين والضيوف لكتب الكتاب'],
-    ['٢:٠٠ – ٢:٣٠', 'كتب الكتاب', 'الإشهار وخطبة المأذون والدعاء، على أن تنتهي الخطبة مع أذان العصر تقريبًا'],
-    ['٢:٣٠ – ٣:٠٠', 'أذان العصر', 'استراحة الصلاة'],
-    ['٣:٠٠ – ٣:٢٠', 'جولة العروسين', 'على الطاولات للسلام على الضيوف وشكرهم على الحضور'],
-    ['٣:٢٠ – ٤:٠٥', 'الغداء والضيافة', ''],
-    ['٤:٠٥ – ٤:٤٥', 'التصوير الرسمي', 'مع العائلتين والأهل والأصدقاء والعروسين'],
-    ['٤:٤٥ – ٥:٠٠', 'ختام الفرح', 'صور أخيرة وتوديع الضيوف'],
+    ['١:٣٠ – ٢:٠٠', 'استقبال الضيوف والترحيب', ''],
+    ['٢:٠٠ – ٢:٤٥', 'مراسم كتب الكتاب والإشهار', ''],
+    ['٢:٤٥ – ٣:٠٠', 'استراحة قصيرة', ''],
+    ['٣:٠٠ – ٣:٤٥', 'الغداء والضيافة', ''],
+    ['٣:٤٥ – ٤:٤٥', 'التصوير الرسمي مع الضيوف', ''],
+    ['٤:٤٥ – ٥:٠٠', 'توديع الضيوف وختام اليوم', ''],
   ],
   en: [
-    ['11:30 – 1:00', "The couple's photo session", ''],
-    ['1:30 – 2:00', 'Welcoming our guests', 'Welcome drinks and soft music while everyone gets ready for the Katb El-Kitab'],
-    ['2:00 – 2:30', 'Katb El-Kitab', 'The marriage contract, the announcement, the Maazoun’s sermon and prayers — ending around the Asr call to prayer'],
-    ['2:30 – 3:00', 'Asr prayer', 'Prayer break'],
-    ['3:00 – 3:20', 'The couple’s table visits', 'Greeting every guest and thanking you for coming'],
-    ['3:20 – 4:05', 'Lunch & hospitality', ''],
-    ['4:05 – 4:45', 'Official photos', 'With both families, relatives, friends and the couple'],
-    ['4:45 – 5:00', 'Farewell', 'Last photos and goodbyes'],
+    ['1:30 – 2:00', 'Welcoming our guests', ''],
+    ['2:00 – 2:45', 'Katb El-Kitab & the announcement', ''],
+    ['2:45 – 3:00', 'A short break', ''],
+    ['3:00 – 3:45', 'Lunch & hospitality', ''],
+    ['3:45 – 4:45', 'Official photos with our guests', ''],
+    ['4:45 – 5:00', 'Farewell & close of the day', ''],
   ],
 };
 
 const TEXTS = {
   ar: {
-    fc2: 'تتشرّف عائلتا سليم ووافي بدعوتكم', fc19: 'من ١١:٣٠ ص إلى ٥:٣٠ م',
+    fc2: 'تتشرّف عائلتا سليم ووافي بدعوتكم', fc19: 'من ١:٣٠ م إلى ٥:٠٠ م',
     fc22: 'جدول فرحنا', fc23: 'السبت ١٢ ديسمبر ٢٠٢٦',
     fc62: 'هدية ومباركة', fc63: 'حضوركم ودعواتكم هما أجمل هدية لنا.', fc64: '«بارك الله لكما، وبارك عليكما، وجمع بينكما في خير»',
     tT: 'شكرًا لكم', tS: 'شكرًا لكل من شاركنا فرحتنا بحضوره أو بدعوة أو بكلمة حلوة. اكتبوا لنا رسالة صغيرة نحتفظ بها العمر كله.',
@@ -218,7 +216,7 @@ const TEXTS = {
     pT: 'ألبوم فرحنا', pS: 'اتصوّرت معانا؟ ارفع صورك من الفرح هنا عشان نحتفظ بيها كلها.',
   },
   en: {
-    fc2: 'The Selim & Wafi families invite you', fc19: 'From 11:30 AM to 5:30 PM',
+    fc2: 'The Selim & Wafi families invite you', fc19: 'From 1:30 PM to 5:00 PM',
     fc22: 'Our Wedding Day', fc23: 'Saturday, 12 December 2026',
     fc62: 'Gifts & Blessings', fc63: 'Your presence and your prayers are the most beautiful gift to us.', fc64: '“May Allah bless you both, shower His blessings upon you, and unite you in goodness.”',
     tT: 'Thank you', tS: 'Thank you to everyone who shares our joy — with your presence, a prayer or a kind word. Leave us a little message we’ll keep forever.',
@@ -289,6 +287,7 @@ if(!('IntersectionObserver' in window)){targets.forEach(go)}else{
 var gb=$('#fcGiftBtn');if(gb){var card=gb.parentNode;card.parentNode.removeChild(card)}
 /* جدول اليوم: 8 فقرات بكلام المالك */
 var list=$('#fcTlM .space-y-6');var items=$$('#fcTlM [data-tl]');
+while(items.length>K.plan[L].length){var x=items.pop();x.parentNode.removeChild(x)}
 while(items.length<K.plan[L].length){var c=items[items.length-1].cloneNode(true);$$('[data-elem-id]',c).forEach(function(e){e.removeAttribute('data-elem-id');e.removeAttribute('data-f')});list.appendChild(c);items.push(c)}
 var desk=$$('#fcTlD > div');
 var setArt=function(root,i){var sv=$('svg',root);var bx=sv?sv.parentNode:$('.jy-art',root);if(!bx)return;var src=K.art[i%K.art.length];if(!src){if(sv)sv.innerHTML=K.icons[i];return}bx.classList.add('jy-art');bx.innerHTML='<img src="'+src+'" alt="" loading="lazy" decoding="async" draggable="false">'};
@@ -296,7 +295,7 @@ K.plan[L].forEach(function(r,i){var it=items[i];$('[data-k="t"]',it).textContent
  setArt(it,i);if(C.autoOpen)it.classList.add('in');
  if(!desk[i]&&desk.length){var dc=desk[desk.length-1].cloneNode(true);dc.classList.add('in');desk[0].parentNode.appendChild(dc);desk.push(dc)}
  var d=desk[i];if(d){$('[data-k="t"]',d).textContent=r[0];$('[data-k="h"]',d).textContent=r[1];$('[data-k="p"]',d).textContent=r[2];setArt(d,i)}});
-var g=$('#fcTlD');if(g)g.style.gridTemplateColumns='repeat(8,minmax(0,1fr))';
+var g=$('#fcTlD');if(g){while(g.children.length>K.plan[L].length)g.removeChild(g.lastElementChild);g.style.gridTemplateColumns='repeat('+K.plan[L].length+',minmax(0,1fr))'}
 /* زرار اللغة */
 var sid=C.shortId||K.short;var inside=function(){return !document.getElementById('fcCover')};
 var bar=document.createElement('div');bar.id='jyLang';bar.setAttribute('role','group');bar.setAttribute('aria-label',EN?'Language':'اللغة');
@@ -354,6 +353,8 @@ module.exports = {
       .split('/templates/finca/open.mp4').join(A('open.mp4'))
       // بيت يزد مكان صورة الفينكا
       .split('/templates/finca/venue.webp').join(A('house.webp'))
+      // فوق جدول فرحنا: العرسان الماشيين من قالب Lace مكان رسمة الضيوف اللي بيرقصوا
+      .split('/templates/finca/party.webp').join(A('couple.webp'))
       // أول صفحة بعد الفتح: فيديو المالك (الفازات بالورد النبيتي والبامباس والفراشات) مكان فيديو الفينكا
       .split('/templates/finca/hero.mp4').join(A('hero.mp4'))
       .split('/templates/finca/hero.webp').join(A('hero.webp'))
