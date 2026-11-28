@@ -141,6 +141,12 @@ html:not(.ar) .jd-lw{right:-6px}html.ar .jd-lw{left:-6px}
 #fcHero #fcToRsvp{color:hsl(var(--sage-dark));text-shadow:0 1px 8px rgba(246,241,232,.9)}
 #fcHero .jy-nm{filter:drop-shadow(0 2px 6px rgba(246,241,232,.8))}
 #fcHero p.font-body{font-weight:500}
+#fcCover .fc-line{animation:jdTap 2.4s ease-in-out infinite;top:63%}
+@keyframes jdTap{0%,100%{opacity:.95;transform:scale(1)}50%{opacity:.55;transform:scale(.97)}}
+#fcCover.play .fc-line{animation:none;opacity:0;transition:opacity .4s}
+#fcCover .jbf{z-index:5}
+#fcCover .jbf img{position:static;width:100%;height:auto;object-fit:contain}
+html:not(.ar) #fcCover .fc-line{font-size:6.4cqw}
 #fcTlM [data-k="t"],#fcTlD [data-k="t"]{white-space:nowrap;flex:none}
 [data-section="timeline"] img[src*="couple.webp"]{width:min(50vw,210px)!important;max-width:none;margin-bottom:1.25rem}
 /* العدّاد بلون الفخار السمني (نفس فازات لوحة المالك) والعناصر جواه */
@@ -208,7 +214,7 @@ const PLAN = {
 
 const TEXTS = {
   ar: {
-    fc2: 'تتشرّف عائلتا سليم ووافي بدعوتكم', fc19: 'من ١:٣٠ م إلى ٥:٠٠ م',
+    fc1: 'اضغط لفتح الدعوة', fc2: 'تتشرّف عائلتا سليم ووافي بدعوتكم', fc19: 'من ١:٣٠ م إلى ٥:٠٠ م',
     fc22: 'جدول فرحنا', fc23: 'السبت ١٢ ديسمبر ٢٠٢٦',
     fc62: 'هدية ومباركة', fc63: 'حضوركم ودعواتكم هما أجمل هدية لنا.', fc64: '«بارك الله لكما، وبارك عليكما، وجمع بينكما في خير»',
     tT: 'شكرًا لكم', tS: 'شكرًا لكل من شاركنا فرحتنا بحضوره أو بدعوة أو بكلمة حلوة. اكتبوا لنا رسالة صغيرة نحتفظ بها العمر كله.',
@@ -216,7 +222,7 @@ const TEXTS = {
     pT: 'ألبوم فرحنا', pS: 'اتصوّرت معانا؟ ارفع صورك من الفرح هنا عشان نحتفظ بيها كلها.',
   },
   en: {
-    fc2: 'The Selim & Wafi families invite you', fc19: 'From 1:30 PM to 5:00 PM',
+    fc1: 'Tap to open the invitation', fc2: 'The Selim & Wafi families invite you', fc19: 'From 1:30 PM to 5:00 PM',
     fc22: 'Our Wedding Day', fc23: 'Saturday, 12 December 2026',
     fc62: 'Gifts & Blessings', fc63: 'Your presence and your prayers are the most beautiful gift to us.', fc64: '“May Allah bless you both, shower His blessings upon you, and unite you in goodness.”',
     tT: 'Thank you', tS: 'Thank you to everyone who shares our joy — with your presence, a prayer or a kind word. Leave us a little message we’ll keep forever.',
@@ -256,6 +262,7 @@ var flyN=0;var fly=function(h,n,opts){if(!h)return;for(var i=0;i<n;i++){var b=do
  var im=document.createElement('img');im.src=E.bf[flyN%E.bf.length];im.alt='';im.setAttribute('aria-hidden','true');b.appendChild(im);h.appendChild(b);flyN++}};
 var lace=function(after){if(!after)return;var d=document.createElement('div');d.className='jd-lace';d.style.backgroundImage='url('+E.lace+')';after.parentNode.insertBefore(d,after.nextSibling)};
 /* أول صفحة: بامباس في الركنين وفراشات */
+var cvb=document.querySelector('#fcCover .fc-box');if(cvb)fly(cvb,3,[[14,22,36,140,60,12],[72,30,32,-130,70,14],[30,78,34,120,-60,13]]);
 /* أول صفحة: فيديو المالك (فيه البامباس والورد والفراشات) — من غير ديكور زيادة */
 /* العدّاد: القماش فوق ودانتيل تحت */
 var cd=host($('#countdown'));if(cd){mk('img','jd jd-drape l',E.drapes,cd);mk('img','jd jd-drape r',E.drapes,cd);mk('img','jd jd-side jd-cpam l',E.pampas,cd);mk('img','jd jd-side jd-cpam r',E.pampas,cd);mk('img','jd jd-green jd-cgreen l',E.greenery,cd);mk('img','jd jd-green jd-cgreen r',E.greenery,cd);mk('img','jd jd-vases jd-cvases',E.vases,cd);fly(cd,2,[[10,30,22,130,40,14],[78,46,20,-120,-40,16]]);lace(cd)}
