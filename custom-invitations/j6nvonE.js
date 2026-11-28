@@ -28,6 +28,7 @@ const TEXTS = {
     month: 'يناير ٢٠٢٧',
     stdSub: 'الأربعاء ٦ يناير ٢٠٢٧ — ٧:٣٠ مساءً',
     iv14: 'هنا', iv15: 'تبدأ', iv16: 'الحكاية',
+    poem: 'لم يكن أحدٌ ليتخيّل يومًا<br><br>أن تجمعنا الأقدار رغم اختلاف البلاد،<br>وأن تعبر قلوبنا كل تلك المسافات<br>لتجد في بعضها موطنًا لا يشبه سواه.<br><br>لكنّ للحب حكاياتٍ تتجاوز التوقّعات،<br>وللقلوب التي اختارت بعضها<br>قوّةٌ تتجاوز البُعد،<br>وصبرٌ لا يُطفئه طول الانتظار.<br><br>وها نحن اليوم، بعد انتظارٍ طال،<br>وأمنيةٍ كبرت في قلوبنا،<br>نقف على عتبة عمرٍ جديد،<br>لا تفصلنا المسافات، ولا يؤجّلنا اللقاء،<br>بل يجمعنا بيتٌ واحد،<br>وحكاية حبٍّ كتب الله لها أن تكتمل.<br><br>فما بدأ يومًا بحلم اللقاء،<br>أصبح اليوم وعدًا بعمرٍ كاملٍ معًا.',
     iv17: 'حفل زفافنا',
     iv18: 'بداية أجمل<br>حكاية',
     iv19: 'وهذه ليلتنا التي تملؤها السعادة والدفء، نتمنى أن تزيّنها وجوهكم وتكتمل فرحتنا بحضوركم،',
@@ -59,6 +60,7 @@ const TEXTS = {
     month: 'JANUARY 2027',
     stdSub: 'Wednesday, 6 January 2027 — 7:30\u00a0PM',
     iv14: 'Here', iv15: 'Starts', iv16: 'Forever',
+    poem: 'No one could ever have imagined<br><br>that fate would bring us together across different lands,<br>that our hearts would cross all those distances<br>to find in each other a home like no other.<br><br>But love has stories beyond all expectations,<br>and hearts that chose each other<br>hold a strength greater than distance,<br>and a patience no waiting can dim.<br><br>And here we are today, after a long wait<br>and a wish that grew in our hearts,<br>standing at the threshold of a new life —<br>no distance between us, no meeting delayed,<br>but one home that brings us together,<br>and a love story God has written to be complete.<br><br>What once began as a dream of meeting<br>has become today a promise of a whole life together.',
     iv17: 'OUR WEDDING',
     iv18: 'The beginning of<br>our story',
     iv19: 'This is our night, full of joy and warmth — we hope your faces will grace it and complete our happiness,',
@@ -132,6 +134,16 @@ html.j6-en #j6Night .j6-note{font-family:'EB Garamond',serif;font-size:17.5px;li
 #j6Night .j6-r{opacity:0;transform:translateY(14px);transition:opacity .9s ease,transform .9s ease}
 #j6Night.in .j6-r{opacity:1;transform:none}
 #j6Night.in .j6-r:nth-child(2){transition-delay:.12s}#j6Night.in .j6-r:nth-child(3){transition-delay:.24s}#j6Night.in .j6-r:nth-child(4){transition-delay:.36s}#j6Night.in .j6-r:nth-child(5){transition-delay:.48s}
+/* ===== الكلام في البرواز مكان الصور التلاتة اللي متعلّقة ===== */
+#hf-section .hf-frames{display:none!important}
+#j6Poem{position:relative;width:min(92vw,430px);margin:6px auto 34px;container-type:inline-size}
+#j6Poem img{display:block;width:100%;height:auto;pointer-events:none;user-select:none;-webkit-user-drag:none}
+#j6Poem .j6-ptext{position:absolute;left:21.5%;right:21.5%;top:15.6%;bottom:17.2%;display:flex;align-items:center;justify-content:center;text-align:center;
+ direction:rtl;font-family:'Amiri',serif;font-size:3.95cqw;line-height:1.66;color:#5a4330;text-wrap:balance}
+html.j6-en #j6Poem .j6-ptext{direction:ltr;font-family:'EB Garamond','Ovo',serif;font-style:italic;font-size:3.5cqw;line-height:1.46}
+#j6Poem .j6-ptext p{margin:0}
+#j6Poem{opacity:0;transform:translateY(18px);transition:opacity 1.1s ease,transform 1.1s ease}
+#j6Poem.in{opacity:1;transform:none}
 /* صورة القاعة الافتراضية مش قاعتهم */
 [data-elem-id="iv5"]{display:none!important}
 </style>`;
@@ -145,7 +157,7 @@ const NIGHT = `<section id="j6Night" aria-label="">
 </section>`;
 
 function bodyEnd() {
-  const cfg = JSON.stringify({ T: TEXTS, couple: A('couple.webp'), open: MOP('open.mp4'), poster: MOP('poster.webp'), night: NIGHT })
+  const cfg = JSON.stringify({ T: TEXTS, couple: A('couple.webp'), poemFrame: A('poem-frame.webp'), open: MOP('open.mp4'), poster: MOP('poster.webp'), night: NIGHT })
     .replace(/</g, '\\u003c');
   return `<script>(function(){
 var K=${cfg};var C=window.WEDDING_CONFIG||{};var L=window.J6_LANG||'ar';var EDIT=!!C.autoOpen&&!window.J6_SKIP;
@@ -159,6 +171,13 @@ var put=function(el,v,html){if(!el||v==null)return;if(html){if(el.innerHTML!==v)
  var w=document.createElement('div');w.innerHTML=K.night;loc.parentNode.insertBefore(w.firstChild,loc);
  var n=document.getElementById('j6Night');if(EDIT||!('IntersectionObserver' in window)){n.classList.add('in');return}
  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){n.classList.add('in');io.disconnect()}})},{threshold:.2});io.observe(n);})();
+
+/* ===== الكلام في البرواز مكان الصور التلاتة ===== */
+(function(){var fr=document.querySelector('#hf-section .hf-frames');if(!fr||document.getElementById('j6Poem'))return;
+ var d=document.createElement('div');d.id='j6Poem';d.innerHTML='<img src="'+K.poemFrame+'" alt="" decoding="async"><div class="j6-ptext"><p data-j6h="poem"></p></div>';
+ fr.parentNode.insertBefore(d,fr.nextSibling);
+ if(EDIT||!('IntersectionObserver' in window)){d.classList.add('in');return}
+ var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){d.classList.add('in');io.disconnect()}})},{threshold:.15});io.observe(d);})();
 
 /* ===== العروسين جوه كارت الآية ===== */
 (function(){var fr=$('.wg-frame-verse');if(!fr||$('.j6-couple',fr))return;var im=document.createElement('img');im.className='j6-couple';im.src=K.couple;im.alt='';im.setAttribute('aria-hidden','true');im.decoding='async';fr.appendChild(im);
@@ -177,6 +196,7 @@ function apply(){var T=K.T[L];
  put(document.getElementById('stdcal-month'),T.month);put(by('iv40'),T.stdSub);
  $$('.loc-hall-name,.loc-map-labels .name').forEach(function(e){put(e,T.venue)});put(by('iv30'),T.venueSub);
  $$('[data-j6]').forEach(function(e){put(e,T[e.getAttribute('data-j6')])});
+ $$('[data-j6h]').forEach(function(e){put(e,T[e.getAttribute('data-j6h')],true)});
  put(document.getElementById('mrsvp-eyebrow'),T.rEyebrow);put(document.getElementById('mrsvp-title'),T.rTitle);put(document.getElementById('mrsvp-intro'),T.rIntro);
  var n=document.getElementById('mrsvp-name');if(n)n.placeholder=T.rName;var no=document.getElementById('mrsvp-note');if(no)no.placeholder=T.rNote;
  var y=document.getElementById('mrsvp-yes-lbl'),x=document.getElementById('mrsvp-no-lbl');if(y&&y.lastChild)y.lastChild.textContent=' '+T.rYes;if(x&&x.lastChild)x.lastChild.textContent=' '+T.rNo;
