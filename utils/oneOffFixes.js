@@ -2477,6 +2477,35 @@ const FIXES = [
       set.hiddenSections = [];
       return set;
     },
+  },  {
+    // J3dUWhh — بطلب المالك (2026-11-28): بقت دعوة محمد مصطفى عبدالحفيظ سليم ويارا هشام فاروق وافي (custom-invitations/J3dUWhh.js)
+    // — السبت 12/12/2026 الساعة 11:30 الصبح، بيت يزد (الجيزة) بلينك المالك، عربي (والإنجليزي على /en)، وألبوم صور الضيوف.
+    // بيتعمل بس لو الدعوة لسه بأسامي الديمو (Mar & Jaume) أو أسامي البداية.
+    name: 'J3dUWhh-mohamed-yara',
+    shortId: 'J3dUWhh',
+    select: '-__v',
+    when: (c, inv) => ['Mar', 'Groom', 'العريس'].includes(inv.groomName) && ['Jaume', 'Bride', 'العروسة'].includes(inv.brideName),
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const link = 'https://maps.app.goo.gl/o4cD5S18Z4FtJM5c8';
+      const data = await buildInvitationDataFromRequest({
+        templateId: 'finca', language: 'ar', occasionType: 'wedding',
+        hiddenSections: [], timeline: [], name: inv.name,
+        groomName: 'Mohamed', groomNameAr: 'محمد', brideName: 'Yara', brideNameAr: 'يارا',
+        venueName: 'بيت يزد', venueCity: 'الجيزة', venueAddress: '',
+        venueMapQuery: link,
+        weddingDate: '2026-12-12', weddingTime: '11:30',
+      }, { ownsTemplate: true, skipMapNetwork: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.templateId = 'finca';
+      set.language = 'ar';
+      set.hiddenSections = [];
+      set.venueMapQuery = link;
+      set.venueMapDirectLink = link;
+      set['guestExtras.photos'] = true;
+      return set;
+    },
   },
 ];
 
