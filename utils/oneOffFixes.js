@@ -2584,6 +2584,21 @@ const FIXES = [
     when: (c) => Array.isArray(c.hidden) && c.hidden.includes('lc122') && Date.now() < Date.parse('2026-11-29T22:00:00Z'),
     apply: (c) => ({ 'customizations.hidden': c.hidden.filter((id) => id !== 'lc122') }),
   },
+  {
+    // kUWdiyT — المالك (نفس اليوم، بعدها): مكان الفريم ده كان عليه صورة مرفوعة (كاسات) متصغّرة 65% بدل فيديو الدانتيل،
+    // فلما رجع ظهرت الصورة. بيرجع فيديو فريم الدانتيل الأصلي (hero-bg) — بتتشال الصورة والتصغير من lc122 بس.
+    name: 'kUWdiyT-hero-frame-lace-video',
+    shortId: 'kUWdiyT',
+    when: (c) => Date.now() < Date.parse('2026-11-29T22:00:00Z')
+      && ((c.images && c.images.lc122) || (c.scales && c.scales.lc122 != null)),
+    apply: (c) => {
+      const images = { ...(c.images || {}) };
+      const scales = { ...(c.scales || {}) };
+      delete images.lc122;
+      delete scales.lc122;
+      return { 'customizations.images': images, 'customizations.scales': scales };
+    },
+  },
 ];
 
 let done = false;
