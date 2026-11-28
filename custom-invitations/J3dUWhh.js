@@ -132,6 +132,13 @@ html:not(.ar) .jd-lw{right:-6px}html.ar .jd-lw{left:-6px}
 .jy-nm{filter:drop-shadow(0 4px 10px rgba(0,0,0,.35));margin:6px auto}
 .jy-row{display:inline-flex;align-items:center;gap:14px;direction:rtl}.jy-row img{width:auto;filter:drop-shadow(0 2px 6px rgba(0,0,0,.25))}
 .jy-and{font-family:'Aref Ruqaa',serif;color:hsl(var(--gold));font-size:1.6rem}
+/* جدول اليوم: رسومات الدانتيل من قالب Lace زي ما هي هناك (من غير دواير ولا خط)، بلون أخضر Finca */
+#fcTlM > .absolute,.absolute:has(+ #fcTlD){display:none!important}
+#fcTlM [data-tl]{align-items:center!important}
+#fcTlM .jy-art{width:78px!important;height:78px!important}
+#fcTlD .jy-art{width:104px!important;height:104px!important}
+.jy-art{background:none!important;border:0!important;box-shadow:none!important;border-radius:0!important;overflow:visible}
+.jy-art img{width:100%;height:100%;object-fit:contain;pointer-events:none;user-select:none}
 </style>`;
 
 const TL_ICONS = [
@@ -144,6 +151,10 @@ const TL_ICONS = [
   '<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>',
   '<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/>',
 ];
+
+// رسومات جدول اليوم (من قالب Lace بطلب المالك 2026-11-28) — زي ما هي في Lace (من غير دواير) بس لونها أخضر Finca
+// (الدانتيل الأبيض مابيبانش على الخلفية الفاتحة)، وبتتكرر لما الفقرات أكتر من الرسومات
+const TL_ART = ['tl-fountain', 'tl-glasses', 'tl-arch', 'tl-fountain', 'tl-glasses', 'tl-plate', 'tl-arch', 'tl-dance'];
 
 // كلام المالك — [وقت، عنوان، وصف] لكل فقرة
 const PLAN = {
@@ -194,7 +205,8 @@ function bodyScript() {
   ['pampas', 'vases', 'lace', 'arch', 'greenery', 'lantern', 'drapes', 'corner'].forEach((n) => { el[n] = A(`el-${n}.webp`); });
   el.bouquet = A('bouquet.webp'); el.door = A('door.webp');
   el.bf = Array.from({ length: 13 }, (_, i) => A(`bf-${i}.png`));
-  const cfg = JSON.stringify({ texts: TEXTS, plan: PLAN, icons: TL_ICONS, short: SHORT, names, el }).replace(/</g, '\\u003c');
+  const art = TL_ART.map((f) => A(`${f}.webp`));
+  const cfg = JSON.stringify({ texts: TEXTS, plan: PLAN, icons: TL_ICONS, art, short: SHORT, names, el }).replace(/</g, '\\u003c');
   return `<script>(function(){
 var K=${cfg};var C=window.WEDDING_CONFIG||{};var EN=C.language==='en';var L=EN?'en':'ar';var T=K.texts[L];
 var $=function(s,r){return (r||document).querySelector(s)};var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
@@ -251,10 +263,11 @@ var gb=$('#fcGiftBtn');if(gb){var card=gb.parentNode;card.parentNode.removeChild
 var list=$('#fcTlM .space-y-6');var items=$$('#fcTlM [data-tl]');
 while(items.length<K.plan[L].length){var c=items[items.length-1].cloneNode(true);$$('[data-elem-id]',c).forEach(function(e){e.removeAttribute('data-elem-id');e.removeAttribute('data-f')});list.appendChild(c);items.push(c)}
 var desk=$$('#fcTlD > div');
+var setArt=function(root,i){var sv=$('svg',root);var bx=sv?sv.parentNode:$('.jy-art',root);if(!bx)return;var src=K.art[i%K.art.length];if(!src){if(sv)sv.innerHTML=K.icons[i];return}bx.classList.add('jy-art');bx.innerHTML='<img src="'+src+'" alt="" loading="lazy" decoding="async" draggable="false">'};
 K.plan[L].forEach(function(r,i){var it=items[i];$('[data-k="t"]',it).textContent=r[0];$('[data-k="h"]',it).textContent=r[1];var p=$('[data-k="p"]',it);p.textContent=r[2];p.style.display=r[2]?'':'none';
- $('svg',it).innerHTML=K.icons[i];if(C.autoOpen)it.classList.add('in');
+ setArt(it,i);if(C.autoOpen)it.classList.add('in');
  if(!desk[i]&&desk.length){var dc=desk[desk.length-1].cloneNode(true);dc.classList.add('in');desk[0].parentNode.appendChild(dc);desk.push(dc)}
- var d=desk[i];if(d){$('[data-k="t"]',d).textContent=r[0];$('[data-k="h"]',d).textContent=r[1];$('[data-k="p"]',d).textContent=r[2];$('svg',d).innerHTML=K.icons[i]}});
+ var d=desk[i];if(d){$('[data-k="t"]',d).textContent=r[0];$('[data-k="h"]',d).textContent=r[1];$('[data-k="p"]',d).textContent=r[2];setArt(d,i)}});
 var g=$('#fcTlD');if(g)g.style.gridTemplateColumns='repeat(8,minmax(0,1fr))';
 /* زرار اللغة */
 var sid=C.shortId||K.short;var inside=function(){return !document.getElementById('fcCover')};
