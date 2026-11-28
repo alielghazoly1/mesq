@@ -144,10 +144,12 @@ html:not(.ar) .jd-lw{right:-6px}html.ar .jd-lw{left:-6px}
 #fcHero .jy-nm{filter:drop-shadow(0 2px 6px rgba(246,241,232,.8))}
 #fcHero p.font-body{font-weight:500}
 /* لون الفخار بدل الأخضر في: الختام، مواعيد الجدول ورسوماته (الكلام فاضل أخضر) */
-footer.bg-sage-dark{background:linear-gradient(180deg,#cfa27c 0%,#bf8c66 55%,#b27c57 100%)!important}
-footer.bg-sage-dark .text-white\\/70,footer.bg-sage-dark .text-white\\/80{color:rgba(255,250,242,.92)!important}
-#fcTlM [data-k="t"],#fcTlD [data-k="t"]{background:#b47a55!important;color:#fffaf2!important}
-.jy-art img{filter:sepia(1) saturate(1.9) hue-rotate(-14deg) brightness(.92) contrast(1.05)}
+footer.bg-sage-dark{background:linear-gradient(180deg,#e6ceb3 0%,#dcbf9f 55%,#d2b08e 100%)!important}
+footer.bg-sage-dark .text-white,footer.bg-sage-dark .text-white\\/70,footer.bg-sage-dark .text-white\\/80{color:#5a3a28!important}
+footer.bg-sage-dark .jy-row img{filter:none!important}footer.bg-sage-dark .jy-and{color:#b8893f}
+
+#fcTlM [data-k="t"],#fcTlD [data-k="t"]{background:#dcbf9f!important;color:#5a3a28!important;border:1px solid rgba(120,80,50,.2)}
+.jy-art img{filter:sepia(.85) saturate(1.05) hue-rotate(-8deg) brightness(1.02) contrast(.95)}
 [data-section="timeline"] img[src*="couple.webp"]{filter:saturate(1.5) brightness(.72) contrast(1.15)}
 
 #fcCover .fc-line{animation:jdTap 2.4s ease-in-out infinite;top:63%}
@@ -261,7 +263,7 @@ var al=$('#fcAllergy');if(al){var blk=al.closest('.fc-yes');if(blk)blk.parentNod
 /* الأسامي بالعربي بخط المالك (صور) */
 if(!EN){var N=K.names;var pic=function(id,src,h,alt){var el=by(id);if(!el)return;el.innerHTML='<img src="'+src+'" alt="'+alt+'" class="jy-nm" style="height:'+h+'px;width:auto;display:inline-block">'};
  pic('fc3',N.md,84,'محمد');pic('fc5',N.yd,108,'يارا');
- var f=by('fc102');if(f)f.innerHTML='<span class="jy-row"><img src="'+N.mw+'" alt="محمد" style="height:46px"><span class="jy-and">و</span><img src="'+N.yw+'" alt="يارا" style="height:60px"></span>';}
+ var f=by('fc102');if(f)f.innerHTML='<span class="jy-row"><img src="'+N.md+'" alt="محمد" style="height:46px"><span class="jy-and">و</span><img src="'+N.yd+'" alt="يارا" style="height:60px"></span>';}
 
 /* ===== الديكور ===== */
 (function(){var E=K.el;var mk=function(tag,cls,src,host,first){var e=document.createElement(tag);e.className=cls+(/jd-(pam|side|drape|green|corner|vases)/.test(cls)?' jdv':'');if(src){e.src=src;e.alt='';e.setAttribute('aria-hidden','true');e.loading='lazy';e.decoding='async';e.draggable=false}if(host){first?host.insertBefore(e,host.firstChild):host.appendChild(e)}return e};
