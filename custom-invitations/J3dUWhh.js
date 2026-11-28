@@ -154,6 +154,7 @@ footer.bg-sage-dark .text-white\\/70,footer.bg-sage-dark .text-white\\/80{color:
 @keyframes jdTap{0%,100%{opacity:.95;transform:scale(1)}50%{opacity:.55;transform:scale(.97)}}
 #fcCover.play .fc-line{animation:none;opacity:0;transition:opacity .4s}
 #fcCover .jbf{z-index:5}
+html.ar #fcCover .fc-line{font-family:'Amiri','Noto Naskh Arabic',serif!important;font-weight:700;font-size:28px;font-size:6.8cqw;line-height:1.6;letter-spacing:0;color:#6f675d;top:62.5%}
 #fcCover .jbf img{position:static;width:100%;height:auto;object-fit:contain}
 html:not(.ar) #fcCover .fc-line{font-size:6.4cqw}
 #fcTlM [data-k="t"],#fcTlD [data-k="t"]{white-space:nowrap;flex:none}
