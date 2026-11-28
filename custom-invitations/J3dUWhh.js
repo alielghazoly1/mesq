@@ -85,6 +85,49 @@ footer.jd-host .jd-corner{opacity:.85}
 @keyframes jbfFly{0%{transform:translate(0,0) rotate(-10deg)}25%{transform:translate(calc(var(--dx)*.3),calc(var(--dy)*-.6)) rotate(8deg)}50%{transform:translate(calc(var(--dx)*.55),var(--dy)) rotate(-6deg)}75%{transform:translate(calc(var(--dx)*.8),calc(var(--dy)*-.3)) rotate(10deg)}100%{transform:translate(var(--dx),calc(var(--dy)*.4)) rotate(-4deg)}}
 @keyframes jbfFlap{from{transform:scaleX(1)}to{transform:scaleX(.32)}}
 @media (prefers-reduced-motion:reduce){.jbf,.jbf img{animation:none}}
+/* ===== حركة الديكور ===== */
+.jdv{opacity:0;transition:opacity 1.2s ease,translate 1.4s cubic-bezier(.22,1,.36,1),scale 1.4s cubic-bezier(.22,1,.36,1)}
+.jdv.on{opacity:1}
+/* البامباس: بيطلع من تحت ويتمايل */
+.jd-pam,.jd-side{transform-origin:50% 100%}
+.jd-pam.jdv,.jd-side.jdv{translate:0 40px}
+.jd-pam.jdv.on,.jd-side.jdv.on{translate:0 0;animation:jdSway var(--sw,7s) ease-in-out var(--sd,0s) infinite alternate}
+@keyframes jdSway{from{rotate:-2.4deg}to{rotate:2.2deg}}
+/* القماش: بيتهز من فوق */
+.jd-drape{transform-origin:50% 0}
+.jd-drape.jdv{translate:0 -30px}
+.jd-drape.jdv.on{translate:0 0;animation:jdDrape 6.5s ease-in-out infinite alternate}
+@keyframes jdDrape{from{rotate:-1.6deg}to{rotate:1.4deg}}
+/* الأوراق الخضرا: بتكبر */
+.jd-green{transform-origin:50% 90%}
+.jd-green.jdv{scale:.55}
+.jd-green.jdv.on{scale:1;animation:jdSway 8s ease-in-out 1.4s infinite alternate}
+/* ركن الدانتيل: بيدخل من الركن */
+.jd-corner.jdv{scale:.6}
+.jd-corner.jdv.on{scale:1}
+/* القوس: بيترسم من تحت لفوق، والصورة بتقرّب ببطء */
+.jd-arch .fr{clip-path:inset(100% 0 0 0);transition:clip-path 2.2s cubic-bezier(.65,0,.35,1) .2s}
+.jd-arch.on .fr{clip-path:inset(0 0 0 0)}
+.jd-arch .ph{opacity:0;transform:scale(.94);transition:opacity 1.4s ease .5s,transform 1.6s cubic-bezier(.22,1,.36,1) .5s}
+.jd-arch.on .ph{opacity:1;transform:none}
+.jd-arch.on .ph img{animation:jdKen 16s ease-in-out 2s infinite alternate}
+@keyframes jdKen{from{transform:scale(1)}to{transform:scale(1.09)}}
+/* الفانوس: نور الشمع */
+.jd-lw{position:absolute;bottom:-18px;width:96px;z-index:3;pointer-events:none}
+html:not(.ar) .jd-lw{right:-6px}html.ar .jd-lw{left:-6px}
+.jd-lw img{position:relative;width:100%;display:block}
+.jd-lw:before{content:"";position:absolute;left:58%;top:52%;width:70px;height:70px;margin:-35px 0 0 -35px;border-radius:50%;background:radial-gradient(circle,rgba(255,200,120,.6),rgba(255,180,90,0) 70%);animation:jdGlow 2.4s ease-in-out infinite alternate;filter:blur(2px)}
+@keyframes jdGlow{0%{opacity:.55;transform:scale(.92)}35%{opacity:.85}60%{opacity:.6;transform:scale(1.06)}100%{opacity:.9;transform:scale(1)}}
+.jd-vases.jdv{translate:0 18px}.jd-vases.jdv.on{translate:0 0}
+/* الدانتيل */
+.jd-lace{opacity:0;transition:opacity 1.6s ease}.jd-lace.on{opacity:1}
+/* الفراشات: رفرفة حقيقية وطيران ناعم */
+.jbf{perspective:200px}
+.jbf img{animation:jbfFlap3 var(--f,.24s) ease-in-out infinite alternate}
+@keyframes jbfFlap3{from{transform:rotateY(0deg)}to{transform:rotateY(68deg)}}
+@keyframes jbfFly{0%{transform:translate(0,0) rotate(-12deg)}20%{transform:translate(calc(var(--dx)*.18),calc(var(--dy)*-.7)) rotate(6deg)}38%{transform:translate(calc(var(--dx)*.42),calc(var(--dy)*-.2)) rotate(-4deg)}55%{transform:translate(calc(var(--dx)*.5),calc(var(--dy)*.9)) rotate(10deg)}72%{transform:translate(calc(var(--dx)*.74),calc(var(--dy)*.3)) rotate(-8deg)}100%{transform:translate(var(--dx),calc(var(--dy)*-.5)) rotate(5deg)}}
+@media (prefers-reduced-motion:reduce){.jdv,.jd-arch .fr,.jd-arch .ph{transition:none!important;animation:none!important;opacity:1!important;clip-path:none!important;translate:none!important;scale:none!important}.jd-lw:before,.jd-arch .ph img{animation:none}}
+
 
 .jy-nm{filter:drop-shadow(0 4px 10px rgba(0,0,0,.35));margin:6px auto}
 .jy-row{display:inline-flex;align-items:center;gap:14px;direction:rtl}.jy-row img{width:auto;filter:drop-shadow(0 2px 6px rgba(0,0,0,.25))}
@@ -167,7 +210,7 @@ if(!EN){var N=K.names;var pic=function(id,src,h,alt){var el=by(id);if(!el)return
  var f=by('fc102');if(f)f.innerHTML='<span class="jy-row"><img src="'+N.mw+'" alt="محمد" style="height:46px"><span class="jy-and">و</span><img src="'+N.yw+'" alt="يارا" style="height:60px"></span>';}
 
 /* ===== الديكور ===== */
-(function(){var E=K.el;var mk=function(tag,cls,src,host,first){var e=document.createElement(tag);e.className=cls;if(src){e.src=src;e.alt='';e.setAttribute('aria-hidden','true');e.loading='lazy';e.decoding='async';e.draggable=false}if(host){first?host.insertBefore(e,host.firstChild):host.appendChild(e)}return e};
+(function(){var E=K.el;var mk=function(tag,cls,src,host,first){var e=document.createElement(tag);e.className=cls+(/jd-(pam|side|drape|green|corner|vases)/.test(cls)?' jdv':'');if(src){e.src=src;e.alt='';e.setAttribute('aria-hidden','true');e.loading='lazy';e.decoding='async';e.draggable=false}if(host){first?host.insertBefore(e,host.firstChild):host.appendChild(e)}return e};
 var host=function(el){if(el)el.classList.add('jd-host');return el};
 var sec=function(k){var w=document.querySelector('[data-section="'+k+'"]');return w?w.querySelector('section'):null};
 var flyN=0;var fly=function(h,n,opts){if(!h)return;for(var i=0;i<n;i++){var b=document.createElement('span');b.className='jbf';var o=opts[i%opts.length];
@@ -183,15 +226,24 @@ var vs=host(sec('venue'));if(vs){var card=vs.querySelector('.rounded-lg.shadow-s
 /* البرنامج: بامباس على الجنبين وفراشات */
 var tl=host(sec('timeline'));if(tl){var a=mk('img','jd jd-side l',E.pampas,tl);a.style.bottom='-10px';a.style.width='118px';var b2=mk('img','jd jd-side r',E.pampas,tl);b2.style.bottom='-10px';b2.style.width='118px';fly(tl,3,[[8,30,22,150,50,14],[78,58,24,-140,-40,16],[20,82,20,120,-60,18]])}
 /* الهدية: الفازة بالورد في القوس + فراشات */
-var gs=host(sec('gift'));if(gs){var head=gs.querySelector('.text-center');if(head){var ar=document.createElement('div');ar.className='jd-arch rv in';ar.innerHTML='<div class="ph"><img src="'+E.bouquet+'" alt="" loading="lazy" decoding="async"></div><img class="fr" src="'+E.arch+'" alt="" aria-hidden="true">';head.insertBefore(ar,head.firstChild)}fly(gs,2,[[10,14,22,130,50,15],[76,30,20,-120,60,16]])}
+var gs=host(sec('gift'));if(gs){var head=gs.querySelector('.text-center');if(head){var ar=document.createElement('div');ar.className='jd-arch';ar.innerHTML='<div class="ph"><img src="'+E.bouquet+'" alt="" loading="lazy" decoding="async"></div><img class="fr" src="'+E.arch+'" alt="" aria-hidden="true">';head.insertBefore(ar,head.firstChild)}fly(gs,2,[[10,14,22,130,50,15],[76,30,20,-120,60,16]])}
 /* تأكيد الحضور: أوراق خضرا حوالين الدبل + دانتيل فوق */
 var rs=host($('#mithaq-rsvp'));if(rs){var w=rs.parentNode;var hd=$('#fcRsvpHead');if(hd){hd.style.position='relative';mk('img','jd jd-green l',E.greenery,hd);mk('img','jd jd-green r',E.greenery,hd)}}
 /* الشكر: الفانوس جنب رسمة البيت + الفازات فوق العنوان */
-var th=host($('#jyThanks'));if(th){var hi=th.querySelector('img');if(hi){var wrap=document.createElement('div');wrap.style.position='relative';hi.parentNode.insertBefore(wrap,hi);wrap.appendChild(hi);mk('img','jd jd-lantern',E.lantern,wrap)}var h2=th.querySelector('h2');if(h2)h2.parentNode.insertBefore(mk('img','jd-vases',E.vases),h2);fly(th,2,[[12,40,22,120,50,15],[74,70,20,-110,-50,17]])}
+var th=host($('#jyThanks'));if(th){var hi=th.querySelector('img');if(hi){var wrap=document.createElement('div');wrap.style.position='relative';hi.parentNode.insertBefore(wrap,hi);wrap.appendChild(hi);var lw=document.createElement('div');lw.className='jd-lw jdv';lw.innerHTML='<img src="'+E.lantern+'" alt="" aria-hidden="true" loading="lazy">';wrap.appendChild(lw)}var h2=th.querySelector('h2');if(h2)h2.parentNode.insertBefore(mk('img','jd-vases',E.vases),h2);fly(th,2,[[12,40,22,120,50,15],[74,70,20,-110,-50,17]])}
 /* الصور: باب بيت يزد في القوس + بامباس */
 var ph=host($('#jyPhotos'));if(ph){var dimg=ph.querySelector('img');if(dimg){var arc=document.createElement('div');arc.className='jd-arch';arc.innerHTML='<div class="ph"><img src="'+E.door+'" alt="" loading="lazy" decoding="async"></div><img class="fr" src="'+E.arch+'" alt="" aria-hidden="true">';dimg.parentNode.replaceChild(arc,dimg)}var s1=mk('img','jd jd-side l',E.pampas,ph);s1.style.bottom='-10px';fly(ph,2,[[78,10,22,-140,50,15],[16,52,20,120,-40,17]])}
 /* الختام: ركن دانتيل دهبي + دانتيل فوق */
 var ft=host(document.querySelector('footer'));if(ft){mk('img','jd jd-corner tl',E.corner,ft);mk('img','jd jd-corner br',E.corner,ft);var lc=document.createElement('div');lc.className='jd-lace';lc.style.backgroundImage='url('+E.lace+')';lc.style.marginTop='0';lc.style.marginBottom='-19px';ft.parentNode.insertBefore(lc,ft)}
+/* الحركة بتبدأ لما الضيف يوصل للقسم (بعد فتح الظرف) */
+$$('.jd-pam').forEach(function(e,i){e.style.setProperty('--sd',(-i*2.3)+'s');e.style.setProperty('--sw',(6.5+i*1.3)+'s')});
+$$('.jd-side').forEach(function(e,i){e.style.setProperty('--sd',(-i*1.7)+'s');e.style.setProperty('--sw',(7.5+i)+'s')});
+var targets=$$('.jdv,.jd-arch,.jd-lace');
+var go=function(e){e.classList.add('on')};
+if(!('IntersectionObserver' in window)){targets.forEach(go)}else{
+ var io=new IntersectionObserver(function(es){es.forEach(function(x){if(x.isIntersecting){var t=x.target;setTimeout(function(){go(t)},t.classList.contains('jd-pam')?1400:120);io.unobserve(t)}})},{threshold:.15});
+ var start=function(){targets.forEach(function(t){io.observe(t)})};
+ if(document.getElementById('fcCover')){var mo=new MutationObserver(function(){if(!document.getElementById('fcCover')){mo.disconnect();start()}});mo.observe(document.body,{childList:true,subtree:true})}else start()}
 })();
 /* الهدية: مباركة بس */
 var gb=$('#fcGiftBtn');if(gb){var card=gb.parentNode;card.parentNode.removeChild(card)}
