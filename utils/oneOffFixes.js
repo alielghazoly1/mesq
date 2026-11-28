@@ -2546,6 +2546,35 @@ const FIXES = [
       return set;
     },
   },
+  {
+    // j6nvonE (Ivory Swans) — بطلب المالك (2026-11-28): حيان وفرح، الأربعاء 6/1/2027 الساعة 7:30 مساءً بتوقيت عمّان،
+    // فندق ماريوت عمّان (لينك المالك). عربي، والإنجليزي بزرار جوه الدعوة (custom-invitations/j6nvonE.js).
+    // الساعة متخزّنة 18:30: النظام بيحسب ساعة الحائط بتوقيت مصر (يناير UTC+2) وعمّان UTC+3 → العدّاد يخلص 7:30 بتوقيت عمّان.
+    // بيتعمل بس لو الدعوة لسه بأسامي البداية (Groom & Bride).
+    name: 'j6nvonE-hayyan-farah',
+    shortId: 'j6nvonE',
+    select: '-__v',
+    when: (c, inv) => inv.templateId === 'ivory-swans'
+      && ['Groom', 'العريس'].includes(inv.groomName) && ['Bride', 'العروسة'].includes(inv.brideName),
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const link = 'https://maps.app.goo.gl/fyQv6S7mATYgW9ia8';
+      const data = await buildInvitationDataFromRequest({
+        templateId: 'ivory-swans', language: 'ar', occasionType: 'wedding',
+        hiddenSections: inv.hiddenSections || [], timeline: [], name: inv.name,
+        groomName: 'Hayyan', groomNameAr: 'حيان', brideName: 'Farah', brideNameAr: 'فرح',
+        venueName: 'فندق ماريوت عمّان', venueCity: 'عمّان', venueAddress: '',
+        venueMapQuery: link, weddingDate: '2027-01-06', weddingTime: '18:30',
+      }, { ownsTemplate: true, skipMapNetwork: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.templateId = 'ivory-swans';
+      set.language = 'ar';
+      set.venueMapQuery = link;
+      set.venueMapDirectLink = link;
+      return set;
+    },
+  },
 ];
 
 let done = false;
