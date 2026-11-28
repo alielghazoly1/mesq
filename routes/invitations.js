@@ -287,6 +287,8 @@ router.get('/i/:shortId', async (req, res) => {
         shareImageSize,
         // الدعوة الكاستم بتعدّل كود القالب الأصلي بنفسها (زي فيديوهات Mother of Pearl) — من غير تعديلات القالب العامة
         customInvitation: !!custom,
+        // دعوة كاستم متثبّتة على نسخة متجمّدة من القالب (مثلًا J3dUWhh → views/finca-classic.html)
+        ...(custom && custom.templateFile ? { templateFile: custom.templateFile } : {}),
         ...(custom && custom.share && custom.share.image ? { shareFallbackImage: `${req.protocol}://${req.get('host')}${custom.share.image}` } : {}),
       })
       : renderLegacyHtml(invitation, { pageUrl });

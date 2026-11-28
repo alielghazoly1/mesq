@@ -251,7 +251,11 @@ function renderNewPathHtml(data, options) {
     coverStyle: data.coverStyle || '',
   };
 
-  let html = readTemplateFile(template.file).replace(
+  // دعوة كاستم ممكن تكون متثبّتة على نسخة متجمّدة من ملف القالب (templateFile في custom-invitations/) —
+  // عشان تعديلات القالب العام بعد كده ماتغيّرش دعوة العميل ده (J3dUWhh على finca-classic.html)
+  const pinnedFile = options && typeof options.templateFile === 'string' && /^[a-z0-9-]+\.html$/.test(options.templateFile)
+    && fs.existsSync(path.join(VIEWS_DIR, options.templateFile)) ? options.templateFile : '';
+  let html = readTemplateFile(pinnedFile || template.file).replace(
     '__INVITATION_CONFIG_JSON__',
     safeJsonForScript(config)
   );

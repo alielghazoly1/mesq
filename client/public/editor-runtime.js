@@ -138,6 +138,30 @@
     '.wda-handle.ne{ cursor:nesw-resize; }',
     '.wda-handle.sw{ cursor:nesw-resize; }',
     '.wda-handle.se{ cursor:nwse-resize; }',
+    // ===== علامة × لحذف جزء كامل (فقرة في البرنامج، فندق، سؤال، زرار…) =====
+    // بتبان جنب كل جزء القالب معلّمه بـ data-wda-row — نفس شكل شريط الأدوات
+    '.wda-rowx-layer{ position:absolute; left:0; top:0; width:0; height:0; z-index:2147483640; }',
+    '.wda-rowx{ position:absolute; width:26px; height:26px; margin:0; padding:0; border-radius:50%;',
+    '  border:1px solid rgba(230,198,132,.55); background:#08130f; color:#e88b7a; cursor:pointer;',
+    '  display:flex; align-items:center; justify-content:center; box-shadow:0 6px 16px -6px rgba(0,0,0,.55);',
+    '  transition:background .12s ease, color .12s ease, transform .12s ease; -webkit-tap-highlight-color:transparent; }',
+    '.wda-rowx:hover, .wda-rowx:focus-visible{ background:#c0392b; color:#fff; transform:scale(1.1); outline:none; }',
+    '.wda-rowx svg{ width:13px; height:13px; pointer-events:none; }',
+    '@media (pointer:coarse){ .wda-rowx{ width:30px; height:30px; } .wda-rowx svg{ width:15px; height:15px; } }',
+    // الجزء اللي هيتشال لو ضغطت (وإنت واقف على العلامة)
+    '.wda-row-hot{ outline:2.5px dashed #c0392b !important; outline-offset:5px; background:rgba(192,57,43,.05) !important; }',
+    // ===== لوحة الأيقونات الجاهزة =====
+    '.wda-icon-pick{ position:absolute; z-index:2147483647; width:300px; max-width:calc(100vw - 16px); box-sizing:border-box;',
+    '  background:#08130f; border:1px solid rgba(230,198,132,.45); border-radius:16px; padding:10px 10px 8px;',
+    '  box-shadow:0 18px 40px -12px rgba(0,0,0,.6); font-family:system-ui,sans-serif; direction:rtl; text-align:right; }',
+    '.wda-icon-pick .wda-ip-head{ color:#e6c684; font-size:12.5px; font-weight:700; margin:2px 4px 8px; }',
+    '.wda-icon-pick .wda-ip-grid{ display:grid; grid-template-columns:repeat(6,1fr); gap:6px; }',
+    '.wda-icon-pick .wda-ip-grid button{ aspect-ratio:1/1; border:1px solid rgba(230,198,132,.22); border-radius:10px; background:#fbf8f1;',
+    '  cursor:pointer; padding:7px; margin:0; display:flex; align-items:center; justify-content:center; }',
+    '.wda-icon-pick .wda-ip-grid button:hover, .wda-icon-pick .wda-ip-grid button.on{ border-color:#e6c684; box-shadow:0 0 0 2px rgba(230,198,132,.55); }',
+    '.wda-icon-pick .wda-ip-grid img{ width:100%; height:100%; object-fit:contain; pointer-events:none; }',
+    '.wda-icon-pick .wda-ip-up{ margin-top:8px; width:100%; border:1px dashed rgba(230,198,132,.5); background:transparent; color:#e6c684;',
+    '  border-radius:10px; padding:8px; font-size:12px; cursor:pointer; font-family:inherit; }',
   ].join('\n');
   document.head.appendChild(style);
 
@@ -153,6 +177,8 @@
   var ICON_PALETTE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>';
   var ICON_RESIZE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" x2="14" y1="3" y2="10"/><line x1="3" x2="10" y1="21" y2="14"/></svg>';
   var ICON_MOVE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"/><path d="m15 19-3 3-3-3"/><path d="m19 9 3 3-3 3"/><path d="M2 12h20"/><path d="m5 9-3 3 3 3"/><path d="m9 5 3-3 3 3"/></svg>';
+  var ICON_X = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
+  var ICON_SHAPES = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.3 10a.7.7 0 0 1-.626-1.079L11.4 3a.7.7 0 0 1 1.198-.043L16.3 8.9a.7.7 0 0 1-.572 1.1Z"/><rect x="3" y="14" width="7" height="7" rx="1"/><circle cx="17.5" cy="17.5" r="3.5"/></svg>';
   var ICON_FORM ='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 8h10M7 12h10M7 16h6"/></svg>';
   // أيقونات المحاذاة — بتتغيّر حسب المحاذاة الحالية
   var ICON_ALIGN = {
@@ -807,7 +833,7 @@
     e.preventDefault();
     e.stopPropagation();
     var kind = elementKind(best);
-    if (kind === 'image' || kind === 'video') {
+    if ((kind === 'image' || kind === 'video') && !(best.closest && best.closest('[data-wda-icons]'))) {
       // الصورة بتتختار بلمستين ورا بعض بس — لمسة واحدة كانت بتختار صور
       // الخلفية والورد في كل حتة والعميل بيلمسها بالغلط
       var now = Date.now();
@@ -1117,6 +1143,7 @@
     else if (act === 'done') stopWriting(true);
     else if (act === 'delete') removeElement(state.selected);
     else if (act === 'image') pickImageFile(elemId(state.selected));
+    else if (act === 'icons') openIconPicker(state.selected);
     else if (act === 'download') downloadSelectedImage(state.selected);
     else if (act === 'map') {
       // من جوه الكتابة (كلام زرار الخريطة): نحفظ الكلام الأول وبعدين نفتح خانة المكان
@@ -1325,6 +1352,11 @@
       ? '<button type="button" data-act="map" title="غيّر المكان (لينك جوجل ماب)">' + ICON_PIN + '</button>'
       : '';
 
+    // أيقونة جاهزة (فقرات برنامج اليوم في Finca): لوحة أيقونات بدل ما العميل يدوّر على صورة
+    var iconsBtn = (mode !== 'writing' && mode !== 'moving' && canPickIcon(el))
+      ? '<button type="button" data-act="icons" title="اختار أيقونة">' + ICON_SHAPES + '</button>'
+      : '';
+
     // باللمس: أيقونة التحريك (السحب المباشر بالصباع مقفول عشان السكرول)
     var moveBtn = (mode !== 'writing' && isTouchInput() && canMove(el))
       ? '<button type="button" data-act="move" title="حرّك">' + ICON_MOVE + '</button>'
@@ -1333,12 +1365,18 @@
     if (mode === 'moving') {
       tools.innerHTML = '<button type="button" data-act="done-move" class="go" title="خلصت تحريك">' + ICON_CHECK + '</button>';
     } else {
-      tools.innerHTML = first + mapLinkBtn + moveBtn + downloadBtn + resizeBtn + rsvpBtn + alignBtn + colorBtn
+      tools.innerHTML = iconsBtn + first + mapLinkBtn + moveBtn + downloadBtn + resizeBtn + rsvpBtn + alignBtn + colorBtn
         + '<button type="button" data-act="delete" class="danger" title="احذف">' + ICON_TRASH + '</button>';
     }
 
     var r = el.getBoundingClientRect();
-    tools.style.left = (r.left + window.scrollX + r.width / 2) + 'px';
+    // الشريط بيتوسّط فوق الجزء — بس جوه الشاشة دايمًا: الجزء اللي على الحافة (أيقونة فقرة في Finca، صورة
+    // في الركن) كان شريطه بيطلع نصه برّه الشاشة وزراير منه مش باينة خالص
+    var cx = r.left + r.width / 2;
+    var tw = tools.offsetWidth || 0;
+    var vw = document.documentElement.clientWidth;
+    if (tw && tw + 12 < vw) cx = Math.max(tw / 2 + 6, Math.min(cx, vw - tw / 2 - 6));
+    tools.style.left = (cx + window.scrollX) + 'px';
     // الشريط بيطلع فوق العنصر. لو العنصر طويل وراسه برّه الشاشة (خريطة
     // Ivory مثلًا وإنت نازل في نصها)، الشريط كان بيطلع برّه الشاشة أو تحت
     // شارة "وضع التحرير" فمحدش يقدر يضغطه — فبننزّله لأول الجزء الظاهر.
@@ -1883,6 +1921,7 @@
   function rescan() {
     markText();
     markImages();
+    syncRowBadges();
     // العدّاد بيتحدّث مع ظهور العناصر (صور Tilda بتتحمّل كسول)، فبنبلّغ
     // الشريط الجانبي بس لما الرقم يتغيّر فعلاً.
     var texts = document.querySelectorAll('.wda-editable').length;
@@ -1898,6 +1937,155 @@
       send('ready', { textCount: texts, imageCount: imgs, photos: photos });
     }
   }
+
+  // ===== حذف جزء كامل بعلامة × =====
+  // القالب بيعلّم الجزء اللي يتشال مرة واحدة بـ data-wda-row (ومعاه data-elem-id): فقرة في برنامج اليوم
+  // بأيقونتها، فندق، سؤال، زرار، خانة في الفورم. الجزء ده جواه نصوص وصور كل واحدة بتتعدّل لوحدها،
+  // فمش بيتختار بالضغط — بيبان جنبه × صغيرة، ضغطة عليها تشيله كله بمسافته والصفحة تتظبط مكانه.
+  // بيرجع من "المحذوفات" في الشريط الجانبي أو بـ "رجوع" زي أي حذف تاني.
+  var rowLayer = null;
+  var rowRemovedAt = 0;
+  var ROW_TITLES = {
+    event: 'احذف الفقرة دي كلها (بأيقونتها)', hotel: 'احذف الفندق ده', faq: 'احذف السؤال ده',
+    button: 'احذف الزرار ده', field: 'احذف الخانة دي من الفورم', block: 'احذف الجزء ده كله',
+  };
+  function rowOf(btn) { return btn ? byUid(btn.getAttribute('data-row')) : null; }
+  function syncRowBadges() {
+    var rows = state.editingOn ? document.querySelectorAll('[data-wda-row][data-elem-id]') : [];
+    if (!rowLayer) {
+      if (!rows.length) return;
+      rowLayer = document.createElement('div');
+      rowLayer.className = 'wda-rowx-layer';
+      rowLayer.setAttribute('data-wda-ui', '1');
+      document.body.appendChild(rowLayer);
+      rowLayer.addEventListener('click', function (e) {
+        var btn = e.target.closest && e.target.closest('.wda-rowx');
+        if (!btn) return;
+        e.preventDefault();
+        e.stopPropagation();
+        // ضغطتين ورا بعض: علامة الجزء اللي بعده بتيجي مكان اللي اتشال — الضغطة التانية ماتشيلوش هو كمان
+        if (Date.now() - rowRemovedAt < 700) return;
+        var row = rowOf(btn);
+        if (!row) return;
+        rowRemovedAt = Date.now();
+        row.classList.remove('wda-row-hot');
+        if (state.selected || state.writing) select(null);
+        removeElement(row);
+        rescan();
+      });
+      rowLayer.addEventListener('pointerover', function (e) {
+        var row = rowOf(e.target.closest && e.target.closest('.wda-rowx'));
+        if (row) row.classList.add('wda-row-hot');
+      });
+      rowLayer.addEventListener('pointerout', function (e) {
+        var row = rowOf(e.target.closest && e.target.closest('.wda-rowx'));
+        if (row) row.classList.remove('wda-row-hot');
+      });
+    }
+    var rtl = getComputedStyle(document.documentElement).direction === 'rtl';
+    var maxX = document.documentElement.clientWidth + window.scrollX;
+    var seen = {};
+    for (var i = 0; i < rows.length; i++) {
+      var row = rows[i];
+      var id = elemId(row);
+      if (!id || seen[id] || row.classList.contains('wda-hidden-el') || row.closest('.wda-hidden-el')) continue;
+      if (!row.offsetHeight || getComputedStyle(row).visibility === 'hidden') continue;
+      var r = row.getBoundingClientRect();
+      if (r.width < 8) continue;
+      seen[id] = 1;
+      var b = rowLayer.querySelector('[data-row="' + id + '"]');
+      if (!b) {
+        b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'wda-rowx';
+        b.setAttribute('data-row', id);
+        b.title = ROW_TITLES[row.getAttribute('data-wda-row')] || ROW_TITLES.block;
+        b.setAttribute('aria-label', b.title);
+        b.innerHTML = ICON_X;
+        rowLayer.appendChild(b);
+      }
+      var size = b.offsetWidth || 26;
+      // في آخر السطر من فوق (الناحية التانية من الأيقونة)، وجوه الشاشة دايمًا
+      var x = rtl ? r.left + window.scrollX - size * 0.3 : r.right + window.scrollX - size * 0.7;
+      x = Math.max(window.scrollX + 2, Math.min(x, maxX - size - 2));
+      var y = r.top + window.scrollY - size * 0.35;
+      b.style.left = Math.round(x) + 'px';
+      b.style.top = Math.round(y) + 'px';
+    }
+    var all = rowLayer.querySelectorAll('.wda-rowx');
+    for (var k = 0; k < all.length; k++) {
+      if (!seen[all[k].getAttribute('data-row')]) all[k].remove();
+    }
+  }
+  window.addEventListener('resize', function () { syncRowBadges(); });
+
+  // ===== أيقونات جاهزة =====
+  // القالب بيعلّم الأيقونة بـ data-wda-icons (فقرات برنامج اليوم في Finca) ويحط القايمة في
+  // window.__wdaIcons = [{ url, label }]. اختيار أيقونة = نفس طريق "غيّر الصورة" بالظبط (الملف
+  // بيترفع ويتحفظ كصورة العنصر)، فالرجوع والنشر وكل حاجة بتشتغل زي أي صورة. وتحت اللوحة زرار
+  // يرفع صورة من عند العميل لو عايز حاجة مش موجودة.
+  var iconPick = null;
+  function iconChoices() { var l = window.__wdaIcons; return Array.isArray(l) ? l : []; }
+  function canPickIcon(el) { return !!(el && el.closest && el.closest('[data-wda-icons]') && iconChoices().length); }
+  function closeIconPicker() { if (iconPick) { iconPick.remove(); iconPick = null; } }
+  function openIconPicker(el) {
+    closeIconPicker();
+    if (!canPickIcon(el)) return;
+    var host = el.closest('[data-wda-icons]');
+    var id = elemId(host);
+    var curImg = host.tagName === 'IMG' ? host : host.querySelector('img');
+    var cur = curImg ? (curImg.getAttribute('src') || '') : '';
+    iconPick = document.createElement('div');
+    iconPick.className = 'wda-icon-pick';
+    iconPick.setAttribute('data-wda-ui', '1');
+    var html = '<div class="wda-ip-head">اختار أيقونة</div><div class="wda-ip-grid">';
+    iconChoices().forEach(function (c, i) {
+      if (!c || !c.url) return;
+      var on = cur && cur.split('?')[0] === String(c.url).split('?')[0];
+      html += '<button type="button" data-i="' + i + '"' + (on ? ' class="on"' : '') + ' title="' + String(c.label || '').replace(/"/g, '&quot;') + '">'
+        + '<img src="' + String(c.url).replace(/"/g, '&quot;') + '" alt=""></button>';
+    });
+    html += '</div><button type="button" class="wda-ip-up">أو ارفع أيقونة / صورة من عندك</button>';
+    iconPick.innerHTML = html;
+    document.body.appendChild(iconPick);
+    var r = host.getBoundingClientRect();
+    var w = iconPick.offsetWidth;
+    var vw = document.documentElement.clientWidth;
+    var left = Math.max(8, Math.min(r.left + r.width / 2 - w / 2, vw - w - 8));
+    var top = r.bottom + 12;
+    if (top + iconPick.offsetHeight > visibleBottom() - 8 && r.top - iconPick.offsetHeight - 60 > 0) top = r.top - iconPick.offsetHeight - 60;
+    iconPick.style.left = (left + window.scrollX) + 'px';
+    iconPick.style.top = (top + window.scrollY) + 'px';
+    iconPick.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (e.target.closest('.wda-ip-up')) { closeIconPicker(); pickImageFile(id); return; }
+      var b = e.target.closest('button[data-i]');
+      if (!b) return;
+      var c = iconChoices()[+b.getAttribute('data-i')];
+      closeIconPicker();
+      if (!c) return;
+      applyImageTo(host, c.url);
+      setBadge('بنحفظ الأيقونة…');
+      fetch(c.url, { credentials: 'same-origin' }).then(function (res) {
+        if (!res.ok) throw new Error('icon');
+        return res.blob();
+      }).then(function (blob) {
+        var name = String(c.url).split('?')[0].split('/').pop() || 'icon.png';
+        var file = new File([blob], name, { type: blob.type || 'image/png' });
+        send('image-file', { id: id, file: file });
+        setBadge('وضع التحرير');
+      }).catch(function () {
+        setBadge('ماقدرناش نحفظ الأيقونة — جرّب تاني');
+      });
+    });
+  }
+  document.addEventListener('pointerdown', function (e) {
+    if (!iconPick) return;
+    if (e.target.closest && (e.target.closest('.wda-icon-pick') || e.target.closest('.wda-tools'))) return;
+    closeIconPicker();
+  }, true);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeIconPicker(); });
 
   // طبقة التخصيصات بتنادي دي أول ما تدّي معرّف لصورة مكانش ليها معرّف
   // (صور المعارض اللي بتتحمّل متأخر) — عشان تدخل دايرة التحرير على طول
@@ -1924,6 +2112,8 @@
       var id = elemId(el);
       if (!id || el.closest('.wda-tools')) continue;
       if (isColorSwatch(el)) continue;
+      // جزء كامل (فقرة/فندق…) والأيقونات الصغيرة مش صور — ليهم علامة × ولوحة أيقونات
+      if (el.hasAttribute('data-wda-row') || el.hasAttribute('data-wda-icons')) continue;
       var pic = imageInside(el);
       if (!pic) continue;
       var isHidden = el.classList.contains('wda-hidden-el');
@@ -2220,6 +2410,9 @@
           el.classList.remove('wda-editable');
         });
         badge.style.display = 'none';
+        // علامات × ولوحة الأيقونات مالهمش مكان في المعاينة
+        closeIconPicker();
+        syncRowBadges();
       }
     }
 

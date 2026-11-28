@@ -356,6 +356,10 @@ module.exports = {
     en: { title: 'Mohamed & Yara — Wedding Invitation 🤍', description: 'Saturday, 12 December 2026 · Bait Yazd, Giza', overrideImage: true },
   },
 
+  // متثبّتة على نسخة Finca زي ما كانت لما الدعوة اتعملت (views/finca-classic.html) — قالب Finca العام بيتطوّر
+  // (المعرض، علامات الحذف، الأيقونات، الختم بالقلب) من غير ما يلمس الدعوة دي
+  templateFile: 'finca-classic.html',
+
   // دفتر الرسايل في كلمة الشكر: بيظهر لكل الضيوف (GET/POST /i/J3dUWhh/wishes)
   publicWishes: true,
   // من غير الفنادق والأسئلة الشائعة

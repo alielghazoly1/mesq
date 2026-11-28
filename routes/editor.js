@@ -267,6 +267,8 @@ router.get('/api/editor/:shortId', requireAuth, async (req, res) => {
 // التاريخ تحت الأسامي في أول الدعوة، وسطر "احفظ الموعد" (التاريخ + الساعة).
 const LIVE_DATE_TEXT_IDS = {
   'ivory-swans': ['1779566247730000003', 'iv40'],
+  // Finca: تاريخ الهيرو والختام، ساعة البداية في كارت المكان، والتاريخ في رسالة الشكر (views/finca.html — data-wda-live)
+  finca: ['fc6', 'fc103', 'fc104', 'fc107'],
 };
 
 // PATCH /api/editor/:shortId/details — بيانات الدعوة (أسماء/تاريخ/قاعة)

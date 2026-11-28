@@ -48,8 +48,8 @@ const TEMPLATE_TEXT = {
     },
   },
   'finca': {
-    ar: { description: 'فينكا متوسطية مرسومة بالألوان المائية: ظرف بختم شمع بيتفتح في فيديو، والأسامي فوق فيديو الفينكا والعصافير — عدّاد، المكان والخريطة والتقويم، برنامج اليوم، أماكن الإقامة، أسئلة شائعة، الهدية، وتأكيد حضور بأسماء المرافقين والحساسية' },
-    en: { description: 'A watercolour Mediterranean finca: a wax-sealed envelope that opens on video, then your names over a film of the estate and its birds — countdown, venue with map and calendar, the day\'s programme, where to stay, FAQs, gift details and an RSVP with companions and allergies' },
+    ar: { description: 'فينكا متوسطية بالألوان المائية: ظرف بختم شمع (قلب من أغصان الزيتون) بيتفتح في فيديو، والأسامي فوق فيديو الفينكا والعصافير — عدّاد، المكان والخريطة والتقويم، برنامج اليوم بأيقونات تختارها وتشيل منه أي فقرة، الإقامة، أسئلة شائعة، الهدية، وتأكيد حضور بأسماء المرافقين' },
+    en: { description: 'A watercolour Mediterranean finca: a wax-sealed envelope (a heart of olive branches) that opens on video, then your names over a film of the estate and its birds — countdown, venue with map and calendar, a programme whose icons you pick and whose items you can remove, where to stay, FAQs, gift details and an RSVP with companions' },
     sections: {
       venue: { ar: 'تفاصيل اليوم (المكان والمواعيد)', en: 'Details of the day (venue & times)' },
       map: { ar: 'خريطة جوجل (جوه تفاصيل اليوم)', en: 'Google map (inside the details)' },
@@ -57,6 +57,7 @@ const TEMPLATE_TEXT = {
       stay: { ar: 'أماكن الإقامة (فندقين)', en: 'Where to stay (two hotels)' },
       faq: { ar: 'الأسئلة الشائعة', en: 'FAQs' },
       gift: { ar: 'الهدية (رقم الحساب)', en: 'Gift (bank details)' },
+      closing: { ar: 'الختام (الأسامي والتاريخ)', en: 'Closing (names & date)' },
     },
   },
   'lily-garden': {

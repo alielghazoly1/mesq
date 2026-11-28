@@ -348,6 +348,38 @@ const TEMPLATES = [
     isPremium: true,
   },
   {
+    // 2026-11-28 (المالك: "عايزين نضيفه للويب سايت ... أي حد يقدر يخش يعدل على كل حاجة"): Finca بقى في المعرض بنسختين.
+    // نسخة طبق الأصل من finca-demo.thedigitalyes.com (The Digital Yes — المالك شغال معاهم)، من غير العلامة المائية،
+    // والختم بقلب من أغصان الزيتون بدل حروف الديمو. كل جملة وصورة بتتعدّل، وكل فقرة/فندق/سؤال/زرار/خانة بتتشال بـ ×،
+    // وأيقونات برنامج اليوم بتتبدّل من لوحة جاهزة. دعوة J3dUWhh (محمد ويارا) متثبّتة على views/finca-classic.html.
+    id: 'finca',
+    name: 'Finca',
+    description: 'فينكا متوسطية بالألوان المائية: ظرف بختم شمع (قلب من أغصان الزيتون) بيتفتح في فيديو، والأسامي فوق فيديو الفينكا والعصافير — عدّاد، المكان والخريطة والتقويم، برنامج اليوم بأيقونات تختارها وتشيل منه أي فقرة، الإقامة، أسئلة شائعة، الهدية، وتأكيد حضور بأسماء المرافقين',
+    file: 'finca.html',
+    languages: SUPPORTED_LANGUAGES,
+    occasionTypes: SUPPORTED_OCCASIONS,
+    // الإخفاء في views/finca.html (data-section). الهيرو ثابت.
+    optionalSections: [
+      { key: 'countdown', label: 'العداد التنازلي' },
+      { key: 'venue', label: 'تفاصيل اليوم (المكان والمواعيد)' },
+      { key: 'map', label: 'خريطة جوجل (جوه تفاصيل اليوم)' },
+      { key: 'timeline', label: 'برنامج اليوم' },
+      { key: 'stay', label: 'أماكن الإقامة (فندقين)' },
+      { key: 'faq', label: 'الأسئلة الشائعة' },
+      { key: 'gift', label: 'الهدية (رقم الحساب)' },
+      { key: 'rsvp', label: 'تأكيد الحضور (RSVP)' },
+      { key: 'closing', label: 'الختام (الأسامي والتاريخ)' },
+    ],
+    timelineStages: [],
+    extraFields: [
+      { key: 'venueAddress', label: 'العنوان (بيظهر تحت اسم القاعة — اختياري)', maxlength: 200 },
+    ],
+    // نسختين: إنجليزي (التصميم الأصلي متترجم من الإسباني — المعاينة للزوار) وعربي
+    designLanguages: ['en', 'ar'],
+    isNew: true,
+    isPremium: true,
+  },
+  {
     // قسم "هدايا عيد الميلاد" (category: 'birthday') — بيظهر في تاب لوحده في المعرض، مش مع دعوات الفرح
     id: 'birthday-gift',
     name: 'Birthday Gift',
@@ -378,37 +410,7 @@ const TEMPLATES = [
 
 // قوالب جاهزة بس لسه مش في المعرض (المالك بيراجعها الأول): المعاينة والمحرر شغالين باللينك
 // المباشر، ومابتظهرش في قايمة التصاميم. لما المالك يوافق بتتنقل لـ TEMPLATES فوق.
-const UNLISTED_TEMPLATES = [
-  {
-    // 2026-11-27 (المالك: "نسخة طبق الأصل" من finca-demo.thedigitalyes.com — تصميم The Digital Yes، المالك شغال
-    // معاهم): من غير العلامة المائية (لوجو The Digital Yes الطاير) ولا سطر "Hecho por The Digital Yes" ولا زرار ES/FR.
-    // لسه مش في المعرض — المالك بيراجعها ويبعت تعديلاته: /preview-sample/finca (إنجليزي) و ?lang=ar (عربي).
-    id: 'finca',
-    name: 'Finca',
-    description: 'فينكا متوسطية مرسومة بالألوان المائية: ظرف بختم شمع بيتفتح في فيديو، والأسامي فوق فيديو الفينكا والعصافير — عدّاد، المكان والخريطة والتقويم، برنامج اليوم، أماكن الإقامة، أسئلة شائعة، الهدية، وتأكيد حضور بأسماء المرافقين والحساسية',
-    file: 'finca.html',
-    languages: SUPPORTED_LANGUAGES,
-    occasionTypes: SUPPORTED_OCCASIONS,
-    // الإخفاء في views/finca.html (data-section). الهيرو والختام ثابتين.
-    optionalSections: [
-      { key: 'countdown', label: 'العداد التنازلي' },
-      { key: 'venue', label: 'تفاصيل اليوم (المكان والمواعيد)' },
-      { key: 'map', label: 'خريطة جوجل (جوه تفاصيل اليوم)' },
-      { key: 'timeline', label: 'برنامج اليوم' },
-      { key: 'stay', label: 'أماكن الإقامة (فندقين)' },
-      { key: 'faq', label: 'الأسئلة الشائعة' },
-      { key: 'gift', label: 'الهدية (رقم الحساب)' },
-      { key: 'rsvp', label: 'تأكيد الحضور (RSVP)' },
-    ],
-    timelineStages: [],
-    extraFields: [
-      { key: 'venueAddress', label: 'العنوان (بيظهر تحت اسم القاعة — اختياري)', maxlength: 200 },
-    ],
-    // نسختين: إنجليزي (التصميم الأصلي متترجم من الإسباني — المعاينة للزوار) وعربي
-    designLanguages: ['en', 'ar'],
-    isPremium: true,
-  },
-];
+const UNLISTED_TEMPLATES = [];
 
 function getTemplate(templateId) {
   return TEMPLATES.find((t) => t.id === templateId) || UNLISTED_TEMPLATES.find((t) => t.id === templateId) || null;
