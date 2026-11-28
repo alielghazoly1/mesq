@@ -39,7 +39,9 @@ const SECTIONS = `
 
 const HEAD = `<script>
 // اللغة التانية بعد فتح الظرف: من غير الغلاف (نفس وضع الفتح التلقائي)
-if (location.hash === '#in') { try { window.WEDDING_CONFIG.autoOpen = true; } catch (e) {} }
+if (location.hash === '#in') { try { window.WEDDING_CONFIG.autoOpen = true; history.replaceState(null, '', location.pathname + location.search); } catch (e) {} }
+// رجوع للصفحة من ذاكرة المتصفح (bfcache) بعد ما الظرف اتفتح: نعيد تحميلها عشان تبدأ من الظرف
+window.addEventListener('pageshow', function (e) { if (e.persisted) location.reload(); });
 window.MITHAQ_EXTRAS_OPTS = { anchor: '#jyPhotosBox', inline: true, lang: (window.WEDDING_CONFIG || {}).language === 'en' ? 'en' : 'ar' };
 </script>
 <style>
@@ -141,6 +143,13 @@ html:not(.ar) .jd-lw{right:-6px}html.ar .jd-lw{left:-6px}
 #fcHero #fcToRsvp{color:hsl(var(--sage-dark));text-shadow:0 1px 8px rgba(246,241,232,.9)}
 #fcHero .jy-nm{filter:drop-shadow(0 2px 6px rgba(246,241,232,.8))}
 #fcHero p.font-body{font-weight:500}
+/* لون الفخار بدل الأخضر في: الختام، مواعيد الجدول ورسوماته (الكلام فاضل أخضر) */
+footer.bg-sage-dark{background:linear-gradient(180deg,#cfa27c 0%,#bf8c66 55%,#b27c57 100%)!important}
+footer.bg-sage-dark .text-white\\/70,footer.bg-sage-dark .text-white\\/80{color:rgba(255,250,242,.92)!important}
+#fcTlM [data-k="t"],#fcTlD [data-k="t"]{background:#b47a55!important;color:#fffaf2!important}
+.jy-art img{filter:sepia(1) saturate(1.9) hue-rotate(-14deg) brightness(.92) contrast(1.05)}
+[data-section="timeline"] img[src*="couple.webp"]{filter:saturate(1.5) brightness(.72) contrast(1.15)}
+
 #fcCover .fc-line{animation:jdTap 2.4s ease-in-out infinite;top:63%}
 @keyframes jdTap{0%,100%{opacity:.95;transform:scale(1)}50%{opacity:.55;transform:scale(.97)}}
 #fcCover.play .fc-line{animation:none;opacity:0;transition:opacity .4s}
