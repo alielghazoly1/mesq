@@ -141,6 +141,21 @@ html:not(.ar) .jd-lw{right:-6px}html.ar .jd-lw{left:-6px}
 #fcHero #fcToRsvp{color:hsl(var(--sage-dark));text-shadow:0 1px 8px rgba(246,241,232,.9)}
 #fcHero .jy-nm{filter:drop-shadow(0 2px 6px rgba(246,241,232,.8))}
 #fcHero p.font-body{font-weight:500}
+/* العدّاد بلون الفخار السمني (نفس فازات لوحة المالك) والعناصر جواه */
+#countdown{background:linear-gradient(180deg,#e6ceb3 0%,#dcbf9f 55%,#d2b08e 100%)!important;position:relative;overflow:hidden;padding-bottom:210px!important}
+#countdown:before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 18%,rgba(255,248,238,.55),rgba(255,248,238,0) 60%);pointer-events:none}
+#countdown .text-white{color:#5a3a28!important}
+#countdown .text-white\\/70{color:rgba(90,58,40,.75)!important}
+#countdown .bg-white\\/10{background:rgba(255,250,242,.5)!important;border-color:rgba(120,80,50,.22)!important;box-shadow:0 10px 24px -16px rgba(90,58,40,.45)}
+#countdown>div{position:relative;z-index:3}
+#countdown .jd-cvases{left:50%;bottom:-6px;width:min(54vw,250px);margin-left:calc(min(54vw,250px)/-2);z-index:2;transform-origin:50% 100%}
+#countdown .jd-cvases.jdv{translate:0 30px}#countdown .jd-cvases.jdv.on{translate:0 0}
+#countdown .jd-cpam{bottom:-12px;width:min(34vw,170px);z-index:1}
+#countdown .jd-cpam.l{left:-34px;transform:scaleX(-1)}#countdown .jd-cpam.r{right:-34px}
+#countdown .jd-cgreen{top:auto;bottom:40px;width:min(22vw,96px);z-index:1;opacity:.95}
+#countdown .jd-cgreen.l{left:18%;transform:scaleX(-1) rotate(-14deg)}#countdown .jd-cgreen.r{right:18%;transform:rotate(-14deg)}
+@media (min-width:768px){#countdown{padding-bottom:260px!important}}
+
 #fcHero #fcToRsvp>span{background:rgba(246,241,232,.82);padding:5px 14px;border-radius:999px;-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
 
 .jy-row{display:inline-flex;align-items:center;gap:14px;direction:rtl}.jy-row img{width:auto;filter:drop-shadow(0 2px 6px rgba(0,0,0,.25))}
@@ -245,7 +260,7 @@ var lace=function(after){if(!after)return;var d=document.createElement('div');d.
 /* أول صفحة: بامباس في الركنين وفراشات */
 /* أول صفحة: فيديو المالك (فيه البامباس والورد والفراشات) — من غير ديكور زيادة */
 /* العدّاد: القماش فوق ودانتيل تحت */
-var cd=host($('#countdown'));if(cd){mk('img','jd jd-drape l',E.drapes,cd);mk('img','jd jd-drape r',E.drapes,cd);lace(cd)}
+var cd=host($('#countdown'));if(cd){mk('img','jd jd-drape l',E.drapes,cd);mk('img','jd jd-drape r',E.drapes,cd);mk('img','jd jd-side jd-cpam l',E.pampas,cd);mk('img','jd jd-side jd-cpam r',E.pampas,cd);mk('img','jd jd-green jd-cgreen l',E.greenery,cd);mk('img','jd jd-green jd-cgreen r',E.greenery,cd);mk('img','jd jd-vases jd-cvases',E.vases,cd);fly(cd,2,[[10,30,22,130,40,14],[78,46,20,-120,-40,16]]);lace(cd)}
 /* المكان: ركن دانتيل دهبي على الكارت */
 var vs=host(sec('venue'));if(vs){var card=vs.querySelector('.rounded-lg.shadow-sm');if(card){card.style.position='relative';card.style.overflow='hidden';mk('img','jd jd-corner tl',E.corner,card);mk('img','jd jd-corner tr',E.corner,card)}fly(vs,2,[[6,8,22,140,60,15],[80,46,20,-120,40,17]])}
 /* البرنامج: بامباس على الجنبين وفراشات */
