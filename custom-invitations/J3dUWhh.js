@@ -56,6 +56,9 @@ window.MITHAQ_EXTRAS_OPTS = { anchor: '#jyPhotosBox', inline: true, lang: (windo
 #jyPhotosBox .gx-card{background:rgba(255,255,255,.8)!important;border:1px solid hsl(var(--sage)/.3);border-radius:.5rem;padding:1.5rem!important;box-shadow:0 1px 2px rgba(0,0,0,.05)!important}
 #jyPhotosBox .gx-btn{border-radius:.375rem}
 html.ar #jyThanks h2,html.ar #jyPhotos h2{font-size:2rem}
+.jy-nm{filter:drop-shadow(0 4px 10px rgba(0,0,0,.35));margin:6px auto}
+.jy-row{display:inline-flex;align-items:center;gap:14px;direction:rtl}.jy-row img{width:auto;filter:drop-shadow(0 2px 6px rgba(0,0,0,.25))}
+.jy-and{font-family:'Aref Ruqaa',serif;color:hsl(var(--gold));font-size:1.6rem}
 </style>`;
 
 const TL_ICONS = [
@@ -113,7 +116,8 @@ const TEXTS = {
 };
 
 function bodyScript() {
-  const cfg = JSON.stringify({ texts: TEXTS, plan: PLAN, icons: TL_ICONS, short: SHORT }).replace(/</g, '\\u003c');
+  const names = { mw: A('name-mohamed-w.png'), yw: A('name-yara-w.png') };
+  const cfg = JSON.stringify({ texts: TEXTS, plan: PLAN, icons: TL_ICONS, short: SHORT, names }).replace(/</g, '\\u003c');
   return `<script>(function(){
 var K=${cfg};var C=window.WEDDING_CONFIG||{};var EN=C.language==='en';var L=EN?'en':'ar';var T=K.texts[L];
 var $=function(s,r){return (r||document).querySelector(s)};var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
@@ -121,6 +125,12 @@ var by=function(id){return document.querySelector('[data-elem-id="'+id+'"]')};
 Object.keys(T).forEach(function(k){var el=by(k)||document.querySelector('[data-jy="'+k+'"]');if(el)el.innerHTML=T[k]});
 $$('[data-jy]').forEach(function(el){var k=el.getAttribute('data-jy');if(T[k]!=null)el.innerHTML=T[k]});
 if(EN){$('#jyWn').placeholder='Your name';$('#jyWm').placeholder='Write us a few words...'}
+/* تأكيد الحضور من غير الحساسية وقيود الطعام */
+var al=$('#fcAllergy');if(al){var blk=al.closest('.fc-yes');if(blk)blk.parentNode.removeChild(blk)}
+/* الأسامي بالعربي بخط المالك (صور) */
+if(!EN){var N=K.names;var pic=function(id,src,h,alt){var el=by(id);if(!el)return;el.innerHTML='<img src="'+src+'" alt="'+alt+'" class="jy-nm" style="height:'+h+'px;width:auto;display:inline-block">'};
+ pic('fc3',N.mw,88,'محمد');pic('fc5',N.yw,112,'يارا');
+ var f=by('fc102');if(f)f.innerHTML='<span class="jy-row"><img src="'+N.mw+'" alt="محمد" style="height:46px"><span class="jy-and">و</span><img src="'+N.yw+'" alt="يارا" style="height:60px"></span>';}
 /* الهدية: مباركة بس */
 var gb=$('#fcGiftBtn');if(gb){var card=gb.parentNode;card.parentNode.removeChild(card)}
 /* جدول اليوم: 8 فقرات بكلام المالك */
