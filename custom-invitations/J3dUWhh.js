@@ -130,6 +130,19 @@ html:not(.ar) .jd-lw{right:-6px}html.ar .jd-lw{left:-6px}
 
 
 .jy-nm{filter:drop-shadow(0 4px 10px rgba(0,0,0,.35));margin:6px auto}
+/* أول صفحة بفيديو فاتح: الكلام غامق فوق في المساحة الفاضية، من غير الطبقة السودا */
+#fcHero{align-items:flex-start}
+#fcHero .bg-black\\/55{background:linear-gradient(180deg,rgba(246,241,232,.55) 0%,rgba(246,241,232,.25) 38%,rgba(246,241,232,0) 55%)}
+#fcHero>.relative.z-10{padding-top:max(9vh,64px)}
+#fcHero .text-white,#fcHero .text-white\\/80,#fcHero .text-white\\/90{color:hsl(var(--sage-dark))}
+#fcHero .text-white\\/80{opacity:.85}
+#fcHero .drop-shadow-lg,#fcHero .drop-shadow-md{filter:none}
+#fcHero .h-px.bg-white\\/50{background:hsl(var(--sage-dark)/.35)}
+#fcHero #fcToRsvp{color:hsl(var(--sage-dark));text-shadow:0 1px 8px rgba(246,241,232,.9)}
+#fcHero .jy-nm{filter:drop-shadow(0 2px 6px rgba(246,241,232,.8))}
+#fcHero p.font-body{font-weight:500}
+#fcHero #fcToRsvp>span{background:rgba(246,241,232,.82);padding:5px 14px;border-radius:999px;-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px)}
+
 .jy-row{display:inline-flex;align-items:center;gap:14px;direction:rtl}.jy-row img{width:auto;filter:drop-shadow(0 2px 6px rgba(0,0,0,.25))}
 .jy-and{font-family:'Aref Ruqaa',serif;color:hsl(var(--gold));font-size:1.6rem}
 /* جدول اليوم: رسومات الدانتيل من قالب Lace زي ما هي هناك (من غير دواير ولا خط)، بلون أخضر Finca */
@@ -200,7 +213,7 @@ const TEXTS = {
 };
 
 function bodyScript() {
-  const names = { mw: A('name-mohamed-w.png'), yw: A('name-yara-w.png') };
+  const names = { mw: A('name-mohamed-w.png'), yw: A('name-yara-w.png'), md: A('name-mohamed-d.png'), yd: A('name-yara-d.png') };
   const el = {};
   ['pampas', 'vases', 'lace', 'arch', 'greenery', 'lantern', 'drapes', 'corner'].forEach((n) => { el[n] = A(`el-${n}.webp`); });
   el.bouquet = A('bouquet.webp'); el.door = A('door.webp');
@@ -218,7 +231,7 @@ if(EN){$('#jyWn').placeholder='Your name';$('#jyWm').placeholder='Write us a few
 var al=$('#fcAllergy');if(al){var blk=al.closest('.fc-yes');if(blk)blk.parentNode.removeChild(blk)}
 /* الأسامي بالعربي بخط المالك (صور) */
 if(!EN){var N=K.names;var pic=function(id,src,h,alt){var el=by(id);if(!el)return;el.innerHTML='<img src="'+src+'" alt="'+alt+'" class="jy-nm" style="height:'+h+'px;width:auto;display:inline-block">'};
- pic('fc3',N.mw,88,'محمد');pic('fc5',N.yw,112,'يارا');
+ pic('fc3',N.md,84,'محمد');pic('fc5',N.yd,108,'يارا');
  var f=by('fc102');if(f)f.innerHTML='<span class="jy-row"><img src="'+N.mw+'" alt="محمد" style="height:46px"><span class="jy-and">و</span><img src="'+N.yw+'" alt="يارا" style="height:60px"></span>';}
 
 /* ===== الديكور ===== */
@@ -230,7 +243,7 @@ var flyN=0;var fly=function(h,n,opts){if(!h)return;for(var i=0;i<n;i++){var b=do
  var im=document.createElement('img');im.src=E.bf[flyN%E.bf.length];im.alt='';im.setAttribute('aria-hidden','true');b.appendChild(im);h.appendChild(b);flyN++}};
 var lace=function(after){if(!after)return;var d=document.createElement('div');d.className='jd-lace';d.style.backgroundImage='url('+E.lace+')';after.parentNode.insertBefore(d,after.nextSibling)};
 /* أول صفحة: بامباس في الركنين وفراشات */
-var hero=host($('#fcHero'));if(hero){mk('img','jd jd-pam l',E.pampas,hero);mk('img','jd jd-pam r',E.pampas,hero);fly(hero,3,[[12,18,24,120,40,13],[70,12,20,-110,55,16],[40,62,22,90,-45,15]])}
+/* أول صفحة: فيديو المالك (فيه البامباس والورد والفراشات) — من غير ديكور زيادة */
 /* العدّاد: القماش فوق ودانتيل تحت */
 var cd=host($('#countdown'));if(cd){mk('img','jd jd-drape l',E.drapes,cd);mk('img','jd jd-drape r',E.drapes,cd);lace(cd)}
 /* المكان: ركن دانتيل دهبي على الكارت */
@@ -326,6 +339,9 @@ module.exports = {
       .split('/templates/finca/open.mp4').join(A('open.mp4'))
       // بيت يزد مكان صورة الفينكا
       .split('/templates/finca/venue.webp').join(A('house.webp'))
+      // أول صفحة بعد الفتح: فيديو المالك (الفازات بالورد النبيتي والبامباس والفراشات) مكان فيديو الفينكا
+      .split('/templates/finca/hero.mp4').join(A('hero.mp4'))
+      .split('/templates/finca/hero.webp').join(A('hero.webp'))
       .replace('<div data-section="stay">', '<div data-section="stay" class="off">')
       .replace('<div data-section="faq">', '<div data-section="faq" class="off">');
     out = out.replace('<footer class="py-16 bg-sage-dark text-center">', () => SECTIONS + '<footer class="py-16 bg-sage-dark text-center">');
