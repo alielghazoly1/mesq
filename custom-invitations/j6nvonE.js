@@ -21,12 +21,12 @@ const TEXTS = {
     title: 'حيان وفرح | دعوة زفاف',
     tap: 'اضغط لفتح الدعوة',
     names: ['حيان', 'فرح'], amp: 'و',
-    heroDate: '٠٦ . ٠١ . ٢٠٢٧',
+    heroDate: '06 . 01 . 2027',
     cdTitle: 'بدأ العدّ لليلتنا',
     cdLabels: ['يوم', 'ساعة', 'دقيقة', 'ثانية'],
     iv12: 'احفظ الموعد',
-    month: 'يناير ٢٠٢٧',
-    stdSub: 'الأربعاء ٦ يناير ٢٠٢٧ — ٧:٣٠ مساءً',
+    month: 'يناير 2027',
+    stdSub: 'الأربعاء 6 يناير 2027 — 7:30 مساءً',
     iv14: 'هنا', iv15: 'تبدأ', iv16: 'الحكاية',
     poem: 'لم يكن أحدٌ ليتخيّل يومًا<br><br>أن تجمعنا الأقدار رغم اختلاف البلاد،<br>وأن تعبر قلوبنا كل تلك المسافات<br>لتجد في بعضها موطنًا لا يشبه سواه.<br><br>لكنّ للحب حكاياتٍ تتجاوز التوقّعات،<br>وللقلوب التي اختارت بعضها<br>قوّةٌ تتجاوز البُعد،<br>وصبرٌ لا يُطفئه طول الانتظار.<br><br>وها نحن اليوم، بعد انتظارٍ طال،<br>وأمنيةٍ كبرت في قلوبنا،<br>نقف على عتبة عمرٍ جديد،<br>لا تفصلنا المسافات، ولا يؤجّلنا اللقاء،<br>بل يجمعنا بيتٌ واحد،<br>وحكاية حبٍّ كتب الله لها أن تكتمل.<br><br>فما بدأ يومًا بحلم اللقاء،<br>أصبح اليوم وعدًا بعمرٍ كاملٍ معًا.',
     iv17: 'حفل زفافنا',
@@ -34,12 +34,12 @@ const TEXTS = {
     iv19: 'وهذه ليلتنا التي تملؤها السعادة والدفء، نتمنى أن تزيّنها وجوهكم وتكتمل فرحتنا بحضوركم،',
     iv20: 'لنلتقي على الفرح، ونشهد بداية عمرٍ جديد، تحيطه المحبة وتباركه الدعوات. 🤍',
     iv21: 'بمباركة أهلهما الكرام',
-    iv22: 'عائلة عبدالرحمان وعائلة عرفه',
-    iv23: 'والد العريس', iv24: 'السيد عبدالفتاح عبدالرحمان',
+    iv22: 'عائلة عبد الرحمن وعائلة عرفه',
+    iv23: 'والد العريس', iv24: 'السيد عبد الفتاح عبد الرحمن',
     iv25: 'والد العروس', iv26: 'السيد سليم عرفه',
     iv27: 'بقلوبٍ مفعمة بالفرح والامتنان، يتشرّف الأهل بدعوتكم لمشاركتهم هذه الليلة المباركة',
     nEyebrow: 'موعد الحفل',
-    nTime: 'يبدأ الحفل الساعة ٧:٣٠ مساءً',
+    nTime: 'يبدأ الحفل الساعة 7:30 مساءً',
     nSub: 'في ليلةٍ هادئة',
     nNote: 'يُرجى العلم بأن الحفل مخصّص للكبار فقط، متمنّين لأطفالكم الأحبّة نوماً هنيئاً وليلةً سعيدة',
     iv28: 'مكان الحفل',
@@ -50,9 +50,9 @@ const TEXTS = {
     rSubmit: 'تأكيد الحضور', rDoneTitle: 'تم تأكيد حضوركم', rDoneMsg: 'وصلنا ردّكم، شكراً لمشاركتنا فرحتنا 🤍',
   },
   en: {
-    title: 'Hayyan & Farah | Wedding Invitation',
+    title: 'Hayan & Farah | Wedding Invitation',
     tap: 'Tap to open the invitation',
-    names: ['Hayyan', 'Farah'], amp: '&',
+    names: ['Hayan', 'Farah'], amp: '&',
     heroDate: '06.01.2027',
     cdTitle: 'The celebration begins.',
     cdLabels: ['Days', 'Hours', 'Minutes', 'Seconds'],
@@ -67,7 +67,7 @@ const TEXTS = {
     iv20: 'as we gather in joy and witness the start of a new life, surrounded by love and blessed by your prayers. 🤍',
     iv21: 'With the blessing of their families',
     iv22: 'The Abdulrahman & Arafeh families',
-    iv23: 'Father of the groom', iv24: 'Mr. Abdelfattah Abdulrahman',
+    iv23: 'Father of the groom', iv24: 'Mr. Abdulfattah Abdulrahman',
     iv25: 'Father of the bride', iv26: 'Mr. Salim Arafeh',
     iv27: 'With hearts full of joy and gratitude, the families are honoured to invite you to share this blessed night',
     nEyebrow: 'THE EVENING',
@@ -83,15 +83,36 @@ const TEXTS = {
   },
 };
 
-const HEAD = `<link rel="preload" as="image" href="${MOP('poster.webp')}">
-<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&display=swap" rel="stylesheet">
+
+// تهنئة صوتية تحت تأكيد الحضور (guest-extras.js — oneOffFix j6nvonE-voice): بنفس لغة الدعوة، وبتتبني من جديد لما الضيف يغيّر اللغة
+const VOICE_T = {
+  ar: {
+    vEyebrow: 'رسالة بصوتك', vTitle: 'شاركونا تهنئتكم بصوتكم 🎙️',
+    vSub: 'كلمةٌ حلوة أو دعوةٌ من القلب،\nنحتفظ بها ذكرى جميلة من ليلتنا.',
+    vNote: 'اضغطوا مطوّلًا على الميكروفون للتسجيل،\nأو اضغطوا مرة واحدة لبدء التسجيل',
+    idle: 'اضغط للتسجيل', slide: 'اسحب للإلغاء', namePh: 'اكتب اسمك',
+    sending: 'جارٍ إرسال تهنئتك…', sent: 'وصلت تهنئتك للعروسين 🤍', cancelled: 'تم إلغاء التسجيل', short: 'التسجيل قصير جدًا — سجّل مرة أخرى',
+    max: 'أقصى مدة دقيقة واحدة', noMic: 'هذا المتصفح لا يدعم تسجيل الصوت', allowMic: 'اسمح للمتصفح باستخدام الميكروفون لتسجيل تهنئتك',
+    needName: 'اكتب اسمك أولًا', fail: 'تعذّر الإرسال، حاول مرة أخرى', preview: 'هذه معاينة — لن تُرسل التهنئة', edit: 'التسجيل للضيوف — جرّبه من رابط الدعوة',
+    del: 'حذف', play: 'تشغيل', stop: 'إيقاف', send: 'إرسال', mic: 'اضغط مطوّلًا لتسجيل تهنئة صوتية',
+  },
+  en: {
+    vEyebrow: 'A VOICE NOTE', vTitle: 'Leave us your wishes in your voice 🎙️',
+    vSub: 'A kind word or a heartfelt prayer —\nwe’ll keep it as a beautiful memory of our night.',
+    vNote: 'Hold the mic to record,\nor tap once to start recording',
+  },
+};
+
+const HEAD = `<link rel="preload" as="image" href="${A('poster.webp')}">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap" rel="stylesheet">
 <script>
 (function(){var C=window.WEDDING_CONFIG||{};var q=/[?&]lang=(ar|en)/.exec(location.search);var L=q?q[1]:'';
 try{if(!L)L=localStorage.getItem('j6-lang')||''}catch(e){}
 if(L!=='en')L='ar';window.J6_LANG=L;document.documentElement.classList.add('j6-'+L);
 // تغيير اللغة من غير الغلاف: الدعوة اتفتحت قبل كده في نفس الزيارة
 window.J6_SKIP=location.hash==='#in';if(window.J6_SKIP){try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}}
-if(!C.autoOpen&&!window.J6_SKIP)document.documentElement.classList.add('j6-cover-on');})();
+if(!C.autoOpen&&!window.J6_SKIP)document.documentElement.classList.add('j6-cover-on');
+window.J6_VOICE_T=${JSON.stringify(VOICE_T).replace(/</g, '\\u003c')};window.MITHAQ_EXTRAS_OPTS={lang:L,attend:false,t:window.J6_VOICE_T[L]};})();
 </script>
 <style id="j6-css">
 /* ===== فتحة Mother of Pearl ===== */
@@ -118,10 +139,18 @@ html.j6-cover-on body{overflow:hidden}
  position:absolute;left:0;right:0;bottom:calc(100% - 106px);height:auto!important;line-height:1!important;white-space:nowrap}
 .j6-names .j6-nm{display:block;line-height:1.08}
 .j6-names .j6-amp{display:block;font-size:.5em;line-height:1;margin:.12em 0 .08em;color:#b08d5a;opacity:.9}
-html.j6-ar .j6-names{font-family:'Aref Ruqaa','Amiri',serif!important;font-size:54px!important}
-html.j6-ar .j6-names .j6-nm{line-height:1.25}
-html.j6-ar .j6-names .j6-amp{font-family:'Amiri',serif;font-size:.72em;margin:-.05em 0 .02em}
-html.j6-en .j6-names{font-size:56px!important}
+html.j6-ar .j6-names{font-family:'Amiri',serif!important;font-weight:700!important;font-size:64px!important}
+html.j6-ar .j6-names .j6-nm{line-height:1.5;padding:0 .1em}
+html.j6-ar .j6-names .j6-amp{font-family:'Amiri',serif;font-weight:700;font-size:.62em;line-height:1.1;margin:-.18em 0 -.12em;width:100%;text-align:center}
+html.j6-en .j6-names{font-size:62px!important}
+html.j6-en .j6-names .j6-amp{width:100%;text-align:center}
+/* الأسامي بتتقص لو حاجة فوقها قافلة الفائض */
+[data-elem-id="1779566247730000001"],[data-elem-id="1779566247730000001"] .tn-atom{overflow:visible!important}
+/* القوس في رسمة البجعتين مش في نص الصورة (مايل ناحية الشمال) — بنزقّها يمين لحد ما ييجي في نص الشاشة تحت الأسامي */
+[data-elem-id="1776948113983"]{translate:2.4% 0}
+/* خط عربي واحد في الدعوة كلها */
+html.j6-ar body :is(p,span,div,h1,h2,h3,h4,label,button,a,input,textarea,li,td,th):not(svg *):not(.gx-ic):not(.gx-mic){font-family:'Amiri','Times New Roman',serif!important}
+html.j6-ar #j6Lang button:not(.ar){font-family:'EB Garamond','Ovo',serif!important}
 /* ===== العروسين جوه كارت الآية ===== */
 .wg-frame-verse{position:relative}
 .j6-couple{position:absolute;right:-6%;bottom:3%;width:34%;max-width:170px;height:auto;z-index:5;pointer-events:none;filter:drop-shadow(0 8px 14px rgba(74,54,36,.22));opacity:0;transform:translateY(14px);transition:opacity 1.1s ease,transform 1.1s ease}
@@ -166,7 +195,7 @@ const NIGHT = `<section id="j6Night" aria-label="">
 </section>`;
 
 function bodyEnd() {
-  const cfg = JSON.stringify({ T: TEXTS, couple: A('couple.webp'), poemFrame: A('poem-frame.webp'), open: MOP('open.mp4'), poster: MOP('poster.webp'), night: NIGHT })
+  const cfg = JSON.stringify({ T: TEXTS, couple: A('couple.webp'), poemFrame: A('poem-frame.webp'), open: A('open.mp4'), poster: A('poster.webp'), night: NIGHT })
     .replace(/</g, '\\u003c');
   return `<script>(function(){
 var K=${cfg};var C=window.WEDDING_CONFIG||{};var L=window.J6_LANG||'ar';var EDIT=!!C.autoOpen&&!window.J6_SKIP;
@@ -217,10 +246,15 @@ apply();document.addEventListener('DOMContentLoaded',apply);window.addEventListe
 ['stdcal-month'].forEach(function(id){var e=document.getElementById(id);if(e)new MutationObserver(function(){var T=K.T[L];if(e.textContent!==T.month)e.textContent=T.month}).observe(e,{childList:true,characterData:true,subtree:true})});
 (function(){var e=by('iv40');if(e)new MutationObserver(function(){var T=K.T[L];if(e.textContent!==T.stdSub)e.textContent=T.stdSub}).observe(e,{childList:true,characterData:true,subtree:true})})();
 
+/* ===== التهنئة الصوتية بلغة الدعوة ===== */
+function voiceLang(){var X=document.getElementById('mithaq-extras');var sc=document.querySelector('script[src*="guest-extras.js"]');if(!X||!sc||!window.MITHAQ_EXTRAS_OPTS)return;
+ window.MITHAQ_EXTRAS_OPTS.lang=L;window.MITHAQ_EXTRAS_OPTS.t=(window.J6_VOICE_T||{})[L]||{};X.parentNode.removeChild(X);
+ var n=document.createElement('script');n.src=sc.src.split('#')[0]+(sc.src.indexOf('?')<0?'?':'&')+'l='+L+'&r='+Date.now();document.body.appendChild(n)}
+
 /* ===== زرار اللغة (ع | EN) ===== */
 if(!EDIT){var bar=document.createElement('div');bar.id='j6Lang';bar.setAttribute('role','group');bar.setAttribute('aria-label','Language');
  [['ar','ع'],['en','EN']].forEach(function(o){var b=document.createElement('button');b.type='button';b.className=o[0]+(o[0]===L?' on':'');b.setAttribute('data-l',o[0]);b.textContent=o[1];
-  b.addEventListener('click',function(e){e.stopPropagation();if(L===o[0])return;L=o[0];try{localStorage.setItem('j6-lang',L)}catch(err){}apply()});bar.appendChild(b)});
+  b.addEventListener('click',function(e){e.stopPropagation();if(L===o[0])return;L=o[0];try{localStorage.setItem('j6-lang',L)}catch(err){}apply();voiceLang()});bar.appendChild(b)});
  document.body.appendChild(bar);
  var place=function(){var vv=window.visualViewport;if(!vv)return;bar.style.right='auto';bar.style.left=Math.round(vv.offsetLeft+vv.width-bar.offsetWidth-14)+'px';bar.style.top=Math.round(vv.offsetTop+14)+'px'};
  place();window.addEventListener('load',place);if(window.visualViewport){visualViewport.addEventListener('resize',place);visualViewport.addEventListener('scroll',place)}}
@@ -262,7 +296,7 @@ module.exports = {
     height: 630,
     overrideImage: true,
     title: 'دعوة زفاف حيان وفرح 🤍',
-    description: 'الأربعاء ٦ يناير ٢٠٢٧ · ٧:٣٠ مساءً · فندق ماريوت عمّان',
+    description: 'الأربعاء 6 يناير 2027 · 7:30 مساءً · فندق ماريوت عمّان',
   },
   render() {
     return { head: HEAD, bodyEnd: bodyEnd() };

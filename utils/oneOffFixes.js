@@ -2599,6 +2599,14 @@ const FIXES = [
       return { 'customizations.images': images, 'customizations.scales': scales };
     },
   },
+  {
+    // j6nvonE — بطلب المالك (2026-11-28): تهنئة صوتية (فويس نوت) تحت تأكيد الحضور
+    name: 'j6nvonE-voice',
+    shortId: 'j6nvonE',
+    select: 'customizations guestExtras',
+    when: (c, inv) => !(inv.guestExtras && inv.guestExtras.voice),
+    apply: () => ({ 'guestExtras.voice': true }),
+  },
 ];
 
 let done = false;
