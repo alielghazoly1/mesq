@@ -2516,6 +2516,36 @@ const FIXES = [
       return set;
     },
   },
+  {
+    // swPVN4w — بطلب المالك (2026-11-28): دعوة Finca دي بالعربي، محمود ويارا (الأسامي بخط المالك نفسه — صور في
+    // custom-invitations/swPVN4w.js). التاريخ والساعة زي ما هما؛ "Venue / City" (كلام البداية) بقوا كلام عربي مؤقت
+    // لحد ما صاحب الدعوة يكتب المكان. بيتعمل بس لو الدعوة لسه بأسامي البداية (Groom & Bride).
+    name: 'swPVN4w-mahmoud-yara-ar',
+    shortId: 'swPVN4w',
+    select: '-__v',
+    when: (c, inv) => inv.templateId === 'finca'
+      && ['Groom', 'العريس'].includes(inv.groomName) && ['Bride', 'العروسة'].includes(inv.brideName),
+    async apply(c, inv) {
+      const { buildInvitationDataFromRequest } = require('./invitationData');
+      const d = new Date(inv.weddingDateTime);
+      const pad = (n) => String(n).padStart(2, '0');
+      const venueName = inv.venueName && !['Venue', 'القاعة'].includes(inv.venueName) ? inv.venueName : 'قاعة الاحتفال';
+      const venueCity = inv.venueCity && !['City', 'المدينة'].includes(inv.venueCity) ? inv.venueCity : 'مصر';
+      const data = await buildInvitationDataFromRequest({
+        templateId: 'finca', language: 'ar', occasionType: inv.occasionType || 'wedding',
+        hiddenSections: inv.hiddenSections || [], timeline: [], name: inv.name,
+        groomName: 'Mahmoud', groomNameAr: 'محمود', brideName: 'Yara', brideNameAr: 'يارا',
+        venueName, venueCity, venueAddress: inv.venueAddress || '', venueMapQuery: '',
+        weddingDate: `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`,
+        weddingTime: `${pad(d.getHours())}:${pad(d.getMinutes())}`,
+      }, { ownsTemplate: true, skipMapNetwork: true });
+      const set = {};
+      Object.keys(data).forEach((k) => { set[k] = data[k]; });
+      set.templateId = 'finca';
+      set.language = 'ar';
+      return set;
+    },
+  },
 ];
 
 let done = false;

@@ -1985,6 +1985,8 @@
     var rtl = getComputedStyle(document.documentElement).direction === 'rtl';
     var maxX = document.documentElement.clientWidth + window.scrollX;
     var seen = {};
+    // جزء جوه جزء (اختيار جوه قسم في الفورم): العلامة اللي هتقع فوق علامة تانية بتنزل تحتها
+    var placed = [];
     for (var i = 0; i < rows.length; i++) {
       var row = rows[i];
       var id = elemId(row);
@@ -2009,6 +2011,15 @@
       var x = rtl ? r.left + window.scrollX - size * 0.3 : r.right + window.scrollX - size * 0.7;
       x = Math.max(window.scrollX + 2, Math.min(x, maxX - size - 2));
       var y = r.top + window.scrollY - size * 0.35;
+      for (var tries = 0; tries < 4; tries++) {
+        var hit = false;
+        for (var q = 0; q < placed.length; q++) {
+          if (Math.abs(placed[q][0] - x) < size && Math.abs(placed[q][1] - y) < size) { hit = true; break; }
+        }
+        if (!hit) break;
+        y += size + 6;
+      }
+      placed.push([x, y]);
       b.style.left = Math.round(x) + 'px';
       b.style.top = Math.round(y) + 'px';
     }
