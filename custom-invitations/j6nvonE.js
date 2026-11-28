@@ -20,7 +20,7 @@ const TEXTS = {
   ar: {
     title: 'حيان وفرح | دعوة زفاف',
     tap: 'اضغط لفتح الدعوة',
-    names: ['حيان', 'فرح'], amp: '&',
+    names: ['حيان', 'فرح'], amp: 'و',
     heroDate: '٠٦ . ٠١ . ٢٠٢٧',
     cdTitle: 'بدأ العدّ لليلتنا',
     cdLabels: ['يوم', 'ساعة', 'دقيقة', 'ثانية'],
@@ -112,7 +112,16 @@ html.j6-cover-on body{overflow:hidden}
 #j6Lang button.ar{font-family:'Amiri',serif;font-size:14px}
 #j6Lang button.on{background:#7c6248;color:#fff8ef;box-shadow:0 1px 3px rgba(0,0,0,.15)}
 /* ===== الأسامي بالعربي ===== */
-html.j6-ar [data-elem-id="1779566247730000001"] .tn-atom{font-family:'Aref Ruqaa','Amiri',serif!important;line-height:1.15!important}
+/* ===== الأسامي في أول شاشة: عمود واحد متوسّط (الاسم / و / الاسم) بدل سطور Tilda اللي كانت بتركب على بعض ===== */
+[data-elem-id="1779566247730000004"]{display:none!important}
+[data-elem-id="1779566247730000001"] .tn-atom.j6-names{display:flex!important;flex-direction:column;align-items:center;justify-content:flex-end;
+ position:absolute;left:0;right:0;bottom:calc(100% - 106px);height:auto!important;line-height:1!important;white-space:nowrap}
+.j6-names .j6-nm{display:block;line-height:1.08}
+.j6-names .j6-amp{display:block;font-size:.5em;line-height:1;margin:.12em 0 .08em;color:#b08d5a;opacity:.9}
+html.j6-ar .j6-names{font-family:'Aref Ruqaa','Amiri',serif!important;font-size:54px!important}
+html.j6-ar .j6-names .j6-nm{line-height:1.25}
+html.j6-ar .j6-names .j6-amp{font-family:'Amiri',serif;font-size:.72em;margin:-.05em 0 .02em}
+html.j6-en .j6-names{font-size:56px!important}
 /* ===== العروسين جوه كارت الآية ===== */
 .wg-frame-verse{position:relative}
 .j6-couple{position:absolute;right:-6%;bottom:3%;width:34%;max-width:170px;height:auto;z-index:5;pointer-events:none;filter:drop-shadow(0 8px 14px rgba(74,54,36,.22));opacity:0;transform:translateY(14px);transition:opacity 1.1s ease,transform 1.1s ease}
@@ -187,8 +196,7 @@ var put=function(el,v,html){if(!el||v==null)return;if(html){if(el.innerHTML!==v)
 /* ===== الكلام باللغة ===== */
 function apply(){var T=K.T[L];
  document.title=T.title;
- var nm=atom('1779566247730000001');put(nm,T.names[0]+'<br><br><br>'+T.names[1],true);
- put(atom('1779566247730000004'),T.amp);put(atom('1779566247730000003'),T.heroDate);
+ var nm=atom('1779566247730000001');if(nm){nm.classList.add('j6-names');put(nm,'<span class="j6-nm">'+T.names[0]+'</span><span class="j6-amp">'+T.amp+'</span><span class="j6-nm">'+T.names[1]+'</span>',true)}put(atom('1779566247730000003'),T.heroDate);
  put(atom('1771277026942000001'),T.cdTitle);
  $$('#countdownContainer .label').forEach(function(e,i){put(e,T.cdLabels[i])});
  ['iv12','iv14','iv15','iv16','iv17','iv19','iv20','iv21','iv22','iv23','iv24','iv25','iv26','iv27','iv28','iv41'].forEach(function(k){put(by(k),T[k])});
@@ -247,8 +255,13 @@ module.exports = {
   fields: {
     venueMapEmbedSrc: `https://www.google.com/maps?q=${encodeURIComponent(MAP_Q)}&output=embed`,
   },
+  // كارت المشاركة (واتساب/فيسبوك): أول شاشة من الدعوة — الأسامي والتاريخ جوه القوس فوق البحيرة
   share: {
-    title: 'حيان & فرح — دعوة زفاف 🤍',
+    image: A('share.jpg'),
+    width: 1200,
+    height: 630,
+    overrideImage: true,
+    title: 'دعوة زفاف حيان وفرح 🤍',
     description: 'الأربعاء ٦ يناير ٢٠٢٧ · ٧:٣٠ مساءً · فندق ماريوت عمّان',
   },
   render() {
